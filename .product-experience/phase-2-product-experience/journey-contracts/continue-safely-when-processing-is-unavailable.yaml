@@ -37,19 +37,19 @@ steps:
   stateRefs: []
   stateBindingState: pending-owner-bound-state-reference-and-transition
   candidateActionRefs:
-  - media.action.inspect-job
-  - media.action.reconcile-job
-- view: media.view.inspect-job
+  - media.action.view-job-status
+  - media.action.check-job-outcome
+- view: media.view.job-status
   legacyViewRef: M-JOB
-  screenContractRef: screen-contracts/inspect-job.yaml
+  screenContractRef: screen-contracts/job-status.yaml
   viewIntent: Progress, outputs, cancel, retry/reconcile and uncertainty
   actionRef: null
   actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
   stateRefs: []
   stateBindingState: pending-owner-bound-state-reference-and-transition
   candidateActionRefs:
-  - media.action.inspect-job
-  - media.action.reconcile-job
+  - media.action.view-job-status
+  - media.action.check-job-outcome
   - media.action.request-cancellation
 - view: media.view.review-creation-plan
   legacyViewRef: M-PLAN

@@ -12,7 +12,7 @@ contextGoalNowNext:
   context: Exact source version, language intent, consent scope, and stable job reference.
   goal: Understand progress and finality.
   now: Render the owning job and attempt states, known progress, and current limitation.
-  next: Review a completed transcript, observe active work, or reconcile uncertainty.
+  next: Review a completed transcript, observe active work, or check an uncertain job outcome.
 anatomy:
 - source-reference
 - job-purpose
@@ -31,11 +31,11 @@ states:
 - cancelled
 actions:
 - media.action.request-transcription
-- media.action.inspect-job
+- media.action.view-job-status
 - media.action.request-cancellation
-- media.action.reconcile-job
+- media.action.check-job-outcome
 validation: Progress is omitted when not measured; unknown finality is never presented as failure or completion.
-recovery: For unknown outcome, inspect or reconcile the existing request; do not submit again.
+recovery: For unknown outcome, check the existing job outcome; do not submit again.
 responsive: status-and-safe-next-action-precede-secondary-job-details
 accessibility: announce-state-change-once; throttle-progress-announcements; expose-progress-text
 copyRefs:

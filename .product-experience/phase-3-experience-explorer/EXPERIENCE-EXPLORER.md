@@ -24,9 +24,9 @@ package adapter when those contracts are admitted.
 
 | Mode | Media behavior in the selected lane |
 |---|---|
-| Product | Shows only the selected first-use, artifact-intake, transcription, caption-review, or existing-job status surface. The header, mode tabs, Explorer tabpanel, and Explorer actions are absent; the document title follows the product view. |
-| Explore | Selects a named scenario, supported web or CLI projection, preview width, and accessibility profile; actor and locale remain fixture-declared. J-01 is Web-only; J-02 upload recovery and J-20 transcription job inspection, cancellation, and reconciliation have local CLI commands. |
-| Specification | Inspects the Phase 0 outcome/capability, Phase 1 component/state rule, and Phase 2 action/view/journey records. All 41 baseline view contracts and six selected-lane specializations have read-only previews of their declared structure, states, actions, channels, and guidance; actions remain labeled as not executable. Search filters records by title and filename, with the source YAML retained below the preview. |
+| Product | Shows the selected first-use, artifact-intake, transcription, caption-review, or job-status surface, or a route-addressable, read-only projection of one of the 47 Phase 2 screen contracts. Proposal actions are visibly disabled. The header, mode tabs, Explorer tabpanel, and Explorer controls are absent; the document title follows the selected view. |
+| Explore | Selects a named scenario, supported web or CLI projection, preview width, and accessibility profile; actor and locale remain fixture-declared. J-01 is Web-only; J-02 upload recovery and J-20 transcription job status, cancellation, and outcome checking have local CLI commands. |
+| Specification | Inspects the Phase 0 outcome/capability, Phase 1 component/state rule, and Phase 2 action/view/journey records. All 41 baseline view contracts and six selected-lane specializations have read-only previews of their declared structure, states, actions, channels, and guidance; actions remain labeled as not connected. Each screen preview opens its Product proposal route. Search filters records by title and filename, with the source YAML retained below the preview. |
 | Verify | Reports current package bindings, reducer observations, structural and action coverage, and the required browser/accessibility evidence still missing. |
 
 The workbench opens in Explore mode. Opening the product preview enters a
@@ -50,16 +50,23 @@ the Phase 2 view and action identifiers under the Phase 0 naming policy.
   and the selected transcript/caption lane. Product mode has three first-use
   routes, three J-02 artifact-intake views, one synthetic activity view, and a
   shared job-status view for verification and transcription jobs; four J-03
-  view labels remain. Specification mode indexes all 146 source records and
-  previews every one of the 41 baseline view contracts and six selected-lane
-  specializations without claiming those proposals are executable. It does
-  not implement all 41 Phase 2 baseline views or all required journeys.
+  view labels remain. In addition, all 47 screen contracts open as direct
+  Product routes with source-derived purpose, declared regions and states,
+  and disabled action proposals. These are navigable proposal projections,
+  not implementations of the 41 baseline views or the six selected-lane
+  specializations. Specification mode indexes all 146 source records and
+  previews all 47 screen contracts without claiming their proposals are
+  executable. The app does not implement all required journeys.
+- Product proposal routes use `#product/view/<URL-encoded-contract-path>`;
+  refreshing a route loads its source contract, and browser history returns to
+  the Specification selection that opened it. Invalid proposal paths show an
+  explicit not-found view.
 - The four Product route labels bind to Phase 2 by intent: Source renders
   `media.view.select-source`, Transcript renders
   `media.view.review-transcript`, Captions renders
   `media.view.correct-captions`, and Versions renders
   `media.view.compare-caption-versions`. `media.view.monitor-transcription`
-  and `media.view.resolve-job-outcome` are represented by inline job status and
+  and `media.view.check-job-outcome` are represented by inline job status and
   safe-action summaries in the Transcript and Captions routes; they are not
   separate routes in this local implementation.
 - J-01 fixtures keep unauthenticated or denied workspace data hidden, preserve
@@ -79,8 +86,8 @@ the Phase 2 view and action identifiers under the Phase 0 naming policy.
   separates attempt state from job finality, omits unmeasured progress, and
   distinguishes stopping observation from cancellation. Cancellation remains
   pending until simulated owner confirmation; unknown outcomes retain the same
-  job identity. The local CLI can inspect, request cancellation, and reconcile
-  transcription fixtures through the same reducer. Live watch, retries, job
+  job identity. The local CLI can view status, request cancellation, and check
+  outcomes for transcription fixtures through the same reducer. Live watch, retries, job
   persistence across process restart, and runtime bindings remain unavailable.
 - `media-experience-package.yaml` records the package authority boundary and
   external host dependency.
@@ -98,6 +105,17 @@ the Phase 2 view and action identifiers under the Phase 0 naming policy.
   across the reducer and two CLI surfaces pass. The local browser client builds
   with Vite 7.3.1 and bundles 146 current specification records. These
   local observations do not establish a Tools-host binding or phase acceptance.
-- Browser rendering is locally observed at selected widths. Full accessibility
-  testing, all-view coverage, independent visual review, and owner acceptance
-  remain outstanding, so Phase 3 is not accepted.
+- A production-build DOM geometry sweep covered all 47 Product proposal routes
+  at 320x640, 390x844, 768x1024, 1024x768, and 1280x800. Every route had four
+  context cards and disabled proposal actions, with unique titles and no
+  page-level horizontal overflow. Rendered anatomy/state names use sentence
+  case and channel references resolve to the P0 human-readable channel names.
+  Screenshot spot checks covered the caption editor at mobile, tablet, and
+  desktop sizes; the verification-job view was visually inspected at all five
+  widths in an earlier review. This confirms route projection and geometry,
+  while the embedded CLI retained unknown job/upload identity and fit the
+  320px/390px views without overflow; its narrow desktop preview is centered in
+  the available canvas. This does not establish full view behavior or
+  pixel-perfect treatment across every view. Keyboard,
+  screen-reader, zoom, forced-colors, independent visual review, and owner
+  acceptance remain outstanding, so Phase 3 is not accepted.

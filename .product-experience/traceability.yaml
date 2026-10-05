@@ -355,7 +355,7 @@ taskArtifactLinks:
   - .product-experience/phase-2-product-experience/screen-contracts/import-media.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/inspect-media.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/artifact-verification-job-family.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/inspect-job.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/job-status.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/review-creation-plan.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/arrange-scenes.yaml
@@ -431,13 +431,13 @@ taskArtifactLinks:
   - .product-experience/phase-2-product-experience/screen-contracts/import-media.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/inspect-media.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/artifact-verification-job-family.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/inspect-job.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/job-status.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/select-source.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/transcription-progress.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/review-transcript.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/correct-captions.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/resolve-job-outcome.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/check-job-outcome.yaml
   - .product-experience/phase-2-product-experience/recovery-finality-contracts.yaml
   - .product-experience/phase-2-product-experience/journey-registry.yaml
   acceptanceState: 30-journeys-indexed; all-28-required-journeys-have-proposal-files; J-01-J-03-and-J-20-retain-scoped-proposal-slices; all-journeys-still-need-complete-action-state-scenario-channel-recovery-and-owner-coverage
@@ -512,7 +512,7 @@ taskArtifactLinks:
   - .product-experience/phase-3-experience-explorer/view-projections.yaml
   - .product-experience/phase-2-product-experience/screen-registry.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/inspect-job.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/job-status.yaml
   - .product-experience/phase-2-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
   - apps/media-experience-explorer/src/main.ts
   acceptanceState: three-J-01-first-use-routes-three-J-02-artifact-intake-views-plus-activity-and-shared-J-02-J-20-job-status-views-and-four-J-03-Product-view-labels-rendered-in-Media-owned-Vite-client;

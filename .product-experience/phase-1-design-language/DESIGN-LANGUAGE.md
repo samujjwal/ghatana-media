@@ -27,7 +27,7 @@ Web, terminal, API examples, and embedded results refer to the same Media artifa
 
 | Record | Owns |
 |---|---|
-| `media-token-aliases.yaml` | Media semantic aliases to Shared token roles; exact token resolution remains open |
+| `media-token-aliases.yaml` | Media semantic aliases map to source-verified Shared public semantic-role exports; released package and CSS consumer binding remain open |
 | `typography-layout.yaml` | Reading hierarchy, density, breakpoints, and proposed review viewports |
 | `component-contracts.yaml` | 28 Media component-family proposals mapping all 17 master-plan families, with anatomy, hierarchy, states, capability/action bindings, keyboard behavior, responsive behavior, accessibility, localization, and misuse limits |
 | `semantic-state-grammar.yaml` | Presentation of Phase 0 state references without copying state machines |
@@ -43,4 +43,4 @@ Web, terminal, API examples, and embedded results refer to the same Media artifa
 
 ## Current decision state
 
-All records are proposals. The component inventory covers all required families, but several actions remain unbound and the component contracts do not establish runtime implementation. Phase 0 has unresolved semantic and external-owner reviews; the Shared design-system binding and Tools publication/validation binding are also unverified. No viewport, locale, token, WCAG conformance, or visual result is accepted by this document.
+All records are proposals. Component action intents now resolve to named Phase 2 action references. Capability authority, component interactions, state transitions, and owner approval remain open, and the component contracts do not establish runtime implementation. The nine Media token aliases now reference source-verified public Shared semantic-role exports at the observed clean repository revision; a released package version, Media CSS adapter, Shared primitive bindings, and owner review remain unverified. Phase 0 has unresolved semantic and external-owner reviews; the Tools publication/validation binding is also unverified. No viewport, locale, WCAG conformance, or visual result is accepted by this document.

@@ -29,11 +29,13 @@ test("rejects stale source versions, duplicate flags, and unknown options", () =
   assert.match(parseMediaCommand(state, "ghatana-media transcribe --source-version source-v1 --language en --force").message, /Unknown option/);
 });
 
-test("keeps uncertain job reconciliation on the existing job identity", () => {
+test("checks an uncertain job outcome using the existing job identity", () => {
   const state = createFixtureState("media.scenario.job-outcome-unknown");
-  const parsed = parseMediaCommand(state, ["ghatana-media", "job", "reconcile", "--job", "fixture-transcription-job-unknown"]);
+  const parsed = parseMediaCommand(state, ["ghatana-media", "job", "check-outcome", "--job", "fixture-transcription-job-unknown"]);
   assert.equal(parsed.kind, "action");
-  assert.equal(parsed.commandId, "media.cli.job.reconcile");
+  assert.equal(parsed.commandId, "media.cli.job.check-outcome");
+  assert.equal(parseMediaCommand(state, ["ghatana-media", "job", "reconcile", "--job", "fixture-transcription-job-unknown"]).kind, "error");
+  assert.equal(parseMediaCommand(state, ["ghatana-media", "job", "inspect", "--job", "fixture-transcription-job-unknown"]).kind, "error");
   const transition = reduceMediaExperience(state, parsed.action);
   assert.equal(transition.applied, true);
   assert.equal(transition.state.job.state, "RECONCILING");
@@ -82,24 +84,24 @@ test("job cancellation uses the existing job identity and stays pending until co
   assert.equal(report.jobId, jobId);
   assert.equal(report.state, "RUNNING");
   assert.equal(report.finality, "PENDING");
-  assert.equal(report.nextAction, "media.action.inspect-job");
+  assert.equal(report.nextAction, "media.action.view-job-status");
   assert.equal(report.projection.job.attemptState, "CANCEL_REQUESTED");
   assert.equal(report.projection.safeActionIds.includes("media.action.request-cancellation"), false);
 });
 
-test("job inspect and reconcile preserve artifact-verification job and related upload identities", async () => {
+test("job status and outcome checking preserve artifact-verification job and related upload identities", async () => {
   const state = createFixtureState("media.scenario.artifact-verification-outcome-unknown");
   const jobId = "fixture-artifact-verification-job-unknown-001";
   const uploadId = "fixture-upload-outcome-unknown-001";
-  const parsed = parseMediaCommand(state, ["ghatana-media", "job", "reconcile", "--job", jobId]);
+  const parsed = parseMediaCommand(state, ["ghatana-media", "job", "check-outcome", "--job", jobId]);
   assert.equal(parsed.kind, "action");
-  assert.equal(parsed.commandId, "media.cli.job.reconcile");
+  assert.equal(parsed.commandId, "media.cli.job.check-outcome");
   const transition = reduceMediaExperience(state, parsed.action);
   assert.equal(transition.applied, true);
   assert.equal(transition.state.artifactVerification.jobId, jobId);
   assert.equal(transition.state.artifactVerification.uploadId, uploadId);
   assert.equal(transition.state.artifactVerification.status, "OUTCOME_UNKNOWN");
-  assert.equal(parseMediaCommand(state, ["ghatana-media", "job", "inspect", "--job", "another-job"]).kind, "error");
+  assert.equal(parseMediaCommand(state, ["ghatana-media", "job", "status", "--job", "another-job"]).kind, "error");
 
   const { stdout } = await execFileAsync(process.execPath, [
     new URL("../bin/ghatana-media.mjs", import.meta.url).pathname,
@@ -107,7 +109,7 @@ test("job inspect and reconcile preserve artifact-verification job and related u
     "media.scenario.artifact-verification-outcome-unknown",
     "ghatana-media",
     "job",
-    "reconcile",
+    "check-outcome",
     "--job",
     jobId,
     "--format",
@@ -130,12 +132,29 @@ test("job inspect and reconcile preserve artifact-verification job and related u
     "media.scenario.artifact-verification-outcome-unknown",
     "ghatana-media",
     "job",
-    "inspect",
+    "status",
     "--job",
     jobId,
   ]);
-  assert.match(humanOutput, /Verification job: Outcome Unknown \(Unknown\)/);
+  assert.match(humanOutput, /Verification job: Outcome not confirmed \(Unknown\)/);
   assert.match(humanOutput, new RegExp(`Related upload: ${uploadId}`));
+  assert.match(humanOutput, /Next safe action: View job status/);
+  assert.doesNotMatch(humanOutput, /media\.(?:action|effect)\./);
+
+  const { stdout: outcomeOutput } = await execFileAsync(process.execPath, [
+    new URL("../bin/ghatana-media.mjs", import.meta.url).pathname,
+    "--scenario",
+    "media.scenario.job-outcome-unknown",
+    "ghatana-media",
+    "job",
+    "check-outcome",
+    "--job",
+    "fixture-transcription-job-unknown",
+  ]);
+  assert.match(outcomeOutput, /Job: Checking outcome \(Unknown\) · fixture-transcription-job-unknown/);
+  assert.match(outcomeOutput, /Next safe action: View job status/);
+  assert.match(outcomeOutput, /Effects: Existing job outcome check started/);
+  assert.doesNotMatch(outcomeOutput, /media\.(?:action|effect)\./);
 });
 
 test("parses quoted caption text and exact source-clock tick ranges", () => {
@@ -198,7 +217,7 @@ test("the fixture-only transcribe command does not treat a report path as genera
 });
 
 test("JSON and JSONL parsing errors stay machine-readable on stdout", async () => {
-  assert.equal(requestedMediaCliFormat("ghatana-media job inspect --job fixture-job --format=json"), "json");
+  assert.equal(requestedMediaCliFormat("ghatana-media job status --job fixture-job --format=json"), "json");
   assert.equal(JSON.parse(formatMediaCliError("invalid command", "jsonl")).recordType, "error");
   const cliPath = new URL("../bin/ghatana-media.mjs", import.meta.url).pathname;
   for (const format of ["json", "jsonl"]) {
@@ -298,7 +317,7 @@ test("exposes ghatana-media as an executable with stable JSON output", async () 
     "media.scenario.job-outcome-unknown",
     "ghatana-media",
     "job",
-    "reconcile",
+    "check-outcome",
     "--job",
     "fixture-transcription-job-unknown",
     "--format",
@@ -306,8 +325,8 @@ test("exposes ghatana-media as an executable with stable JSON output", async () 
   ]);
   const report = JSON.parse(stdout);
   assert.equal(report.simulation, true);
-  assert.equal(report.commandId, "media.cli.job.reconcile");
-  assert.equal(report.actionId, "media.action.reconcile-job");
+  assert.equal(report.commandId, "media.cli.job.check-outcome");
+  assert.equal(report.actionId, "media.action.check-job-outcome");
   assert.equal(report.state, "RECONCILING");
   assert.equal(report.projection.job.state, "RECONCILING");
   assert.equal(report.jobId, "fixture-transcription-job-unknown");
@@ -319,15 +338,15 @@ test("the executable accepts normal command arguments without repeating its bina
     "--scenario",
     "media.scenario.job-running",
     "job",
-    "inspect",
+    "status",
     "--job",
     "fixture-transcription-job-running",
     "--format",
     "json",
   ]);
   const report = JSON.parse(stdout);
-  assert.equal(report.commandId, "media.cli.job.inspect");
-  assert.equal(report.actionId, "media.action.inspect-job");
+  assert.equal(report.commandId, "media.cli.job.status");
+  assert.equal(report.actionId, "media.action.view-job-status");
   assert.equal(report.jobId, "fixture-transcription-job-running");
   assert.equal(report.state, "RUNNING");
 });

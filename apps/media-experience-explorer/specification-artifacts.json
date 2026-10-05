@@ -82,7 +82,7 @@
   {
     "phase": "P0",
     "path": ".product-experience/phase-0-product-truth/profile-semantics.yaml",
-    "title": "Profile semantics"
+    "title": "Define processing and delivery targets"
   },
   {
     "phase": "P0",
@@ -192,7 +192,7 @@
   {
     "phase": "P2",
     "path": ".product-experience/lanes/transcribe-and-correct-captions.yaml",
-    "title": "Transcribe and correct captions"
+    "title": "Define the audio transcription and caption-correction lane"
   },
   {
     "phase": "P2",
@@ -382,7 +382,7 @@
   {
     "phase": "P2",
     "path": ".product-experience/phase-2-product-experience/screen-contracts/edit-captions.yaml",
-    "title": "Correct captions"
+    "title": "Edit captions"
   },
   {
     "phase": "P2",
@@ -416,8 +416,8 @@
   },
   {
     "phase": "P2",
-    "path": ".product-experience/phase-2-product-experience/screen-contracts/inspect-job.yaml",
-    "title": "Inspect a job"
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/job-status.yaml",
+    "title": "View job status"
   },
   {
     "phase": "P2",
@@ -446,8 +446,8 @@
   },
   {
     "phase": "P2",
-    "path": ".product-experience/phase-2-product-experience/screen-contracts/resolve-job-outcome.yaml",
-    "title": "Resolve a job outcome"
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/check-job-outcome.yaml",
+    "title": "Check job outcome"
   },
   {
     "phase": "P2",
@@ -687,7 +687,7 @@
   {
     "phase": "P2",
     "path": ".product-experience/phase-2-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
-    "title": "J-19 · Inspect quality and run bounded optimization"
+    "title": "J-19 · Review media quality and improve it within declared limits"
   },
   {
     "phase": "P2",

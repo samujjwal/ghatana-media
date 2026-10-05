@@ -5,6 +5,7 @@ import {
   mediaExperienceScenarioIds,
   mediaCliHelp,
   formatMediaCliError,
+  formatMediaCliHumanResult,
   parseMediaCommand,
   projectExperience,
   requestedMediaCliFormat,
@@ -31,25 +32,6 @@ function parseScenario(argv) {
     if (!mediaExperienceScenarioIds.includes(scenarioId)) return { error: `Unknown scenario '${scenarioId}'. Use --help to list fixture IDs.` };
   }
   return { scenarioId, args };
-}
-
-function formatHuman(report) {
-  const nextAction = report.nextAction ?? "none";
-  const displayStatus = (value) => String(value ?? "not available").toLowerCase().replaceAll("_", " ").replace(/\b\w/gu, (letter) => letter.toUpperCase());
-  const workflowStatus = report.workflow === "artifact-verification"
-    ? `Verification job: ${displayStatus(report.state)} (${displayStatus(report.finality)}) · ${report.jobId}\nRelated upload: ${report.uploadId}\nVerification stage: ${displayStatus(report.verificationStage)}`
-    : report.workflow === "artifact-intake"
-      ? `Upload: ${displayStatus(report.workflowState)} (${displayStatus(report.finality)}) · ${report.uploadId}`
-      : report.jobId
-        ? `Job: ${displayStatus(report.state)} (${displayStatus(report.finality)}) · ${report.jobId}`
-        : `Workflow: ${report.workflow} · ${displayStatus(report.state)}`;
-  return [
-    `${report.applied ? "Applied" : `Blocked (${report.reasonCode})`}: ${report.message}`,
-    workflowStatus,
-    ...(report.sourceVersion ? [`Source version: ${report.sourceVersion}`] : []),
-    `Result version: ${report.resultVersion ?? "not available"}`,
-    `Next safe action: ${nextAction}`,
-  ].join("\n") + "\n";
 }
 
 async function main() {
@@ -111,7 +93,7 @@ async function main() {
   let output;
   if (parsed.format === "json") output = `${JSON.stringify(report, null, 2)}\n`;
   else if (parsed.format === "jsonl") output = `${JSON.stringify({ recordType: "result", ...report })}\n`;
-  else output = formatHuman(report);
+  else output = formatMediaCliHumanResult(report);
 
   process.stdout.write(output);
   if (!transition.applied) process.exitCode = 2;

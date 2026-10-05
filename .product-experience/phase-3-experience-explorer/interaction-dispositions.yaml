@@ -27,25 +27,25 @@ classifications:
     commandRefs: [media.cli.upload.inspect, media.cli.upload.resume]
     actionRefs: [media.action.inspect-artifact, media.action.resume-artifact-upload]
     reason: The fixture preserves the upload identity and acknowledged parts; this CLI contract does not submit bytes or create an upload.
-  - element: inspect-and-reconcile-verification-job-through-cli
+  - element: view-and-check-verification-job-through-cli
     behavior: WORKING
     channelRef: media.channel.cli
-    commandRefs: [media.cli.job.inspect, media.cli.job.reconcile]
-    actionRefs: [media.action.inspect-job, media.action.reconcile-job]
-    reason: Inspect and reconcile the existing owner-issued job identity; unknown finality stays unknown without owner evidence.
-  - element: inspect-cancel-and-reconcile-transcription-job-through-cli
+    commandRefs: [media.cli.job.status, media.cli.job.check-outcome]
+    actionRefs: [media.action.view-job-status, media.action.check-job-outcome]
+    reason: View status and check the outcome for the existing owner-issued job identity; uncertainty stays visible without owner evidence.
+  - element: view-cancel-and-check-transcription-job-through-cli
     behavior: WORKING
     channelRef: media.channel.cli
-    commandRefs: [media.cli.job.inspect, media.cli.job.cancel, media.cli.job.reconcile]
-    actionRefs: [media.action.inspect-job, media.action.request-cancellation, media.action.reconcile-job]
+    commandRefs: [media.cli.job.status, media.cli.job.cancel, media.cli.job.check-outcome]
+    actionRefs: [media.action.view-job-status, media.action.request-cancellation, media.action.check-job-outcome]
     reason: Commands target the existing transcription job identity and share the reducer; cancellation remains pending until owner confirmation, and retry or live-watch transport is not implemented.
   - element: open-verification-job-from-activity
     behavior: WORKING
-    actionRef: media.action.inspect-job
+    actionRef: media.action.view-job-status
     reason: The synthetic activity view contains one owner-issued verification-job fixture; the complete activity query is not implemented.
   - element: check-uncertain-verification-job-from-activity
     behavior: WORKING
-    actionRef: media.action.reconcile-job
+    actionRef: media.action.check-job-outcome
     reason: Available only for the same synthetic job when its outcome is unknown; no new job is submitted.
   - element: local-file-upload
     behavior: INTENTIONALLY_DISABLED_WITH_REASON
@@ -65,10 +65,10 @@ classifications:
     actionRef: media.action.request-transcription
   - element: transcription-status
     behavior: WORKING
-    actionRef: media.action.inspect-job
-  - element: inspect-existing-transcription-job
+    actionRef: media.action.view-job-status
+  - element: view-transcription-job-status
     behavior: WORKING
-    actionRef: media.action.inspect-job
+    actionRef: media.action.view-job-status
     reason: Opens the shared job-status view for the current transcription identity without submitting another request.
   - element: stop-watching-transcription-job
     behavior: WORKING
@@ -101,7 +101,11 @@ classifications:
     reason: A running job remains RUNNING with pending finality until a separate owner confirmation arrives; repeated cancellation is unavailable while pending.
   - element: check-uncertain-job
     behavior: WORKING
-    actionRef: media.action.reconcile-job
+    actionRef: media.action.check-job-outcome
+  - element: retry-job-proposal-route
+    behavior: INTENTIONALLY_DISABLED_WITH_REASON
+    actionRef: media.action.retry-job
+    reason: Phase 0 permits a retry only for a classified retryable attempt after current authority, policy, and budget checks pass. This local simulator has no owner-approved retry runtime or reducer; an unknown outcome must be checked before another attempt.
   - element: export-or-publish
     behavior: INTENTIONALLY_DISABLED_WITH_REASON
     reason: Delivery is outside the selected definition and simulation lane.

@@ -39,7 +39,10 @@ states:
 actions:
 - media.action.inspect-artifact
 - media.action.inspect-provenance
-actionBindingState: bound-to-existing-P2-actions
+- media.action.inspect-output-preview-and-version
+- media.action.inspect-quality-evidence
+- media.action.open-admitted-delivery-action
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - inspect an output preview and exact version
 - review provenance and quality limits
@@ -93,3 +96,18 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: inspect an output preview and exact version
+  actionRefs:
+  - media.action.inspect-output-preview-and-version
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: review provenance and quality limits
+  actionRefs:
+  - media.action.inspect-provenance
+  - media.action.inspect-quality-evidence
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: continue to an admitted delivery action
+  actionRefs:
+  - media.action.open-admitted-delivery-action
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

@@ -58,10 +58,10 @@ export function isMediaAction(value: unknown): value is MediaAction {
     case "media.action.choose-source":
     case "media.action.inspect-source":
     case "media.action.review-transcript":
-    case "media.action.inspect-job":
+    case "media.action.view-job-status":
     case "media.action.inspect-provenance":
     case "media.action.request-cancellation":
-    case "media.action.reconcile-job":
+    case "media.action.check-job-outcome":
       return hasExactKeys(value, ["type"]);
     case "media.action.save-caption-version":
       return hasExactKeys(value, ["type"]) ||
@@ -99,7 +99,7 @@ export function isSimulationEvent(value: unknown): value is SimulationEvent {
     case "job.cancellation-confirmed":
     case "consent.revoked":
       return hasExactKeys(value, ["type"]);
-    case "job.reconciliation-completed":
+    case "job.outcome-check-completed":
       return hasExactKeys(value, ["type", "outcome"]) &&
         ["COMPLETED", "FAILED", "CANCELLED", "UNKNOWN"].includes(String(value.outcome));
     default:
@@ -135,7 +135,7 @@ function canRequestTranscription(state: TranscriptionExperienceState, languageTa
   if (state.consentState !== "ACTIVE") return "CONSENT_NOT_ACTIVE";
   if (!allowed(state.access.processSource)) return "PROCESSING_AUTHORITY_NOT_ALLOWED";
   if (!languageTag.trim()) return "LANGUAGE_INTENT_REQUIRED";
-  if (state.job.state !== "NOT_SUBMITTED") return "EXISTING_JOB_MUST_BE_INSPECTED";
+  if (state.job.state !== "NOT_SUBMITTED") return "EXISTING_JOB_REQUIRES_REVIEW";
   return undefined;
 }
 
@@ -258,13 +258,13 @@ export function reduceMediaExperience(state: MediaExperienceState, action: Media
   }
   if (state.workflow === "artifact-verification") {
     const verification = state.artifactVerification;
-    if (action.type === "media.action.inspect-job") {
-      if (!allowed(state.access.inspectJob)) return blocked(state, "JOB_INSPECTION_NOT_ALLOWED", "Verification job details are unavailable under the current authority.");
+    if (action.type === "media.action.view-job-status") {
+      if (!allowed(state.access.viewJobStatus)) return blocked(state, "JOB_STATUS_VIEW_NOT_ALLOWED", "Verification job status is unavailable under the current authority.");
       return result(state, [], `Artifact verification job ${verification.jobId} is ${verification.status.toLowerCase().replaceAll("_", " ")} with ${verification.finality.toLowerCase()} finality for upload ${verification.uploadId}.`);
     }
-    if (action.type === "media.action.reconcile-job") {
-      if (verification.status !== "OUTCOME_UNKNOWN") return blocked(state, "JOB_OUTCOME_NOT_UNKNOWN", "Only an uncertain verification job can be reconciled.");
-      if (!allowed(state.access.reconcileJob)) return blocked(state, "JOB_RECONCILIATION_NOT_ALLOWED", "Verification job reconciliation is unavailable under the current authority.");
+    if (action.type === "media.action.check-job-outcome") {
+      if (verification.status !== "OUTCOME_UNKNOWN") return blocked(state, "JOB_OUTCOME_NOT_UNKNOWN", "Only a verification job with an uncertain outcome can be checked.");
+      if (!allowed(state.access.checkJobOutcome)) return blocked(state, "JOB_OUTCOME_CHECK_NOT_ALLOWED", "Checking this verification job outcome is unavailable under the current authority.");
       return result(state, [], `Verification job ${verification.jobId} remains unknown because no owner-issued evidence is connected; do not create a new job or upload.`);
     }
     return blocked(state, "ACTION_NOT_SUPPORTED_IN_ARTIFACT_VERIFICATION", "This action belongs to a different Media workflow.");
@@ -329,9 +329,9 @@ export function reduceMediaExperience(state: MediaExperienceState, action: Media
       if (!state.transcript.versionId) return blocked(state, "TRANSCRIPT_NOT_READY", "There is no source-linked transcript to review yet.");
       return result(state, [], "The source-linked transcript and its uncertainty are ready to review.");
     }
-    case "media.action.inspect-job": {
-      if (!allowed(state.access.inspectJob)) return blocked(state, "JOB_INSPECTION_NOT_ALLOWED", "Job details are not available under the current authority.");
-      if (!state.job.jobId) return blocked(state, "JOB_NOT_FOUND", "There is no transcription job to inspect.");
+    case "media.action.view-job-status": {
+      if (!allowed(state.access.viewJobStatus)) return blocked(state, "JOB_STATUS_VIEW_NOT_ALLOWED", "Job details are not available under the current authority.");
+      if (!state.job.jobId) return blocked(state, "JOB_NOT_FOUND", "There is no transcription job to view.");
       return result(state, [], `Job ${state.job.jobId} is ${state.job.state.toLowerCase()} with ${state.job.finality.toLowerCase()} finality.`);
     }
     case "media.action.inspect-provenance": {
@@ -457,20 +457,20 @@ export function reduceMediaExperience(state: MediaExperienceState, action: Media
         }, ["media.effect.cancellation-requested"], "Cancellation is requested; the stop is not confirmed yet.");
       }
       if (state.job.state === "OUTCOME_UNKNOWN" || state.job.state === "RECONCILING") {
-        return blocked(state, "JOB_OUTCOME_MUST_BE_RECONCILED", "Check the existing job outcome before taking another action.");
+        return blocked(state, "JOB_OUTCOME_CHECK_REQUIRED", "Check the existing job outcome before taking another action.");
       }
       return blocked(state, "JOB_NOT_CANCELLABLE", "This job is not in a cancellable state.");
     }
-    case "media.action.reconcile-job": {
+    case "media.action.check-job-outcome": {
       if (!state.job.jobId) return blocked(state, "JOB_NOT_FOUND", "There is no transcription job to check.");
-      if (!allowed(state.access.reconcileJob)) return blocked(state, "JOB_RECONCILIATION_NOT_ALLOWED", "This job cannot be reconciled under the current authority.");
-      if (state.job.state !== "OUTCOME_UNKNOWN") return blocked(state, "JOB_NOT_UNCERTAIN", "Only an uncertain job outcome can be reconciled.");
+      if (!allowed(state.access.checkJobOutcome)) return blocked(state, "JOB_OUTCOME_CHECK_NOT_ALLOWED", "This job outcome cannot be checked under the current authority.");
+      if (state.job.state !== "OUTCOME_UNKNOWN") return blocked(state, "JOB_NOT_UNCERTAIN", "Only an uncertain job outcome can be checked.");
       return result({
         ...state,
         job: { ...state.job, state: "RECONCILING", finality: "UNKNOWN" },
         sequence: state.sequence + 1,
         eventLog: appendEvent(state, action.type),
-      }, ["media.effect.existing-job-reconciliation-started"], "The existing request is being checked; no new transcription was submitted.");
+      }, ["media.effect.existing-job-outcome-check-started"], "The existing request is being checked; no new transcription was submitted.");
     }
     default: {
       const unreachable: never = action;
@@ -505,7 +505,7 @@ export function applySimulationEvent(state: MediaExperienceState, event: Simulat
       sequence: state.sequence + 1,
       eventLog: appendEvent(state, event.type),
     };
-    return result(nextState, ["media.effect.consent-revoked", ...(queued || running ? ["media.effect.in-flight-work-requires-reconciliation"] : [])], "Consent changed; new processing is blocked and any active effect remains visible.");
+    return result(nextState, ["media.effect.consent-revoked", ...(queued || running ? ["media.effect.in-flight-work-requires-outcome-check"] : [])], "Consent changed; new processing is blocked and any active effect remains visible.");
   }
   if (event.type === "job.started") {
     if (state.job.state !== "QUEUED") return blocked(state, "JOB_CANNOT_START_FROM_CURRENT_STATE", "The fixture job is not queued.");
@@ -529,22 +529,22 @@ export function applySimulationEvent(state: MediaExperienceState, event: Simulat
   }
   if (event.type === "job.outcome-unknown") {
     if (state.job.state !== "RUNNING") return blocked(state, "JOB_CANNOT_BECOME_UNKNOWN_FROM_CURRENT_STATE", "The fixture job is not running.");
-    return result({ ...state, job: { ...state.job, state: "OUTCOME_UNKNOWN", attemptState: "OUTCOME_UNKNOWN", finality: "UNKNOWN" }, sequence: state.sequence + 1, eventLog: appendEvent(state, event.type) }, ["media.effect.simulated-outcome-unknown"], "The simulated remote outcome is unknown; reconcile this job before submitting another request.");
+    return result({ ...state, job: { ...state.job, state: "OUTCOME_UNKNOWN", attemptState: "OUTCOME_UNKNOWN", finality: "UNKNOWN" }, sequence: state.sequence + 1, eventLog: appendEvent(state, event.type) }, ["media.effect.simulated-outcome-unknown"], "The simulated remote outcome is unknown; check this job outcome before submitting another request.");
   }
   if (event.type === "job.cancellation-confirmed") {
     if (state.job.state !== "RUNNING" || state.job.attemptState !== "CANCEL_REQUESTED") return blocked(state, "CANCELLATION_NOT_PENDING", "No simulated cancellation is awaiting confirmation.");
     return result({ ...state, job: { ...state.job, state: "CANCELLED", attemptState: "CANCEL_CONFIRMED", finality: "CONFIRMED" }, sequence: state.sequence + 1, eventLog: appendEvent(state, event.type) }, ["media.effect.simulated-cancellation-confirmed"], "The fixture confirms that processing stopped.");
   }
-  if (event.type === "job.reconciliation-completed") {
-    if (state.job.state !== "RECONCILING") return blocked(state, "RECONCILIATION_NOT_ACTIVE", "This job is not being reconciled.");
+  if (event.type === "job.outcome-check-completed") {
+    if (state.job.state !== "RECONCILING") return blocked(state, "OUTCOME_CHECK_NOT_ACTIVE", "A job outcome check is not in progress.");
     const jobState: MediaExperienceState["job"]["state"] = event.outcome === "UNKNOWN" ? "OUTCOME_UNKNOWN" : event.outcome;
     const finality: MediaExperienceState["job"]["finality"] = event.outcome === "UNKNOWN" ? "UNKNOWN" : "CONFIRMED";
     const attemptState: MediaExperienceState["job"]["attemptState"] = event.outcome === "COMPLETED" ? "SUCCEEDED" : event.outcome === "CANCELLED" ? "CANCEL_CONFIRMED" : event.outcome === "FAILED" ? "FAILED" : "OUTCOME_UNKNOWN";
-    const reconciledState: MediaExperienceState = { ...state, job: { ...state.job, state: jobState, attemptState, finality }, sequence: state.sequence + 1, eventLog: appendEvent(state, `${event.type}:${event.outcome}`) };
+    const outcomeCheckedState: MediaExperienceState = { ...state, job: { ...state.job, state: jobState, attemptState, finality }, sequence: state.sequence + 1, eventLog: appendEvent(state, `${event.type}:${event.outcome}`) };
     const resultState = event.outcome === "COMPLETED" && state.consentState !== "REVOKED"
-      ? completedJobState(reconciledState)
-      : reconciledState;
-    return result(resultState, ["media.effect.simulated-reconciliation-recorded"], event.outcome === "UNKNOWN" ? "No confirming evidence was available; the outcome remains unknown." : `The existing job outcome is recorded as ${event.outcome.toLowerCase()}.`);
+      ? completedJobState(outcomeCheckedState)
+      : outcomeCheckedState;
+    return result(resultState, ["media.effect.simulated-outcome-check-recorded"], event.outcome === "UNKNOWN" ? "No confirming evidence was available; the outcome remains unknown." : `The existing job outcome is recorded as ${event.outcome.toLowerCase()}.`);
   }
   return blocked(state, "SIMULATION_EVENT_NOT_SUPPORTED", "This fixture event is not supported.");
 }
@@ -574,15 +574,15 @@ export function availableActionIds(state: MediaExperienceState): readonly string
   }
   if (state.workflow === "artifact-verification") {
     const actions: string[] = [];
-    if (allowed(state.access.inspectJob)) actions.push("media.action.inspect-job");
-    if (state.artifactVerification.status === "OUTCOME_UNKNOWN" && allowed(state.access.reconcileJob)) {
-      actions.push("media.action.reconcile-job");
+    if (allowed(state.access.viewJobStatus)) actions.push("media.action.view-job-status");
+    if (state.artifactVerification.status === "OUTCOME_UNKNOWN" && allowed(state.access.checkJobOutcome)) {
+      actions.push("media.action.check-job-outcome");
     }
     return actions;
   }
   const actions: string[] = [];
-  if (state.job.jobId && allowed(state.access.inspectJob)) actions.push("media.action.inspect-job");
-  if (state.job.state === "OUTCOME_UNKNOWN" && allowed(state.access.reconcileJob)) actions.push("media.action.reconcile-job");
+  if (state.job.jobId && allowed(state.access.viewJobStatus)) actions.push("media.action.view-job-status");
+  if (state.job.state === "OUTCOME_UNKNOWN" && allowed(state.access.checkJobOutcome)) actions.push("media.action.check-job-outcome");
   if ((state.job.state === "QUEUED" || (state.job.state === "RUNNING" && state.job.attemptState !== "CANCEL_REQUESTED")) && allowed(state.access.cancelJob)) {
     actions.push("media.action.request-cancellation");
   }
@@ -650,5 +650,5 @@ export function projectJson(state: MediaExperienceState): string {
   return JSON.stringify(projectExperience(state));
 }
 
-export { formatMediaCliError, mediaCliHelp, parseMediaCommand, requestedMediaCliFormat } from "./cli.js";
-export type { MediaCliFormat, MediaCliParseResult } from "./cli.js";
+export { formatMediaCliError, formatMediaCliHumanResult, mediaCliHelp, parseMediaCommand, requestedMediaCliFormat } from "./cli.js";
+export type { MediaCliFormat, MediaCliHumanReport, MediaCliParseResult } from "./cli.js";

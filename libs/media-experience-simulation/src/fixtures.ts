@@ -53,9 +53,9 @@ const baseState = (scenarioId: ScenarioId): TranscriptionExperienceState => ({
     processSource: "ALLOWED",
     editDerivedContent: "ALLOWED",
     registerDerivedVersion: "ALLOWED",
-    inspectJob: "ALLOWED",
+    viewJobStatus: "ALLOWED",
     cancelJob: "ALLOWED",
-    reconcileJob: "ALLOWED",
+    checkJobOutcome: "ALLOWED",
   },
   job: {
     jobId: null,
@@ -385,9 +385,9 @@ const seeds: Record<FixtureId, MediaExperienceState> = {
       processSource: "DENIED",
       editDerivedContent: "ALLOWED",
       registerDerivedVersion: "DENIED",
-      inspectJob: "ALLOWED",
+      viewJobStatus: "ALLOWED",
       cancelJob: "ALLOWED",
-      reconcileJob: "ALLOWED",
+      checkJobOutcome: "ALLOWED",
     },
   },
   "job-outcome-unknown": {
@@ -453,19 +453,19 @@ const seeds: Record<FixtureId, MediaExperienceState> = {
       segments: [],
     },
   },
-  "job-reconciled": {
-    ...readyState("media.scenario.job-reconciled"),
+  "job-outcome-confirmed": {
+    ...readyState("media.scenario.job-outcome-confirmed"),
     job: {
-      jobId: "fixture-transcription-job-reconciled",
+      jobId: "fixture-transcription-job-outcome-confirmed",
       state: "COMPLETED",
       attemptState: "SUCCEEDED",
       finality: "CONFIRMED",
     },
     eventLog: [
-      "fixture:media.scenario.job-reconciled:reset",
+      "fixture:media.scenario.job-outcome-confirmed:reset",
       "1:job.outcome-unknown",
-      "2:media.action.reconcile-job",
-      "3:job.reconciliation-completed:COMPLETED",
+      "2:media.action.check-job-outcome",
+      "3:job.outcome-check-completed:COMPLETED",
     ],
   },
   "caption-version-comparison": {

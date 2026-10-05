@@ -2,6 +2,7 @@ import {
   applySimulationEvent,
   createFixtureState,
   formatMediaCliError,
+  formatMediaCliHumanResult,
   isSimulationEvent,
   mediaExperienceScenarioIds,
   parseMediaCommand,
@@ -14,7 +15,7 @@ import { specificationArtifacts, type ExperiencePhase, type SpecificationArtifac
 
 type ExplorerMode = "product" | "explore" | "specification" | "verify";
 type ExplorerChannel = "web" | "cli";
-type ProductView = "setup" | "projects" | "project" | "source" | "transcript" | "captions" | "versions" | "browse" | "import" | "artifact" | "review-activity" | "inspect-job";
+type ProductView = "setup" | "projects" | "project" | "source" | "transcript" | "captions" | "versions" | "browse" | "import" | "artifact" | "review-activity" | "job-status";
 
 const root = document.querySelector<HTMLDivElement>("#app");
 if (!root) throw new Error("Explorer application root is missing.");
@@ -56,10 +57,33 @@ const supportedModes: readonly { readonly id: ExplorerMode; readonly label: stri
   { id: "specification", label: "Specification", shortcut: "3" },
   { id: "verify", label: "Verify", shortcut: "4" },
 ];
-const modeFromLocation = (): ExplorerMode | undefined =>
-  supportedModes.find(({ id }) => location.hash === `#${id}`)?.id;
+// Artifact verification specializes the shared job-status view, so it is not a separate Product screen route.
+const screenContractArtifacts = specificationArtifacts.filter((artifact) =>
+  artifact.path.includes("/screen-contracts/") && !artifact.path.endsWith("/artifact-verification-job-family.yaml"));
+const actionRegistryArtifact = specificationArtifacts.find((artifact) =>
+  artifact.path.endsWith("/phase-2-product-experience/action-registry.yaml"));
+function productContractPathFromLocation(): string | undefined {
+  const match = location.hash.match(/^#product\/view\/(.+)$/u);
+  if (!match) return undefined;
+  try { return decodeURIComponent(match[1]!); } catch { return undefined; }
+}
+function productContractFromLocation(): SpecificationArtifact | undefined {
+  const path = productContractPathFromLocation();
+  return path ? screenContractArtifacts.find((artifact) => artifact.path === path) : undefined;
+}
+const modeFromLocation = (): ExplorerMode | undefined => {
+  if (location.hash === "#product" || location.hash.startsWith("#product/view/")) return "product";
+  return supportedModes.find(({ id }) => location.hash === `#${id}`)?.id;
+};
 
 const phaseIds: readonly ExperiencePhase[] = ["P0", "P1", "P2", "P3", "Cross-phase"];
+const compactPhaseSelector = window.matchMedia("(max-width: 760px)");
+function phaseTabId(phase: ExperiencePhase): string {
+  return `phase-tab-${phase.toLocaleLowerCase().replace(/[^a-z0-9]+/gu, "-")}`;
+}
+function phaseSelectorOrientation(): "horizontal" | "vertical" {
+  return compactPhaseSelector.matches ? "horizontal" : "vertical";
+}
 const productViewTitles: Readonly<Record<ProductView, string>> = {
   setup: "Set up access",
   projects: "Find projects",
@@ -72,11 +96,11 @@ const productViewTitles: Readonly<Record<ProductView, string>> = {
   import: "Import media",
   artifact: "Inspect media",
   "review-activity": "Review activity",
-  "inspect-job": "Inspect a job",
+  "job-status": "View job status",
 };
 function activeProductViewTitle(): string {
   return state.workflow === "transcription" && productView === "transcript" && state.job.state === "OUTCOME_UNKNOWN"
-    ? "Resolve a job outcome"
+    ? "Check job outcome"
     : productViewTitles[productView];
 }
 const formatTimestamp = (tick: number): string => {
@@ -89,12 +113,30 @@ const escapeHtml = (value: unknown): string => String(value)
   .replaceAll(">", "&gt;")
   .replaceAll('"', "&quot;")
   .replaceAll("'", "&#39;");
-const titleCase = (value: string): string => value.toLowerCase().replaceAll("_", " ").replace(/\b\w/gu, (letter) => letter.toUpperCase());
+const sentenceCase = (value: string): string => value.length ? `${value[0]!.toLocaleUpperCase()}${value.slice(1)}` : value;
+const readableLabel = (value: string): string => value === "RECONCILING"
+  ? "Checking outcome"
+  : sentenceCase(value.replace(/[._-]+/gu, " ").toLocaleLowerCase());
+const channelDisplayNames: Readonly<Record<string, string>> = Object.freeze({
+  "media.channel.web": "Web application",
+  "media.channel.api": "Protocol-neutral API",
+  "media.channel.embedded": "Embedded Media experience",
+  "media.channel.cli": "Command-line batch interface",
+});
+const channelDisplayName = (channelRef: string): string => channelDisplayNames[channelRef]
+  ?? readableLabel(channelRef.split(".").at(-1) ?? channelRef);
+function readableProposalPurpose(purpose: string | undefined, fallback: string): string {
+  if (!purpose) return fallback;
+  return /^[a-z0-9]+(?:-[a-z0-9]+)+$/iu.test(purpose)
+    ? sentenceCase(purpose.replaceAll("-", " "))
+    : purpose;
+}
 
 let mode: ExplorerMode = modeFromLocation() ?? "explore";
 let channel: ExplorerChannel = "web";
 let state: MediaExperienceState = createFixtureState("media.scenario.transcript-ready");
 let productView: ProductView = "transcript";
+let selectedProductContract = productContractFromLocation() ?? null;
 let selectedPhase: ExperiencePhase = "P0";
 let selectedArtifact = specificationArtifacts[0]!;
 let artifactFilter = "";
@@ -111,6 +153,54 @@ let transientAnnouncement = "";
 const specificationContents = new Map<string, string>();
 const specificationErrors = new Map<string, string>();
 const specificationLoads = new Set<string>();
+const focusPreservingDataAttributes = [
+  "data-action", "data-align", "data-artifact", "data-clear-cli", "data-cli-help", "data-event",
+  "data-mode", "data-open-product-screen", "data-phase", "data-reset", "data-resolve-conflict",
+  "data-run-local-checks", "data-seek-to", "data-setting", "data-toggle-details", "data-workflow-view",
+] as const;
+
+type FocusAddress =
+  | { readonly kind: "id"; readonly value: string }
+  | { readonly kind: "attribute"; readonly name: string; readonly value: string; readonly occurrence: number };
+
+function focusAddressFor(element: HTMLElement | null): FocusAddress | null {
+  if (!element || !root?.contains(element)) return null;
+  if (element.id) return { kind: "id", value: element.id };
+  for (const name of focusPreservingDataAttributes) {
+    const value = element.getAttribute(name);
+    if (value === null) continue;
+    const matches = Array.from(root.querySelectorAll<HTMLElement>(`[${name}]`))
+      .filter((candidate) => candidate.getAttribute(name) === value);
+    const occurrence = matches.indexOf(element);
+    if (occurrence >= 0) return { kind: "attribute", name, value, occurrence };
+  }
+  return null;
+}
+
+function restoreFocus(address: FocusAddress | null): void {
+  if (!address || !root) return;
+  const target = address.kind === "id"
+    ? root.querySelector<HTMLElement>(`#${CSS.escape(address.value)}`)
+    : Array.from(root.querySelectorAll<HTMLElement>(`[${address.name}]`))
+      .filter((candidate) => candidate.getAttribute(address.name) === address.value)[address.occurrence];
+  if (target && !(target instanceof HTMLButtonElement && target.disabled)) target.focus({ preventScroll: true });
+}
+
+function ensureSpecificationContentLoaded(artifact: SpecificationArtifact): void {
+  if (specificationContents.has(artifact.path) || specificationLoads.has(artifact.path) || specificationErrors.has(artifact.path)) return;
+  specificationLoads.add(artifact.path);
+  const relativePath = artifact.path.replace(".product-experience/", "");
+  const sourceUrl = new URL(`specification/${encodeURI(relativePath)}`, document.baseURI);
+  void fetch(sourceUrl).then(async (response) => {
+    if (!response.ok) throw new Error(`Could not load source file (HTTP ${response.status}).`);
+    specificationContents.set(artifact.path, await response.text());
+  }).catch((error: unknown) => {
+    specificationErrors.set(artifact.path, error instanceof Error ? error.message : String(error));
+  }).finally(() => {
+    specificationLoads.delete(artifact.path);
+    render();
+  });
+}
 
 function latestProjection() {
   return projectExperience(state);
@@ -141,7 +231,7 @@ function applyEvent(event: SimulationEvent): TransitionResult {
 
 function modeNavigation(): string {
   return `<nav class="mode-tabs" role="tablist" aria-label="Experience Explorer mode">${supportedModes.map(({ id, label, shortcut }) => `
-    <button id="mode-${id}" class="mode-tab ${mode === id ? "is-selected" : ""}" type="button" role="tab" aria-controls="explorer-panel" aria-selected="${mode === id}" data-mode="${id}">
+    <button id="mode-${id}" class="mode-tab ${mode === id ? "is-selected" : ""}" type="button" role="tab" aria-controls="explorer-panel" aria-selected="${mode === id}" tabindex="${mode === id ? 0 : -1}" data-mode="${id}">
       <span>${label}</span><kbd>${shortcut}</kbd>
     </button>`).join("")}</nav>`;
 }
@@ -178,7 +268,7 @@ function renderProductNavigation(): string {
           </button>
         </li>`).join("")}</ol>
       <div class="sidebar-spacer"></div>
-      <div class="sidebar-footer"><span class="fixture-avatar" aria-hidden="true">S</span><span><strong>Synthetic first-use state</strong><small>No identity provider or project service</small></span></div>
+      <div class="sidebar-footer"><span class="fixture-avatar" aria-hidden="true">S</span><span><strong>Synthetic first-use state</strong><small>No sign-in or project service is connected</small></span></div>
     </aside>`;
   }
   if (state.workflow === "artifact-intake") {
@@ -206,7 +296,7 @@ function renderProductNavigation(): string {
       <div class="sidebar-label">JOB RECOVERY</div>
       <ol class="workflow-list">
         <li class="workflow-item ${productView === "review-activity" ? "is-current" : ""}"><button type="button" data-workflow-view="review-activity" aria-current="${productView === "review-activity" ? "step" : "false"}"><span class="workflow-number">01</span><span>Review activity</span></button></li>
-        <li class="workflow-item ${productView === "inspect-job" ? "is-current" : ""}"><button type="button" data-workflow-view="inspect-job" aria-current="${productView === "inspect-job" ? "step" : "false"}"><span class="workflow-number">02</span><span>Inspect a job</span></button></li>
+        <li class="workflow-item ${productView === "job-status" ? "is-current" : ""}"><button type="button" data-workflow-view="job-status" aria-current="${productView === "job-status" ? "step" : "false"}"><span class="workflow-number">02</span><span>View job status</span></button></li>
       </ol>
       <div class="sidebar-spacer"></div>
       <div class="sidebar-footer"><span class="fixture-avatar" aria-hidden="true">S</span><span><strong>Synthetic job state</strong><small>No artifact service connected</small></span></div>
@@ -215,7 +305,7 @@ function renderProductNavigation(): string {
   const items: readonly { view: ProductView; label: string; number: string }[] = [
     { view: "source", label: "Select a source", number: "01" },
     { view: "transcript", label: "Review a transcript", number: "02" },
-    ...(state.job.jobId ? [{ view: "inspect-job" as const, label: "Inspect a job", number: "03" }] : []),
+    ...(state.job.jobId ? [{ view: "job-status" as const, label: "View job status", number: "03" }] : []),
     { view: "captions", label: "Correct captions", number: state.job.jobId ? "04" : "03" },
     { view: "versions", label: "Compare caption versions", number: state.job.jobId ? "05" : "04" },
   ];
@@ -250,7 +340,7 @@ function statusTone(value: string): string {
 }
 
 function statusPill(value: string, prefix = ""): string {
-  const label = titleCase(value);
+  const label = readableLabel(value);
   return `<span class="status-pill tone-${statusTone(value)}"><span class="pill-dot" aria-hidden="true"></span>${escapeHtml(prefix)}${escapeHtml(label)}</span>`;
 }
 
@@ -259,7 +349,7 @@ function sourceCard(): string {
     <div class="source-card-top"><div class="source-wave-icon" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M4 21h3l3-8 4 16 4-22 4 25 4-18 4 12 3-5h3" /></svg></div>
       <div class="source-copy"><div class="source-name-row"><h2 id="source-title">${escapeHtml(currentSource().displayName)}</h2>${statusPill(currentSource().lifecycle)}</div>
         <p>Audio recording <span class="dot-separator">·</span> ${escapeHtml(currentSource().artifactVersion)} <span class="dot-separator">·</span> 14 sec</p></div>
-      <button class="icon-button quiet" type="button" aria-label="Inspect source details" data-action="inspect-source">•••</button>
+      <button class="icon-button quiet" type="button" aria-label="Review source metadata" data-action="inspect-source">•••</button>
     </div>
     <div class="source-trust-row"><span class="trust-tag source-tag"><span class="trust-icon">S</span> Original source</span><span class="trust-separator"></span><span class="trust-detail">Source remains unchanged</span><button class="text-button" type="button" data-action="inspect-provenance" ${latestProjection().safeActionIds.includes("media.action.inspect-provenance") ? "" : "disabled"}>View provenance</button></div>
   </section>`;
@@ -291,26 +381,26 @@ function playbackCard(): string {
 
 function jobSummary(): string {
   const job = state.job;
-  const title = job.state === "COMPLETED" ? "Transcript ready to review" : job.state === "OUTCOME_UNKNOWN" ? "Request outcome not confirmed" : job.state === "NOT_SUBMITTED" ? "Ready to transcribe" : titleCase(job.state);
+  const title = job.state === "COMPLETED" ? "Transcript ready to review" : job.state === "OUTCOME_UNKNOWN" ? "Request outcome not confirmed" : job.state === "NOT_SUBMITTED" ? "Ready to transcribe" : readableLabel(job.state);
   const detail = job.state === "OUTCOME_UNKNOWN"
-    ? "The request may have started. Check this job before submitting another request."
+    ? "The request may have started. Check the job outcome before submitting another request."
     : job.state === "COMPLETED"
       ? "The result is linked to the original recording and ready for review."
       : job.state === "NOT_SUBMITTED"
         ? "Choose the language and start a request when consent and source checks are ready."
-        : `Current job state is ${titleCase(job.state)}. Its finality remains visible while work is in progress.`;
+        : `Current job state is ${readableLabel(job.state)}. Its finality remains visible while work is in progress.`;
   return `<div class="job-summary ${job.state === "OUTCOME_UNKNOWN" ? "is-caution" : ""}">
     <span class="job-status-mark" aria-hidden="true">${job.state === "COMPLETED" ? "✓" : job.state === "OUTCOME_UNKNOWN" ? "!" : job.state === "NOT_SUBMITTED" ? "↗" : "•••"}</span>
-    <div class="job-summary-copy"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(detail)}</span>${job.jobId ? `<small>Job ${escapeHtml(job.jobId)} <span>·</span> ${escapeHtml(titleCase(job.finality))} finality</small>` : ""}</div>
-    ${job.jobId && latestProjection().safeActionIds.includes("media.action.inspect-job") ? `<button class="button button-outline button-compact" type="button" data-action="inspect-job">Inspect job</button>` : ""}
-    ${job.state === "OUTCOME_UNKNOWN" ? `<button class="button button-primary button-compact" type="button" data-action="reconcile-job">Check status</button>` : ""}
+    <div class="job-summary-copy"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(detail)}</span>${job.jobId ? `<small>Job ${escapeHtml(job.jobId)} <span>·</span> ${escapeHtml(readableLabel(job.finality))} finality</small>` : ""}</div>
+    ${job.jobId && latestProjection().safeActionIds.includes("media.action.view-job-status") ? `<button class="button button-outline button-compact" type="button" data-action="view-job-status">View job status</button>` : ""}
+    ${job.state === "OUTCOME_UNKNOWN" ? `<button class="button button-primary button-compact" type="button" data-action="check-job-outcome">Check job outcome</button>` : ""}
   </div>`;
 }
 
 function transcriptionJobSurface(): string {
   const job = state.job;
   if (!job.jobId) {
-    return `<section class="editor-panel artifact-verification-panel"><div class="empty-transcript"><span class="empty-icon" aria-hidden="true">◷</span><div><strong>No transcription job to inspect</strong><p>Submit a transcription request before opening job status.</p></div><button class="button button-outline" type="button" data-workflow-view="transcript">Return to transcript</button></div></section>`;
+    return `<section class="editor-panel artifact-verification-panel"><div class="empty-transcript"><span class="empty-icon" aria-hidden="true">◷</span><div><strong>No transcription job to view</strong><p>Submit a transcription request before opening job status.</p></div><button class="button button-outline" type="button" data-workflow-view="transcript">Return to transcript</button></div></section>`;
   }
 
   const safeActions = latestProjection().safeActionIds;
@@ -335,20 +425,20 @@ function transcriptionJobSurface(): string {
         : "Return to transcript review when a source-linked transcript is available.";
 
   return `<section class="editor-panel artifact-verification-panel transcription-job-panel" aria-labelledby="transcription-job-heading">
-    <div class="section-heading"><div><div class="eyebrow">EXISTING TRANSCRIPTION JOB</div><h2 id="transcription-job-heading">${escapeHtml(titleCase(job.state))}</h2><p>${escapeHtml(statusCopy[job.state])}</p></div>${statusPill(job.state)}</div>
+    <div class="section-heading"><div><div class="eyebrow">EXISTING TRANSCRIPTION JOB</div><h2 id="transcription-job-heading">${escapeHtml(readableLabel(job.state))}</h2><p>${escapeHtml(statusCopy[job.state])}</p></div>${statusPill(job.state)}</div>
     <dl class="artifact-summary-grid">
       <div><dt>Job identity</dt><dd><code>${escapeHtml(job.jobId)}</code></dd></div>
       <div><dt>Source version</dt><dd><code>${escapeHtml(currentSource().artifactVersion)}</code></dd></div>
-      <div><dt>Execution attempt state</dt><dd>${escapeHtml(job.attemptState ? titleCase(job.attemptState) : "Not recorded")}</dd></div>
-      <div><dt>Finality</dt><dd>${escapeHtml(titleCase(job.finality))}</dd></div>
+      <div><dt>Execution attempt state</dt><dd>${escapeHtml(job.attemptState ? readableLabel(job.attemptState) : "Not recorded")}</dd></div>
+      <div><dt>Finality</dt><dd>${escapeHtml(readableLabel(job.finality))}</dd></div>
       <div><dt>Progress</dt><dd>Not measured</dd></div>
       <div><dt>Current stage</dt><dd>Not reported</dd></div>
     </dl>
     <div class="artifact-next-action"><strong>Safe next step</strong><p>${escapeHtml(nextStep)}</p>
       <div class="job-status-actions">
         <button class="button button-outline" type="button" data-workflow-view="transcript">Stop watching</button>
-        ${!cancellationPending && safeActions.includes("media.action.request-cancellation") ? `<button class="button button-outline" type="button" data-action="request-cancellation">Request cancellation</button>` : ""}
-        ${safeActions.includes("media.action.reconcile-job") ? `<button class="button button-primary" type="button" data-action="reconcile-job">Check this job</button>` : ""}
+        ${!cancellationPending && safeActions.includes("media.action.request-cancellation") ? `<button class="button button-outline" type="button" data-action="request-cancellation">Request to stop this job</button>` : ""}
+        ${safeActions.includes("media.action.check-job-outcome") ? `<button class="button button-primary" type="button" data-action="check-job-outcome">Check job outcome</button>` : ""}
       </div>
     </div>
     ${cancellationPending ? `<p class="artifact-fixture-note" role="status">Cancellation is requested. The job may still be running until its owner confirms it stopped.</p>` : ""}
@@ -396,17 +486,17 @@ function editorMain(): string {
 }
 
 function detailSidebar(): string {
-  if (!detailsVisible) return `<aside class="details-sidebar details-hidden"><button class="button button-outline full-width" type="button" data-toggle-details>Show source and job details</button></aside>`;
+  if (!detailsVisible) return `<aside class="details-sidebar details-hidden"><button class="button button-outline full-width" type="button" data-toggle-details>View source and job information</button></aside>`;
   const job = state.job;
-  return `<aside class="details-sidebar" aria-label="Source and job details">
-    <div class="details-header"><h2>Details</h2><button class="text-button" type="button" data-toggle-details>Hide details</button></div>
+  return `<aside class="details-sidebar" aria-label="Source and job information">
+    <div class="details-header"><h2>Source and job information</h2><button class="text-button" type="button" data-toggle-details>Hide source and job information</button></div>
     <section class="detail-section"><div class="detail-heading"><span>Source recording</span><button type="button" class="text-button" data-action="inspect-source">Inspect</button></div><div class="detail-title"><span class="audio-file-icon" aria-hidden="true">♫</span><div><strong>${escapeHtml(currentSource().displayName)}</strong><small>${escapeHtml(currentSource().artifactVersion)}</small></div></div>
       <dl class="detail-list"><div><dt>Media kind</dt><dd>Audio</dd></div><div><dt>Integrity</dt><dd>${statusPill(currentSource().lifecycle)}</dd></div><div><dt>Consent</dt><dd>${statusPill(state.consentState)}</dd></div><div><dt>Source clock</dt><dd>${currentSource().ticksPerSecond.toLocaleString()} Hz</dd></div></dl>
     </section>
-    <section class="detail-section job-detail"><div class="detail-heading"><span>Transcription request</span><span class="detail-live">SYNTHETIC FIXTURE</span></div><div class="detail-title"><span class="job-icon" aria-hidden="true">◷</span><div><strong>${escapeHtml(job.jobId ?? "No job submitted")}</strong><small>${escapeHtml(job.state === "NOT_SUBMITTED" ? "Ready when you are" : titleCase(job.state))}</small></div></div>
-      <dl class="detail-list"><div><dt>Finality</dt><dd>${escapeHtml(titleCase(job.finality))}</dd></div><div><dt>Consent</dt><dd>${escapeHtml(titleCase(state.consentState))}</dd></div><div><dt>Transcript</dt><dd>${escapeHtml(state.transcript.versionId ?? "Not available")}</dd></div><div><dt>Caption draft</dt><dd>${escapeHtml(state.captionDraft.versionId ?? "Not created")}</dd></div></dl>
-      ${job.state === "RUNNING" || job.state === "QUEUED" ? `<button class="button button-outline full-width" type="button" data-action="request-cancellation">Request cancellation</button>` : ""}
-      ${job.state === "OUTCOME_UNKNOWN" ? `<button class="button button-primary full-width" type="button" data-action="reconcile-job">Check existing request</button>` : ""}
+    <section class="detail-section job-detail"><div class="detail-heading"><span>Transcription request</span><span class="detail-live">SYNTHETIC FIXTURE</span></div><div class="detail-title"><span class="job-icon" aria-hidden="true">◷</span><div><strong>${escapeHtml(job.jobId ?? "No job submitted")}</strong><small>${escapeHtml(job.state === "NOT_SUBMITTED" ? "Ready when you are" : readableLabel(job.state))}</small></div></div>
+      <dl class="detail-list"><div><dt>Finality</dt><dd>${escapeHtml(readableLabel(job.finality))}</dd></div><div><dt>Consent</dt><dd>${escapeHtml(readableLabel(state.consentState))}</dd></div><div><dt>Transcript</dt><dd>${escapeHtml(state.transcript.versionId ?? "Not available")}</dd></div><div><dt>Caption draft</dt><dd>${escapeHtml(state.captionDraft.versionId ?? "Not created")}</dd></div></dl>
+      ${job.state === "RUNNING" || job.state === "QUEUED" ? `<button class="button button-outline full-width" type="button" data-action="request-cancellation">Request to stop this job</button>` : ""}
+      ${job.state === "OUTCOME_UNKNOWN" ? `<button class="button button-primary full-width" type="button" data-action="check-job-outcome">Check job outcome</button>` : ""}
     </section>
     <section class="trust-card"><div class="trust-card-icon" aria-hidden="true">✓</div><div><strong>Source protected</strong><p>Caption edits create a new version. They never overwrite the original recording.</p><button class="text-button" type="button" data-action="inspect-provenance">Review provenance <span aria-hidden="true">→</span></button></div></section>
     <section class="version-list"><div class="detail-heading"><span>Saved caption versions</span><span class="count-pill">${state.registeredCaptionVersions.length}</span></div>${state.registeredCaptionVersions.length ? state.registeredCaptionVersions.map((version, index) => `<div class="version-row"><span class="version-mark">V${index + 1}</span><span><strong>${escapeHtml(version)}</strong><small>${escapeHtml(state.captionHistory[index]?.purpose ?? "Caption review")} · based on ${escapeHtml(state.captionHistory[index]?.sourceArtifactVersion ?? currentSource().artifactVersion)}</small></span><span class="version-check" aria-hidden="true">✓</span></div>`).join("") : `<p class="empty-note">No caption version saved yet.</p>`}</section>
@@ -423,14 +513,14 @@ function artifactVerificationSurface(isPreview: boolean): string {
   const nextStep = verification.status === "OUTCOME_UNKNOWN"
     ? "Keep the same job and upload identities until owner evidence classifies the result."
     : verification.status === "RUNNING"
-      ? "Inspect this same job for an updated verification stage and finality."
+      ? "View this same job for an updated verification stage and finality."
       : "Use only the verification evidence recorded for this exact job identity.";
   const progress = verification.progressPercent === null ? "Unavailable" : `${verification.progressPercent}%`;
   const isActivityView = productView === "review-activity";
-  const pageTitle = isActivityView ? productViewTitles["review-activity"] : productViewTitles["inspect-job"];
+  const pageTitle = isActivityView ? productViewTitles["review-activity"] : productViewTitles["job-status"];
   const pageSubtitle = isActivityView
     ? "Review the current fixture job and open its exact status before taking another action."
-    : "Inspect the owner-issued job and its related upload as separate identities.";
+    : "View the owner-issued job status and its related upload as separate identities.";
   const activitySummary = verification.status === "OUTCOME_UNKNOWN"
     ? "Needs a status check"
     : verification.status === "RUNNING"
@@ -440,14 +530,14 @@ function artifactVerificationSurface(isPreview: boolean): string {
       <div class="section-heading"><div><div class="eyebrow">CURRENT WORKFLOW</div><h2 id="activity-list-heading">Artifact verification</h2><p>This fixture contains one owner-issued job. It does not represent a complete activity feed.</p></div>${statusPill(verification.status)}</div>
       <article class="activity-job-card ${verification.status === "OUTCOME_UNKNOWN" ? "is-caution" : ""}" aria-labelledby="activity-job-title">
         <div class="activity-job-mark" aria-hidden="true">${verification.status === "OUTCOME_UNKNOWN" ? "!" : verification.status === "RUNNING" ? "…" : "✓"}</div>
-        <div class="activity-job-copy"><h3 id="activity-job-title">${escapeHtml(activitySummary)}</h3><span>Artifact verification · ${escapeHtml(titleCase(verification.stage))}</span><small>Job <code>${escapeHtml(verification.jobId)}</code></small><small>Related upload <code>${escapeHtml(verification.uploadId)}</code></small></div>
-        <div class="activity-job-action">${actions.includes("media.action.inspect-job") ? `<button class="button button-outline" type="button" data-action="inspect-job">Inspect job</button>` : `<span class="muted-text">Job details are unavailable under this fixture authority.</span>`}</div>
+        <div class="activity-job-copy"><h3 id="activity-job-title">${escapeHtml(activitySummary)}</h3><span>Artifact verification · ${escapeHtml(readableLabel(verification.stage))}</span><small>Job <code>${escapeHtml(verification.jobId)}</code></small><small>Related upload <code>${escapeHtml(verification.uploadId)}</code></small></div>
+        <div class="activity-job-action">${actions.includes("media.action.view-job-status") ? `<button class="button button-outline" type="button" data-action="view-job-status">View job status</button>` : `<span class="muted-text">The fixture does not grant access to job information.</span>`}</div>
       </article>
       <p class="artifact-fixture-note" role="note">Synthetic activity only. No event time, production job list, or artifact-service evidence is available in this fixture.</p>
     </section>`;
-  const jobContent = `<section class="editor-panel artifact-verification-panel"><div class="section-heading"><div><div class="eyebrow">SYNTHETIC VERIFICATION JOB</div><h2>${escapeHtml(titleCase(verification.status))}</h2><p>This fixture does not call an artifact service or inspect file bytes.</p></div>${statusPill(verification.status)}</div>
-        <dl class="artifact-summary-grid"><div><dt>Job identity</dt><dd><code>${escapeHtml(verification.jobId)}</code></dd></div><div><dt>Related upload identity</dt><dd><code>${escapeHtml(verification.uploadId)}</code></dd></div><div><dt>Verification stage</dt><dd>${escapeHtml(titleCase(verification.stage))}</dd></div><div><dt>Progress</dt><dd>${escapeHtml(progress)}</dd></div><div><dt>Finality</dt><dd>${escapeHtml(titleCase(verification.finality))}</dd></div></dl>
-        <div class="artifact-next-action"><strong>Safe next step</strong><p>${escapeHtml(nextStep)}</p>${actions.includes("media.action.inspect-job") ? `<button class="button button-outline" type="button" data-action="inspect-job">Inspect this job</button>` : ""}${actions.includes("media.action.reconcile-job") ? `<button class="button button-primary" type="button" data-action="reconcile-job">Check the existing job outcome</button>` : ""}</div>
+  const jobContent = `<section class="editor-panel artifact-verification-panel"><div class="section-heading"><div><div class="eyebrow">SYNTHETIC VERIFICATION JOB</div><h2>${escapeHtml(readableLabel(verification.status))}</h2><p>This fixture does not call an artifact service or inspect file bytes.</p></div>${statusPill(verification.status)}</div>
+        <dl class="artifact-summary-grid"><div><dt>Job identity</dt><dd><code>${escapeHtml(verification.jobId)}</code></dd></div><div><dt>Related upload identity</dt><dd><code>${escapeHtml(verification.uploadId)}</code></dd></div><div><dt>Verification stage</dt><dd>${escapeHtml(readableLabel(verification.stage))}</dd></div><div><dt>Progress</dt><dd>${escapeHtml(progress)}</dd></div><div><dt>Finality</dt><dd>${escapeHtml(readableLabel(verification.finality))}</dd></div></dl>
+        <div class="artifact-next-action"><strong>Safe next step</strong><p>${escapeHtml(nextStep)}</p>${actions.includes("media.action.view-job-status") ? `<button class="button button-outline" type="button" data-action="view-job-status">View job status</button>` : ""}${actions.includes("media.action.check-job-outcome") ? `<button class="button button-primary" type="button" data-action="check-job-outcome">Check job outcome</button>` : ""}</div>
         <div class="verification-evidence"><h3>Recorded evidence</h3>${evidence}</div>
       </section>
       <p class="artifact-fixture-note" role="note">Synthetic evidence only. The owner-issued verification contract is not connected, so these states do not establish artifact availability.</p>`;
@@ -482,7 +572,7 @@ function artifactIntakeSurface(isPreview: boolean): string {
   if (productView === "browse") {
     content = intake.status === "AVAILABLE" && intake.artifactVersion
       ? `<section class="editor-panel artifact-intake-panel"><div class="section-heading"><div><div class="eyebrow">AVAILABLE ARTIFACT VERSION</div><h2>${escapeHtml(intake.sourceName)}</h2><p>One immutable version is available in this scenario.</p></div>${status}</div><dl class="artifact-summary-grid"><div><dt>Artifact version</dt><dd>${escapeHtml(intake.artifactVersion)}</dd></div><div><dt>Integrity</dt><dd>${integrity}</dd></div><div><dt>Declared size</dt><dd>${intake.declaredByteSize?.toLocaleString() ?? "Unknown"} bytes</dd></div></dl><button class="button button-primary" type="button" data-workflow-view="artifact">Inspect artifact version</button>${fixtureNote}</section>`
-      : `<section class="editor-panel artifact-intake-panel"><div class="empty-transcript"><span class="empty-icon" aria-hidden="true">M</span><div><strong>No available artifact in this fixture</strong><p>${intake.status === "ACCESS_REVOKED" ? "Current access does not permit artifact details." : "The current transfer has not produced an available artifact version."}</p></div><button class="button button-outline" type="button" data-workflow-view="import">Review import status</button></div>${fixtureNote}</section>`;
+      : `<section class="editor-panel artifact-intake-panel"><div class="empty-transcript"><span class="empty-icon" aria-hidden="true">M</span><div><strong>No available artifact in this fixture</strong><p>${intake.status === "ACCESS_REVOKED" ? "Current access does not permit viewing this artifact metadata." : "The current transfer has not produced an available artifact version."}</p></div><button class="button button-outline" type="button" data-workflow-view="import">Review import status</button></div>${fixtureNote}</section>`;
   } else if (productView === "import") {
     const canResume = safeActions.includes("media.action.resume-artifact-upload");
     content = `<section class="editor-panel artifact-intake-panel"><div class="section-heading"><div><div class="eyebrow">ONE STABLE UPLOAD IDENTITY</div><h2>${escapeHtml(intake.sourceName)}</h2><p>The upload identifier remains separate from any Media processing job.</p></div>${status}</div>
@@ -494,7 +584,7 @@ function artifactIntakeSurface(isPreview: boolean): string {
     const identityValue = intake.artifactVersion ?? intake.uploadId;
     content = `<section class="editor-panel artifact-intake-panel"><div class="section-heading"><div><div class="eyebrow">INTEGRITY AND POLICY ARE SEPARATE</div><h2>${escapeHtml(intake.sourceName)}</h2><p>Availability follows the recorded integrity and policy outcome for this scenario.</p></div>${status}</div>
       <dl class="artifact-summary-grid"><div><dt>${identityLabel}</dt><dd><code>${escapeHtml(identityValue)}</code></dd></div><div><dt>Integrity disposition</dt><dd>${integrity}</dd></div><div><dt>Declared size</dt><dd>${intake.declaredByteSize?.toLocaleString() ?? "Unknown"} bytes</dd></div><div><dt>Artifact availability</dt><dd>${intake.status === "AVAILABLE" ? "Available" : "Not available"}</dd></div></dl>
-      <div class="artifact-next-action"><strong>${intake.status === "AVAILABLE" ? "Verified artifact version" : intake.status === "QUARANTINED" ? "Review required" : intake.status === "REJECTED" ? "Artifact rejected" : intake.status === "ACCESS_REVOKED" ? "Access revoked" : "Transfer status needs inspection"}</strong><p>${intake.status === "AVAILABLE" ? "This fixture records size, part integrity, digest, format, and required policy checks as satisfied." : intake.status === "QUARANTINED" ? "The artifact remains unavailable while an authorized review disposition is pending." : intake.status === "REJECTED" ? "The artifact was not promoted to an available version." : intake.status === "ACCESS_REVOKED" ? "Artifact details and further transfer actions are unavailable under current authority." : "No verified artifact version is available from this transfer."}</p>
+      <div class="artifact-next-action"><strong>${intake.status === "AVAILABLE" ? "Verified artifact version" : intake.status === "QUARANTINED" ? "Review required" : intake.status === "REJECTED" ? "Artifact rejected" : intake.status === "ACCESS_REVOKED" ? "Access revoked" : "Transfer status needs inspection"}</strong><p>${intake.status === "AVAILABLE" ? "This fixture records size, part integrity, digest, format, and required policy checks as satisfied." : intake.status === "QUARANTINED" ? "The artifact remains unavailable while an authorized review disposition is pending." : intake.status === "REJECTED" ? "The artifact was not promoted to an available version." : intake.status === "ACCESS_REVOKED" ? "Current access hides the artifact metadata and disables further transfer actions." : "No verified artifact version is available from this transfer."}</p>
       ${safeActions.includes("media.action.inspect-artifact") ? `<button class="button button-outline" type="button" data-action="inspect-artifact">Inspect recorded disposition</button>` : ""}</div>${fixtureNote}</section>`;
   }
 
@@ -556,32 +646,32 @@ function productSurface(isPreview = false): string {
     projects: "Review authorized projects in the current workspace.",
     project: "Inspect the exact project identity and version.",
     source: "Confirm the exact recording, rights, and source clock before processing.",
-    transcript: "Inspect source-linked recognized speech and its current job finality.",
+    transcript: "Review the source-linked text and check the transcription status.",
     captions: "Correct text and align each segment on the source recording clock.",
     versions: "Compare saved revisions while preserving their source lineage.",
     browse: "Review available Media artifacts.",
     import: "Inspect an authorized source transfer.",
     artifact: "Inspect an exact artifact version and its integrity state.",
     "review-activity": "Review the current fixture job and open its exact status before taking another action.",
-    "inspect-job": "Review the existing job, its source version, current state, and safe next action.",
+    "job-status": "View the existing job status, its source version, and safe next action.",
   };
   const view = { title: activeProductViewTitle(), subtitle: viewSubtitles[productView] };
   const safeActions = latestProjection().safeActionIds;
   const canRequestTranscription = safeActions.includes("media.action.request-transcription");
   const primaryWorkflowAction = state.job.state === "OUTCOME_UNKNOWN"
-    ? productView === "source" ? `<button class="button button-primary" type="button" data-action="reconcile-job">Check job outcome</button>` : ""
+    ? productView === "source" ? `<button class="button button-primary" type="button" data-action="check-job-outcome">Check job outcome</button>` : ""
     : canRequestTranscription
       ? `<div class="request-action-group"><label class="language-choice" for="transcription-language">Language<select id="transcription-language"><option value="en-US" ${state.transcript.languageTag === "en-US" || state.transcript.languageTag === "en" ? "selected" : ""}>English (US)</option><option value="es-ES" ${state.transcript.languageTag === "es" || state.transcript.languageTag === "es-ES" ? "selected" : ""}>Español</option><option value="fr-FR" ${state.transcript.languageTag === "fr" || state.transcript.languageTag === "fr-FR" ? "selected" : ""}>Français</option><option value="hi-IN" ${state.transcript.languageTag === "hi" || state.transcript.languageTag === "hi-IN" ? "selected" : ""}>हिन्दी</option></select></label><button class="button button-primary" type="button" data-action="request-transcription">New transcription</button></div>`
-      : productView === "source" && state.job.jobId && safeActions.includes("media.action.inspect-job")
-        ? `<button class="button button-outline" type="button" data-action="inspect-job">Inspect job</button>`
+      : productView === "source" && state.job.jobId && safeActions.includes("media.action.view-job-status")
+        ? `<button class="button button-outline" type="button" data-action="view-job-status">View job status</button>`
         : productView === "transcript" && state.job.jobId
           ? ""
         : safeActions.includes("media.action.choose-source")
           ? `<button class="button button-outline" type="button" data-workflow-view="source">Choose a source first</button>`
           : `<button class="button button-primary" type="button" disabled>Transcription unavailable</button>`;
   const viewContent = productView === "source"
-    ? `<div class="source-review-grid">${sourceCard()}${playbackCard()}<section class="source-review-detail"><div><span class="eyebrow">SOURCE AUTHORITY</span><h2>Recording details</h2></div><dl class="detail-list"><div><dt>Version</dt><dd>${escapeHtml(currentSource().artifactVersion)}</dd></div><div><dt>Lifecycle</dt><dd>${statusPill(currentSource().lifecycle)}</dd></div><div><dt>Rights and consent</dt><dd>${statusPill(state.consentState)}</dd></div><div><dt>Clock</dt><dd>${escapeHtml(currentSource().clockId)} · ${currentSource().ticksPerSecond.toLocaleString()} ticks/sec</dd></div></dl><button class="button button-primary" type="button" data-action="choose-source" ${latestProjection().safeActionIds.includes("media.action.choose-source") ? "" : "disabled"}>${currentSource().selected ? "Recording selected" : "Choose this recording"}</button><p>Choosing records this exact source version. It does not start processing.</p></section></div>`
-    : productView === "inspect-job"
+    ? `<div class="source-review-grid">${sourceCard()}${playbackCard()}<section class="source-review-detail"><div><span class="eyebrow">SOURCE AUTHORITY</span><h2>Review recording metadata</h2></div><dl class="detail-list"><div><dt>Version</dt><dd>${escapeHtml(currentSource().artifactVersion)}</dd></div><div><dt>Lifecycle</dt><dd>${statusPill(currentSource().lifecycle)}</dd></div><div><dt>Rights and consent</dt><dd>${statusPill(state.consentState)}</dd></div><div><dt>Clock</dt><dd>${escapeHtml(currentSource().clockId)} · ${currentSource().ticksPerSecond.toLocaleString()} ticks/sec</dd></div></dl><button class="button button-primary" type="button" data-action="choose-source" ${latestProjection().safeActionIds.includes("media.action.choose-source") ? "" : "disabled"}>${currentSource().selected ? "Recording selected" : "Choose this recording"}</button><p>Choosing records this exact source version. It does not start processing.</p></section></div>`
+    : productView === "job-status"
       ? transcriptionJobSurface()
     : productView === "versions"
       ? `<section class="editor-panel version-review-panel"><div class="section-heading"><div><div class="eyebrow">IMMUTABLE DERIVED VERSIONS</div><h2>Saved caption versions</h2><p>Every registered version remains linked to its parent caption and exact source recording.</p></div></div>${state.captionHistory.length ? `<div class="version-review-list">${state.captionHistory.map((version, index) => `<article class="version-review-card"><div class="version-mark">V${index + 1}</div><div><strong>${escapeHtml(version.versionId)}</strong><p>Source ${escapeHtml(version.sourceArtifactVersion)} · parent ${escapeHtml(version.parentVersionId)}</p><small>${version.segments.length} segments</small></div></article>`).join("")}</div>${state.captionHistory.length > 1 ? `<button class="button button-outline" type="button" data-action="compare-caption-versions" ${latestProjection().safeActionIds.includes("media.action.compare-caption-versions") ? "" : "disabled"}>Compare the latest versions</button><div class="comparison-result" role="status">${escapeHtml(lastResult?.message ?? "Compare the latest two caption versions.")}</div>` : `<div class="artifact-next-action"><strong>Save one more version to compare</strong><p>Correct and save another caption version. The existing version remains unchanged.</p><button class="button button-outline" type="button" data-workflow-view="captions">Correct captions</button></div>`}` : `<div class="empty-transcript"><span class="empty-icon" aria-hidden="true">V</span><div><strong>No caption versions saved</strong><p>Save an aligned caption draft to create an immutable version with source lineage.</p></div><button class="button button-primary" type="button" data-workflow-view="captions">Correct captions</button></div>`}</section>`
@@ -610,7 +700,7 @@ function exploreSurface(): string {
     : "Registered commands dispatch through the same fixture state and reducer; available actions depend on this workflow.";
   const scenarioOptions = mediaExperienceScenarioIds.map((id) => {
     const key = id.replace("media.scenario.", "");
-    return `<option value="${escapeHtml(id)}" ${state.scenarioId === id ? "selected" : ""}>${escapeHtml(titleCase(key.replaceAll("-", " ")))}</option>`;
+    return `<option value="${escapeHtml(id)}" ${state.scenarioId === id ? "selected" : ""}>${escapeHtml(readableLabel(key.replaceAll("-", " ")))}</option>`;
   }).join("");
   return `<main class="explore-workspace" id="main-content">
     <aside class="control-panel" aria-label="Explore context">
@@ -618,11 +708,11 @@ function exploreSurface(): string {
       <div class="control-group"><label for="scenario-picker">Scenario</label><select id="scenario-picker">${scenarioOptions}</select><small>Scenarios use synthetic workflow metadata; no media file bytes are included.</small></div>
       <div class="control-group"><label for="channel-picker">Application channel</label><select id="channel-picker"><option value="web" ${channel === "web" ? "selected" : ""}>Web review</option><option value="cli" ${channel === "cli" ? "selected" : ""} ${cliUnavailable ? "disabled" : ""}>${cliUnavailable ? "Command line (not specified)" : "Command line"}</option></select><small>${cliUnavailableReason}</small></div>
       <div class="control-group"><label for="viewport-picker">Preview width</label><select id="viewport-picker">${[320, 390, 768, 1024, 1280, 1536].map((width) => `<option value="${width}" ${viewportWidth === width ? "selected" : ""}>${width}px</option>`).join("")}</select><small>Common responsive review widths</small></div>
-      <div class="control-group"><span class="control-label">Accessibility profile</span><label class="toggle-row"><span><strong>High contrast</strong><small>Increase edge and focus contrast</small></span><input type="checkbox" data-setting="contrast" ${highContrast ? "checked" : ""} /><span class="toggle" aria-hidden="true"></span></label><label class="toggle-row"><span><strong>Reduced motion</strong><small>Remove non-essential transitions</small></span><input type="checkbox" data-setting="motion" ${reducedMotion ? "checked" : ""} /><span class="toggle" aria-hidden="true"></span></label></div>
+      <div class="control-group"><span class="control-label">Accessibility preferences</span><label class="toggle-row"><span><strong>High contrast</strong><small>Increase edge and focus contrast</small></span><input type="checkbox" data-setting="contrast" ${highContrast ? "checked" : ""} /><span class="toggle" aria-hidden="true"></span></label><label class="toggle-row"><span><strong>Reduced motion</strong><small>Remove non-essential transitions</small></span><input type="checkbox" data-setting="motion" ${reducedMotion ? "checked" : ""} /><span class="toggle" aria-hidden="true"></span></label></div>
       <div class="control-group context-card"><div class="context-card-heading"><span class="context-glyph" aria-hidden="true">↗</span><div><strong>Inspection context</strong><small>${state.workflow === "first-use" ? "First use and project creation" : state.workflow === "artifact-intake" ? "Artifact intake" : state.workflow === "artifact-verification" ? "Artifact verification job" : "Transcription and captions"}</small></div></div><div class="context-detail"><span>Actor</span><strong>Creator</strong></div><div class="context-detail"><span>Locale</span><strong>English (US)</strong></div><div class="context-detail"><span>Connectivity</span><strong>Synthetic fixture</strong></div></div>
       <button type="button" class="button button-outline full-width reset-button" data-reset>Reset scenario</button>
     </aside>
-    <section class="explore-preview"><div class="preview-toolbar"><div><span class="preview-live-dot"></span><strong>${channel === "web" ? "Web product projection" : "CLI projection"}</strong><small>${viewportWidth} × ${Math.round(viewportWidth * 0.625)}</small></div><button class="button button-small button-quiet" data-mode="product" type="button">Open product view <span aria-hidden="true">↗</span></button></div>
+    <section class="explore-preview ${channel === "cli" && viewportWidth <= 390 ? "is-narrow-cli-preview" : ""}"><div class="preview-toolbar"><div><span class="preview-live-dot"></span><strong>${channel === "web" ? "Web product projection" : "CLI projection"}</strong><small>${viewportWidth}px wide</small></div><button class="button button-small button-quiet" data-mode="product" type="button">Open product view <span aria-hidden="true">↗</span></button></div>
       ${channel === "web" ? productSurface(true) : terminalProjection()}
     </section>
     <aside class="context-inspector"><div class="inspector-title"><div><div class="eyebrow">LIVE PROJECTION</div><h2>Current state</h2></div><span class="projection-live-label">CURRENT</span></div>
@@ -639,17 +729,17 @@ function statePreview(): string {
     const firstUse = state.firstUse;
     const status = !firstUse.identityResolved ? "IDENTITY_REQUIRED"
       : firstUse.workspaceAccess === "DENIED" ? "ACCESS_DENIED" : firstUse.creationStatus;
-    return `<div class="state-preview-card"><div class="state-preview-heading"><span>First-use state</span>${statusPill(status)}</div><div class="state-preview-value">${escapeHtml(titleCase(status))}</div><div class="state-preview-meta">${escapeHtml(firstUse.identityResolved && firstUse.workspaceAccess === "ALLOWED" ? firstUse.workspaceId ?? "Workspace available" : "Protected project data hidden")}</div><div class="state-preview-divider"></div><div class="state-preview-row"><span>Identity</span><strong>${firstUse.identityResolved ? "Resolved in fixture" : "Not established"}</strong></div><div class="state-preview-row"><span>Workspace access</span><strong>${escapeHtml(titleCase(firstUse.workspaceAccess))}</strong></div><div class="state-preview-row"><span>Project</span><strong>${escapeHtml(firstUse.projectId ?? "Not available")}</strong></div><div class="state-preview-row"><span>Project version</span><strong>${escapeHtml(firstUse.projectVersion ?? "Not available")}</strong></div></div>`;
+    return `<div class="state-preview-card"><div class="state-preview-heading"><span>First-use state</span>${statusPill(status)}</div><div class="state-preview-value">${escapeHtml(readableLabel(status))}</div><div class="state-preview-meta">${escapeHtml(firstUse.identityResolved && firstUse.workspaceAccess === "ALLOWED" ? firstUse.workspaceId ?? "Workspace available" : "Protected project data hidden")}</div><div class="state-preview-divider"></div><div class="state-preview-row"><span>Identity</span><strong>${firstUse.identityResolved ? "Resolved in fixture" : "Not established"}</strong></div><div class="state-preview-row"><span>Workspace access</span><strong>${escapeHtml(readableLabel(firstUse.workspaceAccess))}</strong></div><div class="state-preview-row"><span>Project</span><strong>${escapeHtml(firstUse.projectId ?? "Not available")}</strong></div><div class="state-preview-row"><span>Project version</span><strong>${escapeHtml(firstUse.projectVersion ?? "Not available")}</strong></div></div>`;
   }
   if (state.artifactIntake) {
     const intake = state.artifactIntake;
-    return `<div class="state-preview-card"><div class="state-preview-heading"><span>Artifact transfer</span>${statusPill(intake.status)}</div><div class="state-preview-value">${escapeHtml(titleCase(intake.status))}</div><div class="state-preview-meta">${escapeHtml(intake.uploadId)}</div><div class="state-preview-divider"></div><div class="state-preview-row"><span>Integrity</span><strong>${escapeHtml(titleCase(intake.integrity))}</strong></div><div class="state-preview-row"><span>Fixture parts</span><strong>${intake.acknowledgedPartCount} / ${intake.expectedPartCount ?? "?"}</strong></div><div class="state-preview-row"><span>Artifact version</span><strong>${escapeHtml(intake.artifactVersion ?? "Not available")}</strong></div></div>`;
+    return `<div class="state-preview-card"><div class="state-preview-heading"><span>Artifact transfer</span>${statusPill(intake.status)}</div><div class="state-preview-value">${escapeHtml(readableLabel(intake.status))}</div><div class="state-preview-meta">${escapeHtml(intake.uploadId)}</div><div class="state-preview-divider"></div><div class="state-preview-row"><span>Integrity</span><strong>${escapeHtml(readableLabel(intake.integrity))}</strong></div><div class="state-preview-row"><span>Fixture parts</span><strong>${intake.acknowledgedPartCount} / ${intake.expectedPartCount ?? "?"}</strong></div><div class="state-preview-row"><span>Artifact version</span><strong>${escapeHtml(intake.artifactVersion ?? "Not available")}</strong></div></div>`;
   }
   if (state.workflow === "artifact-verification") {
     const verification = state.artifactVerification;
-    return `<div class="state-preview-card"><div class="state-preview-heading"><span>Artifact verification job</span>${statusPill(verification.status)}</div><div class="state-preview-value">${escapeHtml(titleCase(verification.status))}</div><div class="state-preview-meta">${escapeHtml(verification.jobId)}</div><div class="state-preview-divider"></div><div class="state-preview-row"><span>Related upload</span><strong>${escapeHtml(verification.uploadId)}</strong></div><div class="state-preview-row"><span>Stage</span><strong>${escapeHtml(titleCase(verification.stage))}</strong></div><div class="state-preview-row"><span>Finality</span><strong>${escapeHtml(titleCase(verification.finality))}</strong></div></div>`;
+    return `<div class="state-preview-card"><div class="state-preview-heading"><span>Artifact verification job</span>${statusPill(verification.status)}</div><div class="state-preview-value">${escapeHtml(readableLabel(verification.status))}</div><div class="state-preview-meta">${escapeHtml(verification.jobId)}</div><div class="state-preview-divider"></div><div class="state-preview-row"><span>Related upload</span><strong>${escapeHtml(verification.uploadId)}</strong></div><div class="state-preview-row"><span>Stage</span><strong>${escapeHtml(readableLabel(verification.stage))}</strong></div><div class="state-preview-row"><span>Finality</span><strong>${escapeHtml(readableLabel(verification.finality))}</strong></div></div>`;
   }
-  return `<div class="state-preview-card"><div class="state-preview-heading"><span>Transcription job</span>${statusPill(state.job.state)}</div><div class="state-preview-value">${escapeHtml(titleCase(state.job.state))}</div><div class="state-preview-meta">${escapeHtml(state.job.jobId ?? "No job reference")}</div><div class="state-preview-divider"></div><div class="state-preview-row"><span>Finality</span><strong>${escapeHtml(titleCase(state.job.finality))}</strong></div><div class="state-preview-row"><span>Consent</span><strong>${escapeHtml(titleCase(state.consentState))}</strong></div><div class="state-preview-row"><span>Transcript</span><strong>${escapeHtml(state.transcript.versionId ? "Available" : "Not available")}</strong></div><div class="state-preview-row"><span>Caption version</span><strong>${state.registeredCaptionVersions.length}</strong></div></div>`;
+  return `<div class="state-preview-card"><div class="state-preview-heading"><span>Transcription job</span>${statusPill(state.job.state)}</div><div class="state-preview-value">${escapeHtml(readableLabel(state.job.state))}</div><div class="state-preview-meta">${escapeHtml(state.job.jobId ?? "No job reference")}</div><div class="state-preview-divider"></div><div class="state-preview-row"><span>Finality</span><strong>${escapeHtml(readableLabel(state.job.finality))}</strong></div><div class="state-preview-row"><span>Consent</span><strong>${escapeHtml(readableLabel(state.consentState))}</strong></div><div class="state-preview-row"><span>Transcript</span><strong>${escapeHtml(state.transcript.versionId ? "Available" : "Not available")}</strong></div><div class="state-preview-row"><span>Caption version</span><strong>${state.registeredCaptionVersions.length}</strong></div></div>`;
 }
 
 function fixtureControls(): string {
@@ -663,10 +753,10 @@ function fixtureControls(): string {
     return `<section class="fixture-controls"><div class="fixture-controls-heading"><h3>Scenario fixture</h3><span>Synthetic only</span></div><p>Choose a recorded verification-job state. No artifact service, file bytes, or verification worker is connected.</p></section>`;
   }
   const control = (event: string, label: string, disabled = false) => `<button class="fixture-event-button" type="button" data-event="${event}" ${disabled ? "disabled" : ""}><span class="event-play" aria-hidden="true">▶</span>${label}</button>`;
-  const reconciliation = state.job.state === "RECONCILING"
-    ? `<label class="reconciliation-outcome" for="reconciliation-outcome">Recorded job outcome<select id="reconciliation-outcome"><option value="COMPLETED">Completed</option><option value="FAILED">Failed</option><option value="CANCELLED">Cancelled</option><option value="UNKNOWN">Still unknown</option></select></label>${control("job.reconciliation-completed", "Record checked outcome")}`
+  const outcomeCheckField = state.job.state === "RECONCILING"
+    ? `<label class="checked-job-outcome" for="checked-job-outcome">Recorded job outcome<select id="checked-job-outcome"><option value="COMPLETED">Completed</option><option value="FAILED">Failed</option><option value="CANCELLED">Cancelled</option><option value="UNKNOWN">Still unknown</option></select></label>${control("job.outcome-check-completed", "Record checked outcome")}`
     : "";
-  return `<section class="fixture-controls"><div class="fixture-controls-heading"><h3>Advance fixture</h3><span>Explorer only</span></div><p>Drive simulated events; product behavior remains deterministic.</p><div class="fixture-control-grid">${control("job.started", "Start job", state.job.state !== "QUEUED")}${control("job.completed", "Complete job", state.job.state !== "RUNNING")}${control("job.outcome-unknown", "Lose finality", !state.job.jobId || ["COMPLETED", "FAILED", "CANCELLED"].includes(state.job.state))}${control("job.cancellation-confirmed", "Confirm stop", state.job.attemptState !== "CANCEL_REQUESTED")}${control("consent.revoked", "Revoke consent", state.consentState === "REVOKED")}${reconciliation}</div></section>`;
+  return `<section class="fixture-controls"><div class="fixture-controls-heading"><h3>Advance fixture</h3><span>Explorer only</span></div><p>Drive simulated events; product behavior remains deterministic.</p><div class="fixture-control-grid">${control("job.started", "Start job", state.job.state !== "QUEUED")}${control("job.completed", "Complete job", state.job.state !== "RUNNING")}${control("job.outcome-unknown", "Lose finality", !state.job.jobId || ["COMPLETED", "FAILED", "CANCELLED"].includes(state.job.state))}${control("job.cancellation-confirmed", "Confirm stop", state.job.attemptState !== "CANCEL_REQUESTED")}${control("consent.revoked", "Revoke consent", state.consentState === "REVOKED")}${outcomeCheckField}</div></section>`;
 }
 
 function unquoteYamlScalar(value: string): string {
@@ -712,6 +802,34 @@ function yamlTopLevelList(source: string, key: string): string[] {
   return values;
 }
 
+function yamlActionLabels(source: string): ReadonlyMap<string, string> {
+  const lines = source.split(/\r?\n/u);
+  const start = lines.findIndex((line) => line.startsWith("actions:"));
+  if (start < 0) return new Map();
+  const labels = new Map<string, string>();
+  let actionId = "";
+  let label = "";
+  const saveCurrent = () => { if (actionId && label) labels.set(actionId, label); };
+  for (let index = start + 1; index < lines.length; index += 1) {
+    const line = lines[index]!;
+    if (line.trim() && !/^\s/u.test(line) && !line.startsWith("- ")) {
+      saveCurrent();
+      break;
+    }
+    const idMatch = line.match(/^-\s+id:\s*(.+)$/u);
+    if (idMatch) {
+      saveCurrent();
+      actionId = unquoteYamlScalar(idMatch[1]!);
+      label = "";
+      continue;
+    }
+    const labelMatch = line.match(/^ {2}label:\s*(.+)$/u);
+    if (labelMatch && actionId) label = unquoteYamlScalar(labelMatch[1]!);
+  }
+  saveCurrent();
+  return labels;
+}
+
 function yamlNestedTextFields(source: string, parentKey: string, allowedFields: readonly string[]): Readonly<Record<string, string>> {
   const lines = source.split(/\r?\n/u);
   const start = lines.findIndex((line) => line.startsWith(`${parentKey}:`));
@@ -745,7 +863,7 @@ function yamlChannelDispositions(source: string): readonly { channel: string; di
     const channelMatch = line.match(/^\s*-\s+channelRef:\s*(.+)$/u);
     if (channelMatch) {
       if (current) entries.push(current);
-      current = { channel: channelMatch[1]!.split(".").at(-1) ?? channelMatch[1]!, disposition: "" };
+      current = { channel: channelMatch[1]!, disposition: "" };
       continue;
     }
     const dispositionMatch = line.match(/^\s+disposition:\s*(.+)$/u);
@@ -760,7 +878,7 @@ function renderScreenContractPreview(artifact: SpecificationArtifact, source: st
   const screenId = yamlTopLevelScalar(source, "screenId");
   const anatomy = yamlTopLevelList(source, "anatomy");
   if (!screenId || anatomy.length === 0) return "";
-  const screenName = artifact.title || titleCase(screenId.split(".").at(-1)?.replaceAll("-", " ") ?? screenId);
+  const screenName = artifact.title || readableLabel(screenId.split(".").at(-1)?.replaceAll("-", " ") ?? screenId);
   const purpose = yamlTopLevelScalar(source, "purpose");
   const intentRef = yamlTopLevelScalar(source, "intentRef");
   const context = yamlNestedTextFields(source, "contextGoalNowNext", ["context", "goal", "now", "next"]);
@@ -770,15 +888,16 @@ function renderScreenContractPreview(artifact: SpecificationArtifact, source: st
   const responsive = yamlTopLevelScalar(source, "responsive");
   const accessibility = yamlTopLevelScalar(source, "accessibility");
   const channels = yamlChannelDispositions(source);
-  const anatomyCards = anatomy.map((part, index) => `<li class="view-anatomy-card"><span>${String(index + 1).padStart(2, "0")}</span><strong>${escapeHtml(titleCase(part.replaceAll("-", " ")))}</strong></li>`).join("");
-  const stateChips = states.map((item) => `<li>${escapeHtml(titleCase(item.replaceAll("-", " ")))}</li>`).join("");
-  const actionRows = actions.map((action) => `<li><code>${escapeHtml(action)}</code><span>Preview only</span></li>`).join("");
-  const componentChips = components.map((item) => `<li>${escapeHtml(titleCase(item.split(".").at(-1)?.replaceAll("-", " ") ?? item))}</li>`).join("");
-  const channelRows = channels.map(({ channel, disposition }) => `<li><strong>${escapeHtml(titleCase(channel))}</strong><span>${escapeHtml(titleCase(disposition.replaceAll("-", " ")))}</span></li>`).join("");
-  const contextCards = (["context", "goal", "now", "next"] as const).filter((key) => context[key]).map((key) => `<div class="view-context-item"><span>${escapeHtml(titleCase(key))}</span><p>${escapeHtml(context[key]!)}</p></div>`).join("");
+  const anatomyCards = anatomy.map((part, index) => `<li class="view-anatomy-card"><span>${String(index + 1).padStart(2, "0")}</span><strong>${escapeHtml(readableLabel(part.replaceAll("-", " ")))}</strong></li>`).join("");
+  const stateChips = states.map((item) => `<li>${escapeHtml(readableLabel(item.replaceAll("-", " ")))}</li>`).join("");
+  const actionRows = actions.map((action) => `<li><code>${escapeHtml(action)}</code><span>Not connected</span></li>`).join("");
+  const componentChips = components.map((item) => `<li>${escapeHtml(readableLabel(item.split(".").at(-1)?.replaceAll("-", " ") ?? item))}</li>`).join("");
+  const channelRows = channels.map(({ channel, disposition }) => `<li><strong>${escapeHtml(channelDisplayName(channel))}</strong><span>${escapeHtml(readableLabel(disposition.replaceAll("-", " ")))}</span></li>`).join("");
+  const contextCards = (["context", "goal", "now", "next"] as const).filter((key) => context[key]).map((key) => `<div class="view-context-item"><span>${escapeHtml(readableLabel(key))}</span><p>${escapeHtml(context[key]!)}</p></div>`).join("");
   return `<section class="view-contract-preview" aria-labelledby="view-contract-preview-title" data-screen-id="${escapeHtml(screenId)}">
     <div class="view-preview-banner"><span class="view-preview-icon" aria-hidden="true">P2</span><div><strong>Read-only view contract preview</strong><p>This proposal preview shows declared content and hierarchy. Its actions are not connected to product behavior.</p></div><span class="view-preview-state">Proposal</span></div>
-    <header class="view-preview-heading"><div><div class="eyebrow">${escapeHtml(screenId)}</div><h3 id="view-contract-preview-title">${escapeHtml(screenName)}</h3><p>${escapeHtml(purpose || "The contract does not declare a short purpose statement.")}</p></div><span class="view-intent-ref">${escapeHtml(intentRef || "Intent binding pending")}</span></header>
+    <div class="view-preview-open-product"><span>Explore this declared view in the Product shell.</span><button type="button" class="button button-outline button-small" data-open-product-screen="${escapeHtml(artifact.path)}">Open Product projection <span aria-hidden="true">→</span></button></div>
+    <header class="view-preview-heading"><div><div class="eyebrow">${escapeHtml(screenId)}</div><h3 id="view-contract-preview-title">${escapeHtml(screenName)}</h3><p>${escapeHtml(readableProposalPurpose(purpose, "The contract does not declare a short purpose statement."))}</p></div><span class="view-intent-ref">${escapeHtml(intentRef || "Intent binding pending")}</span></header>
     ${contextCards ? `<section class="view-context-grid" aria-label="Declared context, goal, now, and next">${contextCards}</section>` : ""}
     <section class="view-anatomy-section" aria-label="Declared view anatomy"><div class="view-preview-section-title"><h4>View structure</h4><span>${anatomy.length} regions</span></div><ol class="view-anatomy-grid">${anatomyCards}</ol></section>
     <div class="view-contract-columns">
@@ -790,6 +909,53 @@ function renderScreenContractPreview(artifact: SpecificationArtifact, source: st
       <section class="view-contract-panel"><div class="view-preview-section-title"><h4>Design guidance</h4></div><dl class="view-design-guidance">${responsive ? `<div><dt>Responsive</dt><dd>${escapeHtml(responsive)}</dd></div>` : ""}${accessibility ? `<div><dt>Accessibility</dt><dd>${escapeHtml(accessibility)}</dd></div>` : ""}</dl></section>
     </div>
   </section>`;
+}
+
+function renderProductContractProjection(artifact: SpecificationArtifact, source: string, actionRegistrySource: string): string {
+  if (!source.includes("schemaVersion: media.screen-contract.v1")) {
+    return `<main class="product-contract-main" id="main-content" tabindex="-1"><a class="product-back-link" href="#product" data-product-home>← Media workspace</a><section class="product-contract-empty"><h1>View proposal unavailable</h1><p>This record does not define a Product view contract.</p><a class="button button-outline" href="#product" data-product-home>Return to Media</a></section></main>`;
+  }
+  const screenId = yamlTopLevelScalar(source, "screenId");
+  const anatomy = yamlTopLevelList(source, "anatomy");
+  if (!screenId || anatomy.length === 0) {
+    return `<main class="product-contract-main" id="main-content" tabindex="-1"><a class="product-back-link" href="#product" data-product-home>← Media workspace</a><section class="product-contract-empty"><h1>View structure is incomplete</h1><p>This proposal is missing a screen identity or view regions.</p></section></main>`;
+  }
+  const screenName = artifact.title || readableLabel(screenId.split(".").at(-1)?.replaceAll("-", " ") ?? screenId);
+  const purpose = yamlTopLevelScalar(source, "purpose");
+  const readablePurpose = readableProposalPurpose(purpose, "Purpose is not specified in this proposal.");
+  const context = yamlNestedTextFields(source, "contextGoalNowNext", ["context", "goal", "now", "next"]);
+  const states = yamlTopLevelList(source, "states");
+  const actions = yamlTopLevelList(source, "actions");
+  const components = yamlTopLevelList(source, "componentRefs");
+  const responsive = yamlTopLevelScalar(source, "responsive");
+  const accessibility = yamlTopLevelScalar(source, "accessibility");
+  const channels = yamlChannelDispositions(source);
+  const actionLabels = yamlActionLabels(actionRegistrySource);
+  const anatomyCards = anatomy.map((part) => `<article class="product-region-card"><span class="product-region-icon" aria-hidden="true">${escapeHtml(readableLabel(part.replaceAll("-", " ")).slice(0, 1))}</span><div><strong>${escapeHtml(readableLabel(part.replaceAll("-", " ")))}</strong><span>Declared view region</span></div></article>`).join("");
+  const stateChips = states.map((item) => `<li>${escapeHtml(readableLabel(item.replaceAll("-", " ")))}</li>`).join("");
+  const actionRows = actions.map((action, index) => {
+    const label = actionLabels.get(action) ?? sentenceCase((action.replace(/^media\.action\./u, "").split(".").at(-1) ?? action).replaceAll("-", " "));
+    return `<li class="product-proposal-action"><button type="button" disabled aria-describedby="proposal-action-note-${index}">${escapeHtml(label)}</button><code>${escapeHtml(action)}</code><small id="proposal-action-note-${index}">Not connected in this fixture</small></li>`;
+  }).join("");
+  const contextCards = (["context", "goal", "now", "next"] as const).filter((key) => context[key]).map((key) => `<article class="product-context-card"><span>${escapeHtml(readableLabel(key))}</span><p>${escapeHtml(context[key]!)}</p></article>`).join("");
+  const detailRows = [
+    ...channels.map(({ channel: channelRef, disposition }) => `<div><dt>${escapeHtml(channelDisplayName(channelRef))}</dt><dd>${escapeHtml(readableLabel(disposition.replaceAll("-", " ")))}</dd></div>`),
+    ...(components.length ? [`<div><dt>Related components</dt><dd>${components.map((component) => escapeHtml(readableLabel(component.split(".").at(-1)?.replaceAll("-", " ") ?? component))).join(", ")}</dd></div>`] : []),
+    ...(responsive ? [`<div><dt>Responsive guidance</dt><dd>${escapeHtml(responsive)}</dd></div>`] : []),
+    ...(accessibility ? [`<div><dt>Accessibility guidance</dt><dd>${escapeHtml(accessibility)}</dd></div>`] : []),
+  ].join("");
+  return `<main class="product-contract-main" id="main-content" tabindex="-1">
+    <a class="product-back-link" href="#product" data-product-home>← Media workspace</a>
+    <div class="product-contract-heading"><div><div class="product-contract-breadcrumb">Workspace <span aria-hidden="true">/</span> ${escapeHtml(screenName)}</div><h1>${escapeHtml(screenName)}</h1><p>${escapeHtml(readablePurpose)}</p></div><span class="product-contract-status">PROPOSAL</span></div>
+    <aside class="product-contract-notice" role="note"><span aria-hidden="true">i</span><div><strong>Proposal view · simulated structure</strong><p>This route projects the declared view contract. It does not represent connected product data or behavior.</p></div></aside>
+    ${contextCards ? `<section class="product-context-grid" aria-label="Context, goal, now, and next step">${contextCards}</section>` : ""}
+    <section class="product-contract-section" aria-labelledby="product-view-structure"><div class="product-contract-section-heading"><div><h2 id="product-view-structure">View structure</h2><p>Regions declared for this view</p></div><span>${anatomy.length} regions</span></div><div class="product-region-grid">${anatomyCards}</div></section>
+    <div class="product-contract-columns">
+      <section class="product-contract-section" aria-labelledby="product-view-states"><div class="product-contract-section-heading"><div><h2 id="product-view-states">View states</h2><p>States described by this proposal</p></div><span>${states.length}</span></div>${stateChips ? `<ul class="product-view-state-list">${stateChips}</ul>` : `<p class="product-proposal-empty">No view states are listed.</p>`}</section>
+      <section class="product-contract-section" aria-labelledby="product-view-actions"><div class="product-contract-section-heading"><div><h2 id="product-view-actions">Available actions</h2><p>Actions declared for this view</p></div><span>${actions.length}</span></div>${actionRows ? `<ul class="product-proposal-action-list">${actionRows}</ul>` : `<p class="product-proposal-empty">No actions are listed.</p>`}</section>
+    </div>
+    ${detailRows ? `<details class="product-contract-details"><summary>View guidance and channel support</summary><dl>${detailRows}</dl></details>` : ""}
+  </main>`;
 }
 
 function filteredSpecificationArtifacts(artifacts: readonly SpecificationArtifact[]): readonly SpecificationArtifact[] {
@@ -808,25 +974,12 @@ function specificationSurface(): string {
   const visibleArtifacts = filteredSpecificationArtifacts(phaseArtifacts);
   const activeArtifact = phaseArtifacts.find((artifact) => artifact.path === selectedArtifact.path) ?? phaseArtifacts[0]!;
   selectedArtifact = activeArtifact;
+  ensureSpecificationContentLoaded(activeArtifact);
   const sourceContent = specificationContents.get(activeArtifact.path);
-  if (sourceContent === undefined && !specificationLoads.has(activeArtifact.path) && !specificationErrors.has(activeArtifact.path)) {
-    specificationLoads.add(activeArtifact.path);
-    const relativePath = activeArtifact.path.replace(".product-experience/", "");
-    const sourceUrl = new URL(`specification/${encodeURI(relativePath)}`, document.baseURI);
-    void fetch(sourceUrl).then(async (response) => {
-      if (!response.ok) throw new Error(`Could not load source file (HTTP ${response.status}).`);
-      specificationContents.set(activeArtifact.path, await response.text());
-    }).catch((error: unknown) => {
-      specificationErrors.set(activeArtifact.path, error instanceof Error ? error.message : String(error));
-    }).finally(() => {
-      specificationLoads.delete(activeArtifact.path);
-      render();
-    });
-  }
   const content = sourceContent ?? specificationErrors.get(activeArtifact.path) ?? "Loading source file…";
   return `<div class="specification-workspace ${highContrast ? "contrast-on" : ""}">
     <aside class="spec-sidebar"><div class="eyebrow">SOURCE OF MEANING</div><h1>Specification</h1><p>Inspect the source records behind this experience.</p>
-      <div class="phase-selector" role="tablist" aria-label="Experience phase">${phaseIds.map((phase) => `<button type="button" role="tab" aria-selected="${phase === selectedPhase}" class="phase-tab ${phase === selectedPhase ? "is-current" : ""}" data-phase="${phase}"><span>${phase}</span><strong>${escapeHtml(phaseSummary[phase].title)}</strong></button>`).join("")}</div>
+      <div class="phase-selector" role="radiogroup" aria-label="Select an experience phase" aria-orientation="${phaseSelectorOrientation()}">${phaseIds.map((phase) => `<button id="${phaseTabId(phase)}" type="button" role="radio" aria-checked="${phase === selectedPhase}" tabindex="${phase === selectedPhase ? 0 : -1}" class="phase-tab ${phase === selectedPhase ? "is-current" : ""}" data-phase="${phase}"><span>${phase}</span><strong>${escapeHtml(phaseSummary[phase].title)}</strong></button>`).join("")}</div>
       <label class="artifact-filter-label" for="artifact-filter">Find a record</label><input id="artifact-filter" class="artifact-filter" type="search" value="${escapeHtml(artifactFilter)}" placeholder="Search titles and filenames" autocomplete="off" />
       <div class="spec-artifacts-heading"><span>AUTHORITY FILES</span><span id="artifact-count">${visibleArtifacts.length} of ${phaseArtifacts.length}</span></div>
       <nav class="artifact-list" aria-label="Phase artifacts">${renderSpecificationArtifactLinks(visibleArtifacts)}</nav>
@@ -843,24 +996,24 @@ function specificationSurface(): string {
 function verificationSurface(): string {
   const phaseStates = [
     { id: "P0", title: "Product Truth", status: "Boundary accepted · definition review open", detail: "P0-001 boundary is accepted. Operation-specific proposals cover 17 of 462 capability leaves; 445 leaves, remaining product definition, and independent P0-010 review are open." },
-    { id: "P1", title: "Design Language", status: "17 component families · review pending", detail: "All 17 required component families are indexed across 28 proposals. Shared token bindings, admitted action/state mappings, and owner review of accessibility, localization, keyboard behavior, and responsive use remain open." },
-    { id: "P2", title: "Product Experience", status: "41 view proposals · 28 journey proposals · bindings open", detail: "All 41 baseline views have proposal contracts, and six selected-lane specializations are indexed. All 28 required journeys have proposal files: J-01/J-02/J-03/J-20 retain scoped slices, while 24 proposals add Phase 0 outcomes and ordered screen paths. Complete action/state/copy/channel bindings and owner review remain open." },
-    { id: "P3", title: "Experience Explorer", status: "Local slices · host pending", detail: "J-01 synthetic first-use, J-02 metadata-only artifact intake and verification-job commands, J-20 transcription-job inspection/cancellation/reconciliation, and the selected J-03 audio lane run locally. The generic Tools host, all-view realization, and independent review remain open." },
+    { id: "P1", title: "Design Language", status: "17 component families · intent refs proposed", detail: "All 17 required component families are indexed across 28 proposals. Component action intents now resolve to shared Phase 2 action references. Capability authority, component interactions, state mappings, Shared token bindings, and accessibility, localization, keyboard, and responsive owner review remain open." },
+    { id: "P2", title: "Product Experience", status: "41 views · action refs proposed · 28 journeys", detail: "All 41 baseline views have proposal contracts, and six selected-lane specializations are indexed. Authored action intents across baseline and lane views now resolve to intent-based proposal references. Detailed action effects, capability authority, component interactions, state transitions, copy/channel bindings, journey completeness, and owner review remain open." },
+    { id: "P3", title: "Experience Explorer", status: "Local slices + 47 proposal routes · host pending", detail: "J-01 synthetic first-use, J-02 metadata-only artifact intake and verification-job commands, J-20 transcription-job status viewing, cancellation, and outcome checking, and the selected J-03 audio lane execute locally. All 47 screen contracts also expose source-derived Product routes with actions disabled. Stateful realization of remaining views, the generic Tools host, and independent review remain open." },
   ];
   const passed = [
     { label: "Reducer and lifecycle", detail: "Deterministic first-use, caption, project-request, artifact-transfer and verification states, and transcription-job finality.", count: "10 simulation checks", icon: "✓" },
     { label: "Fixture runner CLI", detail: "JSON, JSONL, upload status, help, fixture validation, and malformed input behavior.", count: "6 CLI checks", icon: "✓" },
-    { label: "Canonical command CLI", detail: "Registered upload, transcription, caption, and job inspection, reconciliation, and cancellation commands with stable identities, formats, and exit status.", count: "15 CLI checks", icon: "✓" },
+    { label: "Canonical command CLI", detail: "Registered upload, transcription, caption, and job status, outcome-checking, and cancellation commands with stable identities, formats, and exit status.", count: "15 CLI checks", icon: "✓" },
     { label: "TypeScript and browser build", detail: `Strict TypeScript checks pass for the simulation package and browser client; all ${specificationArtifacts.length} specification records are bundled.`, count: "PASS · Vite 7.3.1", icon: "✓" },
   ];
   const pending = [
-    { label: "Tools phase verification", detail: "All four representative root-level materials match both the Gradle and pnpm root build units, so the canonical planner returns PLANNER_BINDING_OWNER_AMBIGUOUS; evidence authority is unavailable.", status: "CANDIDATE PLAN", tone: "caution" },
+    { label: "Tools phase verification", detail: "An explicit repo-root:pnpm binding resolves the shared-root materials and the canonical planner selects readiness, rollup, and scan. Evidence Generator authority is unavailable, so these materials remain unverified.", status: "EVIDENCE AUTHORITY OPEN", tone: "caution" },
     { label: "Browser host binding", detail: "This browser client renders Media-specific projections. Published Tools host integration remains open.", status: "OPEN", tone: "neutral" },
-    { label: "All baseline views and journeys", detail: "All 41 baseline view proposal contracts are authored. The 24 added journeys have Phase 0-grounded proposal files, but full action/state/scenario/channel bindings, owner review, and acceptance remain open.", status: "OPEN", tone: "neutral" },
+    { label: "All baseline views and journeys", detail: "All 41 baseline view proposals and six selected-lane specializations have source-derived Product routes; proposal actions remain disabled. Full action semantics, state/scenario/channel bindings, journey behavior, owner review, and acceptance remain open.", status: "OPEN", tone: "neutral" },
     { label: "Visual and accessibility review", detail: "Local screenshots have been inspected; full accessibility evidence and independent human review are not recorded.", status: "REVIEW REQUIRED", tone: "caution" },
   ];
   return `<div class="verify-workspace" id="main-content"><header class="verify-header"><div><div class="eyebrow">EVIDENCE & COVERAGE</div><h1>Verify experience</h1><p>Separate model checks from phase acceptance and browser review.</p></div><button type="button" class="button button-outline" data-mode="specification">Review source records</button></header>
-    <div class="verify-summary"><div class="verify-summary-icon">✓</div><div><strong>Local simulation checks pass</strong><span>These checks cover J-01 synthetic first-use, J-02 metadata-only artifact intake and verification-job CLI, J-20 transcription-job recovery, and the selected J-03 audio transcript and caption workflow. They do not accept Phases 0–3.</span></div><button type="button" class="text-button" data-run-local-checks aria-expanded="${showVerificationCommands}">${showVerificationCommands ? "Hide commands" : "Show commands"} <span aria-hidden="true">→</span></button></div>
+    <div class="verify-summary"><div class="verify-summary-icon">✓</div><div><strong>Local simulation checks pass</strong><span>These checks cover J-01 synthetic first-use, J-02 metadata-only artifact intake and verification-job CLI, J-20 transcription-job recovery, and the selected J-03 audio transcript and caption workflow. They do not accept Phases 0–3.</span></div><button type="button" class="text-button" data-run-local-checks aria-expanded="${showVerificationCommands}">${showVerificationCommands ? "Hide verification commands" : "Show verification commands"} <span aria-hidden="true">→</span></button></div>
     <section class="verify-section phase-status-section"><div class="verify-section-heading"><div><h2>Phase status</h2><p>Local work, owner review, and acceptance are separate states.</p></div><span class="section-count">4 phases</span></div><div class="phase-status-grid">${phaseStates.map((phase) => `<article class="phase-status-card"><div class="phase-status-heading"><span>${phase.id}</span><strong>${escapeHtml(phase.status)}</strong></div><h3>${escapeHtml(phase.title)}</h3><p>${escapeHtml(phase.detail)}</p></article>`).join("")}</div></section>
     ${showVerificationCommands ? `<pre class="verify-local-commands"><code>pnpm dlx --package typescript@6.0.3 tsc --noEmit -p apps/media-experience-explorer/tsconfig.json
 pnpm dlx --package typescript@6.0.3 tsc --noEmit -p libs/media-experience-simulation/tsconfig.json
@@ -869,13 +1022,30 @@ node --test libs/media-experience-simulation/tests/*.test.mjs
 pnpm dlx vite@7.3.1 build --config apps/media-experience-explorer/vite.config.mjs</code></pre>` : ""}
     <section class="verify-section"><div class="verify-section-heading"><div><h2>Verified local behavior</h2><p>Evidence recorded for the deterministic simulation package.</p></div><span class="section-count">${passed.length} checks</span></div><div class="check-grid">${passed.map((check) => `<article class="check-card"><span class="check-icon">${check.icon}</span><div><h3>${check.label}</h3><p>${check.detail}</p><small>${check.count}</small></div><span class="check-state">PASS</span></article>`).join("")}</div></section>
     <section class="verify-section"><div class="verify-section-heading"><div><h2>Open phase evidence</h2><p>Structural catalog checks do not prove semantic completeness or acceptance.</p></div><span class="section-count">${pending.length} open</span></div><div class="pending-list">${pending.map((item) => `<article class="pending-card"><span class="pending-status ${item.tone}">${escapeHtml(item.status)}</span><div><h3>${item.label}</h3><p>${item.detail}</p></div></article>`).join("")}</div></section>
-    <div class="verify-command"><div><span class="terminal-small-icon">›_</span><span><strong>Manage phase evidence with ghatana-tools</strong><small>Run from the Tools repository with the Media repository root and a phase material.</small></span></div><code>product-dev workspace verify --root &lt;media-root&gt; --subject ghatana.product/media --material &lt;path&gt; --stage &lt;stage&gt; --claim &lt;classification&gt;</code></div>
+    <div class="verify-command"><div><span class="terminal-small-icon">›_</span><span><strong>Verify phase evidence with ghatana-tools</strong><small>Run from the Tools repository, pass both repository roots, and bind the shared-root build unit explicitly.</small></span></div><code>node tools/product-development/cli/dist/bin/product-dev.js workspace verify --root &lt;media-root&gt; --root &lt;tools-root&gt; --subject samujjwal/ghatana-media:media --material &lt;path&gt; --stage &lt;stage&gt; --claim &lt;classification&gt; --build-unit repo-root:pnpm</code></div>
   </div>`;
 }
 
 function mainContent(): string {
   switch (mode) {
-    case "product": return productSurface();
+    case "product": {
+      if (location.hash.startsWith("#product/view/") && !selectedProductContract) {
+        return `<div class="product-app product-contract-app"><header class="product-topbar"><a class="product-brand" href="#product" data-product-home><span class="product-mark" aria-hidden="true">M</span><span>Media</span></a></header><main class="product-contract-main" id="main-content" tabindex="-1"><a class="product-back-link" href="#product" data-product-home>← Media workspace</a><section class="product-contract-empty"><h1>View proposal not found</h1><p>This Product route does not match a registered screen contract.</p><a class="button button-outline" href="#product" data-product-home>Return to Media</a></section></main></div>`;
+      }
+      if (!selectedProductContract) {
+        return productSurface();
+      }
+      ensureSpecificationContentLoaded(selectedProductContract);
+      if (actionRegistryArtifact) ensureSpecificationContentLoaded(actionRegistryArtifact);
+      const source = specificationContents.get(selectedProductContract.path);
+      const actionRegistrySource = actionRegistryArtifact ? specificationContents.get(actionRegistryArtifact.path) : "";
+      const failure = specificationErrors.get(selectedProductContract.path);
+      const actionRegistryPending = actionRegistryArtifact && actionRegistrySource === undefined && !specificationErrors.has(actionRegistryArtifact.path);
+      const content = source === undefined || actionRegistryPending
+        ? `<main class="product-contract-main" id="main-content" tabindex="-1"><p class="product-proposal-empty">${escapeHtml(failure ?? "Loading view proposal…")}</p></main>`
+        : renderProductContractProjection(selectedProductContract, source, actionRegistrySource ?? "");
+      return `<div class="product-app product-contract-app ${highContrast ? "contrast-on" : ""} ${reducedMotion ? "motion-reduced" : ""}"><header class="product-topbar"><a class="product-brand" href="#product" data-product-home><span class="product-mark" aria-hidden="true">M</span><span>Media</span><span class="brand-divider"></span><span class="product-breadcrumb">${escapeHtml(selectedProductContract.title)}</span></a><span class="product-contract-topbar-note">Synthetic proposal</span></header>${content}</div>`;
+    }
     case "explore": return exploreSurface();
     case "specification": return specificationSurface();
     case "verify": return verificationSurface();
@@ -883,14 +1053,19 @@ function mainContent(): string {
 }
 
 function render(): void {
+  const focusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const focusAddress = focusAddressFor(focusedElement);
   const content = mode === "product"
     ? mainContent()
     : `${explorerHeader()}<div id="explorer-panel" role="tabpanel" aria-labelledby="mode-${mode}" tabindex="0">${mainContent()}</div>`;
   root!.innerHTML = `${content}<div class="global-announcer" role="status" aria-live="polite">${escapeHtml(transientAnnouncement)}</div>`;
+  restoreFocus(focusAddress);
   root!.dataset.mode = mode;
   document.title = mode === "product"
-    ? `Media · ${activeProductViewTitle()}`
-    : `Media Experience Explorer · ${titleCase(mode)}`;
+    ? selectedProductContract ? `Media · ${selectedProductContract.title}`
+      : location.hash.startsWith("#product/view/") ? "Media · View proposal not found"
+        : `Media · ${activeProductViewTitle()}`
+    : `Media Experience Explorer · ${readableLabel(mode)}`;
 }
 
 function runCommand(command: string): void {
@@ -948,7 +1123,7 @@ function runCommand(command: string): void {
     ? JSON.stringify(report, null, 2)
     : parsed.format === "jsonl"
       ? JSON.stringify({ recordType: "result", ...report })
-      : `${result.applied ? "Applied" : `Blocked · ${result.reasonCode ?? "UNKNOWN"}`}\n${result.message}\n${verification ? `Verification job: ${report.state} (${report.finality}) · ${verification.jobId}\nRelated upload: ${verification.uploadId}\nVerification stage: ${titleCase(verification.stage)}` : report.uploadId ? `Upload: ${report.state} (${report.finality}) · ${report.uploadId}` : `Job: ${report.state} (${report.finality})`}\nNext safe action: ${report.nextAction ?? "none"}${result.effectIds.length ? `\nEffects: ${result.effectIds.join(", ")}` : ""}`;
+      : formatMediaCliHumanResult(report);
   cliHistory = [...cliHistory, { command, output, exitCode: result.applied ? 0 : 2 }];
   render();
 }
@@ -958,11 +1133,11 @@ function runCliScreen(): string {
   const uploadId = state.workflow === "artifact-intake" ? state.artifactIntake.uploadId : null;
   const commandPlaceholder = uploadId
     ? `ghatana-media upload inspect --upload ${uploadId}`
-    : `ghatana-media job inspect --job ${verificationJobId ?? state.job.jobId ?? "<job-id>"}`;
+    : `ghatana-media job status --job ${verificationJobId ?? state.job.jobId ?? "<job-id>"}`;
   const historyOutput = cliHistory.length
     ? cliHistory.map((row) => `<div class="terminal-entry"><div class="terminal-command-line"><span class="terminal-prompt">$</span> ${escapeHtml(row.command)}</div><pre class="terminal-response ${row.exitCode ? "has-error" : ""}">${escapeHtml(row.output)}<span class="exit-code">[exit ${row.exitCode}]</span></pre></div>`).join("")
-    : `<p class="terminal-empty">No commands run in this fixture yet. Enter a registered ghatana-media command below.</p>`;
-  return `<section class="cli-surface" id="main-content"><div class="cli-intro"><div><div class="eyebrow">APPLICATION CHANNEL</div><h2>Media CLI</h2><p>Enter a registered command. The projection uses the same fixture state and reducer as the web view.</p></div><span class="cli-contract-badge">SIMULATION · NO REMOTE CALLS</span></div><div class="cli-terminal"><div class="terminal-window-bar"><span class="terminal-light red"></span><span class="terminal-light yellow"></span><span class="terminal-light green"></span><span class="terminal-title">ghatana-media</span><button class="terminal-clear" type="button" data-clear-cli>Clear</button></div><div class="terminal-output" aria-live="polite">${historyOutput}</div><form id="command-form" class="command-form"><label class="terminal-prompt" for="command-input">$</label><input id="command-input" type="text" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(commandPlaceholder)}" aria-label="Enter a Media CLI command" /><button type="submit" class="button button-primary button-small">Run</button></form></div><div class="cli-help-row"><button type="button" class="text-button" data-cli-help>Show command help</button><span>Stable reason codes and finality are preserved in the shared projection.</span></div><details class="cli-state-details"><summary>Current state JSON</summary><pre>${escapeHtml(JSON.stringify(latestProjection(), null, 2))}</pre></details></section>`;
+    : `<p class="terminal-empty">This fixture has no command output yet. Enter a registered ghatana-media command below.</p>`;
+  return `<section class="cli-surface" id="cli-projection" data-preview-width="${viewportWidth}" aria-labelledby="cli-projection-title"><div class="cli-intro"><div><div class="eyebrow">APPLICATION CHANNEL</div><h2 id="cli-projection-title">Media CLI</h2><p>Enter a registered command. The projection uses the same fixture state and reducer as the web view.</p></div><span class="cli-contract-badge">SIMULATION · NO REMOTE CALLS</span></div><div class="cli-terminal"><div class="terminal-window-bar"><span class="terminal-light red"></span><span class="terminal-light yellow"></span><span class="terminal-light green"></span><span class="terminal-title">ghatana-media</span><button class="terminal-clear" type="button" data-clear-cli>Clear</button></div><div class="terminal-output" aria-live="polite">${historyOutput}</div><form id="command-form" class="command-form"><label class="terminal-prompt" for="command-input">$</label><input id="command-input" type="text" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(commandPlaceholder)}" aria-label="Enter a Media CLI command" /><button type="submit" class="button button-primary button-small">Submit command</button></form></div><div class="cli-help-row"><button type="button" class="text-button" data-cli-help>Show command help</button><span>Stable reason codes and finality are preserved in the shared projection.</span></div><details class="cli-state-details"><summary>Current state JSON</summary><pre>${escapeHtml(JSON.stringify(latestProjection(), null, 2))}</pre></details></section>`;
 }
 
 function terminalProjection(): string {
@@ -974,6 +1149,7 @@ function updateMode(nextMode: ExplorerMode, restoreTabFocus = false): void {
   if (mode === nextMode) return;
   history.pushState({ explorerMode: nextMode }, "", `#${nextMode}`);
   mode = nextMode;
+  selectedProductContract = null;
   transientAnnouncement = "";
   render();
   if (restoreTabFocus) root!.querySelector<HTMLButtonElement>(`#mode-${nextMode}`)?.focus();
@@ -982,6 +1158,11 @@ function updateMode(nextMode: ExplorerMode, restoreTabFocus = false): void {
 
 window.addEventListener("popstate", () => {
   mode = modeFromLocation() ?? "explore";
+  selectedProductContract = productContractFromLocation() ?? null;
+  if (selectedProductContract) {
+    selectedPhase = selectedProductContract.phase;
+    selectedArtifact = selectedProductContract;
+  }
   transientAnnouncement = "";
   render();
   if (mode !== "product") root!.querySelector<HTMLButtonElement>(`#mode-${mode}`)?.focus();
@@ -990,15 +1171,43 @@ window.addEventListener("popstate", () => {
 root.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
+  const productHomeLink = target.closest<HTMLAnchorElement>("a[data-product-home]");
+  if (productHomeLink) {
+    event.preventDefault();
+    history.pushState({ explorerMode: "product" }, "", "#product");
+    mode = "product";
+    selectedProductContract = null;
+    transientAnnouncement = "";
+    render();
+    root!.querySelector<HTMLElement>("#main-content")?.focus();
+    return;
+  }
+  const productProjectionButton = target.closest<HTMLButtonElement>("button[data-open-product-screen]");
+  if (productProjectionButton) {
+    const artifact = screenContractArtifacts.find(({ path }) => path === productProjectionButton.dataset.openProductScreen);
+    if (!artifact) return;
+    selectedProductContract = artifact;
+    selectedArtifact = artifact;
+    selectedPhase = artifact.phase;
+    history.pushState({ explorerMode: "product", productContractPath: artifact.path }, "", `#product/view/${encodeURIComponent(artifact.path)}`);
+    mode = "product";
+    transientAnnouncement = "";
+    render();
+    root!.querySelector<HTMLElement>("#main-content")?.focus();
+    return;
+  }
   const modeButton = target.closest<HTMLButtonElement>("button[data-mode]");
-  if (modeButton) { updateMode(modeButton.dataset.mode as ExplorerMode); return; }
+  if (modeButton) {
+    updateMode(modeButton.dataset.mode as ExplorerMode, modeButton.getAttribute("role") === "tab");
+    return;
+  }
   const homeLink = target.closest<HTMLAnchorElement>("a[data-mode]");
-  if (homeLink) { event.preventDefault(); updateMode(homeLink.dataset.mode as ExplorerMode); return; }
+  if (homeLink) { event.preventDefault(); updateMode(homeLink.dataset.mode as ExplorerMode, true); return; }
   const workflowButton = target.closest<HTMLElement>("[data-workflow-view]");
   if (workflowButton) {
     const workflowView = workflowButton.dataset.workflowView;
-    if (workflowView === "setup" || workflowView === "projects" || workflowView === "project" || workflowView === "source" || workflowView === "transcript" || workflowView === "captions" || workflowView === "versions" || workflowView === "browse" || workflowView === "import" || workflowView === "artifact" || workflowView === "review-activity" || workflowView === "inspect-job") {
-      const stoppedWatching = state.workflow === "transcription" && productView === "inspect-job" && workflowView === "transcript";
+    if (workflowView === "setup" || workflowView === "projects" || workflowView === "project" || workflowView === "source" || workflowView === "transcript" || workflowView === "captions" || workflowView === "versions" || workflowView === "browse" || workflowView === "import" || workflowView === "artifact" || workflowView === "review-activity" || workflowView === "job-status") {
+      const stoppedWatching = state.workflow === "transcription" && productView === "job-status" && workflowView === "transcript";
       productView = workflowView;
       if (stoppedWatching) transientAnnouncement = "You stopped watching this job. The job continues until its owner reports a final state.";
       if (state.workflow === "transcription" && workflowView === "source" && !currentSource().selected && latestProjection().safeActionIds.includes("media.action.choose-source")) {
@@ -1023,11 +1232,14 @@ root.addEventListener("click", (event) => {
       case "resume-artifact-upload": applyAction({ type: "media.action.resume-artifact-upload" }); break;
       case "inspect-provenance": applyAction({ type: "media.action.inspect-provenance" }); break;
       case "review-transcript": applyAction({ type: "media.action.review-transcript" }); break;
-      case "inspect-job":
-        productView = "inspect-job";
-        applyAction({ type: "media.action.inspect-job" });
+      case "view-job-status":
+        productView = "job-status";
+        applyAction({ type: "media.action.view-job-status" });
         break;
-      case "reconcile-job": applyAction({ type: "media.action.reconcile-job" }); break;
+      case "check-job-outcome":
+        productView = "job-status";
+        applyAction({ type: "media.action.check-job-outcome" });
+        break;
       case "request-cancellation": applyAction({ type: "media.action.request-cancellation" }); break;
       case "save-caption-version": {
         const purpose = root!.querySelector<HTMLInputElement>("#caption-version-purpose")?.value.trim() ?? "";
@@ -1075,10 +1287,10 @@ root.addEventListener("click", (event) => {
   const eventButton = target.closest<HTMLElement>("[data-event]");
   if (eventButton) {
     const eventId = eventButton.dataset.event;
-    if (eventId === "job.reconciliation-completed") {
-      const outcome = root!.querySelector<HTMLSelectElement>("#reconciliation-outcome")?.value;
-      const reconciliationEvent = { type: eventId, outcome };
-      if (isSimulationEvent(reconciliationEvent)) applyEvent(reconciliationEvent as SimulationEvent);
+    if (eventId === "job.outcome-check-completed") {
+      const outcome = root!.querySelector<HTMLSelectElement>("#checked-job-outcome")?.value;
+      const outcomeCheckEvent = { type: eventId, outcome };
+      if (isSimulationEvent(outcomeCheckEvent)) applyEvent(outcomeCheckEvent as SimulationEvent);
     } else if (eventId && isSimulationEvent({ type: eventId })) {
       applyEvent({ type: eventId } as SimulationEvent);
     }
@@ -1091,12 +1303,19 @@ root.addEventListener("click", (event) => {
     }
     return;
   }
-  const phaseButton = target.closest<HTMLElement>("[data-phase]");
-  if (phaseButton) { selectedPhase = phaseButton.dataset.phase as ExperiencePhase; selectedArtifact = specificationArtifacts.find((artifact) => artifact.phase === selectedPhase)!; render(); return; }
+  const phaseButton = target.closest<HTMLButtonElement>("button[role=radio][data-phase]");
+  if (phaseButton) {
+    const phase = phaseButton.dataset.phase as ExperiencePhase;
+    selectedPhase = phase;
+    selectedArtifact = specificationArtifacts.find((artifact) => artifact.phase === phase)!;
+    render();
+    root!.querySelector<HTMLButtonElement>(`#${phaseTabId(phase)}`)?.focus();
+    return;
+  }
   const artifactButton = target.closest<HTMLElement>("[data-artifact]");
   if (artifactButton) { selectedArtifact = specificationArtifacts.find((artifact) => artifact.path === artifactButton.dataset.artifact)!; render(); return; }
   if (target.closest("[data-reset]")) { state = createFixtureState("media.scenario.transcript-ready"); lastResult = null; cliHistory = []; versionPurpose = ""; productView = "transcript"; transientAnnouncement = "Scenario reset to transcript ready."; render(); return; }
-  if (target.closest("[data-toggle-details]")) { detailsVisible = !detailsVisible; transientAnnouncement = detailsVisible ? "Source and job details shown." : "Source and job details hidden."; render(); return; }
+  if (target.closest("[data-toggle-details]")) { detailsVisible = !detailsVisible; transientAnnouncement = detailsVisible ? "Source and job information shown." : "Source and job information hidden."; render(); return; }
   if (target.closest("[data-cli-help]")) { runCommand("help"); return; }
   if (target.closest("[data-clear-cli]")) { cliHistory = []; render(); return; }
   if (target.closest("[data-run-local-checks]")) { showVerificationCommands = !showVerificationCommands; render(); }
@@ -1118,7 +1337,7 @@ root.addEventListener("change", (event) => {
       : state.workflow === "artifact-intake"
         ? state.artifactIntake?.status === "INTERRUPTED" || state.artifactIntake?.status === "OUTCOME_UNKNOWN" ? "import" : "artifact"
         : state.workflow === "artifact-verification"
-          ? "inspect-job"
+          ? "job-status"
           : "transcript";
     transientAnnouncement = `Loaded ${scenarioId.replace("media.scenario.", "")} scenario.`;
     render();
@@ -1177,6 +1396,10 @@ root.addEventListener("submit", (event) => {
   }
 });
 
+compactPhaseSelector.addEventListener("change", (event) => {
+  root!.querySelector<HTMLElement>(".phase-selector")?.setAttribute("aria-orientation", event.matches ? "horizontal" : "vertical");
+});
+
 root.addEventListener("keydown", (event) => {
   if (mode === "product") return;
   const focusedTab = event.target instanceof HTMLElement ? event.target.closest<HTMLButtonElement>("button[role=tab][data-mode]") : null;
@@ -1187,10 +1410,23 @@ root.addEventListener("keydown", (event) => {
     updateMode(supportedModes[nextIndex]!.id, true);
     return;
   }
+  const focusedPhase = event.target instanceof HTMLElement ? event.target.closest<HTMLButtonElement>("button[role=radio][data-phase]") : null;
+  if (focusedPhase && ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"].includes(event.key)) {
+    const currentIndex = phaseIds.indexOf(focusedPhase.dataset.phase as ExperiencePhase);
+    const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? phaseIds.length - 1
+      : (currentIndex + (["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : phaseIds.length - 1)) % phaseIds.length;
+    event.preventDefault();
+    const nextPhase = phaseIds[nextIndex]!;
+    selectedPhase = nextPhase;
+    selectedArtifact = specificationArtifacts.find((artifact) => artifact.phase === nextPhase)!;
+    render();
+    root!.querySelector<HTMLButtonElement>(`#${phaseTabId(nextPhase)}`)?.focus();
+    return;
+  }
   if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) return;
   if (event.altKey || event.ctrlKey || event.metaKey) return;
   const requestedMode = supportedModes.find((item) => item.shortcut === event.key);
-  if (requestedMode) { event.preventDefault(); updateMode(requestedMode.id); }
+  if (requestedMode) { event.preventDefault(); updateMode(requestedMode.id, true); }
 });
 
 render();

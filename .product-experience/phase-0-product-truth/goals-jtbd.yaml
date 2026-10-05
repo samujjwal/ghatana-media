@@ -253,7 +253,7 @@ intents:
   - media.operator
   - media.automation-client
   - media.worker
-  description: Inspect, cancel, retry, reconcile, or recover a job without replaying unknown external effects or weakening
+  description: View status, check an uncertain outcome, stop, retry, or recover a job without replaying unknown external effects or weakening
     policy.
   journeyRefs:
   - J-20

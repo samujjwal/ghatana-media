@@ -23,7 +23,7 @@ steps:
     action: media.action.resume-artifact-upload
     when: an-existing-upload-is-interrupted-and-its-identity-source-metadata-and-current-authority-still-match
     result: resume-the-matching-upload-or-explain-why-it-cannot-resume; never-create-a-duplicate-from-an-unknown-result
-  - view: media.view.inspect-job
+  - view: media.view.job-status
     when: the-owner-contract-returns-a-stable-job-identity-for-asynchronous-integrity-or-format-verification
     result: show-the-existing-verification-job-and-finality; do-not-label-a-transfer-id-as-a-processing-job
   - view: media.view.inspect-media

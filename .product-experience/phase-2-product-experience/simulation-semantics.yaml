@@ -7,7 +7,7 @@ rules:
   - Use the same Media action IDs and state transitions for Web projection, terminal projection, and API examples.
   - Validate actor context, current simulated authority, consent, source version, and action preconditions before effects.
   - Reset restores the fixture baseline; replaying the same action/event sequence produces the same state and output.
-  - An unknown external outcome stays unknown until a fixture reconciliation event supplies evidence.
+  - An unknown external outcome stays unknown until a fixture outcome-check event supplies evidence.
   - Simulated success is labelled as simulation and is never runtime qualification evidence.
 channelProjection:
   web: same-product-state-and-action-results

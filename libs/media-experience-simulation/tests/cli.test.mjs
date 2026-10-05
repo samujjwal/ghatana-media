@@ -36,7 +36,7 @@ test("JSONL output contains one record per input and a final projection summary"
     "--scenario",
     "media.scenario.job-outcome-unknown",
     "--action",
-    JSON.stringify({ type: "media.action.reconcile-job" }),
+    JSON.stringify({ type: "media.action.check-job-outcome" }),
     "--format",
     "jsonl",
   );
@@ -67,7 +67,7 @@ test("malformed action and event payloads fail with usage errors instead of runt
     "--scenario",
     "media.scenario.job-running",
     "--event",
-    JSON.stringify({ type: "job.reconciliation-completed" }),
+    JSON.stringify({ type: "job.outcome-check-completed" }),
   );
 
   assert.equal(malformedAction.status, 2);

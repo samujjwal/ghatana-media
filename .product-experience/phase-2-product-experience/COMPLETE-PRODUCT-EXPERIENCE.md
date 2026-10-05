@@ -12,14 +12,17 @@ Phase 0 journeys. J-01 has a proposal journey contract with five supporting
 view fragments. J-02 has a proposal contract with five artifact/job view
 fragments, seven metadata-only upload payloads, and three synthetic
 verification-job payloads implemented in Phase 3. J-20 adds a proposed
-transcription-job observation and cancellation slice through the shared
-`media.view.inspect-job` contract; owner job-runtime bindings remain unbound.
+transcription-job observation, cancellation, and policy-gated retry path through
+the shared `media.view.job-status` contract; owner job-runtime bindings remain
+unbound. Retry requires a classified retryable attempt and fresh authority,
+policy, and budget checks; the local fixture CLI does not execute it.
 J-03 retains its audio-only lane contract with six lane-specific view
 specializations. These do not close the full screen denominator:
-complete contracts for all 41 baseline views, full action/state/scenario/channel coverage across the 28 required journeys, API wire bindings, journey-wide CLI behavior, and embedded-host behavior remain open. The 24 added journey files are Phase 0-grounded proposals with ordered screen references, not complete or accepted contracts. The local
-CLI covers selected J-02 upload inspection/resume, existing-job inspection and
-reconciliation, and J-20 transcription-job cancellation through the shared
-reducer; it does not transfer file bytes or watch a live job stream.
+complete contracts for all 41 baseline views, full action/state/scenario/channel coverage across the 28 required journeys, API wire bindings, journey-wide CLI behavior, and embedded-host behavior remain open. All authored screen action intents now resolve to intent-based proposal action references; detailed action effects, authority, component interactions, state transitions, and owner approval remain open. The 24 added journey files are Phase 0-grounded proposals with ordered screen references, not complete or accepted contracts. The local
+CLI covers selected J-02 upload inspection/resume, existing-job status viewing and
+outcome checking, and J-20 transcription-job cancellation through the shared
+reducer; the proposed retry command is not implemented in the fixture CLI. The
+CLI does not transfer file bytes or watch a live job stream.
 
 ## Detailed outcome
 

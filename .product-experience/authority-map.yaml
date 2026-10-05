@@ -459,7 +459,7 @@ phaseAuthorities:
     authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
     acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-INSPECT-QUALITY-AND-OPTIMIZE-WITHIN-BOUNDS-YAML
-    title: Inspect quality and run bounded optimization
+    title: Review media quality and improve it within declared limits
     path: phase-2-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml
     role: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
@@ -576,9 +576,9 @@ phaseAuthorities:
     role: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
     acceptanceState: job-family-specialization-proposal; verification-owner-contract-pending; no-Phase-2-acceptance
-  - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-JOB-YAML
-    title: Inspect Job
-    path: phase-2-product-experience/screen-contracts/inspect-job.yaml
+  - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-JOB-STATUS-YAML
+    title: View job status
+    path: phase-2-product-experience/screen-contracts/job-status.yaml
     role: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
@@ -630,9 +630,9 @@ phaseAuthorities:
     role: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
     acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
-  - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-RESOLVE-JOB-OUTCOME-YAML
-    title: Resolve Job Outcome
-    path: phase-2-product-experience/screen-contracts/resolve-job-outcome.yaml
+  - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-JOB-OUTCOME-YAML
+    title: Check Job Outcome
+    path: phase-2-product-experience/screen-contracts/check-job-outcome.yaml
     role: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
     acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
@@ -778,7 +778,7 @@ phaseAuthorities:
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
       no-Phase-2-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EXPLORE-SIMULATION-YAML
-    title: Run a simulation
+    title: Explore a simulation and inspect its results
     path: phase-2-product-experience/screen-contracts/explore-simulation.yaml
     role: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
@@ -841,7 +841,7 @@ phaseAuthorities:
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
       no-Phase-2-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-RIGHTS-AND-CONSENT-YAML
-    title: Manage rights
+    title: Review rights and consent for media use
     path: phase-2-product-experience/screen-contracts/review-rights-and-consent.yaml
     role: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
@@ -876,7 +876,7 @@ phaseAuthorities:
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
       no-Phase-2-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-WORKSPACE-SETTINGS-YAML
-    title: Manage settings
+    title: Review and change workspace settings
     path: phase-2-product-experience/screen-contracts/review-workspace-settings.yaml
     role: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase

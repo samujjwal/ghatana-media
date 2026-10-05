@@ -37,8 +37,12 @@ states:
 - outcome-unknown
 - acknowledged
 - rejected
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.choose-named-destination
+- media.action.review-rights-approval-and-format-effects
+- media.action.deliver-exact-version
+- media.action.reconcile-delivery-acknowledgment
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - choose a named destination
 - review rights, approval, and format effects
@@ -77,3 +81,21 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: choose a named destination
+  actionRefs:
+  - media.action.choose-named-destination
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: review rights, approval, and format effects
+  actionRefs:
+  - media.action.review-rights-approval-and-format-effects
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: deliver the exact version explicitly
+  actionRefs:
+  - media.action.deliver-exact-version
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: reconcile uncertain acknowledgment
+  actionRefs:
+  - media.action.reconcile-delivery-acknowledgment
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

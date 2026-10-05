@@ -16,7 +16,7 @@ contracts:
     blocked: restart-or-route-around-consent
   - id: media.recovery.outcome-unknown
     state: media-job.OUTCOME_UNKNOWN
-    allowed: inspect-or-reconcile-existing-job-identity
+    allowed: view-existing-job-status-or-check-its-outcome
     blocked: submit-duplicate-request-or-report-cancellation-as-confirmed
   - id: media.recovery.version-conflict
     state: concurrent-caption-revision

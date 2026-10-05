@@ -13,7 +13,7 @@ contextGoalNowNext:
   goal: Plan and review a video-generation request with explicit temporal scope and limitations.
   now: Show admitted inputs and controls, expected duration/frame scope, continuity evidence, estimates, and job
     finality.
-  next: Edit the plan, inspect candidates, or reconcile an uncertain job before any retry.
+  next: Edit the plan, inspect candidates, or check an uncertain job outcome before any new request.
 anatomy:
 - video-outcome
 - source-and-reference-versions
@@ -39,14 +39,17 @@ states:
 - completed
 - failed
 actions:
-- media.action.inspect-job
-- media.action.reconcile-job
+- media.action.view-job-status
+- media.action.check-job-outcome
 - media.action.request-cancellation
-actionBindingState: bound-to-existing-P2-actions
+- media.action.edit-video-temporal-plan
+- media.action.submit-validated-request
+- media.action.compare-media-versions
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - edit the temporal plan
 - submit a validated request
-- inspect or reconcile the exact job
+- view the exact job status or check its outcome
 - compare returned candidates
 channelDispositions:
 - channelRef: media.channel.web
@@ -59,7 +62,8 @@ channelDispositions:
   disposition: host-rendering-and-focus-contract-not-bound
 validation: Show source time separately from output time; mark estimates and continuity observations by evidence
   basis; a completed job does not prove quality or rights.
-recovery: Keep the same job identity for inspect, cancel, and reconcile; do not offer blind retry for unknown finality.
+recovery: Keep the same job identity to view status, request a stop, and check its outcome; do not offer blind retry
+  for unknown finality.
 responsive: Use a focused job/candidate view; preserve source version, timebase, and job finality while secondary
   controls collapse.
 accessibility: Provide keyboard access to temporal controls and semantic candidate summaries; expose progress only
@@ -88,3 +92,22 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: edit the temporal plan
+  actionRefs:
+  - media.action.edit-video-temporal-plan
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: submit a validated request
+  actionRefs:
+  - media.action.submit-validated-request
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: view the exact job status or check its outcome
+  actionRefs:
+  - media.action.view-job-status
+  - media.action.check-job-outcome
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: compare returned candidates
+  actionRefs:
+  - media.action.compare-media-versions
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

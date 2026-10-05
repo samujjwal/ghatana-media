@@ -98,6 +98,6 @@ messages:
   - id: media.copy.compare.mismatch
     text: These versions use different recording versions, so their differences may not be comparable.
     context: source-version-mismatch
-  - id: media.copy.job.reconciled
-    text: We checked the existing request. Its recorded outcome is shown below.
-    context: reconciliation-completed-with-classified-result
+  - id: media.copy.job.outcome-checked
+    text: The outcome for this job is confirmed and shown below.
+    context: outcome-check-completed-with-classified-result

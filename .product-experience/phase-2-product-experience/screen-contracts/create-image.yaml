@@ -36,8 +36,12 @@ states:
 - outcome-unknown
 - candidates-ready
 - partial-result
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.edit-requested-outcome-and-admitted-controls
+- media.action.select-authorized-reference
+- media.action.submit-validated-request
+- media.action.inspect-generated-candidates
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - edit the requested outcome or admitted controls
 - select an authorized reference
@@ -72,3 +76,21 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: edit the requested outcome or admitted controls
+  actionRefs:
+  - media.action.edit-requested-outcome-and-admitted-controls
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: select an authorized reference
+  actionRefs:
+  - media.action.select-authorized-reference
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: submit a validated request
+  actionRefs:
+  - media.action.submit-validated-request
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: inspect generated candidates
+  actionRefs:
+  - media.action.inspect-generated-candidates
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

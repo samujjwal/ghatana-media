@@ -90,12 +90,12 @@ families:
   requirementId: MEDIA-REQ-CAP-JOB
   capabilityIds:
   - media.job.submit
-  - media.job.inspect
+  - media.job.view-status
   - media.job.list
   - media.job.watch
   - media.job.cancel
   - media.job.retry
-  - media.job.reconcile
+  - media.job.check-outcome
   - media.job.outputs.inspect
   - media.job.history.inspect
 - id: media.stream
@@ -109,9 +109,9 @@ families:
   - media.stream.session.close
   - media.stream.session.reconnect
   - media.stream.ordering.enforce
-  - media.stream.lease.manage
+  - media.stream.lease.renew
   - media.stream.buffer.bound
-  - media.stream.backpressure.manage
+  - media.stream.backpressure.apply
   - media.stream.recording.integrate
   - media.stream.live-processing.integrate
   - media.stream.transport.webrtc
@@ -130,7 +130,7 @@ families:
   requirementId: MEDIA-REQ-CAP-CAPABILITY
   capabilityIds:
   - media.capability.discover
-  - media.capability.provider.diagnose
+  - media.capability.check-declared-options
   - media.capability.execution.compatibility
 - id: media.health
   masterPlanSection: §6.2
@@ -466,7 +466,7 @@ families:
   - media.enhance.video.frame-repair
   - media.enhance.video.frame-rate-conversion
   - media.enhance.video.motion-blur-synthesis
-  - media.enhance.video.grain-management
+  - media.enhance.video.grain.adjust
   - media.enhance.video.deinterlace
   - media.enhance.video.inverse-telecine-cadence
 - id: media.enhance.audio
@@ -6370,10 +6370,10 @@ capabilities:
   - J-03
   - J-20
   - J-27
-- id: media.job.inspect
+- id: media.job.view-status
   familyId: media.job
-  operation: inspect
-  label: Inspect job
+  operation: view-status
+  label: View job status
   definitionState: IN_SCOPE_DRAFT
   outcome: Return a tenant-authorized snapshot of one Media job with its current status dimensions and safe next
     actions.
@@ -6397,9 +6397,9 @@ capabilities:
     do not disclose cross-tenant existence.
   supportedParameters: 'Proposed input: one opaque Media job reference. The owning contract must define the exact
     reference format and which status, progress, attempt, finality, provenance, and safe-next-action fields are
-    returned. Inspection has no mutation parameters.'
+    returned. Viewing status has no mutation parameters.'
   constraints:
-  - Inspection is read-only and tenant-scoped.
+  - Status viewing is read-only and tenant-scoped.
   - Job status, stage progress, attempt status, remote-outcome certainty, cancellation outcome, quality disposition,
     review state, and delivery state remain distinct.
   - Missing progress or outcome evidence is reported as unknown; no percentage or terminal state is inferred.
@@ -6429,9 +6429,9 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Inspection observes the existing semantic job and never creates an attempt, retries
-    an effect, or changes cancellation state. If the observed outcome is uncertain, it must retain that uncertainty
-    and direct the caller to reconcile the same job identity.
+  cancellationRetryReconciliation: Status viewing reads the existing semantic job and never creates an attempt, retries
+    an effect, or changes cancellation state. If the outcome is uncertain, retain that uncertainty and direct the caller
+    to check the outcome of the same job identity.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -6447,11 +6447,11 @@ capabilities:
   - MEDIA-REQ-CAP-JOB
   acceptanceCases:
   - given: The caller has read authority for the job.
-    when: The caller inspects its job reference.
+    when: The caller views its job status.
     then: The result returns the current status dimensions, known/unknown progress, finality evidence, provenance
       references, and safe next actions without mutating the job.
-  - given: The job outcome is uncertain or reconciliation is active.
-    when: The caller inspects the job.
+  - given: The job outcome is uncertain or an outcome check is active.
+    when: The caller views the job status.
     then: The result preserves uncertainty and does not report completion, failure, or cancellation without authoritative
       evidence.
   qualificationDimensions:
@@ -7242,10 +7242,10 @@ capabilities:
   journeyRefs:
   - J-20
   - J-27
-- id: media.job.reconcile
+- id: media.job.check-outcome
   familyId: media.job
-  operation: reconcile
-  label: Reconcile job
+  operation: check-outcome
+  label: Check job outcome
   definitionState: IN_SCOPE_DRAFT
   outcome: Resolve the certainty and safe next action for one existing Media job from stable owner evidence.
   sourceScope:
@@ -7260,21 +7260,21 @@ capabilities:
   inputArtifactTypes:
   - tenant-scoped-media-job-reference
   - stable-attempt-or-provider-operation-reference
-  - authorized-reconciliation-evidence-reference
+  - authorized-outcome-evidence-reference
   outputArtifactTypes:
   - classified-job-and-attempt-outcome-with-evidence-references
   preconditions:
-  - The caller has verified reconciliation authority for the job and relevant provider/store evidence.
-  - The reconciliation targets the existing semantic job and stable attempt/provider operation identity.
+  - The caller has verified outcome-check authority for the job and relevant provider/store evidence.
+  - The outcome check targets the existing semantic job and stable attempt/provider operation identity.
   - Evidence is obtained from an owning provider, persistence, or operator contract and is safe to retain.
   supportedParameters: 'Proposed fields: opaque job reference; attempt or stable provider-operation reference; bounded
     evidence/continuation reference. Exact evidence types and redaction rules are owner-defined; raw provider bodies
     and credentials are never accepted as unrestricted input.'
   constraints:
-  - Reconciliation observes and classifies an existing effect; it is not a new submission.
+  - Outcome checking observes and classifies an existing effect; it is not a new submission.
   - Unknown stays visible until sufficient authoritative evidence exists.
   - Do not infer non-execution from timeout, process loss, lease expiry, or connection loss.
-  - Do not replay or create a new attempt as a side effect of reconciliation.
+  - Do not replay or create a new attempt as a side effect of outcome checking.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -7300,8 +7300,8 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Resolve the stable job/attempt identity against authoritative evidence, append
-    the evidence and classification, then expose only a safe next action. If evidence remains insufficient, keep
+  cancellationRetryReconciliation: Check the stable job/attempt identity against authoritative evidence, append the
+    evidence and classification, then expose only a safe next action. If evidence remains insufficient, keep
     OUTCOME_UNKNOWN and dispatch blocked.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
@@ -7318,11 +7318,11 @@ capabilities:
   - MEDIA-REQ-CAP-JOB
   acceptanceCases:
   - given: An existing job has an uncertain external outcome and stable owner evidence is available.
-    when: An authorized caller reconciles that job.
+    when: An authorized caller checks that job outcome.
     then: The system records evidence and classifies the outcome or preserves uncertainty, without creating a second
       semantic job or dispatch.
   - given: Evidence is absent, conflicting, or insufficient to prove finality.
-    when: Reconciliation completes.
+    when: The outcome check completes.
     then: The result remains unknown, identifies the evidence gap, and blocks blind retry.
   qualificationDimensions:
   - operation-and-contract-version
@@ -8942,12 +8942,12 @@ capabilities:
   unresolvedStateModelBindings: []
   journeyRefs:
   - J-29
-- id: media.stream.lease.manage
+- id: media.stream.lease.renew
   familyId: media.stream
-  operation: lease.manage
-  label: Manage stream leases
+  operation: lease.renew
+  label: Renew a stream connection lease
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can manage stream leases with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can renew a bounded lease for an admitted stream connection after rechecking its token and current consent; expiry and reconnect state remain explicit.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Audio/video/multimodal session open/connect/frame/ack/close, reconnect, ordering, leases, bounded buffers
@@ -9014,10 +9014,10 @@ capabilities:
   - MEDIA-REQ-CAP-STREAM
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes manage stream leases.
+    when: The actor renews a stream connection lease.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests manage stream leases.
+    when: The actor requests renewal of a stream connection lease.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -9278,12 +9278,12 @@ capabilities:
   unresolvedStateModelBindings: []
   journeyRefs:
   - J-29
-- id: media.stream.backpressure.manage
+- id: media.stream.backpressure.apply
   familyId: media.stream
-  operation: backpressure.manage
-  label: Manage stream backpressure
+  operation: backpressure.apply
+  label: Apply bounded backpressure to a stream
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can manage stream backpressure with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can apply bounded backpressure when a stream consumer falls behind, keeping buffer limits, acknowledgements, timeouts, and session termination explicit.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Audio/video/multimodal session open/connect/frame/ack/close, reconnect, ordering, leases, bounded buffers
@@ -9350,10 +9350,10 @@ capabilities:
   - MEDIA-REQ-CAP-STREAM
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes manage stream backpressure.
+    when: The actor applies bounded backpressure to a stream.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests manage stream backpressure.
+    when: The actor requests bounded backpressure for a stream.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -9785,9 +9785,9 @@ capabilities:
 - id: media.stream.transport.webrtc
   familyId: media.stream
   operation: transport.webrtc
-  label: WebRTC delivery profile
+  label: Deliver live media over WebRTC
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can webRTC delivery profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can request live media delivery over WebRTC through a qualified transport binding with explicit format, latency, and recovery limits.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Audio/video/multimodal session open/connect/frame/ack/close, reconnect, ordering, leases, bounded buffers
@@ -9854,10 +9854,10 @@ capabilities:
   - MEDIA-REQ-CAP-STREAM
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes webrtc delivery profile.
+    when: The actor requests live media delivery over WebRTC.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests webrtc delivery profile.
+    when: The actor requests live media delivery over WebRTC.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -9953,9 +9953,9 @@ capabilities:
 - id: media.stream.transport.adaptive-http
   familyId: media.stream
   operation: transport.adaptive-http
-  label: Adaptive HTTP delivery profile
+  label: Deliver live media with adaptive HTTP streaming
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can adaptive HTTP delivery profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can request live media delivery with adaptive HTTP streaming through a qualified transport binding with explicit format, latency, and recovery limits.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Audio/video/multimodal session open/connect/frame/ack/close, reconnect, ordering, leases, bounded buffers
@@ -10022,10 +10022,10 @@ capabilities:
   - MEDIA-REQ-CAP-STREAM
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes adaptive http delivery profile.
+    when: The actor requests live media delivery with adaptive HTTP streaming.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests adaptive http delivery profile.
+    when: The actor requests live media delivery with adaptive HTTP streaming.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -10121,9 +10121,9 @@ capabilities:
 - id: media.stream.transport.hls
   familyId: media.stream
   operation: transport.hls
-  label: HLS delivery profile
+  label: Deliver live media over HLS
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can hLS delivery profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can request live media delivery over HLS through a qualified transport binding with explicit format, latency, and recovery limits.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Audio/video/multimodal session open/connect/frame/ack/close, reconnect, ordering, leases, bounded buffers
@@ -10190,10 +10190,10 @@ capabilities:
   - MEDIA-REQ-CAP-STREAM
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes hls delivery profile.
+    when: The actor requests live media delivery over HLS.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests hls delivery profile.
+    when: The actor requests live media delivery over HLS.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -10289,9 +10289,9 @@ capabilities:
 - id: media.stream.transport.dash
   familyId: media.stream
   operation: transport.dash
-  label: DASH delivery profile
+  label: Deliver live media over DASH
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can dASH delivery profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can request live media delivery over DASH through a qualified transport binding with explicit format, latency, and recovery limits.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Audio/video/multimodal session open/connect/frame/ack/close, reconnect, ordering, leases, bounded buffers
@@ -10358,10 +10358,10 @@ capabilities:
   - MEDIA-REQ-CAP-STREAM
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes dash delivery profile.
+    when: The actor requests live media delivery over DASH.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests dash delivery profile.
+    when: The actor requests live media delivery over DASH.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -10753,7 +10753,7 @@ capabilities:
 - id: media.profile.validate
   familyId: media.profile
   operation: validate
-  label: Validate profile
+  label: Check media delivery compatibility
   definitionState: IN_SCOPE_DRAFT
   outcome: Evaluate one named output profile against an explicit outcome and input constraints, returning per-dimension
     compatibility and blockers without executing delivery.
@@ -10829,11 +10829,11 @@ capabilities:
   - MEDIA-REQ-CAP-PROFILE
   acceptanceCases:
   - given: The exact profile version, requested output, destination class, and input constraints are known.
-    when: The actor validates the profile.
+    when: The actor checks media delivery compatibility.
     then: The response returns per-dimension compatibility with reasons and evidence freshness and performs no media
       execution.
   - given: The profile or one required dimension is missing, stale, unsupported, or unqualified.
-    when: The actor validates it.
+    when: The actor checks media delivery compatibility.
     then: The result reports unknown/incompatible dimensions and required evidence; no alternate profile is silently
       selected.
   qualificationDimensions:
@@ -11013,12 +11013,12 @@ capabilities:
   unresolvedStateModelBindings: []
   journeyRefs:
   - J-30
-- id: media.capability.provider.diagnose
+- id: media.capability.check-declared-options
   familyId: media.capability
-  operation: provider.diagnose
-  label: Diagnose provider capabilities
+  operation: check-declared-options
+  label: Check declared processing options
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can diagnose provider capabilities with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can check declared processing options and their capability evidence; current runtime readiness remains a separate check.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Capability/provider diagnostics, execution compatibility
@@ -11081,10 +11081,10 @@ capabilities:
   - MEDIA-REQ-CAP-CAPABILITY
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes diagnose provider capabilities.
+    when: The actor checks declared processing options.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests diagnose provider capabilities.
+    when: The actor requests a check of declared processing options.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -14269,7 +14269,7 @@ capabilities:
 - id: media.speech.transcription.speaker.separate
   familyId: media.speech.transcription
   operation: speaker.separate
-  label: Separate speakers
+  label: Separate speakers in a transcript
   definitionState: IN_SCOPE_DRAFT
   outcome: A caller can separate speakers with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
@@ -20168,7 +20168,7 @@ capabilities:
 - id: media.multimodal.associate.speaker-face
   familyId: media.multimodal
   operation: associate.speaker-face
-  label: Associate speaker and face
+  label: Associate speech speakers with visible faces
   definitionState: IN_SCOPE_DRAFT
   outcome: A caller can associate speaker and face with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
@@ -22744,7 +22744,7 @@ capabilities:
 - id: media.audio.analysis.assess.intelligibility
   familyId: media.audio.analysis
   operation: assess.intelligibility
-  label: Assess intelligibility
+  label: Measure speech intelligibility
   definitionState: IN_SCOPE_DRAFT
   outcome: A caller can assess intelligibility with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
@@ -44186,9 +44186,9 @@ capabilities:
 - id: media.simulation.camera-experiment
   familyId: media.simulation
   operation: camera-experiment
-  label: Run camera experiments
+  label: Explore camera behavior in a simulation
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can run camera experiments with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can explore camera behavior in a qualified simulation with explicit preconditions, domain limits, provenance, and recovery semantics.
   sourceScope:
     masterPlanSection: §6.6
     sourcePhrase: Rigid/soft bodies; cloth/rope; particles; fluids, smoke and fire; collisions/constraints; vehicles; crowds/agents;
@@ -44262,10 +44262,10 @@ capabilities:
   - MEDIA-REQ-CAP-SIMULATION
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes run camera experiments.
+    when: The actor explores camera behavior in a simulation.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests run camera experiments.
+    when: The actor requests to explore camera behavior in a simulation.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -44363,9 +44363,9 @@ capabilities:
 - id: media.simulation.lighting-experiment
   familyId: media.simulation
   operation: lighting-experiment
-  label: Run lighting experiments
+  label: Explore lighting behavior in a simulation
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can run lighting experiments with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can explore lighting behavior in a qualified simulation with explicit preconditions, domain limits, provenance, and recovery semantics.
   sourceScope:
     masterPlanSection: §6.6
     sourcePhrase: Rigid/soft bodies; cloth/rope; particles; fluids, smoke and fire; collisions/constraints; vehicles; crowds/agents;
@@ -44439,10 +44439,10 @@ capabilities:
   - MEDIA-REQ-CAP-SIMULATION
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes run lighting experiments.
+    when: The actor explores lighting behavior in a simulation.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests run lighting experiments.
+    when: The actor requests to explore lighting behavior in a simulation.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -44540,9 +44540,9 @@ capabilities:
 - id: media.simulation.educational-demo
   familyId: media.simulation
   operation: educational-demo
-  label: Run educational demonstrations
+  label: Explain a concept with an educational simulation
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can run educational demonstrations with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can explain a concept with an educational simulation while identifying the domain owner and separating demonstrations from validated claims.
   sourceScope:
     masterPlanSection: §6.6
     sourcePhrase: Rigid/soft bodies; cloth/rope; particles; fluids, smoke and fire; collisions/constraints; vehicles; crowds/agents;
@@ -44616,10 +44616,10 @@ capabilities:
   - MEDIA-REQ-CAP-SIMULATION
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes run educational demonstrations.
+    when: The actor explains a concept with an educational simulation.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests run educational demonstrations.
+    when: The actor requests an educational simulation to explain a concept.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -44717,9 +44717,9 @@ capabilities:
 - id: media.simulation.scientific-demo
   familyId: media.simulation
   operation: scientific-demo
-  label: Run scientific demonstrations
+  label: Demonstrate a scientific concept with a simulation
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can run scientific demonstrations with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can demonstrate a scientific concept with a simulation while identifying the domain owner and separating visual plausibility from validated results.
   sourceScope:
     masterPlanSection: §6.6
     sourcePhrase: Rigid/soft bodies; cloth/rope; particles; fluids, smoke and fire; collisions/constraints; vehicles; crowds/agents;
@@ -44793,10 +44793,10 @@ capabilities:
   - MEDIA-REQ-CAP-SIMULATION
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes run scientific demonstrations.
+    when: The actor demonstrates a scientific concept with a simulation.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests run scientific demonstrations.
+    when: The actor requests a simulation to demonstrate a scientific concept.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -55752,12 +55752,12 @@ capabilities:
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
   journeyRefs: []
-- id: media.enhance.video.grain-management
+- id: media.enhance.video.grain.adjust
   familyId: media.enhance.video
-  operation: grain-management
-  label: Manage grain
+  operation: grain.adjust
+  label: Adjust video grain
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can manage grain with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can adjust video grain while preserving the source and disclosing the transformation and its limitations.
   sourceScope:
     masterPlanSection: §6.7
     sourcePhrase: Video/space-time super-resolution; interpolation; temporal denoise/deblur; compression repair; deflicker;
@@ -55829,10 +55829,10 @@ capabilities:
   - MEDIA-REQ-CAP-ENHANCE-VIDEO
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes manage grain.
+    when: The actor adjusts video grain.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests manage grain.
+    when: The actor requests a video grain adjustment.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -58739,7 +58739,7 @@ capabilities:
 - id: media.enhance.audio.speaker-separation
   familyId: media.enhance.audio
   operation: speaker-separation
-  label: Separate speakers
+  label: Separate speakers in audio
   definitionState: IN_SCOPE_DRAFT
   outcome: A caller can separate speakers with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
@@ -64869,7 +64869,7 @@ capabilities:
 - id: media.sync.speaker-face-associate
   familyId: media.sync
   operation: speaker-face-associate
-  label: Associate speaker and face
+  label: Align speaker and face timing
   definitionState: IN_SCOPE_DRAFT
   outcome: A caller can associate speaker and face with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
@@ -76639,7 +76639,7 @@ capabilities:
 - id: media.quality.audio.audio.assess-intelligibility
   familyId: media.quality.audio
   operation: audio.assess-intelligibility
-  label: Assess intelligibility
+  label: Evaluate candidate intelligibility
   definitionState: IN_SCOPE_DRAFT
   outcome: A caller can assess intelligibility with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
@@ -80083,9 +80083,9 @@ capabilities:
 - id: media.deliver.profile.web
   familyId: media.deliver
   operation: profile.web
-  label: Deliver to Web profile
+  label: Deliver media for web playback
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can deliver to Web profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can request delivery of media for web playback with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
     masterPlanSection: §6.9
     sourcePhrase: Encoding/transcoding, mastering, packaging, streaming, downloading, exporting and governed publishing; multiple
@@ -80156,10 +80156,10 @@ capabilities:
   - MEDIA-REQ-CAP-DELIVER
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes deliver to web profile.
+    when: The actor requests delivery of media for web playback.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests deliver to web profile.
+    when: The actor requests delivery of media for web playback.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -80274,9 +80274,9 @@ capabilities:
 - id: media.deliver.profile.social
   familyId: media.deliver
   operation: profile.social
-  label: Deliver to social profile
+  label: Deliver media for social publishing
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can deliver to social profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can request delivery of media for social publishing with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
     masterPlanSection: §6.9
     sourcePhrase: Encoding/transcoding, mastering, packaging, streaming, downloading, exporting and governed publishing; multiple
@@ -80347,10 +80347,10 @@ capabilities:
   - MEDIA-REQ-CAP-DELIVER
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes deliver to social profile.
+    when: The actor requests delivery of media for social publishing.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests deliver to social profile.
+    when: The actor requests delivery of media for social publishing.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -80465,9 +80465,9 @@ capabilities:
 - id: media.deliver.profile.podcast
   familyId: media.deliver
   operation: profile.podcast
-  label: Deliver to podcast profile
+  label: Deliver media for podcast distribution
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can deliver to podcast profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can request delivery of media for podcast distribution with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
     masterPlanSection: §6.9
     sourcePhrase: Encoding/transcoding, mastering, packaging, streaming, downloading, exporting and governed publishing; multiple
@@ -80538,10 +80538,10 @@ capabilities:
   - MEDIA-REQ-CAP-DELIVER
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes deliver to podcast profile.
+    when: The actor requests delivery of media for podcast distribution.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests deliver to podcast profile.
+    when: The actor requests delivery of media for podcast distribution.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -80656,9 +80656,9 @@ capabilities:
 - id: media.deliver.profile.broadcast
   familyId: media.deliver
   operation: profile.broadcast
-  label: Deliver to broadcast profile
+  label: Deliver media for broadcast
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can deliver to broadcast profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can request delivery of media for broadcast with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
     masterPlanSection: §6.9
     sourcePhrase: Encoding/transcoding, mastering, packaging, streaming, downloading, exporting and governed publishing; multiple
@@ -80729,10 +80729,10 @@ capabilities:
   - MEDIA-REQ-CAP-DELIVER
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes deliver to broadcast profile.
+    when: The actor requests delivery of media for broadcast.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests deliver to broadcast profile.
+    when: The actor requests delivery of media for broadcast.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -80847,9 +80847,9 @@ capabilities:
 - id: media.deliver.profile.cinematic
   familyId: media.deliver
   operation: profile.cinematic
-  label: Deliver to cinematic profile
+  label: Deliver media for cinematic presentation
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can deliver to cinematic profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can request delivery of media for cinematic presentation with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
     masterPlanSection: §6.9
     sourcePhrase: Encoding/transcoding, mastering, packaging, streaming, downloading, exporting and governed publishing; multiple
@@ -80920,10 +80920,10 @@ capabilities:
   - MEDIA-REQ-CAP-DELIVER
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes deliver to cinematic profile.
+    when: The actor requests delivery of media for cinematic presentation.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests deliver to cinematic profile.
+    when: The actor requests delivery of media for cinematic presentation.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -81038,9 +81038,9 @@ capabilities:
 - id: media.deliver.profile.archival
   familyId: media.deliver
   operation: profile.archival
-  label: Deliver to archival profile
+  label: Deliver media for archival storage
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can deliver to archival profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can request delivery of media for archival storage with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
     masterPlanSection: §6.9
     sourcePhrase: Encoding/transcoding, mastering, packaging, streaming, downloading, exporting and governed publishing; multiple
@@ -81111,10 +81111,10 @@ capabilities:
   - MEDIA-REQ-CAP-DELIVER
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes deliver to archival profile.
+    when: The actor requests delivery of media for archival storage.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests deliver to archival profile.
+    when: The actor requests delivery of media for archival storage.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -81229,9 +81229,9 @@ capabilities:
 - id: media.deliver.profile.interactive
   familyId: media.deliver
   operation: profile.interactive
-  label: Deliver to interactive profile
+  label: Deliver an interactive scene bundle
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can deliver to interactive profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can request delivery of an interactive scene bundle with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
     masterPlanSection: §6.9
     sourcePhrase: Encoding/transcoding, mastering, packaging, streaming, downloading, exporting and governed publishing; multiple
@@ -81302,10 +81302,10 @@ capabilities:
   - MEDIA-REQ-CAP-DELIVER
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes deliver to interactive profile.
+    when: The actor requests delivery of an interactive scene bundle.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests deliver to interactive profile.
+    when: The actor requests delivery of an interactive scene bundle.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -81420,10 +81420,9 @@ capabilities:
 - id: media.deliver.profile.named
   familyId: media.deliver
   operation: profile.named
-  label: Deliver to explicitly named profile
+  label: Deliver media using a named delivery target
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can deliver to explicitly named profile with explicit preconditions, effect, provenance, and recovery
-    semantics.
+  outcome: A caller can request delivery of media using an explicitly named target with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
     masterPlanSection: §6.9
     sourcePhrase: Encoding/transcoding, mastering, packaging, streaming, downloading, exporting and governed publishing; multiple
@@ -81494,10 +81493,10 @@ capabilities:
   - MEDIA-REQ-CAP-DELIVER
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes deliver to explicitly named profile.
+    when: The actor requests delivery using a named target.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests deliver to explicitly named profile.
+    when: The actor requests delivery using a named target.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:

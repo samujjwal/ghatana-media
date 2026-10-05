@@ -49,7 +49,7 @@ test("source-clock timing must be complete before registering a caption version"
   assert.equal(saved.state.captionHistory.at(-1).sourceArtifactVersion, initial.source.artifactVersion);
 });
 
-test("an unknown job remains bound to the same identity until reconciliation", () => {
+test("an unknown job remains bound to the same identity through outcome checking", () => {
   const initial = createFixtureState("media.scenario.job-outcome-unknown");
   const duplicate = reduceMediaExperience(initial, {
     type: "media.action.request-transcription",
@@ -57,16 +57,16 @@ test("an unknown job remains bound to the same identity until reconciliation", (
   });
 
   assert.equal(duplicate.applied, false);
-  assert.equal(duplicate.reasonCode, "EXISTING_JOB_MUST_BE_INSPECTED");
+  assert.equal(duplicate.reasonCode, "EXISTING_JOB_REQUIRES_REVIEW");
   assert.equal(duplicate.state.job.jobId, initial.job.jobId);
 
-  const reconcile = reduceMediaExperience(initial, { type: "media.action.reconcile-job" });
-  assert.equal(reconcile.applied, true);
-  assert.equal(reconcile.state.job.jobId, initial.job.jobId);
-  assert.equal(reconcile.state.job.state, "RECONCILING");
+  const outcomeCheck = reduceMediaExperience(initial, { type: "media.action.check-job-outcome" });
+  assert.equal(outcomeCheck.applied, true);
+  assert.equal(outcomeCheck.state.job.jobId, initial.job.jobId);
+  assert.equal(outcomeCheck.state.job.state, "RECONCILING");
 
-  const result = applySimulationEvent(reconcile.state, {
-    type: "job.reconciliation-completed",
+  const result = applySimulationEvent(outcomeCheck.state, {
+    type: "job.outcome-check-completed",
     outcome: "UNKNOWN",
   });
   assert.equal(result.state.job.jobId, initial.job.jobId);
@@ -103,7 +103,7 @@ test("malformed action and event payloads fail closed without changing fixture s
     type: "media.action.resolve-caption-conflict",
     resolution: "use-newest",
   });
-  const missingOutcome = applySimulationEvent(state, { type: "job.reconciliation-completed" });
+  const missingOutcome = applySimulationEvent(state, { type: "job.outcome-check-completed" });
 
   assert.equal(missingLanguage.applied, false);
   assert.equal(missingLanguage.reasonCode, "ACTION_NOT_SUPPORTED");
@@ -233,20 +233,20 @@ test("artifact verification keeps the owner job separate from its upload and ret
   assert.equal(runningProjection.artifactVerification.jobId, "fixture-artifact-verification-job-running-001");
   assert.equal(runningProjection.artifactVerification.uploadId, "fixture-upload-verified-available-001");
   assert.notEqual(runningProjection.artifactVerification.jobId, runningProjection.artifactVerification.uploadId);
-  const inspected = reduceMediaExperience(running, { type: "media.action.inspect-job" });
-  assert.equal(inspected.applied, true);
-  assert.equal(inspected.state.artifactVerification.jobId, runningProjection.artifactVerification.jobId);
+  const statusView = reduceMediaExperience(running, { type: "media.action.view-job-status" });
+  assert.equal(statusView.applied, true);
+  assert.equal(statusView.state.artifactVerification.jobId, runningProjection.artifactVerification.jobId);
 
   const unknown = createFixtureState("media.scenario.artifact-verification-outcome-unknown");
   const unknownProjection = projectExperience(unknown);
-  assert.deepEqual(unknownProjection.safeActionIds, ["media.action.inspect-job", "media.action.reconcile-job"]);
-  const reconciled = reduceMediaExperience(unknown, { type: "media.action.reconcile-job" });
-  assert.equal(reconciled.applied, true);
-  assert.equal(reconciled.state.artifactVerification.status, "OUTCOME_UNKNOWN");
-  assert.equal(reconciled.state.artifactVerification.finality, "UNKNOWN");
-  assert.equal(reconciled.state.artifactVerification.jobId, unknownProjection.artifactVerification.jobId);
-  assert.equal(reconciled.state.artifactVerification.uploadId, unknownProjection.artifactVerification.uploadId);
-  assert.match(reconciled.message, /no owner-issued evidence is connected/);
+  assert.deepEqual(unknownProjection.safeActionIds, ["media.action.view-job-status", "media.action.check-job-outcome"]);
+  const outcomeCheck = reduceMediaExperience(unknown, { type: "media.action.check-job-outcome" });
+  assert.equal(outcomeCheck.applied, true);
+  assert.equal(outcomeCheck.state.artifactVerification.status, "OUTCOME_UNKNOWN");
+  assert.equal(outcomeCheck.state.artifactVerification.finality, "UNKNOWN");
+  assert.equal(outcomeCheck.state.artifactVerification.jobId, unknownProjection.artifactVerification.jobId);
+  assert.equal(outcomeCheck.state.artifactVerification.uploadId, unknownProjection.artifactVerification.uploadId);
+  assert.match(outcomeCheck.message, /no owner-issued evidence is connected/);
   assert.equal(applySimulationEvent(unknown, { type: "job.completed" }).reasonCode, "EVENT_NOT_SUPPORTED_IN_ARTIFACT_VERIFICATION");
 
   const completed = createFixtureState("media.scenario.artifact-verification-completed");

@@ -12,7 +12,7 @@ purpose: Initial conditions, domain fidelity, time control and instruments
 contextGoalNowNext:
   context: A declared simulation model and revision, initial conditions, units, timebase, fidelity evidence, and
     output measurements.
-  goal: Run or inspect a simulation only within a stated domain and fidelity boundary.
+  goal: Explore a simulation and inspect its results only within a stated domain and fidelity boundary.
   now: Show model, initial conditions, parameter units/ranges, time control, qualified domain, and output status.
   next: Correct inputs, review fidelity evidence, or submit only after explicit validation and authorization.
 anatomy:
@@ -38,13 +38,18 @@ states:
 - outcome-unknown
 - completed
 - failed
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.set-simulation-initial-condition
+- media.action.inspect-simulation-domain-and-fidelity
+- media.action.validate-simulation-plan
+- media.action.submit-simulation
+- media.action.inspect-simulation-result
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - set an initial condition
 - inspect the domain and fidelity basis
 - validate a simulation plan
-- submit and inspect a run
+- submit a simulation and inspect its result
 channelDispositions:
 - channelRef: media.channel.web
   disposition: baseline-view-contract-proposal
@@ -77,3 +82,22 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: set an initial condition
+  actionRefs:
+  - media.action.set-simulation-initial-condition
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: inspect the domain and fidelity basis
+  actionRefs:
+  - media.action.inspect-simulation-domain-and-fidelity
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: validate a simulation plan
+  actionRefs:
+  - media.action.validate-simulation-plan
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: submit a simulation and inspect its result
+  actionRefs:
+  - media.action.submit-simulation
+  - media.action.inspect-simulation-result
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

@@ -2,6 +2,23 @@ import type { MediaAction, MediaExperienceState } from "./model.js";
 
 export type MediaCliFormat = "human" | "json" | "jsonl";
 
+export interface MediaCliHumanReport {
+  readonly applied: boolean;
+  readonly reasonCode?: string | null;
+  readonly message: string;
+  readonly workflow: string;
+  readonly state: string;
+  readonly finality: string;
+  readonly workflowState?: string | null;
+  readonly jobId?: string | null;
+  readonly uploadId?: string | null;
+  readonly verificationStage?: string | null;
+  readonly sourceVersion?: string | null;
+  readonly resultVersion?: string | null;
+  readonly nextAction?: string | null;
+  readonly effectIds?: readonly string[];
+}
+
 export type MediaCliParseResult =
   | { readonly kind: "help"; readonly text: string }
   | {
@@ -23,9 +40,9 @@ Usage:
   upload resume --upload <id> [--format human|json|jsonl]
   transcribe --source-version <id> --language <tag>
   transcript review --transcript-version <id>
-  job inspect --job <id>
+  job status --job <id>
   job cancel --job <id>
-  job reconcile --job <id>
+  job check-outcome --job <id>
   caption correct-text --artifact-version <draft-id> --segment <id> --text <text>
   caption align-timing --artifact-version <draft-id> --segment <id> --start-tick <tick> --end-tick <tick>
   caption save-version --draft-version <id> --purpose <text>
@@ -160,6 +177,85 @@ export function formatMediaCliError(message: string, format: MediaCliFormat): st
   return `${message}\n`;
 }
 
+const actionLabels: Readonly<Record<MediaAction["type"], string>> = {
+  "media.action.create-project": "Create a project",
+  "media.action.inspect-project-creation": "Inspect project creation status",
+  "media.action.inspect-artifact": "Inspect this artifact version",
+  "media.action.resume-artifact-upload": "Resume this upload",
+  "media.action.choose-source": "Choose a recording",
+  "media.action.request-transcription": "Transcribe this recording",
+  "media.action.inspect-source": "Inspect this recording",
+  "media.action.seek-source": "Move to a point in the recording",
+  "media.action.review-transcript": "Review recognized text",
+  "media.action.view-job-status": "View job status",
+  "media.action.inspect-provenance": "Inspect source and result history",
+  "media.action.correct-caption": "Correct caption text",
+  "media.action.compare-caption-versions": "Compare caption versions",
+  "media.action.resolve-caption-conflict": "Resolve this caption conflict",
+  "media.action.align-caption-timing": "Correct caption timing",
+  "media.action.save-caption-version": "Save this caption version",
+  "media.action.request-cancellation": "Request to stop this job",
+  "media.action.check-job-outcome": "Check job outcome",
+};
+
+const effectLabels: Readonly<Record<string, string>> = {
+  "media.effect.cancellation-requested": "Cancellation requested",
+  "media.effect.caption-conflict-resolved": "Caption conflict resolved",
+  "media.effect.caption-draft-updated": "Caption draft updated",
+  "media.effect.caption-timing-updated": "Caption timing updated",
+  "media.effect.caption-version-registered": "Caption version saved",
+  "media.effect.consent-revoked": "Consent revoked",
+  "media.effect.empty-project-created-in-fixture": "Synthetic empty project created",
+  "media.effect.existing-job-outcome-check-started": "Existing job outcome check started",
+  "media.effect.in-flight-work-requires-outcome-check": "Active work needs its outcome checked",
+  "media.effect.job-cancelled-before-dispatch": "Job cancelled before dispatch",
+  "media.effect.simulated-cancellation-confirmed": "Cancellation confirmed in simulation",
+  "media.effect.simulated-job-completed-result-lifecycle-pending": "Job completed; result lifecycle remains pending in simulation",
+  "media.effect.simulated-job-started": "Job started in simulation",
+  "media.effect.simulated-outcome-unknown": "Job outcome not confirmed in simulation",
+  "media.effect.simulated-outcome-check-recorded": "Checked outcome recorded in simulation",
+  "media.effect.simulated-transcript-available": "Transcript available in simulation",
+  "media.effect.source-position-changed": "Source position changed",
+  "media.effect.source-selected": "Source selected",
+  "media.effect.transcription-request-recorded": "Transcription request recorded in simulation",
+  "media.effect.upload-resume-simulated": "Upload resume simulated",
+};
+
+function displayStatus(value: string | null | undefined): string {
+  const labels: Readonly<Record<string, string>> = {
+    NOT_APPLICABLE: "Not applicable",
+    NOT_SUBMITTED: "Not submitted",
+    OUTCOME_UNKNOWN: "Outcome not confirmed",
+    RECONCILING: "Checking outcome",
+  };
+  return labels[value ?? ""] ?? String(value ?? "not available")
+    .toLowerCase()
+    .replaceAll("_", " ")
+    .replace(/\b\w/gu, (letter) => letter.toUpperCase());
+}
+
+export function formatMediaCliHumanResult(report: MediaCliHumanReport): string {
+  const workflowStatus = report.workflow === "artifact-verification" && report.jobId && report.uploadId
+    ? `Verification job: ${displayStatus(report.state)} (${displayStatus(report.finality)}) · ${report.jobId}\nRelated upload: ${report.uploadId}${report.verificationStage ? `\nVerification stage: ${displayStatus(report.verificationStage)}` : ""}`
+    : report.workflow === "artifact-intake" && report.uploadId
+      ? `Upload: ${displayStatus(report.workflowState ?? report.state)} (${displayStatus(report.finality)}) · ${report.uploadId}`
+      : report.jobId
+        ? `Job: ${displayStatus(report.state)} (${displayStatus(report.finality)}) · ${report.jobId}`
+        : `Workflow: ${report.workflow} · ${displayStatus(report.workflowState ?? report.state)}`;
+  const nextAction = report.nextAction && report.nextAction !== "none"
+    ? actionLabels[report.nextAction as MediaAction["type"]]
+      ?? report.nextAction.replace(/^media\.action\./u, "").replaceAll("-", " ").replace(/\b\w/gu, (letter) => letter.toUpperCase())
+    : "none";
+  return [
+    `${report.applied ? "Applied" : `Blocked (${report.reasonCode ?? "UNKNOWN"})`}: ${report.message}`,
+    workflowStatus,
+    ...(report.sourceVersion ? [`Source version: ${report.sourceVersion}`] : []),
+    `Result version: ${report.resultVersion ?? "not available"}`,
+    `Next safe action: ${nextAction}`,
+    ...(report.effectIds?.length ? [`Effects: ${report.effectIds.map((effect) => effectLabels[effect] ?? effect.replace(/^media\.effect\./u, "").replaceAll("-", " ").replace(/\b\w/gu, (letter) => letter.toUpperCase())).join(", ")}`] : []),
+  ].join("\n") + "\n";
+}
+
 function actionResult(
   commandId: string,
   action: MediaAction,
@@ -241,7 +337,7 @@ export function parseMediaCommand(
     return actionResult("media.cli.transcript.review", { type: "media.action.review-transcript" }, parsed.options);
   }
 
-  if (commandName === "job inspect" || commandName === "job cancel" || commandName === "job reconcile") {
+  if (commandName === "job status" || commandName === "job cancel" || commandName === "job check-outcome") {
     const parsed = parseOptions(rest, ["--job", "--format"]);
     if (parsed.error) return error(parsed.error);
     const requiredError = requireOptions(parsed.options, ["--job"]);
@@ -254,10 +350,10 @@ export function parseMediaCommand(
       ? state.artifactVerification.jobId
       : state.job.jobId;
     if (parsed.options["--job"] !== currentJobId) return error("The requested job identifier is not the current job in this scenario.");
-    const reconcile = commandName === "job reconcile";
+    const checkOutcome = commandName === "job check-outcome";
     return actionResult(
-      reconcile ? "media.cli.job.reconcile" : cancel ? "media.cli.job.cancel" : "media.cli.job.inspect",
-      { type: reconcile ? "media.action.reconcile-job" : cancel ? "media.action.request-cancellation" : "media.action.inspect-job" },
+      checkOutcome ? "media.cli.job.check-outcome" : cancel ? "media.cli.job.cancel" : "media.cli.job.status",
+      { type: checkOutcome ? "media.action.check-job-outcome" : cancel ? "media.action.request-cancellation" : "media.action.view-job-status" },
       parsed.options,
     );
   }

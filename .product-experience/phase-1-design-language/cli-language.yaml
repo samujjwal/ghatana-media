@@ -12,6 +12,10 @@ commandNaming:
   rootCommand: ghatana-media
   rule: Prefer a user-intent verb and a concrete object; stable IDs, exact options, aliases, and effects are owned by the Phase 2 command registry.
   commandRegistry: .product-experience/phase-2-product-experience/cli-command-registry.yaml
+  jobCommands:
+    viewStatus: ghatana-media job status --job <job-id>
+    checkUncertainOutcome: ghatana-media job check-outcome --job <job-id>
+    rule: Status is read-only; checking an uncertain outcome uses the same job identity and never dispatches new work.
   status: naming-rule-only; no-installed-cli-claim
 machineOutput:
   formats: [json, jsonl]
@@ -23,7 +27,7 @@ identityAndFinality:
   bindingRef: .product-experience/phase-2-product-experience/cli-command-registry.yaml
   fields:
     workflow: names-the-current-workflow-projection
-    jobId: identifies-one-processing-job-and-is-stable-across-inspection-and-reconciliation
+    jobId: identifies-one-processing-job-and-is-stable-across-status-viewing-and-outcome-checking
     uploadId: identifies-one-transfer-and-is-never-an-alias-for-jobId
     verificationStage: describes-the-current-stage-of-an-artifact-verification-job; it-does-not-prove-artifact-availability
     workflowState: reports-the-selected-workflow-record-state-when-available; it-may-equal-state-when-that-record-is-the-primary-entity

@@ -183,10 +183,10 @@ screens:
   - screen-contracts/use-authorized-voice.yaml
   contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
 - id: media.view.edit-captions
-  label: Correct captions
+  label: Edit captions
   legacyViewRef: M-CAPTIONS
   route: Project caption editor
-  purpose: Timings, language, accessibility and review
+  purpose: Edit caption wording, timing, and language for accessibility and review.
   intentRef: media.intent.edit
   journeyRefs:
   - J-03
@@ -376,11 +376,11 @@ screens:
   contractRefs:
   - screen-contracts/review-activity.yaml
   contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
-- id: media.view.inspect-job
-  label: Inspect a job
+- id: media.view.job-status
+  label: View job status
   legacyViewRef: M-JOB
   route: /jobs/:id
-  purpose: Progress, outputs, cancel, retry/reconcile and uncertainty
+  purpose: View progress and outputs, request a stop, retry eligible work, or check an uncertain outcome
   intentRef: media.intent.resolve-job
   journeyRefs:
   - J-02
@@ -392,7 +392,7 @@ screens:
   - J-27
   - J-29
   contractRefs:
-  - screen-contracts/inspect-job.yaml
+  - screen-contracts/job-status.yaml
   contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
 - id: media.view.review-outputs
   label: Review outputs
@@ -567,7 +567,7 @@ laneViews:
   contract: screen-contracts/transcription-progress.yaml
   baselineViewRefs:
   - media.view.work-with-speech
-  - media.view.inspect-job
+  - media.view.job-status
   purpose: Contextual view for the transcription and caption-correction journey.
   scope: selected-transcription-and-caption-correction-lane
   detailState: detailed-in-this-lane
@@ -617,21 +617,21 @@ laneViews:
   contractRefs:
   - screen-contracts/compare-caption-versions.yaml
   contractState: selected-lane-specialization; channel-and-owner-bindings-pending
-- id: media.view.resolve-job-outcome
-  label: Resolve a job outcome
+- id: media.view.check-job-outcome
+  label: Check job outcome
   intentRef: media.intent.resolve-job
   journeyRefs:
   - J-03
   - J-20
   - J-27
-  contract: screen-contracts/resolve-job-outcome.yaml
+  contract: screen-contracts/check-job-outcome.yaml
   baselineViewRefs:
-  - media.view.inspect-job
+  - media.view.job-status
   purpose: Contextual view for the transcription and caption-correction journey.
   scope: selected-transcription-and-caption-correction-lane
   detailState: detailed-in-this-lane
   contractRefs:
-  - screen-contracts/resolve-job-outcome.yaml
+  - screen-contracts/check-job-outcome.yaml
   contractState: selected-lane-specialization; channel-and-owner-bindings-pending
 coverage:
   requiredBaselineViewCount: 41
@@ -656,6 +656,6 @@ contextualSpecializations:
 - viewRef: media.view.compare-caption-versions
   contractRef: screen-contracts/compare-caption-versions.yaml
   purpose: Selected J-03 immutable caption-version comparison.
-- viewRef: media.view.resolve-job-outcome
-  contractRef: screen-contracts/resolve-job-outcome.yaml
-  purpose: Selected J-20 transcription-job reconciliation path.
+- viewRef: media.view.check-job-outcome
+  contractRef: screen-contracts/check-job-outcome.yaml
+  purpose: Selected J-20 transcription-job outcome-check path.

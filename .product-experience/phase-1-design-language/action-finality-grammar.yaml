@@ -7,7 +7,8 @@ rules:
   - Confirm only consequential effects that cannot be safely undone; explain scope and affected version.
   - Report a cancellation request separately from confirmed cancellation.
   - Stopping observation or leaving a job view changes only the observer attachment; it does not request or confirm cancellation.
-  - An unknown remote outcome disables resubmission until reconciliation provides a safe result.
+  - An unknown remote outcome disables resubmission until checking the existing job provides a safe next action.
+  - Retry creates a new attempt under the same logical job only after the prior attempt is classified as retryable and current authority, policy, and remaining budget are confirmed.
   - Preserve completed artifacts and drafts when a later step fails.
 outcomes:
   - id: media.action-outcome.applied
@@ -24,7 +25,7 @@ outcomes:
     next: Keep observing until the stop is confirmed or a racing result is reconciled.
   - id: media.action-outcome.unknown
     label: Outcome not confirmed
-    next: Inspect or reconcile the existing job; do not offer blind retry.
+    next: View the existing job status or check its uncertain outcome; do not offer blind retry.
   - id: media.action-outcome.blocked
     label: This action is not available
     next: Name the missing authority, rights, integrity, language, or qualification prerequisite.

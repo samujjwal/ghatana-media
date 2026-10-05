@@ -36,8 +36,13 @@ states:
 - adjustment-dirty
 - comparison-ready
 - version-conflict
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.select-shot-or-region
+- media.action.inspect-input-output-color-interpretation
+- media.action.edit-admitted-adjustment
+- media.action.compare-media-versions
+- media.action.save-new-revision
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - select a shot or region
 - inspect input/output color interpretation
@@ -74,3 +79,22 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: select a shot or region
+  actionRefs:
+  - media.action.select-shot-or-region
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: inspect input/output color interpretation
+  actionRefs:
+  - media.action.inspect-input-output-color-interpretation
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: edit an admitted adjustment
+  actionRefs:
+  - media.action.edit-admitted-adjustment
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: compare and save a revision
+  actionRefs:
+  - media.action.compare-media-versions
+  - media.action.save-new-revision
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

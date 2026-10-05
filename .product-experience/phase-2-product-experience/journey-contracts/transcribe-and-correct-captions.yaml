@@ -20,7 +20,7 @@ steps:
     action: media.action.request-transcription
     result: stable-job-identity-and-current-state-are-returned
   - view: media.view.monitor-transcription
-    action: media.action.inspect-job
+    action: media.action.view-job-status
     result: progress-and-finality-reflect-owning-job-state
   - view: media.view.review-transcript
     action: media.action.review-transcript
@@ -46,7 +46,7 @@ criticalNonhappyPaths:
   - id: consent-revoked
     response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
   - id: provider-outcome-unknown
-    response: retain the same job identity; disable resubmission; reconcile or route to operator review.
+    response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
   - id: source-version-changed
     response: preserve draft and mark its parent stale; require explicit rebase or restart.
 recovery: Every recovery preserves the source and completed output; retry requires a classified safe state and a fresh policy check.

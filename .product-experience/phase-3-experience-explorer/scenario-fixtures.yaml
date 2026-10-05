@@ -63,7 +63,7 @@ fixtures:
   - scenarioId: media.scenario.artifact-verification-outcome-unknown
     payloadId: artifact-verification-outcome-unknown
     phase2Ref: media.scenario.artifact-verification-outcome-unknown
-    content: stable-synthetic-job-and-upload-identities; reconciliation-retains-unknown-without-owner-evidence
+    content: stable-synthetic-job-and-upload-identities; outcome-check-retains-unknown-without-owner-evidence
   - scenarioId: media.scenario.artifact-verification-completed
     payloadId: artifact-verification-completed
     phase2Ref: media.scenario.artifact-verification-completed
@@ -104,10 +104,10 @@ fixtures:
     payloadId: job-running
     phase2Ref: media.scenario.job-running
     content: synthetic-job-state-only
-  - scenarioId: media.scenario.job-reconciled
-    payloadId: job-reconciled
-    phase2Ref: media.scenario.job-reconciled
-    content: synthetic-reconciliation-evidence-only
+  - scenarioId: media.scenario.job-outcome-confirmed
+    payloadId: job-outcome-confirmed
+    phase2Ref: media.scenario.job-outcome-confirmed
+    content: synthetic-outcome-check-evidence-only
   - scenarioId: media.scenario.caption-version-comparison
     payloadId: caption-version-comparison
     phase2Ref: media.scenario.caption-version-comparison

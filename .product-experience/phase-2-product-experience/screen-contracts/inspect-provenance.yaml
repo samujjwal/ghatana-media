@@ -36,7 +36,8 @@ states:
 - access-limited
 actions:
 - media.action.inspect-provenance
-actionBindingState: bound-to-existing-P2-actions
+- media.action.export-authorized-provenance
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - open a source lineage record
 - inspect execution metadata
@@ -72,3 +73,17 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: open a source lineage record
+  actionRefs:
+  - media.action.inspect-provenance
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: inspect execution metadata
+  actionRefs:
+  - media.action.inspect-provenance
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: export provenance when authorized
+  actionRefs:
+  - media.action.export-authorized-provenance
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

@@ -11,7 +11,7 @@ additionalJourneyFlows:
         next: media.view.import-media
       - from: media.view.import-media
         label: Inspect an asynchronous verification job when an owner job identity is returned
-        next: media.view.inspect-job
+        next: media.view.job-status
       - from: media.view.import-media
         label: Inspect the exact available or quarantined artifact version
         next: media.view.inspect-media
@@ -47,15 +47,15 @@ additionalJourneyFlows:
     entryPoints:
       - from: media.view.monitor-transcription
         label: Inspect the existing transcription job
-        next: media.view.inspect-job
-      - from: media.view.inspect-job
+        next: media.view.job-status
+      - from: media.view.job-status
         label: Stop watching and return to transcript work
         next: media.view.monitor-transcription
     rules:
       - Preserve the same job identity when leaving and re-entering the status view.
       - Stop watching is view navigation only; it does not cancel work or change job state.
       - Keep cancellation pending until owner evidence confirms a stop or a racing result.
-      - For unknown outcomes, reconcile the existing job before any new submission.
+      - For unknown outcomes, check the existing job before any new submission.
 entryPoints:
   - from: media.view.select-source
     label: Choose a recording to understand

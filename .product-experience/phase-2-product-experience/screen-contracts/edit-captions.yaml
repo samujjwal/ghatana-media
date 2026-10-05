@@ -7,7 +7,7 @@ actors:
 - media.creator
 - media.editor
 intentRef: media.intent.edit
-purpose: Timings, language, accessibility and review
+purpose: Edit caption wording, timing, and language for accessibility and review.
 contextGoalNowNext:
   context: An immutable source version, transcript basis, caption language, active caption version, and selected
     segment.
@@ -83,3 +83,22 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: correct caption text
+  actionRefs:
+  - media.action.correct-caption
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: edit exact segment timing
+  actionRefs:
+  - media.action.align-caption-timing
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: compare or resolve version conflict
+  actionRefs:
+  - media.action.compare-caption-versions
+  - media.action.resolve-caption-conflict
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: save a new immutable caption version
+  actionRefs:
+  - media.action.save-caption-version
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

@@ -42,13 +42,13 @@ steps:
   stateBindingState: pending-owner-bound-state-reference-and-transition
   candidateActionRefs:
   - media.action.choose-source
-  - media.action.inspect-job
+  - media.action.view-job-status
   - media.action.request-transcription
   - media.action.review-transcript
 - view: media.view.edit-captions
   legacyViewRef: M-CAPTIONS
   screenContractRef: screen-contracts/edit-captions.yaml
-  viewIntent: Timings, language, accessibility and review
+  viewIntent: Edit caption wording, timing, and language for accessibility and review.
   actionRef: null
   actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
   stateRefs: []

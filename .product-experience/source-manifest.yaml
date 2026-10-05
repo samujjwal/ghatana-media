@@ -28,7 +28,7 @@ repositoryObservations:
   localPath: /home/samujjwal/Developments/ghatana-shared
   revision: a1b2cb5c772524150fcf582157b0fba8999267b4
   observedStatus: clean-at-observation
-  readScope: document-contracts-auth-gateway-and-shared-owner-records
+  readScope: shared-design-system-public-token-semantic-role-API-export-and-type-snapshot; document-contracts-auth-gateway-and-shared-owner-records
 - repository: samujjwal/ghatana-kernel
   localPath: /home/samujjwal/Developments/ghatana-kernel
   revision: 9d6b0a9730b7cfb374af61e90650ff042b1e6b8d
@@ -80,7 +80,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-PRODUCT-TRUTH-BOUNDARY
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:9f4a3f261793e686ce8674659bf41be4988190a44f4ad03ba0d043f81550d93b
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -120,7 +120,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-CONSTITUTION-REFERENCE
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:86fb0ccc8cbef3edc56cba23c35d161b52f398527db4a732c99079e616782f60
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -172,9 +172,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-CONSTITUTION
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:22c8019deb40303e22feadf48b22432662836ba4745650920002c81e29d12994
+    provisionalContentSha256: sha256:3f4a053d4c49f54790ca206552fafcca3c021c8dd59bebff1602ff42c2dcd022
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -224,9 +224,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-GLOSSARY
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:faaf319e4b05ac0f058e0f1632dfcc3d47bd71558a1f14e71e114b23dd6d784c
+    provisionalContentSha256: sha256:45c870308e86794b5fa86b0c05d18d3c9341fc2a72161dd81b5fb3c3e975f77b
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -276,7 +276,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-ACTORS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:76f66242b91c1401baaf85f70d1ff87dc2a06ed1728d8832f30d8c58e5ae5056
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -328,9 +328,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-GOALS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:2ff3430063ca9f7f56296e7bca7a69bbd69f66becf90256e617210af054f2d79
+    provisionalContentSha256: sha256:f5d2cc3112fded0c46f811fdc4604ffb85d0d780f22883771f7181ac1faedc40
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -380,9 +380,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-REQUIREMENTS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:11f84642eaf28b114dc2b1bc9d6c0364e2f005204fcf8a92fc8c559b36c2b181
+    provisionalContentSha256: sha256:27e46092f75d5938fdc42a809b6bdd405f0686f9b45b98067f52892a8b723013
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -432,9 +432,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-CAPABILITIES
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:f32304778fbbf3b6a40a78803409b1901af119e934ca22bd64f5351f0bf5d7cf
+    provisionalContentSha256: sha256:d4ee0a93aab1320c1b18b36524cc99dadc8dc1a9d57460c9fb6eaa718aaa1ae3
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -484,9 +484,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-CAPABILITY-CROSSWALK
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:c40502a4d7f7f71690981923b01aa3c7f826b8f624dac0fc5e20ea224399cd8e
+    provisionalContentSha256: sha256:109dbb84063ca7ffeeeecb23b4c6f113be2ca5c0700d252fa967cdd782830fec
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -536,7 +536,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-DOMAIN-MODEL
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:3d379f7839487820a9af38dae86e6b5fd2b0fc822761cf2f4d7bb1b2b06507a4
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -585,7 +585,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-TIME-UNITS-FIDELITY
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:c1c46ee8eb086145d6f24e4919df09b2b3e125d22facdb912d851e1db776473e
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -634,7 +634,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-DOMAIN-CONTRACT-FIXTURES
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:4525533e0d82e9bc586ff73a0218fc61f016c1e21c884e273e5509e18a486e3d
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -683,7 +683,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-STATE-MODELS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:aac81aed5a2910ca3a5fbdfeae2f3872ea2298768b5dcf19e8621df582a46719
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -724,7 +724,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-STATE-TRANSITION-FIXTURES
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:cbe60db3015d7f72b2177dcba014e1cac82fe8e0191ddaccb71ba7aed2787ad7
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -765,7 +765,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-ADVERSARIAL-POLICY-FIXTURES
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:8b3d8f3d9d36a57ba6c4c2288acc69f9b72409d1203e81f82c97c1cd6d846030
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -819,7 +819,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-POLICY-AUTHORITY
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:b11dd59871423a9d1e4eaae0af3f46bceac251e1f19624ace7a374558d26ecca
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -879,7 +879,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-DEPENDENCY-CONTRACTS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:2b0314580d1ff9e68ac88bb4671b77dd4e6bb8d158d3a2b971dbf056987b7af1
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -918,7 +918,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-REUSE-DECISIONS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:794f2ebd4fcefe4c74f4f82d545798515235cf270bbad321d701ddfddfc63ca5
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -957,7 +957,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-NFR
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:f25323bf326a639105afd393452cf691c4b34def874cdcc04339d21042ee5d92
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -1010,7 +1010,7 @@ productArtifactIndex:
       gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
     acceptanceState: pending-human-review
   - artifactId: ART-P0-PROFILE-SEMANTICS
-    title: Profile Semantics
+    title: Define processing and delivery targets
     owner: ghatana-media-product-owners
     authorityClass: authored-proposal
     authority: canonical-if-and-when-profile-semantics-are-accepted
@@ -1020,7 +1020,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-PROFILE-SEMANTICS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:99fcc3f5ca415c7889724f00660bd40b7214f40297f375041b728b1c86f7172c
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -1072,7 +1072,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-QUALITY-POLICY
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:e13c6b622e47feb0fb8195cc05a9cc19c8a3761606a5208dcaa810a0c4a4f427
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -1124,9 +1124,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-QUALIFICATION-POLICY
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:27cb3a5a31413a6a4b9dee516a8c5de3afda8d5b599a2b8385ef954c3eb2f6b0
+    provisionalContentSha256: sha256:caacc481ab3afc4dc6228e88e462b712bcb5e8c71feca15908ea655e21e602db
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -1191,7 +1191,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-CONTENT-INTENT
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:0b938d7fa32ea2a4e8ae8748c91783ce6293739f7e3cfa8b51ec4cdf90f34994
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -1245,7 +1245,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-INFORMATION-ARCHITECTURE
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:e9ee678851f4aa0bec53a4709e7da3f8a363515181094e5fafaa968b5ac09a26
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -1291,7 +1291,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-APPLICATIONS-CHANNELS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -1337,9 +1337,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-JOURNEYS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:534556575c0f78f4b842c844ea80fc7ecf314cb6f53167bb9b53f578c84a7219
+    provisionalContentSha256: sha256:f83c7bbd52099997b5201733caa3f6a2f23dabb71018bea69beb3db43c2606b4
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -1383,7 +1383,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-HANDOFF-CONTRACTS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:ce116156d1ea0571ea932b2e4df4f1a3c9e0c10338fc37385db78f1f5ced3111
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -1429,7 +1429,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-SCHEMA-BINDINGS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:fe8f6fb3acb9ef5ea982c94df241843e9fce98fb2c6057fb3c05f7bd2d2c07ba
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -1468,9 +1468,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-ACCEPTANCE-INPUTS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:f141fcc507b75c6c02281670479bf44fc44e4c798179e487864cbe69dc20410a
+    provisionalContentSha256: sha256:af22c8f6ec1c01b6ad29910ee94c7e7dd03e555c6c95e5087178eaec277cd9d5
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -1536,9 +1536,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-TRACEABILITY
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:a3d15fb55701e87d06f70ef8aaf64121b567697d7fc82af4a4cba58b52a001ed
+    provisionalContentSha256: sha256:eb2363a2ac0416abc2d8ff00181a2e441d93e7cbe6e6f999e76ca27a431e6d32
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -1604,9 +1604,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P0-CURRENTNESS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: null
+    provisionalContentSha256:
     contentFingerprintSemantics: Generated-only artifact is intentionally absent until the owner-approved Tools
       workflow emits it.
     dependencies:
@@ -1672,7 +1672,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-GOV-README
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:12bcd34559a0bfb982766e8bf456cc0ea0c5e0c5a8093598815e26277459cf9e
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -1700,9 +1700,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-GOV-AUTHORITY-MAP
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:8187df833cfaecf9d6dda4856b6b4da875f0229c5cb35389d607c6e95d7cdfbf
+    provisionalContentSha256: sha256:b477f0bc53c1255bc7314137e6301094b4b53a699d6244221a90a9dfefb67210
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -1728,7 +1728,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-GOV-DECISION-LOG
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:2f425102c7e920ca9f983e58326b8595dc543d8c87f8fa049a9b9ea8655d7eb1
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -1756,9 +1756,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-GOV-GAPS
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:ca51c752c1d5170e92b64cd8598270b73acdce43682239d7b626bac2a094f7de
+    provisionalContentSha256: sha256:b40872799219605c1e98bc5229e04fa32f9fc4aad7b32fb758b5158eb44fbcac
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -1795,9 +1795,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-GOV-SOURCE-MANIFEST
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: null
+    provisionalContentSha256:
     contentFingerprintSemantics: Self-hash is omitted to avoid recursive content; record this artifact's digest
       in an external immutable revision when available.
     dependencies:
@@ -1823,9 +1823,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-DESIGN-LANGUAGE-MD
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:5374a79d31676aea10ce2c7ff0f5fee5805b9a971d4afc068f7e7329b987608c
+    provisionalContentSha256: sha256:2a7f8ccace2985520ffb3440acbfd68f4c462fac3784eed30cb16881794affed
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -1863,7 +1863,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-ACCESSIBILITY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:a83d97b3be398ca99c9477413b3194208094880b4e6853cc072271068976754e
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -1903,9 +1903,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-ACTION-FINALITY-GRAMMAR-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:30069092c07f9086bbd9a37dcd5f3ebdade9c2afb907b63dbe1a20f3a0c99e88
+    provisionalContentSha256: sha256:5191cba074aa49ed1acb499a5dc160d0db7f2c4d516eec0895a4ec23e994e26c
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -1943,7 +1943,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-ANIMATION-SIMULATION-GRAMMAR-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:7182e683d28cf81795d674ce67d185b6f5c7f91142a9948141d7735043a7a6b9
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -1983,9 +1983,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-CLI-LANGUAGE-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:a2b50098396605a63768755064a25433962d3847d14bbbbed718aabfb737b434
+    provisionalContentSha256: sha256:bb74896f8c521fb69e69d3b686302410c35a9fd497eb418c3c15d11f472488d1
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2023,9 +2023,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-COMPONENT-CONTRACTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:91f9cde020b98f608e1e6de2166dae93108bba8eaacd6e2d5f23d034a83c2949
+    provisionalContentSha256: sha256:1b05515968ed4e7895ceb2166d2d000a99502ba818a1c966890f8f22a7eaabc6
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2063,7 +2063,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-LOCALIZATION-CONTENT-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:2bec5d808e6b5f2cfba4bc3378623a6e61da6229cb460c08d863cbcd670f42c1
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -2103,7 +2103,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-MEDIA-EDITING-GRAMMAR-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:4564a8d19c4639cb0db5847810d02410c247d6830b23502471f288d70f13c08e
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -2143,9 +2143,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-MEDIA-TOKEN-ALIASES-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:e30275bb2f8a5c4ed955ed753f11b83daf900d058e880399f6317228879a8954
+    provisionalContentSha256: sha256:16c4f9e93b35081379df30890f84103f70b81779320b4a6623c1174054d19039
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2183,7 +2183,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-MOTION-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:8c75c10fb48194b90937163c7da1cd50f7670b4311ea9b4a2d7c3bcfaec12df6
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -2223,7 +2223,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-RESPONSIVE-ADAPTIVE-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:052b499e6fb83cb02b9ec57cba8e1e21510e60674767bf1702657a11992919b1
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -2263,9 +2263,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-SEMANTIC-STATE-GRAMMAR-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:f088039a56c1b231afcc18d37d6ce68045eaf953c959f02fd64f61d44f9b3736
+    provisionalContentSha256: sha256:9ce402098dedbb847eb1a5b078e39953f474b7da23dc1e48b7fa2119368aa2b3
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2303,7 +2303,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-TRUST-PROVENANCE-GRAMMAR-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:8b130c0cde1ca355144bfd94959139ac7a58370f8ec823d23248be0ea5a51e82
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -2343,7 +2343,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P1-PHASE-1-DESIGN-LANGUAGE-TYPOGRAPHY-LAYOUT-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:ab07ecb3949cf0dcd250a5575a089d1859ba87dc34062ca063877d927453f98d
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -2373,7 +2373,7 @@ productArtifactIndex:
       gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
     acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
   - artifactId: ART-P2-LANES-TRANSCRIBE-AND-CORRECT-CAPTIONS-YAML
-    title: Transcribe And Correct Captions
+    title: Define The Audio Transcription And Caption-Correction Lane
     owner: ghatana-media-product-and-UX-owners
     authorityClass: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
@@ -2383,9 +2383,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-LANES-TRANSCRIBE-AND-CORRECT-CAPTIONS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:09594dd652e0c3be2d3bfdbb0103e44f9bfe484b6200f4c3872141cbd84e0843
+    provisionalContentSha256: sha256:0d08f168c496f9a8383e102ab0ce8532947cd7b1dfa46222789b6386597a0011
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2424,9 +2424,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-COMPLETE-PRODUCT-EXPERIENCE-MD
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:e32e8f2aa291ef0c4ff107c3876a946865560565f4fc8c824c36fa731a733a35
+    provisionalContentSha256: sha256:10a20f6bb69ca8acad49a8d300665daaef1dd70fc7a504d2f4ac015b4eec1367
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2465,9 +2465,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-ACTION-REGISTRY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:f5b8e58193b93bcbc6ce2ad23318a336586455d3595cc54035c925af730ce18d
+    provisionalContentSha256: sha256:74db6943417476328513aa5f258372907c9e2472219ee37d56f4ce6d7cd14d3d
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2506,9 +2506,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-API-EXPERIENCE-MAPPING-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:5f6f56b8f3e52706d4c6e182b62904d92f1bdbf9f9e2a1c4467791649622b77a
+    provisionalContentSha256: sha256:7cafcc10aee5c734146fa96a69689e6ce344a77c5247e23fa619879318b3d656
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2547,9 +2547,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-APPLICATION-CHANNEL-REGISTRY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:c2feec6e1e41ebca8f7f1672bbf5d242c37aa9e59aed83042e709cc79bb4c120
+    provisionalContentSha256: sha256:3f2c17333155892cfbd71678bf2fd8559720b70578ad6f1bcd391cb7f7d1d85b
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2588,9 +2588,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-CLI-COMMAND-REGISTRY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:ffa9f3730855983c9e23f2051384f3357d682dc4f1b8ae01dae01ec2473c86bb
+    provisionalContentSha256: sha256:d7dc799263c0f3540513967ae4e5eb3b13009a56de72dcec401a8f29b403b264
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2629,9 +2629,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-CONTENT-COPY-CATALOG-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:fff22e8f83c90116fabb14dfc280b261f16b929faf5c7801fd99ae2355670a91
+    provisionalContentSha256: sha256:9eb4afc07a1bdc01b67716810164bf71377dc622c1bb9225f624baf14529e6be
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2670,7 +2670,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-DATA-VIEW-CONTRACTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:531ce509aea6bd6e2fb3451b38d7c4ac077df1cd9b9396e727c2e78bcb7100c5
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -2711,7 +2711,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-HANDOFF-BINDINGS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:b210b274a21739f3619c6d9f517fe55cd17a4017cf965ac592f0a97136c68cd2
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -2752,9 +2752,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-INTERACTION-REGISTRY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:ed424450821a056e86524b23ba16dfed51548d346da6e6f70a0ac7754e931553
+    provisionalContentSha256: sha256:ba07d3855d3e30ce2cabb166f119df50452f3c73fa092e7001b23a37d6219e9c
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2793,7 +2793,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-FIRST-USE-AND-PROJECT-CREATION-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:b993f787e85fdfd43af4bfeb25c0336d5630c9a26f5579dbb03fcafe8f2fe81c
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -2838,9 +2838,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-UPLOAD-IMPORT-AND-VERIFY-ARTIFACT-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:cf1af4e6764eeda2e182a89195a113b1efc1b97ffcab0e36b5c0bf211807215e
+    provisionalContentSha256: sha256:abc9dfca7cd0758b1e9d48a5ccaaa68d1acf6c28dca2e38e65e45b94d84e58f1
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2886,9 +2886,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-TRANSCRIBE-AND-CORRECT-CAPTIONS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:6b9336e1a7c41d75ca41ce725aada297472bda96d6294ea833fb4060b80edefa
+    provisionalContentSha256: sha256:5016ca7880291b7cfe126170042577d9736018ee6099f318e9be7cda11706dc8
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2927,9 +2927,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-AUTHORIZED-TEXT-TO-SPEECH-TO-APPROVED-AUDIO-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:87afcce8669048a7d56c6a6c2c6c6315306cb57934266c85d43406690fed7f0d
+    provisionalContentSha256: sha256:8bff12effddd735b4441efb909c06de1155b4d3e402d09068a6c83b6287206da
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -2964,9 +2964,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-ANALYZE-IMAGE-VIDEO-GEOMETRY-AND-TRACKS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:6ff6536842dcfdc09487ca263d22014b57327387459b7a2c0575840a606e20fc
+    provisionalContentSha256: sha256:5a3976806ed86a091ffd19383bfb4416aee12c24314227590c84c18a40e8c6c4
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3001,7 +3001,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-RETURN-GROUNDED-TYPED-CONSUMER-RESULTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:7ae5992af94a5c39f01eae3792a9e6faae00430f1b68bc473f9c581b3b218078
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -3038,7 +3038,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-CLEAN-NOISY-INTERVIEW-AUDIO-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:be8168bae6be473ae7a71c664af2ef28c7ce7cb45de9dafdf708c4f25dc5dca8
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -3075,9 +3075,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-REPAIR-VIDEO-WITH-MEASURED-QUALITY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:a4f77310790532c1d6c93a88c8ba1c546005028d418f0b0693f4e2d69cb1ad23
+    provisionalContentSha256: sha256:e2fc38bcc862cc4d1ed110ca247f4f1d7ba71a1fe29818a80516150262cbe771
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3112,9 +3112,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-CREATE-REVIEW-AND-DELIVER-FROM-A-BRIEF-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:31618fdeb42972c33df75827221de293caada29056d4e00b6c34d42b8204efed
+    provisionalContentSha256: sha256:3d814feb4f58b29c75f19a146dacc33f778417c50382b7af4ea6bcad7cd191e8
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3149,9 +3149,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-GENERATE-FROM-REFERENCES-AND-REVIEW-CONTINUITY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:767b76fcb30e3bbc5b0d809dee1d8a382af3178d5307dce780290c3e913007aa
+    provisionalContentSha256: sha256:58e5ec0c33c511d229720afcf2d114592b17f8e4df9560842d9a2a76a33a09a6
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3186,7 +3186,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-EDIT-TRACKED-MEDIA-REGION-WITH-UNDO-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:c3dfe117c6f3786342c46cccc09c66834c1948283673f5e19c8ac1c956d5582c
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -3223,7 +3223,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-ANIMATE-VECTOR-OR-PROCEDURAL-SCENES-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:26c66cdef135b47ef652cdb43d73f295540c3f78b125dca64890cc71a99d34c4
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -3260,7 +3260,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-ANIMATE-3D-SCENES-AND-CHARACTERS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:be323a24814866ed8bd20c0d7c95d57c1f210d2019a0438b8b268d26697e17da
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -3297,7 +3297,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-EXPLORE-DOMAIN-SIMULATION-AND-REVIEW-MEASUREMENTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:4dbd827a9f43773af876b859552e348e673ec14ab9868471624bda48ebd30736
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -3334,7 +3334,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-REFINE-SIMULATION-PASSES-WITH-SEMANTIC-VALIDATION-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:3d49f8ed3042bfcd5460f63ea910dde4b8bfbe9f14bb4d5ca26c192a3d637207
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -3371,9 +3371,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-TRANSLATE-AND-DUB-EXISTING-VIDEO-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:1c978c1ab89cd9ef9923bddc4d7dbab0af41285d3666334271c821f784626b40
+    provisionalContentSha256: sha256:185095ef0f0930a005b8978e91cec2261498282f0f513124ed811b455e0a02d8
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3408,7 +3408,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-MIX-AND-MASTER-MUSIC-AND-EFFECTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:ac0756c3a5da05f85b5ba0222cf9154f7cece78194840d7a0928a2b3ba1f0fd1
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -3445,9 +3445,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-COMPOSE-AND-RENDER-REVIEWED-MEDIA-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:2197163841e4ac79894bb556947a0bc419ccdfc79d6f746863274415598aecd1
+    provisionalContentSha256: sha256:28f1a435bff3e8770804a3e76ae63ee67748d7cae3c850fefea4e9ecd375f3a1
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3472,7 +3472,7 @@ productArtifactIndex:
       gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
     acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
   - artifactId: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-INSPECT-QUALITY-AND-OPTIMIZE-WITHIN-BOUNDS-YAML
-    title: Inspect quality and run bounded optimization
+    title: Review media quality and improve it within declared limits
     owner: ghatana-media-product-and-UX-owners
     authorityClass: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
@@ -3482,9 +3482,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-INSPECT-QUALITY-AND-OPTIMIZE-WITHIN-BOUNDS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:41dee4599384e200ff146a72612874a497f0b274d0f0a3a3fb07121680fc07b0
+    provisionalContentSha256: sha256:eac5217b00f714479ab5dff280c3754f1fbb0f19d005e9967e0e2ac8730845e1
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3519,7 +3519,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-REVIEW-EXACT-VERSION-AND-RECHECK-CHANGES-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:6a360323bf3b4a157d25300a52f20f6df983432c2e1641d22b6c828a6338a18a
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -3556,9 +3556,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-DELIVER-EXPORT-WITH-DESTINATION-ACKNOWLEDGEMENT-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:343b420d0826f5535ce817d343934c77a424337c7f64863794982e1ef5fa8bd5
+    provisionalContentSha256: sha256:5508aecc9468f79e4dfea0ea621ec916c3eeeac61ceddab72e23b3950c34e052
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3593,9 +3593,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-WORK-LOCALLY-AND-RECONCILE-AFTER-RECONNECT-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:077c9a9733bcf3a01d7e50e20d1f65408a38ffce8094401898a23a8217143913
+    provisionalContentSha256: sha256:7cac7ca47cfa9e65d6fd63ad47d5c2ba4a5a0a1ae690c253965a349f0dd7c7b0
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3630,9 +3630,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-RUN-CLI-BATCH-AND-REVIEW-VERIFIED-OUTPUTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:b5c17edb74cc8ae423e515c3f615ceccf8333c221506ca76e35a76a7f4362489
+    provisionalContentSha256: sha256:509ccc0c91be568ddb95cadb637ac41143a2e08aa4542a98490d7e378c48b916
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3667,9 +3667,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-RETURN-BOUNDED-RESULTS-TO-INTEGRATING-PRODUCTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:4f9e2fe1b23b8bd35103bf89c3289d928fc8b5f453fe38f7b19cefdbcdecad18
+    provisionalContentSha256: sha256:d6df138c33c253650c22c1180cf65e6602c23ecbc36d68e64b77ca404de8085c
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3704,9 +3704,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-DELETE-OR-REVOKE-MEDIA-WITH-VISIBLE-LIFECYCLE-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:d05263b447f96659f5a406521483c5568353860bd307b07aaff6ce62a477bd49
+    provisionalContentSha256: sha256:bee02d2bde19740d72860e2df5b1c1579b6f394084f9b9ed1961a198a36949dd
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3741,9 +3741,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-CONTINUE-SAFELY-WHEN-PROCESSING-IS-UNAVAILABLE-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:278aee1e525c5cc4725c913e5f8a964a26246ced094211a078a63456a39d7cd4
+    provisionalContentSha256: sha256:85c8484a49dd9f8d5d6306ae26c96523909b0aa95a36c6613bbf56656245241c
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3778,7 +3778,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-EXPORT-SPATIAL-MEDIA-WITH-FORMAT-LOSS-REPORTING-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:d25bb929efa7cb7d5c6cf66381b9fb60cd52b2380f395b43418024acfbf1054b
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -3815,9 +3815,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-REGISTRY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:6efe3e5e33a95bec40ad1bfb827bb86290eda47949c64f3751260c0be27f8b21
+    provisionalContentSha256: sha256:6746a38c98b6e0dec834ee7c84d7ef0fe1563922045ad297a7fb092d1e1a177e
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3856,9 +3856,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-NAVIGATION-CONTRACTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:29c3d33d41398b400b5482ee073610299f35e7e1cff29cb8e42070490f1d7e84
+    provisionalContentSha256: sha256:bc0c5865486f4a2e1ce3090b4177a04be7a07bf8345ca12dfc82bfe438d0e09b
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3897,9 +3897,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-RECOVERY-FINALITY-CONTRACTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:12afe41367fe3ac6c392210d58f9fc3842e766307542a26c9ac637b4951e35e5
+    provisionalContentSha256: sha256:68933ff43a115210b8e448663ec286ec571243910effd811bdefd96ec4a08549
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -3938,7 +3938,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-RESPONSIVE-VARIANTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:c400f513d43170790db6a5064a8ddab6abfbf8f5c46c25f81f6e6273aba8b82f
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -3979,9 +3979,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCENARIO-FIXTURE-REGISTRY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:cee8d0a388892e5f99b0ff03859152a7936e06546116324b6581fb74b06e7e62
+    provisionalContentSha256: sha256:56b45b4180fb0535892c1f106e4cd423f2dc21d0f99deea39e817f96cc39eedd
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -4020,9 +4020,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-AUTHENTICATE-AND-SELECT-CONTEXT-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:6a7b4f504262b53ab35275ef8e88b50f70a2abe540ea61d35641fc4972f88871
+    provisionalContentSha256: sha256:c0a2f8bff8d0b1c16021cd7aab4f33478280d799eec2f3208c89acab75149a06
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -4065,7 +4065,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-MEDIA-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:ca60ebc0ac1d45de9669d57b3dfd445dbd193af6ce3744628de2d665d01ea718
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -4110,7 +4110,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-FIND-PROJECTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:335c44143a2a24d308b984b71b77a392d64ed041f7ef901fb776b8186eaa99b3
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -4155,7 +4155,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-RESUME-WORK-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:6c891277a2a6ca89e0e4ebe99992ff93bf1490e7d3c3c6432e589c425f7c74fc
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -4200,7 +4200,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-WORK-IN-PROJECT-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:b5f5e4e810f19e184962a4b318c18418187b4cb83e191f1def4f8f0902cdf644
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -4245,7 +4245,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-BROWSE-MEDIA-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:084ac10322a086c9a29d0e8f27dfc14837595585502d5109a842ca04281e58a5
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -4291,7 +4291,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-IMPORT-MEDIA-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:b5ea8ff4290583e401021c8954b36113c2b293f714efa31e61d659f9dd246059
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -4337,9 +4337,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOB-FAMILY-ARTIFACT-VERIFICATION-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:67722ae9b374145d318adad1f26ce527ced5bb6f811c734d1a289c7182605bc1
+    provisionalContentSha256: sha256:8dcfcfe87a0307da956bd5dfd79220cad257c4da7ed15f9e8ca3e9149fe233de
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -4383,7 +4383,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-MEDIA-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:7d7d467fd68435ec9c49624cf787683eb5cb158f484ab738fbd32c571abcc105
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -4429,7 +4429,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPARE-CAPTION-VERSIONS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:f6b97610b06ae66ddc1f3ddf2a38818c204f2f37dcbc33eb8e05e9fd5c9189b7
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -4470,7 +4470,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CORRECT-CAPTIONS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:a043fe8bcc9dcff1f4f069053a398bde9da2487d3a2daa9cf38613b88396d6b4
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -4500,20 +4500,20 @@ productArtifactIndex:
       ownerApprovedToolsBinding: not-bound
       gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
     acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
-  - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-RESOLVE-JOB-OUTCOME-YAML
-    title: Resolve Job Outcome
+  - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-JOB-OUTCOME-YAML
+    title: Check Job Outcome
     owner: ghatana-media-product-and-UX-owners
     authorityClass: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
     owningPhase: P2
-    path: .product-experience/phase-2-product-experience/screen-contracts/resolve-job-outcome.yaml
+    path: .product-experience/phase-2-product-experience/screen-contracts/check-job-outcome.yaml
     authoredOrGeneratedRole: authored-proposal
-    sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-RESOLVE-JOB-OUTCOME-YAML
+    sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-JOB-OUTCOME-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:ec0b5472f6ad55a6603118d3ed3aec8605c7d03f1b1ead38ee0e4d1c5268e13a
+    provisionalContentSha256: sha256:afa09d5aff527cac2aa62f108dd947bb68474d40aa2a1d60428a4ab65c3eb6d4
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -4552,9 +4552,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-ACTIVITY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:82b184f3407d2f04ea210996b20c29bd632510be327a206225eca296672c786c
+    provisionalContentSha256: sha256:ce3b2415dce80cdee33066be6033c3fd08fff233205e4c131c65ba96823cae3b
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -4599,7 +4599,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-TRANSCRIPT-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:151bd8fbbf027d226b7a8ad07f6146ed1f1a04463510305b62cfd43f008b07be
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -4640,7 +4640,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-SELECT-SOURCE-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:4d8d0fb8e8d514219074bd3fc9deee845d249dbf99dca7ea671fd6800389ea03
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -4681,9 +4681,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-TRANSCRIPTION-PROGRESS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:584be5c35fc032f89000ef70f4ae48766f6a8b836d3faeed9c96263188a98787
+    provisionalContentSha256: sha256:09ad844f1a8f201b8a4f05247f4b64df87b38883282a88699140ceab60cdb760
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -4722,9 +4722,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-REGISTRY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:020f543a5708294a094f51d72594f56cc33a697e1af339f7b63d7cd1e7e9c4fd
+    provisionalContentSha256: sha256:4738e19dfd2a3e9aa92907866cd24fa821140c581049c43eb882cb3528a34f04
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -4763,9 +4763,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SIMULATION-SEMANTICS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:54252e08ac307aa940a91ba11a846d00473ce8a864d84a67b948a57cb538ce37
+    provisionalContentSha256: sha256:2d8ec033ccce6f908e614e1ce809bbe732203d4b504f2916abb210bf320e05e0
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -4804,7 +4804,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-STATE-TRANSITION-BINDINGS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:3445583dfa960a8585ff54f312bbacf2e886e5ea699ef8bb9cd49b62c18aa76d
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -4845,9 +4845,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-LONG-RUNNING-JOB-OBSERVATION-AND-RECOVERY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:7a72df09ed1a6dce0f7e8999ab17a20a6573f8c09508efc8308f6e810b5bf166
+    provisionalContentSha256: sha256:dd0a8221934af5779c786b5d8762044431edc61872448fd94aa7c2e26f3da330
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -4882,20 +4882,20 @@ productArtifactIndex:
       gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
     acceptanceState: J-20-transcription-job-fixture-slice-only; generic-job-channel-and-owner-runtime-contract-pending-P0-010-and-P1-006;
       no-Phase-2-acceptance
-  - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-JOB-YAML
-    title: Inspect Job
+  - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-JOB-STATUS-YAML
+    title: View job status
     owner: ghatana-media-product-and-UX-owners
     authorityClass: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
     owningPhase: P2
-    path: .product-experience/phase-2-product-experience/screen-contracts/inspect-job.yaml
+    path: .product-experience/phase-2-product-experience/screen-contracts/job-status.yaml
     authoredOrGeneratedRole: authored-proposal
-    sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-JOB-YAML
+    sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-JOB-STATUS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:a7edaa2d21b15c0144df937b73baa9f70ef00b6bdd030b511c3f58b0536967da
+    provisionalContentSha256: sha256:9b0d8c2a8f566b56a316c00e3c08f0fe5e3f7ee6faaa8e2f070826064a123922
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -4942,9 +4942,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P3-PHASE-3-EXPERIENCE-EXPLORER-EXPERIENCE-EXPLORER-MD
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:15ef2101c8f06e6d6cf74dfd8b5f3bf652f2dd57ff8bfc02d0ed2a0941d3851e
+    provisionalContentSha256: sha256:72f6f42a6b3448a170e5a6c64c2cf590114d26e0c974e165a0e5fa43151425ba
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -4975,9 +4975,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P3-PHASE-3-EXPERIENCE-EXPLORER-INTERACTION-DISPOSITIONS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:916025b09b5be61219c8b704c5bf8100764baaf3b085ce3bee7592d021997c60
+    provisionalContentSha256: sha256:33f76ba08e6580b6d81492448e58797c429caf44e3f19d46135a13620f9af997
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5008,7 +5008,7 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P3-PHASE-3-EXPERIENCE-EXPLORER-MEDIA-EXPERIENCE-PACKAGE-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     provisionalContentSha256: sha256:47034842b9d785f40d50c323e46f49cc3d3d53802cfb26c4d7afb6e966d31cb0
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
@@ -5041,9 +5041,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P3-PHASE-3-EXPERIENCE-EXPLORER-SCENARIO-FIXTURES-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:1b967062606e884beaf3a78c8a29e2a1a2b947183f115719c482f62d6b0d120d
+    provisionalContentSha256: sha256:cd9a9048f6d32430afc7eae364ca717fa926d926bf57313b2633740e6a6f6650
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5074,9 +5074,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P3-PHASE-3-EXPERIENCE-EXPLORER-VERIFICATION-MATRIX-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:9c19aa48e9ada25a04bcab728a8e01d9630fc9f460617adace257c3915c97c86
+    provisionalContentSha256: sha256:9f41b024b481ef81d3662258b8a89617dae2f9f409b7830846751658b71f5df5
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5107,9 +5107,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P3-PHASE-3-EXPERIENCE-EXPLORER-VIEW-PROJECTIONS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:e37e70446b9a8298435556a6570a517a367eb5d736cfaf3b7398038b4139dbda
+    provisionalContentSha256: sha256:b0f48b89a7228e8a28863436162779972246fb60a4db672d660ccd2bde71d8c6
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5140,9 +5140,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-CREATION-PLAN-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:4d3a4a108ca960f3c2db96740007576198e863f07ff02a4199000284ce05c119
+    provisionalContentSha256: sha256:e90cc9fbc0acceae3164214484e986b3ca1e898335ec51f00a122fcf9c7349ee
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5184,9 +5184,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-ARRANGE-SCENES-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:da82cc0bed3d5ca5c2a815b5eb27a5b732b7d6633dff8f9015e464c0bbc8222a
+    provisionalContentSha256: sha256:aeb4e1dcd21cd8cf013defe2a8450861bf501bd16fb375a5365f0fbd83d4b00c
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5228,9 +5228,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-IMAGE-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:1b2667f52c0dce7ffd709f6055eab0f778384c69dd8b8875914412991ac749c0
+    provisionalContentSha256: sha256:05b0f0fe130fa6934576bb533c848f1c1edea2f9b8fe908d363267114a6d5211
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5272,9 +5272,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-VIDEO-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:e4b79b0e14a268490c1c5d39137720a07b2949d6c8f20e697d27f55a33fe390f
+    provisionalContentSha256: sha256:ebb2c67c84a2d34933d23242c16fbac6b1610137f51330d8b36e7d0876273dc6
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5316,9 +5316,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-AUDIO-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:6be6f383d6b52f2065f82bb5b0ed18f6139817f3c82738b0c4dc147a6b7af9ac
+    provisionalContentSha256: sha256:cfab5bd68b6d777554883c640866284a8bef1d8bb356539740c363bcca8592c2
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5360,9 +5360,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-WORK-WITH-SPEECH-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:2ed61ca0df7e8863c433f6a417d155cea7e3e625d5a5c10373733a085ca3458f
+    provisionalContentSha256: sha256:de9e7094b5339eeb6e6a3046f777856af3ea0a4a3228b53c99fb85399a1d262a
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5404,9 +5404,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-USE-AUTHORIZED-VOICE-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:0ee75afcd1969976f35bac97a3df040b6a7d25558b6e2d54a4294924c7f9ebaa
+    provisionalContentSha256: sha256:a90494c172fa351afdde2a2ad27660c847099d94b22bf45ac181d1b795f49a13
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5438,7 +5438,7 @@ productArtifactIndex:
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
       no-Phase-2-acceptance
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-CAPTIONS-YAML
-    title: Correct captions
+    title: Edit captions
     owner: ghatana-media-product-and-UX-owners
     authorityClass: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
@@ -5448,9 +5448,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-CAPTIONS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:4aad2f6f044e7c533676b8639741235acf53289d5a4d3cff26af41e958569f1f
+    provisionalContentSha256: sha256:93d2b2ca221f5a97899f49fe144271d3bd358ccc1abbcb5759fdd8dd18edbdaf
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5492,9 +5492,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-DUBBING-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:42a97ac1c7c2270dfe916a4946a8d0c4823c38c14b09a6faf543a66b1e9fe878
+    provisionalContentSha256: sha256:3373ecf9a026e4eb951c96dd409d0682c3f3a95d3d26a3ec8921f8590df167d4
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5536,9 +5536,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-IMPROVE-MEDIA-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:3e3538bd38b2e2345830ab26cc58776863a3ca712b56e629da32b772b9be76b0
+    provisionalContentSha256: sha256:9235a9c89b4b020b61a38d5684758cee45bcd48a701a5359855cf29c36a89027
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5580,9 +5580,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPARE-RESULTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:e2804ea92a95270edfe9bfc35d70a6ceb183057025d1f6c48b618eae70c9a585
+    provisionalContentSha256: sha256:ea10e0ff3ba493e011a50c2a8874b6e07e0fcbf2f421164ce855e80cd8a10d59
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5624,9 +5624,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-MEDIA-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:81e954fe56a7b28b0d1fa035d8ec9d76094562083efe1f2d9e70451510ec46c2
+    provisionalContentSha256: sha256:3caa8e4c434ec0eb793a386122da2ab1126e9d6ad6a8c9bd30e7064f792d4aa3
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5668,9 +5668,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-MEDIA-REGION-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:84dba5230d4227851cb3a88bd2ac3c9fd78ee49b2a11b52ceb8919e650767d44
+    provisionalContentSha256: sha256:a6929afae6f5ca7485e6d346f92d70f79b976a9fa00156a8907e7184c43b00d6
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5712,9 +5712,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-ANIMATE-MEDIA-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:8ebb351db74561e5d8f40507a19f69aeefddbc343567860989ada900b659bd17
+    provisionalContentSha256: sha256:bba0dec92b9731779eca28c2f88b68b669386d4d0e6b9c33d7b6fe823a63aa04
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5756,9 +5756,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPOSE-SCENE-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:b9ae8128c61435676a838221359c94cca5d7a81579043534554b6f5868b75a4a
+    provisionalContentSha256: sha256:feb81723f74a426ea58d231bcfee9c0c4c14bd82861110d89fc8aa21776d858a
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5790,7 +5790,7 @@ productArtifactIndex:
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
       no-Phase-2-acceptance
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EXPLORE-SIMULATION-YAML
-    title: Run a simulation
+    title: Explore a simulation and inspect its results
     owner: ghatana-media-product-and-UX-owners
     authorityClass: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
@@ -5800,9 +5800,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EXPLORE-SIMULATION-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:245237c0aad97416ef8d204aaa14c22a1928cfd51a25fd8de3c12ee554837378
+    provisionalContentSha256: sha256:92cf3edd239de3ce639b439b293484644a3242c1f984545efedcddecec7eed70
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5844,9 +5844,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPOSE-MEDIA-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:06acd2e7dffd7a954212bf7f707740c5c87bd1edd04437fb93301dd4e5fbd88e
+    provisionalContentSha256: sha256:2ae54d5eb28e57a79ea29651ce600c8a1723b6c11e00127620cb3b58cbaa5277
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5888,9 +5888,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-ADJUST-COLOR-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:3b238b583fbaaa5fb2b2579a87cc0e8a3adca2e13c25a895607290176f03df77
+    provisionalContentSha256: sha256:a2da1a05f45fa9fc7fa2cbc399461bf3e52d97147ec62de3c8c360257c4e88e1
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5932,9 +5932,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-QUALITY-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:a3256aca306a45715186e31143d3aa1e74998e50c9220d496f162a9555d62916
+    provisionalContentSha256: sha256:50b5a41e1d38bb0dc27028218694aa4717ee17929672587672657883ac8defac
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5976,9 +5976,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-PREPARE-RENDER-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:24d6f10f32c260a0e6f180a012e133d2cb9c015ce73fe6819cba102be7809d5e
+    provisionalContentSha256: sha256:da39513e18a95aefdcac00692510bee79fa434410a2e0105053c0d6c6ced61e6
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -6020,9 +6020,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-OUTPUTS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:829dd5edec2fdcbeaa47f9d68668b2c45d35996012d44b2c23bdeea65013d9f7
+    provisionalContentSha256: sha256:b8ddb5491032bb31f7abc2da3242a8bc7b52cded7ae237954b22c6eb0cf73494
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -6064,9 +6064,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-OUTPUT-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:a870cc096ef91a41c362921c1f3ecf615c99187e63c8c4c3c4bb8da6f1f69c0e
+    provisionalContentSha256: sha256:09c51aeeadfc4dd9e041fcca91be950887d6aeb02be0872e1dff9527c98be673
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -6108,9 +6108,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-DELIVER-OUTPUT-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:678d7dd3c87f5086960c9e6796a3f5dac2f28bb05820456878c56c01b1b61e36
+    provisionalContentSha256: sha256:6f589cb8c0cf8a73f645e0cd32afc612c9caf401dc9ca80745db50d74e1a2c3b
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -6152,9 +6152,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-EXACT-VERSION-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:fd459322fff1a8a029f2a29fb3fc59d24fefa37c6caad8eaaf85ad0a6717079c
+    provisionalContentSha256: sha256:3a55934cde12ce85d817c46a86878f59dbb150a561cf7a8e9e05893c42c16e60
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -6186,7 +6186,7 @@ productArtifactIndex:
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
       no-Phase-2-acceptance
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-RIGHTS-AND-CONSENT-YAML
-    title: Manage rights
+    title: Review rights and consent for media use
     owner: ghatana-media-product-and-UX-owners
     authorityClass: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
@@ -6196,9 +6196,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-RIGHTS-AND-CONSENT-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:ed8a1fbe4c7e9f31a8a93d766a696058b7886dd6d3dd06e64d9836616215047f
+    provisionalContentSha256: sha256:f5f611bc8378c67c8eb4ce054a377cd771ba6393d75c352f950fffd7a79208f9
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -6240,9 +6240,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-PROVENANCE-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:3a0292c99584967e10dd34f0bd8740b2da51206424fc26ef2e374ac32263e916
+    provisionalContentSha256: sha256:0d5f569d2d889ef1d46e49794dd91d8ff68111183b7235a2215dc88f5f8f9676
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -6284,9 +6284,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHOOSE-ELIGIBLE-PROCESSING-OPTION-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:1439f47f8df2d0533c6c07087d8db8f8f13b40a8df221943e2983764423909e4
+    provisionalContentSha256: sha256:2a62cd54050bd753f1adad4f2846da616bb13a84dca10d686c2336155da908e8
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -6328,9 +6328,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-PROCESSING-OPTIONS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:78215ab35963ca258a9f57182b0c9d4a431dd91d078490efac67db8174a16194
+    provisionalContentSha256: sha256:dedf9ba62016d770acd946b09428a98adc1c41fb5035d350bb4617432e25514d
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -6372,9 +6372,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-PROCESSING-READINESS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:cfac93df4f45e36c512c2d6405c6ba9133c8c50414532d2170671cf837219a8d
+    provisionalContentSha256: sha256:b367c175fa5d30fe2a866c6601616c9331f8ae1084c98a47d87784874adab3ba
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -6406,7 +6406,7 @@ productArtifactIndex:
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
       no-Phase-2-acceptance
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-WORKSPACE-SETTINGS-YAML
-    title: Manage settings
+    title: Review and change workspace settings
     owner: ghatana-media-product-and-UX-owners
     authorityClass: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
@@ -6416,9 +6416,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-WORKSPACE-SETTINGS-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:5ceab4428ce1aac16d34895082403b10c534364e48a368f3bac7dd51ed2df4ef
+    provisionalContentSha256: sha256:916b5180acdc497808cd4f24737d712a483de34db8615b940abfad29651c3e84
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -6460,9 +6460,9 @@ productArtifactIndex:
     sourceAuthorityRef: authority-map:ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-FIND-TASK-GUIDANCE-YAML
     semanticFingerprint:
       status: pending-owner-approved-Tools-generation
-      value: null
+      value:
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:ff692405b9e2265e7eb5789b619e63957fd9e06d9ef8238a646b70f5a96eadbb
+    provisionalContentSha256: sha256:5fe6539edc0592373cf6b800e0431f06367f3468a4f3924016f54c97cd03c785
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -6515,10 +6515,11 @@ phaseScope:
   authoredProposalScope:
     P1: first-use and artifact-intake components plus selected transcription and caption-correction lane; token,
       accessibility, localization, CLI, and design-owner review pending
-    P2: 41 baseline view proposals, six selected-lane specializations, and Phase 0-grounded proposals for all 28 required
-      journeys; action/state/scenario/channel/wire bindings and P2-008 review pending
-    P3: Synthetic J-01/J-02/J-03/J-20 Explorer slices and CLI simulation; generic Tools host, full responsive and
-      accessibility coverage, and independent human review pending
+    P2: 41 baseline view proposals, six selected-lane specializations, and Phase 0-grounded proposals for all 28
+      required journeys; action/state/scenario/channel/wire bindings and P2-008 review pending
+    P3: Synthetic J-01/J-02/J-03/J-20 Explorer slices and CLI simulation; five-viewport DOM geometry sweep of all 47
+      Product projections recorded; generic Tools host, full keyboard/screen-reader/zoom/forced-colors and view-specific
+      channel behavior, plus independent human review, remain pending
   acceptanceNote: The user requested continued work across all four phases, authorizing proposal drafting. Authored
     records remain proposals until named owners review and independent P0-010 acceptance is recorded; later-phase
     acceptance remains gated by its declared prerequisites.

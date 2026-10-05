@@ -37,8 +37,13 @@ states:
 - bounds-invalid
 - policy-blocked
 - candidate-ready
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.inspect-quality-evidence
+- media.action.choose-media-improvement-intent
+- media.action.review-repair-bounds
+- media.action.update-repair-bounds
+- media.action.submit-admitted-plan
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - inspect a measured defect and its evidence
 - choose preservation, enhancement, or creative intent
@@ -77,3 +82,22 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: inspect a measured defect and its evidence
+  actionRefs:
+  - media.action.inspect-quality-evidence
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: choose preservation, enhancement, or creative intent
+  actionRefs:
+  - media.action.choose-media-improvement-intent
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: review or change repair bounds
+  actionRefs:
+  - media.action.review-repair-bounds
+  - media.action.update-repair-bounds
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: submit an admitted plan
+  actionRefs:
+  - media.action.submit-admitted-plan
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

@@ -31,7 +31,10 @@ states:
 - context-denied
 - service-unavailable
 - offline
-actions: []
+actions:
+- media.action.start-upstream-identity-handoff
+- media.action.select-identity-confirmed-workspace
+- media.action.return-to-requested-destination-after-identity-confirmation
 validation: Do not infer authentication, tenant membership, workspace access, or action authority from a remembered
   selection or actor label.
 recovery: Preserve the return destination and non-sensitive intent draft; keep project data hidden until current
@@ -45,8 +48,11 @@ fixtureState: required-J-01-scenarios-are-not-yet-realized-in-Phase-3
 scenarioRefs:
 - media.scenario.identity-required
 - media.scenario.workspace-access-denied
-actionBindingState: intent-bindings-pending
-actionIntents: []
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+actionIntents:
+- start the configured Shared identity handoff
+- select a workspace confirmed by the Shared identity service
+- return to the requested destination after current access is confirmed
 channelDispositions:
 - channelRef: media.channel.web
   disposition: baseline-view-contract-proposal
@@ -69,3 +75,17 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: start the configured Shared identity handoff
+  actionRefs:
+  - media.action.start-upstream-identity-handoff
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: select a workspace confirmed by the Shared identity service
+  actionRefs:
+  - media.action.select-identity-confirmed-workspace
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: return to the requested destination after current access is confirmed
+  actionRefs:
+  - media.action.return-to-requested-destination-after-identity-confirmation
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

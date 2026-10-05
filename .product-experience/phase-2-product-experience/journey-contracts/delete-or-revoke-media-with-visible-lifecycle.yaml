@@ -56,8 +56,8 @@ steps:
   stateRefs: []
   stateBindingState: pending-owner-bound-state-reference-and-transition
   candidateActionRefs:
-  - media.action.inspect-job
-  - media.action.reconcile-job
+  - media.action.view-job-status
+  - media.action.check-job-outcome
 stepBindingRule: The ordered view path is sourced from Phase 0 and each legacy view maps to one registered intent-based
   screen. Null actionRef and empty stateRefs are deliberate open bindings, not no-op actions or completed transitions.
 terminalSuccess: Product lifecycle reflects completion/partial/blocked status without claiming remote copies were

@@ -1,9 +1,9 @@
 schemaVersion: media.job-view-specialization.v1
 productId: media
-screenRef: media.view.inspect-job
+screenRef: media.view.job-status
 specializationId: media.job-family.artifact-verification
-status: proposal; job-family-specialization-of-canonical-inspect-job-view; verification-owner-contract-pending
-purpose: Project the artifact-verification job family in the canonical inspect-job view while keeping transfer identity
+status: proposal; job-family-specialization-of-canonical-job-status-view; verification-owner-contract-pending
+purpose: Project the artifact-verification job family in the canonical job-status view while keeping transfer identity
   and job finality distinct.
 jobFamily: artifact-verification
 context: One owner-issued verification job associated with an uploadId when the owner contract returns it.
@@ -21,8 +21,8 @@ states:
 - reconciling
 - evidence-unavailable
 actions:
-- media.action.inspect-job
-- media.action.reconcile-job
+- media.action.view-job-status
+- media.action.check-job-outcome
 identityRules:
 - jobId-is-the-job-identity
 - uploadId-is-related-transfer-identity-not-a-jobId

@@ -12,7 +12,7 @@ contextGoalNowNext:
   context: An exact render job, output manifest, master and rendition identities, approval state, and provenance.
   goal: Review the outputs and determine which versions are ready for inspection or approval.
   now: Show job finality separately from each output’s integrity, quality, rights, and approval state.
-  next: Inspect an output version, request review, or reconcile an incomplete job.
+  next: View an output version, request review, or check an incomplete job's outcome.
 anatomy:
 - render-job-and-finality
 - output-manifest
@@ -36,15 +36,18 @@ states:
 - no-output
 - outcome-unknown
 actions:
-- media.action.inspect-job
+- media.action.view-job-status
 - media.action.inspect-artifact
 - media.action.inspect-provenance
-actionBindingState: bound-to-existing-P2-actions
+- media.action.review-output-evidence
+- media.action.open-approval-view
+- media.action.check-job-outcome
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - inspect an exact output version
 - review output evidence
 - open an approval view
-- reconcile the render job
+- check the render job outcome
 channelDispositions:
 - channelRef: media.channel.web
   disposition: baseline-view-contract-proposal
@@ -56,7 +59,7 @@ channelDispositions:
   disposition: host-rendering-and-focus-contract-not-bound
 validation: Job completion and output availability are separate; each rendition has an immutable identity; unapproved
   outputs are not presented as published.
-recovery: Preserve the manifest for partial jobs; reconcile unknown finality; show missing outputs without suggesting
+recovery: Preserve the manifest for partial jobs; check unknown finality; show missing outputs without suggesting
   blind retry.
 responsive: List outputs by rendition with state and safe action; keep job finality above the list.
 accessibility: Expose output names, version, verification and approval state in each row; announce job changes once.
@@ -76,3 +79,21 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: inspect an exact output version
+  actionRefs:
+  - media.action.inspect-artifact
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: review output evidence
+  actionRefs:
+  - media.action.review-output-evidence
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: open an approval view
+  actionRefs:
+  - media.action.open-approval-view
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: check the render job outcome
+  actionRefs:
+  - media.action.check-job-outcome
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

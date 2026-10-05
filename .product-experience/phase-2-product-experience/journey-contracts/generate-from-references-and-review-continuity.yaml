@@ -38,8 +38,8 @@ steps:
   stateRefs: []
   stateBindingState: pending-owner-bound-state-reference-and-transition
   candidateActionRefs:
-  - media.action.inspect-job
-  - media.action.reconcile-job
+  - media.action.view-job-status
+  - media.action.check-job-outcome
   - media.action.request-cancellation
 - view: media.view.animate-media
   legacyViewRef: M-ANIMATION

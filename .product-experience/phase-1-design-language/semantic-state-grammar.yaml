@@ -11,11 +11,11 @@ states:
   - stateRef: media-job.QUEUED
     label: Waiting to start
     explanation: The request is recorded; processing has not started.
-    safeActionRefs: [media.action.inspect-job, media.action.request-cancellation]
+    safeActionRefs: [media.action.view-job-status, media.action.request-cancellation]
   - stateRef: media-job.RUNNING
     label: Transcribing
     explanation: A current attempt is processing the authorized request.
-    safeActionRefs: [media.action.inspect-job, media.action.request-cancellation]
+    safeActionRefs: [media.action.view-job-status, media.action.request-cancellation]
   - stateRef: media-job.COMPLETED
     label: Transcript ready to review
     explanation: The result is recorded; review is still required where applicable.
@@ -23,7 +23,7 @@ states:
   - stateRef: media-job.OUTCOME_UNKNOWN
     label: Outcome not confirmed
     explanation: The request may have started; check its status before taking another action.
-    safeActionRefs: [media.action.reconcile-job]
+    safeActionRefs: [media.action.check-job-outcome]
   - stateRef: media-upload-and-artifact.VERIFYING
     label: Checking source file
     explanation: Integrity, format, and policy checks are still in progress.
@@ -39,4 +39,4 @@ states:
   - stateRef: media-rights-and-consent.consent.REVOKED
     label: Processing stopped by consent change
     explanation: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy.
-    safeActionRefs: [media.action.inspect-job]
+    safeActionRefs: [media.action.view-job-status]

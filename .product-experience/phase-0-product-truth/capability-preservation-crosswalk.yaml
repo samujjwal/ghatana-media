@@ -77,12 +77,12 @@ familyCrosswalk:
   requirementId: MEDIA-REQ-CAP-JOB
   capabilityIds:
   - media.job.submit
-  - media.job.inspect
+  - media.job.view-status
   - media.job.list
   - media.job.watch
   - media.job.cancel
   - media.job.retry
-  - media.job.reconcile
+  - media.job.check-outcome
   - media.job.outputs.inspect
   - media.job.history.inspect
   disposition: retained-as-Media-semantic-leaves
@@ -99,9 +99,9 @@ familyCrosswalk:
   - media.stream.session.close
   - media.stream.session.reconnect
   - media.stream.ordering.enforce
-  - media.stream.lease.manage
+  - media.stream.lease.renew
   - media.stream.buffer.bound
-  - media.stream.backpressure.manage
+  - media.stream.backpressure.apply
   - media.stream.recording.integrate
   - media.stream.live-processing.integrate
   - media.stream.transport.webrtc
@@ -124,7 +124,7 @@ familyCrosswalk:
   requirementId: MEDIA-REQ-CAP-CAPABILITY
   capabilityIds:
   - media.capability.discover
-  - media.capability.provider.diagnose
+  - media.capability.check-declared-options
   - media.capability.execution.compatibility
   disposition: retained-as-Media-semantic-leaves
 - masterPlanSection: §6.2
@@ -528,7 +528,7 @@ familyCrosswalk:
   - media.enhance.video.frame-repair
   - media.enhance.video.frame-rate-conversion
   - media.enhance.video.motion-blur-synthesis
-  - media.enhance.video.grain-management
+  - media.enhance.video.grain.adjust
   - media.enhance.video.deinterlace
   - media.enhance.video.inverse-telecine-cadence
   disposition: retained-as-Media-semantic-leaves

@@ -3,7 +3,7 @@ productId: media
 journeyId: J-19
 phase0JourneyRef: J-19
 phase0Authority: .product-experience/phase-0-product-truth/journey-catalog.yaml
-title: Inspect quality and run bounded optimization
+title: Review media quality and improve it within declared limits
 status: phase0-grounded-proposal; phase2-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
 scope: Phase 0 outcome and ordered view intents mapped to the Phase 2 screen registry; exact action/state transitions,
   per-channel behavior, scenarios, wire bindings, and runtime commitments remain unresolved.

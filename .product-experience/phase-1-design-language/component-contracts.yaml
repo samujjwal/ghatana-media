@@ -403,13 +403,15 @@ components:
   - completed
   - partially-succeeded
   - failed
+  - retry-pending
   - outcome-unknown
   - reconciling
   - cancelled
   actions:
-  - media.action.inspect-job
+  - media.action.view-job-status
   - media.action.request-cancellation
-  - media.action.reconcile-job
+  - media.action.check-job-outcome
+  - media.action.retry-job
   identityRules:
   - show-an-owner-issued-job-identity-only-when-returned-by-its-contract
   - label-a-related-upload-identity-separately
@@ -417,7 +419,7 @@ components:
   keyboard: actions-have-explicit-names-and-reasons
   narrowLayout: status-and-next-action-precede-secondary-evidence
   accessibility: status-change-announced-once; progress-updates-are-throttled
-  prohibitedUse: must-not-offer-blind-retry-for-unknown-outcome-or-infer-artifact-availability-from-job-completion-alone
+  prohibitedUse: must-not-offer-retry-for-an-unknown-outcome-or-without-a-classified-retryable-attempt-and-current-authority-policy-and-budget; must-not-infer-artifact-availability-from-job-completion-alone
   semanticRole: Shows one processing job, its authoritative state and finality, and the safe next action.
   hierarchy:
   - job identity and purpose
@@ -431,14 +433,34 @@ components:
   - completed
   - partially-succeeded
   - failed
+  - retry-pending
   - outcome-unknown
   - reconciling
   - cancelled
   capabilityRefs:
-  - media.job.inspect
+  - media.job.view-status
   - media.job.cancel
-  - media.job.reconcile
+  - media.job.check-outcome
+  - media.job.retry
   actionBindingState: bound-to-existing-P2-actions
+  actionIntents:
+  - view status for one exact job
+  - request cancellation for the existing job
+  - check the outcome of the same job when it is unknown
+  - retry the same job after a prior attempt is classified as retryable and current policy allows it
+  actionIntentBindings:
+  - intent: view status for one exact job
+    actionRefs: [media.action.view-job-status]
+    bindingState: proposed-reference; action-authority-and-owner-review-pending
+  - intent: request cancellation for the existing job
+    actionRefs: [media.action.request-cancellation]
+    bindingState: proposed-reference; action-authority-and-owner-review-pending
+  - intent: check the outcome of the same job when it is unknown
+    actionRefs: [media.action.check-job-outcome]
+    bindingState: proposed-reference; action-authority-and-owner-review-pending
+  - intent: retry the same job after a prior attempt is classified as retryable and current policy allows it
+    actionRefs: [media.action.retry-job]
+    bindingState: proposed-reference; action-authority-and-owner-review-pending
   localization: Localize human-readable labels and explanations; preserve canonical IDs, reason codes, raw timestamps,
     measurements, and object identity; format dates, numbers, units, and plurals by locale without changing stored
     values.
@@ -570,7 +592,7 @@ components:
   capabilityRefs:
   - media.artifact.upload
   - media.artifact.upload.resume
-  - media.job.inspect
+  - media.job.view-status
   actionBindingState: bound-to-existing-P2-actions
   localization: Localize human-readable labels and explanations; preserve canonical IDs, reason codes, raw timestamps,
     measurements, and object identity; format dates, numbers, units, and plurals by locale without changing stored
@@ -644,7 +666,10 @@ components:
   - stale-index
   - access-denied
   - metadata-incomplete
-  actions: []
+  actions:
+  - media.action.search-authorized-artifacts
+  - media.action.inspect-artifact
+  - media.action.select-authorized-reference
   states:
   - searching
   - results-ready
@@ -656,7 +681,7 @@ components:
   - media.artifact.search
   - media.artifact.list
   - media.artifact.inspect
-  actionBindingState: proposed-intents-unbound
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
   - search authorized artifacts
   - inspect a specific artifact version
@@ -672,6 +697,20 @@ components:
     must-not-claim indexed results are current when stale
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+  actionIntentBindings:
+  - intent: search authorized artifacts
+    actionRefs:
+    - media.action.search-authorized-artifacts
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: inspect a specific artifact version
+    actionRefs:
+    - media.action.inspect-artifact
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: select an artifact for an admitted workflow
+    actionRefs:
+    - media.action.select-authorized-reference
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
 - id: media.component.waveform-spectrogram
   purpose: inspect source audio over time with selectable waveform and spectral analysis evidence
   semanticRole: Inspects source audio over time through waveform or spectral visualization and structured measurements.
@@ -695,7 +734,10 @@ components:
   - no-analysis-data
   - analysis-incomplete
   - source-unavailable
-  actions: []
+  actions:
+  - media.action.select-source-time-interval
+  - media.action.inspect-source-measurements
+  - media.action.switch-measurement-presentation
   states:
   - not-loaded
   - loading
@@ -709,7 +751,7 @@ components:
   - media.audio.analysis.analyze.spectral
   - media.audio.analysis.detect.clipping
   - media.audio.analysis.detect.silence
-  actionBindingState: proposed-intents-unbound
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
   - select a source-time interval
   - inspect a measured audio property
@@ -726,6 +768,20 @@ components:
     visual inspection is a quality acceptance
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+  actionIntentBindings:
+  - intent: select a source-time interval
+    actionRefs:
+    - media.action.select-source-time-interval
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: inspect a measured audio property
+    actionRefs:
+    - media.action.inspect-source-measurements
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: switch between plot and structured observations
+    actionRefs:
+    - media.action.switch-measurement-presentation
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
 - id: media.component.storyboard
   purpose: organize a versioned sequence of scenes, references, timing, and transitions before composition
   semanticRole: Organizes a versioned sequence of scenes, references, timing, and transitions before composition.
@@ -751,7 +807,11 @@ components:
   - reference-unavailable
   - conflict
   - read-only
-  actions: []
+  actions:
+  - media.action.add-storyboard-scene
+  - media.action.reorder-storyboard-scenes
+  - media.action.associate-authorized-reference
+  - media.action.review-scene-timing-and-transitions
   states:
   - no-scenes
   - editing
@@ -765,7 +825,7 @@ components:
   - media.generate.video.keyframe.start
   - media.generate.video.keyframe.end
   - media.generate.video.keyframe.intermediate
-  actionBindingState: proposed-intents-unbound
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
   - add or reorder a scene
   - associate a reference asset
@@ -781,6 +841,21 @@ components:
     presence; must-not-collapse partial scene status into complete
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+  actionIntentBindings:
+  - intent: add or reorder a scene
+    actionRefs:
+    - media.action.add-storyboard-scene
+    - media.action.reorder-storyboard-scenes
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: associate a reference asset
+    actionRefs:
+    - media.action.associate-authorized-reference
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: review scene timing and transitions
+    actionRefs:
+    - media.action.review-scene-timing-and-transitions
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
 - id: media.component.timeline-keyframe-editor
   purpose: edit synchronized media tracks and animation keyframes with explicit time, selection, and revision state
   semanticRole: Edits synchronized media tracks, keyframes, and curves with explicit time and revision state.
@@ -805,7 +880,13 @@ components:
   - loading
   - read-only
   - version-conflict
-  actions: []
+  actions:
+  - media.action.select-track-or-region
+  - media.action.select-keyframe
+  - media.action.enter-exact-edit-constraints
+  - media.action.change-interpolation-curve
+  - media.action.undo-or-redo-versioned-change
+  - media.action.save-new-revision
   states:
   - loading
   - ready
@@ -825,7 +906,7 @@ components:
   - media.animation.editing.curve.edit
   - media.animation.editing.temporal-snap
   - media.animation.editing.undo-redo.versioned
-  actionBindingState: proposed-intents-unbound
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
   - select a track or keyframe
   - enter exact time or value
@@ -844,6 +925,29 @@ components:
     preview time with source time; must-not-hide version conflict
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+  actionIntentBindings:
+  - intent: select a track or keyframe
+    actionRefs:
+    - media.action.select-track-or-region
+    - media.action.select-keyframe
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: enter exact time or value
+    actionRefs:
+    - media.action.enter-exact-edit-constraints
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: change interpolation
+    actionRefs:
+    - media.action.change-interpolation-curve
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: undo or redo a versioned edit
+    actionRefs:
+    - media.action.undo-or-redo-versioned-change
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: save a revision
+    actionRefs:
+    - media.action.save-new-revision
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
 - id: media.component.audio-mixer
   purpose: adjust and review routed audio levels and processing while showing measured output state
   semanticRole: Adjusts and reviews routed audio levels and processing alongside measured output state.
@@ -868,7 +972,11 @@ components:
   - clipping
   - metering-unavailable
   - version-conflict
-  actions: []
+  actions:
+  - media.action.edit-audio-mix-controls
+  - media.action.inspect-source-measurements
+  - media.action.review-processing-parameters
+  - media.action.save-new-revision
   states:
   - loading
   - ready
@@ -888,7 +996,7 @@ components:
   - media.master.audio.duck-sidechain
   - media.audio.analysis.measure.loudness
   - media.audio.analysis.measure.peaks
-  actionBindingState: proposed-intents-unbound
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
   - change a channel level or route
   - inspect measured loudness and peak
@@ -906,6 +1014,24 @@ components:
     measurement; must-not-imply audible playback is available
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+  actionIntentBindings:
+  - intent: change a channel level or route
+    actionRefs:
+    - media.action.edit-audio-mix-controls
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: inspect measured loudness and peak
+    actionRefs:
+    - media.action.inspect-source-measurements
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: review processing parameters
+    actionRefs:
+    - media.action.review-processing-parameters
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: save a mix revision
+    actionRefs:
+    - media.action.save-new-revision
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
 - id: media.component.mask-tracking-editor
   purpose: inspect and edit spatial or temporal masks with explicit tracking confidence and propagation scope
   semanticRole: Inspects and edits spatial or temporal masks with explicit tracking confidence and propagation scope.
@@ -930,7 +1056,11 @@ components:
   - tracking-lost
   - partial-track
   - read-only
-  actions: []
+  actions:
+  - media.action.select-region-or-point
+  - media.action.edit-mask-boundary
+  - media.action.limit-tracking-propagation-range
+  - media.action.review-uncertain-tracking
   states:
   - not-loaded
   - ready
@@ -948,7 +1078,7 @@ components:
   - media.vision.track.point
   - media.edit.matte
   - media.edit.propagate-keyframe-mask-effect
-  actionBindingState: proposed-intents-unbound
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
   - select a region or tracking point
   - edit mask boundary
@@ -964,6 +1094,24 @@ components:
     shown range; must-not-claim matte quality without inspection
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+  actionIntentBindings:
+  - intent: select a region or tracking point
+    actionRefs:
+    - media.action.select-region-or-point
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: edit mask boundary
+    actionRefs:
+    - media.action.edit-mask-boundary
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: limit or extend propagation range
+    actionRefs:
+    - media.action.limit-tracking-propagation-range
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: review uncertain or lost tracking
+    actionRefs:
+    - media.action.review-uncertain-tracking
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
 - id: media.component.scene-inspector
   purpose: inspect source-grounded scene observations, timing, and links to the exact media interval
   semanticRole: Inspects source-grounded scene observations and their exact source intervals, origin, and uncertainty.
@@ -987,7 +1135,10 @@ components:
   - partial
   - unavailable
   - read-only
-  actions: []
+  actions:
+  - media.action.inspect-source-grounded-observation
+  - media.action.seek-source
+  - media.action.inspect-quality-evidence
   states:
   - loading
   - ready
@@ -1001,7 +1152,7 @@ components:
   - media.vision.detect.shot-boundary
   - media.multimodal.observe.source-grounded
   - media.multimodal.describe
-  actionBindingState: proposed-intents-unbound
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
   - inspect a source-grounded observation
   - open the exact source interval
@@ -1016,6 +1167,20 @@ components:
     traits; must-not-sever observation from source interval
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+  actionIntentBindings:
+  - intent: inspect a source-grounded observation
+    actionRefs:
+    - media.action.inspect-source-grounded-observation
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: open the exact source interval
+    actionRefs:
+    - media.action.seek-source
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: review uncertainty or missing evidence
+    actionRefs:
+    - media.action.inspect-quality-evidence
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
 - id: media.component.simulation-instruments
   purpose: control declared simulation inputs and inspect timestamped measurements and output passes
   semanticRole: Controls declared simulation inputs and inspects timestamped measurements and output passes.
@@ -1041,7 +1206,12 @@ components:
   - unqualified
   - failed
   - read-only
-  actions: []
+  actions:
+  - media.action.set-declared-simulation-input
+  - media.action.inspect-quality-evidence
+  - media.action.select-simulation-output-pass
+  - media.action.inspect-simulation-domain-and-fidelity
+  - media.action.open-qualification-evidence
   states:
   - unconfigured
   - ready
@@ -1062,7 +1232,7 @@ components:
   - media.simulation.output.physical-events
   - media.simulation.output.depth
   - media.simulation.output.normals
-  actionBindingState: proposed-intents-unbound
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
   - set a declared input value
   - inspect a measurement and unit
@@ -1078,6 +1248,25 @@ components:
     measurements as observations of reality; must-not-hide approximate fidelity
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+  actionIntentBindings:
+  - intent: set a declared input value
+    actionRefs:
+    - media.action.set-declared-simulation-input
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: inspect a measurement and unit
+    actionRefs:
+    - media.action.inspect-quality-evidence
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: switch output pass
+    actionRefs:
+    - media.action.select-simulation-output-pass
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: review fidelity and qualification evidence
+    actionRefs:
+    - media.action.inspect-simulation-domain-and-fidelity
+    - media.action.open-qualification-evidence
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
 - id: media.component.result-comparison
   purpose: compare source, candidate, and revised outputs with aligned evidence and explicit provenance
   semanticRole: Compares source, candidate, and revised outputs with aligned evidence and explicit provenance.
@@ -1101,7 +1290,11 @@ components:
   - video-synchronized
   - image-region
   - alignment-unavailable
-  actions: []
+  actions:
+  - media.action.select-exact-candidates
+  - media.action.align-source-time-interval
+  - media.action.inspect-quality-evidence
+  - media.action.record-candidate-for-review
   states:
   - loading
   - aligned
@@ -1115,7 +1308,7 @@ components:
   - media.quality.inspect
   - media.provenance.source-lineage.inspect
   - media.provenance.execution-lineage.inspect
-  actionBindingState: proposed-intents-unbound
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
   - select candidates for comparison
   - align a source-time interval
@@ -1131,6 +1324,24 @@ components:
     rights clearance; must-not-hide misalignment or missing candidates
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+  actionIntentBindings:
+  - intent: select candidates for comparison
+    actionRefs:
+    - media.action.select-exact-candidates
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: align a source-time interval
+    actionRefs:
+    - media.action.align-source-time-interval
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: inspect a difference measurement
+    actionRefs:
+    - media.action.inspect-quality-evidence
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: choose a candidate for a next action
+    actionRefs:
+    - media.action.record-candidate-for-review
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
 - id: media.component.quality-inspector
   purpose: inspect quality observations, metric basis, evidence, and bounded recommendations for a specific version
   semanticRole: Inspects quality observations, metric basis, evidence, limitations, and bounded recommendations
@@ -1155,7 +1366,10 @@ components:
   - unavailable
   - conflicting-evidence
   - recommendation-only
-  actions: []
+  actions:
+  - media.action.inspect-quality-evidence
+  - media.action.review-bounded-repair-proposal
+  - media.action.compare-candidate-on-metric
   states:
   - loading
   - complete
@@ -1173,7 +1387,7 @@ components:
   - media.quality.video.video.assess-flicker
   - media.quality.audio.audio.assess-noise
   - media.quality.audio.audio.assess-loudness
-  actionBindingState: proposed-intents-unbound
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
   - inspect a metric and its evidence
   - review a bounded repair recommendation
@@ -1190,6 +1404,20 @@ components:
     applied repair; must-not-show an unexplained pass badge
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+  actionIntentBindings:
+  - intent: inspect a metric and its evidence
+    actionRefs:
+    - media.action.inspect-quality-evidence
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: review a bounded repair recommendation
+    actionRefs:
+    - media.action.review-bounded-repair-proposal
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: compare against an explicit target
+    actionRefs:
+    - media.action.compare-candidate-on-metric
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
 - id: media.component.delivery-profile-picker
   purpose: choose and validate a named output profile against the requested delivery outcome
   semanticRole: Selects and validates a named output profile against the requested delivery outcome.
@@ -1214,7 +1442,10 @@ components:
   - partially-compatible
   - deprecated
   - unavailable
-  actions: []
+  actions:
+  - media.action.select-eligible-processing-profile
+  - media.action.inspect-effective-processing-constraints
+  - media.action.validate-processing-profile
   states:
   - loading
   - choices-ready
@@ -1233,7 +1464,7 @@ components:
   - media.deliver.profile.cinematic
   - media.deliver.profile.archival
   - media.deliver.profile.interactive
-  actionBindingState: proposed-intents-unbound
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
   - select a named profile
   - inspect compatibility and tradeoffs
@@ -1249,6 +1480,20 @@ components:
     profile; must-not-hide lossy or archival tradeoffs
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+  actionIntentBindings:
+  - intent: select a named profile
+    actionRefs:
+    - media.action.select-eligible-processing-profile
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: inspect compatibility and tradeoffs
+    actionRefs:
+    - media.action.inspect-effective-processing-constraints
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: validate the selected profile
+    actionRefs:
+    - media.action.validate-processing-profile
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
 - id: media.component.rights-retention-review
   purpose: review permitted-use, consent, retention, and provenance evidence before a consequential action
   semanticRole: Reviews permitted use, consent, retention, and provenance evidence before consequential work.
@@ -1274,7 +1519,10 @@ components:
   - revoked
   - review-required
   - evidence-unavailable
-  actions: []
+  actions:
+  - media.action.inspect-governing-evidence
+  - media.action.request-authorized-review
+  - media.action.continue-within-recorded-scope
   states:
   - loading
   - permitted-with-scope
@@ -1290,7 +1538,7 @@ components:
   - media.provenance.retention.effect.record
   - media.provenance.erasure.effect.record
   - media.provenance.origin.disclose
-  actionBindingState: proposed-intents-unbound
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
   - inspect the governing evidence
   - request an authorized review
@@ -1305,6 +1553,20 @@ components:
     must-not-record an attestation without authority
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+  actionIntentBindings:
+  - intent: inspect the governing evidence
+    actionRefs:
+    - media.action.inspect-governing-evidence
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: request an authorized review
+    actionRefs:
+    - media.action.request-authorized-review
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: continue only after a recorded permitted-use outcome
+    actionRefs:
+    - media.action.continue-within-recorded-scope
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
 - id: media.component.activity-recovery-feed
   purpose: find recent authorized work and recover a specific job or upload without losing identity or finality
   semanticRole: Finds recent authorized work and recovers a specific job or upload without losing its identity or
@@ -1331,9 +1593,9 @@ components:
   - outcome-unknown
   - access-limited
   actions:
-  - media.action.inspect-job
+  - media.action.view-job-status
   - media.action.request-cancellation
-  - media.action.reconcile-job
+  - media.action.check-job-outcome
   - media.action.resume-artifact-upload
   states:
   - loading
@@ -1345,17 +1607,34 @@ components:
   - recovery-pending
   capabilityRefs:
   - media.job.list
-  - media.job.inspect
+  - media.job.view-status
   - media.job.watch
   - media.job.cancel
-  - media.job.reconcile
+  - media.job.check-outcome
   - media.artifact.upload.resume
-  actionBindingState: bound-to-existing-P2-actions
+  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
   actionIntents:
-  - open an exact job
+  - view status for an exact job
   - request cancellation
-  - reconcile an unknown outcome
+  - check the outcome of an unknown job
   - resume the same authorized upload
+  actionIntentBindings:
+  - intent: view status for an exact job
+    actionRefs:
+    - media.action.view-job-status
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: request cancellation
+    actionRefs:
+    - media.action.request-cancellation
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: check the outcome of an unknown job
+    actionRefs:
+    - media.action.check-job-outcome
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: resume the same authorized upload
+    actionRefs:
+    - media.action.resume-artifact-upload
+    bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
   keyboard: Use a semantic ordered activity list with named actions; preserve focus during refresh; never require
     drag or hover.
   narrowLayout: Use a compact chronological list; keep state, exact identity, and one safe action visible per item.
@@ -1393,9 +1672,9 @@ components:
   - invalid-input
   - access-denied
   actions:
-  - media.action.inspect-job
+  - media.action.view-job-status
   - media.action.request-cancellation
-  - media.action.reconcile-job
+  - media.action.check-job-outcome
   - media.action.resume-artifact-upload
   - media.action.inspect-artifact
   states:
@@ -1407,9 +1686,9 @@ components:
   - invalid-input
   - access-denied
   capabilityRefs:
-  - media.job.inspect
+  - media.job.view-status
   - media.job.cancel
-  - media.job.reconcile
+  - media.job.check-outcome
   - media.artifact.upload.resume
   - media.artifact.inspect
   - media.provenance.execution-lineage.inspect

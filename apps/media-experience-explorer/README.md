@@ -23,7 +23,7 @@ executable:
 pnpm dlx --package typescript@6.0.3 tsc -p libs/media-experience-simulation/tsconfig.json
 node libs/media-experience-simulation/bin/ghatana-media.mjs \
   --scenario media.scenario.job-outcome-unknown \
-  ghatana-media job reconcile \
+  ghatana-media job check-outcome \
   --job fixture-transcription-job-unknown \
   --format json
 ```
@@ -40,8 +40,8 @@ three artifact-intake views plus one separate verification-job view for J-02,
 and four transcript/caption view labels for the selected audio slice of J-03.
 Its shared job-detail view covers J-02 verification jobs and J-20 transcription
 jobs. Its CLI projection covers J-02 upload inspection and resume, verification
-job inspection and reconciliation, and J-20 transcription-job inspection,
-cancellation, and reconciliation; it never transfers file bytes.
+job status and outcome checking, and J-20 transcription-job status viewing,
+cancellation, and outcome checking; it never transfers file bytes.
 J-01 fixtures hide protected data when
 identity or workspace authority is unavailable and keep uncertain project
 creation bound to the same request. They do not authenticate users or create
@@ -49,7 +49,7 @@ production projects. The J-02 fixtures contain upload and verification-job
 metadata only; they do not transfer files, contact an artifact service, or
 define production format limits. The Phase 2 registries index 41 baseline views and 30 journeys (28
 required by the master plan, plus two supplementary Phase 0 journeys). All 41 baseline
-views have proposal contracts, and six selected-lane specializations are indexed. All 28 required journeys have proposal files: four retain scoped J-01/J-02/J-03/J-20 slices, and 24 add Phase 0-grounded outcomes and ordered screen paths. Complete action/state/copy/fixture/wire/channel bindings and owner review remain open.
+views have proposal contracts, and six selected-lane specializations are indexed. All 28 required journeys have proposal files: four retain scoped J-01/J-02/J-03/J-20 slices, and 24 add Phase 0-grounded outcomes and ordered screen paths. All authored screen action intents now resolve to intent-based proposal action references, including intent-derived registry entries. Complete action semantics, capability authority, component interactions, state transitions, copy, fixtures, wire/channel bindings, and owner review remain open.
 
 Specification mode indexes all 146 source records, including all 41 baseline view
 contracts and six selected-lane view specializations. It renders the declared

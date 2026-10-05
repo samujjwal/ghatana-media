@@ -386,7 +386,7 @@ journeys:
   contextAndReturn: Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and output revision.
   accessibility: media.a11y.baseline
 - id: J-19
-  title: Inspect quality and run bounded optimization
+  title: Review media quality and improve it within declared limits
   outcomeRefs: [media.goal.improve-with-disclosure, media.goal.preserve-source]
   actors: [media.creator, media.editor, media.reviewer]
   proposedChannels: [media.channel.web]
@@ -398,7 +398,7 @@ journeys:
   contextAndReturn: Retain metric version/scope, candidate fingerprint, budget consumed, and previous accepted quality.
   accessibility: media.a11y.baseline
 - id: J-20
-  title: Long-running job, disconnect, observation, and safe reconciliation
+  title: Observe a long-running job and check its outcome safely
   outcomeRefs:
   - media.goal.resolve-safely
   actors:

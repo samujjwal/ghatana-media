@@ -263,6 +263,12 @@ namingRules:
     allowedOnlyFor: existing-build-coordinates-java-namespaces-and-published-package-identities
     examples: [audio-video, AudioVideo, com.ghatana.audio.video, '@audio-video/types', '@audio-video/client', '@audio-video/ui']
     rule: Preserve during migration; do not use as new product labels, new capability names, or new package names.
+  jobStatusAndOutcome:
+    distinction: Job status describes the current lifecycle record; job outcome describes whether the submitted effect is confirmed, failed, or still unknown.
+    userIntents:
+      viewJobStatus: View job status for an existing job identity.
+      checkJobOutcome: Check the outcome of the same existing job without creating a new request.
+    rule: Keep status viewing and uncertain-outcome checking as separate actions; never imply that a status response alone confirms effect finality.
   newIdentifiers:
     capability: 'media.<family>.<intent-based-operation>'
     requirement: 'MEDIA-REQ-*'

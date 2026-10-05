@@ -35,8 +35,14 @@ states:
 - partial
 - conflict
 - read-only
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.add-scene-entity
+- media.action.select-scene-entity
+- media.action.inspect-scene-binding
+- media.action.update-scene-binding
+- media.action.validate-scene-references
+- media.action.preview-current-revision
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - add or select a scene entity
 - inspect or change a binding
@@ -75,3 +81,23 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: add or select a scene entity
+  actionRefs:
+  - media.action.add-scene-entity
+  - media.action.select-scene-entity
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: inspect or change a binding
+  actionRefs:
+  - media.action.inspect-scene-binding
+  - media.action.update-scene-binding
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: validate scene references
+  actionRefs:
+  - media.action.validate-scene-references
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: preview the current revision
+  actionRefs:
+  - media.action.preview-current-revision
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

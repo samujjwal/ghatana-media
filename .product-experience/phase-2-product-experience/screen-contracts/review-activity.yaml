@@ -11,10 +11,10 @@ intentRef: media.intent.resolve-job
 purpose: find a job that needs attention and open its exact status before taking another consequential action
 contextGoalNowNext:
   context: Current authorized workspace and the jobs visible under its read authority.
-  goal: Identify which recorded job needs inspection, reconciliation, or a later follow-up.
+  goal: Identify which recorded job needs status review, an outcome check, or a later follow-up.
   now: Group the available job summaries by recorded state and keep job identity, finality, and safe next action
     visible.
-  next: Open one exact job; reconcile only that same job when its recorded outcome is unknown.
+  next: Open one exact job; check only that same job when its recorded outcome is unknown.
 anatomy:
 - activity-heading
 - job-activity-list
@@ -35,20 +35,20 @@ states:
 - job-outcome-unknown
 - evidence-unavailable
 actions:
-- media.action.inspect-job
-- media.action.reconcile-job
+- media.action.view-job-status
+- media.action.check-job-outcome
 validation: Activity rows use the authorized job-status projection; the list query, ordering, pagination, and owner
   wire binding remain undefined until their owning contract is published.
 recovery: Preserve the workspace query and exact job identity; open the same job to refresh stale evidence; keep
   unknown finality visible and block duplicate submission.
-responsive: Keep job purpose, state, finality, and the inspect action together; stack secondary identity details
+responsive: Keep job purpose, state, finality, and the View job status action together; stack secondary identity details
   below them at narrow widths.
-accessibility: Each job row has a heading and named inspect action; state and finality are textual; updates are
+accessibility: Each job row has a heading and named View job status action; state and finality are textual; updates are
   announced only when the recorded state changes.
 copyRefs:
 - media.copy.activity.empty
 - media.copy.job.unknown
-- media.copy.job.reconciled
+- media.copy.job.outcome-checked
 fixtureState: one-synthetic-artifact-verification-job-projected; complete-activity-query-not-implemented
 scenarioRefs:
 - media.scenario.artifact-verification-running

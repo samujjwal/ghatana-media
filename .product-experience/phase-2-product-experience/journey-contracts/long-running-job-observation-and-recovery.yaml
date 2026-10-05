@@ -1,52 +1,56 @@
 schemaVersion: media.journey-contract.v1
 productId: media
 journeyId: J-20
-title: Long-running job, disconnect, observation, and safe reconciliation
+title: Observe a long-running job and check its outcome safely
 status: proposal; transcription-fixture-slice-only; runtime-and-owner-acceptance-pending
-scope: existing-transcription-job-observation-and-cancellation-in-local-fixtures; generic-job-retry-policy-and-runtime-watch-transport-remain-unbound
+scope: existing-transcription-job-observation-and-cancellation-in-local-fixtures; retry-is-specified-from-the-P0-capability-but-runtime-and-owner-acceptance-remain-pending
 outcomes: [media.goal.resolve-safely]
 actors: [media.creator, media.editor, media.operator]
 intent: media.intent.resolve-job
 preconditions:
-  - The job has one stable owner-issued identity and the current actor may inspect it.
+  - The job has one stable owner-issued identity and the current actor may view its status.
   - The exact source version remains distinct from the job identity.
-  - Cancellation and reconciliation availability follow the current authority and job state.
+  - Cancellation and outcome-check availability follow the current authority and job state.
 steps:
   - view: media.view.monitor-transcription
-    action: media.action.inspect-job
+    action: media.action.view-job-status
     result: the-current-job-reference-is-used-without-submitting-another-request
-  - view: media.view.inspect-job
-    action: media.action.inspect-job
+  - view: media.view.job-status
+    action: media.action.view-job-status
     result: state-attempt-state-finality-and-only-measured-progress-are-shown
-  - view: media.view.inspect-job
+  - view: media.view.job-status
     navigation: stop-watching
     result: observation-ends-for-this-view; the-existing-job-state-and-finality-are-unchanged
-  - view: media.view.inspect-job
+  - view: media.view.job-status
     navigation: reattach-by-stable-job-reference
-    action: media.action.inspect-job
+    action: media.action.view-job-status
     result: the-same-job-identity-is-refreshed-from-current-owner-evidence
-  - view: media.view.inspect-job
+  - view: media.view.job-status
     action: media.action.request-cancellation
     when: queued-or-running-and-current-cancellation-authority-allows
     result: cancellation-is-pending-until-the-job-owner-confirms-stop-or-reports-a-racing-result
-  - view: media.view.resolve-job-outcome
-    action: media.action.reconcile-job
-    when: outcome-is-unknown-and-current-reconciliation-authority-allows
+  - view: media.view.job-status
+    action: media.action.retry-job
+    when: prior-attempt-is-classified-retryable-and-current-retry-authority-policy-and-budget-allow-one-new-attempt
+    result: one-new-fenced-attempt-is-created-under-the-same-logical-job-identity; the-prior-attempt-and-its-finality-remain-visible
+  - view: media.view.check-job-outcome
+    action: media.action.check-job-outcome
+    when: outcome-is-unknown-and-current-outcome-check-authority-allows
     result: evidence-is-collected-for-the-same-job-without-a-new-dispatch
-terminalSuccess: The actor observes owner-confirmed completion or cancellation, or leaves the same job visibly uncertain with a safe reconciliation path; already completed work remains available.
+terminalSuccess: The actor observes owner-confirmed completion or cancellation, or leaves the same job visibly uncertain with a safe outcome-check path; already completed work remains available.
 criticalNonhappyPaths:
   - id: browser-or-cli-detaches
     response: preserve-job-identity-and-status; stopping-observation-is-not-cancellation
   - id: cancellation-unconfirmed
     response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
   - id: remote-outcome-unknown
-    response: disable-resubmission-and-reconcile-the-existing-identity
+    response: disable-resubmission-and-check-the-existing-job-outcome
   - id: progress-unavailable
     response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-recovery: Reattach by the existing job identity, inspect current state, and reconcile uncertainty before considering a new request; retry is not modeled by this fixture slice.
+recovery: Reattach by the existing job identity, view its current status, and check an uncertain outcome before considering a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it. The fixture slice does not execute retry.
 contextPreserved: [job-identity, source-artifact-version, attempt-state-when-authorized, last-observed-finality]
 channelEquivalents: [web, cli]
 channelLimits:
   web: the-local-view-has-no-live-subscription; leaving-the-view-does-not-change-job-state
-  cli: inspect-cancel-and-reconcile-commands-share-the-fixture-reducer; long-poll-watch-and-sigint-transport-are-not-implemented
+  cli: status-cancel-and-check-outcome-commands-share-the-fixture-reducer; long-poll-watch-and-sigint-transport-are-not-implemented
 accessibilityRef: .product-experience/phase-1-design-language/accessibility.yaml

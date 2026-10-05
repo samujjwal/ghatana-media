@@ -35,8 +35,11 @@ states:
 - stale-observation
 - recovery-required
 - access-denied
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.inspect-operation-readiness
+- media.action.refresh-operation-readiness
+- media.action.open-authorized-recovery-instruction
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - inspect readiness for a declared operation
 - refresh a read-only check
@@ -71,3 +74,17 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: inspect readiness for a declared operation
+  actionRefs:
+  - media.action.inspect-operation-readiness
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: refresh a read-only check
+  actionRefs:
+  - media.action.refresh-operation-readiness
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: open an authorized recovery instruction
+  actionRefs:
+  - media.action.open-authorized-recovery-instruction
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

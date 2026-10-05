@@ -299,9 +299,9 @@ laterPhaseAcceptanceInputs:
   - .product-experience/phase-2-product-experience/screen-contracts/find-projects.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/import-media.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/artifact-verification-job-family.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/inspect-job.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/job-status.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/inspect-media.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/resolve-job-outcome.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/check-job-outcome.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/resume-work.yaml
   - .product-experience/phase-2-product-experience/screen-contracts/review-transcript.yaml
@@ -390,17 +390,19 @@ laterPhaseAcceptanceInputs:
   - Prove deterministic reset, replay, state transition, action preconditions, conflict resolution, finality, and
     cross-view projection with owner-approved reducer verification.
   - Render every accepted Phase 2 view and channel in the actual Explorer host. A Media-owned local Vite client
-    currently renders three synthetic J-01 first-use routes, three J-02 artifact-intake views plus activity and
-    verification-job views, selected J-02 CLI inspection/recovery commands, J-20 transcription-job observation/cancellation
-    and CLI commands, and four J-03 transcript/caption Product views in Product, Explore, Specification, and Verify
-    modes; it is not the generic Tools Explorer host, does not cover the Phase 2 baseline, and has no published
-    isolated package binding.
+    renders three synthetic J-01 first-use routes, three J-02 artifact-intake views plus activity and verification-job
+    views, selected J-02 CLI inspection/recovery commands, J-20 transcription-job observation/cancellation and CLI
+    commands, and four J-03 transcript/caption Product views in Product, Explore, Specification, and Verify modes.
+    It also exposes all 47 screen contracts as source-derived Product proposal routes with disabled actions; these
+    routes do not implement the Phase 2 views or journeys. The client is not the generic Tools Explorer host and has
+    no published isolated package binding.
   - Verify built browser assets, base path, CSP, offline mode, deep links, cache/currentness, keyboard, screen reader,
     zoom, forced colors, reduced motion, responsive variants, and supported localization.
   - Record current environment, package, fixture and browser observations; complete attributed human visual, usability,
-    and accessibility reviews. Local observations exist for the selected caption editor at recorded viewport sizes,
-    the verification-job preview at 320px and 390px, and the transcription-job route at narrow widths; no independent
-    review or complete all-view/channel results are present.
+    and accessibility reviews. A fresh production preview rendered all 47 source-derived Product routes and a refreshed
+    deep link; local observations also exist for the selected caption editor at recorded viewport sizes, the
+    verification-job preview at 320px and 390px, and the transcription-job route at narrow widths. Complete
+    all-view behavior/channel evidence and independent review remain open.
   decisionOwnerAppointments: pending
 generatedResults:
   storedInThisFile: false

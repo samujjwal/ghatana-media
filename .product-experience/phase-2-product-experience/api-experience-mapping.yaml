@@ -32,9 +32,9 @@ mappings:
     routeOrRpc: unresolved-under-GAP-05
     requestMeaning: exact-source-version-language-intent-purpose-and-idempotency-key
     responseMeaning: stable-job-reference-current-state-and-finality
-  - actionRef: media.action.inspect-job
+  - actionRef: media.action.view-job-status
     channels: [media.channel.grpc-api, media.channel.sdk]
-    logicalOperation: inspect-existing-job
+    logicalOperation: view-job-status
     routeOrRpc: unresolved-under-GAP-05
     responseMeaning: product-job-and-attempt-status-with-safe-next-action
   - actionRef: media.action.request-cancellation
@@ -42,11 +42,17 @@ mappings:
     logicalOperation: request-cancellation-for-existing-job
     routeOrRpc: unresolved-under-GAP-05
     responseMeaning: cancellation-request-finality-and-any-racing-result
-  - actionRef: media.action.reconcile-job
+  - actionRef: media.action.check-job-outcome
     channels: [media.channel.grpc-api, media.channel.sdk]
-    logicalOperation: reconcile-existing-unknown-outcome
+    logicalOperation: check-existing-job-outcome-without-new-dispatch
     routeOrRpc: unresolved-under-GAP-05
     responseMeaning: evidence-classified-outcome-or-explicitly-retained-unknown
+  - actionRef: media.action.retry-job
+    channels: [media.channel.grpc-api, media.channel.sdk]
+    logicalOperation: retry-same-logical-job-after-a-classified-retryable-attempt
+    routeOrRpc: unresolved-under-GAP-05
+    requestMeaning: stable-job-reference-classified-prior-attempt-reference-explicit-retry-request-identity-and-current-authority
+    responseMeaning: same-job-reference-with-one-new-attempt-identity-and-explicit-pending-or-ineligible-finality
   - actionRef: media.action.save-caption-version
     channels: [media.channel.grpc-api, media.channel.sdk]
     logicalOperation: register-new-caption-artifact-version

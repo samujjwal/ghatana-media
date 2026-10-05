@@ -1,6 +1,6 @@
 schemaVersion: media.screen-contract.v1
 productId: media
-screenId: media.view.inspect-job
+screenId: media.view.job-status
 status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
 channel: media.channel.web
 actors:
@@ -8,14 +8,14 @@ actors:
 - media.editor
 - media.operator
 intentRef: media.intent.resolve-job
-purpose: inspect-one-existing-job-and-choose-a-safe-next-action
+purpose: view-one-existing-job-status-and-choose-a-safe-next-action
 contextGoalNowNext:
   context: Stable job identity, exact source version when applicable, current authority, attempt state, and observed
     finality.
   goal: Reattach to existing long-running work and understand its current evidence.
   now: Show the job and source identities separately, preserve attempt state and finality, and expose only measured
     progress.
-  next: Continue observing, request cancellation, or reconcile the same job when its outcome is unknown.
+  next: Continue observing, request cancellation, or check the same job outcome when it is unknown.
 anatomy:
 - job-identity
 - source-version-when-applicable
@@ -31,20 +31,22 @@ states:
 - completed
 - partially-succeeded
 - failed
+- retry-pending
 - outcome-unknown
 - reconciling
 - cancelled
 actions:
-- media.action.inspect-job
+- media.action.view-job-status
 - media.action.request-cancellation
-- media.action.reconcile-job
+- media.action.check-job-outcome
+- media.action.retry-job
 observation:
   detaching: stop-watching-only-changes-the-current-view; it-does-not-cancel-or-delete-the-job
   reattachment: use-the-same-stable-job-identity-and-read-current-owner-evidence
   progress: omit-when-not-measured; never-infer-progress-from-elapsed-time-or-state
   cancellation: report-a-request-as-pending-until-owner-confirmation-or-a-racing-result
-  uncertainOutcome: inspect-or-reconcile-the-existing-job; do-not-blindly-resubmit
-  retry: no-retry-action-is-admitted-by-this-local-slice
+  uncertainOutcome: view-status-or-check-the-existing-job-outcome; do-not-blindly-resubmit
+  retry: offer only when the prior attempt is classified as retryable and current authority, policy, and budget checks pass; outcome-unknown must be checked before retry; this local fixture slice does not execute retry
 responsive: identity-state-and-finality-precede-secondary-details; actions-wrap-without-horizontal-overflow
 accessibility: announce-state-change-once; label-cancellation-pending; stop-watching-is-distinct-from-cancellation
 copyRefs:
@@ -55,11 +57,17 @@ copyRefs:
 fixtureRefs:
 - media.scenario.job-running
 - media.scenario.job-outcome-unknown
+- media.scenario.job-retry-eligible
+- media.scenario.job-retry-ineligible
 componentRefs:
 - media.component.job-status-card
 - media.component.activity-recovery-feed
 actionBindingState: bound-to-existing-P2-actions
-actionIntents: []
+actionIntents:
+- view status for one exact job
+- request cancellation for the existing job when current authority allows
+- check the outcome of the same job when finality is unknown
+- retry the same logical job after a classified retryable attempt and current policy checks
 channelDispositions:
 - channelRef: media.channel.web
   disposition: baseline-view-contract-proposal
@@ -99,11 +107,11 @@ identityRules:
 - uploadId-is-separate-and-present-only-when-returned
 - cancellation-request-is-not-cancelled-finality
 - detaching-observation-does-not-change-job-state
-- unknown-outcome-retains-the-same-job-identity-until-reconciliation
+- unknown-outcome-retains-the-same-job-identity-until-owner-evidence-is-recorded
 validation: Job finality is separate from attempt state and related upload/artifact lifecycle; progress is shown
   only when owner evidence measures it.
-recovery: Inspection is observational; cancellation remains pending until owner confirmation; reconcile the same
-  job before retry; detaching a watcher never cancels work.
+recovery: Status viewing is observational; cancellation remains pending until owner confirmation; check the same
+  job outcome before any retry; detaching a watcher never cancels work.
 localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
   stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending

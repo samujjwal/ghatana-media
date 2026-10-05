@@ -16,7 +16,7 @@ Usage:
   media-experience-fixture --scenario <id> [--action <json>]... [--event <json>]... [--format human|json|jsonl]
 
 Examples:
-  media-experience-fixture --scenario media.scenario.job-outcome-unknown --action '{"type":"media.action.reconcile-job"}' --format json
+  media-experience-fixture --scenario media.scenario.job-outcome-unknown --action '{"type":"media.action.check-job-outcome"}' --format json
   media-experience-fixture --scenario media.scenario.alignment-required --action '{"type":"media.action.align-caption-timing","segmentId":"segment-002","startTick":3400,"endTick":6500}' --format jsonl
 
 Scenarios:

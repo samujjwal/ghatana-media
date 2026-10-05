@@ -35,8 +35,12 @@ states:
 - revoked
 - review-required
 - derived-output-pending
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.inspect-consent-and-permitted-use
+- media.action.request-authorized-review
+- media.action.continue-within-recorded-scope
+- media.action.stop-authorized-voice-use
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - inspect consent and permitted-use evidence
 - request an authorized review
@@ -72,3 +76,21 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: inspect consent and permitted-use evidence
+  actionRefs:
+  - media.action.inspect-consent-and-permitted-use
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: request an authorized review
+  actionRefs:
+  - media.action.request-authorized-review
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: continue within the recorded scope
+  actionRefs:
+  - media.action.continue-within-recorded-scope
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: revoke or stop where authorized
+  actionRefs:
+  - media.action.stop-authorized-voice-use
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

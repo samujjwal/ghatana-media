@@ -18,10 +18,10 @@ views:
     projection: stable-upload-identity-fixture-status-and-same-upload-recovery
   - viewRef: media.view.inspect-media
     projection: exact-artifact-version-integrity-and-policy-dispositions
-  - viewRef: media.view.inspect-job
+  - viewRef: media.view.job-status
     projection: selected-workflow-job-state-finality-and-safe-next-actions; retain-related-upload-identity-when-present; show-only-measured-progress
   - viewRef: media.view.review-activity
-    projection: one-synthetic-verification-job-summary-with-state-finality-and-exact-inspect-action; production-list-query-not-bound
+    projection: one-synthetic-verification-job-summary-with-state-finality-and-exact-view-status-action; production-list-query-not-bound
   - viewRef: media.view.select-source
     projection: source-summary-plus-available-source-actions
   - viewRef: media.view.monitor-transcription
@@ -32,8 +32,8 @@ views:
     projection: caption-draft-segments-timing-and-revision-state
   - viewRef: media.view.compare-caption-versions
     projection: parent-and-candidate-version-differences
-  - viewRef: media.view.resolve-job-outcome
-    projection: existing-job-evidence-and-reconciliation-actions
+  - viewRef: media.view.check-job-outcome
+    projection: existing-job-evidence-and-outcome-check-actions
 chromeRules:
   product: no-workspace-picker-requirement-id-or-verification-panel
   explore: host-selects-only-Phase2-declared-context-dimensions

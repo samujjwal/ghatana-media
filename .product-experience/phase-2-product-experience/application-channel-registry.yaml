@@ -9,8 +9,8 @@ channels:
     role: interactive-source-and-caption-review
     support: specification-only; runtime-not-claimed
   - channelRef: media.channel.cli
-    role: batch-submission-job-inspection-and-caption-revision
-    support: command-contract-proposal-for-upload-inspection-resume-existing-job-reconciliation-and-caption-revision; byte-transfer-runtime-unbound; production-runtime-not-claimed
+    role: batch-submission-job-status-and-outcome-checking-caption-revision
+    support: command-contract-proposal-for-upload-inspection-resume-job-status-viewing-job-outcome-checking-and-caption-revision; byte-transfer-runtime-unbound; production-runtime-not-claimed
   - channelRef: media.channel.grpc-api
     role: machine-readable-transcription-operation
     support: logical-operation-only; wire-route-and-version-pending-GAP-05

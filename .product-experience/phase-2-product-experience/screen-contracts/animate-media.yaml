@@ -37,8 +37,14 @@ states:
 - dirty
 - saved
 - read-only
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.select-keyframe
+- media.action.edit-keyframe
+- media.action.change-interpolation-curve
+- media.action.inspect-driver-or-constraint
+- media.action.preview-motion
+- media.action.save-versioned-edit
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - select or edit a keyframe
 - change interpolation curve
@@ -81,3 +87,26 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: select or edit a keyframe
+  actionRefs:
+  - media.action.select-keyframe
+  - media.action.edit-keyframe
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: change interpolation curve
+  actionRefs:
+  - media.action.change-interpolation-curve
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: inspect a driver or constraint
+  actionRefs:
+  - media.action.inspect-driver-or-constraint
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: preview motion
+  actionRefs:
+  - media.action.preview-motion
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: save a versioned edit
+  actionRefs:
+  - media.action.save-versioned-edit
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

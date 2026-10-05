@@ -17,9 +17,9 @@ includedCapabilityIds:
   - media.artifact.output.register
   - media.artifact.provenance.export
   - media.job.submit
-  - media.job.inspect
+  - media.job.view-status
   - media.job.cancel
-  - media.job.reconcile
+  - media.job.check-outcome
   - media.speech.transcription.file
   - media.speech.transcription.language.detect
   - media.speech.transcription.word-timestamp.create

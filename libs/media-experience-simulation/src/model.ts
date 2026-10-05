@@ -25,7 +25,7 @@ export type FixtureId =
   | "caption-conflict"
   | "caption-corrected"
   | "job-running"
-  | "job-reconciled"
+  | "job-outcome-confirmed"
   | "caption-version-comparison"
   | "caption-source-mismatch";
 
@@ -163,9 +163,9 @@ interface MediaExperienceCommonState {
     readonly processSource: AccessDisposition;
     readonly editDerivedContent: AccessDisposition;
     readonly registerDerivedVersion: AccessDisposition;
-    readonly inspectJob: AccessDisposition;
+    readonly viewJobStatus: AccessDisposition;
     readonly cancelJob: AccessDisposition;
-    readonly reconcileJob: AccessDisposition;
+    readonly checkJobOutcome: AccessDisposition;
   };
   readonly job: {
     readonly jobId: string | null;
@@ -236,7 +236,7 @@ export type MediaAction =
   | { readonly type: "media.action.inspect-source" }
   | { readonly type: "media.action.seek-source"; readonly timeTick: number }
   | { readonly type: "media.action.review-transcript" }
-  | { readonly type: "media.action.inspect-job" }
+  | { readonly type: "media.action.view-job-status" }
   | { readonly type: "media.action.inspect-provenance" }
   | { readonly type: "media.action.correct-caption"; readonly segmentId: string; readonly text: string }
   | { readonly type: "media.action.compare-caption-versions"; readonly leftVersionId: string; readonly rightVersionId: string }
@@ -249,7 +249,7 @@ export type MediaAction =
     }
   | { readonly type: "media.action.save-caption-version"; readonly purpose?: string }
   | { readonly type: "media.action.request-cancellation" }
-  | { readonly type: "media.action.reconcile-job" };
+  | { readonly type: "media.action.check-job-outcome" };
 
 export type SimulationEvent =
   | { readonly type: "job.started" }
@@ -258,7 +258,7 @@ export type SimulationEvent =
   | { readonly type: "job.cancellation-confirmed" }
   | { readonly type: "consent.revoked" }
   | {
-      readonly type: "job.reconciliation-completed";
+      readonly type: "job.outcome-check-completed";
       readonly outcome: "COMPLETED" | "FAILED" | "CANCELLED" | "UNKNOWN";
     };
 

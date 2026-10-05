@@ -22,190 +22,190 @@ requirements:
     ownerRoleRef: media.role.product-manager
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4]
+    sourceRefs: ["master-plan:section-4"]
   - id: MEDIA-CONST-002
     statement: Authenticate trusted boundaries, authorize each consequential action, and preserve tenant and principal isolation.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.security-privacy-lead
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-11]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-11"]
   - id: MEDIA-CONST-003
     statement: Normal user experiences shall let people act on intent and outcome without requiring them to select models, queues, engines, or infrastructure.
     ownerRoleRef: media.role.ux-architect
     acceptanceOwnerRoleRef: media.role.ux-architect
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-14]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-14"]
   - id: MEDIA-CONST-004
     statement: Simple, Guided, and Expert shall expose progressively deeper controls over one semantic model and the same actions and state.
     ownerRoleRef: media.role.ux-architect
     acceptanceOwnerRoleRef: media.role.ux-architect
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-14]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-14"]
   - id: MEDIA-CONST-005
     statement: Use AI and machine learning only where measured benefit justifies them; they are neither mandatory nor a separate isolated product area.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.quality-fidelity-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4]
+    sourceRefs: ["master-plan:section-4"]
   - id: MEDIA-CONST-006
     statement: Prefer adequate deterministic DSP, computer vision, or procedural execution before more expensive or less predictable mechanisms.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.quality-fidelity-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4]
+    sourceRefs: ["master-plan:section-4"]
   - id: MEDIA-CONST-007
     statement: Validate media structure and measure applicable quality; provider success alone shall not count as quality acceptance.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.quality-fidelity-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4]
+    sourceRefs: ["master-plan:section-4"]
   - id: MEDIA-CONST-008
     statement: Never silently weaken privacy, rights, safety, scientific fidelity, requested quality, or external-effect finality.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4]
+    sourceRefs: ["master-plan:section-4"]
   - id: MEDIA-CONST-009
     statement: Every meaningful operation shall have bounded, privacy-safe diagnostics and trace correlation.
     ownerRoleRef: media.role.sre
     acceptanceOwnerRoleRef: media.role.security-privacy-lead
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-12]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-12"]
   - id: MEDIA-CONST-010
     statement: Consequential operations shall have durable audit intent and truthful outcome and finality records.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-11]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-11"]
   - id: MEDIA-CONST-011
     statement: Derived artifacts shall retain authorized lineage and processing provenance throughout their permitted lifecycle.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4]
+    sourceRefs: ["master-plan:section-4"]
   - id: MEDIA-CONST-012
     statement: Accessible operation, review, and suitable output alternatives shall be intrinsic product behavior and shall not require a paid add-on.
     ownerRoleRef: media.role.accessibility-lead
     acceptanceOwnerRoleRef: media.role.accessibility-lead
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-14]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-14"]
   - id: MEDIA-CONST-013
     statement: Failures shall preserve eligible completed work and expose safe recovery; an unknown outcome shall remain explicit.
     ownerRoleRef: media.role.sre
     acceptanceOwnerRoleRef: media.role.media-domain-lead
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-7]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-7"]
   - id: MEDIA-CONST-014
     statement: Evaluate suitable Ghatana reuse first, then approved permissively licensed external software, before implementing replacement mechanics.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.platform-owner
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-3, master-plan:section-15]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-3", "master-plan:section-15"]
   - id: MEDIA-CONST-015
     statement: Animation shall be a native creation mode and shall not be treated only as an incidental AI-video feature.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.product-manager
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-6]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-6"]
   - id: MEDIA-CONST-016
     statement: Simulation shall be a native creation and control mode with explicit fidelity and reproducibility declarations.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.fidelity-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-8]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-8"]
   - id: MEDIA-CONST-017
     statement: Offer local or private execution only when the entire selected plan can satisfy the applicable policy.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-11]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-11"]
   - id: MEDIA-CONST-018
     statement: Web, CLI, API, SDK, embedded integrations, and Explorer shall refer to one domain, action, and state authority.
     ownerRoleRef: media.role.product-manager
     acceptanceOwnerRoleRef: media.role.ux-architect
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-5]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-5"]
   - id: MEDIA-CONST-019
     statement: Preserve ecosystem ownership and prohibit product-internal imports from the core Ghatana runtime.
     ownerRoleRef: media.role.platform-owner
     acceptanceOwnerRoleRef: media.role.platform-owner
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, product-truth:P0-001-boundary-slice]
+    sourceRefs: ["master-plan:section-4", "product-truth:P0-001-boundary-slice"]
   - id: MEDIA-CONST-020
     statement: Exact text, branding, logos, captions, figures, and required disclosures shall use deterministic composition.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.publication-approver
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4]
+    sourceRefs: ["master-plan:section-4"]
   - id: MEDIA-CONST-021
     statement: Disclose generative reconstruction; restoration shall not certify recovery of unknowable original detail.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.fidelity-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4]
+    sourceRefs: ["master-plan:section-4"]
   - id: MEDIA-CONST-022
     statement: Reveal model, provider, or engine identity when needed for trust, rights, cost, reproducibility, or expert diagnosis.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.product-manager
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4]
+    sourceRefs: ["master-plan:section-4"]
   - id: MEDIA-CONST-023
     statement: Long-running remote work shall be independent of browser or CLI attachment; stopping observation shall not imply cancellation.
     ownerRoleRef: media.role.sre
     acceptanceOwnerRoleRef: media.role.media-domain-lead
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-7]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-7"]
   - id: MEDIA-CONST-024
     statement: Every ordinary user-facing state shall have a clear next action and actionable explanation of material blockers.
     ownerRoleRef: media.role.ux-architect
     acceptanceOwnerRoleRef: media.role.ux-architect
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-14]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-14"]
   - id: MEDIA-CONST-025
     statement: Original bytes and accepted project revisions shall not be destructively overwritten by enhancement.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-6]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-6"]
   - id: MEDIA-CONST-026
     statement: Customer assets shall not be used for training, content telemetry, or cross-tenant learning without separate authorization.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-11]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-11"]
   - id: MEDIA-CONST-027
     statement: Automatic repair shall be bounded by admissible changes, cost, time, attempts, and measured improvement.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.quality-fidelity-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-9]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-9"]
   - id: MEDIA-CONST-028
     statement: Capability, profile, license, and runtime status shall remain explicit; absence of evidence shall never imply availability.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.quality-fidelity-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-6]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-6"]
   - id: MEDIA-CONST-029
     statement: Deletion, consent revocation, cache reuse, and publication shall re-check current policy at the effect boundary.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-11]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-11"]
   - id: MEDIA-CONST-030
     statement: Explorer simulation, model qualification, runtime correctness, and external certification shall remain separate claims.
     ownerRoleRef: media.role.product-manager
     acceptanceOwnerRoleRef: media.role.product-manager
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-21]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-21"]
   - id: MEDIA-CONST-031
     statement: Untrusted inputs, scripts, native tools, and models shall execute only through admitted, bounded isolation boundaries.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.security-privacy-lead
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-11]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-11"]
   - id: MEDIA-CONST-032
     statement: Convenience shall not create hidden duplicate authority, implementation, registry, state machine, or platform framework.
     ownerRoleRef: media.role.platform-owner
     acceptanceOwnerRoleRef: media.role.platform-owner
     acceptanceState: pending-human-review
-    sourceRefs: [master-plan:section-4, master-plan:section-5]
+    sourceRefs: ["master-plan:section-4", "master-plan:section-5"]

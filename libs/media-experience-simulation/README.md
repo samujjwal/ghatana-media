@@ -11,7 +11,7 @@ Build the TypeScript sources, then run a deterministic workflow fixture:
 pnpm dlx --package typescript@6.0.3 tsc -p libs/media-experience-simulation/tsconfig.json
 node libs/media-experience-simulation/bin/media-experience-fixture.mjs \
   --scenario media.scenario.job-outcome-unknown \
-  --action '{"type":"media.action.reconcile-job"}' \
+  --action '{"type":"media.action.check-job-outcome"}' \
   --format json
 ```
 

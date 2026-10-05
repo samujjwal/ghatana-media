@@ -34,8 +34,12 @@ states:
 - stale-guidance
 - diagnostic-redaction-required
 - share-confirmation
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.search-product-guidance
+- media.action.open-related-view
+- media.action.prepare-redacted-diagnostics
+- media.action.share-diagnostics-after-explicit-choice
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - search product guidance
 - open a related view
@@ -70,3 +74,21 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: search product guidance
+  actionRefs:
+  - media.action.search-product-guidance
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: open a related view
+  actionRefs:
+  - media.action.open-related-view
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: preview and redact diagnostics
+  actionRefs:
+  - media.action.prepare-redacted-diagnostics
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: share diagnostics only after explicit choice
+  actionRefs:
+  - media.action.share-diagnostics-after-explicit-choice
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

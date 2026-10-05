@@ -41,13 +41,16 @@ states:
 actions:
 - media.action.choose-source
 - media.action.request-transcription
-- media.action.inspect-job
+- media.action.view-job-status
 - media.action.review-transcript
-actionBindingState: bound-to-existing-P2-actions
+- media.action.choose-intent
+- media.action.request-admitted-speech-operation
+- media.action.review-recognized-or-synthesized-content
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - choose a source and language intent
 - request an admitted speech operation
-- inspect the resulting job
+- view the resulting job status
 - review recognized or synthesized content
 channelDispositions:
 - channelRef: media.channel.web
@@ -83,3 +86,22 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: choose a source and language intent
+  actionRefs:
+  - media.action.choose-source
+  - media.action.choose-intent
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: request an admitted speech operation
+  actionRefs:
+  - media.action.request-admitted-speech-operation
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: view the resulting job status
+  actionRefs:
+  - media.action.view-job-status
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: review recognized or synthesized content
+  actionRefs:
+  - media.action.review-recognized-or-synthesized-content
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

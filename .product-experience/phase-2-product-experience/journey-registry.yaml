@@ -115,13 +115,13 @@ journeys:
   contract: journey-contracts/compose-and-render-reviewed-media.yaml
   detailState: phase0-grounded-ordered-view-and-outcome-proposal; action-state-scenario-channel-bindings-and-owner-review-pending
 - id: J-19
-  title: Inspect quality and run bounded optimization
+  title: Review media quality and improve it within declared limits
   phase0JourneyRef: J-19
   requiredByMasterPlan: true
   contract: journey-contracts/inspect-quality-and-optimize-within-bounds.yaml
   detailState: phase0-grounded-ordered-view-and-outcome-proposal; action-state-scenario-channel-bindings-and-owner-review-pending
 - id: J-20
-  title: Long-running job, disconnect, observation, and safe reconciliation
+  title: Observe a long-running job and check its outcome
   phase0JourneyRef: J-20
   requiredByMasterPlan: true
   contract: journey-contracts/long-running-job-observation-and-recovery.yaml

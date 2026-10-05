@@ -76,7 +76,7 @@ fixtures:
   - id: media.scenario.artifact-verification-outcome-unknown
     sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
     initialConditions: verification-job-may-have-committed-without-confirmed-finality
-    expected: inspect-or-reconcile-the-same-job-identity; preserve-the-related-upload-identity; do-not-create-a-duplicate
+    expected: view-status-or-check-outcome-for-the-same-job-identity; preserve-the-related-upload-identity; do-not-create-a-duplicate
     phase3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
   - id: media.scenario.artifact-verification-completed
     sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
@@ -110,7 +110,7 @@ fixtures:
   - id: media.scenario.job-outcome-unknown
     sourceFixtureRef: FIXTURE-PROVIDER-AMBIGUITY
     initialConditions: dispatch-may-have-crossed-boundary-without-confirmed-result
-    expected: same-job-reconciliation-only; duplicate-submit-disabled
+    expected: same-job-outcome-check-only; duplicate-submit-disabled
   - id: media.scenario.caption-corrected
     sourceFixtureRef: FIXTURE-PODCAST-INTERVIEW
     initialConditions: one-caption-text-edit-and-timing-aligned
@@ -119,10 +119,20 @@ fixtures:
     sourceFixtureRef: FIXTURE-PARTIAL-COMPLETION
     initialConditions: concurrent-version-advances-after-local-edit
     expected: preserve-both-versions-and-require-explicit-keep-local-or-use-latest-resolution
-  - id: media.scenario.job-reconciled
+  - id: media.scenario.job-outcome-confirmed
     sourceFixtureRef: FIXTURE-PROVIDER-AMBIGUITY
-    initialConditions: existing-job-reconciliation-has-classified-completion
+    initialConditions: existing-job-outcome-check-has-classified-completion
     expected: record-existing-job-result-without-new-dispatch
+  - id: media.scenario.job-retry-eligible
+    sourceFixtureRef: FIXTURE-PARTIAL-COMPLETION
+    initialConditions: prior-attempt-is-classified-retryable-and-current-authority-policy-rights-license-resource-deployment-and-budget-checks-pass
+    expected: create-one-new-fenced-attempt-under-the-same-job-identity; preserve-the-classified-prior-attempt-and-do-not-claim-the-new-attempt-completed
+    phase3PayloadState: proposal-only; no-local-retry-reducer
+  - id: media.scenario.job-retry-ineligible
+    sourceFixtureRef: FIXTURE-PARTIAL-COMPLETION
+    initialConditions: prior-outcome-is-unknown-or-current-authority-policy-or-retry-budget-does-not-permit-another-attempt
+    expected: do-not-dispatch; retain-the-job-and-prior-attempt-history; check-an-unknown-outcome-or-explain-the-blocking-condition
+    phase3PayloadState: proposal-only; no-local-retry-reducer
   - id: media.scenario.caption-version-comparison
     sourceFixtureRef: FIXTURE-PODCAST-INTERVIEW
     initialConditions: prior-and-candidate-caption-versions-share-the-same-source

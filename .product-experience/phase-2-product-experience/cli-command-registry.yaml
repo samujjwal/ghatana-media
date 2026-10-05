@@ -30,14 +30,14 @@ commands:
     options: [--transcript-version]
     actionRef: media.action.review-transcript
     result: source-linked-transcript-and-explicit-uncertainty
-  - id: media.cli.job.inspect
-    label: Inspect job status
-    canonicalCommand: ghatana-media job inspect
+  - id: media.cli.job.status
+    label: View job status
+    canonicalCommand: ghatana-media job status
     options: [--job]
-    actionRef: media.action.inspect-job
+    actionRef: media.action.view-job-status
     result: current-job-state-and-finality
   - id: media.cli.job.cancel
-    label: Request cancellation for a job
+    label: Request to stop this job
     canonicalCommand: ghatana-media job cancel
     options: [--job]
     actionRef: media.action.request-cancellation
@@ -69,12 +69,20 @@ commands:
     options: [--left-version, --right-version]
     actionRef: media.action.compare-caption-versions
     result: text-timing-provenance-and-source-version-comparison
-  - id: media.cli.job.reconcile
-    label: Check an uncertain job outcome
-    canonicalCommand: ghatana-media job reconcile
+  - id: media.cli.job.check-outcome
+    label: Check job outcome
+    canonicalCommand: ghatana-media job check-outcome
     options: [--job]
-    actionRef: media.action.reconcile-job
-    result: existing-job-reconciliation; never-new-dispatch
+    actionRef: media.action.check-job-outcome
+    result: check-the-existing-job-outcome; never-dispatch-new-work
+  - id: media.cli.job.retry
+    label: Retry this job
+    canonicalCommand: ghatana-media job retry
+    options: [--job, --attempt, --request-id]
+    requestShapeStatus: proposed-from-media.job.retry; exact-owner-contract-binding-pending
+    actionRef: media.action.retry-job
+    result: same-logical-job-with-one-new-fenced-attempt-or-an-explicit-ineligible-outcome
+    finality: pending-until-the-new-attempt-has-an-authoritative-result
 output:
   human: outcome-first-and-localized-when-admitted
   machineFormats: [json, jsonl]

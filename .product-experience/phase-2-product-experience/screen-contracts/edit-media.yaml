@@ -35,8 +35,13 @@ states:
 - candidate-ready
 - version-conflict
 - read-only
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.select-track-or-region
+- media.action.enter-exact-edit-constraints
+- media.action.apply-admitted-edit
+- media.action.undo-or-redo-versioned-change
+- media.action.save-new-revision
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - select a track or region
 - enter exact edit constraints
@@ -76,3 +81,25 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: select a track or region
+  actionRefs:
+  - media.action.select-track-or-region
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: enter exact edit constraints
+  actionRefs:
+  - media.action.enter-exact-edit-constraints
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: apply an admitted edit
+  actionRefs:
+  - media.action.apply-admitted-edit
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: undo or redo a versioned change
+  actionRefs:
+  - media.action.undo-or-redo-versioned-change
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: save a new revision
+  actionRefs:
+  - media.action.save-new-revision
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

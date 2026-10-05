@@ -37,8 +37,13 @@ states:
 - partial
 - outcome-unknown
 - candidate-ready
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.choose-admitted-audio-operation
+- media.action.inspect-source-measurements
+- media.action.edit-audio-mix-controls
+- media.action.submit-validated-request
+- media.action.compare-media-versions
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - choose an admitted audio operation
 - inspect source measurements
@@ -56,7 +61,7 @@ channelDispositions:
   disposition: host-rendering-and-focus-contract-not-bound
 validation: Distinguish generated, transformed, and source audio; label target levels separately from measurements;
   preserve stem and mix provenance.
-recovery: Retain the exact mix revision and job identity; reconcile unknown finality before another submission.
+recovery: Retain the exact mix revision and job identity; check an unknown outcome before another submission.
 responsive: Show one selected track or bus at a time and keep source identity, units, and output state visible.
 accessibility: Offer numeric alternatives to faders and time selections; expose measurements, units, and clipping
   as structured text.
@@ -82,3 +87,25 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: choose an admitted audio operation
+  actionRefs:
+  - media.action.choose-admitted-audio-operation
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: inspect source measurements
+  actionRefs:
+  - media.action.inspect-source-measurements
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: edit mix controls
+  actionRefs:
+  - media.action.edit-audio-mix-controls
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: submit a validated request
+  actionRefs:
+  - media.action.submit-validated-request
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: compare output versions
+  actionRefs:
+  - media.action.compare-media-versions
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

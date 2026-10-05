@@ -38,8 +38,13 @@ states:
 - validation-pending
 - version-conflict
 - ready-for-review
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.reorder-track
+- media.action.trim-track
+- media.action.edit-transition-or-caption-alignment
+- media.action.inspect-artifact
+- media.action.validate-composition
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - reorder or trim a track
 - edit a transition or caption alignment
@@ -78,3 +83,22 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: reorder or trim a track
+  actionRefs:
+  - media.action.reorder-track
+  - media.action.trim-track
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: edit a transition or caption alignment
+  actionRefs:
+  - media.action.edit-transition-or-caption-alignment
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: inspect a brand asset version
+  actionRefs:
+  - media.action.inspect-artifact
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: validate composition
+  actionRefs:
+  - media.action.validate-composition
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

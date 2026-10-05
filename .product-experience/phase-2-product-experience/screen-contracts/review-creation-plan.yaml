@@ -36,8 +36,11 @@ states:
 - estimate-incomplete
 - stale-plan
 - submission-pending
-actions: []
-actionBindingState: intent-bindings-pending
+actions:
+- media.action.edit-unresolved-plan-decision
+- media.action.request-plan-validation
+- media.action.submit-admitted-plan
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
 - edit an unresolved plan decision
 - request an explicit plan validation
@@ -84,3 +87,17 @@ localization: Localize human-readable copy and date/number/unit formatting by ad
 requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
 dependencyRefs: []
 dependencyDisposition: owner-bound dependency references pending
+actionIntentBindings:
+- intent: edit an unresolved plan decision
+  actionRefs:
+  - media.action.edit-unresolved-plan-decision
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: request an explicit plan validation
+  actionRefs:
+  - media.action.request-plan-validation
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+- intent: submit a validated plan when the operation is admitted
+  actionRefs:
+  - media.action.submit-admitted-plan
+  bindingState: proposed-reference; owner-authority-effect-finality-interaction-and-channel-review-pending
+interactionBindingState: action-to-component-event-focus-and-state-transition-bindings-pending

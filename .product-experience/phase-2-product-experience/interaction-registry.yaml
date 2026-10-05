@@ -1,6 +1,6 @@
 schemaVersion: media.interaction-registry.v1
 productId: media
-status: selected-lane-first-use-and-upload-proposals; interaction-review-pending
+status: selected-lane-first-use-upload-and-job-recovery-proposals; interaction-review-pending
 interactions:
   - id: media.interaction.select-artifact-source
     componentRef: media.component.artifact-source-picker
@@ -82,13 +82,23 @@ interactions:
     input: choose-whether-to-keep-local-edits-or-use-the-latest-version
     effectRef: media.action.resolve-caption-conflict
     focusAfter: resolved-caption-draft
-  - id: media.interaction.reconcile-job
+  - id: media.interaction.check-job-outcome
     componentRef: media.component.job-status-card
     input: explicit-check-status-action
-    effectRef: media.action.reconcile-job
-    focusAfter: reconciliation-status
+    effectRef: media.action.check-job-outcome
+    focusAfter: job-outcome-status
   - id: media.interaction.open-job-from-activity
     componentRef: media.component.job-status-card
-    input: activate-the-named-inspect-action-for-one-exact-job-row
-    effectRef: media.action.inspect-job
+    input: activate-the-view-status-action-for-one-exact-job-row
+    effectRef: media.action.view-job-status
     focusAfter: exact-job-status-heading
+  - id: media.interaction.request-job-cancellation
+    componentRef: media.component.job-status-card
+    input: explicit-cancellation-request-for-the-same-job-after-current-authority-check
+    effectRef: media.action.request-cancellation
+    focusAfter: cancellation-pending-status-for-the-same-job
+  - id: media.interaction.retry-job
+    componentRef: media.component.job-status-card
+    input: explicit-confirmation-after-the-prior-attempt-is-classified-retryable-and-current-authority-policy-and-budget-pass
+    effectRef: media.action.retry-job
+    focusAfter: same-job-identity-and-new-attempt-status
