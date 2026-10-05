@@ -1,0 +1,172 @@
+---
+# =============================================================================
+# Vision Service — Kubernetes Manifests
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vision-service-config
+  namespace: audio-video
+  labels:
+    app: vision-service
+    app.kubernetes.io/part-of: ghatana-audio-video
+data:
+  VISION_GRPC_PORT: "50053"
+  AV_HEALTH_PORT: "8092"
+  AV_RATE_LIMIT_TPS: "20"
+  AV_RATE_LIMIT_BURST: "40"
+  AV_RATE_LIMIT_MAX_CONCURRENT: "10"
+  AV_CB_FAILURE_THRESHOLD: "5"
+  AV_CB_RESET_TIMEOUT_MS: "30000"
+  AV_MAX_REQUEST_BYTES: "52428800"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vision-service
+  namespace: audio-video
+  labels:
+    app: vision-service
+    app.kubernetes.io/part-of: ghatana-audio-video
+    app.kubernetes.io/version: latest
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vision-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: vision-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8092"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: audio-video-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: vision
+          image: ghcr.io/ghatana/audio-video/vision-service:latest
+          imagePullPolicy: Always
+          ports:
+            - name: grpc
+              containerPort: 50053
+              protocol: TCP
+            - name: http-health
+              containerPort: 8092
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: vision-service-config
+          env:
+            - name: AV_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: audio-video-secrets
+                  key: jwt-secret
+                  optional: true
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "2000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 12
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: vision-models
+              mountPath: /app/models
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: vision-models
+          persistentVolumeClaim:
+            claimName: vision-models-pvc
+      terminationGracePeriodSeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vision-service
+  namespace: audio-video
+  labels:
+    app: vision-service
+    app.kubernetes.io/part-of: ghatana-audio-video
+spec:
+  type: ClusterIP
+  selector:
+    app: vision-service
+  ports:
+    - name: grpc
+      port: 50053
+      targetPort: 50053
+      protocol: TCP
+    - name: http-health
+      port: 8092
+      targetPort: 8092
+      protocol: TCP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: vision-service-hpa
+  namespace: audio-video
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: vision-service
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

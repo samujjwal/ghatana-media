@@ -1,0 +1,44 @@
+{
+  "producerId": "media-speech-persistence-privacy",
+  "name": "Media Speech Persistence Privacy Proof",
+  "description": "Validates content-opaque persistent TTS filenames and content-free STT/TTS failure telemetry while compiling/testing both speech persistence modules.",
+  "version": "1.0.0",
+  "criteriaId": "media-speech-persistence-privacy",
+  "type": "validation",
+  "repo": "ghatana-media",
+  "scope": "governed-adaptive-runtime-production-readiness",
+  "unitScope": [
+    "modules/speech/stt-service/src/main/java/com/ghatana/stt/service/PersistentSttService.java",
+    "modules/speech/tts-service/src/main/java/com/ghatana/tts/service/PersistentTtsService.java",
+    "scripts/conformance/check-media-speech-persistence-privacy.mjs",
+    "scripts/conformance/check-media-speech-persistence-privacy-gate.mjs"
+  ],
+  "execution": {
+    "platform": "java-evidence-generator",
+    "command": "node",
+    "args": [
+      "scripts/conformance/check-media-speech-persistence-privacy-gate.mjs"
+    ],
+    "timeout": "15m",
+    "requiresDocker": false
+  },
+  "outputs": {
+    "artifactType": "media-speech-persistence-privacy-proof",
+    "canonicalOutputOwner": "java-evidence-generator",
+    "localDiagnosticPath": "build/proofs/media-speech-persistence-privacy/proof.json",
+    "format": "json",
+    "evidenceGeneratorRepository": "ghatana-tools",
+    "evidenceGeneratorCoordinate": "evidence-generator"
+  },
+  "governance": {
+    "owner": "Media Engineering",
+    "reviewCycle": "per-change",
+    "escalationPath": "media-runtime-leads"
+  },
+  "surfaceId": "media-api",
+  "toolBinding": {
+    "toolId": "evidence-generator",
+    "operationId": "run",
+    "provider": "samujjwal/ghatana-tools"
+  }
+}

@@ -1,0 +1,130 @@
+# Vision Analysis Tool Contract Descriptor
+# Conforms to the ToolContract schema defined in com.ghatana.agent.framework.tools.ToolContract
+# Used by VisionAnalysisToolHandler to register with the AEP tool catalog
+
+toolId: "av.vision-analysis"
+toolVersion: "1.0.0"
+name: "Vision Analysis"
+description: >
+  Performs computer vision analysis on image or video frames including object
+  detection, scene classification, OCR, face detection, and custom model inference.
+  Input may be raw bytes or a platform media artifact ID pointing to a stored image
+  or video.
+actionClass: "CALL_EXTERNAL"
+requiresApproval: false
+isReversible: true
+
+inputSchema:
+  type: object
+  required: [mediaSource, analysisTypes]
+  properties:
+    mediaSource:
+      type: object
+      description: "Image or video frame source"
+      oneOf:
+        - required: [mediaArtifactId]
+          properties:
+            mediaArtifactId:
+              type: string
+              description: "Platform media artifact ID for stored image/video"
+        - required: [imageBytes]
+          properties:
+            imageBytes:
+              type: string
+              format: byte
+              description: "Base64-encoded image bytes (JPEG, PNG, or WebP)"
+            mimeType:
+              type: string
+              enum: [image/jpeg, image/png, image/webp]
+              default: image/jpeg
+    analysisTypes:
+      type: array
+      items:
+        type: string
+        enum:
+          - OBJECT_DETECTION
+          - SCENE_CLASSIFICATION
+          - OCR
+          - FACE_DETECTION
+          - LABEL_DETECTION
+          - CUSTOM_MODEL
+      minItems: 1
+      description: "Types of analysis to perform"
+    maxResults:
+      type: integer
+      default: 10
+      description: "Maximum number of results per analysis type"
+    confidenceThreshold:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      default: 0.5
+      description: "Minimum confidence score to include in results"
+    customModelId:
+      type: string
+      description: "Custom model ID when analysisTypes includes CUSTOM_MODEL"
+
+outputSchema:
+  type: object
+  properties:
+    objects:
+      type: array
+      items:
+        type: object
+        properties:
+          label:
+            type: string
+          confidence:
+            type: number
+          boundingBox:
+            type: object
+            properties:
+              x: {type: number}
+              y: {type: number}
+              width: {type: number}
+              height: {type: number}
+    scenes:
+      type: array
+      items:
+        type: object
+        properties:
+          label: {type: string}
+          confidence: {type: number}
+    texts:
+      type: array
+      items:
+        type: object
+        properties:
+          text: {type: string}
+          confidence: {type: number}
+          boundingBox: {type: object}
+    faces:
+      type: array
+      items:
+        type: object
+        properties:
+          landmarks: {type: object}
+          confidence: {type: number}
+    customResults:
+      type: object
+      additionalProperties: true
+      description: "Free-form results from custom model inference"
+
+policyTags:
+  - "vision-processing"
+  - "external-call"
+  - "pii-risk"
+  - "biometric-risk"
+
+accessPolicy:
+  requiredRoles: ["OPERATOR", "ADMIN"]
+
+transport: "REMOTE"
+remoteEndpoint: "${VISION_SERVICE_ENDPOINT}"
+
+metadata:
+  product: "audio-video"
+  capability: "vision"
+  grpcServiceName: "com.ghatana.audio.video.vision.VisionService"
+  timeoutMs: "20000"
+  retryable: "true"

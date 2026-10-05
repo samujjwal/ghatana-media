@@ -1,0 +1,213 @@
+{
+  "schemaVersion": "ghatana.runtime-route-manifest.v1",
+  "serviceId": "media",
+  "source": "standalone-media-runtime-launcher",
+  "generatedBy": "MediaHttpHandler executable route authority",
+  "routes": [
+    {
+      "id": "GET /health",
+      "method": "GET",
+      "path": "/health",
+      "operationId": "getMediaHealth",
+      "visibility": "public"
+    },
+    {
+      "id": "GET /health/live",
+      "method": "GET",
+      "path": "/health/live",
+      "operationId": "getMediaLiveness",
+      "visibility": "public"
+    },
+    {
+      "id": "GET /health/ready",
+      "method": "GET",
+      "path": "/health/ready",
+      "operationId": "getMediaReadiness",
+      "visibility": "public"
+    },
+    {
+      "id": "GET /health/startup",
+      "method": "GET",
+      "path": "/health/startup",
+      "operationId": "getMediaStartup",
+      "visibility": "public"
+    },
+    {
+      "id": "GET /ready",
+      "method": "GET",
+      "path": "/ready",
+      "operationId": "getMediaReadyAlias",
+      "visibility": "public"
+    },
+    {
+      "id": "GET /metrics",
+      "method": "GET",
+      "path": "/metrics",
+      "operationId": "getMediaMetrics",
+      "visibility": "public"
+    },
+    {
+      "id": "GET /info",
+      "method": "GET",
+      "path": "/info",
+      "operationId": "getMediaInfo",
+      "visibility": "public"
+    },
+    {
+      "id": "GET /api/v1/health",
+      "method": "GET",
+      "path": "/api/v1/health",
+      "operationId": "getMediaVersionedHealth",
+      "visibility": "public"
+    },
+    {
+      "id": "POST /api/v1/consents",
+      "method": "POST",
+      "path": "/api/v1/consents",
+      "operationId": "grantMediaConsent",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "GET /api/v1/consents",
+      "method": "GET",
+      "path": "/api/v1/consents",
+      "operationId": "listMediaConsents",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "GET /api/v1/consents/{consentId}",
+      "method": "GET",
+      "path": "/api/v1/consents/{consentId}",
+      "operationId": "getMediaConsent",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "DELETE /api/v1/consents/{consentId}",
+      "method": "DELETE",
+      "path": "/api/v1/consents/{consentId}",
+      "operationId": "revokeMediaConsent",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "POST /api/v1/artifacts/uploads",
+      "method": "POST",
+      "path": "/api/v1/artifacts/uploads",
+      "operationId": "beginMediaUpload",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "GET /api/v1/artifacts/uploads/{uploadId}",
+      "method": "GET",
+      "path": "/api/v1/artifacts/uploads/{uploadId}",
+      "operationId": "getMediaUpload",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "PUT /api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}",
+      "method": "PUT",
+      "path": "/api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}",
+      "operationId": "appendMediaChunk",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "POST /api/v1/artifacts/uploads/{uploadId}/complete",
+      "method": "POST",
+      "path": "/api/v1/artifacts/uploads/{uploadId}/complete",
+      "operationId": "completeMediaUpload",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "GET /api/v1/artifacts/{artifactId}",
+      "method": "GET",
+      "path": "/api/v1/artifacts/{artifactId}",
+      "operationId": "getMediaArtifact",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "POST /api/v1/jobs",
+      "method": "POST",
+      "path": "/api/v1/jobs",
+      "operationId": "submitMediaJob",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "GET /api/v1/jobs",
+      "method": "GET",
+      "path": "/api/v1/jobs",
+      "operationId": "listMediaJobs",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "GET /api/v1/jobs/{jobId}",
+      "method": "GET",
+      "path": "/api/v1/jobs/{jobId}",
+      "operationId": "getMediaJob",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "POST /api/v1/jobs/{jobId}/cancel",
+      "method": "POST",
+      "path": "/api/v1/jobs/{jobId}/cancel",
+      "operationId": "cancelMediaJob",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "POST /api/v1/streams",
+      "method": "POST",
+      "path": "/api/v1/streams",
+      "operationId": "openMediaStream",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "GET /api/v1/streams/{sessionId}",
+      "method": "GET",
+      "path": "/api/v1/streams/{sessionId}",
+      "operationId": "getMediaStream",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "POST /api/v1/streams/{sessionId}/connect",
+      "method": "POST",
+      "path": "/api/v1/streams/{sessionId}/connect",
+      "operationId": "connectMediaStream",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "POST /api/v1/streams/{sessionId}/frames/{sequence}",
+      "method": "POST",
+      "path": "/api/v1/streams/{sessionId}/frames/{sequence}",
+      "operationId": "submitMediaStreamFrame",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "POST /api/v1/streams/{sessionId}/close",
+      "method": "POST",
+      "path": "/api/v1/streams/{sessionId}/close",
+      "operationId": "closeMediaStream",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "GET /api/v1/providers",
+      "method": "GET",
+      "path": "/api/v1/providers",
+      "operationId": "getMediaProviders",
+      "visibility": "authenticated"
+    }
+  ],
+  "comparedContract": "contracts/openapi/media.yaml",
+  "sourceRuntime": {
+    "kind": "route-definitions-runtime-registry",
+    "paths": [
+      "launcher/src/main/java/com/ghatana/media/launcher/MediaRouteManifest.java"
+    ],
+    "snapshotModel": "committed",
+    "contractComparedBy": "scripts/check-openapi-contract-canonical.mjs",
+    "reproducibility": {
+      "source": "runtime-route-registration-code",
+      "generatorCommand": "./gradlew :services:media:launcher:generateRouteManifest --no-build-cache",
+      "checkCommand": "./gradlew :services:media:launcher:checkCommittedRouteManifestCurrent --no-build-cache",
+      "comparison": "byte-for-byte-json-tree"
+    },
+    "fingerprint": "sha256:571a23331aadda71ef3991ed8455c0035ee0b7b0f0b9f5bff25a4ad373d2980d"
+  }
+}

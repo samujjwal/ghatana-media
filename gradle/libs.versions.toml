@@ -1,0 +1,98 @@
+# Product-owned Media Gradle version catalog.
+# This subset preserves the exact aliases and pinned values used by the
+# migrated Media Gradle build; update this file as Media build metadata.
+
+[versions]
+activej = "6.0-rc2"
+assertj = "3.27.7"
+aws-sdk = "2.54.1"
+caffeine = "3.2.4"
+flyway = "13.3.0"
+grpc = "1.83.1"
+h2 = "2.3.232"
+hibernate = "7.4.6.Final"
+hikari = "7.1.0"
+jackson = "3.2.2"
+jackson-annotations = "2.22"
+jacoco = "0.8.15"
+jakarta-persistence = "3.2.0"
+junit = "6.1.3"
+junit-platform = "6.1.3"
+lettuce = "7.7.0.RELEASE"
+log4j = "2.26.1"
+lombok = "1.18.46"
+micrometer = "1.17.1"
+mockito = "5.23.0"
+native-lib-loader = "2.4.0"
+nimbus-jose-jwt = "10.9.1"
+onnx-runtime = "1.29.0"
+opencv = "4.9.0-0"
+opentelemetry = "1.65.0"
+postgresql = "42.7.13"
+protobuf = "4.36.0"
+rabbitmq = "5.18.0"
+slf4j = "2.0.18"
+spotbugs = "6.5.10"
+testcontainers = "2.0.5"
+
+[libraries]
+activej-common = { group = "io.activej", name = "activej-common", version = { ref = "activej" } }
+activej-core = { group = "io.activej", name = "activej-eventloop", version = { ref = "activej" } }
+activej-eventloop = { group = "io.activej", name = "activej-eventloop", version = { ref = "activej" } }
+activej-http = { group = "io.activej", name = "activej-http", version = { ref = "activej" } }
+activej-inject = { group = "io.activej", name = "activej-inject", version = { ref = "activej" } }
+activej-promise = { group = "io.activej", name = "activej-promise", version = { ref = "activej" } }
+assertj-core = { module = "org.assertj:assertj-core", version = { ref = "assertj" } }
+aws-s3 = { module = "software.amazon.awssdk:s3", version = { ref = "aws-sdk" } }
+aws-sdk-bom = { module = "software.amazon.awssdk:bom", version = { ref = "aws-sdk" } }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version = { ref = "caffeine" } }
+flyway-core = { module = "org.flywaydb:flyway-core", version = { ref = "flyway" } }
+flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version = { ref = "flyway" } }
+grpc-api = { module = "io.grpc:grpc-api", version = { ref = "grpc" } }
+grpc-inprocess = { module = "io.grpc:grpc-inprocess", version = { ref = "grpc" } }
+grpc-netty-shaded = { module = "io.grpc:grpc-netty-shaded", version = { ref = "grpc" } }
+grpc-protobuf = { module = "io.grpc:grpc-protobuf", version = { ref = "grpc" } }
+grpc-services = { module = "io.grpc:grpc-services", version = { ref = "grpc" } }
+grpc-stub = { module = "io.grpc:grpc-stub", version = { ref = "grpc" } }
+h2 = { module = "com.h2database:h2", version = { ref = "h2" } }
+hibernate-core = { module = "org.hibernate.orm:hibernate-core", version = { ref = "hibernate" } }
+hikaricp = { module = "com.zaxxer:HikariCP", version = { ref = "hikari" } }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version = { ref = "jackson-annotations" } }
+jackson-bom = { module = "tools.jackson:jackson-bom", version = { ref = "jackson" } }
+jackson-databind = { module = "tools.jackson.core:jackson-databind", version = { ref = "jackson" } }
+jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api", version = { ref = "jakarta-persistence" } }
+javax-inject = { module = "javax.inject:javax.inject", version = "1" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version = "26.1.0" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = { ref = "junit" } }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version = { ref = "junit" } }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = { ref = "junit-platform" } }
+lettuce-core = { module = "io.lettuce:lettuce-core", version = { ref = "lettuce" } }
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version = { ref = "log4j" } }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version = { ref = "log4j" } }
+log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version = { ref = "log4j" } }
+lombok = { module = "org.projectlombok:lombok", version = { ref = "lombok" } }
+micrometer-core = { module = "io.micrometer:micrometer-core", version = { ref = "micrometer" } }
+mockito-core = { module = "org.mockito:mockito-core", version = { ref = "mockito" } }
+mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version = { ref = "mockito" } }
+native-lib-loader = { module = "org.scijava:native-lib-loader", version = { ref = "native-lib-loader" } }
+nimbus-jose-jwt = { module = "com.nimbusds:nimbus-jose-jwt", version = { ref = "nimbus-jose-jwt" } }
+onnx-runtime = { module = "com.microsoft.onnxruntime:onnxruntime", version = { ref = "onnx-runtime" } }
+opencv = { module = "org.openpnp:opencv", version = { ref = "opencv" } }
+opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version = { ref = "opentelemetry" } }
+postgresql = { module = "org.postgresql:postgresql", version = { ref = "postgresql" } }
+protobuf-java = { module = "com.google.protobuf:protobuf-java", version = { ref = "protobuf" } }
+rabbitmq-amqp-client = { module = "com.rabbitmq:amqp-client", version = { ref = "rabbitmq" } }
+slf4j-api = { module = "org.slf4j:slf4j-api", version = { ref = "slf4j" } }
+testcontainers-core = { module = "org.testcontainers:testcontainers", version = { ref = "testcontainers" } }
+testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version = { ref = "testcontainers" } }
+testcontainers-localstack = { module = "org.testcontainers:testcontainers-localstack", version = { ref = "testcontainers" } }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql", version = { ref = "testcontainers" } }
+testcontainers-rabbitmq = { module = "org.testcontainers:rabbitmq", version = { ref = "testcontainers" } }
+testcontainers-redis = { module = "com.redis:testcontainers-redis", version = "2.2.2" }
+
+[bundles]
+activej-core = ["activej-core", "activej-promise", "activej-inject", "activej-common"]
+testing-containers = ["testcontainers-core", "testcontainers-postgresql", "testcontainers-junit-jupiter"]
+
+[plugins]
+spotbugs = { id = "com.github.spotbugs", version = { ref = "spotbugs" } }

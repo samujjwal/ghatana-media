@@ -1,0 +1,1836 @@
+schemaVersion: media.source-manifest.v1
+productId: media
+planAuthority:
+  title: Ghatana Media — Expert-Reviewed Master Plan
+  sourcePath: /home/samujjwal/Downloads/Ghatana_Media_Expert_Reviewed_Master_Plan_ghatana-media.md
+  targetPath: docs/migration/expert-reviewed-master-plan.md
+  sha256: 4f793e03b02dc444a53bdc7cfcca59deb68a611b1e964dbb6a555d649d549c57
+  status: preserved-as-source-document
+supplementalDecision:
+  title: Document Intelligence ownership instruction
+  sourcePath: /home/samujjwal/.codex/attachments/6f71415a-6999-4f68-83d0-7310f9fe59b1/Pasted text.txt
+  targetPath: docs/migration/decisions/document-intelligence-ownership-instruction.md
+  sha256: 2d8b3fa5a8fbe724343bdc7cfcca59deb68a611b1e964dbb6a555d649d549c57
+  decisionRecord: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+  status: accepted-user-scope-overlay
+repositoryObservations:
+- repository: samujjwal/ghatana
+  localPath: /home/samujjwal/Developments/ghatana
+  revision: 245e966591913bc73f59fad9bf43651673b0280e
+  observedStatus: clean-at-migration-snapshot
+  readScope: tracked-current-main-tree-and-current-working-tree-consumer-references
+- repository: samujjwal/ghatana-products
+  localPath: /home/samujjwal/Developments/ghatana-products
+  revision: ca6a6d5fe88ffd2e2d19a83d2069c678c5044716
+  observedStatus: clean-before-MIG-001-owner-side-changes
+  readScope: extraction-policy-registry-and-tracked-current-main-tree-consumers
+- repository: samujjwal/ghatana-shared
+  localPath: /home/samujjwal/Developments/ghatana-shared
+  revision: a1b2cb5c772524150fcf582157b0fba8999267b4
+  observedStatus: clean-at-observation
+  readScope: document-contracts-auth-gateway-and-shared-owner-records
+- repository: samujjwal/ghatana-kernel
+  localPath: /home/samujjwal/Developments/ghatana-kernel
+  revision: 9d6b0a9730b7cfb374af61e90650ff042b1e6b8d
+  observedStatus: clean-at-observation
+  readScope: tracked-current-main-tree-reverse-reference-scan
+- repository: samujjwal/ghatana-tools
+  localPath: /home/samujjwal/Developments/ghatana-tools
+  revision: 6f35f2aa4193479fe4cce3d7e9f913cf6e611308
+  observedStatus: clean-at-observation
+  readScope: experience-specification-package-and-tool-consumer-boundary
+- repository: samujjwal/ghatana-yappc
+  localPath: /home/samujjwal/Developments/ghatana-yappc
+  revision: bedc3fa608b6808a51f820f209fffb36c7a374c8
+  observedStatus: clean-at-observation
+  readScope: tracked-current-main-tree-reverse-reference-scan
+- repository: samujjwal/gharbatai
+  localPath: /home/samujjwal/Developments/gharbatai
+  revision: f0eb63edf6f8517d5dcd6a3300e2249453269987
+  observedStatus: dirty-unrelated-working-tree-changes-present
+  readScope: tracked-current-main-tree-and-known-working-tree-consumer-paths
+targetObservation:
+  repository: samujjwal/ghatana-media
+  localPath: /home/samujjwal/Developments/ghatana-media
+  initialRemoteState: empty-no-advertised-refs
+  currentState: local-migration-transfer-preparation-in-progress
+  transferReceipt: migration/transfer-receipt.yaml
+  mediaSourceCutover: not-executed
+  documentIntelligenceWorkerRehome: local-uncommitted-change-in-ghatana-source-worktree
+  noPushOrProductionStateChange: true
+progress:
+  mediaSourceCopy: target-copy-prepared; source-remains-canonical-pending-parity-and-cutover-gates
+  documentIntelligence: rehomed-in-ghatana-working-tree; generic-OCR-and-document-intelligence-excluded-from-media
+  consumers: active-root-ghatana-and-gharbatai-path-bindings-updated; historical-evidence-retained
+  productRegistry: media-in-progress-extraction-record-and-target-projection-added-in-ghatana-products
+  targetBuild: blocked-on-public-artifact-and-service-contract-generator-ownership
+productArtifactIndex:
+  status: authored-index; semantic-fingerprints-and-generated-currentness-pending
+  authoritySource: .product-experience/authority-map.yaml
+  taskDependencySource: .product-experience/traceability.yaml
+  records:
+  - artifactId: ART-P0-PRODUCT-TRUTH-BOUNDARY
+    title: Product Truth
+    owner: ghatana-media-product-owners
+    authorityClass: accepted-boundary-slice
+    authority: canonical-for-the-accepted-P0-001-boundary-scope-only
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+    authoredOrGeneratedRole: accepted-boundary-slice
+    sourceAuthorityRef: authority-map:ART-P0-PRODUCT-TRUTH-BOUNDARY
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: fcfdb1c6a11d89b6f4009778da1eaed7525b6b78db25f236a49494f990b5a8e3
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - GOV-002
+      - GOV-003
+      artifactRefs: []
+    dependents:
+      planTaskRefs:
+      - P0-002
+      - P0-010
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-001-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: accepted
+  - artifactId: ART-P0-CONSTITUTION-REFERENCE
+    title: Product Constitution
+    owner: ghatana-media-product-owners
+    authorityClass: human-readable-reference
+    authority: points-to-structured-register-and-is-not-an-editable-requirement-source
+    owningPhase: P0
+    path: .product-experience/PRODUCT-CONSTITUTION.md
+    authoredOrGeneratedRole: human-readable-reference
+    sourceAuthorityRef: authority-map:ART-P0-CONSTITUTION-REFERENCE
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 86fb0ccc8cbef3edc56cba23c35d161b52f398527db4a732c99079e616782f60
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-001
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+      - BOUNDARY.md
+      - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+      - docs/migration/decisions/document-intelligence-ownership-instruction.md
+    dependents:
+      planTaskRefs:
+      - P0-003
+      - P0-006
+      - P0-009
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-002-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-P0-002-human-review
+  - artifactId: ART-P0-CONSTITUTION
+    title: Constitution
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-constitutional-requirements-are-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/constitution.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-CONSTITUTION
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 22c8019deb40303e22feadf48b22432662836ba4745650920002c81e29d12994
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-001
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+      - BOUNDARY.md
+      - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+      - docs/migration/decisions/document-intelligence-ownership-instruction.md
+    dependents:
+      planTaskRefs:
+      - P0-003
+      - P0-006
+      - P0-009
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-002-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-human-review
+  - artifactId: ART-P0-GLOSSARY
+    title: Glossary
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-product-terms-are-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/glossary.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-GLOSSARY
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: a36c6f39b54ae993657bb9953c790c2e1f834028c7d93ab72e754b8da5921f09
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-001
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+      - BOUNDARY.md
+      - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+      - docs/migration/decisions/document-intelligence-ownership-instruction.md
+    dependents:
+      planTaskRefs:
+      - P0-003
+      - P0-006
+      - P0-009
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-002-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-human-review
+  - artifactId: ART-P0-ACTORS
+    title: Actors Responsibilities
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-actors-and-responsibilities-are-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-ACTORS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 76f66242b91c1401baaf85f70d1ff87dc2a06ed1728d8832f30d8c58e5ae5056
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-001
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+      - BOUNDARY.md
+      - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+      - docs/migration/decisions/document-intelligence-ownership-instruction.md
+    dependents:
+      planTaskRefs:
+      - P0-003
+      - P0-006
+      - P0-009
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-002-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-human-and-role-appointment-review
+  - artifactId: ART-P0-GOALS
+    title: Goals Jtbd
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-outcomes-and-intents-are-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/goals-jtbd.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-GOALS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 6085ea0fab098a68a4cf4ae5f868113c2922b593ea088e73267864684abdbd13
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-001
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+      - BOUNDARY.md
+      - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+      - docs/migration/decisions/document-intelligence-ownership-instruction.md
+    dependents:
+      planTaskRefs:
+      - P0-003
+      - P0-006
+      - P0-009
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-002-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-human-review
+  - artifactId: ART-P0-REQUIREMENTS
+    title: Requirements
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-requirements-are-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/requirements.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-REQUIREMENTS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: ce9ab88121f111a18fe57de2e719077fb1c4d38641cf616048dd476db459228e
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-002
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+    dependents:
+      planTaskRefs:
+      - P0-004
+      - P0-007
+      - P0-009
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-003-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-P0-003-and-P0-010
+  - artifactId: ART-P0-CAPABILITIES
+    title: Capabilities
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-capability-leaves-are-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/capabilities.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-CAPABILITIES
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 3f8137dc4368d732288ff4844f1ffd673aaeb303e381be3083bd4113a8d1974b
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-002
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+    dependents:
+      planTaskRefs:
+      - P0-004
+      - P0-007
+      - P0-009
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-003-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-P0-003-and-P0-010
+  - artifactId: ART-P0-CAPABILITY-CROSSWALK
+    title: Capability Preservation Crosswalk
+    owner: ghatana-media-product-owners
+    authorityClass: reconciliation-evidence-input
+    authority: source-preservation-crosswalk-not-independent-capability-authority
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+    authoredOrGeneratedRole: reconciliation-evidence-input
+    sourceAuthorityRef: authority-map:ART-P0-CAPABILITY-CROSSWALK
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 892d600435653abfd4e52e83f3f06b50b6d21f75d88f2ec622dc1b3d3527e5c8
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-002
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+    dependents:
+      planTaskRefs:
+      - P0-004
+      - P0-007
+      - P0-009
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-003-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-P0-003-and-P0-010
+  - artifactId: ART-P0-DOMAIN-MODEL
+    title: Domain Model
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-domain-model-is-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/domain-model.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-DOMAIN-MODEL
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: b889c19d22ab0195b4ed7738937a1f1167cc3af05d2a3c2eeadcd59b99a36335
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-003
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+    dependents:
+      planTaskRefs:
+      - P0-005
+      - P0-006
+      - P0-007
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/state-models.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-004-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-owner-review-and-P0-010
+  - artifactId: ART-P0-TIME-UNITS-FIDELITY
+    title: Time Units Fidelity
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal-with-source-observations
+    authority: proposed-conventions-and-observations-not-an-accepted-wire-schema
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+    authoredOrGeneratedRole: authored-proposal-with-source-observations
+    sourceAuthorityRef: authority-map:ART-P0-TIME-UNITS-FIDELITY
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: c1c46ee8eb086145d6f24e4919df09b2b3e125d22facdb912d851e1db776473e
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-003
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+    dependents:
+      planTaskRefs:
+      - P0-005
+      - P0-006
+      - P0-007
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/state-models.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-004-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-specialist-and-owner-review
+  - artifactId: ART-P0-DOMAIN-CONTRACT-FIXTURES
+    title: P0 004 Golden Fixtures
+    owner: ghatana-media-product-owners
+    authorityClass: proposed-domain-contract-fixture-specification
+    authority: specifies-proposed-time-coordinate-color-and-dimension-cases; not-runtime-evidence
+    owningPhase: P0
+    path: conformance/domain-contracts/p0-004-golden-fixtures.yaml
+    authoredOrGeneratedRole: proposed-domain-contract-fixture-specification
+    sourceAuthorityRef: authority-map:ART-P0-DOMAIN-CONTRACT-FIXTURES
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 4525533e0d82e9bc586ff73a0218fc61f016c1e21c884e273e5509e18a486e3d
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-003
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+    dependents:
+      planTaskRefs:
+      - P0-005
+      - P0-006
+      - P0-007
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/state-models.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-004-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-graphics-audio-simulation-and-owner-review; execution-not-run
+  - artifactId: ART-P0-STATE-MODELS
+    title: State Models
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-state-models-are-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/state-models.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-STATE-MODELS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 560b76cde9abb0e1bc0cb3942284dde38fbd7e86fcf7c72fa46b50a3b4822536
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-004
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-006
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-005-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-distributed-systems-and-owner-review
+  - artifactId: ART-P0-STATE-TRANSITION-FIXTURES
+    title: P0 005 State Transition Fixtures
+    owner: ghatana-media-product-owners
+    authorityClass: proposed-conformance-fixture-specification
+    authority: specifies-proposed-interleavings-against-state-model-ids; not-runtime-evidence-or-an-independent-state-authority
+    owningPhase: P0
+    path: conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+    authoredOrGeneratedRole: proposed-conformance-fixture-specification
+    sourceAuthorityRef: authority-map:ART-P0-STATE-TRANSITION-FIXTURES
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: cbe60db3015d7f72b2177dcba014e1cac82fe8e0191ddaccb71ba7aed2787ad7
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-004
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-006
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-005-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-distributed-systems-and-owner-review; execution-not-run
+  - artifactId: ART-P0-ADVERSARIAL-POLICY-FIXTURES
+    title: P0 006 Adversarial Policy Fixtures
+    owner: ghatana-media-product-owners
+    authorityClass: proposed-adversarial-policy-fixture-specification
+    authority: specifies-policy-attack-cases-against-P0-006-proposals; not-runtime-evidence-or-a-security-qualification
+    owningPhase: P0
+    path: conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    authoredOrGeneratedRole: proposed-adversarial-policy-fixture-specification
+    sourceAuthorityRef: authority-map:ART-P0-ADVERSARIAL-POLICY-FIXTURES
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 8b3d8f3d9d36a57ba6c4c2288acc69f9b72409d1203e81f82c97c1cd6d846030
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-002
+      - P0-004
+      - P0-005
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/state-models.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-007
+      - P0-008
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/gaps.yaml
+      - .product-experience/phase-0-product-truth/dependency-contracts.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/reuse-decisions.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-006-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-security-privacy-rights-owner-review; execution-not-run
+  - artifactId: ART-P0-POLICY-AUTHORITY
+    title: Policy Authority Model
+    owner: ghatana-media-product-owners
+    authorityClass: accepted-boundary-input-and-proposed-phase-0-policy
+    authority: P0-001-boundary-rules-accepted; full-P0-006-policy-not-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/policy-authority-model.yaml
+    authoredOrGeneratedRole: accepted-boundary-input-and-proposed-phase-0-policy
+    sourceAuthorityRef: authority-map:ART-P0-POLICY-AUTHORITY
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: b11dd59871423a9d1e4eaae0af3f46bceac251e1f19624ace7a374558d26ecca
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-002
+      - P0-004
+      - P0-005
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/state-models.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-006
+      - P0-007
+      - P0-008
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/gaps.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/dependency-contracts.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/reuse-decisions.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-005-phase-0-verification
+      - docs/migration/expert-reviewed-master-plan.md#p0-006-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: boundary-scope-only; full-policy-pending
+  - artifactId: ART-P0-DEPENDENCY-CONTRACTS
+    title: Dependency Contracts
+    owner: ghatana-media-product-owners
+    authorityClass: accepted-boundary-input-and-proposed-capability-bindings
+    authority: owner-boundary-decisions-accepted-as-recorded; capability-level-public-bindings-pending
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/dependency-contracts.yaml
+    authoredOrGeneratedRole: accepted-boundary-input-and-proposed-capability-bindings
+    sourceAuthorityRef: authority-map:ART-P0-DEPENDENCY-CONTRACTS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 2b0314580d1ff9e68ac88bb4671b77dd4e6bb8d158d3a2b971dbf056987b7af1
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - GOV-002
+      - MIG-002
+      - P0-006
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-008-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: mixed-boundary-accepted; full-P0-008-pending
+  - artifactId: ART-P0-REUSE-DECISIONS
+    title: Reuse Decisions
+    owner: ghatana-media-product-owners
+    authorityClass: authored-owner-boundary-and-candidate-disposition-proposal
+    authority: decision-register-not-a-runtime-dependency-projection
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/reuse-decisions.yaml
+    authoredOrGeneratedRole: authored-owner-boundary-and-candidate-disposition-proposal
+    sourceAuthorityRef: authority-map:ART-P0-REUSE-DECISIONS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 794f2ebd4fcefe4c74f4f82d545798515235cf270bbad321d701ddfddfc63ca5
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - GOV-002
+      - MIG-002
+      - P0-006
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-008-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-publication-isolation-and-owner-review
+  - artifactId: ART-P0-NFR
+    title: Nonfunctional Requirements
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-nonfunctional-requirements-are-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-NFR
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: f25323bf326a639105afd393452cf691c4b34def874cdcc04339d21042ee5d92
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-002
+      - P0-003
+      - P0-004
+      - P0-005
+      - P0-007
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/phase-0-product-truth/state-models.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-007
+      - P0-008
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/gaps.yaml
+      - .product-experience/phase-0-product-truth/dependency-contracts.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/reuse-decisions.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-006-phase-0-verification
+      - docs/migration/expert-reviewed-master-plan.md#p0-009-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-human-review
+  - artifactId: ART-P0-PROFILE-SEMANTICS
+    title: Profile Semantics
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-profile-semantics-are-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/profile-semantics.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-PROFILE-SEMANTICS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 99fcc3f5ca415c7889724f00660bd40b7214f40297f375041b728b1c86f7172c
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-003
+      - P0-004
+      - P0-006
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-009
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-007-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-quality-AI-ML-and-owner-review
+  - artifactId: ART-P0-QUALITY-POLICY
+    title: Quality Policy
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-quality-policy-is-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/quality-policy.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-QUALITY-POLICY
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: e13c6b622e47feb0fb8195cc05a9cc19c8a3761606a5208dcaa810a0c4a4f427
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-003
+      - P0-004
+      - P0-006
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-009
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-007-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-quality-AI-ML-and-domain-owner-review
+  - artifactId: ART-P0-QUALIFICATION-POLICY
+    title: Qualification Policy
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: qualification-dimension-semantics-not-qualification-evidence
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/qualification-policy.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-QUALIFICATION-POLICY
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 27cb3a5a31413a6a4b9dee516a8c5de3afda8d5b599a2b8385ef954c3eb2f6b0
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-002
+      - P0-003
+      - P0-004
+      - P0-006
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-004
+      - P0-007
+      - P0-009
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - .product-experience/traceability.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-003-phase-0-verification
+      - docs/migration/expert-reviewed-master-plan.md#p0-007-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-P0-003-and-P0-010
+  - artifactId: ART-P0-CONTENT-INTENT
+    title: Content Intent
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-content-intent-is-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/content-intent.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-CONTENT-INTENT
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: b813df324ac05c9586280e59341254cf9cece4825ebb161a395e3aeb73b71c88
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-002
+      - P0-004
+      - P0-005
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/state-models.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-007
+      - P0-008
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/gaps.yaml
+      - .product-experience/phase-0-product-truth/dependency-contracts.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/reuse-decisions.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-006-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-security-rights-and-P0-010-review
+  - artifactId: ART-P0-INFORMATION-ARCHITECTURE
+    title: Information Architecture
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-channel-information-architecture-is-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/information-architecture.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-INFORMATION-ARCHITECTURE
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: e9ee678851f4aa0bec53a4709e7da3f8a363515181094e5fafaa968b5ac09a26
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-002
+      - P0-003
+      - P0-007
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+    dependents:
+      planTaskRefs:
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-009-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-UX-accessibility-SRE-and-P0-010-review
+  - artifactId: ART-P0-APPLICATIONS-CHANNELS
+    title: Applications Channels
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-channel-scope-is-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/applications-channels.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-APPLICATIONS-CHANNELS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 961926528850286d3e03cac147249afe8619d046918a59c0be2b6fef882088b8
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-002
+      - P0-003
+      - P0-007
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+    dependents:
+      planTaskRefs:
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-009-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-UX-accessibility-SRE-and-P0-010-review
+  - artifactId: ART-P0-JOURNEYS
+    title: Journey Catalog
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal
+    authority: canonical-if-and-when-journey-contracts-are-accepted
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/journey-catalog.yaml
+    authoredOrGeneratedRole: authored-proposal
+    sourceAuthorityRef: authority-map:ART-P0-JOURNEYS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: c58af130d52f716b53542b7c75e4df395c663f9fb97b55984c2db711d5b3a095
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-002
+      - P0-003
+      - P0-007
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+    dependents:
+      planTaskRefs:
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-009-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-UX-accessibility-SRE-and-P0-010-review
+  - artifactId: ART-P0-HANDOFF-CONTRACTS
+    title: Handoff Contracts
+    owner: ghatana-media-product-owners
+    authorityClass: authored-proposal-handoff-boundary-register
+    authority: proposed-handoffs-and-owner-bindings-not-executable-client-contracts
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/handoff-contracts.yaml
+    authoredOrGeneratedRole: authored-proposal-handoff-boundary-register
+    sourceAuthorityRef: authority-map:ART-P0-HANDOFF-CONTRACTS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: ce116156d1ea0571ea932b2e4df4f1a3c9e0c10338fc37385db78f1f5ced3111
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-002
+      - P0-003
+      - P0-007
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+    dependents:
+      planTaskRefs:
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-009-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: pending-external-owner-and-P0-010-review
+  - artifactId: ART-P0-SCHEMA-BINDINGS
+    title: Schema Bindings
+    owner: ghatana-media-product-owners
+    authorityClass: external-schema-owner-binding-record
+    authority: records-observed-Tools-contract-scope-and-open-binding-gap
+    owningPhase: P0
+    path: .product-experience/phase-0-product-truth/schema-bindings.yaml
+    authoredOrGeneratedRole: external-schema-owner-binding-record
+    sourceAuthorityRef: authority-map:ART-P0-SCHEMA-BINDINGS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 33b8dd7c655cf35ea72367e955d2c57852fb9ca3e2e2d1952bb2d3dcff38b5e7
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - GOV-002
+      - MIG-002
+      - P0-006
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-008-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: owner-validation-pending
+  - artifactId: ART-P0-ACCEPTANCE-INPUTS
+    title: Acceptance
+    owner: ghatana-media-product-owners
+    authorityClass: authored-acceptance-inputs-only
+    authority: human-review-inputs-not-generated-acceptance-results
+    owningPhase: P0
+    path: .product-experience/acceptance.yaml
+    authoredOrGeneratedRole: authored-acceptance-inputs-only
+    sourceAuthorityRef: authority-map:ART-P0-ACCEPTANCE-INPUTS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 32335278dc47dd01508c3aafdfb0257815e81a2d346970b9350256a09d0342c5
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-001
+      - P0-002
+      - P0-003
+      - P0-004
+      - P0-005
+      - P0-006
+      - P0-007
+      - P0-008
+      - P0-009
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/gaps.yaml
+      - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/dependency-contracts.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/phase-0-product-truth/reuse-decisions.yaml
+      - .product-experience/phase-0-product-truth/state-models.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - BOUNDARY.md
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+      - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+      - docs/migration/decisions/document-intelligence-ownership-instruction.md
+    dependents:
+      planTaskRefs: []
+      artifactRefs: []
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-010-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: P0-001-only-accepted
+  - artifactId: ART-P0-TRACEABILITY
+    title: Traceability
+    owner: ghatana-media-product-owners
+    authorityClass: authored-partial-relations
+    authority: partial-links-not-a-generated-closure-result
+    owningPhase: P0
+    path: .product-experience/traceability.yaml
+    authoredOrGeneratedRole: authored-partial-relations
+    sourceAuthorityRef: authority-map:ART-P0-TRACEABILITY
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 4a82ad8fc74d5e711cf9827d86a2e34c25168e6d7ae69fc26c801e8d4ae7732d
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - P0-001
+      - P0-002
+      - P0-003
+      - P0-004
+      - P0-005
+      - P0-006
+      - P0-007
+      - P0-008
+      - P0-009
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/gaps.yaml
+      - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/dependency-contracts.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/phase-0-product-truth/reuse-decisions.yaml
+      - .product-experience/phase-0-product-truth/state-models.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - BOUNDARY.md
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+      - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+      - docs/migration/decisions/document-intelligence-ownership-instruction.md
+    dependents:
+      planTaskRefs: []
+      artifactRefs: []
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-010-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: independent-P0-010-review-pending
+  - artifactId: ART-P0-CURRENTNESS
+    title: Currentness
+    owner: ghatana-tools-product-definition-owner
+    authorityClass: generated-observation
+    authority: generated-coverage-currentness-only; no-manual-readiness-claim
+    owningPhase: P0
+    path: .product-experience/currentness.yaml
+    authoredOrGeneratedRole: generated-observation
+    sourceAuthorityRef: authority-map:ART-P0-CURRENTNESS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256:
+    contentFingerprintSemantics: Generated-only artifact is intentionally absent until the owner-approved Tools workflow emits
+      it.
+    dependencies:
+      planTaskRefs:
+      - P0-001
+      - P0-002
+      - P0-003
+      - P0-004
+      - P0-005
+      - P0-006
+      - P0-007
+      - P0-008
+      - P0-009
+      artifactRefs:
+      - .product-experience/PRODUCT-CONSTITUTION.md
+      - .product-experience/gaps.yaml
+      - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/dependency-contracts.yaml
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/phase-0-product-truth/reuse-decisions.yaml
+      - .product-experience/phase-0-product-truth/state-models.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - BOUNDARY.md
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+      - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+      - docs/migration/decisions/document-intelligence-ownership-instruction.md
+    dependents:
+      planTaskRefs: []
+      artifactRefs: []
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-010-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: not-created; owner-approved-Tools-generation-pending
+  - artifactId: ART-GOV-README
+    title: Product experience authority guide
+    owner: ghatana-media-product-owners
+    authorityClass: authored-authoring-guide
+    authority: navigation-and-authoring-rules-not-product-requirements
+    owningPhase: cross-phase-governance
+    path: .product-experience/README.md
+    authoredOrGeneratedRole: authored-authoring-guide
+    sourceAuthorityRef: authority-map:ART-GOV-README
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 320c4f217ecde1be9c4627ec10382bc70786b26ad83d02d2260d32855d860547
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs: []
+      artifactRefs: []
+    dependents:
+      planTaskRefs: []
+      artifactRefs: []
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#section-5-2-target-authority-root
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: maintained-governance-record; no-phase-acceptance-claimed
+  - artifactId: ART-GOV-AUTHORITY-MAP
+    title: Product experience authority map
+    owner: ghatana-media-product-owners
+    authorityClass: authored-owner-and-role-index
+    authority: canonical-local-owner-and-artifact-role-index
+    owningPhase: cross-phase-governance
+    path: .product-experience/authority-map.yaml
+    authoredOrGeneratedRole: authored-owner-and-role-index
+    sourceAuthorityRef: authority-map:ART-GOV-AUTHORITY-MAP
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: b3bbdf70e15fd16a3f6c7cc3304318f1440595c5f96e380b4e7537238137d456
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs: []
+      artifactRefs: []
+    dependents:
+      planTaskRefs: []
+      artifactRefs: []
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#section-5-2-target-authority-root
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: maintained-governance-record; phase-acceptance-is-explicit-per-artifact
+  - artifactId: ART-GOV-DECISION-LOG
+    title: Product experience decision log
+    owner: ghatana-media-product-owners
+    authorityClass: authored-governance-decisions
+    authority: records-decision-provenance-and-open-governance-choices
+    owningPhase: cross-phase-governance
+    path: .product-experience/decision-log.md
+    authoredOrGeneratedRole: authored-governance-decisions
+    sourceAuthorityRef: authority-map:ART-GOV-DECISION-LOG
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 2f425102c7e920ca9f983e58326b8595dc543d8c87f8fa049a9b9ea8655d7eb1
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs: []
+      artifactRefs: []
+    dependents:
+      planTaskRefs: []
+      artifactRefs: []
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#section-5-2-target-authority-root
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: maintained-governance-record; no-phase-acceptance-claimed
+  - artifactId: ART-GOV-GAPS
+    title: Canonical cross-phase gap register
+    owner: ghatana-media-product-owners
+    authorityClass: authored-single-editable-gap-register
+    authority: canonical-local-gap-register
+    owningPhase: cross-phase-governance
+    path: .product-experience/gaps.yaml
+    authoredOrGeneratedRole: authored-single-editable-gap-register
+    sourceAuthorityRef: authority-map:ART-GOV-GAPS
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256: 9eefe34c8e47225414313acd206ee6c3290ee8dc7aa55a2420aefc74bb7bbf8c
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
+      result.
+    dependencies:
+      planTaskRefs:
+      - GOV-002
+      - MIG-002
+      - P0-006
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    dependents:
+      planTaskRefs:
+      - P0-010
+      artifactRefs:
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+      - .product-experience/traceability.yaml
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#p0-008-phase-0-verification
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: maintained-governance-record; no-phase-acceptance-claimed
+  - artifactId: ART-GOV-SOURCE-MANIFEST
+    title: Migration snapshot and product artifact manifest
+    owner: ghatana-media-product-owners
+    authorityClass: authored-migration-snapshot-and-artifact-index
+    authority: migration-observations-and-artifact-index; not-a-semantic-acceptance-result
+    owningPhase: cross-phase-governance
+    path: .product-experience/source-manifest.yaml
+    authoredOrGeneratedRole: authored-migration-snapshot-and-artifact-index
+    sourceAuthorityRef: authority-map:ART-GOV-SOURCE-MANIFEST
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    provisionalContentSha256:
+    contentFingerprintSemantics: Self-hash is omitted to avoid recursive content; record this artifact's digest in an external
+      immutable revision when available.
+    dependencies:
+      planTaskRefs: []
+      artifactRefs: []
+    dependents:
+      planTaskRefs: []
+      artifactRefs: []
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#section-5-2-target-authority-root
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: P0-001-boundary-slice-only; all-other-phase-acceptance-pending
+phaseScope:
+  accepted:
+  - P0-001-boundary-slice
+  requested:
+  - P0-002..P0-010
+  - P1-001..P1-006
+  - P2-001..P2-008
+  - P3-001..P3-007
+  inProgress:
+  - P0-002..P0-009
+  pendingIndependentReview:
+  - P0-010
+  blockedByPrerequisiteAcceptance:
+    P1-001..P1-006: P0-010
+    P2-001..P2-008: P1-006
+    P3-001..P3-007: P2-008
+  acceptanceNote: The user has resumed phase work. Authored records are proposals until the named owner reviews and independent
+    P0-010 acceptance are recorded; later phases remain gated by their declared prerequisites.
+capabilityScopeNote: The full master-plan capability inventory remains required. This manifest indexes declared product artifacts
+  and source observations, but does not claim semantic completeness, runtime implementation, qualification, product readiness,
+  or that all consumers were searched across every remote branch/environment. Provisional exact-file hashes are provenance
+  only; owner-approved semantic fingerprints and currentness remain ungenerated.

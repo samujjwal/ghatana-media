@@ -1,0 +1,23 @@
+proto: ../../contracts/proto/stt.proto
+call: com.ghatana.stt.SttService/Transcribe
+
+host: localhost:50051
+insecure: true
+
+concurrency: 50
+total: 1000
+
+# Payload — base64-encoded 1-second silent WAV (44 bytes header, 8000 mono samples at 8 kHz / 8-bit)
+data-file: payloads/stt-silence-1s.bin
+binary: true
+
+# gRPC metadata
+metadata:
+  tenant-id: load-test-tenant
+  request-id: "{{.RequestNumber}}"
+
+timeout: 30s
+
+# Reporting
+output: stt-results.json
+format: json

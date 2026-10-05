@@ -1,0 +1,96 @@
+# Multimodal Inference Tool Contract Descriptor
+# Conforms to the ToolContract schema defined in com.ghatana.agent.framework.tools.ToolContract
+# Used by MultimodalInferenceToolHandler to register with the AEP tool catalog
+
+toolId: "av.multimodal-inference"
+toolVersion: "1.0.0"
+name: "Multimodal Inference"
+description: >
+  Runs cross-modal inference combining audio transcriptions and visual frame analysis
+  to produce unified semantic understanding of video media. Uses the CrossModalFusionEngine
+  and MultimodalAnalysisEngine to align audio and visual timelines and generate
+  composite analysis results.
+actionClass: "CALL_EXTERNAL"
+requiresApproval: false
+isReversible: true
+
+inputSchema:
+  type: object
+  required: [mediaArtifactId]
+  properties:
+    mediaArtifactId:
+      type: string
+      description: "Platform media artifact ID for the source video in Data Cloud"
+    inferenceMode:
+      type: string
+      enum: [SUMMARY, SEGMENT, FRAME_BY_FRAME, FULL]
+      default: SUMMARY
+      description: >
+        SUMMARY: single composite result for the whole video;
+        SEGMENT: per-diarization-segment results;
+        FRAME_BY_FRAME: results per sampled frame;
+        FULL: all of the above combined
+    samplingRateMs:
+      type: integer
+      default: 1000
+      description: "Frame sampling interval in milliseconds (used for FRAME_BY_FRAME and FULL modes)"
+    enableTranscription:
+      type: boolean
+      default: true
+      description: "Whether to include audio transcription in the fusion pipeline"
+    enableVisionAnalysis:
+      type: boolean
+      default: true
+      description: "Whether to include visual analysis in the fusion pipeline"
+    languageCode:
+      type: string
+      default: "en-US"
+      description: "BCP-47 language tag for audio transcription"
+
+outputSchema:
+  type: object
+  properties:
+    summary:
+      type: string
+      description: "High-level natural language summary of the video content"
+    segments:
+      type: array
+      items:
+        type: object
+        properties:
+          startMs: {type: integer}
+          endMs: {type: integer}
+          transcript: {type: string}
+          dominantObjects: {type: array, items: {type: string}}
+          dominantScenes: {type: array, items: {type: string}}
+          speaker: {type: string}
+    confidence:
+      type: number
+      description: "Overall confidence of the multimodal fusion result"
+    processingMetadata:
+      type: object
+      properties:
+        framesAnalyzed: {type: integer}
+        audioSegments: {type: integer}
+        fusionScore: {type: number}
+
+policyTags:
+  - "multimodal-processing"
+  - "external-call"
+  - "pii-risk"
+  - "biometric-risk"
+  - "audio-processing"
+  - "vision-processing"
+
+accessPolicy:
+  requiredRoles: ["OPERATOR", "ADMIN"]
+
+transport: "REMOTE"
+remoteEndpoint: "${MULTIMODAL_SERVICE_ENDPOINT}"
+
+metadata:
+  product: "audio-video"
+  capability: "multimodal"
+  grpcServiceName: "com.ghatana.audio.video.multimodal.MultimodalService"
+  timeoutMs: "60000"
+  retryable: "false"

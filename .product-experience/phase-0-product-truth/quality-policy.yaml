@@ -1,0 +1,446 @@
+schemaVersion: media.quality-policy.v1
+productId: media
+phaseTask: P0-007
+status: proposed-for-quality-and-ai-specialist-review
+authority: prospective-Phase-0-policy; does not establish measurements, calibration, qualification, or runtime support
+sourceRefs:
+  - master-plan:section-8.5
+  - master-plan:section-9.3
+  - master-plan:section-9.4
+  - master-plan:task-P0-007
+  - master-plan:section-15
+  - constitution:MEDIA-CONST-007
+  - constitution:MEDIA-CONST-008
+  - constitution:MEDIA-CONST-021
+  - constitution:MEDIA-CONST-027
+  - constitution:MEDIA-CONST-028
+scopeNote: >-
+  Dimensions and metric records below define proposed assessment semantics and
+  evidence needs only. No engine, model, metric implementation, threshold,
+  benchmark, calibration set, capability leaf, domain mapping, or runtime
+  availability is selected or qualified here.
+assessmentContract:
+  observationIdPattern: local-stable-id-per-assessment
+  requiredFields:
+    - metricRef
+    - dimensionRefs
+    - inputAndOutputRefs
+    - scopeAndApplicability
+    - assessmentDisposition
+    - methodIdentityAndVersion
+    - calibrationScopeAndVersion
+    - valueAndUnitOrAbstentionReason
+    - uncertaintyAndKnownLimitations
+    - evidenceRefs
+    - observationTime
+  applicabilityStates:
+    - APPLICABLE
+    - NOT_APPLICABLE
+    - ABSTAINED
+    - NOT_EVALUATED
+    - BLOCKED
+  assessmentDispositions:
+    - PASS
+    - FAIL
+    - INDETERMINATE
+  semantics:
+    - Not-applicable is not a pass or a failure; include the reason and evaluated scope.
+    - Abstained means an assessment was considered but the method could not responsibly determine a result; preserve a reason.
+    - Not-evaluated means no assessment evidence was produced; it does not mean quality is acceptable or unacceptable.
+    - Blocked means a prerequisite such as rights, data access, or required reference authority prevents assessment.
+    - A pass/fail disposition is meaningful only for an applicable assessment with its declared metric, method, calibration, and scope.
+    - Missing, out-of-domain, stale, or uncalibrated measurements remain unknown/abstained; they are not imputed as a pass.
+  aggregation:
+    default: no-cross-dimension-total-score
+    rule: >-
+      Structural validity, perceptual quality, intent fidelity,
+      domain/scientific constraints, rights/safety, and delivery compatibility
+      remain separate. Aesthetic/perceptual scores cannot override fidelity,
+      identity, speech meaning, physics, rights, safety, preservation, or
+      delivery hard constraints.
+    ranking: >-
+      Ranking requires declared eligible dimensions, calibrated scope,
+      objective/weights, missing-value behavior, uncertainty handling, and
+      owner review. It cannot convert an abstention or hard-gate failure into
+      an eligible candidate.
+qualityDimensions:
+  - id: QUALITY-DIM-STRUCTURAL-VALIDITY
+    name: structural-validity
+    category: media-integrity
+    scope: Typed inputs and outputs for a specific admitted operation; coverage by family remains pending capability integration.
+    applicability: Applicable where a structure/container/decoder contract and supported checks are declared for the exact input/output.
+    assessableQuestions: [decodes-as-declared, required-streams-and-metadata-present, dimensions-and-timing-within-declared-contract]
+    abstainWhen: [format-or-stream-is-unsupported, decoder-or-validator-is-out-of-scope, required-metadata-is-unknown]
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-integration
+  - id: QUALITY-DIM-PERCEPTUAL
+    name: perceptual-quality
+    category: sensory-assessment
+    scope: Image, video, and audio outputs only for a named task, modality, and supported measurement regime.
+    applicability: Requires a declared objective or calibrated perceptual assessment method for the target media/task.
+    assessableQuestions: [noise, blur, compression, exposure, color, audio-distortion, naturalness-as-scoped]
+    abstainWhen: [method-is-uncalibrated-for-domain-language-style-or-modality, no-valid-reference-for-reference-metric, content-or-input-outside-evaluated-range]
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-integration
+  - id: QUALITY-DIM-INTENT-FIDELITY
+    name: intent-fidelity
+    category: declared-intent-conformance
+    scope: Requirements and references explicitly declared for an operation; inferred intent alone does not establish a test oracle.
+    applicability: Requires testable intent constraints and, for similarity claims, an authorized aligned reference.
+    assessableQuestions: [declared-elements-and-exclusions, requested-timing-or-content, protected-property-preservation]
+    abstainWhen: [intent-is-underspecified, reference-is-unaligned-or-unauthorized, evaluator-cannot-distinguish-meaningful-deviation]
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-integration
+  - id: QUALITY-DIM-DOMAIN-SCIENTIFIC
+    name: domain-scientific-constraints
+    category: domain-owner-validation
+    scope: A specific domain model, simulation, measurement, or declared physical/educational/scientific constraint.
+    applicability: Requires a qualified domain owner, model/solver version, validity range, units, and named validation/reference cases.
+    abstainWhen: [no-domain-owner-mapping, model-validity-range-unknown, units-or-input-conditions-invalid, only-visual-plausibility-is-available]
+    capabilityRefs: []
+    capabilityRefState: pending-domain-and-P0-003-integration
+  - id: QUALITY-DIM-RIGHTS-SAFETY
+    name: rights-safety
+    category: non-scalar-policy-gate
+    scope: Current rights, consent, privacy, safety, identity/biometric, egress, retention, and effect authority for the exact use.
+    applicability: A policy/authority evaluation is required before protected processing or consequential effects.
+    abstainWhen: [authority-or-rights-evidence-unknown, consent-invalid-or-expired, policy-owner-contract-unavailable]
+    capabilityRefs: []
+    capabilityRefState: pending-P0-006-and-P0-008-integration
+    scoringRule: Do not reduce rights or safety to a model quality score; unknown or blocked authority is not a quality pass.
+  - id: QUALITY-DIM-DELIVERY-COMPATIBILITY
+    name: delivery-compatibility
+    category: target-contract-conformance
+    scope: A named output target, device/player contract, codec/container, color/audio/caption requirements, and delivery mode.
+    applicability: Requires an explicit target profile with exact constraints and a validator or qualified playback/consumer test.
+    abstainWhen: [target-profile-unbound, consumer-contract-unknown, codec-or-color-chain-outside-qualification]
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-and-P0-008-integration
+metricDefinitions:
+  - id: QUALITY-METRIC-IMAGE-DEFECTS
+    dimensionRefs: [QUALITY-DIM-PERCEPTUAL]
+    scope: Image; candidate observations include noise, blur, compression, exposure, and color.
+    applicability: Only for defect types with a declared measure and supported capture/content domain.
+    abstainWhen: [unsupported-image-domain, no-qualified-method-for-defect, source-condition-prevents-distinguishing-defect-from-intent]
+    calibrationNeeds: [metric-version, image-domain-and-content-types, color-pipeline, benchmark-corpus, reference-or-label-protocol, thresholds-and-uncertainty]
+    calibrationState: pending-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-integration
+  - id: QUALITY-METRIC-IMAGE-STRUCTURAL-REFERENCE
+    dimensionRefs: [QUALITY-DIM-INTENT-FIDELITY, QUALITY-DIM-PERCEPTUAL]
+    scope: Image comparison to a reference.
+    applicability: Requires an authorized, aligned reference with declared transforms/crops and a metric suited to the use case.
+    abstainWhen: [reference-missing, reference-unaligned, reference-authority-absent, metric-domain-mismatch]
+    calibrationNeeds: [alignment-policy, preprocessing-version, metric-version, reference-corpus, domain-specific-acceptance-bounds]
+    calibrationState: pending-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-integration
+  - id: QUALITY-METRIC-IMAGE-IDENTITY
+    dimensionRefs: [QUALITY-DIM-INTENT-FIDELITY, QUALITY-DIM-RIGHTS-SAFETY]
+    scope: Image/visual identity or likeness consistency when specifically authorized and relevant.
+    applicability: Requires lawful/policy-authorized identity comparison and an appropriate reference and evaluation regime.
+    abstainWhen: [identity-comparison-not-authorized, reference-absent, method-not-qualified-for-demographic-or-capture-domain, uncertainty-too-high]
+    calibrationNeeds: [authorized-evaluation-set, subgroup-error-analysis, threshold-and-recourse-policy, method-and-embedding-version]
+    calibrationState: pending-privacy-and-identity-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-006-and-P0-003-integration
+  - id: QUALITY-METRIC-IMAGE-PERCEPTUAL
+    dimensionRefs: [QUALITY-DIM-PERCEPTUAL]
+    scope: Image perceptual quality for a declared aesthetic or technical task.
+    applicability: Requires evaluation protocol appropriate to target style, task, and content distribution.
+    abstainWhen: [learned-ranker-domain-unqualified, style-or-content-shift, metric-is-used-as-rights-or-truth-decision]
+    calibrationNeeds: [human-or-task-grounded-protocol, style-and-domain-strata, method-version, uncertainty-and-abstention-analysis]
+    calibrationState: pending-quality-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-integration
+  - id: QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS
+    dimensionRefs: [QUALITY-DIM-PERCEPTUAL, QUALITY-DIM-STRUCTURAL-VALIDITY]
+    scope: Video temporal consistency, flicker, and frame artifacts over a declared temporal interval.
+    applicability: Requires valid frame/time mapping and a method calibrated for frame rate, motion, edits, and input class.
+    abstainWhen: [time-map-missing, scene-cut-or-intended-change-confounds-metric, temporal-context-incomplete, method-domain-mismatch]
+    calibrationNeeds: [frame-rate-and-vfr-regime, temporal-window-policy, scene-cut-labels, benchmark-corpus, detection-error-and-thresholds]
+    calibrationState: pending-quality-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-integration
+  - id: QUALITY-METRIC-VIDEO-CONTINUITY
+    dimensionRefs: [QUALITY-DIM-INTENT-FIDELITY, QUALITY-DIM-PERCEPTUAL]
+    scope: Video motion, subject/object/geometry/camera continuity across declared shots or temporal windows.
+    applicability: Requires declared continuity subject/properties and sufficient temporal context; scene cuts are separate boundaries.
+    abstainWhen: [track-identity-uncertain, occlusion-or-cut-breaks-association, camera-motion-outside-method-scope, reference-or-scene-plan-absent-for-intent-claim]
+    calibrationNeeds: [tracking-method-version, scene-cut-and-occlusion-corpus, motion/camera regimes, false-positive-and-false-negative analysis]
+    calibrationState: pending-quality-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-integration
+  - id: QUALITY-METRIC-VIDEO-IDENTITY-OBJECT-GEOMETRY
+    dimensionRefs: [QUALITY-DIM-INTENT-FIDELITY, QUALITY-DIM-RIGHTS-SAFETY]
+    scope: Video face/character/body/clothing/prop/environment identity and location consistency where authorized.
+    applicability: Requires declared identity/object properties, authorized references, and qualified temporal tracking.
+    abstainWhen: [biometric-or-identity-use-not-authorized, no-reference, track-ambiguous, method-out-of-domain]
+    calibrationNeeds: [authorized-representative-corpus, identity/object-specific errors, temporal-drift bounds, reference handling and retention]
+    calibrationState: pending-privacy-and-quality-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-006-and-P0-003-integration
+  - id: QUALITY-METRIC-VIDEO-PHYSICAL-PLAUSIBILITY
+    dimensionRefs: [QUALITY-DIM-DOMAIN-SCIENTIFIC]
+    scope: A named physical model, interaction, or observable with declared domain bounds.
+    applicability: Requires domain-owner acceptance, a qualified model/solver, and validation cases in the declared range.
+    abstainWhen: [no-domain-reference, solver-or-unit-contract-unknown, outside-validity-range, render-only-observation]
+    calibrationNeeds: [authoritative-model-version, equations-and-boundary-cases, tolerance-policy, reference-measurements, domain-owner-review]
+    calibrationState: pending-domain-owner-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-domain-and-P0-003-integration
+  - id: QUALITY-METRIC-VIDEO-LIP-AV-SYNC
+    dimensionRefs: [QUALITY-DIM-PERCEPTUAL, QUALITY-DIM-INTENT-FIDELITY, QUALITY-DIM-STRUCTURAL-VALIDITY]
+    scope: Declared audio/video synchronization or lip/phoneme timing.
+    applicability: Requires aligned audio/video clocks and, for lip alignment, authorized reference speech/face evidence.
+    abstainWhen: [clock-map-missing, stream-is-silent-or-non-speech-for-lip-claim, alignment-reference-ambiguous, method-unqualified-for-locale]
+    calibrationNeeds: [timebase-and-latency-calibration, locale/speech coverage, sync tolerance, benchmark labels]
+    calibrationState: pending-audio-video-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-and-P0-004-integration
+  - id: QUALITY-METRIC-VIDEO-ENCODING
+    dimensionRefs: [QUALITY-DIM-STRUCTURAL-VALIDITY, QUALITY-DIM-PERCEPTUAL, QUALITY-DIM-DELIVERY-COMPATIBILITY]
+    scope: Encoded video stream and selected consumer/player target.
+    applicability: Requires a selected encoding/delivery contract and applicable structural, decode, and quality checks.
+    abstainWhen: [delivery-profile-unbound, decoder-target-unknown, color-or-frame-map-metadata-unknown]
+    calibrationNeeds: [encoder-build-and-configuration, codec/container/player matrix, color/HDR fixtures, rate-control and quality method]
+    calibrationState: pending-delivery-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-and-P0-008-integration
+  - id: QUALITY-METRIC-AUDIO-DEFECTS
+    dimensionRefs: [QUALITY-DIM-PERCEPTUAL, QUALITY-DIM-STRUCTURAL-VALIDITY]
+    scope: Audio noise, clipping, distortion, intelligibility, and signal defects for a declared task.
+    applicability: Requires known channel/sample format/rate and a metric appropriate to speech, music, or other declared content.
+    abstainWhen: [sample-format-or-channel-layout-unknown, intended-noise-or-distortion-not-distinguished, language-or-content-outside-method-scope]
+    calibrationNeeds: [sample-and-channel regimes, speech/music/domain corpora, labels/reference, metric version, thresholds and uncertainty]
+    calibrationState: pending-audio-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-integration
+  - id: QUALITY-METRIC-AUDIO-SEPARATION-LEAKAGE
+    dimensionRefs: [QUALITY-DIM-PERCEPTUAL, QUALITY-DIM-INTENT-FIDELITY]
+    scope: Source/speaker/music/vocal/stem separation when a target stem and valid reference are declared.
+    applicability: Requires an intended source definition and suitable aligned clean or accepted reference for the metric.
+    abstainWhen: [target-source-ambiguous, reference-unavailable-for-reference-metric, domain-or-source-mix-outside-calibration]
+    calibrationNeeds: [source categories, mixture/reference protocol, leakage and distortion metrics, corpus stratification]
+    calibrationState: pending-audio-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-integration
+  - id: QUALITY-METRIC-AUDIO-SPECTRAL-PHASE
+    dimensionRefs: [QUALITY-DIM-PERCEPTUAL]
+    scope: Audio spectral and phase characteristics where meaningful for the requested operation.
+    applicability: Requires a declared channel layout, sample format/rate, and operation-specific acceptance criteria.
+    abstainWhen: [layout-or-time-alignment-unknown, metric-not-meaningful-for-mono-or-transformed-signal, method-not-qualified]
+    calibrationNeeds: [reference-signal-or-technical-specification, channel/layout coverage, spectral and phase tolerance methodology]
+    calibrationState: pending-audio-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-integration
+  - id: QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK
+    dimensionRefs: [QUALITY-DIM-PERCEPTUAL, QUALITY-DIM-DELIVERY-COMPATIBILITY]
+    scope: Loudness and true-peak measurements for a declared audio delivery target.
+    applicability: Requires named measurement method/version, sample rate, channel layout, and target profile.
+    abstainWhen: [measurement-method-unknown, target-standard-unselected, malformed-or-incomplete-audio-stream]
+    calibrationNeeds: [method/version verification, test tones and reference files, channel layouts, delivery-target tolerances]
+    calibrationState: pending-mastering-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-and-P0-008-integration
+  - id: QUALITY-METRIC-AUDIO-NATURALNESS
+    dimensionRefs: [QUALITY-DIM-PERCEPTUAL]
+    scope: Naturalness of generated, converted, enhanced, or synthesized audio for a declared content and locale class.
+    applicability: Requires domain/language/style-specific evaluation and cannot replace meaning, intelligibility, or rights assessment.
+    abstainWhen: [locale-or-style-unqualified, evaluator-disagreement-outside-policy, content-is-not-in-evaluation-scope]
+    calibrationNeeds: [locale/style strata, human or task-grounded protocol, rater agreement, model/method version, uncertainty]
+    calibrationState: pending-speech-and-audio-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-003-integration
+  - id: QUALITY-METRIC-AUDIO-SPEAKER-SIMILARITY
+    dimensionRefs: [QUALITY-DIM-INTENT-FIDELITY, QUALITY-DIM-RIGHTS-SAFETY]
+    scope: Speaker similarity only when identity comparison and the referenced voice use are authorized.
+    applicability: Requires valid consent/authority, a valid enrollment/reference, and a qualified locale/channel regime.
+    abstainWhen: [speaker-comparison-not-authorized, reference-unavailable, channel-or-locale-outside-calibration, uncertainty-high]
+    calibrationNeeds: [consented evaluation data, subgroup error analysis, channel/noise strata, threshold/recourse policy]
+    calibrationState: pending-privacy-and-audio-specialist-decision
+    qualificationState: NOT_EVALUATED
+    capabilityRefs: []
+    capabilityRefState: pending-P0-006-and-P0-003-integration
+protectedSemanticProperties:
+  - id: PROTECTED-SOURCE-BYTES
+    property: Original source bytes and identity
+    rule: Never destructively overwrite or misidentify the source when deriving or repairing output.
+    degradableByAutomaticOptimization: false
+  - id: PROTECTED-ACCEPTED-REVISION
+    property: Accepted project revision and explicit human-selected version
+    rule: Preserve accepted work; never silently replace a selected version with an optimization candidate.
+    degradableByAutomaticOptimization: false
+  - id: PROTECTED-IDENTITY
+    property: Authorized person/character/voice identity and likeness constraints
+    rule: Identity changes or biometric comparison require applicable authority and cannot be traded for a higher aesthetic score.
+    degradableByAutomaticOptimization: false
+  - id: PROTECTED-SPEECH-MEANING
+    property: Speech, caption, transcript, and narration meaning
+    rule: Naturalness or noise metrics cannot override meaning, required exact text, or review status.
+    degradableByAutomaticOptimization: false
+  - id: PROTECTED-TEMPORAL-CONTINUITY
+    property: Required motion, timing, continuity, and audio/video synchronization
+    rule: Do not trade temporal consistency or synchronization for a scalar image score.
+    degradableByAutomaticOptimization: false
+  - id: PROTECTED-DOMAIN-FIDELITY
+    property: Domain model, scientific constraints, and declared fidelity tier
+    rule: Visual quality cannot override the domain owner's model validity or fidelity requirement.
+    degradableByAutomaticOptimization: false
+  - id: PROTECTED-RIGHTS-PRIVACY-SAFETY
+    property: Rights, consent, privacy, safety, residency, and authorized-use conditions
+    rule: These remain policy gates and cannot be offset by measured media quality.
+    degradableByAutomaticOptimization: false
+  - id: PROTECTED-EXACT-CONTENT
+    property: Exact text, logos, captions, figures, and required disclosures
+    rule: Use deterministic composition when exactness is required; generative rendering cannot substitute silently.
+    degradableByAutomaticOptimization: false
+  - id: PROTECTED-DELIVERY-CONSTRAINTS
+    property: Explicit target format, compatibility, dimensions, aspect ratio, and required delivery constraints
+    rule: Fallback may alter these only when explicitly permitted with a declared floor, confirmation, and compatible binding.
+    degradableByAutomaticOptimization: false
+continuityPolicy:
+  id: QUALITY-CONTINUITY-POLICY
+  appliesTo: [video, temporal-image-sequences, synchronized-audio-video]
+  dimensions: [QUALITY-DIM-INTENT-FIDELITY, QUALITY-DIM-PERCEPTUAL, QUALITY-DIM-STRUCTURAL-VALIDITY]
+  recordPerObservation: [timeInterval, sceneBoundaryRefs, trackOrObjectRefs, comparisonReference, contextWindow, knownOcclusionsAndCuts]
+  rules:
+    - Compare face/character/body/clothing/props/environment, geometry, lighting/palette, camera, and object presence/location only when a declared reference/plan and authorized method apply.
+    - Distinguish scene cuts, intended changes, occlusions, motion blur, camera motion, and association uncertainty from detected defects where evidence permits.
+    - Report uncertainty and known false-positive/false-negative limitations; do not promise automatic validation of every hand, identity, physics event, or narrative claim.
+    - Selective frame/region repair is inapplicable unless the admitted provider and temporal compositor support it for the exact context window.
+  capabilityRefs: []
+  capabilityRefState: pending-P0-003-integration
+automaticOperationAdmission:
+  id: QUALITY-AUTO-OP-ADMISSION
+  defaultMode: recommend-or-plan-only
+  automaticApplicationRequires:
+    - prior applicable user/policy authorization
+    - exact operation and input scope
+    - current rights/privacy/safety checks
+    - finite per-operation candidate, attempt, wall-time, compute, and cost ceilings where applicable
+    - declared protected properties and required quality floors
+    - explicit stop conditions
+  missingBoundBehavior: do-not-start-or-stop-before-next-attempt
+  reversibleLowRiskRule: >-
+    Low-risk reversible processing may run only when a previously accepted
+    policy explicitly covers the operation and its finite resource bounds.
+    Material changes to egress, identity, fidelity, preservation, substantial
+    cost, or publication require the appropriate authority and visible
+    decision.
+optimizationPolicy:
+  id: QUALITY-OPT-BOUNDED-001
+  status: definition-only-not-executable
+  purpose: Propose and compare bounded repair or regeneration candidates without changing user-selected source/revision or effect authority.
+  permittedModes: [plan-only, apply-after-explicit-policy-and-user-authorization]
+  concreteLimits:
+    maximumCandidateCount: null
+    maximumRepairAttempts: null
+    maximumWallTime: null
+    maximumCompute: null
+    maximumIncrementalCost: null
+    state: per-profile-limits-pending-specialist-and-binding-decision
+    unspecifiedLimitBehavior: optimization-not-admitted
+    unitsAndCurrencyMustBeDeclared: true
+    fieldUnits:
+      maximumCandidateCount: positive-integer-candidates
+      maximumRepairAttempts: positive-integer-attempts
+      maximumWallTime: ISO-8601-duration
+      maximumCompute: owner-defined-metered-compute-unit-with-expiry
+      maximumIncrementalCost: finite-amount-with-explicit-currency
+    limitsMustBeFiniteAndPositiveWhereApplicable: true
+  acceptanceBounds:
+    acceptableDegradationRefs: []
+    minimumImprovementRefs: []
+    requiredDimensionsAndFloors: pending-profile-integration
+    state: no-thresholds-or-floors-selected
+  eligibility:
+    - All rights, privacy, safety, identity, preservation, and policy gates pass for the exact plan.
+    - Input versions and protected semantic properties are declared and remain stable for the evaluated attempt.
+    - Each compared result has applicable, comparable, current metric evidence and satisfies every required quality floor.
+    - An unqualified, unavailable, out-of-domain, or license-unadmitted candidate is ineligible regardless of its metric score.
+    - A material fidelity, identity, privacy/egress, delivery, cost, or preservation change requires the appropriate authority and visible confirmation.
+  comparisonRules:
+    - Compare only the same declared task, input/reference versions, scope, measurement method/version, and compatible calibration domain.
+    - Treat abstention, missing data, stale observations, and incomparable dimensions as unknown; do not impute them or average them into a pass.
+    - No aggregate score can override a protected semantic property, policy gate, required floor, or hard compatibility failure.
+    - If ranking is not justified by the accepted comparison policy, present candidates and uncertainty for review instead of selecting automatically.
+  attemptRecordFields:
+    - exactPredecessorArtifactAndRevision
+    - affectedSpatialRegionOrTemporalInterval
+    - contextHaloAndReason
+    - changedBindingsAndVersions
+    - requestedAndEffectiveProfiles
+    - metricObservationsIncludingAbstentions
+    - budgetConsumedAndRemaining
+    - authorizationAndConfirmationRefs
+    - selectedCandidateOrStopReason
+  stopConditions:
+    - id: QUALITY-OPT-STOP-ELIGIBLE-SUCCESS
+      meaning: Required floors and protected properties pass under applicable evidence and authorized selection policy.
+    - id: QUALITY-OPT-STOP-BUDGET-EXHAUSTED
+      meaning: Any declared candidate, attempt, wall-time, compute, or cost ceiling is reached.
+    - id: QUALITY-OPT-STOP-NO-SIGNIFICANT-IMPROVEMENT
+      meaning: No admissible, comparable improvement is established under the accepted per-dimension policy.
+    - id: QUALITY-OPT-STOP-NO-ELIGIBLE-REPAIR
+      meaning: No capability binding is admitted and qualified for the exact requested repair/context.
+    - id: QUALITY-OPT-STOP-POLICY-OR-RIGHTS-REJECTION
+      meaning: Current policy, rights, consent, safety, or authority checks reject the operation.
+    - id: QUALITY-OPT-STOP-REQUIRED-METRIC-ABSTAINED
+      meaning: A required metric abstains or is not comparable, so eligibility cannot be established.
+    - id: QUALITY-OPT-STOP-INPUT-OR-POLICY-CHANGED
+      meaning: An input, reference, project revision, policy, or required binding changes and invalidates the evaluation.
+    - id: QUALITY-OPT-STOP-CANCELLED
+      meaning: The authorized caller cancels; cancellation and external effect finality remain distinct.
+    - id: QUALITY-OPT-STOP-OUTCOME-UNRESOLVED
+      meaning: The external or provider outcome cannot be established; do not blindly retry or replace the version.
+  terminalBehavior: >-
+    Stop at the first applicable stop condition. Return the best eligible
+    version with its quality disposition, or explicit failure/review-required;
+    never keep spending after a budget, rights, policy, uncertainty, or
+    eligibility stop, and never overwrite a human-selected version.
+candidateQualification:
+  defaultState: NOT_EVALUATED
+  engineModelAndProviderRefs: []
+  bindingState: pending-P0-003-and-P0-008-integration
+  rule: >-
+    Candidate engines, models, quality evaluators, providers, and repair
+    strategies remain unqualified until evidence covers the exact operation,
+    input/domain regime, profile, rights, license, calibration, resource,
+    recovery, and runtime scope. This policy records no such evidence.
+negativeCases:
+  - id: QUALITY-NEG-OOM-DOWNGRADE
+    expected: OOM/capacity pressure does not implicitly change quality intent, resolution, duration, fidelity, preservation, or location; deny or use an explicitly permitted, confirmed fallback.
+  - id: QUALITY-NEG-MISLEADING-UPSCALING
+    expected: Increased pixel dimensions are not reported as recovered detail or higher fidelity without applicable reference/quality evidence and disclosure of reconstruction.
+  - id: QUALITY-NEG-UNSUPPORTED-FRAME-REPAIR
+    expected: Abstain or stop when the exact provider/compositor cannot repair the requested temporal region and required context safely.
+  - id: QUALITY-NEG-WRONG-METRIC-DOMAIN
+    expected: Out-of-domain metric data is abstained/blocked and does not pass a quality floor.
+  - id: QUALITY-NEG-NO-IMPROVEMENT
+    expected: Stop when no significant improvement is established under the accepted metric and uncertainty policy.
+  - id: QUALITY-NEG-EXHAUSTED-BUDGET
+    expected: Stop at the configured candidate, attempt, wall-time, compute, or cost ceiling and preserve the best eligible prior result.
+  - id: QUALITY-NEG-SINGLE-SCORE-OVERRIDE
+    expected: A high aesthetic/perceptual score does not override rights, safety, identity, speech meaning, domain fidelity, preservation, or delivery hard constraints.
+integrationGaps:
+  capabilityReferences: pending-P0-003-leaf-integration
+  domainAndFidelityReferences: pending-P0-004-and-domain-owner-integration
+  privacyAndRightsGates: pending-P0-006-and-P0-008-integration
+  concreteProfileBudgetsAndThresholds: pending-quality-ai-ml-and-delivery-specialist-review
+  engineModelProviderEvidence: none-recorded

@@ -1,0 +1,61 @@
+{
+  "criteriaId": "media-speech-persistence-privacy",
+  "name": "Media Speech Persistence Privacy Criteria",
+  "description": "Requires persistent STT/TTS storage metadata, failure telemetry, and audit records to avoid source-text-derived filenames and raw provider exception messages while preserving intentional governed speech artifacts.",
+  "version": "1.0.0",
+  "producerId": "media-speech-persistence-privacy",
+  "criteria": [
+    {
+      "id": "speech-persistence-privacy-authority",
+      "level": "MUST",
+      "description": "Persistent STT/TTS source must use content-opaque generated TTS filenames and type-based failure evidence without raw exception-message or source-filename logging.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "command-validation",
+        "target": "scripts/conformance/check-media-speech-persistence-privacy.mjs",
+        "command": "node scripts/conformance/check-media-speech-persistence-privacy.mjs",
+        "validation": {
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "id": "speech-modules-compile-and-test",
+      "level": "MUST",
+      "description": "The STT and TTS modules must compile and their focused tests must pass with the privacy-safe persistence implementation.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "gradle-validation",
+        "target": "speech persistence modules",
+        "command": "./gradlew :services:media:modules:speech:stt-service:test :services:media:modules:speech:tts-service:test --no-build-cache",
+        "validation": {
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "id": "canonical-proof-is-shared-java-owned",
+      "level": "MUST",
+      "description": "Canonical execution, scoring, storage, freshness, and release interpretation remain owned by the Ghatana Tools Evidence Generator.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "boundary-validation",
+        "target": "config/evidence/runtime-production-readiness-map.json",
+        "validation": {
+          "canonicalOutputOwner": "java-evidence-generator",
+          "providerRepo": "samujjwal/ghatana-tools"
+        }
+      }
+    }
+  ],
+  "acceptanceCriteria": {
+    "pass": "Speech persistence privacy authority and module verification pass, and Shared records the canonical producer result.",
+    "fail": "TTS metadata derives names from source text, speech failure logs/audit/status retain raw exception messages, source filenames leak into STT logs, module verification fails, or canonical ownership is violated.",
+    "reviewGate": "The Ghatana Tools Evidence Generator executes and scores this producer; GitHub Actions is provenance only."
+  },
+  "governance": {
+    "owner": "Media Engineering",
+    "reviewCycle": "per-change",
+    "escalationPath": "media-runtime-leads"
+  }
+}

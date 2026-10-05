@@ -1,0 +1,263 @@
+syntax = "proto3";
+
+package com.ghatana.audio.video.tts.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.ghatana.tts.core.grpc.proto";
+option java_outer_classname = "TtsServiceProto";
+
+/**
+ * TTS Service - gRPC API for Text-to-Speech synthesis
+ * 
+ * This service provides both synchronous and streaming synthesis,
+ * voice adaptation, and status monitoring.
+ */
+service TTSService {
+    // Synchronous synthesis of text to audio
+    rpc Synthesize(SynthesizeRequest) returns (SynthesizeResponse);
+    
+    // Streaming synthesis for real-time audio output
+    rpc StreamSynthesize(SynthesizeRequest) returns (stream AudioChunk);
+    
+    // Get current engine status and metrics
+    rpc GetStatus(StatusRequest) returns (StatusResponse);
+    
+    // Get engine metrics
+    rpc GetMetrics(MetricsRequest) returns (MetricsResponse);
+    
+    // Voice management
+    rpc GetVoices(GetVoicesRequest) returns (GetVoicesResponse);
+    rpc LoadVoice(LoadVoiceRequest) returns (LoadVoiceResponse);
+    
+    // Profile management
+    rpc CreateProfile(CreateProfileRequest) returns (ProfileResponse);
+    rpc GetProfile(GetProfileRequest) returns (ProfileResponse);
+    rpc UpdateProfile(UpdateProfileRequest) returns (ProfileResponse);
+    
+    // Voice cloning
+    rpc CloneVoice(CloneVoiceRequest) returns (CloneVoiceResponse);
+    
+    // Submit feedback for adaptation
+    rpc SubmitFeedback(FeedbackRequest) returns (FeedbackResponse);
+}
+
+// ============================================================================
+// Synthesis Messages
+// ============================================================================
+
+message SynthesizeRequest {
+    string text = 1;
+    string voice_id = 2;
+    string profile_id = 3;
+    SynthesisOptions options = 4;
+    
+    // Data Cloud integration metadata
+    string tenant_id = 5;
+    string artifact_id = 6;
+    string job_id = 7;
+    string correlation_id = 8;
+    string consent_status = 9;
+    string retention_policy = 10;
+}
+
+message SynthesizeResponse {
+    bytes audio_data = 1;
+    int32 sample_rate = 2;
+    int64 duration_ms = 3;
+    int64 processing_time_ms = 4;
+    string voice_used = 5;
+}
+
+message SynthesisOptions {
+    float speed = 1;           // 0.5 to 2.0
+    float pitch = 2;           // -12 to +12 semitones
+    float energy = 3;          // 0.0 to 2.0
+    string emotion = 4;        // neutral, happy, sad, angry, etc.
+    string language = 5;       // BCP-47 language code
+    AudioFormat output_format = 6;
+}
+
+message AudioChunk {
+    bytes audio_data = 1;
+    int32 sample_rate = 2;
+    int64 timestamp_ms = 3;
+    bool is_final = 4;
+}
+
+enum AudioFormat {
+    AUDIO_FORMAT_UNSPECIFIED = 0;
+    AUDIO_FORMAT_PCM_S16LE = 1;
+    AUDIO_FORMAT_PCM_F32LE = 2;
+    AUDIO_FORMAT_WAV = 3;
+    AUDIO_FORMAT_MP3 = 4;
+}
+
+// ============================================================================
+// Status Messages
+// ============================================================================
+
+message StatusRequest {
+    bool include_metrics = 1;
+    bool include_voice_info = 2;
+}
+
+message StatusResponse {
+    EngineState state = 1;
+    string active_voice = 2;
+    string error_message = 3;
+    int32 active_sessions = 4;
+}
+
+message MetricsRequest {}
+
+message MetricsResponse {
+    float real_time_factor = 1;
+    int64 memory_usage_bytes = 2;
+    int32 active_sessions = 3;
+    int64 total_syntheses = 4;
+    float average_latency_ms = 5;
+}
+
+enum EngineState {
+    ENGINE_STATE_UNSPECIFIED = 0;
+    ENGINE_STATE_INITIALIZING = 1;
+    ENGINE_STATE_READY = 2;
+    ENGINE_STATE_BUSY = 3;
+    ENGINE_STATE_ERROR = 4;
+    ENGINE_STATE_SHUTDOWN = 5;
+}
+
+// ============================================================================
+// Voice Messages
+// ============================================================================
+
+message GetVoicesRequest {
+    string language = 1;  // Optional filter by language
+}
+
+message GetVoicesResponse {
+    repeated VoiceInfo voices = 1;
+}
+
+message VoiceInfo {
+    string voice_id = 1;
+    string name = 2;
+    string description = 3;
+    repeated string languages = 4;
+    string gender = 5;
+    int64 size_bytes = 6;
+    bool is_loaded = 7;
+    bool is_cloned = 8;
+}
+
+message LoadVoiceRequest {
+    string voice_id = 1;
+}
+
+message LoadVoiceResponse {
+    bool success = 1;
+    string message = 2;
+    VoiceInfo voice = 3;
+}
+
+// ============================================================================
+// Profile Messages
+// ============================================================================
+
+message CreateProfileRequest {
+    string display_name = 1;
+    ProfileSettings settings = 2;
+}
+
+message GetProfileRequest {
+    string profile_id = 1;
+}
+
+message UpdateProfileRequest {
+    string profile_id = 1;
+    ProfileSettings settings = 2;
+}
+
+message ProfileResponse {
+    string profile_id = 1;
+    string display_name = 2;
+    ProfileSettings settings = 3;
+    ProfileStats stats = 4;
+}
+
+message ProfileSettings {
+    string preferred_language = 1;
+    string default_voice_id = 2;
+    AdaptationMode adaptation_mode = 3;
+    PrivacyLevel privacy_level = 4;
+    SynthesisOptions default_options = 5;
+}
+
+enum AdaptationMode {
+    ADAPTATION_MODE_UNSPECIFIED = 0;
+    ADAPTATION_MODE_CONSERVATIVE = 1;
+    ADAPTATION_MODE_BALANCED = 2;
+    ADAPTATION_MODE_AGGRESSIVE = 3;
+}
+
+enum PrivacyLevel {
+    PRIVACY_LEVEL_UNSPECIFIED = 0;
+    PRIVACY_LEVEL_HIGH = 1;
+    PRIVACY_LEVEL_MEDIUM = 2;
+    PRIVACY_LEVEL_LOW = 3;
+}
+
+message ProfileStats {
+    int64 total_synthesis_time_ms = 1;
+    int32 total_characters_synthesized = 2;
+    int64 created_at_ms = 3;
+    int64 last_used_at_ms = 4;
+}
+
+// ============================================================================
+// Voice Cloning Messages
+// ============================================================================
+
+message CloneVoiceRequest {
+    string voice_name = 1;
+    repeated bytes audio_samples = 2;
+    CloneOptions options = 3;
+}
+
+message CloneOptions {
+    int32 fine_tune_epochs = 1;
+    float learning_rate = 2;
+}
+
+message CloneVoiceResponse {
+    bool success = 1;
+    string message = 2;
+    string voice_id = 3;
+    float similarity_score = 4;
+    VoiceInfo voice = 5;
+}
+
+// ============================================================================
+// Feedback Messages
+// ============================================================================
+
+message FeedbackRequest {
+    string profile_id = 1;
+    string synthesis_id = 2;
+    FeedbackType feedback_type = 3;
+    string comment = 4;
+}
+
+enum FeedbackType {
+    FEEDBACK_TYPE_UNSPECIFIED = 0;
+    FEEDBACK_TYPE_QUALITY_GOOD = 1;
+    FEEDBACK_TYPE_QUALITY_BAD = 2;
+    FEEDBACK_TYPE_PRONUNCIATION_ERROR = 3;
+    FEEDBACK_TYPE_SPEED_TOO_FAST = 4;
+    FEEDBACK_TYPE_SPEED_TOO_SLOW = 5;
+}
+
+message FeedbackResponse {
+    bool success = 1;
+    string message = 2;
+}

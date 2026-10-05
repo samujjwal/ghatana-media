@@ -1,0 +1,69 @@
+# Audio-Video Common Tool Capabilities Descriptor
+# Top-level registry of all AV capabilities exposed as tools to the Action Plane catalog.
+# This file is used by AudioVideoToolHandlerFactory to enumerate available handlers
+# and by Action Plane catalog registration to discover all AV tool contracts.
+
+schemaVersion: "1.0"
+product: "audio-video"
+owner: "audio-video-team"
+description: >
+  Shared audio-video tool capability registry. Media remains the semantic owner
+  of artifact, upload, processing-job, stream, consent, and lifecycle state.
+  Data Cloud may expose governed Media metadata/read-model projections through
+  Action Plane tools and the Media Artifacts experience surface.
+
+surfaceMappings:
+  datacloud.media.artifacts: "media.artifacts"
+  av.speech-to-text: "audioVideo.stt"
+  av.text-to-speech: "audioVideo.tts"
+  av.vision-analysis: "audioVideo.vision"
+  av.multimodal-inference: "audioVideo.multimodal"
+
+capabilities:
+  - toolId: "av.speech-to-text"
+    descriptorPath: "capabilities/speech-to-text.yaml"
+    handlerClass: "com.ghatana.audio.video.tools.SpeechToTextToolHandler"
+    enabled: true
+    tags: [speech, stt, transcription]
+
+  - toolId: "av.text-to-speech"
+    descriptorPath: "capabilities/text-to-speech.yaml"
+    handlerClass: "com.ghatana.audio.video.tools.TextToSpeechToolHandler"
+    enabled: true
+    tags: [speech, tts, synthesis]
+
+  - toolId: "av.vision-analysis"
+    descriptorPath: "capabilities/vision-analysis.yaml"
+    handlerClass: "com.ghatana.audio.video.tools.VisionAnalysisToolHandler"
+    enabled: true
+    tags: [vision, ocr, object-detection]
+
+  - toolId: "av.multimodal-inference"
+    descriptorPath: "capabilities/multimodal-inference.yaml"
+    handlerClass: "com.ghatana.audio.video.tools.MultimodalInferenceToolHandler"
+    enabled: true
+    tags: [multimodal, fusion, video-understanding]
+
+  - toolId: "datacloud.media.artifacts"
+    dataCloudSurfaceId: "media.artifacts"
+    descriptorPath: "capabilities/datacloud-media-artifacts.yaml"
+    handlerClass: "com.ghatana.datacloud.api.controller.MediaArtifactController"
+    enabled: true
+    tags: [media, metadata, projection]
+    dataCloudRoutes:
+      - path: "/api/v1/media/artifacts"
+        methods: [POST, GET]
+        permissions: ["media:artifact:read", "media:artifact:create"]
+        description: "Expose Media-owned artifact metadata for projection and compatibility registration"
+      - path: "/api/v1/media/artifacts/{artifactId}"
+        methods: [GET, DELETE]
+        permissions: ["media:artifact:read", "media:artifact:delete"]
+        description: "Read Media-owned artifact metadata or route a compatibility deletion"
+      - path: "/api/v1/media/artifacts/{artifactId}/transcribe"
+        methods: [POST]
+        permissions: ["media:artifact:process"]
+        description: "Route a Media-owned transcription request through the integration boundary"
+      - path: "/api/v1/media/artifacts/{artifactId}/analyze"
+        methods: [POST]
+        permissions: ["media:artifact:process"]
+        description: "Route a Media-owned vision request through the integration boundary"

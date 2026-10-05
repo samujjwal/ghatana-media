@@ -1,0 +1,21 @@
+proto: ../../contracts/proto/vision.proto
+call: com.ghatana.audio.video.vision.VisionService/DetectObjects
+
+host: localhost:50054
+insecure: true
+
+concurrency: 20
+total: 500
+
+# Payload — raw JPEG bytes for a test image
+data-file: payloads/test-image-320x240.jpg
+binary: true
+
+metadata:
+  tenant-id: load-test-tenant
+  request-id: "{{.RequestNumber}}"
+
+timeout: 60s
+
+output: vision-results.json
+format: json

@@ -1,0 +1,288 @@
+schemaVersion: media.product-experience-authority-map.v1
+productId: media
+mode: authored-concept-ownership-map
+status: migration-boundary-accepted; full-Phase-0-and-later-phase-acceptance-pending
+artifactPathBase: .product-experience/
+externalOwnerPathBase: owner-repository-root-relative
+sourceRefs:
+  - master-plan:section-5.1
+  - master-plan:section-5.2
+  - product-truth:P0-001-boundary-slice
+  - decision:MDI-001
+authorityRules:
+  - id: AUTH-RULE-ONE-OWNER
+    rule: Each semantic concept has one editable owner; consumer records and projections do not become parallel authorities.
+  - id: AUTH-RULE-PHASE-BOUNDARY
+    rule: A later phase may project accepted upstream meaning but may not silently introduce or change it.
+  - id: AUTH-RULE-STATUS-SEPARATION
+    rule: Authored meaning does not imply implementation, license admission, qualification, runtime availability, or release readiness.
+  - id: AUTH-RULE-EXTERNAL-OWNER
+    rule: External owner contracts remain canonical; Media records public references, adapters, compatibility needs, and unresolved bindings.
+  - id: AUTH-RULE-ACCEPTANCE
+    rule: Only the P0-001 boundary slice is currently accepted; all other Phase 0 records are proposals pending owner review and P0-010.
+phaseAuthorities:
+  - phase: P0
+    name: Product Truth
+    owner: ghatana-media-product-owners
+    scope: product meaning, outcomes, actors, requirements, capabilities, domain/time/units, authority, states, quality, dependencies, and nonfunctional behavior
+    acceptance: P0-001-boundary-slice-only
+    artifacts:
+      - id: ART-P0-PRODUCT-TRUTH-BOUNDARY
+        path: phase-0-product-truth/PRODUCT-TRUTH.md
+        role: accepted-boundary-slice
+        authority: canonical-for-the-accepted-P0-001-boundary-scope-only
+        acceptanceState: accepted
+      - id: ART-P0-CONSTITUTION-REFERENCE
+        path: PRODUCT-CONSTITUTION.md
+        role: human-readable-reference
+        authority: points-to-structured-register-and-is-not-an-editable-requirement-source
+        acceptanceState: pending-P0-002-human-review
+      - id: ART-P0-CONSTITUTION
+        path: phase-0-product-truth/constitution.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-constitutional-requirements-are-accepted
+        acceptanceState: pending-human-review
+      - id: ART-P0-GLOSSARY
+        path: phase-0-product-truth/glossary.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-product-terms-are-accepted
+        acceptanceState: pending-human-review
+      - id: ART-P0-ACTORS
+        path: phase-0-product-truth/actors-responsibilities.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-actors-and-responsibilities-are-accepted
+        acceptanceState: pending-human-and-role-appointment-review
+      - id: ART-P0-GOALS
+        path: phase-0-product-truth/goals-jtbd.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-outcomes-and-intents-are-accepted
+        acceptanceState: pending-human-review
+      - id: ART-P0-REQUIREMENTS
+        path: phase-0-product-truth/requirements.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-requirements-are-accepted
+        acceptanceState: pending-P0-003-and-P0-010
+      - id: ART-P0-CAPABILITIES
+        path: phase-0-product-truth/capabilities.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-capability-leaves-are-accepted
+        acceptanceState: pending-P0-003-and-P0-010
+      - id: ART-P0-CAPABILITY-CROSSWALK
+        path: phase-0-product-truth/capability-preservation-crosswalk.yaml
+        role: reconciliation-evidence-input
+        authority: source-preservation-crosswalk-not-independent-capability-authority
+        acceptanceState: pending-P0-003-and-P0-010
+      - id: ART-P0-DOMAIN-MODEL
+        path: phase-0-product-truth/domain-model.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-domain-model-is-accepted
+        acceptanceState: pending-owner-review-and-P0-010
+      - id: ART-P0-TIME-UNITS-FIDELITY
+        path: phase-0-product-truth/time-units-fidelity.yaml
+        role: authored-proposal-with-source-observations
+        authority: proposed-conventions-and-observations-not-an-accepted-wire-schema
+        acceptanceState: pending-specialist-and-owner-review
+      - id: ART-P0-DOMAIN-CONTRACT-FIXTURES
+        path: ../conformance/domain-contracts/p0-004-golden-fixtures.yaml
+        role: proposed-domain-contract-fixture-specification
+        authority: specifies-proposed-time-coordinate-color-and-dimension-cases; not-runtime-evidence
+        acceptanceState: pending-graphics-audio-simulation-and-owner-review; execution-not-run
+      - id: ART-P0-STATE-MODELS
+        path: phase-0-product-truth/state-models.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-state-models-are-accepted
+        acceptanceState: pending-distributed-systems-and-owner-review
+      - id: ART-P0-STATE-TRANSITION-FIXTURES
+        path: ../conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+        role: proposed-conformance-fixture-specification
+        authority: specifies-proposed-interleavings-against-state-model-ids; not-runtime-evidence-or-an-independent-state-authority
+        acceptanceState: pending-distributed-systems-and-owner-review; execution-not-run
+      - id: ART-P0-ADVERSARIAL-POLICY-FIXTURES
+        path: ../conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+        role: proposed-adversarial-policy-fixture-specification
+        authority: specifies-policy-attack-cases-against-P0-006-proposals; not-runtime-evidence-or-a-security-qualification
+        acceptanceState: pending-security-privacy-rights-owner-review; execution-not-run
+      - id: ART-P0-POLICY-AUTHORITY
+        path: phase-0-product-truth/policy-authority-model.yaml
+        role: accepted-boundary-input-and-proposed-phase-0-policy
+        authority: P0-001-boundary-rules-accepted; full-P0-006-policy-not-accepted
+        acceptanceState: boundary-scope-only; full-policy-pending
+      - id: ART-P0-DEPENDENCY-CONTRACTS
+        path: phase-0-product-truth/dependency-contracts.yaml
+        role: accepted-boundary-input-and-proposed-capability-bindings
+        authority: owner-boundary-decisions-accepted-as-recorded; capability-level-public-bindings-pending
+        acceptanceState: mixed-boundary-accepted; full-P0-008-pending
+      - id: ART-P0-REUSE-DECISIONS
+        path: phase-0-product-truth/reuse-decisions.yaml
+        role: authored-owner-boundary-and-candidate-disposition-proposal
+        authority: decision-register-not-a-runtime-dependency-projection
+        acceptanceState: pending-publication-isolation-and-owner-review
+      - id: ART-P0-NFR
+        path: phase-0-product-truth/nonfunctional-requirements.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-nonfunctional-requirements-are-accepted
+        acceptanceState: pending-human-review
+      - id: ART-P0-PROFILE-SEMANTICS
+        path: phase-0-product-truth/profile-semantics.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-profile-semantics-are-accepted
+        acceptanceState: pending-quality-AI-ML-and-owner-review
+      - id: ART-P0-QUALITY-POLICY
+        path: phase-0-product-truth/quality-policy.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-quality-policy-is-accepted
+        acceptanceState: pending-quality-AI-ML-and-domain-owner-review
+      - id: ART-P0-QUALIFICATION-POLICY
+        path: phase-0-product-truth/qualification-policy.yaml
+        role: authored-proposal
+        authority: qualification-dimension-semantics-not-qualification-evidence
+        acceptanceState: pending-P0-003-and-P0-010
+      - id: ART-P0-CONTENT-INTENT
+        path: phase-0-product-truth/content-intent.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-content-intent-is-accepted
+        acceptanceState: pending-security-rights-and-P0-010-review
+      - id: ART-P0-INFORMATION-ARCHITECTURE
+        path: phase-0-product-truth/information-architecture.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-channel-information-architecture-is-accepted
+        acceptanceState: pending-UX-accessibility-SRE-and-P0-010-review
+      - id: ART-P0-APPLICATIONS-CHANNELS
+        path: phase-0-product-truth/applications-channels.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-channel-scope-is-accepted
+        acceptanceState: pending-UX-accessibility-SRE-and-P0-010-review
+      - id: ART-P0-JOURNEYS
+        path: phase-0-product-truth/journey-catalog.yaml
+        role: authored-proposal
+        authority: canonical-if-and-when-journey-contracts-are-accepted
+        acceptanceState: pending-UX-accessibility-SRE-and-P0-010-review
+      - id: ART-P0-HANDOFF-CONTRACTS
+        path: phase-0-product-truth/handoff-contracts.yaml
+        role: authored-proposal-handoff-boundary-register
+        authority: proposed-handoffs-and-owner-bindings-not-executable-client-contracts
+        acceptanceState: pending-external-owner-and-P0-010-review
+      - id: ART-P0-SCHEMA-BINDINGS
+        path: phase-0-product-truth/schema-bindings.yaml
+        role: external-schema-owner-binding-record
+        authority: records-observed-Tools-contract-scope-and-open-binding-gap
+        acceptanceState: owner-validation-pending
+      - id: ART-P0-ACCEPTANCE-INPUTS
+        path: acceptance.yaml
+        role: authored-acceptance-inputs-only
+        authority: human-review-inputs-not-generated-acceptance-results
+        acceptanceState: P0-001-only-accepted
+      - id: ART-P0-TRACEABILITY
+        path: traceability.yaml
+        role: authored-partial-relations
+        authority: partial-links-not-a-generated-closure-result
+        acceptanceState: independent-P0-010-review-pending
+      - id: ART-P0-CURRENTNESS
+        path: currentness.yaml
+        owner: ghatana-tools-product-definition-owner
+        authorityClass: owner-generated-coverage-and-currentness-observation
+        role: generated-observation
+        authority: generated-coverage-currentness-only; no-manual-readiness-claim
+        acceptanceState: not-created; owner-approved-Tools-generation-pending
+  - phase: P1
+    name: Design Language
+    owner: ghatana-media-design-owners
+    scope: visual, interaction, content, accessibility, responsive, and terminal grammar over accepted P0 meaning
+    acceptance: not-accepted; prerequisite-P0-010-pending
+    artifacts: []
+  - phase: P2
+    name: Complete Product Experience
+    owner: ghatana-media-product-and-UX-owners
+    scope: exact Web/CLI/API/embedded views, actions, content, journeys, scenarios, and product simulation semantics
+    acceptance: not-accepted; prerequisite-P1-pending
+    artifacts: []
+  - phase: P3
+    name: Experience Explorer
+    owner: ghatana-media-experience-explorer-owners
+    scope: deterministic projection of accepted P0-P2 definitions for exploration and verification
+    acceptance: not-accepted; prerequisite-P2-pending
+    artifacts: []
+governanceArtifacts:
+  owner: ghatana-media-product-owners
+  authorityClass: cross-phase-governance-records; these-records-do-not-accept-product-semantics
+  records:
+    - id: ART-GOV-README
+      title: Product experience authority guide
+      path: README.md
+      role: authored-authoring-guide
+      authority: navigation-and-authoring-rules-not-product-requirements
+      acceptanceState: maintained-governance-record; no-phase-acceptance-claimed
+    - id: ART-GOV-AUTHORITY-MAP
+      title: Product experience authority map
+      path: authority-map.yaml
+      role: authored-owner-and-role-index
+      authority: canonical-local-owner-and-artifact-role-index
+      acceptanceState: maintained-governance-record; phase-acceptance-is-explicit-per-artifact
+    - id: ART-GOV-DECISION-LOG
+      title: Product experience decision log
+      path: decision-log.md
+      role: authored-governance-decisions
+      authority: records-decision-provenance-and-open-governance-choices
+      acceptanceState: maintained-governance-record; no-phase-acceptance-claimed
+    - id: ART-GOV-GAPS
+      title: Canonical cross-phase gap register
+      path: gaps.yaml
+      role: authored-single-editable-gap-register
+      authority: canonical-local-gap-register
+      acceptanceState: maintained-governance-record; no-phase-acceptance-claimed
+    - id: ART-GOV-SOURCE-MANIFEST
+      title: Migration snapshot and product artifact manifest
+      path: source-manifest.yaml
+      role: authored-migration-snapshot-and-artifact-index
+      authority: migration-observations-and-artifact-index; not-a-semantic-acceptance-result
+      acceptanceState: P0-001-boundary-slice-only; all-other-phase-acceptance-pending
+externalAuthorities:
+  - id: EXT-SHARED
+    owner: samujjwal/ghatana-shared
+    owns: [identity-and-security-contracts, audit-and-observability-primitives, workflow-and-messaging-primitives, governed-document-contracts, document-extraction-contracts, design-system-primitives]
+    MediaRule: Consume through accepted public contracts; do not copy generic owner semantics or implementations.
+  - id: EXT-GHATANA-DOCUMENT-INTELLIGENCE
+    owner: samujjwal/ghatana
+    path: services/document-intelligence
+    owns: [generic-OCR-and-parser-runtime, generic-document-extraction-execution, document-provider-qualification]
+    MediaRule: Media owns only media-specific temporal/scene-text semantics and may consume the service public API through a bounded adapter.
+  - id: EXT-GHATANA-AI-INFERENCE
+    owner: samujjwal/ghatana
+    path: services/ai-inference
+    owns: [generic-model-provider-routing, model-governance, credentials, quota, and failover]
+    MediaRule: Use its public boundary; do not create a parallel generic inference router.
+  - id: EXT-GHATANA-DATA-CLOUD
+    owner: samujjwal/ghatana
+    path: services/data-cloud
+    owns: [governed-enterprise-metadata-and-read-model-consumer-experience]
+    MediaRule: Data Cloud is a consumer and does not own Media artifact, job, or stream lifecycle semantics.
+  - id: EXT-TOOLS
+    owner: samujjwal/ghatana-tools
+    owns: [generic-product-development-schemas-validators-and-experience-definition-mechanics]
+    MediaRule: Bind to published owner contracts; current Phase 0-3 schema/validator acceptance binding remains open under GAP-MEDIA-TOOLS-SCHEMA-BINDING.
+  - id: EXT-KERNEL
+    owner: samujjwal/ghatana-kernel
+    owns: [generic-product-lifecycle-and-integration-contracts]
+    MediaRule: Consume only deliberately adopted public contracts.
+  - id: EXT-GHATANA-PRODUCTS
+    owner: samujjwal/ghatana-products
+    owns: [product-portfolio-and-extraction-registry]
+    MediaRule: Registry owner only; not a Media runtime or source dependency.
+  - id: EXT-TUTORPUTOR
+    owner: samujjwal/ghatana-products/products/tutorputor
+    owns: [learning-domain-models-pedagogy-and-learning-evidence]
+    MediaRule: Reuse or extract only through an owner-approved boundary; retain TutorPutor domain semantics there.
+  - id: EXT-DIGITAL-MARKETING
+    owner: samujjwal/ghatana-products/products/digital-marketing
+    owns: [campaign-brand-claim-and-marketing-approval-semantics]
+    MediaRule: Consume an approved public boundary if available; source observation alone does not bind a callable API.
+generatedObservations:
+  currentness:
+    path: currentness.yaml
+    status: not-created
+    authority: generated-only; no manual readiness/currentness claim
+    blockerRefs: [GAP-MEDIA-TOOLS-SCHEMA-BINDING, GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION]
+  acceptanceResults:
+    authority: generated-by-owner-accepted-validation-workflow
+    status: no-generator-bound
+    rule: This map records ownership and inputs, not computed phase closure.

@@ -1,0 +1,49 @@
+schemaVersion: media.source-observations.v1
+productId: media
+sourceRevision: 5ad98eaa57f7ebd43fa771c848f826636b4c81c6
+sourceWorkingTree:
+  overall: has-unrelated-uncommitted-changes
+  servicesMediaSubtree: clean-at-inventory-observation
+observations:
+  - id: SOURCE-GHATANA-MEDIA
+    repository: samujjwal/ghatana
+    path: services/media
+    role: current-canonical-runtime-service
+    evidenceClass: tracked-source-and-owner-documents
+    trackedFileCount: 2126
+    fingerprint: per-file-git-blob-ids-recorded-in-migration/source-inventory.yaml
+  - id: SOURCE-GHATANA-MEDIA-LEGACY-DESKTOP
+    repository: samujjwal/ghatana
+    path: archive/media-desktop-apps
+    role: archived-legacy-ui-and-desktop-source
+    evidenceClass: tracked-archive-material
+    trackedFileCount: 179
+  - id: SOURCE-DOCUMENT-INTELLIGENCE
+    repository: samujjwal/ghatana
+    path: services/media/modules/intelligence/document-intelligence-worker
+    targetPath: services/document-intelligence
+    role: reusable-platform-worker-rehomed-by-user-decision-MDI-001
+    evidenceClass: tracked-runtime-client-contract-fixture-and-qualification-material
+    disposition: behavior-preserving-platform-service-transfer
+  - id: SOURCE-MEDIA-ROOT-TOOLING
+    repository: samujjwal/ghatana
+    path: scripts media-specific evidence definitions CI monitoring and registries
+    role: mixed-product-authority-and-consumer-material
+    evidenceClass: tracked-owner-source-and-generated-projections
+    disposition: file-by-file-as-listed-in-migration/source-inventory.yaml
+  - id: SOURCE-DATA-CLOUD-CONSUMER
+    repository: samujjwal/ghatana
+    path: services/data-cloud Media API/read-model/UI paths
+    role: retained-data-cloud-consumer-and-read-model
+    evidenceClass: tracked-consumer-source
+    disposition: retain-under-data-cloud-owner-and-rebind-public-contracts
+  - id: SOURCE-T2V-BENCH
+    repository: unversioned-local-directory
+    path: /home/samujjwal/Developments/t2v-bench
+    role: external-untracked-benchmark-working-directory
+    evidenceClass: local-unversioned-scripts-and-generated-output
+    disposition: not-imported-into-repository-without-owner-provenance
+    locatedScripts:
+      - scripts/run_t2v_bench.py
+      - scripts/run_best_path.sh
+    limitation: scripts-exist-locally-but-are-not-from-a-tracked-expected-repository

@@ -1,0 +1,23 @@
+[workspace]
+members = [
+    "modules/intelligence/speech/libs/speech-audio-rust",
+]
+resolver = "2"
+
+[workspace.dependencies]
+# Common dependencies for the workspace
+serde = { version = "1.0.229", features = ["derive"] }
+tokio = { version = "1.53.1", features = ["full"] }
+hound = "3.5.1"
+thiserror = "2.0.19"
+
+# NOTE: symphonia 0.6.0 is a breaking rewrite of the core audio primitives
+# (AudioBufferRef/SampleBuffer/probe/decoder-creation APIs all changed; see
+# https://github.com/pdeljanov/Symphonia/blob/main/docs/guides/migration/0p6.md).
+# Deferred pending a dedicated migration of speech-audio-rust/src/lib.rs.
+symphonia = { version = "0.5.4", features = ["aac", "flac", "isomp4", "mp3", "ogg", "pcm", "vorbis", "wav"] }
+tempfile = "3.27.0"
+
+[profile.release]
+opt-level = 3
+lto = true

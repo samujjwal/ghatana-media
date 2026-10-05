@@ -1,0 +1,98 @@
+groups:
+  - name: media-availability
+    interval: 30s
+    rules:
+      - alert: MediaServiceDown
+        expr: |
+          up{job="media-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: audio-video
+          product: audio-video
+          service: media
+        annotations:
+          summary: "Media service is unreachable"
+          description: "Prometheus cannot scrape the Media service pod {{ $labels.instance }}."
+          runbook_url: "https://wiki.ghatana.io/runbooks/media-service-down"
+
+      - alert: MediaHighErrorRate
+        expr: |
+          (
+            rate(http_server_requests_seconds_count{job="media-service", status=~"5.."}[5m])
+            /
+            rate(http_server_requests_seconds_count{job="media-service"}[5m])
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          team: audio-video
+          product: audio-video
+          service: media
+        annotations:
+          summary: "Media HTTP error rate > 5%"
+          description: "Media {{ $labels.instance }} has a 5xx error rate of {{ $value | humanizePercentage }}."
+
+      - alert: MediaHighLatency
+        expr: |
+          histogram_quantile(0.99,
+            rate(http_server_requests_seconds_bucket{job="media-service"}[5m])
+          ) > 5.0
+        for: 5m
+        labels:
+          severity: warning
+          team: audio-video
+          product: audio-video
+          service: media
+        annotations:
+          summary: "Media p99 latency > 5s"
+          description: "Media {{ $labels.instance }} has a p99 latency of {{ $value }}s."
+
+      - alert: MediaJvmHeapHigh
+        expr: |
+          jvm_memory_used_bytes{job="media-service", area="heap"} / jvm_memory_max_bytes{job="media-service", area="heap"} > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          team: audio-video
+          product: audio-video
+          service: media
+        annotations:
+          summary: "Media JVM heap usage > 85%"
+          description: "Media {{ $labels.instance }} JVM heap usage is at {{ $value | humanizePercentage }} of max."
+
+  - name: media-slos
+    interval: 30s
+    rules:
+      - alert: MediaSLOAvailabilityBreach
+        expr: |
+          (
+            1 - (rate(http_server_requests_seconds_count{job="media-service", status=~"5.."}[30m])
+                 / rate(http_server_requests_seconds_count{job="media-service"}[30m]))
+          ) < 0.999
+        for: 5m
+        labels:
+          severity: critical
+          team: audio-video
+          product: audio-video
+          service: media
+          slo: media-availability
+        annotations:
+          summary: "Media SLO availability breach"
+          description: "Media availability is below 99.9% SLO target."
+
+      - alert: MediaSLOLatencyBreach
+        expr: |
+          histogram_quantile(0.99,
+            rate(http_server_requests_seconds_bucket{job="media-service"}[30m])
+          ) > 3.0
+        for: 10m
+        labels:
+          severity: warning
+          team: audio-video
+          product: audio-video
+          service: media
+          slo: media-latency
+        annotations:
+          summary: "Media SLO latency breach"
+          description: "Media p99 latency is above 3s SLO target."

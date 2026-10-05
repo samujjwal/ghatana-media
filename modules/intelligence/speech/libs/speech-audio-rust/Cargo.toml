@@ -1,0 +1,13 @@
+[package]
+name = "speech-audio-rust"
+version = "0.1.0"
+edition = "2021"
+description = "Shared audio primitives and file utilities for Ghatana speech products"
+
+[dependencies]
+hound = { workspace = true }
+thiserror = { workspace = true }
+symphonia = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

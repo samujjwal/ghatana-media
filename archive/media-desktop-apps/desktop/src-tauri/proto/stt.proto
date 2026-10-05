@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package stt;
+
+service STTService {
+    rpc Transcribe(TranscribeRequest) returns (TranscribeResponse);
+    rpc StreamTranscribe(stream AudioChunk) returns (stream Transcription);
+    rpc GetStatus(StatusRequest) returns (StatusResponse);
+    rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message TranscribeRequest {
+    bytes audio_data = 1;
+    string language = 2;
+    string profile_id = 3;
+}
+
+message TranscribeResponse {
+    string text = 1;
+    float confidence = 2;
+    int64 processing_time_ms = 3;
+    repeated WordTiming word_timings = 4;
+}
+
+message WordTiming {
+    string word = 1;
+    float start_time = 2;
+    float end_time = 3;
+    float confidence = 4;
+}
+
+message AudioChunk {
+    bytes audio_data = 1;
+    int32 sample_rate = 2;
+    bool is_final = 3;
+}
+
+message Transcription {
+    string text = 1;
+    bool is_final = 2;
+    float confidence = 3;
+    int64 timestamp_ms = 4;
+}
+
+message StatusRequest {}
+
+message StatusResponse {
+    string state = 1;
+    string active_model = 2;
+    int32 active_sessions = 3;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+    bool healthy = 1;
+    string version = 2;
+}

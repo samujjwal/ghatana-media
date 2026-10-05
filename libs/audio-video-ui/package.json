@@ -1,0 +1,64 @@
+{
+  "name": "@audio-video/ui",
+  "version": "0.0.1",
+  "description": "Accessible media-specific React hooks and UI composition over the canonical Ghatana design system",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
+      "import": "./dist/hooks/index.js"
+    }
+  },
+  "peerDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@ghatana/design-system": "0.1.2",
+    "@ghatana/theme": "0.1.2",
+    "@ghatana/tokens": "0.1.2"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samujjwal/ghatana-media.git",
+    "directory": "libs/audio-video-ui"
+  },
+  "keywords": [
+    "react",
+    "accessibility",
+    "speech",
+    "audio",
+    "video",
+    "ghatana"
+  ],
+  "author": "Ghatana Team",
+  "license": "MIT"
+}

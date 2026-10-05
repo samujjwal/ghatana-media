@@ -1,0 +1,196 @@
+name: Audio-Video CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '**'
+      - '.gitea/workflows/audio-video-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - '**'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_STT: ghcr.io/ghatana/audio-video/stt-service
+  IMAGE_TTS: ghcr.io/ghatana/audio-video/tts-service
+  IMAGE_VISION: ghcr.io/ghatana/audio-video/vision-service
+  IMAGE_MULTIMODAL: ghcr.io/ghatana/audio-video/multimodal-service
+  IMAGE_AI_VOICE: ghcr.io/ghatana/audio-video/ai-voice
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # 1. Java build + test
+  # ─────────────────────────────────────────────────────────────────────────
+  build-java:
+    name: Java Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: temurin
+          cache: gradle
+
+      - name: Build all audio-video Java modules
+        run: |
+          ./gradlew \
+            :products:audio-video:libs:common:compileJava \
+            :products:audio-video:modules:speech:stt-service:build \
+            :products:audio-video:modules:speech:tts-service:build \
+            :products:audio-video:modules:vision:vision-service:build \
+            :products:audio-video:modules:intelligence:multimodal-service:build \
+            --no-daemon \
+            -x checkstyleMain \
+            -x pmdMain 2>&1
+
+      - name: Run tests
+        run: |
+          ./gradlew \
+            :products:audio-video:modules:speech:stt-service:test \
+            :products:audio-video:modules:speech:tts-service:test \
+            :products:audio-video:modules:vision:vision-service:test \
+            :products:audio-video:modules:intelligence:multimodal-service:test \
+            --no-daemon 2>&1
+
+      - name: Static analysis
+        run: |
+          ./gradlew \
+            :products:audio-video:libs:common:checkstyleMain \
+            --no-daemon 2>&1
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 2. Python lint (AI Voice)
+  # ─────────────────────────────────────────────────────────────────────────
+  lint-python:
+    name: Python Lint (AI Voice)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Lint
+        run: |
+          flake8 modules/intelligence/ai-voice/ \
+            --max-line-length=120 --ignore=E501,W503
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 3. Build Docker images (push only on main/develop)
+  # ─────────────────────────────────────────────────────────────────────────
+  build-images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [build-java, lint-python]
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ gitea.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Define image tag
+        id: tag
+        run: echo "tag=sha-${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Build & push STT
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.stt-service
+          push: true
+          tags: |
+            ${{ env.IMAGE_STT }}:${{ steps.tag.outputs.tag }}
+            ${{ env.IMAGE_STT }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push TTS
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.tts-service
+          push: true
+          tags: |
+            ${{ env.IMAGE_TTS }}:${{ steps.tag.outputs.tag }}
+            ${{ env.IMAGE_TTS }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push Vision
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.vision-service
+          push: true
+          tags: |
+            ${{ env.IMAGE_VISION }}:${{ steps.tag.outputs.tag }}
+            ${{ env.IMAGE_VISION }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push Multimodal
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.multimodal-service
+          push: true
+          tags: |
+            ${{ env.IMAGE_MULTIMODAL }}:${{ steps.tag.outputs.tag }}
+            ${{ env.IMAGE_MULTIMODAL }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push AI Voice (Python)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.ai-voice
+          push: true
+          tags: |
+            ${{ env.IMAGE_AI_VOICE }}:${{ steps.tag.outputs.tag }}
+            ${{ env.IMAGE_AI_VOICE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 4. Trivy security scan (STT as representative image)
+  # ─────────────────────────────────────────────────────────────────────────
+  security-scan:
+    name: Security Scan (Trivy)
+    runs-on: ubuntu-latest
+    needs: [build-images]
+    steps:
+      - name: Scan STT image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_STT }}:sha-${{ github.sha }}
+          format: sarif
+          output: trivy-stt.sarif
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+
+      - name: Upload scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-results
+          path: trivy-stt.sarif

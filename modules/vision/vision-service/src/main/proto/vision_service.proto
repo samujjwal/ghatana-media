@@ -1,0 +1,207 @@
+syntax = "proto3";
+
+package com.ghatana.audio.video.vision.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.ghatana.audio.video.vision.grpc.proto";
+option java_outer_classname = "VisionServiceProto";
+
+service VisionService {
+  // Detect objects in an image
+  rpc DetectObjects(DetectRequest) returns (DetectResponse);
+  
+  // Analyze image content
+  rpc AnalyzeImage(AnalyzeRequest) returns (AnalyzeResponse);
+
+  // Classify image into categories (top-K labels + confidence)
+  rpc ClassifyImage(ClassifyRequest) returns (ClassifyResponse);
+
+  // Analyze a complete video file (FFmpeg frame extraction + YOLOv8 detection)
+  rpc AnalyzeVideoFile(VideoFileRequest) returns (VideoFileResponse);
+  
+  // Process video frames as a bidirectional stream
+  rpc ProcessVideo(stream VideoFrameRequest) returns (stream VideoFrameResponse);
+
+  // Load a vision model
+  rpc LoadModel(LoadModelRequest) returns (LoadModelResponse);
+
+  // Unload a vision model
+  rpc UnloadModel(UnloadModelRequest) returns (UnloadModelResponse);
+
+  // List available vision models
+  rpc ListModels(ListModelsRequest) returns (ListModelsResponse);
+
+  // Get service status
+  rpc GetStatus(StatusRequest) returns (StatusResponse);
+  
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message DetectRequest {
+  bytes image_data = 1;
+  repeated string target_classes = 2;
+  int32 max_detections = 3;
+  double confidence_threshold = 4;
+  
+  // Data Cloud integration metadata
+  string tenant_id = 5;
+  string artifact_id = 6;
+  string job_id = 7;
+  string correlation_id = 8;
+  string consent_status = 9;
+  string retention_policy = 10;
+}
+
+message DetectResponse {
+  repeated Detection detections = 1;
+  int64 processing_time_ms = 2;
+}
+
+message Detection {
+  string class_name = 1;
+  double confidence = 2;
+  BoundingBox bounding_box = 3;
+  map<string, string> attributes = 4;
+}
+
+message BoundingBox {
+  double x = 1;
+  double y = 2;
+  double width = 3;
+  double height = 4;
+}
+
+message AnalyzeRequest {
+  bytes image_data = 1;
+  repeated string analysis_types = 2; // e.g., "scene", "text", "faces"
+}
+
+message AnalyzeResponse {
+  string scene_description = 1;
+  repeated string detected_text = 2;
+  repeated FaceDetection faces = 3;
+  map<string, string> metadata = 4;
+}
+
+message FaceDetection {
+  BoundingBox bounding_box = 1;
+  double confidence = 2;
+  map<string, string> attributes = 3; // age, gender, emotion, etc.
+}
+
+// ── ClassifyImage ──────────────────────────────────────────────────────────
+
+message ClassifyRequest {
+  bytes image_data = 1;
+  int32 top_k = 2;              // Number of top labels to return (default: 5)
+  double confidence_threshold = 3; // Minimum confidence for inclusion
+}
+
+message ClassifyResponse {
+  repeated ClassLabel labels = 1;
+  int64 processing_time_ms = 2;
+  string model_used = 3;
+}
+
+message ClassLabel {
+  string label = 1;
+  double confidence = 2;
+  int32 rank = 3;
+}
+
+// ── Model Management ───────────────────────────────────────────────────────
+
+message LoadModelRequest {
+  string model_id = 1;
+  bool use_gpu = 2;
+}
+
+message LoadModelResponse {
+  bool success = 1;
+  string message = 2;
+  string model_id = 3;
+  int64 load_time_ms = 4;
+  int64 memory_usage_bytes = 5;
+}
+
+message UnloadModelRequest {
+  string model_id = 1;
+}
+
+message UnloadModelResponse {
+  bool success = 1;
+  string message = 2;
+  int64 memory_freed_bytes = 3;
+}
+
+message ListModelsRequest {
+  bool include_loaded_only = 1;
+}
+
+message VisionModelInfo {
+  string model_id = 1;
+  string name = 2;
+  string version = 3;
+  bool is_loaded = 4;
+  int64 size_bytes = 5;
+  repeated string supported_tasks = 6; // "detection", "classification", "segmentation"
+}
+
+message ListModelsResponse {
+  repeated VisionModelInfo models = 1;
+  int32 total_count = 2;
+  int32 loaded_count = 3;
+}
+
+message VideoFrameRequest {
+  bytes frame_data = 1;
+  int64 timestamp_ms = 2;
+  int32 frame_number = 3;
+}
+
+message VideoFrameResponse {
+  repeated Detection detections = 1;
+  int64 timestamp_ms = 2;
+  int32 frame_number = 3;
+}
+
+message StatusRequest {}
+
+message StatusResponse {
+  string status = 1;
+  string model_name = 2;
+  int64 total_requests = 3;
+  double avg_processing_time_ms = 4;
+  string degraded_reason = 5;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string message = 2;
+}
+
+message VideoFileRequest {
+  bytes video_data = 1;
+  int32 sample_fps = 2;           // Frames per second to sample (default: 1)
+  int32 max_frames = 3;           // Maximum frames to analyze (default: 50)
+  double confidence_threshold = 4;
+  repeated string target_classes = 5;
+}
+
+message VideoFrameDetections {
+  int64 timestamp_ms = 1;
+  int32 frame_number = 2;
+  repeated Detection detections = 3;
+}
+
+message VideoFileResponse {
+  repeated VideoFrameDetections frame_results = 1;
+  int32 total_frames_analyzed = 2;
+  int64 processing_time_ms = 3;
+  int64 video_duration_ms = 4;
+  map<string, int64> object_counts = 5;  // Aggregated counts across all frames
+  string summary = 6;
+}

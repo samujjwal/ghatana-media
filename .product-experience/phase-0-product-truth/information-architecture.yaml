@@ -1,0 +1,188 @@
+artifactVersion: media.phase-0.information-architecture.v1
+phaseTask: P0-009
+status:
+  maturity: proposed-for-phase-0-review
+  acceptance: not-submitted
+  productAdmission: pending
+  implementationAndRuntimeAvailability: not-evaluated-by-this-artifact
+dependencies:
+  p0-001:
+    status: accepted-boundary-slice
+    authority: PRODUCT-TRUTH.md
+  p0-002:
+    status: proposed-records-awaiting-review
+    artifacts: [actors-responsibilities.yaml, goals-jtbd.yaml]
+  p0-003:
+    status: pending
+    reason: Capability and requirement leaf inventory determines complete view/journey denominators.
+  p0-007:
+    status: pending
+    reason: Quality/profile axes and bounded fallback determine decision surfaces and safe defaults.
+  nonfunctionalRequirements:
+    status: authored-proposal-pending-p0-010-integration-and-independent-acceptance
+    artifact: nonfunctional-requirements.yaml
+    note: This P0-009 companion artifact is authored by the root owner and is not edited here.
+
+sourceReferences:
+  - document: docs/migration/expert-reviewed-master-plan.md
+    sections: [14.1, 14.2, 14.3, 14.4, 14.5, 20.2, 20.3]
+  - artifact: actors-responsibilities.yaml
+  - artifact: goals-jtbd.yaml
+  - artifact: migration/consumer-inventory.yaml
+  - artifact: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+
+informationArchitecture:
+  purpose: >-
+    A small, intent-first Media shell gives users direct access to projects,
+    assets, activity, and the next useful task. Advanced capabilities remain
+    discoverable through intent launchers, recipes, search, and expert
+    inspection; the shell does not require a user to choose a model, engine,
+    provider, or queue.
+  proposedGlobalNavigation:
+    - id: home
+      label: Home
+      viewRef: M-HOME
+      purpose: Resume useful work, start an intent, or explain first-use requirements.
+    - id: projects
+      label: Projects
+      viewRef: M-PROJECTS
+      purpose: Search, filter, create, and open versioned projects.
+    - id: assets
+      label: Assets
+      viewRef: M-ASSETS
+      purpose: Import, inspect, search, and reuse governed artifact versions.
+    - id: activity
+      label: Activity
+      viewRef: M-ACTIVITY
+      purpose: Show jobs, notifications, and user actions requiring attention; not an infrastructure dashboard.
+  proposedUtilities:
+    - { id: settings, viewRef: M-SETTINGS, purpose: "User/workspace policies, accessibility preferences, and integration scope." }
+    - { id: account-and-help, viewRefs: [M-AUTH, M-HELP], purpose: "Identity/context selection, re-authentication, and contextual help." }
+  intentLaunchers:
+    treatment: Contextual launchers on Home, Project, and relevant asset views; not permanent top-level workspaces.
+    intents:
+      - { id: create, label: Create, goalRefs: [media.goal.finished-asset], journeyRefs: [J-01, J-09] }
+      - { id: improve, label: Improve, goalRefs: [media.goal.improve-with-disclosure, media.goal.preserve-source], journeyRefs: [J-07, J-08, J-19] }
+      - { id: edit, label: Edit, goalRefs: [media.goal.finished-asset, media.goal.preserve-source], journeyRefs: [J-11, J-18] }
+      - { id: animate, label: Animate, goalRefs: [media.goal.finished-asset, media.goal.explain-or-demonstrate], journeyRefs: [J-12, J-13] }
+      - { id: simulate, label: Simulate, goalRefs: [media.goal.explain-or-demonstrate], journeyRefs: [J-14, J-15] }
+      - { id: understand, label: Understand, goalRefs: [media.goal.understand-media], journeyRefs: [J-02, J-03, J-05, J-06] }
+      - { id: deliver, label: Deliver, goalRefs: [media.goal.deliver-approved-output], journeyRefs: [J-21, J-22] }
+    rule: Conversational intent is optional; every intent resolves to inspectable typed actions/plans and an equivalent accessible route where admitted.
+  projectContext:
+    proposedCoreViews:
+      - M-PROJECT
+      - M-STORYBOARD
+      - M-EDIT
+      - M-AUDIO
+      - M-CAPTIONS
+      - M-OUTPUTS
+    contextualPanels:
+      - id: Versions
+        onViews: [M-PROJECT, M-OUTPUTS]
+        status: contextual-panel-not-a-new-global-destination
+    contextualViews:
+      - M-PLAN
+      - M-IMAGE
+      - M-VIDEO
+      - M-SPEECH
+      - M-VOICE
+      - M-DUB
+      - M-ENHANCE
+      - M-COMPARE
+      - M-MASK
+      - M-ANIMATION
+      - M-SCENE
+      - M-SIMULATION
+      - M-COMPOSER
+      - M-COLOR
+      - M-QUALITY
+      - M-RENDER
+      - M-JOB
+      - M-OUTPUT
+      - M-DELIVERY
+      - M-REVIEW
+      - M-RIGHTS
+      - M-PROVENANCE
+    expertOrOperatorOnlyViews: [M-PROFILES, M-PROVIDERS, M-OPERATIONS]
+    inventoryAuthority:
+      document: docs/migration/expert-reviewed-master-plan.md
+      section: '20.2 Initial screen/view inventory'
+    routeStatus: >-
+      Master-plan routes and view IDs are proposed product definitions, not
+      proof of a deployed Web application or admitted route contract.
+  disclosureLevels:
+    sharedSemanticModel: true
+    levels:
+      - id: simple
+        purpose: Express the intended result with safe, policy-compatible defaults.
+        shows: [intent, essential-source-choice, material-tradeoffs, current-state, safe-next-action]
+      - id: guided
+        purpose: Make contextual choices with explanation.
+        shows: [quality, style, duration, references, output, privacy, applicable-cost]
+      - id: expert
+        purpose: Inspect typed technical controls when the user needs them.
+        shows: [typed-graph, curves, solver-limits, generation-controls, color, audio, encoding]
+    switching: >-
+      Changing disclosure level preserves edits, action semantics, authority,
+      context, and pending state. It does not create a second workflow or
+      silently change quality, privacy, or finality.
+  viewInformationContract:
+    requiredQuestions: [Context, Goal, Now, Next]
+    everyViewMustDefine:
+      - actor, intent, purpose, entry and exit
+      - information hierarchy, data and formatting, primary/secondary/dangerous actions
+      - loading, empty, partial, stale, offline, permission, policy, conflict, unknown-finality, and degraded states
+      - validation, success/failure/recovery, preserved context, and next safe action
+      - responsive, keyboard, semantic, reduced-motion, localization, and channel dispositions
+    detailedViewContracts: Deferred to Phase 2 screen contracts; M-IDs above are references to §20.2.
+
+firstUseAndRecovery:
+  firstUse:
+    status: proposed-not-implemented-or-qualified
+    path: [M-AUTH, M-HOME, M-PROJECTS, M-PROJECT, M-CREATE, M-UPLOAD]
+    behavior:
+      - Authenticate and choose an authorized workspace/context before protected project or asset access.
+      - Show a useful, genuinely empty Home state with Create, Import, and a clearly labeled synthetic example only if an admitted fixture exists.
+      - Explain the minimum missing identity, permission, rights, policy, or capability prerequisite before consequential work.
+      - Do not require provider/model/engine/queue selection and do not show fabricated completed work.
+    criticalNonhappyPaths: [identity-denied, tenant-context-missing, capability-unavailable, rights-or-policy-blocked]
+  emptyStates:
+    status: proposed-not-implemented-or-qualified
+    sharedRule: Name what is empty, the reason, and one safe next action; never use placeholder content that looks like production output.
+    cases:
+      - { viewRef: M-HOME, condition: no-projects, nextActions: [create-project, import-existing-media, view-labeled-synthetic-example-if-admitted] }
+      - { viewRef: M-PROJECTS, condition: no-search-results, nextActions: [clear-filters, revise-search, create-project] }
+      - { viewRef: M-ASSETS, condition: no-accessible-assets, nextActions: [import-if-authorized, request-access, explain-retention-or-policy-block] }
+      - { viewRef: M-ACTIVITY, condition: no-active-or-actionable-work, nextActions: [resume-project, start-intent] }
+      - { viewRef: M-OUTPUTS, condition: no-registered-output, nextActions: [inspect-plan, submit-if-authorized, explain-no-output-yet] }
+  offline:
+    status: proposed-not-implemented-or-qualified
+    behavior:
+      - Preserve local edits and source references only where an admitted offline mode and policy permit; show saved, pending, conflict, and sync state separately.
+      - Mark remote jobs as detached from the view; closing the browser or CLI does not claim cancellation.
+      - Do not silently route private/local work to a remote provider. Do not retry an uncertain effect after reconnect without first reconciling it.
+      - Disable or explain remote-only actions when no eligible local capability or cached authorized input exists.
+    returnPath: On reconnect, reauthenticate if needed, reconcile pending revisions/jobs, then resume the same project and safe next action.
+  aiUnavailable:
+    status: proposed-not-implemented-or-qualified
+    behavior:
+      - Explain the unavailable capability and whether the plan/inputs remain saved.
+      - Offer an explicit non-AI alternative only when it is already admitted and semantically suitable; disclose any quality/fidelity difference and request the user's choice where material.
+      - Otherwise preserve work and allow edit, export of an allowed plan, or bounded status retry; do not fabricate provider success or silently substitute a model.
+    prohibited: [silent-quality-downgrade, invented-success, hidden-egress, blind-resubmission]
+  otherCriticalStates:
+    - { state: permission-denied, rule: Explain the missing authority without leaking protected artifact details; provide an authorized request/help path. }
+    - { state: stale-or-conflicted-edit, rule: Preserve both revisions and require explicit conflict resolution before consequential work. }
+    - { state: provider-outcome-unknown, rule: Preserve completed work, state uncertainty, reconcile before retry, and distinguish stop-watching from cancel. }
+    - { state: rights-or-consent-changed, rule: Revalidate before dispatch/access/effect and block or revise the plan as policy directs. }
+
+accessibilityDisposition:
+  status: required-by-master-plan; not-qualified
+  target: WCAG-2.2-AA-for-supported-Web-processes-as-a-proposed-target; output accessibility is assessed separately.
+  requiredDesignCoverage:
+    - Semantic DOM or structured alternatives for canvas, timeline, waveform, graph, and simulation controls.
+    - Keyboard selection/trim/reorder and non-drag alternatives; predictable focus and programmatic status/errors.
+    - Captions/transcripts, visible audio controls, reduced motion, forced colors, zoom/text spacing/reflow, and touch-target review.
+    - Generated captions, descriptions, and translations are drafts until reviewed; never imply their correctness from generation alone.
+  verification: Human usability and accessibility acceptance review remains pending; importing Shared components is not proof of conformance.

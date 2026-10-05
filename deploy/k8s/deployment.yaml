@@ -1,0 +1,175 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: media
+  labels:
+    ghatana.io/runtime: "true"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: media
+  namespace: media
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: media-config
+  namespace: media
+data:
+  MEDIA_RUNTIME_ENABLED: "true"
+  MEDIA_RUNTIME_ENVIRONMENT: "production"
+  MEDIA_HTTP_PORT: "8095"
+  MEDIA_LOCAL_STORES_ENABLED: "false"
+  MEDIA_LOCAL_PROVIDER_ENABLED: "false"
+  MEDIA_ARTIFACT_STORE_ID: "s3-postgresql"
+  MEDIA_JOB_STORE_ID: "postgresql"
+  MEDIA_STREAM_STORE_ID: "postgresql"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media
+  namespace: media
+  labels:
+    app.kubernetes.io/name: media
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/part-of: ghatana
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: media
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: media
+        ghatana.io/runtime: "true"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8095"
+    spec:
+      serviceAccountName: media
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 120
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1007
+        runAsGroup: 1007
+        fsGroup: 1007
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: media
+          image: ghatana/media:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8095
+          envFrom:
+            - configMapRef:
+                name: media-config
+            - secretRef:
+                name: media-runtime-secret
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 5
+          startupProbe:
+            httpGet:
+              path: /health/startup
+              port: http
+            periodSeconds: 5
+            failureThreshold: 24
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "4000m"
+              memory: "4Gi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: media
+  namespace: media
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: media
+  ports:
+    - name: http
+      port: 8095
+      targetPort: http
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: media
+  namespace: media
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: media
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: media-runtime-default-deny
+  namespace: media
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: media
+  policyTypes: ["Ingress", "Egress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              ghatana.io/runtime: "true"
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: 8095
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              ghatana.io/runtime: "true"
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

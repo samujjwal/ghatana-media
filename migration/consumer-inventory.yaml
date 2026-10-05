@@ -1,0 +1,345 @@
+schemaVersion: media.migration-consumer-inventory.v1
+productId: media
+capturedDate: "2026-10-04"
+purpose: >-
+  Record observed reverse consumers and compatibility surfaces before relocating
+  Media source. This is evidence from a bounded local checkout scan, not proof
+  that all consumers or deployments have been discovered.
+sourceAuthority:
+  repository: samujjwal/ghatana
+  path: services/media
+  remainsCanonicalUntilCutover: true
+targetRepository: samujjwal/ghatana-media
+scan:
+  method: >-
+    Search the named local repositories for Media source paths, package names,
+    imports, API routes, registries, build references, contract records, and
+    deployment/integration references. Inspect source files for positive hits.
+  branchScope: checked-out-main-branches
+  contentScope: tracked-current-working-tree
+  targetStateAtScan: migration-scaffold-only-no-runtime-source-imported
+  repositories:
+    - samujjwal/ghatana
+    - samujjwal/ghatana-products
+    - samujjwal/ghatana-media
+    - samujjwal/ghatana-kernel
+    - samujjwal/ghatana-shared
+    - samujjwal/ghatana-tools
+    - samujjwal/ghatana-yappc
+    - gharbatai
+  limitations:
+    - Remote branches and every branch head were not exhaustively scanned.
+    - Untracked files and unobserved deployment environments are not fully covered.
+    - The ghatana and gharbatai checkouts had local changes during the scan.
+    - No direct-hit result is bounded evidence, not proof that no consumer exists.
+    - The target repository had no transferred runtime source when the scan began.
+  followUp:
+    - Re-run consumer and source-path scans against all agreed release branches before cutover.
+    - Ask each named consumer owner to confirm its bindings, deployment use, and compatibility needs.
+    - Reconcile generated registries and lockfiles from their authored sources after paths move.
+
+repositories:
+  - repository: samujjwal/ghatana
+    localPath: /home/samujjwal/Developments/ghatana
+    checkedOutBranch: main
+    scanResult: source-owner-with-retained-internal-consumer
+    searchCoverage:
+      - Media source and package references outside services/media
+      - Data Cloud API, read-model, UI, database, route, and contract surfaces
+      - Direct Java imports and Gradle project/artifact references outside services/media
+    directMediaImplementationImportsOutsideSource: none-found-in-bounded-scan
+    consumers:
+      - id: datacloud-media-compatibility
+        consumer: Data Cloud
+        classification: retained-governed-read-model-and-compatibility-consumer
+        decision: MDI-001
+        currentOwner: ghatana/services/data-cloud
+        mediaSemanticOwner: ghatana/services/media
+        status:
+          routePresence: exposed
+          authority: non-authoritative
+          routeMode: READ_MODEL_OR_COMPATIBILITY
+          runtimeMutation: compatibility-paths-fail-closed-without-explicit-provider
+        evidence:
+          - path: services/data-cloud/config/route-boundaries.v1.json
+            line: 25
+            observation: >-
+              Declares /api/v1/media as READ_MODEL_OR_COMPATIBILITY,
+              authoritative false, owner services/media, presence exposed.
+          - path: services/data-cloud/README.md
+            line: 83
+            observation: >-
+              States Media owns artifact/job/stream runtime semantics and Data
+              Cloud may aggregate summaries/read models through public contracts.
+          - path: services/data-cloud/contracts/openapi/data-cloud.yaml
+            line: 19191
+            observation: >-
+              Retains the Data Cloud OpenAPI surface beginning at
+              /api/v1/media/artifacts, with artifact, job, consent, transcript,
+              frame-index and processing routes.
+          - path: services/data-cloud/delivery/launcher/src/main/java/com/ghatana/datacloud/api/controller/MediaArtifactController.java
+            observation: Canonical Data Cloud controller bound to the retained compatibility/read-model surface.
+          - path: services/data-cloud/delivery/api/src/main/java/com/ghatana/datacloud/memory/media/MediaArtifactService.java
+            line: 29
+            observation: >-
+              Describes a governed Media metadata/read-model compatibility
+              façade; says Media owns lifecycle semantics and retained mutation
+              or processing fails closed when no explicit provider is supplied.
+          - path: services/data-cloud/delivery/ui/src/features/media/services/api.ts
+            line: 186
+            observation: >-
+              Data Cloud UI calls /api/v1/media/artifacts and its lifecycle,
+              job, consent, transcript and frame-index routes.
+          - path: services/data-cloud/delivery/ui/src/routes.tsx
+            line: 62
+            observation: Keeps the Media Artifact page in Data Cloud navigation.
+          - path: services/data-cloud/delivery/runtime-composition/src/main/resources/db/migration/V018__create_media_artifacts.sql
+            observation: Creates Data Cloud's tenant-scoped media_artifacts metadata table; artifact bytes are described as blob-stored.
+          - path: services/data-cloud/delivery/runtime-composition/src/main/resources/db/migration/V019__extend_rls_to_new_tables.sql
+            line: 139
+            observation: Adds tenant row-level security for media_artifacts.
+          - path: services/data-cloud/delivery/api-contract-tests/src/test/java/com/ghatana/datacloud/api/openapi/RuntimeTruthAndMediaContractTest.java
+            line: 63
+            observation: Tests media artifact route metadata against the API contract.
+        disposition:
+          action: retain-in-data-cloud-as-nonauthoritative-consumer-surface
+          preserve: governed-metadata-read-model-routes-navigation-and-compatibility
+          constraint: >-
+            Do not transfer Data Cloud's generic metadata/read-model authority
+            or make it depend on Media's database. Do not treat its route/API as
+            authoritative Media lifecycle state. Preserve customer navigation
+            and behavior through an explicit handoff or compatibility adapter
+            until consumer migration is complete.
+
+  - repository: samujjwal/ghatana-products
+    localPath: /home/samujjwal/Developments/ghatana-products
+    checkedOutBranch: main
+    scanResult: contract-consumer-and-document-only-package-references
+    consumers:
+      - id: tutorputor-governed-media-artifact
+        consumer: TutorPutor
+        classification: public-contract-consumer
+        capabilityId: ghatana.media.governed-artifact
+        requestId: TP-GHATANA-MEDIA-001
+        currentOwner:
+          repository: samujjwal/ghatana
+          path: services/media
+        status:
+          request: OPEN
+          providerAdmission: ACCEPTED_CURRENT_CONTRACT
+          fulfillment: UNFULFILLED
+          activation: SHADOW
+          consumerMayWriteCanonicalLifecycle: false
+          note: >-
+            Contract acceptance/provider admission is not runtime fulfillment;
+            provider and consumer observations remain pending.
+        operations:
+          - appendMediaChunk
+          - beginMediaUpload
+          - cancelMediaJob
+          - completeMediaUpload
+          - getMediaArtifact
+          - getMediaConsent
+          - getMediaJob
+          - grantMediaConsent
+          - listMediaConsents
+          - revokeMediaConsent
+          - submitMediaJob
+        evidence:
+          - path: products/tutorputor/config/dependency-requests/TP-GHATANA-MEDIA-001.json
+            lines: [3, 11, 22, 35, 39, 43, 47, 51, 68]
+            observation: >-
+              Names the capability, owner services/media, 11 operations,
+              contract/source/fixture references, and OPEN request status.
+          - path: products/tutorputor/config/dependency-contracts/tutorputor-provider-contract-admission.json
+            observation: >-
+              Records the accepted current contract and separate fulfillment
+              status UNFULFILLED; TutorPutor activation is SHADOW.
+          - path: products/tutorputor/docs/hardening/CROSS_REPOSITORY_CONTRACT_LEDGER.md
+            line: 42
+            observation: >-
+              Records tutorputor.ghatana.media.v2 as accepted while fulfillment
+              remains UNFULFILLED.
+          - path: products/tutorputor/config/provider-dependency-requests.source.json
+            lines: [188, 196, 197, 198, 199]
+            observation: Authored request source repeats the old Media contract and fixture paths.
+        contractReferences:
+          - services/media/contracts/openapi/media.yaml
+          - services/media/runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaPrivacySanitizersTest.java
+          - services/media/service-contract.yaml
+          - services/media/test-fixtures/media-contract-fixtures.json
+        consumerConformanceCommand: pnpm --dir products/tutorputor test:provider-contracts -- TP-GHATANA-MEDIA-001
+        disposition:
+          action: preserve-and-rebind-contract-references
+          constraint: >-
+            Keep accepted contract identity and consumer-proof requirements;
+            do not claim fulfillment or canonical lifecycle writes from source
+            relocation.
+      - id: phr-audio-video-package-documentation
+        consumer: PHR
+        classification: documentation-only-package-reference
+        currentStatus: design-and-activation-doc-references-found-no-active-source-import-found
+        packages:
+          - '@ghatana/audio-video-client'
+          - '@ghatana/audio-video-types'
+          - '@ghatana/audio-video-ui'
+        evidence:
+          - path: products/phr/docs/01_governance/phr_frontend_delivery_plan.md
+            line: 148
+            observation: Lists @ghatana/audio-video-ui for audio/dictation UI.
+          - path: products/phr/docs/03_architecture/phr_migration_plan_and_module_ownership_matrix.md
+            line: 284
+            observation: Lists the audio-video client/types for STT/ASR integration.
+          - path: products/phr/docs/03_architecture/phr_mvp_activation_plan.md
+            lines: [188, 431, 432, 433]
+            observation: Describes client, UI, and type package use for transcription.
+          - path: products/phr/docs/03_architecture/phr_nestjs_modules_detailed_architecture.md
+            lines: [226, 227, 228, 265, 266]
+            observation: >-
+              Documents package names, proposed source locations and example
+              imports. These are documentation references; no active PHR
+              manifest/source import was found in the bounded scan.
+        disposition:
+          action: preserve-and-reconcile-documentation-with-published-bindings
+          unresolved: >-
+            Confirm whether these planned PHR capabilities are still intended
+            and update their documented package locations after migration.
+
+  - repository: samujjwal/ghatana-media
+    localPath: /home/samujjwal/Developments/ghatana-media
+    checkedOutBranch: main
+    scanResult: migration-scaffold-only
+    consumers: []
+    observation: >-
+      No transferred runtime or consumer implementation was present when the
+      original reverse scan began. This inventory is the target-side record of
+      consumers found in sibling repositories, not evidence of a complete
+      target package/registry scan after source transfer.
+
+  - repository: samujjwal/ghatana-kernel
+    localPath: /home/samujjwal/Developments/ghatana-kernel
+    checkedOutBranch: main
+    scanResult: no-direct-implementation-consumer-found
+    nonConsumerMatches:
+      - path: platform/typescript/kernel-product-contracts/src/surface/__tests__/CompiledSurfaceContract.test.ts
+        lines: [194, 212]
+        observation: Generic test-fixture route strings GET/POST /api/v1/media; no Media import or build binding.
+      - path: docs/product-experience/examples/tutorputor/source-authority.yaml
+        observation: Derived TutorPutor example refers to legacy services/media contract paths; preserve/rebind as contract-example material if regenerated.
+    searchCoverage:
+      - Tracked current-tree Media path, package, API, and implementation-import strings.
+      - No direct Media implementation import or build dependency found.
+
+  - repository: samujjwal/ghatana-shared
+    localPath: /home/samujjwal/Developments/ghatana-shared
+    checkedOutBranch: main
+    scanResult: consumer-path-registry-reference
+    consumers:
+      - id: shared-auth-gateway-client-path
+        consumer: Ghatana Media AuthGatewayClient
+        classification: shared-owned-authentication-contract-consumer-path
+        currentSourceBinding: services/media/libs/common/src/main/java/com/ghatana/audio/video/common/platform/AuthGatewayClient.java
+        sharedContract: GET /api/v1/auth/validate
+        status: source-path-recorded-contract-remains-shared-owned
+        evidence:
+          - path: config/consumers.json
+            line: 134
+            observation: Lists the Ghatana Media AuthGatewayClient consumer path.
+          - path: shared-services/auth-gateway/CONSUMERS.md
+            line: 19
+            observation: >-
+              Records the exact source path, Authorization and X-Tenant-ID
+              headers, and identity response fields consumed.
+          - path: scripts/__tests__/check-shared-service-admission.test.mjs
+            lines: [18, 53]
+            observation: Tests/fixtures the Ghatana Media source-path entry.
+        disposition:
+          action: update-consumer-path-after-source-cutover
+          constraint: Keep auth-gateway API and identity authority with Shared; do not copy the contract into Media.
+
+  - repository: samujjwal/ghatana-tools
+    localPath: /home/samujjwal/Developments/ghatana-tools
+    checkedOutBranch: main
+    scanResult: no-direct-current-media-consumer-found
+    searchCoverage:
+      - Tracked current-tree source paths, package names, Media API strings, and explicit service references.
+    consumers: []
+
+  - repository: samujjwal/ghatana-yappc
+    localPath: /home/samujjwal/Developments/ghatana-yappc
+    checkedOutBranch: main
+    scanResult: no-direct-current-media-consumer-found
+    searchCoverage:
+      - Tracked current-tree source paths, package names, Media API strings, and explicit service references.
+    consumers: []
+
+  - repository: gharbatai
+    localPath: /home/samujjwal/Developments/gharbatai
+    checkedOutBranch: main
+    scanResult: direct-document-intelligence-consumer
+    consumers:
+      - id: gharbatai-org-document-intelligence
+        consumer: Gharbatai Org API
+        classification: document-intelligence-consumer
+        decision: MDI-001
+        currentWorkerOwner:
+          repository: samujjwal/ghatana
+          path: services/media/modules/intelligence/document-intelligence-worker
+        intendedWorkerOwner:
+          repository: samujjwal/ghatana
+          path: services/document-intelligence
+        package: '@ghatana/document-intelligence-client'
+        packageContract: ghatana-shared/@ghatana/document-extraction
+        status:
+          directSourceLinkObserved: true
+          runtimeQualification: not-established-by-this-scan
+          mediaTransferDisposition: worker-excluded-from-media-transfer-and-rehomed-to-document-intelligence-owner
+        evidence:
+          - path: products/org/apps/api/src/modules/document-extraction/document-extraction.providers.ts
+            line: 12
+            observation: Imports DocumentIntelligenceClient and parser/extraction adapters from @ghatana/document-intelligence-client.
+          - path: products/org/apps/api/package.json
+            lines: [11, 55]
+            observation: >-
+              verify:document-intelligence builds the linked client directly
+              from the Ghatana Media worker tree; dependency uses a pnpm link
+              to that same source directory.
+          - path: pnpm-lock.yaml
+            lines: [2183, 2184, 2185]
+            observation: Lockfile resolves the package to the same old worker path.
+          - path: products/org/scripts/document-extraction/verify-increment4.mjs
+            lines: [52, 54, 57, 1208, 1210, 1211, 1695, 1699]
+            observation: >-
+              Verification resolves worker contracts, strict worker verifier,
+              evidence output, and implementation/client source files beneath
+              services/media/modules/intelligence/document-intelligence-worker.
+          - path: products/org/scripts/document-extraction/verify-live-document-intelligence-authority.mjs
+            line: 28
+            observation: Pins the current worker root under services/media.
+          - path: products/org/docs/document-extraction/INCREMENT-4.md
+            line: 3
+            observation: Links the Org product-side authority to the worker handoff in the old Media path.
+        disposition:
+          action: retain-as-document-intelligence-consumer-and-rebind-to-public-client-or-new-owner-path
+          mediaBoundary: >-
+            Do not transfer the generic worker into ghatana-media. Rehome it
+            under ghatana/services/document-intelligence and preserve the
+            frozen Shared contract, operation-generation token semantics,
+            client cancellation, worker qualification restrictions, and Org
+            verification evidence. Media may consume Document Intelligence's
+            public API for media-specific recognition intent.
+
+coverageSummary:
+  directSourceOrPackageConsumers:
+    - gharbatai Org document-intelligence client and worker source link
+  contractConsumers:
+    - TutorPutor TP-GHATANA-MEDIA-001
+  retainedConsumerSurfaces:
+    - Data Cloud governed Media metadata/read model/API/UI
+    - Shared auth-gateway consumer-path catalog entry
+  documentationOnlyReferences:
+    - PHR audio-video package design and activation references
+  noDirectCurrentHitsInBoundedScan:
+    - ghatana-tools
+    - ghatana-yappc
+    - ghatana-kernel implementation/build surfaces

@@ -1,0 +1,257 @@
+schemaVersion: media.profile-semantics.v1
+productId: media
+phaseTask: P0-007
+status: proposed-for-specialist-review
+authority: prospective-Phase-0-semantics; not runtime binding or qualification evidence
+sourceRefs:
+  - master-plan:section-8
+  - master-plan:section-9.5
+  - master-plan:task-P0-007
+  - master-plan:section-15
+  - constitution:MEDIA-CONST-008
+  - constitution:MEDIA-CONST-017
+  - constitution:MEDIA-CONST-027
+  - constitution:MEDIA-CONST-028
+scopeNote: >-
+  This file defines orthogonal profile axes and the shape of fallback
+  authorization. It does not select, qualify, or declare available any engine,
+  model, codec, provider, runtime, or deployment. Concrete capability/profile
+  bindings remain pending integration with P0-003 and owner contracts.
+profileAxes:
+  - id: PROFILE-AXIS-QUALITY-INTENT
+    name: quality-intent
+    values:
+      - id: QUALITY-INTENT-PREVIEW
+        value: preview
+        meaning: A declared lower-latency or exploratory target; it is not permission to violate other requested constraints.
+      - id: QUALITY-INTENT-BALANCED
+        value: balanced
+        meaning: A declared product target whose exact criteria require an accepted capability/profile binding.
+      - id: QUALITY-INTENT-HIGH-QUALITY
+        value: high-quality
+        meaning: A declared higher quality target whose exact criteria require an accepted capability/profile binding.
+      - id: QUALITY-INTENT-MASTER
+        value: master
+        meaning: A declared mastering target; it cannot be silently changed to preview or another lower target.
+    axisRule: A quality-intent label is not a numeric threshold or evidence that an implementation can meet it.
+  - id: PROFILE-AXIS-RESOURCE
+    name: resource-profile
+    values:
+      - id: RESOURCE-PROFILE-STANDARD
+        value: standard
+      - id: RESOURCE-PROFILE-LOW
+        value: low-resource
+    aliases:
+      - alias: low_vram
+        resolvesTo: RESOURCE-PROFILE-LOW
+        kind: legacy-name-only
+      - alias: low-vram
+        resolvesTo: RESOURCE-PROFILE-LOW
+        kind: legacy-name-only
+    axisRule: Resource savings alone do not authorize lower fidelity, quality, resolution, duration, or frame rate.
+  - id: PROFILE-AXIS-EXECUTION-LOCATION
+    name: execution-location
+    values:
+      - id: EXECUTION-LOCATION-LOCAL
+        value: local
+      - id: EXECUTION-LOCATION-REMOTE
+        value: remote
+      - id: EXECUTION-LOCATION-HYBRID
+        value: hybrid
+    axisRule: >-
+      Eligibility is determined by the complete resolved plan and current
+      policy. Local-only work must not fall back to remote/cloud execution;
+      a local component alone does not make a hybrid plan local.
+  - id: PROFILE-AXIS-PRESERVATION
+    name: preservation
+    qualificationPolicyDimension: preservation-policy
+    qualificationPolicyMappingState: pending-owner-schema-validation
+    values:
+      - id: PRESERVATION-MODE-PRESERVE
+        value: preserve
+        meaning: Preserve source and accepted revisions; do not introduce invented semantic detail as if it were recovered fact.
+      - id: PRESERVATION-MODE-ENHANCE
+        value: enhance
+        meaning: Permit only bounded, authorized perceptual reconstruction under declared preservation and quality constraints.
+      - id: PRESERVATION-MODE-CREATIVE
+        value: creative
+        meaning: Permit admitted generative edits within current rights, privacy, safety, and effect authority.
+    axisRule: >-
+      Preservation is independent of quality intent and resource profile. A
+      quality or resource change never changes preservation permission.
+  - id: PROFILE-AXIS-DELIVERY
+    name: delivery-profile
+    values:
+      - id: DELIVERY-PROFILE-WEB
+        value: web
+      - id: DELIVERY-PROFILE-SOCIAL
+        value: social
+      - id: DELIVERY-PROFILE-PODCAST
+        value: podcast
+      - id: DELIVERY-PROFILE-BROADCAST
+        value: broadcast
+      - id: DELIVERY-PROFILE-CINEMATIC
+        value: cinematic
+      - id: DELIVERY-PROFILE-ARCHIVAL
+        value: archival
+      - id: DELIVERY-PROFILE-INTERACTIVE
+        value: interactive
+      - id: DELIVERY-PROFILE-NAMED
+        value: named-explicit-profile
+    axisRule: >-
+      A delivery profile must bind exact codec/container, color/audio/caption,
+      target, and compatibility constraints before execution. These names do
+      not imply format support or qualification.
+  - id: PROFILE-AXIS-REPRODUCIBILITY
+    name: reproducibility-class
+    values:
+      - id: REPRODUCIBILITY-EXACT-ENVIRONMENT
+        value: EXACT_ENVIRONMENT
+      - id: REPRODUCIBILITY-TOLERANCE-BOUND
+        value: TOLERANCE_BOUND
+      - id: REPRODUCIBILITY-STATISTICAL
+        value: STATISTICAL
+      - id: REPRODUCIBILITY-REPLAY-UNAVAILABLE
+        value: REPLAY_UNAVAILABLE
+    meanings:
+      EXACT_ENVIRONMENT: Identical declared output representation only within an evidence-backed engine/model/runtime/hardware/configuration/assets/seed envelope.
+      TOLERANCE_BOUND: Named numeric, geometric, perceptual, or timing measurements satisfy declared tolerances over a stated scope.
+      STATISTICAL: Repeated outputs satisfy a named distribution/quality protocol; a seed does not promise identical output.
+      REPLAY_UNAVAILABLE: Preserve inputs, outputs, and execution provenance; do not offer unsupported reproduction.
+    axisRule: Render determinism, solver determinism, and encoded-byte determinism are separate claims.
+orthogonalityRules:
+  - id: PROFILE-RULE-INDEPENDENT-AXES
+    rule: >-
+      Requested profiles represent independent dimensions. A value on one axis
+      does not imply or authorize a value on another axis; every effective
+      change is recorded against its own requested axis.
+  - id: PROFILE-RULE-QUALITY-NOT-FIDELITY
+    rule: A higher perceptual-quality target does not establish or authorize a change in domain/scientific fidelity.
+  - id: PROFILE-RULE-RESOURCE-NOT-QUALITY
+    rule: A resource profile does not itself authorize quality, resolution, duration, frame-rate, language, or fidelity degradation.
+  - id: PROFILE-RULE-LOCATION-NOT-PRIVACY
+    rule: Execution location is an independent declaration; deployment labels alone do not establish the processing policy of a complete plan.
+  - id: PROFILE-RULE-DELIVERY-NOT-RIGHTS
+    rule: A delivery target does not grant rights, consent, publication approval, or compatibility.
+  - id: PROFILE-RULE-PRESERVATION-NOT-REPRODUCIBILITY
+    rule: Preservation mode does not establish deterministic or replayable execution.
+  - id: PROFILE-RULE-CINEMATIC-ALIAS
+    rule: >-
+      “Cinematic” may be a presentation/template alias resolving to an explicit
+      quality-intent plus delivery-profile combination. It is not a new
+      independent quality or execution policy.
+  - id: PROFILE-RULE-TEST-ONLY
+    rule: deterministic-test is a fixture/test binding label only and never a production provider or runtime profile.
+profileResolutionRecord:
+  id: PROFILE-RESOLUTION-RECORD
+  requiredFields:
+    - requestedAxes
+    - effectiveAxes
+    - unchangedAxes
+    - changedAxes
+    - fallbackPermissionRef
+    - reasonForEachChange
+    - capabilityBindingState
+    - policyAndRightsDecisionRefs
+    - qualificationScopeRef
+    - budgetEstimateAndCeiling
+    - confirmationOrApprovalOutcome
+  capabilityBindingState: pending-P0-003-integration
+bindingProfileRule: >-
+  Model-native parameters such as steps, guidance, offload, and quantization
+  belong in an exact qualified binding profile. They are not ordinary user
+  requirements or portable guarantees of a quality-intent label.
+  rule: >-
+    Requested and effective profile values and quality dimensions are both
+    recorded. Unknown or unbound values block execution or produce a typed,
+    policy-permitted fallback; they are never reported as available.
+fallbackSemantics:
+  id: FALLBACK-PERMISSION-RECORD
+  defaultPermission: denied
+  omissionMeaning: denied
+  requiredRecordFields:
+    - id
+    - requestedProfileRef
+    - permittedChanges
+    - qualityFloorRefs
+    - budgetCeiling
+    - confirmationRequirement
+    - authorityDecisionRef
+    - expiresOrInvalidatesWhen
+  permissionFields:
+    preserveAspectRatio:
+      default: true
+      mutableByFallback: false
+      rule: Preserve the requested aspect ratio; changing it requires a new explicit user intent or delivery specification.
+    resolutionReduction:
+      permitted: false
+      constraintsRequiredIfPermitted: [minimumWidthPixels, minimumHeightPixels, maximumScaleReduction, qualityFloorRefs]
+    frameRateChange:
+      permitted: false
+      constraintsRequiredIfPermitted: [allowedOutputRates, maximumTemporalDeviation, qualityFloorRefs]
+    durationChange:
+      permitted: false
+      constraintsRequiredIfPermitted: [minimumDuration, maximumDuration, editOrNarrativeDisposition]
+    modelOrEngineSubstitution:
+      permitted: false
+      constraintsRequiredIfPermitted: [candidateCapabilityRefs, compatibilityEvidenceRef, qualityFloorRefs]
+      candidateCapabilityRefState: pending-P0-003-integration
+    resourceProfileChange:
+      permitted: false
+      constraintsRequiredIfPermitted: [allowedValues, proof-no-protected-property-degradation]
+    executionLocationChange:
+      permitted: false
+      constraintsRequiredIfPermitted: [allowedValues, current-policy-decision]
+      localOnlyRule: Remote or cloud execution is never an implicit fallback for local-only intent.
+    qualityIntentChange:
+      permitted: false
+      constraintsRequiredIfPermitted: [allowedValues, minimumQualityFloorRefs, userConfirmation]
+      rule: OOM or capacity pressure alone does not authorize lowering master/high-quality to preview/balanced.
+    preservationModeChange:
+      permitted: false
+      rule: A fallback cannot change preserve to enhance or creative; obtain a new explicit intent and relevant authority.
+    deliveryProfileChange:
+      permitted: false
+      constraintsRequiredIfPermitted: [compatibleTargetProfileRef, deliveryQualityFloors, userConfirmation]
+    reproducibilityClassChange:
+      permitted: false
+      constraintsRequiredIfPermitted: [newClass, evidenceScope, userConfirmation]
+  budgetCeiling:
+    requiredForAnyPermittedFallback: true
+    fields: [maximumCandidateCount, maximumRepairAttempts, maximumWallTime, maximumCompute, maximumIncrementalCost]
+    fieldUnits:
+      maximumCandidateCount: positive-integer-candidates
+      maximumRepairAttempts: positive-integer-attempts
+      maximumWallTime: ISO-8601-duration
+      maximumCompute: owner-defined-metered-compute-unit-with-expiry
+      maximumIncrementalCost: finite-amount-with-explicit-currency
+    limitsMustBeFiniteAndPositiveWhereApplicable: true
+    unspecifiedLimitBehavior: fallback-denied
+    concreteLimits: pending-profile-and-binding-integration
+  confirmationRequirement:
+    materialChange: required-before-application
+    confirmationIsDistinctFromPolicyAuthorization: true
+    authorizationSource: current-owner-policy-contract
+    status: pending-policy-owner-integration
+  requestedEffectiveHistory:
+    recordRequestedValues: true
+    recordEffectiveValues: true
+    recordChangeReasonPerAxis: true
+    preservePriorHumanSelectedVersion: true
+aliases:
+  - id: PROFILE-ALIAS-CINEMATIC
+    alias: cinematic
+    aliasKind: presentation-template
+    resolvesTo: [PROFILE-AXIS-QUALITY-INTENT, PROFILE-AXIS-DELIVERY]
+    requiresExplicitCombinationBinding: true
+    independentPolicy: false
+  - id: PROFILE-ALIAS-LOW-VRAM
+    aliases: [low_vram, low-vram]
+    aliasKind: migration-name
+    resolvesTo: RESOURCE-PROFILE-LOW
+    grantsQualityDowngrade: false
+    independentPolicy: false
+integrationGaps:
+  capabilityReferences: pending-P0-003-leaf-integration
+  domainFidelityReferences: pending-P0-004-and-domain-owner-integration
+  profileRuntimeBindings: pending-public-contract-license-and-qualification-evidence

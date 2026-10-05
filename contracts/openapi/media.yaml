@@ -1,0 +1,1420 @@
+openapi: 3.1.0
+info:
+  title: Media Artifact, Processing, Streaming, and Consent Runtime API
+  version: 1.3.0
+  description: >-
+    Tenant-scoped consent management, resumable artifact ingestion, asynchronous processing jobs, and reconnectable
+    ordered media streams. Blob bytes remain in object storage; consent, metadata, job, and stream lifecycle remain
+    durable in service-owned stores. Codec, speech, vision, multimodal, and semantic redaction implementations remain
+    provider-owned. Data Cloud and AI Inference are optional capability integrations.
+servers:
+  - url: http://localhost:8093
+security:
+  - bearerAuth: []
+  - apiKeyAuth: []
+tags:
+  - name: Operations
+  - name: Consents
+  - name: Uploads
+  - name: Artifacts
+  - name: Jobs
+  - name: Streams
+  - name: Providers
+paths:
+  /health:
+    get:
+      tags: [Operations]
+      operationId: getMediaHealth
+      security: []
+      responses:
+        "200": { $ref: "#/components/responses/Health" }
+        "503": { $ref: "#/components/responses/Health" }
+      x-ghatana-routeId: GET /health
+      x-ghatana-operationId: getMediaHealth
+      x-ghatana-security:
+        {
+          sensitivity: INTERNAL,
+          requiredAccess: VIEWER,
+          requiresAuth: false,
+          requiresTenant: false,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /health/live:
+    get:
+      tags: [Operations]
+      operationId: getMediaLiveness
+      security: []
+      responses: { "200": { $ref: "#/components/responses/Health" } }
+      x-ghatana-routeId: GET /health/live
+      x-ghatana-operationId: getMediaLiveness
+      x-ghatana-security:
+        {
+          sensitivity: INTERNAL,
+          requiredAccess: VIEWER,
+          requiresAuth: false,
+          requiresTenant: false,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /health/ready:
+    get:
+      tags: [Operations]
+      operationId: getMediaReadiness
+      security: []
+      responses:
+        "200": { $ref: "#/components/responses/Health" }
+        "503": { $ref: "#/components/responses/Health" }
+      x-ghatana-routeId: GET /health/ready
+      x-ghatana-operationId: getMediaReadiness
+      x-ghatana-security:
+        {
+          sensitivity: INTERNAL,
+          requiredAccess: VIEWER,
+          requiresAuth: false,
+          requiresTenant: false,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /health/startup:
+    get:
+      tags: [Operations]
+      operationId: getMediaStartup
+      security: []
+      responses:
+        "200": { $ref: "#/components/responses/Health" }
+        "503": { $ref: "#/components/responses/Health" }
+      x-ghatana-routeId: GET /health/startup
+      x-ghatana-operationId: getMediaStartup
+      x-ghatana-security:
+        {
+          sensitivity: INTERNAL,
+          requiredAccess: VIEWER,
+          requiresAuth: false,
+          requiresTenant: false,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /ready:
+    get:
+      tags: [Operations]
+      operationId: getMediaReadyAlias
+      security: []
+      responses:
+        "200": { $ref: "#/components/responses/Health" }
+        "503": { $ref: "#/components/responses/Health" }
+      x-ghatana-routeId: GET /ready
+      x-ghatana-operationId: getMediaReadyAlias
+      x-ghatana-security:
+        {
+          sensitivity: INTERNAL,
+          requiredAccess: VIEWER,
+          requiresAuth: false,
+          requiresTenant: false,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /metrics:
+    get:
+      tags: [Operations]
+      operationId: getMediaMetrics
+      security: []
+      responses:
+        "200":
+          {
+            description: Runtime metrics,
+            content:
+              {
+                application/json:
+                  { schema: { type: object, additionalProperties: true } },
+              },
+          }
+      x-ghatana-routeId: GET /metrics
+      x-ghatana-operationId: getMediaMetrics
+      x-ghatana-security:
+        {
+          sensitivity: INTERNAL,
+          requiredAccess: VIEWER,
+          requiresAuth: false,
+          requiresTenant: false,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /info:
+    get:
+      tags: [Operations]
+      operationId: getMediaInfo
+      security: []
+      responses:
+        "200":
+          {
+            description: Runtime information,
+            content:
+              {
+                application/json:
+                  { schema: { type: object, additionalProperties: true } },
+              },
+          }
+      x-ghatana-routeId: GET /info
+      x-ghatana-operationId: getMediaInfo
+      x-ghatana-security:
+        {
+          sensitivity: INTERNAL,
+          requiredAccess: VIEWER,
+          requiresAuth: false,
+          requiresTenant: false,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /api/v1/health:
+    get:
+      tags: [Operations]
+      operationId: getMediaVersionedHealth
+      security: []
+      responses:
+        "200": { $ref: "#/components/responses/Health" }
+        "503": { $ref: "#/components/responses/Health" }
+      x-ghatana-routeId: GET /api/v1/health
+      x-ghatana-operationId: getMediaVersionedHealth
+      x-ghatana-security:
+        {
+          sensitivity: PUBLIC,
+          requiredAccess: VIEWER,
+          requiresAuth: false,
+          requiresTenant: false,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /api/v1/consents:
+    post:
+      tags: [Consents]
+      operationId: grantMediaConsent
+      parameters:
+        - $ref: "#/components/parameters/TenantHeader"
+        - $ref: "#/components/parameters/PrincipalHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ConsentGrantRequest" }
+      responses:
+        "201":
+          {
+            description: Granted principal-owned consent,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/ConsentRecord" } },
+              },
+          }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: POST /api/v1/consents
+      x-ghatana-operationId: grantMediaConsent
+      x-ghatana-security:
+        {
+          sensitivity: RESTRICTED,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
+      x-ghatana-idempotency:
+        required: true
+        payloadHashRequired: true
+        scopeTemplate: tenantId|consentId
+    get:
+      tags: [Consents]
+      operationId: listMediaConsents
+      parameters:
+        - $ref: "#/components/parameters/TenantHeader"
+        - $ref: "#/components/parameters/PrincipalHeader"
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 1000, default: 100 },
+          }
+      responses:
+        "200":
+          description: Principal-owned consent records
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [consents]
+                properties:
+                  consents:
+                    {
+                      type: array,
+                      items: { $ref: "#/components/schemas/ConsentRecord" },
+                    }
+      x-ghatana-routeId: GET /api/v1/consents
+      x-ghatana-operationId: listMediaConsents
+      x-ghatana-security:
+        {
+          sensitivity: RESTRICTED,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /api/v1/consents/{consentId}:
+    get:
+      tags: [Consents]
+      operationId: getMediaConsent
+      parameters:
+        - $ref: "#/components/parameters/TenantHeader"
+        - $ref: "#/components/parameters/PrincipalHeader"
+        - $ref: "#/components/parameters/ConsentId"
+      responses:
+        "200":
+          {
+            description: Principal-owned consent record,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/ConsentRecord" } },
+              },
+          }
+        "404": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: GET /api/v1/consents/{consentId}
+      x-ghatana-operationId: getMediaConsent
+      x-ghatana-security:
+        {
+          sensitivity: RESTRICTED,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+    delete:
+      tags: [Consents]
+      operationId: revokeMediaConsent
+      parameters:
+        - $ref: "#/components/parameters/TenantHeader"
+        - $ref: "#/components/parameters/PrincipalHeader"
+        - $ref: "#/components/parameters/ConsentId"
+        - $ref: "#/components/parameters/CorrelationHeader"
+      responses:
+        "200":
+          {
+            description: Revoked consent record,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/ConsentRecord" } },
+              },
+          }
+        "404": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: DELETE /api/v1/consents/{consentId}
+      x-ghatana-operationId: revokeMediaConsent
+      x-ghatana-security:
+        {
+          sensitivity: RESTRICTED,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
+      x-ghatana-idempotency:
+        required: false
+        reason: No replay-safe idempotency guarantee is declared; clients must not automatically retry this mutation.
+  /api/v1/artifacts/uploads:
+    post:
+      tags: [Uploads]
+      operationId: beginMediaUpload
+      parameters: [{ $ref: "#/components/parameters/TenantHeader" }]
+      requestBody:
+        required: true
+        content:
+          {
+            application/json:
+              { schema: { $ref: "#/components/schemas/UploadRequest" } },
+          }
+      responses:
+        "201":
+          {
+            description: Open upload session,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/UploadSession" } },
+              },
+          }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: POST /api/v1/artifacts/uploads
+      x-ghatana-operationId: beginMediaUpload
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
+      x-ghatana-idempotency:
+        required: true
+        payloadHashRequired: true
+        scopeTemplate: tenantId|uploadRequest
+  /api/v1/artifacts/uploads/{uploadId}:
+    get:
+      tags: [Uploads]
+      operationId: getMediaUpload
+      parameters:
+        [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/UploadId" },
+        ]
+      responses:
+        "200":
+          {
+            description: Upload status,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/UploadSession" } },
+              },
+          }
+        "404": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: GET /api/v1/artifacts/uploads/{uploadId}
+      x-ghatana-operationId: getMediaUpload
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}:
+    put:
+      tags: [Uploads]
+      operationId: appendMediaChunk
+      parameters:
+        - $ref: "#/components/parameters/TenantHeader"
+        - $ref: "#/components/parameters/UploadId"
+        - {
+            name: chunkIndex,
+            in: path,
+            required: true,
+            schema: { type: integer, minimum: 0 },
+          }
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/octet-stream:
+                { schema: { type: string, format: binary } },
+            },
+        }
+      responses:
+        "200":
+          {
+            description: Updated upload session,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/UploadSession" } },
+              },
+          }
+        "400": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: PUT /api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}
+      x-ghatana-operationId: appendMediaChunk
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
+      x-ghatana-idempotency:
+        required: false
+        reason: No replay-safe idempotency guarantee is declared; clients must not automatically retry this mutation.
+  /api/v1/artifacts/uploads/{uploadId}/complete:
+    post:
+      tags: [Uploads]
+      operationId: completeMediaUpload
+      parameters:
+        [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/UploadId" },
+        ]
+      responses:
+        "201":
+          {
+            description: Checksum-verified artifact,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/MediaArtifact" } },
+              },
+          }
+        "409": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: POST /api/v1/artifacts/uploads/{uploadId}/complete
+      x-ghatana-operationId: completeMediaUpload
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
+      x-ghatana-idempotency:
+        required: true
+        payloadHashRequired: true
+        scopeTemplate: tenantId|uploadId|contentHash
+  /api/v1/artifacts/{artifactId}:
+    get:
+      tags: [Artifacts]
+      operationId: getMediaArtifact
+      parameters:
+        - $ref: "#/components/parameters/TenantHeader"
+        - {
+            name: artifactId,
+            in: path,
+            required: true,
+            schema: { type: string, minLength: 1 },
+          }
+      responses:
+        "200":
+          {
+            description: Artifact metadata and opaque object reference,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/MediaArtifact" } },
+              },
+          }
+        "404": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: GET /api/v1/artifacts/{artifactId}
+      x-ghatana-operationId: getMediaArtifact
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /api/v1/jobs:
+    post:
+      tags: [Jobs]
+      operationId: submitMediaJob
+      parameters:
+        [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/PrincipalHeader" },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/json:
+                {
+                  schema: { $ref: "#/components/schemas/ProcessingJobRequest" },
+                },
+            },
+        }
+      responses:
+        "202":
+          {
+            description: Accepted processing job,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/ProcessingJob" } },
+              },
+            headers:
+              {
+                Location:
+                  {
+                    required: true,
+                    description: Canonical status URL for the accepted operation.,
+                    schema: { type: string, format: uri-reference },
+                  },
+                Retry-After:
+                  {
+                    required: true,
+                    description: Minimum seconds before polling the status URL again.,
+                    schema: { type: integer, minimum: 1, maximum: 3600 },
+                  },
+              },
+          }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: POST /api/v1/jobs
+      x-ghatana-operationId: submitMediaJob
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
+      x-ghatana-long-running-operation:
+        model: PlatformOperation
+        statusHeader: Location
+        cancelField: cancelUrl
+        retryField: retryUrl
+      x-ghatana-idempotency:
+        required: true
+        payloadHashRequired: true
+        scopeTemplate: tenantId|requestId
+    get:
+      tags: [Jobs]
+      operationId: listMediaJobs
+      parameters:
+        - $ref: "#/components/parameters/TenantHeader"
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 1000, default: 100 },
+          }
+      responses:
+        "200":
+          description: Tenant-scoped processing jobs
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [jobs]
+                properties:
+                  {
+                    jobs:
+                      {
+                        type: array,
+                        items: { $ref: "#/components/schemas/ProcessingJob" },
+                      },
+                  }
+      x-ghatana-routeId: GET /api/v1/jobs
+      x-ghatana-operationId: listMediaJobs
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /api/v1/jobs/{jobId}:
+    get:
+      tags: [Jobs]
+      operationId: getMediaJob
+      parameters:
+        [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/JobId" },
+        ]
+      responses:
+        "200":
+          {
+            description: Processing job,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/ProcessingJob" } },
+              },
+          }
+        "404": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: GET /api/v1/jobs/{jobId}
+      x-ghatana-operationId: getMediaJob
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /api/v1/jobs/{jobId}/cancel:
+    post:
+      tags: [Jobs]
+      operationId: cancelMediaJob
+      parameters:
+        [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/JobId" },
+        ]
+      responses:
+        "200":
+          {
+            description: Cancelled or terminal job,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/ProcessingJob" } },
+              },
+          }
+        "404": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: POST /api/v1/jobs/{jobId}/cancel
+      x-ghatana-operationId: cancelMediaJob
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
+      x-ghatana-idempotency:
+        required: false
+        reason: No replay-safe idempotency guarantee is declared; clients must not automatically retry this mutation.
+  /api/v1/streams:
+    post:
+      tags: [Streams]
+      operationId: openMediaStream
+      parameters:
+        [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/PrincipalHeader" },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/json:
+                {
+                  schema: { $ref: "#/components/schemas/StreamSessionRequest" },
+                },
+            },
+        }
+      responses:
+        "201":
+          {
+            description: Open stream session and one-time connection token,
+            content:
+              {
+                application/json:
+                  {
+                    schema:
+                      {
+                        $ref: "#/components/schemas/StreamSessionRegistration",
+                      },
+                  },
+              },
+          }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: POST /api/v1/streams
+      x-ghatana-operationId: openMediaStream
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
+      x-ghatana-idempotency:
+        required: true
+        payloadHashRequired: true
+        scopeTemplate: tenantId|correlationId
+  /api/v1/streams/{sessionId}:
+    get:
+      tags: [Streams]
+      operationId: getMediaStream
+      parameters:
+        [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/SessionId" },
+        ]
+      responses:
+        "200":
+          {
+            description: Stream session without connection token,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/StreamSession" } },
+              },
+          }
+        "404": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: GET /api/v1/streams/{sessionId}
+      x-ghatana-operationId: getMediaStream
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /api/v1/streams/{sessionId}/connect:
+    post:
+      tags: [Streams]
+      operationId: connectMediaStream
+      parameters:
+        [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/SessionId" },
+          { $ref: "#/components/parameters/StreamTokenHeader" },
+        ]
+      responses:
+        "200":
+          {
+            description: Connected or reconnected stream lease,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/StreamSession" } },
+              },
+          }
+        "403": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: POST /api/v1/streams/{sessionId}/connect
+      x-ghatana-operationId: connectMediaStream
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
+      x-ghatana-idempotency:
+        required: false
+        reason: No replay-safe idempotency guarantee is declared; clients must not automatically retry this mutation.
+  /api/v1/streams/{sessionId}/frames/{sequence}:
+    post:
+      tags: [Streams]
+      operationId: submitMediaStreamFrame
+      parameters:
+        - $ref: "#/components/parameters/TenantHeader"
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/StreamTokenHeader"
+        - {
+            name: sequence,
+            in: path,
+            required: true,
+            schema: { type: integer, format: int64, minimum: 0 },
+          }
+        - {
+            name: X-End-Of-Stream,
+            in: header,
+            required: false,
+            schema: { type: boolean, default: false },
+          }
+      requestBody:
+        {
+          required: false,
+          content:
+            {
+              application/octet-stream:
+                { schema: { type: string, format: binary } },
+            },
+        }
+      responses:
+        "202":
+          {
+            description: Ordered frame acknowledgement and backpressure state,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/StreamAck" } },
+              },
+            headers:
+              {
+                Location:
+                  {
+                    required: true,
+                    description: Canonical status URL for the accepted operation.,
+                    schema: { type: string, format: uri-reference },
+                  },
+                Retry-After:
+                  {
+                    required: true,
+                    description: Minimum seconds before polling the status URL again.,
+                    schema: { type: integer, minimum: 1, maximum: 3600 },
+                  },
+              },
+          }
+        "403": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: POST /api/v1/streams/{sessionId}/frames/{sequence}
+      x-ghatana-operationId: submitMediaStreamFrame
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
+      x-ghatana-long-running-operation:
+        model: PlatformOperation
+        statusHeader: Location
+        cancelField: cancelUrl
+        retryField: retryUrl
+      x-ghatana-idempotency:
+        required: true
+        payloadHashRequired: true
+        scopeTemplate: tenantId|sessionId|sequence
+  /api/v1/streams/{sessionId}/close:
+    post:
+      tags: [Streams]
+      operationId: closeMediaStream
+      parameters:
+        [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/SessionId" },
+          { $ref: "#/components/parameters/StreamTokenHeader" },
+        ]
+      responses:
+        "200":
+          {
+            description: Closed stream session,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/StreamSession" } },
+              },
+          }
+        "403": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: POST /api/v1/streams/{sessionId}/close
+      x-ghatana-operationId: closeMediaStream
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
+      x-ghatana-idempotency:
+        required: true
+        payloadHashRequired: true
+        scopeTemplate: tenantId|sessionId
+  /api/v1/providers:
+    get:
+      tags: [Providers]
+      operationId: getMediaProviders
+      responses:
+        "200":
+          description: Processing, streaming, privacy, consent, and store readiness without credentials.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MediaProviderResponse" }
+      x-ghatana-routeId: GET /api/v1/providers
+      x-ghatana-operationId: getMediaProviders
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+    apiKeyAuth: { type: apiKey, in: header, name: X-API-Key }
+  parameters:
+    TenantHeader:
+      {
+        name: X-Tenant-Id,
+        in: header,
+        required: true,
+        schema: { type: string, minLength: 1, maxLength: 255 },
+      }
+    PrincipalHeader:
+      {
+        name: X-Principal-Id,
+        in: header,
+        required: true,
+        schema: { type: string, minLength: 1, maxLength: 255 },
+      }
+    CorrelationHeader:
+      {
+        name: X-Correlation-Id,
+        in: header,
+        required: true,
+        schema: { type: string, minLength: 1, maxLength: 255 },
+      }
+    StreamTokenHeader:
+      {
+        name: X-Stream-Token,
+        in: header,
+        required: true,
+        schema: { type: string, minLength: 32 },
+        description: One-time-issued opaque stream connection token,
+      }
+    ConsentId:
+      {
+        name: consentId,
+        in: path,
+        required: true,
+        schema: { type: string, minLength: 1, maxLength: 255 },
+      }
+    UploadId:
+      {
+        name: uploadId,
+        in: path,
+        required: true,
+        schema: { type: string, minLength: 1 },
+      }
+    JobId:
+      {
+        name: jobId,
+        in: path,
+        required: true,
+        schema: { type: string, minLength: 1 },
+      }
+    SessionId:
+      {
+        name: sessionId,
+        in: path,
+        required: true,
+        schema: { type: string, minLength: 1 },
+      }
+    IdempotencyKeyHeader:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Tenant- and principal-scoped key. Reuse with a different payload is rejected.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 255
+    IfMatchHeader:
+      name: If-Match
+      in: header
+      required: true
+      description: Expected current resource version or strong entity tag.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 255
+  schemas:
+    MediaProviderResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - processingProviders
+        - streamingProviders
+        - capabilityProfiles
+        - artifactStoreId
+        - jobStoreId
+        - streamStoreId
+        - consentAdministrationId
+        - genericModelIntegration
+        - metadataIntegration
+      properties:
+        processingProviders: { type: array, items: { type: string } }
+        streamingProviders: { type: array, items: { type: string } }
+        capabilityProfiles:
+          type: array
+          items: { $ref: "#/components/schemas/MediaCapabilityProfile" }
+        artifactStoreId: { type: string }
+        jobStoreId: { type: string }
+        streamStoreId: { type: string }
+        consentAdministrationId: { type: string }
+        genericModelIntegration: { type: string }
+        metadataIntegration: { type: string }
+    MediaCapabilityProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - providerId
+        - providerVersion
+        - modality
+        - codecs
+        - containers
+        - sampleRatesHz
+        - maximumWidth
+        - maximumHeight
+        - modelVersions
+        - regions
+        - processingBoundary
+        - timingAvailable
+        - confidenceAvailable
+        - biometricDerivativesAvailable
+      properties:
+        providerId: { type: string }
+        providerVersion: { type: string }
+        modality:
+          {
+            type: string,
+            enum:
+              [TRANSCODE, SPEECH_TO_TEXT, TEXT_TO_SPEECH, VISION, MULTIMODAL],
+          }
+        codecs: { type: array, items: { type: string } }
+        containers: { type: array, items: { type: string } }
+        sampleRatesHz:
+          { type: array, items: { type: integer, minimum: 1, maximum: 768000 } }
+        maximumWidth: { type: integer, minimum: 0, maximum: 65536 }
+        maximumHeight: { type: integer, minimum: 0, maximum: 65536 }
+        modelVersions: { type: array, minItems: 1, items: { type: string } }
+        regions: { type: array, items: { type: string } }
+        processingBoundary: { type: string, enum: [LOCAL, EXTERNAL] }
+        timingAvailable: { type: boolean }
+        confidenceAvailable: { type: boolean }
+        biometricDerivativesAvailable: { type: boolean }
+    ConsentGrantRequest:
+      type: object
+      required:
+        [
+          purposes,
+          allowedRegions,
+          externalProcessingAllowed,
+          biometricProcessingAllowed,
+        ]
+      additionalProperties: false
+      properties:
+        purposes:
+          {
+            type: array,
+            minItems: 1,
+            uniqueItems: true,
+            items: { type: string, minLength: 1, maxLength: 255 },
+          }
+        allowedRegions:
+          {
+            type: array,
+            uniqueItems: true,
+            items: { type: string, minLength: 1, maxLength: 255 },
+          }
+        externalProcessingAllowed: { type: boolean }
+        biometricProcessingAllowed: { type: boolean }
+        expiresAt: { type: [string, "null"], format: date-time }
+    ConsentRecord:
+      type: object
+      required:
+        [
+          tenantId,
+          consentId,
+          principalId,
+          purposes,
+          allowedRegions,
+          externalProcessingAllowed,
+          biometricProcessingAllowed,
+          grantedAt,
+          version,
+        ]
+      properties:
+        tenantId: { type: string }
+        consentId: { type: string }
+        principalId: { type: string }
+        purposes: { type: array, items: { type: string } }
+        allowedRegions: { type: array, items: { type: string } }
+        externalProcessingAllowed: { type: boolean }
+        biometricProcessingAllowed: { type: boolean }
+        grantedAt: { type: string, format: date-time }
+        expiresAt: { type: [string, "null"], format: date-time }
+        revokedAt: { type: [string, "null"], format: date-time }
+        version: { type: integer, format: int64, minimum: 1 }
+    UploadRequest:
+      type: object
+      required:
+        [
+          tenantId,
+          fileName,
+          contentType,
+          expectedSizeBytes,
+          expectedSha256,
+          classification,
+          retention,
+          metadata,
+        ]
+      properties:
+        tenantId: { type: string }
+        fileName: { type: string }
+        contentType: { type: string }
+        expectedSizeBytes:
+          {
+            type: integer,
+            minimum: 1,
+            maximum: 1073741824,
+            description: Maximum 1 GiB upload.,
+          }
+        expectedSha256: { type: string, pattern: "^[0-9a-fA-F]{64}$" }
+        classification: { type: string }
+        retention: { type: string, format: duration }
+        metadata:
+          { type: object, additionalProperties: true, maxProperties: 64 }
+    UploadSession: { type: object, additionalProperties: true }
+    MediaArtifact: { type: object, additionalProperties: true }
+    MediaGovernanceContext:
+      type: object
+      required:
+        [
+          purpose,
+          residency,
+          allowedRegions,
+          externalProcessingAllowed,
+          biometricProcessingAllowed,
+        ]
+      properties:
+        consentId: { type: string }
+        purpose: { type: string }
+        residency: { type: string }
+        allowedRegions: { type: array, items: { type: string } }
+        externalProcessingAllowed: { type: boolean }
+        biometricProcessingAllowed: { type: boolean }
+    ProcessingJobRequest:
+      type: object
+      required:
+        [
+          requestId,
+          tenantId,
+          principalId,
+          correlationId,
+          artifactId,
+          jobType,
+          parameters,
+        ]
+      properties:
+        requestId: { type: string }
+        tenantId: { type: string }
+        principalId: { type: string }
+        correlationId: { type: string }
+        artifactId: { type: string }
+        jobType:
+          {
+            type: string,
+            enum:
+              [TRANSCODE, SPEECH_TO_TEXT, TEXT_TO_SPEECH, VISION, MULTIMODAL],
+          }
+        providerHint: { type: [string, "null"] }
+        parameters:
+          type: object
+          additionalProperties: true
+          maxProperties: 64
+          properties:
+            promotionTier:
+              {
+                type: string,
+                enum: [DEIDENTIFIED],
+                description: Requests semantic de-identification; fails closed unless a semantic redaction provider authorizes promotion,
+              }
+        governanceContext:
+          { $ref: "#/components/schemas/MediaGovernanceContext" }
+    ProcessingJob: { type: object, additionalProperties: true }
+    StreamSessionRequest:
+      type: object
+      required:
+        [
+          tenantId,
+          principalId,
+          correlationId,
+          streamKind,
+          maximumBufferedBytes,
+          leaseDuration,
+          metadata,
+        ]
+      properties:
+        tenantId: { type: string }
+        principalId: { type: string }
+        correlationId: { type: string }
+        streamKind: { type: string, enum: [AUDIO, VIDEO, MULTIMODAL] }
+        providerHint: { type: [string, "null"] }
+        maximumBufferedBytes:
+          { type: integer, format: int64, minimum: 1, maximum: 1073741824 }
+        leaseDuration: { type: string, format: duration }
+        metadata:
+          { type: object, additionalProperties: true, maxProperties: 64 }
+        governanceContext:
+          { $ref: "#/components/schemas/MediaGovernanceContext" }
+    StreamSession: { type: object, additionalProperties: true }
+    StreamSessionRegistration:
+      type: object
+      required: [session, connectionToken]
+      properties:
+        session: { $ref: "#/components/schemas/StreamSession" }
+        connectionToken: { type: string, minLength: 32, writeOnly: true }
+    StreamAck:
+      type: object
+      required: [acceptedSequence, bufferedBytes, backpressured]
+      properties:
+        acceptedSequence: { type: integer, format: int64, minimum: 0 }
+        bufferedBytes: { type: integer, format: int64, minimum: 0 }
+        backpressured: { type: boolean }
+    ErrorEnvelope:
+      $ref: "#/components/schemas/PlatformErrorEnvelope"
+    PlatformError:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+        - retryable
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[A-Z][A-Z0-9_]*$
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2048
+          description: Caller-safe detail selected from the stable error taxonomy; never raw provider exception text.
+        retryable:
+          type: boolean
+        details:
+          type: object
+          additionalProperties: true
+        evidenceRefs:
+          type: array
+          maxItems: 50
+          items:
+            type: string
+            maxLength: 512
+        actionRefs:
+          type: array
+          maxItems: 50
+          items:
+            type: string
+            maxLength: 512
+    PlatformResponseMeta:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - correlationId
+        - timestamp
+        - apiVersion
+      properties:
+        requestId:
+          type: string
+          minLength: 1
+          maxLength: 255
+        correlationId:
+          type: string
+          minLength: 1
+          maxLength: 255
+        causationId:
+          type: string
+          minLength: 1
+          maxLength: 255
+        parentRunId:
+          type: string
+          minLength: 1
+          maxLength: 255
+        timestamp:
+          type: string
+          format: date-time
+        apiVersion:
+          type: string
+          minLength: 1
+          maxLength: 64
+    PlatformErrorEnvelope:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+        - meta
+      properties:
+        error:
+          $ref: "#/components/schemas/PlatformError"
+        meta:
+          $ref: "#/components/schemas/PlatformResponseMeta"
+    PlatformOperation:
+      type: object
+      additionalProperties: false
+      required:
+        - operationId
+        - state
+        - statusUrl
+        - cancellable
+        - retryable
+        - createdAt
+      properties:
+        operationId:
+          type: string
+          minLength: 1
+          maxLength: 255
+        state:
+          type: string
+          enum:
+            - ACCEPTED
+            - QUEUED
+            - RUNNING
+            - SUCCEEDED
+            - FAILED
+            - CANCELLED
+        statusUrl:
+          type: string
+          format: uri-reference
+        cancelUrl:
+          type: string
+          format: uri-reference
+        retryUrl:
+          type: string
+          format: uri-reference
+        cancellable:
+          type: boolean
+        retryable:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        resultRef:
+          type: string
+          format: uri-reference
+        error:
+          $ref: "#/components/schemas/PlatformError"
+  responses:
+    Health:
+      {
+        description: Operational health snapshot,
+        content:
+          {
+            application/json:
+              { schema: { type: object, additionalProperties: true } },
+          },
+      }
+    Error:
+      {
+        description: Fail-closed error envelope,
+        content:
+          {
+            application/json:
+              { schema: { $ref: "#/components/schemas/ErrorEnvelope" } },
+          },
+      }
+x-ghatana-contract-versions:
+  api: 1.0.0
+  event: 1.0.0
+  semantic: 1.0.0
+  compatibilityPolicy: backward-compatible-within-major
+x-ghatana-propagated-identity-headers:
+  - X-Request-ID
+  - X-Correlation-ID
+  - X-Causation-ID
+  - X-Parent-Run-ID
+  - X-Tenant-ID
+  - X-Ghatana-Delegation

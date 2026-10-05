@@ -1,0 +1,42 @@
+# Local credentials and environment overrides
+.env
+.env.*
+!.env.example
+
+# Gradle build state
+.gradle/
+**/.gradle/
+build/
+**/build/
+
+# JavaScript package and build output
+node_modules/
+**/node_modules/
+.pnpm-store/
+coverage/
+dist/
+
+# Python environments and caches
+.venv/
+**/.venv/
+venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Rust output
+/target/
+
+# Local model and generated diagnostic caches
+.model-cache/
+model-cache/
+local-models/
+
+# Editor and OS files
+.idea/
+.vscode/
+.DS_Store
+*.swp
+*.log

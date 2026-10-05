@@ -1,0 +1,49 @@
+{
+  "producerId": "media-grpc-transport-security",
+  "name": "Media gRPC Transport Security Proof",
+  "description": "Validates shared Media gRPC TLS wiring and production-like fail-closed transport configuration for STT, TTS, Vision, and Multimodal.",
+  "version": "1.0.0",
+  "criteriaId": "media-grpc-transport-security",
+  "type": "validation",
+  "repo": "ghatana-media",
+  "scope": "media-grpc-transport-security",
+  "unitScope": [
+    "libs/common/src/main/java/com/ghatana/audio/video/common/AudioVideoGrpcServerBase.java",
+    "libs/common/src/main/java/com/ghatana/audio/video/common/GrpcTransportSecurityPolicy.java",
+    "libs/common/src/test/java/com/ghatana/audio/video/common/AudioVideoGrpcServerBaseTest.java",
+    "libs/common/src/test/java/com/ghatana/audio/video/common/GrpcTransportSecurityPolicyTest.java",
+    "modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/SttGrpcServer.java",
+    "modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcServer.java",
+    "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/grpc/VisionGrpcServer.java",
+    "modules/intelligence/multimodal-service/src/main/java/com/ghatana/audio/video/multimodal/grpc/MultimodalGrpcServer.java",
+    "scripts/conformance/check-media-grpc-transport-security.mjs"
+  ],
+  "execution": {
+    "platform": "java-evidence-generator",
+    "command": "node",
+    "args": [
+      "scripts/conformance/check-media-grpc-transport-security.mjs"
+    ],
+    "timeout": "10m",
+    "requiresDocker": false
+  },
+  "outputs": {
+    "artifactType": "media-grpc-transport-security-proof",
+    "canonicalOutputOwner": "java-evidence-generator",
+    "localDiagnosticPath": "build/proofs/media-grpc-transport-security/proof.json",
+    "format": "json",
+    "evidenceGeneratorRepository": "ghatana-tools",
+    "evidenceGeneratorCoordinate": "evidence-generator"
+  },
+  "governance": {
+    "owner": "Media Engineering",
+    "reviewCycle": "per-change",
+    "escalationPath": "media-runtime-leads"
+  },
+  "surfaceId": "media-api",
+  "toolBinding": {
+    "toolId": "evidence-generator",
+    "operationId": "run",
+    "provider": "samujjwal/ghatana-tools"
+  }
+}

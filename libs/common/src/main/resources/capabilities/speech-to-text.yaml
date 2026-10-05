@@ -1,0 +1,91 @@
+# Speech-to-Text (STT) Tool Contract Descriptor
+# Conforms to the ToolContract schema defined in com.ghatana.agent.framework.tools.ToolContract
+# Used by SpeechToTextToolHandler to register with the AEP tool catalog
+
+toolId: "av.speech-to-text"
+toolVersion: "1.0.0"
+name: "Speech-to-Text"
+description: >
+  Converts audio input (raw bytes or a media artifact ID) into a structured
+  transcription result. Supports streaming and batch modes, multiple languages,
+  speaker diarization, and timestamped segments.
+actionClass: "CALL_EXTERNAL"
+requiresApproval: false
+isReversible: true
+
+inputSchema:
+  type: object
+  required: [audioSource]
+  properties:
+    audioSource:
+      type: object
+      description: "Either raw audio bytes (base64) or a mediaArtifactId reference"
+      oneOf:
+        - required: [mediaArtifactId]
+          properties:
+            mediaArtifactId:
+              type: string
+              description: "Platform media artifact ID to resolve audio from Data Cloud"
+        - required: [audioBytes]
+          properties:
+            audioBytes:
+              type: string
+              format: byte
+              description: "Base64-encoded raw audio bytes"
+    languageCode:
+      type: string
+      default: "en-US"
+      description: "BCP-47 language tag for transcription"
+    enableDiarization:
+      type: boolean
+      default: false
+      description: "Enable speaker diarization (requires stereo audio)"
+    model:
+      type: string
+      enum: [default, enhanced, telephony]
+      default: default
+      description: "Model tier to use for transcription"
+
+outputSchema:
+  type: object
+  properties:
+    transcript:
+      type: string
+      description: "Full concatenated transcript text"
+    segments:
+      type: array
+      items:
+        type: object
+        properties:
+          text:
+            type: string
+          startMs:
+            type: integer
+          endMs:
+            type: integer
+          speaker:
+            type: string
+    confidence:
+      type: number
+      format: double
+      description: "Overall confidence score in [0,1]"
+    languageDetected:
+      type: string
+
+policyTags:
+  - "audio-processing"
+  - "external-call"
+  - "pii-risk"
+
+accessPolicy:
+  requiredRoles: ["OPERATOR", "ADMIN"]
+
+transport: "REMOTE"
+remoteEndpoint: "${STT_SERVICE_ENDPOINT}"
+
+metadata:
+  product: "audio-video"
+  capability: "speech"
+  grpcServiceName: "com.ghatana.audio.video.stt.SttService"
+  timeoutMs: "30000"
+  retryable: "true"

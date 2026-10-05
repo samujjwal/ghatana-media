@@ -1,0 +1,1 @@
+{"main":{"identifier":"main","description":"Default capability for the main audio-video desktop window.","local":true,"windows":["main"],"permissions":["core:default","shell:default"]}}

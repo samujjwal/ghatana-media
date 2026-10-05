@@ -1,0 +1,82 @@
+# Text-to-Speech (TTS) Tool Contract Descriptor
+# Conforms to the ToolContract schema defined in com.ghatana.agent.framework.tools.ToolContract
+# Used by TextToSpeechToolHandler to register with the AEP tool catalog
+
+toolId: "av.text-to-speech"
+toolVersion: "1.0.0"
+name: "Text-to-Speech"
+description: >
+  Synthesizes natural-sounding speech from text input using configurable voice
+  profiles, speaking rate, and pitch. Returns synthesized audio as a media
+  artifact stored in Data Cloud, or as inline base64 bytes for small payloads.
+actionClass: "CALL_EXTERNAL"
+requiresApproval: false
+isReversible: true
+
+inputSchema:
+  type: object
+  required: [text]
+  properties:
+    text:
+      type: string
+      maxLength: 10000
+      description: "Plain text or SSML markup to synthesize"
+    voiceId:
+      type: string
+      default: "en-US-default"
+      description: "Voice identifier (language-region-name format)"
+    speakingRate:
+      type: number
+      minimum: 0.25
+      maximum: 4.0
+      default: 1.0
+      description: "Speaking rate relative to normal (1.0)"
+    pitch:
+      type: number
+      minimum: -20.0
+      maximum: 20.0
+      default: 0.0
+      description: "Speaking pitch in semitones relative to native pitch"
+    audioEncoding:
+      type: string
+      enum: [MP3, WAV, OGG_OPUS, LINEAR16]
+      default: MP3
+      description: "Output audio encoding format"
+    storeAsArtifact:
+      type: boolean
+      default: false
+      description: "If true, stores output in Data Cloud and returns mediaArtifactId"
+
+outputSchema:
+  type: object
+  properties:
+    audioBytes:
+      type: string
+      format: byte
+      description: "Base64-encoded synthesized audio (only if storeAsArtifact=false)"
+    mediaArtifactId:
+      type: string
+      description: "Data Cloud artifact ID (only if storeAsArtifact=true)"
+    audioEncoding:
+      type: string
+      description: "Actual encoding used for the output audio"
+    durationMs:
+      type: integer
+      description: "Duration of synthesized audio in milliseconds"
+
+policyTags:
+  - "audio-processing"
+  - "external-call"
+
+accessPolicy:
+  requiredRoles: ["OPERATOR", "ADMIN"]
+
+transport: "REMOTE"
+remoteEndpoint: "${TTS_SERVICE_ENDPOINT}"
+
+metadata:
+  product: "audio-video"
+  capability: "speech"
+  grpcServiceName: "com.ghatana.audio.video.tts.TtsService"
+  timeoutMs: "15000"
+  retryable: "true"

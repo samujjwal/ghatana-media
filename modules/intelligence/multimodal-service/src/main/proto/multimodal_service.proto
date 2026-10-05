@@ -1,0 +1,223 @@
+syntax = "proto3";
+
+package com.ghatana.audio.video.multimodal.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.ghatana.audio.video.multimodal.grpc.proto";
+option java_outer_classname = "MultimodalServiceProto";
+
+service MultimodalService {
+  // Process combined audio-visual content
+  rpc ProcessMultimodal(MultimodalRequest) returns (MultimodalResponse);
+  
+  // Analyze video with audio
+  rpc AnalyzeVideoWithAudio(VideoAudioRequest) returns (VideoAudioResponse);
+  
+  // Generate description from multiple modalities
+  rpc GenerateDescription(DescriptionRequest) returns (DescriptionResponse);
+
+  // Analyze cross-modal alignment between audio and visual streams
+  rpc AnalyzeCrossModal(CrossModalRequest) returns (CrossModalResponse);
+
+  // Extract aggregated insights from multimodal content
+  rpc GetInsights(InsightsRequest) returns (InsightsResponse);
+
+  // Load a multimodal model
+  rpc LoadModel(LoadModelRequest) returns (LoadModelResponse);
+
+  // Unload a multimodal model
+  rpc UnloadModel(UnloadModelRequest) returns (UnloadModelResponse);
+
+  // List available multimodal models
+  rpc ListModels(ListModelsRequest) returns (ListModelsResponse);
+
+  // Get service status
+  rpc GetStatus(StatusRequest) returns (StatusResponse);
+  
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message MultimodalRequest {
+  bytes audio_data = 1;
+  bytes image_data = 2;
+  bytes video_data = 3;
+  string text = 4;
+  repeated string analysis_types = 5;
+  
+  // Data Cloud integration metadata
+  string tenant_id = 6;
+  string artifact_id = 7;
+  string job_id = 8;
+  string correlation_id = 9;
+  string consent_status = 10;
+  string retention_policy = 11;
+}
+
+message MultimodalResponse {
+  string combined_analysis = 1;
+  AudioAnalysis audio_analysis = 2;
+  VisualAnalysis visual_analysis = 3;
+  map<string, string> metadata = 4;
+  int64 processing_time_ms = 5;
+}
+
+message AudioAnalysis {
+  string transcription = 1;
+  repeated string detected_sounds = 2;
+  string sentiment = 3;
+  double confidence = 4;
+}
+
+message VisualAnalysis {
+  string scene_description = 1;
+  repeated Detection objects = 2;
+  repeated string activities = 3;
+  double confidence = 4;
+}
+
+message Detection {
+  string class_name = 1;
+  double confidence = 2;
+  BoundingBox bounding_box = 3;
+}
+
+message BoundingBox {
+  double x = 1;
+  double y = 2;
+  double width = 3;
+  double height = 4;
+}
+
+message VideoAudioRequest {
+  bytes video_data = 1;
+  bool extract_audio = 2;
+  bool analyze_frames = 3;
+  int32 frame_sample_rate = 4;
+}
+
+message VideoAudioResponse {
+  string video_summary = 1;
+  string audio_transcription = 2;
+  repeated FrameAnalysis frame_analyses = 3;
+  string combined_narrative = 4;
+}
+
+message FrameAnalysis {
+  int64 timestamp_ms = 1;
+  string description = 2;
+  repeated Detection objects = 3;
+}
+
+message DescriptionRequest {
+  bytes audio_data = 1;
+  bytes image_data = 2;
+  string context = 3;
+  string style = 4;
+}
+
+message DescriptionResponse {
+  string description = 1;
+  double confidence = 2;
+  repeated string key_elements = 3;
+}
+
+// ── CrossModal analysis ────────────────────────────────────────────────────
+
+message CrossModalRequest {
+  bytes audio_data = 1;
+  bytes video_data = 2;
+  // Analysis window in milliseconds; 0 = full content
+  int64 analysis_window_ms = 3;
+}
+
+message CrossModalResponse {
+  // Alignment score [0,1] between audio and visual streams
+  double alignment_score = 1;
+  repeated CrossModalEvent events = 2;
+  string summary = 3;
+  int64 processing_time_ms = 4;
+}
+
+message CrossModalEvent {
+  int64 timestamp_ms = 1;
+  string event_type = 2;      // "sync", "mismatch", "emphasis"
+  string description = 3;
+  double confidence = 4;
+}
+
+// ── Insights extraction ────────────────────────────────────────────────────
+
+message InsightsRequest {
+  bytes audio_data = 1;
+  bytes video_data = 2;
+  bytes image_data = 3;
+  string text = 4;
+  repeated string insight_types = 5; // "sentiment", "topics", "actions", "entities"
+}
+
+message InsightsResponse {
+  string overall_sentiment = 1;
+  repeated string topics = 2;
+  repeated string entities = 3;
+  repeated string actions = 4;
+  map<string, double> confidence_scores = 5;
+  int64 processing_time_ms = 6;
+}
+
+// ── Model management ───────────────────────────────────────────────────────
+
+message LoadModelRequest {
+  string model_id = 1;
+}
+
+message LoadModelResponse {
+  bool success = 1;
+  string message = 2;
+  string model_id = 3;
+  int64 load_time_ms = 4;
+}
+
+message UnloadModelRequest {
+  string model_id = 1;
+}
+
+message UnloadModelResponse {
+  bool success = 1;
+  string message = 2;
+  int64 memory_freed_bytes = 3;
+}
+
+message ListModelsRequest {
+  bool include_loaded_only = 1;
+}
+
+message MultimodalModelInfo {
+  string model_id = 1;
+  string name = 2;
+  string version = 3;
+  bool is_loaded = 4;
+  int64 size_bytes = 5;
+  repeated string modalities = 6; // "audio", "video", "image", "text"
+}
+
+message ListModelsResponse {
+  repeated MultimodalModelInfo models = 1;
+  int32 total_count = 2;
+  int32 loaded_count = 3;
+}
+
+message StatusRequest {}
+
+message StatusResponse {
+  string status = 1;
+  int64 total_requests = 2;
+  double avg_processing_time_ms = 3;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string message = 2;
+}

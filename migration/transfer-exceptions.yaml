@@ -1,0 +1,424 @@
+schemaVersion: media.migration-transfer-exceptions.v1
+productId: media
+sourceRevision: 245e966591913bc73f59fad9bf43651673b0280e
+targetRepository: samujjwal/ghatana-media
+records:
+- sourceRepository: samujjwal/ghatana
+  sourcePath: scripts/check-audio-video-provider-readiness.mjs
+  sourceMode: '100644'
+  sourceFingerprint: c3e83b1903ba2a08a4190714204f86a7f3ae5d71
+  targetPath: scripts/conformance/check-audio-video-provider-readiness.mjs
+  targetMode: '100644'
+  targetFingerprint: 34f117f75ec5e86f9618149df0936f7542f2abdf
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: scripts/check-media-cancellation-truth.mjs
+  sourceMode: '100644'
+  sourceFingerprint: 47ab958eceee66bb04d2b1391a7538f874bd837a
+  targetPath: scripts/conformance/check-media-cancellation-truth.mjs
+  targetMode: '100644'
+  targetFingerprint: d455e8eee31c0170d64142c35e04d8ce591dafd0
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: scripts/check-media-grpc-transport-security.mjs
+  sourceMode: '100644'
+  sourceFingerprint: 09d6794d29b6400f0a2b31970183a85f877cee15
+  targetPath: scripts/conformance/check-media-grpc-transport-security.mjs
+  targetMode: '100644'
+  targetFingerprint: fdef093172126cb87cb1a6399a46e4a5122b7ca2
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: scripts/check-media-processing-cancellation-fence.mjs
+  sourceMode: '100644'
+  sourceFingerprint: 8239a7b08087a3f1f7852d7f894dfde1176b11ac
+  targetPath: scripts/conformance/check-media-processing-cancellation-fence.mjs
+  targetMode: '100644'
+  targetFingerprint: 0d502dddedfbb9163b8f67747c9c7d6a4b77eea5
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: scripts/check-media-provider-fallback-contract.mjs
+  sourceMode: '100644'
+  sourceFingerprint: 1b8daee319dee1b8fb74609359d4bc38c310446a
+  targetPath: scripts/conformance/check-media-provider-fallback-contract.mjs
+  targetMode: '100644'
+  targetFingerprint: 22b354f02518f20c89aa0e4d2b585dfe0576c19e
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: scripts/check-media-restart-reconciliation-truth.mjs
+  sourceMode: '100644'
+  sourceFingerprint: 16d3c0148ea4feabb6016fc52e1d7c155557f604
+  targetPath: scripts/conformance/check-media-restart-reconciliation-truth.mjs
+  targetMode: '100644'
+  targetFingerprint: 24c9c8c449f475f9dbb2669da208f9f210712415
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: scripts/check-media-runtime-authority.mjs
+  sourceMode: '100644'
+  sourceFingerprint: 23d356854c5a8904aa7bd817721358b17c88e244
+  targetPath: scripts/conformance/check-media-runtime-authority.mjs
+  targetMode: '100644'
+  targetFingerprint: 77b304c4c9f31ba5ab4033b4d3bda39448b6a69d
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: scripts/check-media-speech-persistence-privacy-gate.mjs
+  sourceMode: '100644'
+  sourceFingerprint: 099f00cf8267eb3ab495d877481d910d5b4b9269
+  targetPath: scripts/conformance/check-media-speech-persistence-privacy-gate.mjs
+  targetMode: '100644'
+  targetFingerprint: 56e2e22c01e3daa8b65cb93f840b8101dd9178f2
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance; the gate invokes the target-local ./gradlew with the original task arguments instead of depending on Ghatana's shared wrapper.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: scripts/check-media-speech-persistence-privacy.mjs
+  sourceMode: '100644'
+  sourceFingerprint: 2d480734649a4044d2a5ff373c64e3a109c74813
+  targetPath: scripts/conformance/check-media-speech-persistence-privacy.mjs
+  targetMode: '100644'
+  targetFingerprint: 8b33f54723fab49896d40b3a972c17358fdb1401
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: scripts/check-media-terminal-frame-authority.mjs
+  sourceMode: '100644'
+  sourceFingerprint: f233b6b012a8e134a6eaf3f84a7855ed283017d6
+  targetPath: scripts/conformance/check-media-terminal-frame-authority.mjs
+  targetMode: '100644'
+  targetFingerprint: 8ac1f96951e262c883ee31ec5ed8090068c88fe1
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: scripts/check-media-tts-runtime-authority.mjs
+  sourceMode: '100644'
+  sourceFingerprint: 4bb161b4a40360912d5d8027b12ebde4029eac07
+  targetPath: scripts/conformance/check-media-tts-runtime-authority.mjs
+  targetMode: '100644'
+  targetFingerprint: 8ec9300adc7194775bcd8b298d09381245679b9e
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: scripts/lib/media-tts-runtime-authority.mjs
+  sourceMode: '100644'
+  sourceFingerprint: f77bd4dc35027be1ca5b1c9d105eca2f8d257e3a
+  targetPath: scripts/conformance/lib/media-tts-runtime-authority.mjs
+  targetMode: '100644'
+  targetFingerprint: 3e1d81f0de1bba1626a26862135947c242c3089e
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/.gitea/workflows/audio-video-cd.yml
+  sourceMode: '100644'
+  sourceFingerprint: bfbafd14642d5efaa573c4a58fd8c18084432f12
+  targetPath: migration/candidates/root-media/gitea-audio-video-cd.yml
+  targetMode: '100644'
+  targetFingerprint: fcbe6124bda6ed243a19a436c3d558ee69fc648b
+  classification: workflow-quarantine
+  reason: Target-root paths rebased; CI publish and CD deploy workflows moved outside
+    active discovery pending owner gates.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/.gitea/workflows/audio-video-ci.yml
+  sourceMode: '100644'
+  sourceFingerprint: 79e1a7c57fb59fd3899124405b1fcb3a2f55e843
+  targetPath: migration/candidates/root-media/gitea-audio-video-ci.yml
+  targetMode: '100644'
+  targetFingerprint: 9fa0fe3d6f3fc77ca8d4f8b401aefeaaef8d47a6
+  classification: workflow-quarantine
+  reason: Target-root paths rebased; CI publish and CD deploy workflows moved outside
+    active discovery pending owner gates.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/AUDIO_VIDEO_STT_CONFIGURATION.md
+  sourceMode: '100644'
+  sourceFingerprint: aa816f3dc18e1937d141221b21cf0d038ea19421
+  targetPath: AUDIO_VIDEO_STT_CONFIGURATION.md
+  targetMode: '100644'
+  targetFingerprint: 97f81a06c511481d2db72f32f1628165b36adb3a
+  classification: documentation-path-rebase
+  reason: Repository-local source and document paths rebased to the target layout.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/README.md
+  sourceMode: '100644'
+  sourceFingerprint: acd3f35df459ff92d7abc8041d3571d16fd7760a
+  targetPath: README.md
+  targetMode: '100644'
+  targetFingerprint: 782014aae6442debeb0ea0a411f03a3a8d9496e6
+  classification: repository-orientation
+  reason: Rewritten to explain migration-only target state, build gaps, ownership,
+    and local documentation paths.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/config/kernel-provider-dependency-requests.source.json
+  sourceMode: '100644'
+  sourceFingerprint: c2b085e7b82091e5351fce6dcdaf4e74982adfe8
+  targetPath: config/kernel-provider-dependency-requests.source.json
+  targetMode: '100644'
+  targetFingerprint: 897731c247c6854a50ec7d1e2b9f5d799458d14b
+  classification: configuration-path-rebase
+  reason: Path references rebased; contract values and statuses were not changed.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/config/provider-manifest.json
+  sourceMode: '100644'
+  sourceFingerprint: 9c38a272ba76e6ab0b9e451fcd7e7fc630646316
+  targetPath: config/provider-manifest.json
+  targetMode: '100644'
+  targetFingerprint: 23425c2928cec1a684bc57d2671986336f2c6517
+  classification: configuration-path-rebase
+  reason: Path references rebased; contract values and statuses were not changed.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/config/route-manifest.json
+  sourceMode: '100644'
+  sourceFingerprint: 2fc6d8ae84250126a667f993e7ed0e17b7e5b62f
+  targetPath: config/route-manifest.json
+  targetMode: '100644'
+  targetFingerprint: 4507892ca905a276dcd4acbaa137b0588e2c193c
+  classification: configuration-path-rebase
+  reason: Path references rebased; contract values and statuses were not changed.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/docs/ARCHITECTURE.md
+  sourceMode: '100644'
+  sourceFingerprint: d3bb090de089f92eb5e199e4937f9d1de02de798
+  targetPath: docs/ARCHITECTURE.md
+  targetMode: '100644'
+  targetFingerprint: 8de20f6088bed89897b920746ea82705bfe9e60e
+  classification: documentation-path-rebase
+  reason: Repository-local source and document paths rebased to the target layout.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/docs/CIRCUIT_BREAKER_DIFFERENCES.md
+  sourceMode: '100644'
+  sourceFingerprint: 689dd5bbce3ea9eb4992e2d295e0bdd2578e3e6a
+  targetPath: docs/CIRCUIT_BREAKER_DIFFERENCES.md
+  targetMode: '100644'
+  targetFingerprint: e6e2cab6492318531402bce998a6b96b0234750d
+  classification: documentation-path-rebase
+  reason: Repository-local source and document paths rebased to the target layout.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md
+  sourceMode: '100644'
+  sourceFingerprint: 79f9bafbf9ed7c3809f68798bee47d4f9dbd8387
+  targetPath: docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md
+  targetMode: '100644'
+  targetFingerprint: 16a4d506b4f705b025e61d80b4c697d52b6d08f2
+  classification: documentation-path-rebase
+  reason: Repository-local source and document paths rebased to the target layout.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/docs/OPERATIONS.md
+  sourceMode: '100644'
+  sourceFingerprint: 37aa9265d3b8b108a70ae9a99e62412ccb29b17e
+  targetPath: docs/OPERATIONS.md
+  targetMode: '100644'
+  targetFingerprint: df6a674e85fc8d9b8fa1dcbe35c6d2beebe31ac1
+  classification: documentation-path-rebase
+  reason: Repository-local source and document paths rebased to the target layout.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/docs/capability-map.md
+  sourceMode: '100644'
+  sourceFingerprint: 1a0ffdebe0fa1345b88c13b310afd976bc85d218
+  targetPath: docs/capability-map.md
+  targetMode: '100644'
+  targetFingerprint: dfbb3959436372f70823cff8f8761a4da32134e1
+  classification: documentation-path-rebase
+  reason: Repository-local source and document paths rebased to the target layout.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/gradle
+  sourceMode: '120000'
+  sourceFingerprint: 1ce6c4c1ed03cee6301225f4ec3e643e03ea7f9a
+  targetPath: gradle
+  targetMode: directory
+  targetFingerprint: null
+  classification: build-layout-replacement
+  reason: Replaced a monorepo symlink with repository-local wrapper metadata and a
+    Media-owned version catalog.
+  replacementFiles:
+  - path: gradle/libs.versions.toml
+    gitBlobSha1: f9f7cbb32fb4293bfd89a0a8cb252d976c178a1c
+  - path: gradle/wrapper/gradle-wrapper.jar
+    gitBlobSha1: eddabd2eef8d94a5437d6168ff9c87a78ff725b3
+  - path: gradle/wrapper/gradle-wrapper.properties
+    gitBlobSha1: 2d2b8db9110b49c8bf22b101a808e1c1b20d4941
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/libs/audio-video-client/package.json
+  sourceMode: '100644'
+  sourceFingerprint: b52b77855f62c6648edd708a8bf45fdd3f207555
+  targetPath: libs/audio-video-client/package.json
+  targetMode: '100644'
+  targetFingerprint: 3862bcc64cbe91e21f913e371e7a25c53701c519
+  classification: repository-metadata-rebase
+  reason: Updated repository URL and package directory only; package identity and
+    dependency metadata preserved.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/libs/audio-video-types/package.json
+  sourceMode: '100644'
+  sourceFingerprint: e9997200c85373580c1dca089ca57c8572c3edb8
+  targetPath: libs/audio-video-types/package.json
+  targetMode: '100644'
+  targetFingerprint: eb197c03729ccbbca97bf3a594c0bbc8878ee643
+  classification: repository-metadata-rebase
+  reason: Updated repository URL and package directory only; package identity and
+    dependency metadata preserved.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/libs/audio-video-ui/package.json
+  sourceMode: '100644'
+  sourceFingerprint: 3d005515326f699121ed01baccdb79d645c79d9d
+  targetPath: libs/audio-video-ui/package.json
+  targetMode: '100644'
+  targetFingerprint: d61ef83efbc770ef2ec1cb70c718274955f6e224
+  classification: repository-metadata-rebase
+  reason: Updated repository URL and package directory only; package identity and
+    dependency metadata preserved.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/libs/common/src/test/java/com/ghatana/audio/video/common/proto/ProtoCompatibilityTest.java
+  sourceMode: '100644'
+  sourceFingerprint: 74a765d122d92230ebd28f12e178c1de864a6e62
+  targetPath: libs/common/src/test/java/com/ghatana/audio/video/common/proto/ProtoCompatibilityTest.java
+  targetMode: '100644'
+  targetFingerprint: e061fe60a83ade8b418ddf4e01c926447c985553
+  classification: target-path-adaptation
+  reason: Target-root paths adjusted for the standalone repository layout.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/MediaOpenApiContractConsumptionTest.java
+  sourceMode: '100644'
+  sourceFingerprint: b6808ae7533eedcacb9b1a067c7878ff697ec060
+  targetPath: modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/MediaOpenApiContractConsumptionTest.java
+  targetMode: '100644'
+  targetFingerprint: 36a76c7d20996edb0b85b94096bf5fbab186bb1e
+  classification: test-path-rebase
+  reason: Repository-root-relative contract, fixture, or proto references rebased
+    to the target layout.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/modules/intelligence/ai-voice/scripts/setup-dev-env.sh
+  sourceMode: '100755'
+  sourceFingerprint: ef1f5ce7003b391be7301497ab8f288000c40fcf
+  targetPath: modules/intelligence/ai-voice/scripts/setup-dev-env.sh
+  targetMode: '100755'
+  targetFingerprint: b2693e7c4551807d83ce3452c341af44eafea376
+  classification: archival-setup-guard
+  reason: Target layout and archived-only state are explicit; exits before installation
+    when desktop/requirements are unavailable.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/modules/intelligence/multimodal-service/src/test/java/com/ghatana/audio/video/multimodal/engine/MediaContractInteropTest.java
+  sourceMode: '100644'
+  sourceFingerprint: 6d86cecb3392b3dc568541c11de902108417cd39
+  targetPath: modules/intelligence/multimodal-service/src/test/java/com/ghatana/audio/video/multimodal/engine/MediaContractInteropTest.java
+  targetMode: '100644'
+  targetFingerprint: 346eb99fa807e9a1fcc6f5834dd8035a3d880b5f
+  classification: test-path-rebase
+  reason: Repository-root-relative contract, fixture, or proto references rebased
+    to the target layout.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/pnpm-workspace.yaml
+  sourceMode: '100644'
+  sourceFingerprint: d6452ed93c496fd05172d616c2097b4ac29f16dd
+  targetPath: pnpm-workspace.yaml
+  targetMode: '100644'
+  targetFingerprint: 2f26d4c14141ccdf42b29ea74c060633dd780b36
+  classification: package-workspace-rebase
+  reason: Added the exact existing catalog entries required by Media workspace packages.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/providers/aws-postgresql/build.gradle.kts
+  sourceMode: '100644'
+  sourceFingerprint: 44995e7256ba0b6ef6dcb2a6a2d32fbbfbe63da8
+  targetPath: providers/aws-postgresql/build.gradle.kts
+  targetMode: '100644'
+  targetFingerprint: 2e070952b8b7dc303bbfc66bc98e4560ac4f627c
+  classification: build-layout-replacement
+  reason: SpotBugs now uses a Media-local empty filter; Data Cloud suppressions were
+    not copied.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/service-contract-supplements/source-overlay.json
+  sourceMode: '100644'
+  sourceFingerprint: a3799022fb8e5d8e8fb06ef1a15a72aadfdc0497
+  targetPath: service-contract-supplements/source-overlay.json
+  targetMode: '100644'
+  targetFingerprint: af706a4937c084934a40fc6ac8f972d3de2c5414
+  classification: configuration-path-rebase
+  reason: Path references rebased; contract values and statuses were not changed.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: services/media/service-contract-supplements/zz-evidence-truth.source-overlay.json
+  sourceMode: '100644'
+  sourceFingerprint: 0f1d47aebd211abe8fc671706357f7c7bec19343
+  targetPath: service-contract-supplements/zz-evidence-truth.source-overlay.json
+  targetMode: '100644'
+  targetFingerprint: 43bce6f782c400d9ae0800672a97aed7c531c035
+  classification: configuration-path-rebase
+  reason: Path references rebased; contract values and statuses were not changed.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: tools/evidence-definitions/criteria/media-grpc-transport-security.criteria.json
+  sourceMode: '100644'
+  sourceFingerprint: 5be7bcdcd1f5584eac02fe2be30d5c60039b1320
+  targetPath: scripts/conformance/evidence-definitions/criteria/media-grpc-transport-security.criteria.json
+  targetMode: '100644'
+  targetFingerprint: 050a7013613e870bf06424795ce2fe605e62ab4c
+  classification: conformance-path-rebase
+  reason: Media conformance/evidence paths rebased under scripts/conformance and its producer target reference follows the target path;
+    validation semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: tools/evidence-definitions/criteria/media-runtime.criteria.json
+  sourceMode: '100644'
+  sourceFingerprint: 29b6ed207156451c99a5da090d81a0f6aa8b96f7
+  targetPath: scripts/conformance/evidence-definitions/criteria/media-runtime.criteria.json
+  targetMode: '100644'
+  targetFingerprint: 1a38f5fe00242e314f3d930129d2d5a01cb0faa9
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: tools/evidence-definitions/criteria/media-speech-persistence-privacy.criteria.json
+  sourceMode: '100644'
+  sourceFingerprint: 7c921f6ecc16d99f2f6571c940bb1e0f9a344ef2
+  targetPath: scripts/conformance/evidence-definitions/criteria/media-speech-persistence-privacy.criteria.json
+  targetMode: '100644'
+  targetFingerprint: b8436f5758f979ec5c2ed41582d27f063a08362a
+  classification: conformance-path-rebase
+  reason: Media conformance and evidence paths rebased under scripts/conformance;
+    task/evidence semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: tools/evidence-definitions/producers/media-grpc-transport-security.producer.json
+  sourceMode: '100644'
+  sourceFingerprint: 2b9accbeb602d68984f394c8c4b6192da17d6f15
+  targetPath: scripts/conformance/evidence-definitions/producers/media-grpc-transport-security.producer.json
+  targetMode: '100644'
+  targetFingerprint: 53c7dfaf531a7fb7c66fbf3f9202f7034c69fd83
+  classification: conformance-path-rebase
+  reason: Media conformance/evidence paths rebased under scripts/conformance and producer resolves to the target repo; validation semantics retained.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: tools/evidence-definitions/producers/media-production-state-streaming.producer.json
+  sourceMode: '100644'
+  sourceFingerprint: c004c8e148fccbcea6d7a2ce3bf13ca2b654c16d
+  targetPath: scripts/conformance/evidence-definitions/producers/media-production-state-streaming.producer.json
+  targetMode: '100644'
+  targetFingerprint: d4b7b6d6b4c48893d94e557d0eb1c5ecf9aae79a
+  classification: conformance-path-rebase
+  reason: Media conformance/evidence paths rebased under scripts/conformance and producer resolves to the target repo; it invokes target-local ./gradlew with the original task arguments instead of depending on Ghatana's shared wrapper.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: tools/evidence-definitions/producers/media-runtime.producer.json
+  sourceMode: '100644'
+  sourceFingerprint: c403bd27e07bd33794095db0b2d9becee31f7291
+  targetPath: scripts/conformance/evidence-definitions/producers/media-runtime.producer.json
+  targetMode: '100644'
+  targetFingerprint: 91a5f82c84bbca6e310a6f15eded21622c06b0f3
+  classification: conformance-path-rebase
+  reason: Media conformance/evidence paths rebased under scripts/conformance and producer resolves to the target repo; it invokes target-local ./gradlew with the original task arguments instead of depending on Ghatana's shared wrapper.
+- sourceRepository: samujjwal/ghatana
+  sourcePath: tools/evidence-definitions/producers/media-speech-persistence-privacy.producer.json
+  sourceMode: '100644'
+  sourceFingerprint: 20bce7f15d065f74f46df0392a601ed1350ecf1e
+  targetPath: scripts/conformance/evidence-definitions/producers/media-speech-persistence-privacy.producer.json
+  targetMode: '100644'
+  targetFingerprint: c80600361ad4bf4f64bce68785ec61730afc6858
+  classification: conformance-path-rebase
+  reason: Media conformance/evidence paths rebased under scripts/conformance and producer resolves to the target repo; its local gate invokes ./gradlew with the original task arguments.

@@ -1,0 +1,15 @@
+{
+  "overlayKind": "service-contract-source",
+  "serviceId": "media",
+  "overlayId": "media-evidence-truth-v1",
+  "patch": {
+    "requirements": [
+      {
+        "id": "MEDIA-CONTRACT-001",
+        "testRefs": [
+          "modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/MultimodalContractTest.java"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,322 @@
+syntax = "proto3";
+
+package com.ghatana.audio.video.stt.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.ghatana.stt.core.grpc.proto";
+option java_outer_classname = "SttServiceProto";
+
+/**
+ * STT Service - gRPC API for Speech-to-Text transcription
+ * 
+ * This service provides both synchronous and streaming transcription,
+ * model adaptation, and status monitoring.
+ */
+service STTService {
+    // Synchronous transcription of a complete audio file
+    rpc Transcribe(TranscribeRequest) returns (TranscribeResponse);
+    
+    // Bidirectional streaming for real-time transcription
+    rpc StreamTranscribe(stream AudioChunk) returns (stream Transcription);
+    
+    // Load a specific model into memory
+    rpc LoadModel(LoadModelRequest) returns (LoadModelResponse);
+    
+    // Unload a model from memory
+    rpc UnloadModel(UnloadModelRequest) returns (UnloadModelResponse);
+    
+    // List available models
+    rpc ListModels(ListModelsRequest) returns (ListModelsResponse);
+    
+    // Trigger model adaptation from user interactions
+    rpc AdaptModel(AdaptRequest) returns (AdaptResponse);
+    
+    // Get current engine status and metrics
+    rpc GetStatus(StatusRequest) returns (StatusResponse);
+    
+    // Health check endpoint
+    rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+    
+    // Profile management
+    rpc CreateProfile(CreateProfileRequest) returns (ProfileResponse);
+    rpc GetProfile(GetProfileRequest) returns (ProfileResponse);
+    rpc UpdateProfile(UpdateProfileRequest) returns (ProfileResponse);
+    
+    // Submit correction for adaptation
+    rpc SubmitCorrection(CorrectionRequest) returns (CorrectionResponse);
+}
+
+// ============================================================================
+// Request/Response Messages
+// ============================================================================
+
+message TranscribeRequest {
+    bytes audio_data = 1;
+    int32 sample_rate = 2;
+    string language = 3;
+    string profile_id = 4;
+    TranscriptionOptions options = 5;
+    
+    // Data Cloud integration metadata
+    string tenant_id = 6;
+    string artifact_id = 7;
+    string job_id = 8;
+    string correlation_id = 9;
+    string consent_status = 10;
+    string retention_policy = 11;
+}
+
+message TranscribeResponse {
+    string text = 1;
+    float confidence = 2;
+    repeated WordTiming word_timings = 3;
+    int64 processing_time_ms = 4;
+    string model_used = 5;
+}
+
+message AudioChunk {
+    bytes audio_data = 1;
+    int32 sample_rate = 2;
+    int64 timestamp_ms = 3;
+    string session_id = 4;
+}
+
+message Transcription {
+    string text = 1;
+    bool is_final = 2;
+    float confidence = 3;
+    repeated WordTiming word_timings = 4;
+    int64 timestamp_ms = 5;
+}
+
+message WordTiming {
+    string word = 1;
+    int64 start_ms = 2;
+    int64 end_ms = 3;
+    float confidence = 4;
+}
+
+message TranscriptionOptions {
+    bool enable_punctuation = 1;
+    bool enable_word_timings = 2;
+    string context_id = 3;
+    int32 max_alternatives = 4;
+    float confidence_threshold = 5;
+}
+
+// ============================================================================
+// Adaptation Messages
+// ============================================================================
+
+message AdaptRequest {
+    string profile_id = 1;
+    repeated Interaction interactions = 2;
+    AdaptationMode mode = 3;
+}
+
+message Interaction {
+    bytes audio_features = 1;
+    string original_transcript = 2;
+    string corrected_transcript = 3;
+    string context_id = 4;
+    int64 timestamp_ms = 5;
+}
+
+enum AdaptationMode {
+    ADAPTATION_MODE_UNSPECIFIED = 0;
+    ADAPTATION_MODE_CONSERVATIVE = 1;
+    ADAPTATION_MODE_BALANCED = 2;
+    ADAPTATION_MODE_AGGRESSIVE = 3;
+}
+
+message AdaptResponse {
+    bool success = 1;
+    string message = 2;
+    AdaptationStats stats = 3;
+}
+
+message AdaptationStats {
+    int32 interactions_processed = 1;
+    float wer_before = 2;
+    float wer_after = 3;
+    int32 new_vocabulary_terms = 4;
+}
+
+// ============================================================================
+// Status Messages
+// ============================================================================
+
+message StatusRequest {
+    bool include_metrics = 1;
+    bool include_model_info = 2;
+}
+
+message StatusResponse {
+    EngineState state = 1;
+    string active_model = 2;
+    EngineMetrics metrics = 3;
+    repeated ModelInfo available_models = 4;
+}
+
+enum EngineState {
+    ENGINE_STATE_UNSPECIFIED = 0;
+    ENGINE_STATE_INITIALIZING = 1;
+    ENGINE_STATE_READY = 2;
+    ENGINE_STATE_BUSY = 3;
+    ENGINE_STATE_ERROR = 4;
+}
+
+message EngineMetrics {
+    float real_time_factor = 1;
+    int64 memory_usage_bytes = 2;
+    int32 active_sessions = 3;
+    int64 total_transcriptions = 4;
+    float average_confidence = 5;
+}
+
+message ModelInfo {
+    string model_id = 1;
+    string name = 2;
+    string version = 3;
+    repeated string languages = 4;
+    int64 size_bytes = 5;
+    bool is_loaded = 6;
+}
+
+// ============================================================================
+// Profile Messages
+// ============================================================================
+
+message CreateProfileRequest {
+    string display_name = 1;
+    repeated bytes enrollment_audio = 2;
+    ProfileSettings settings = 3;
+}
+
+message GetProfileRequest {
+    string profile_id = 1;
+}
+
+message UpdateProfileRequest {
+    string profile_id = 1;
+    ProfileSettings settings = 2;
+}
+
+message ProfileResponse {
+    string profile_id = 1;
+    string display_name = 2;
+    ProfileStats stats = 3;
+    ProfileSettings settings = 4;
+}
+
+message ProfileSettings {
+    string preferred_language = 1;
+    AdaptationMode adaptation_mode = 2;
+    PrivacyLevel privacy_level = 3;
+}
+
+enum PrivacyLevel {
+    PRIVACY_LEVEL_UNSPECIFIED = 0;
+    PRIVACY_LEVEL_HIGH = 1;
+    PRIVACY_LEVEL_MEDIUM = 2;
+    PRIVACY_LEVEL_LOW = 3;
+}
+
+message ProfileStats {
+    int64 total_transcription_time_ms = 1;
+    int32 vocabulary_size = 2;
+    float estimated_wer = 3;
+    int64 created_at_ms = 4;
+    int64 last_used_at_ms = 5;
+}
+
+// ============================================================================
+// Model Management Messages
+// ============================================================================
+
+message LoadModelRequest {
+    string model_id = 1;
+    ModelLoadOptions options = 2;
+}
+
+message ModelLoadOptions {
+    bool use_gpu = 1;
+    int32 num_threads = 2;
+    int32 optimization_level = 3;
+    bool preload_vocabulary = 4;
+}
+
+message LoadModelResponse {
+    bool success = 1;
+    string message = 2;
+    string model_id = 3;
+    int64 load_time_ms = 4;
+    int64 memory_usage_bytes = 5;
+}
+
+message UnloadModelRequest {
+    string model_id = 1;
+}
+
+message UnloadModelResponse {
+    bool success = 1;
+    string message = 2;
+    int64 memory_freed_bytes = 3;
+}
+
+message ListModelsRequest {
+    bool include_loaded_only = 1;
+    string language_filter = 2;
+}
+
+message ListModelsResponse {
+    repeated ModelInfo models = 1;
+    int32 total_count = 2;
+    int32 loaded_count = 3;
+}
+
+// ============================================================================
+// Health Check Messages
+// ============================================================================
+
+message HealthCheckRequest {
+    bool include_details = 1;
+}
+
+message HealthCheckResponse {
+    HealthStatus status = 1;
+    string message = 2;
+    map<string, ComponentHealth> components = 3;
+    int64 uptime_ms = 4;
+}
+
+enum HealthStatus {
+    HEALTH_STATUS_UNSPECIFIED = 0;
+    HEALTH_STATUS_HEALTHY = 1;
+    HEALTH_STATUS_DEGRADED = 2;
+    HEALTH_STATUS_UNHEALTHY = 3;
+}
+
+message ComponentHealth {
+    HealthStatus status = 1;
+    string message = 2;
+    int64 last_check_ms = 3;
+}
+
+// ============================================================================
+// Correction Messages
+// ============================================================================
+
+message CorrectionRequest {
+    string original_text = 1;
+    string corrected_text = 2;
+    string profile_id = 3;
+    string context_id = 4;
+    bytes audio_features = 5;
+}
+
+message CorrectionResponse {
+    bool accepted = 1;
+    string message = 2;
+    int32 vocabulary_updates = 3;
+}

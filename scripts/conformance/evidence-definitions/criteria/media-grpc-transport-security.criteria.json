@@ -1,0 +1,62 @@
+{
+  "criteriaId": "media-grpc-transport-security",
+  "name": "Media gRPC Transport Security Criteria",
+  "description": "Requires every standalone Media gRPC launcher to use the shared fail-closed TLS policy in production-like profiles while permitting plaintext only in explicit local/test contexts.",
+  "version": "1.0.0",
+  "producerId": "media-grpc-transport-security",
+  "criteria": [
+    {
+      "id": "all-media-grpc-launchers-use-shared-policy",
+      "level": "MUST",
+      "description": "STT, TTS, Vision, and Multimodal launchers must resolve transport security through the shared Media policy and bind the resolved security explicitly.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "command-validation",
+        "target": "scripts/conformance/check-media-grpc-transport-security.mjs",
+        "command": "node scripts/conformance/check-media-grpc-transport-security.mjs",
+        "validation": {
+          "exitCode": 0,
+          "serviceCount": 4
+        }
+      }
+    },
+    {
+      "id": "shared-profile-and-material-policy-tests",
+      "level": "MUST",
+      "description": "The common Media transport policy must prove production-like TLS requirements, shared TLS fallback, service-specific precedence, pair integrity, and local plaintext behavior.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "gradle-validation",
+        "target": ":services:media:libs:common:test",
+        "command": "./gradlew :services:media:libs:common:test --tests '*AudioVideoGrpcServerBaseTest' --tests '*GrpcTransportSecurityPolicyTest' :services:media:modules:speech:stt-service:test --tests '*SttGrpcServerTransportSecurityTest' --no-build-cache",
+        "validation": {
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "id": "canonical-proof-is-shared-java-owned",
+      "level": "MUST",
+      "description": "Canonical orchestration, storage, scoring, freshness, and release interpretation remain owned by the Ghatana Tools Evidence Generator.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "boundary-validation",
+        "target": "scripts/conformance/evidence-definitions/producers/media-grpc-transport-security.producer.json",
+        "validation": {
+          "canonicalOutputOwner": "java-evidence-generator",
+          "providerRepo": "samujjwal/ghatana-tools"
+        }
+      }
+    }
+  ],
+  "acceptanceCriteria": {
+    "pass": "All four standalone Media gRPC services share one TLS policy, production/staging/sovereign cannot bind plaintext, TLS material is validated before binding, and Shared records canonical evidence.",
+    "fail": "Any standalone Media gRPC service bypasses the shared policy, a production-like profile can bind plaintext, TLS pairs can be partially/mixed configured, unsafe TLS paths are accepted, focused tests fail, or canonical ownership is violated.",
+    "reviewGate": "The Ghatana Tools Evidence Generator executes and scores this producer; GitHub Actions is provenance only."
+  },
+  "governance": {
+    "owner": "Media Engineering",
+    "reviewCycle": "per-change",
+    "escalationPath": "media-runtime-leads"
+  }
+}

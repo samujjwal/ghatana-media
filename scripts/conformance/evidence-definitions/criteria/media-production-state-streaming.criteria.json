@@ -1,0 +1,61 @@
+{
+  "criteriaId": "media-production-state-streaming",
+  "name": "Media Production State and Streaming Criteria",
+  "description": "Requires durable artifact, job, and stream lifecycle with object-store integrity, governed and concurrency-safe byte deduplication, restart-safe state, bounded backpressure, and production provider security.",
+  "version": "1.0.2",
+  "producerId": "media-production-state-streaming",
+  "criteria": [
+    {
+      "id": "durable-artifact-job-stream-state",
+      "level": "MUST",
+      "description": "S3/PostgreSQL providers must prove sequential resumable chunks, expected-size enforcement, SHA-256 completion, encrypted final objects, tenant-scoped byte reuse only when file name, content type, classification, metadata, and retention are compatible, savepoint reconciliation of concurrent compatible unique-key races, idempotent jobs, stream token/lease ownership, contiguous frames, and terminal transitions.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "test-validation",
+        "target": "MediaAwsPostgresqlRuntimeStateTest",
+        "command": "./gradlew :services:media:providers:aws-postgresql:test --tests com.ghatana.media.provider.aws.MediaAwsPostgresqlRuntimeStateTest --no-build-cache",
+        "validation": {
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "id": "remote-media-provider-security",
+      "level": "MUST",
+      "description": "Remote processing and streaming providers must be inert when unconfigured and require HTTPS plus typed credentials for production eligibility.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "test-validation",
+        "target": "MediaHttpProvidersTest",
+        "command": "./gradlew :services:media:providers:aws-postgresql:test --tests com.ghatana.media.provider.aws.MediaHttpProvidersTest --no-build-cache",
+        "validation": {
+          "exitCode": 0
+        }
+      }
+    }
+  ],
+  "acceptanceCriteria": {
+    "pass": "Artifact, governed concurrent deduplication, job, stream, reconnect, backpressure, and provider-security tests pass.",
+    "fail": "Any size, checksum, encryption, tenant, metadata compatibility, retention, concurrent uniqueness, idempotency, token, lease, sequence, backpressure, credential, or HTTPS invariant fails.",
+    "reviewGate": "Evidence Generator owns the canonical results and gate decision."
+  },
+  "governance": {
+    "owner": "Media Engineering",
+    "reviewCycle": "per-change",
+    "escalationPath": "media-runtime-leads"
+  },
+  "surfaceId": "media.s3-postgresql-provider",
+  "toolBinding": {
+    "toolId": "evidence-generator",
+    "operationId": "run",
+    "provider": "samujjwal/ghatana-tools",
+    "lifecycleState": "active"
+  },
+  "verificationTier": "tier-0",
+  "executionState": "deferred",
+  "invalidationPolicy": {
+    "sourceChange": "recollect",
+    "criteriaOnlyChange": "reevaluate-when-observations-valid",
+    "dependencyChange": "recollect-dependent-surfaces-only"
+  }
+}

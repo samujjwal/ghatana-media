@@ -1,0 +1,643 @@
+{{/*
+  Audio-Video: per-service Deployment + Service + (optional HPA)
+  Rendered once per enabled service component.
+*/}}
+# ────────────────────────────────────────────────────────────────────────────
+# STT Service
+# ────────────────────────────────────────────────────────────────────────────
+{{- if .Values.stt.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-stt
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "audio-video.labels" . | nindent 4 }}
+    app.kubernetes.io/component: stt
+spec:
+  replicas: {{ .Values.stt.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-stt
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-stt
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.stt.ports.health | quote }}
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: {{ include "audio-video.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: stt
+          image: "{{ .Values.stt.image.repository }}:{{ .Values.stt.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.stt.ports.grpc }}
+            - name: http-health
+              containerPort: {{ .Values.stt.ports.health }}
+          env:
+            {{- range $k, $v := .Values.stt.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+            - name: AV_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.existingSecret }}
+                  key: jwt-secret
+                  optional: true
+            {{- if .Values.platformServices.aiRegistryUrl }}
+            - name: AI_REGISTRY_URL
+              value: {{ .Values.platformServices.aiRegistryUrl | quote }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.stt.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 12
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: models
+              mountPath: /app/models
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: models
+          persistentVolumeClaim:
+            claimName: {{ .Values.stt.modelsClaimName }}
+      terminationGracePeriodSeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-stt
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "audio-video.labels" . | nindent 4 }}
+    app.kubernetes.io/component: stt
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Release.Name }}-stt
+  ports:
+    - name: grpc
+      port: {{ .Values.stt.ports.grpc }}
+      targetPort: {{ .Values.stt.ports.grpc }}
+    - name: http-health
+      port: {{ .Values.stt.ports.health }}
+      targetPort: {{ .Values.stt.ports.health }}
+{{- if .Values.stt.hpa.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Release.Name }}-stt-hpa
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Release.Name }}-stt
+  minReplicas: {{ .Values.stt.hpa.minReplicas }}
+  maxReplicas: {{ .Values.stt.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.stt.hpa.targetCPUUtilization }}
+{{- end }}
+{{- end }}
+
+# ────────────────────────────────────────────────────────────────────────────
+# TTS Service
+# ────────────────────────────────────────────────────────────────────────────
+{{- if .Values.tts.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-tts
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "audio-video.labels" . | nindent 4 }}
+    app.kubernetes.io/component: tts
+spec:
+  replicas: {{ .Values.tts.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-tts
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-tts
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.tts.ports.health | quote }}
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: {{ include "audio-video.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: tts
+          image: "{{ .Values.tts.image.repository }}:{{ .Values.tts.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.tts.ports.grpc }}
+            - name: http-health
+              containerPort: {{ .Values.tts.ports.health }}
+          env:
+            {{- range $k, $v := .Values.tts.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+            - name: AV_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.existingSecret }}
+                  key: jwt-secret
+                  optional: true
+            {{- if .Values.platformServices.aiRegistryUrl }}
+            - name: AI_REGISTRY_URL
+              value: {{ .Values.platformServices.aiRegistryUrl | quote }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.tts.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 12
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: models
+              mountPath: /app/models
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: models
+          persistentVolumeClaim:
+            claimName: {{ .Values.tts.modelsClaimName }}
+      terminationGracePeriodSeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-tts
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "audio-video.labels" . | nindent 4 }}
+    app.kubernetes.io/component: tts
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Release.Name }}-tts
+  ports:
+    - name: grpc
+      port: {{ .Values.tts.ports.grpc }}
+      targetPort: {{ .Values.tts.ports.grpc }}
+    - name: http-health
+      port: {{ .Values.tts.ports.health }}
+      targetPort: {{ .Values.tts.ports.health }}
+{{- if .Values.tts.hpa.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Release.Name }}-tts-hpa
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Release.Name }}-tts
+  minReplicas: {{ .Values.tts.hpa.minReplicas }}
+  maxReplicas: {{ .Values.tts.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.tts.hpa.targetCPUUtilization }}
+{{- end }}
+{{- end }}
+
+# ────────────────────────────────────────────────────────────────────────────
+# Vision Service
+# ────────────────────────────────────────────────────────────────────────────
+{{- if .Values.vision.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-vision
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "audio-video.labels" . | nindent 4 }}
+    app.kubernetes.io/component: vision
+spec:
+  replicas: {{ .Values.vision.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-vision
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-vision
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.vision.ports.health | quote }}
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: {{ include "audio-video.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: vision
+          image: "{{ .Values.vision.image.repository }}:{{ .Values.vision.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.vision.ports.grpc }}
+            - name: http-health
+              containerPort: {{ .Values.vision.ports.health }}
+          env:
+            {{- range $k, $v := .Values.vision.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+            - name: AV_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.existingSecret }}
+                  key: jwt-secret
+                  optional: true
+            {{- if .Values.platformServices.aiRegistryUrl }}
+            - name: AI_REGISTRY_URL
+              value: {{ .Values.platformServices.aiRegistryUrl | quote }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.vision.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 12
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: models
+              mountPath: /app/models
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: models
+          persistentVolumeClaim:
+            claimName: {{ .Values.vision.modelsClaimName }}
+      terminationGracePeriodSeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-vision
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "audio-video.labels" . | nindent 4 }}
+    app.kubernetes.io/component: vision
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Release.Name }}-vision
+  ports:
+    - name: grpc
+      port: {{ .Values.vision.ports.grpc }}
+      targetPort: {{ .Values.vision.ports.grpc }}
+    - name: http-health
+      port: {{ .Values.vision.ports.health }}
+      targetPort: {{ .Values.vision.ports.health }}
+{{- if .Values.vision.hpa.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Release.Name }}-vision-hpa
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Release.Name }}-vision
+  minReplicas: {{ .Values.vision.hpa.minReplicas }}
+  maxReplicas: {{ .Values.vision.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.vision.hpa.targetCPUUtilization }}
+{{- end }}
+{{- end }}
+
+# ────────────────────────────────────────────────────────────────────────────
+# Multimodal Service
+# ────────────────────────────────────────────────────────────────────────────
+{{- if .Values.multimodal.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-multimodal
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "audio-video.labels" . | nindent 4 }}
+    app.kubernetes.io/component: multimodal
+spec:
+  replicas: {{ .Values.multimodal.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-multimodal
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-multimodal
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.multimodal.ports.health | quote }}
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: {{ include "audio-video.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: multimodal
+          image: "{{ .Values.multimodal.image.repository }}:{{ .Values.multimodal.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.multimodal.ports.grpc }}
+            - name: http-health
+              containerPort: {{ .Values.multimodal.ports.health }}
+          env:
+            - name: STT_SERVICE_HOST
+              value: {{ printf "%s-stt" .Release.Name | quote }}
+            - name: STT_SERVICE_PORT
+              value: {{ .Values.stt.ports.grpc | quote }}
+            - name: VISION_SERVICE_HOST
+              value: {{ printf "%s-vision" .Release.Name | quote }}
+            - name: VISION_SERVICE_PORT
+              value: {{ .Values.vision.ports.grpc | quote }}
+            - name: AV_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.existingSecret }}
+                  key: jwt-secret
+                  optional: true
+          resources:
+            {{- toYaml .Values.multimodal.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 12
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      terminationGracePeriodSeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-multimodal
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "audio-video.labels" . | nindent 4 }}
+    app.kubernetes.io/component: multimodal
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Release.Name }}-multimodal
+  ports:
+    - name: grpc
+      port: {{ .Values.multimodal.ports.grpc }}
+      targetPort: {{ .Values.multimodal.ports.grpc }}
+    - name: http-health
+      port: {{ .Values.multimodal.ports.health }}
+      targetPort: {{ .Values.multimodal.ports.health }}
+{{- end }}
+
+# ────────────────────────────────────────────────────────────────────────────
+# AI Voice Service
+# ────────────────────────────────────────────────────────────────────────────
+{{- if .Values.aiVoice.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-ai-voice
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "audio-video.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ai-voice
+spec:
+  replicas: {{ .Values.aiVoice.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-ai-voice
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-ai-voice
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.aiVoice.ports.health | quote }}
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: {{ include "audio-video.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: ai-voice
+          image: "{{ .Values.aiVoice.image.repository }}:{{ .Values.aiVoice.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.aiVoice.ports.grpc }}
+            - name: http-health
+              containerPort: {{ .Values.aiVoice.ports.health }}
+          resources:
+            {{- toYaml .Values.aiVoice.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 5
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 18
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: models
+              mountPath: /app/models
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: models
+          persistentVolumeClaim:
+            claimName: {{ .Values.aiVoice.modelsClaimName }}
+      terminationGracePeriodSeconds: 120
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-ai-voice
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "audio-video.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ai-voice
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Release.Name }}-ai-voice
+  ports:
+    - name: grpc
+      port: {{ .Values.aiVoice.ports.grpc }}
+      targetPort: {{ .Values.aiVoice.ports.grpc }}
+    - name: http-health
+      port: {{ .Values.aiVoice.ports.health }}
+      targetPort: {{ .Values.aiVoice.ports.health }}
+{{- end }}

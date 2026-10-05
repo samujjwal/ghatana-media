@@ -1,0 +1,645 @@
+schemaVersion: media.qualification-policy.v1
+productId: media
+authority: prospective-Phase-0 policy; does not itself qualify or activate any capability
+status: P0-003-definition-in-progress
+purpose: Keep definition, implementation, license admission, technical qualification, and current runtime availability
+  independent for every capability leaf and selected execution profile.
+productDefinitionContract:
+  package: '@ghatana/product-definition@0.1.0-SNAPSHOT'
+  ownerRepository: ghatana-tools
+  schemaExport: '@ghatana/product-definition/schema'
+  validator: validateProductDefinition
+  localSourceStatus: observed-in-sibling-repository
+  publishedArtifactAndMediaConsumerStatus: not-verified
+  consumerGap: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+  bindingRule: Use the Tools public contract for generic core ProductDefinition objects. Do not copy its schema
+    or validator into Media. A generated core projection is read-only; this policy and the Media capability records
+    supply product-specific qualification semantics.
+dimensions:
+- id: definitionState
+  values:
+  - IN_SCOPE_DRAFT
+  - DEFINED
+  - ACCEPTED
+  - DEFERRED_WITH_REASON
+  default: IN_SCOPE_DRAFT
+  meaning: Whether product semantics have been authored/accepted; has no implementation or runtime meaning.
+- id: implementationState
+  values:
+  - UNKNOWN
+  - NOT_IMPLEMENTED
+  - IMPLEMENTATION_OBSERVED
+  - IMPLEMENTED_AT_DECLARED_SCOPE
+  - RETIRED
+  default: UNKNOWN
+  meaning: Whether an owner-observed implementation exists for the exact operation and scope. Source presence or
+    a generic status does not cover every leaf.
+- id: licenseAdmissionState
+  values:
+  - UNKNOWN
+  - NOT_EVALUATED
+  - ADMITTED_FOR_DECLARED_USE
+  - RESTRICTED
+  - DENIED
+  default: UNKNOWN
+  meaning: Rights to use, modify, distribute, execute and serve exact code, weights, codecs, datasets, fonts, assets,
+    adapters, and transitive/native dependencies.
+- id: qualificationState
+  values:
+  - NOT_EVALUATED
+  - EVIDENCE_INCOMPLETE
+  - QUALIFIED_FOR_DECLARED_PROFILE
+  - REQUALIFICATION_REQUIRED
+  - FAILED_FOR_DECLARED_PROFILE
+  default: NOT_EVALUATED
+  meaning: Measured safety, correctness, quality, resource, recovery, and compatibility evidence for a frozen operation/profile/input
+    regime.
+- id: runtimeAvailability
+  values:
+  - UNKNOWN
+  - UNAVAILABLE
+  - AVAILABLE_FOR_DECLARED_PROFILE
+  - DEGRADED
+  - BLOCKED
+  default: UNKNOWN
+  meaning: Current, scoped ability to execute under live policy, deployment, health, entitlement, and capacity.
+governingMasterPlanSections:
+- §2.3
+- §6.1
+- §9.2–9.6
+- §11.1–11.6
+- §18.2–18.3
+- P0-003
+decisionRules:
+- Never infer one dimension from another. An implementation can be unlicensed, unqualified, unavailable, or blocked.
+- UNKNOWN is not AVAILABLE; NOT_EVALUATED is not FAILED and is not evidence of success.
+- Availability is profile-, tenant/policy-, deployment-, region-, language-, format-, rights-, and time-scoped.
+  Record observation time, owner, fingerprints, and expiry/revalidation triggers.
+- A capability is eligible for invocation only when the exact implementation binding is admitted by license and
+  policy, qualification covers the requested dimensions, and live runtime checks report available. Missing evidence
+  blocks or yields a policy-permitted explicit fallback.
+- Qualification applies to a declared leaf and scope, not a family/package/provider label. A new model, engine,
+  version, weight digest, codec, configuration, hardware class, language, quality dataset, or materially changed
+  policy may invalidate evidence.
+- Keep structural validity, perceptual quality, intent fidelity, scientific/domain constraints, rights/safety, and
+  delivery compatibility as separate observations with method/version, applicability, uncertainty, and abstention.
+- A predicted/estimated output is never represented as ground truth. Simulation rendering or a visually plausible
+  scene does not prove validated simulation.
+- Do not silently lower preservation, resolution, duration, frame rate, fidelity, language, cost, locality, or delivery
+  requirements. Record requested/effective profile and explicit fallback authorization.
+- For document intelligence, preserve the Shared frozen contract, operation-generation cancellation, dimensional
+  qualification, non-activation state, and owner-bound runtime. Media scene-text leaves depend on the public DI
+  API; generic OCR/document processing is not a Media implementation.
+securityAndRightsBaseline:
+- Treat uploaded/imported media, archives, project/scene files, codecs, fonts, SVG, shaders, scripts, models, and
+  metadata as untrusted; validate detected formats and bound decompression, dimensions, frame/audio/sample counts,
+  and parser complexity.
+- Decode and execute engines in isolated workers with unprivileged identity, bounded resources, restricted network
+  egress, approved read inputs, isolated scratch/output paths, and owned process trees.
+- Disable imported-scene script execution by default. Model-generated animation/code must not run with ambient host
+  or network authority; require reviewed structured compilation or separately sandboxed and permissioned execution.
+- Enforce network-import destination/redirect/size/time limits and block private/link-local/metadata endpoints.
+- Recheck consent/policy at upload, planning, dispatch, worker invocation, output registration, sharing/export/publication,
+  and long-running stream boundaries.
+- Persist required audit/effect intent before an external or consequential effect; if outcome persistence is ambiguous,
+  report uncertainty and reconcile rather than replay blindly.
+- Keep deletion, physical erasure, backups, caches, provider copies, legal holds, and external recall as distinct
+  lifecycle evidence; never equate metadata hiding with physical erasure.
+qualificationDimensions:
+- public-contract-and-version
+- operation/input-format/size/duration/range
+- language/locale/region
+- output-dimensions-and-ground-truth-versus-estimated
+- quality/intent/preservation/scientific-fidelity
+- identity/biometric/likeness applicability and permissions
+- security/privacy/residency/egress/retention/cancellation/erasure
+- license/distribution/patent/asset rights
+- engine/model/weight/configuration/digest
+- CPU/RAM/VRAM/storage/network/time/cost
+- hardware/runtime/deployment/region/tenant
+- failure/restart/recovery/reproducibility
+- delivery codec/container/player/subtitle/color/accessibility
+profileDimensions:
+- quality-intent
+- resource-profile
+- execution-location
+- preservation-policy
+- delivery-profile
+- reproducibility-class
+sourceObservationHandling:
+  canonicalRecord: capability-preservation-crosswalk.yaml
+  rule: Keep the source wording, scope, path, evidence class, and limits. Source claims do not directly change the
+    default states in capabilities.yaml; accept only through a current owner observation that matches the exact
+    leaf/profile.
+documentIntelligence:
+  owner: Ghatana services/document-intelligence
+  contractOwner: Ghatana Shared @ghatana/document-extraction
+  MediaScope:
+  - time ranges
+  - scene/region semantics
+  - temporal tracking
+  - media edit/overlay intent
+  MediaMustNotOwn:
+  - generic OCR/parser implementation
+  - PDF/Office/document workflow
+  - document extraction schema or embeddings
+  activationState: not-activated-by-migration; retain prior dimensional qualification and cancellation restrictions
+  currentBlockers:
+  - GAP-14
+  - GAP-MEDIA-DI-PUBLIC-CLIENT
+evidenceRecordMinimum:
+- capabilityId
+- implementation/provider and public-contract version
+- artifact/model/engine/configuration digests
+- owner and evidence class
+- inputs and declared profile dimensions
+- policy/license decision references and expiry
+- qualification method, corpus/calibration limits, measurements, uncertainty and abstention
+- runtime deployment/region/health observation time and expiry
+- failures, unsupported cases, cancellation/recovery, and invalidation triggers
+capabilityCoverage:
+  defaultImplementationState: UNKNOWN
+  defaultLicenseAdmissionState: UNKNOWN
+  defaultQualificationState: NOT_EVALUATED
+  defaultRuntimeAvailability: UNKNOWN
+  capabilityIds:
+  - media.project.create
+  - media.project.inspect
+  - media.project.update
+  - media.project.search
+  - media.project.organize
+  - media.project.archive
+  - media.project.version
+  - media.project.duplicate
+  - media.project.branch
+  - media.project.collaborate
+  - media.project.review
+  - media.project.restore
+  - media.project.source-asset.attach
+  - media.project.derived-asset.attach
+  - media.project.composition.update
+  - media.project.settings.update
+  - media.artifact.ingest
+  - media.artifact.upload
+  - media.artifact.upload.resume
+  - media.artifact.import
+  - media.artifact.inspect
+  - media.artifact.search
+  - media.artifact.list
+  - media.artifact.download
+  - media.artifact.derive
+  - media.artifact.output.register
+  - media.artifact.share
+  - media.artifact.share.revoke
+  - media.artifact.delete
+  - media.artifact.retain
+  - media.artifact.provenance.export
+  - media.artifact.source-reference.resolve
+  - media.job.submit
+  - media.job.inspect
+  - media.job.list
+  - media.job.watch
+  - media.job.cancel
+  - media.job.retry
+  - media.job.reconcile
+  - media.job.outputs.inspect
+  - media.job.history.inspect
+  - media.stream.session.open
+  - media.stream.session.connect
+  - media.stream.frame.submit
+  - media.stream.frame.acknowledge
+  - media.stream.session.close
+  - media.stream.session.reconnect
+  - media.stream.ordering.enforce
+  - media.stream.lease.manage
+  - media.stream.buffer.bound
+  - media.stream.backpressure.manage
+  - media.stream.recording.integrate
+  - media.stream.live-processing.integrate
+  - media.stream.transport.webrtc
+  - media.stream.transport.adaptive-http
+  - media.stream.transport.hls
+  - media.stream.transport.dash
+  - media.stream.caption.live
+  - media.profile.discover
+  - media.profile.validate
+  - media.profile.quality-intent
+  - media.profile.resource
+  - media.profile.execution-location
+  - media.profile.preservation
+  - media.profile.delivery
+  - media.profile.reproducibility
+  - media.capability.discover
+  - media.capability.provider.diagnose
+  - media.capability.execution.compatibility
+  - media.health.readiness.inspect
+  - media.rights.consent.reference
+  - media.rights.permitted-use.evaluate
+  - media.rights.attestation.record
+  - media.provenance.source-lineage.inspect
+  - media.provenance.execution-lineage.inspect
+  - media.provenance.origin.disclose
+  - media.provenance.retention.effect.record
+  - media.provenance.erasure.effect.record
+  - media.vision.scene-text.region.track
+  - media.vision.scene-text.observation.create
+  - media.speech.transcription.file
+  - media.speech.transcription.stream
+  - media.speech.transcription.language.detect
+  - media.speech.transcription.voice-activity.detect
+  - media.speech.transcription.speaker.diarize
+  - media.speech.transcription.speaker.segment
+  - media.speech.transcription.speaker.separate
+  - media.speech.transcription.speaker.identify-authorized
+  - media.speech.transcription.word-timestamp.create
+  - media.speech.transcription.phoneme-timestamp.create
+  - media.speech.transcription.forced-align
+  - media.speech.transcription.punctuate-capitalize
+  - media.speech.transcription.alternatives.provide
+  - media.speech.transcription.confidence.provide
+  - media.speech.transcription.translate
+  - media.speech.transcription.subtitle.generate
+  - media.vision.detect
+  - media.vision.classify
+  - media.vision.segment.image
+  - media.vision.segment.video
+  - media.vision.track.object
+  - media.vision.track.point
+  - media.vision.estimate.optical-flow
+  - media.vision.estimate.depth
+  - media.vision.estimate.surface-normals
+  - media.vision.estimate.human-pose
+  - media.vision.estimate.hand-pose
+  - media.vision.estimate.face-landmarks
+  - media.vision.analyze.expression
+  - media.vision.analyze.gaze
+  - media.vision.matte.foreground-background
+  - media.vision.segment.motion
+  - media.vision.estimate.saliency
+  - media.vision.classify.scene
+  - media.vision.detect.shot-boundary
+  - media.vision.estimate.camera-motion
+  - media.multimodal.analyze.cross-modal
+  - media.multimodal.describe
+  - media.multimodal.summarize
+  - media.multimodal.extract.structured
+  - media.multimodal.associate.speaker-face
+  - media.multimodal.relate.scene-audio
+  - media.multimodal.observe.source-grounded
+  - media.audio.analysis.segment.content-kind
+  - media.audio.analysis.measure.loudness
+  - media.audio.analysis.measure.peaks
+  - media.audio.analysis.detect.clipping
+  - media.audio.analysis.measure.noise
+  - media.audio.analysis.analyze.spectral
+  - media.audio.analysis.analyze.phase
+  - media.audio.analysis.analyze.channels
+  - media.audio.analysis.detect.beat-onset
+  - media.audio.analysis.detect.silence
+  - media.audio.analysis.diagnose.source-separation
+  - media.audio.analysis.assess.timing
+  - media.audio.analysis.assess.intelligibility
+  - media.generate.image.text-to-image
+  - media.generate.image.image-to-image
+  - media.generate.image.reference
+  - media.generate.image.multi-reference
+  - media.generate.image.sketch-to-image
+  - media.generate.image.layout-to-image
+  - media.generate.image.condition.pose
+  - media.generate.image.condition.depth
+  - media.generate.image.condition.edge
+  - media.generate.image.condition.segmentation
+  - media.generate.image.control.palette
+  - media.generate.image.control.style
+  - media.generate.image.control.reference
+  - media.generate.video.text-to-video
+  - media.generate.video.image-to-video
+  - media.generate.video.video-to-video
+  - media.generate.video.text-image-to-video
+  - media.generate.video.keyframe.start
+  - media.generate.video.keyframe.end
+  - media.generate.video.keyframe.intermediate
+  - media.generate.video.reference-video
+  - media.generate.video.drive.audio
+  - media.generate.video.drive.speech
+  - media.generate.audio.text-to-audio
+  - media.generate.audio.sound-effect
+  - media.generate.audio.music
+  - media.generate.audio.video-to-audio
+  - media.generate.audio.foley
+  - media.generate.audio.ambience
+  - media.generate.audio.audio-to-audio
+  - media.generate.audio.music.continue
+  - media.generate.audio.music.vary
+  - media.generate.audio.stem.generate
+  - media.speech.synthesis.text-to-speech
+  - media.speech.synthesis.streaming
+  - media.speech.synthesis.multilingual
+  - media.speech.synthesis.cross-lingual
+  - media.speech.synthesis.expressive
+  - media.speech.synthesis.control.prosody
+  - media.speech.synthesis.control.rate
+  - media.speech.synthesis.control.pitch
+  - media.speech.synthesis.control.emotion-style
+  - media.speech.synthesis.control.pronunciation
+  - media.speech.synthesis.control.phoneme
+  - media.speech.synthesis.speaker.condition
+  - media.speech.synthesis.speaker.clone-authorized
+  - media.speech.synthesis.voice.convert
+  - media.speech.synthesis.speech-to-speech
+  - media.speech.synthesis.speech.translate
+  - media.speech.synthesis.dub
+  - media.generate.spatial.text-to-3d
+  - media.generate.spatial.image-to-3d
+  - media.generate.spatial.reconstruct.multiview
+  - media.generate.spatial.reconstruct.depth
+  - media.generate.spatial.reconstruct.camera
+  - media.generate.spatial.generate.novel-view
+  - media.generate.spatial.asset.create-3d
+  - media.generate.spatial.relight-3d
+  - media.generate.spatial.compose-3d
+  - media.generate.spatial.representation.nerf-adapter
+  - media.generate.spatial.representation.gaussian-splatting-adapter
+  - media.generate.spatial.create.360-media
+  - media.generate.spatial.create.spatial-audio
+  - media.animation.2d
+  - media.animation.vector
+  - media.animation.3d
+  - media.animation.keyframe
+  - media.animation.interpolation-easing
+  - media.animation.procedural
+  - media.animation.path
+  - media.animation.skeletal
+  - media.animation.inverse-kinematics
+  - media.animation.constraint
+  - media.animation.morph-target
+  - media.animation.camera
+  - media.animation.material
+  - media.animation.light
+  - media.animation.particle
+  - media.animation.drive.physics
+  - media.animation.drive.audio
+  - media.animation.drive.speech
+  - media.animation.drive.pose
+  - media.animation.facial-expression
+  - media.animation.gaze
+  - media.animation.lip
+  - media.animation.motion-capture.extract
+  - media.animation.motion.retarget
+  - media.animation.character
+  - media.animation.editing.select
+  - media.animation.editing.keyframe.insert
+  - media.animation.editing.keyframe.remove
+  - media.animation.editing.curve.edit
+  - media.animation.editing.temporal-snap
+  - media.animation.editing.playback-scrub
+  - media.animation.editing.track.mute
+  - media.animation.editing.track.solo
+  - media.animation.editing.layer
+  - media.animation.editing.blend
+  - media.animation.editing.undo-redo.versioned
+  - media.animation.output.output.interactive-scene
+  - media.animation.output.output.vector-raster-frames
+  - media.animation.output.output.composited-video
+  - media.animation.output.output.reusable-clip
+  - media.animation.output.output.exchange-package
+  - media.animation.output.accessibility.semantic-timeline
+  - media.simulation.rigid-body
+  - media.simulation.soft-body
+  - media.simulation.cloth
+  - media.simulation.rope
+  - media.simulation.particle
+  - media.simulation.fluid
+  - media.simulation.smoke
+  - media.simulation.fire
+  - media.simulation.collision
+  - media.simulation.constraint
+  - media.simulation.vehicle
+  - media.simulation.crowd
+  - media.simulation.agent
+  - media.simulation.human-motion
+  - media.simulation.procedural-world
+  - media.simulation.camera-experiment
+  - media.simulation.lighting-experiment
+  - media.simulation.educational-demo
+  - media.simulation.scientific-demo
+  - media.simulation.robotics
+  - media.simulation.kinematics
+  - media.simulation.synthetic-data
+  - media.simulation.output.rgb
+  - media.simulation.output.depth
+  - media.simulation.output.normals
+  - media.simulation.output.segmentation
+  - media.simulation.output.optical-flow
+  - media.simulation.output.motion-vectors
+  - media.simulation.output.object-ids
+  - media.simulation.output.contacts
+  - media.simulation.output.physical-events
+  - media.simulation.output.measurements
+  - media.simulation.output.timestamped-state
+  - media.recipe.template.physics-math-explainer
+  - media.recipe.template.infographic
+  - media.recipe.template.product-demonstration
+  - media.recipe.template.scientific-visualization
+  - media.recipe.template.interactive-lesson
+  - media.recipe.template.training-scenario
+  - media.recipe.template.architectural-scene
+  - media.recipe.template.character-gesture-animation
+  - media.recipe.template.synthetic-dataset
+  - media.enhance.image.denoise
+  - media.enhance.image.deblur
+  - media.enhance.image.dehaze
+  - media.enhance.image.deblock
+  - media.enhance.image.deband
+  - media.enhance.image.dering
+  - media.enhance.image.compression-repair
+  - media.enhance.image.jpeg-repair
+  - media.enhance.image.super-resolution
+  - media.enhance.image.face-restoration
+  - media.enhance.image.detail-restoration
+  - media.enhance.image.texture-restoration
+  - media.enhance.image.scratch-restoration
+  - media.enhance.image.damage-restoration
+  - media.enhance.image.color-recovery
+  - media.enhance.image.white-balance
+  - media.enhance.image.exposure
+  - media.enhance.image.lens-distortion
+  - media.enhance.image.chromatic-aberration
+  - media.enhance.image.vignette-correction
+  - media.enhance.image.hdr-recovery
+  - media.enhance.image.tone-conversion
+  - media.enhance.image.gamut-conversion
+  - media.enhance.image.sharpen
+  - media.enhance.video.spatiotemporal-super-resolution
+  - media.enhance.video.interpolation
+  - media.enhance.video.temporal-denoise
+  - media.enhance.video.temporal-deblur
+  - media.enhance.video.compression-repair
+  - media.enhance.video.deflicker
+  - media.enhance.video.temporal-consistency
+  - media.enhance.video.stabilize
+  - media.enhance.video.rolling-shutter
+  - media.enhance.video.frame-repair
+  - media.enhance.video.frame-rate-conversion
+  - media.enhance.video.motion-blur-synthesis
+  - media.enhance.video.grain-management
+  - media.enhance.video.deinterlace
+  - media.enhance.video.inverse-telecine-cadence
+  - media.enhance.audio.noise-suppression
+  - media.enhance.audio.speech-enhancement
+  - media.enhance.audio.dereverberation
+  - media.enhance.audio.deecho
+  - media.enhance.audio.acoustic-echo-cancellation
+  - media.enhance.audio.dehum
+  - media.enhance.audio.declick
+  - media.enhance.audio.decrackle
+  - media.enhance.audio.declip
+  - media.enhance.audio.wind-reduction
+  - media.enhance.audio.plosive-reduction
+  - media.enhance.audio.deessing
+  - media.enhance.audio.source-separation
+  - media.enhance.audio.speaker-separation
+  - media.enhance.audio.music-vocal-separation
+  - media.enhance.audio.stem-separation
+  - media.enhance.audio.background-removal
+  - media.enhance.audio.speech-separation
+  - media.enhance.audio.audio-super-resolution
+  - media.enhance.audio.bandwidth-extension
+  - media.enhance.audio.sample-rate-conversion
+  - media.enhance.audio.phase-repair
+  - media.enhance.audio.channel-repair
+  - media.edit.inpaint
+  - media.edit.outpaint
+  - media.edit.object-remove
+  - media.edit.object-replace
+  - media.edit.background-remove
+  - media.edit.background-replace
+  - media.edit.matte
+  - media.edit.relight
+  - media.edit.recolor
+  - media.edit.colorize
+  - media.edit.style-transfer
+  - media.edit.retime-slow-motion-speed-ramp
+  - media.edit.smart-crop-auto-reframe
+  - media.edit.shot-color-match
+  - media.edit.region-correction
+  - media.edit.face-correction
+  - media.edit.hand-correction
+  - media.edit.propagate-keyframe-mask-effect
+  - media.sync.sample-accurate-av-map
+  - media.sync.lip-synchronize
+  - media.sync.phoneme-viseme-align
+  - media.sync.dub-subtitle-voiceover-time
+  - media.sync.scene-beat-music-align
+  - media.sync.speaker-face-associate
+  - media.sync.drift-detect-correct
+  - media.compose.multitrack-timeline
+  - media.compose.scene-storyboard-assemble
+  - media.compose.track.video-audio-caption-overlay
+  - media.compose.transition
+  - media.compose.titles-credits-lower-thirds
+  - media.compose.exact-typography-logo-brand
+  - media.compose.safe-area
+  - media.compose.reusable-composition
+  - media.compose.render-manifest
+  - media.color.white-balance
+  - media.color.exposure
+  - media.color.contrast
+  - media.color.curves
+  - media.color.temperature
+  - media.color.tint
+  - media.color.selective-color
+  - media.color.skin-tone-preserve
+  - media.color.shot-match
+  - media.color.lut
+  - media.color.colorspace-gamut-convert
+  - media.color.hdr-grade
+  - media.color.sdr-hdr-convert
+  - media.color.tone-map
+  - media.color.highlight-shadow-recover
+  - media.master.audio.equalize
+  - media.master.audio.dynamic-compression
+  - media.master.audio.multiband-compression
+  - media.master.audio.limit
+  - media.master.audio.true-peak-loudness-control
+  - media.master.audio.stereo-width
+  - media.master.audio.phase-noise-floor-analyze
+  - media.master.audio.fade-crossfade
+  - media.master.audio.duck-sidechain
+  - media.master.audio.room-match
+  - media.quality.inspect
+  - media.quality.compare
+  - media.quality.diagnose
+  - media.quality.rank
+  - media.quality.recommend
+  - media.quality.repair-plan
+  - media.quality.bounded-optimize
+  - media.quality.image.image.assess-noise
+  - media.quality.image.image.assess-blur
+  - media.quality.image.image.assess-compression
+  - media.quality.image.image.assess-exposure
+  - media.quality.image.image.assess-color
+  - media.quality.image.image.assess-structural-reference-fidelity
+  - media.quality.image.image.assess-identity-consistency
+  - media.quality.image.image.assess-perceptual-quality
+  - media.quality.video.video.assess-temporal-consistency
+  - media.quality.video.video.assess-flicker
+  - media.quality.video.video.assess-frame-artifacts
+  - media.quality.video.video.assess-motion
+  - media.quality.video.video.assess-identity-consistency
+  - media.quality.video.video.assess-object-continuity
+  - media.quality.video.video.assess-geometry-continuity
+  - media.quality.video.video.assess-camera-continuity
+  - media.quality.video.video.assess-qualified-physical-plausibility
+  - media.quality.video.video.assess-lip-sync
+  - media.quality.video.video.assess-av-sync
+  - media.quality.video.video.assess-encoding
+  - media.quality.audio.audio.assess-noise
+  - media.quality.audio.audio.assess-clipping
+  - media.quality.audio.audio.assess-distortion
+  - media.quality.audio.audio.assess-intelligibility
+  - media.quality.audio.audio.assess-separation-leakage
+  - media.quality.audio.audio.assess-spectral
+  - media.quality.audio.audio.assess-phase
+  - media.quality.audio.audio.assess-loudness
+  - media.quality.audio.audio.assess-true-peak
+  - media.quality.audio.audio.assess-naturalness
+  - media.quality.audio.audio.assess-authorized-speaker-similarity
+  - media.deliver.encode
+  - media.deliver.transcode
+  - media.deliver.master
+  - media.deliver.package
+  - media.deliver.stream
+  - media.deliver.download
+  - media.deliver.export
+  - media.deliver.publish-governed
+  - media.deliver.renditions.aspect-ratio
+  - media.deliver.renditions.resolution
+  - media.deliver.renditions.adaptive-bitrate
+  - media.deliver.profile.web
+  - media.deliver.profile.social
+  - media.deliver.profile.podcast
+  - media.deliver.profile.broadcast
+  - media.deliver.profile.cinematic
+  - media.deliver.profile.archival
+  - media.deliver.profile.interactive
+  - media.deliver.profile.named
+  - media.deliver.subtitles
+  - media.deliver.transcripts
+  - media.deliver.thumbnails
+  - media.deliver.posters
+  - media.deliver.interactive-scene-bundle
+  - media.deliver.provenance-manifest
+  - media.deliver.compatibility-fallback
+ownerGaps:
+- GAP-02
+- GAP-03
+- GAP-05
+- GAP-06
+- GAP-08
+- GAP-09
+- GAP-10
+- GAP-14
+- GAP-15
+- GAP-MEDIA-DI-PUBLIC-CLIENT
+- GAP-MEDIA-TOOLS-SCHEMA-BINDING

@@ -1,0 +1,295 @@
+fixtureDocumentVersion: media.p0-005.state-transition-fixtures.v1
+phaseTask: P0-005
+status:
+  kind: proposed-conformance-fixture-specification
+  acceptance: not-submitted
+  execution: not-run
+  runtimeEvidence: none
+  schemaBoundary: >-
+    These fixtures specify transition interleavings and durable facts only.
+    They do not define runtime payloads, competing state schemas, or a claim
+    that any adapter or implementation conforms.
+
+references:
+  stateModels: .product-experience/phase-0-product-truth/state-models.yaml
+  specification: docs/migration/expert-reviewed-master-plan.md#p0-005-phase-0
+
+fixtureRequirements:
+  stateReferencesMustResolveAgainst: stateModels.models
+  everyFixtureMustSpecify:
+    - initialState
+    - interleavingOrFaultPoint
+    - expectedDurableRecords
+    - forbiddenTransitionOrReplay
+    - safeNextAction
+  note: >-
+    A stateRefs entry names model IDs and state IDs already declared by
+    state-models.yaml; prose-only absence or stale-snapshot descriptions do
+    not add states to those models.
+
+fixtures:
+  - id: duplicate-submission-race
+    class: interleaving-specification
+    initialState:
+      description: >-
+        No logical Media job has been accepted for this tenant-scoped
+        idempotency identity. Two concurrent commands carry the same
+        canonical request content and identity.
+      stateRefs: {}
+    interleavingOrFaultPoint:
+      - Both commands pass request validation concurrently.
+      - One command durably accepts before the other performs its admission write.
+      - The second command observes the already-bound idempotency identity.
+    expectedDurableRecords:
+      - One accepted logical request with its canonical request fingerprint and idempotency identity.
+      - One media job in QUEUED, plus one accepted-command/idempotency binding to that job.
+      - A stable response reference that both same-content submitters can resolve to the same job.
+      - No provider attempt or external effect before the accepted command and attempt identity are durable.
+    expectedStateRefs:
+      media-job: [QUEUED]
+    forbiddenTransitionOrReplay:
+      - Create a second logical job or provider attempt for the same identity and same request.
+      - Rebind an existing idempotency identity to different canonical request content.
+      - Dispatch either copy before the admission and attempt records are durable.
+    safeNextAction: >-
+      Return or retrieve the single accepted job and follow the media-job
+      QUEUED safe-next-action rules; for changed content, reject the reuse and
+      require a new explicit request identity.
+
+  - id: lease-expiry-before-dispatch
+    class: interleaving-specification
+    initialState:
+      description: >-
+        A logical job is executing under an attempt lease, but the provider
+        dispatch has not occurred and no dispatch intent has crossed the
+        external boundary.
+      stateRefs:
+        media-job: [RUNNING]
+        media-attempt: [CLAIMED]
+    interleavingOrFaultPoint:
+      - The lease expires after claim and before durable dispatch intent or external dispatch.
+      - A later worker claims the work with a strictly higher fencing token.
+    expectedDurableRecords:
+      - Expired lease and old fencing token recorded; old attempt becomes SUPERSEDED or is otherwise fenced from writes.
+      - No provider dispatch identity or provider effect is recorded for the expired attempt.
+      - Job moves through RETRY_PENDING before any new RUNNING attempt, with remaining budget and current policy rechecked.
+    expectedStateRefs:
+      media-job: [RUNNING, RETRY_PENDING]
+      media-attempt: [CLAIMED, SUPERSEDED]
+    forbiddenTransitionOrReplay:
+      - Let the expired token commit progress, select output, or make the job terminal.
+      - Treat lease expiry alone as a provider outcome or reuse the expired attempt identity.
+      - Start a new attempt without rechecking retry bounds, authority, rights, and policy.
+    safeNextAction: >-
+      Fence the old attempt, record the retryable pre-dispatch disposition, and
+      create a new bounded attempt only after the media-job RETRY_PENDING
+      checks pass.
+
+  - id: lease-expiry-after-dispatch
+    class: interleaving-specification
+    initialState:
+      description: >-
+        A recorded dispatch intent may have crossed the provider boundary, but
+        the attempt lease expires before a final provider result is durably
+        observed.
+      stateRefs:
+        media-job: [RUNNING]
+        media-attempt: [DISPATCHED]
+    interleavingOrFaultPoint:
+      - Provider accepts or may accept the request.
+      - Worker loses its lease or process before recording an authoritative result.
+    expectedDurableRecords:
+      - Stable logical request, attempt, fencing token, provider identity, and idempotency identity remain auditable.
+      - Old attempt cannot write after fencing and is classified OUTCOME_UNKNOWN unless authoritative evidence resolves it.
+      - Job is OUTCOME_UNKNOWN and then RECONCILING before any retry decision.
+    expectedStateRefs:
+      media-job: [RUNNING, OUTCOME_UNKNOWN, RECONCILING]
+      media-attempt: [DISPATCHED, OUTCOME_UNKNOWN, SUPERSEDED]
+    forbiddenTransitionOrReplay:
+      - Convert lease expiry into FAILED, CANCELLED, or a fresh automatic provider dispatch.
+      - Accept a stale-fence result as canonical output or finality.
+      - Replay without reconciling the stable provider/request identity or proving safe idempotency.
+    safeNextAction: >-
+      Reconcile the provider using the stable request and provider identity;
+      preserve unknown finality and keep dispatch blocked until evidence is
+      classified.
+
+  - id: cancellation-racing-dispatch
+    class: interleaving-specification
+    initialState:
+      description: >-
+        A running job has a current attempt at durable dispatch intent, or a
+        dispatch that may already have crossed the boundary, while a valid
+        cancellation request races the worker.
+      stateRefs:
+        media-job: [RUNNING]
+        media-attempt: [DISPATCH_INTENT_RECORDED, DISPATCHED]
+    interleavingOrFaultPoint:
+      - Cancellation and provider dispatch contend for the durable ordering point.
+      - The durable record must distinguish cancellation-before-dispatch from dispatch-before-cancellation.
+    allowedOutcomes:
+      - when: Dispatch is provably unsent and cancellation wins the ordering point.
+        stateRefs:
+          media-job: [CANCELLED]
+          media-attempt: [CANCEL_CONFIRMED]
+        durableEvidence: Record cancellation authority and proof that dispatch could not have occurred.
+      - when: Dispatch wins or may have crossed the boundary before cancellation is observed.
+        stateRefs:
+          media-job: [OUTCOME_UNKNOWN, RECONCILING, CANCELLED]
+          media-attempt: [DISPATCHED, CANCEL_REQUESTED, CANCEL_CONFIRMED, SUCCEEDED, OUTCOME_UNKNOWN]
+        durableEvidence: >-
+          Persist cancellation request, provider response/stop evidence, and
+          reconciliation result. CANCELLED is permitted only after all
+          potentially mutating effects have confirmed finality.
+    expectedDurableRecords:
+      - Cancellation command identity, authority, and durable ordering relative to dispatch.
+      - Dispatch intent and stable provider identity when dispatch may have occurred.
+      - Provider/local cancellation confirmation or an explicit unknown outcome and reconciliation record.
+    forbiddenTransitionOrReplay:
+      - Treat a cancellation request as cancellation confirmation.
+      - Move directly to CANCELLED while a provider effect can still mutate the job.
+      - Blindly dispatch a second attempt because cancellation raced with the first.
+    safeNextAction: >-
+      If unsent status is proven, record confirmed cancellation. Otherwise await
+      provider stop evidence or reconcile the effect, preserve unknown finality,
+      and do not retry until a safe disposition is established.
+
+  - id: crash-after-provider-success-before-output-registration
+    class: interleaving-specification
+    initialState:
+      description: >-
+        Provider success has been durably observed for the current attempt, but
+        the result has not yet been validated and registered as an immutable
+        Media output version.
+      stateRefs:
+        media-job: [RUNNING]
+        media-attempt: [SUCCEEDED]
+    interleavingOrFaultPoint:
+      - Provider returns success and a result reference.
+      - Process crashes before output validation/registration and job finality commit.
+    expectedDurableRecords:
+      - Provider success receipt and attempt identity, including the active fence at the time it was observed.
+      - Candidate result reference and validation/registration disposition; no unverified result is exposed as a completed output.
+      - Job enters RECONCILING and may become COMPLETED only after validated output registration under a current fence.
+    expectedStateRefs:
+      media-job: [RUNNING, RECONCILING, COMPLETED, FAILED]
+      media-attempt: [SUCCEEDED, SUPERSEDED]
+    forbiddenTransitionOrReplay:
+      - Treat provider SUCCEEDED as Media job COMPLETED without output registration and contract checks.
+      - Dispatch the expensive provider operation again solely because output registration was interrupted.
+      - Let a stale attempt register or select a canonical output.
+    safeNextAction: >-
+      Reconcile the stored provider receipt and candidate result, validate and
+      register once under current authority/fence, then record the resulting
+      job finality or a classified failure.
+
+  - id: partial-erasure-and-retry
+    class: interleaving-specification
+    initialState:
+      description: >-
+        Erasure is authorized, new access is revoked, and physical cleanup has
+        deleted some controlled copies while one or more copies failed or have
+        not yet returned evidence.
+      stateRefs:
+        media-upload-and-artifact: [PHYSICAL_ERASURE_PENDING]
+    interleavingOrFaultPoint:
+      - A bounded purge batch succeeds for a subset of originals/derivatives/caches.
+      - A later deletion fails or times out before copy-level confirmation is durable.
+    expectedDurableRecords:
+      - Erasure tombstone, authorization/scope reference, and ACCESS_REVOKED disposition.
+      - Per-copy deletion receipts and explicit pending/failed/unknown disposition for each remaining controlled copy.
+      - Retry cursor/attempt and audit evidence sufficient to resume only unfinished eligible deletions.
+    expectedStateRefs:
+      media-upload-and-artifact: [ACCESS_REVOKED, PHYSICAL_ERASURE_PENDING, ERASURE_CONFIRMED, EXTERNAL_ERASURE_UNCONFIRMED]
+    forbiddenTransitionOrReplay:
+      - Mark ERASURE_CONFIRMED while any in-scope controlled copy lacks deletion evidence.
+      - Restore access, reuse, or dispatch rights because one purge batch succeeded.
+      - Claim deletion of external/recipient copies without destination confirmation.
+    safeNextAction: >-
+      Keep access revoked, preserve the tombstone, and retry bounded deletion
+      only for eligible unresolved controlled copies; report any external
+      control boundary without claiming recall.
+
+  - id: restore-with-erasure-tombstone
+    class: interleaving-specification
+    initialState:
+      description: >-
+        A restored backup contains an older artifact row marked AVAILABLE,
+        while the authoritative erasure ledger has a later tombstone for the
+        same artifact lineage. The backup row is stale input, not current
+        authority.
+      stateRefs:
+        media-upload-and-artifact: [AVAILABLE, ERASURE_REQUESTED, ACCESS_REVOKED, PHYSICAL_ERASURE_PENDING]
+    interleavingOrFaultPoint:
+      - Backup restore loads artifact metadata and bytes before the erasure ledger has been replayed.
+      - Access, indexing, job dispatch, and derivative serving are gated until tombstone replay completes.
+    expectedDurableRecords:
+      - Authoritative tombstone and version/lineage identity win over the older restored AVAILABLE row.
+      - Restore reconciliation records tombstone replay and access-denied disposition before serving or dispatch.
+      - Remaining bytes/derivatives are scheduled as PHYSICAL_ERASURE_PENDING until copy-level evidence supports a terminal disposition.
+    expectedStateRefs:
+      media-upload-and-artifact: [ACCESS_REVOKED, PHYSICAL_ERASURE_PENDING, ERASURE_CONFIRMED]
+    forbiddenTransitionOrReplay:
+      - Expose or dispatch the restored AVAILABLE snapshot before tombstone replay.
+      - Treat backup restoration as authorization to clear, supersede, or replay past an erasure tombstone.
+      - Claim ERASURE_CONFIRMED without verifying all in-scope restored copies.
+    safeNextAction: >-
+      Apply the authoritative tombstone before access, enumerate restored and
+      derived copies, and reconcile or erase them under the current retention
+      and hold policy.
+
+  - id: stale-review-version
+    class: interleaving-specification
+    initialState:
+      description: >-
+        An immutable output version has an APPROVED review. A new material
+        revision is created before a delivery or other approval-gated action
+        consumes the prior approval.
+      stateRefs:
+        media-job: [COMPLETED]
+        media-review: [APPROVED]
+    interleavingOrFaultPoint:
+      - A new output version is committed while an action holds the prior version's approval reference.
+      - The action revalidates its exact version, purpose, and current delegation before effect.
+    expectedDurableRecords:
+      - Distinct immutable old/new output version references and version-bound review records.
+      - Prior review becomes SUPERSEDED when its version changes or policy invalidates it.
+      - A new review may proceed through DRAFT and REQUESTED for the exact new version.
+    expectedStateRefs:
+      media-review: [APPROVED, SUPERSEDED, DRAFT, REQUESTED]
+    forbiddenTransitionOrReplay:
+      - Reuse APPROVED status for a changed output version or purpose.
+      - Allow stale approval or expired/revoked delegation to authorize delivery.
+      - Rewrite the reviewed immutable version in place.
+    safeNextAction: >-
+      Bind a new review request to the exact current version and purpose, obtain
+      current reviewer authority, and preserve the superseded decision as
+      version-scoped history.
+
+  - id: publication-timeout-after-submit
+    class: interleaving-specification
+    initialState:
+      description: >-
+        An exact output and destination have passed preparation; the delivery
+        submit intent and stable idempotency identity are durable before the
+        external request begins.
+      stateRefs:
+        media-job: [COMPLETED]
+        media-delivery: [READY_FOR_AUTHORIZED_DELIVERY]
+    interleavingOrFaultPoint:
+      - Destination may accept publication.
+      - Client or worker times out after submit and before durable acknowledgement is observed.
+    expectedDurableRecords:
+      - Exact output version, destination, approval context, submission/idempotency identity, and submit-intent ordering.
+      - Delivery transitions through SUBMITTED to OUTCOME_UNKNOWN, followed by RECONCILING when destination evidence is queried.
+      - Destination receipt or explicit partial/unknown/failure disposition is recorded against the stable submission identity.
+    expectedStateRefs:
+      media-delivery: [READY_FOR_AUTHORIZED_DELIVERY, SUBMITTED, OUTCOME_UNKNOWN, RECONCILING, ACKNOWLEDGED, PARTIALLY_DELIVERED, FAILED]
+    forbiddenTransitionOrReplay:
+      - Treat timeout as proof that publication did not happen or as destination acknowledgement.
+      - Blindly resubmit, create a second external effect, or move to ACKNOWLEDGED without destination evidence.
+      - Rebind a submission identity to a different output version or destination.
+    safeNextAction: >-
+      Reconcile the destination using the stable submission identity; preserve
+      unknown finality and retry only if the destination contract proves the
+      replay safe or reconciliation establishes that no effect occurred.

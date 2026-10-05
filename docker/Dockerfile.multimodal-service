@@ -1,0 +1,63 @@
+# =============================================================================
+# Multimodal Service - Multi-stage Dockerfile
+# Orchestrates STT + Vision services; gRPC on port 50054
+# =============================================================================
+
+# ---- Build stage ----
+FROM eclipse-temurin:21-jdk-jammy AS builder
+
+WORKDIR /workspace
+
+COPY gradlew gradlew.bat ./
+COPY gradle/ gradle/
+COPY settings.gradle.kts gradle.properties ./
+COPY buildSrc/ buildSrc/
+COPY build.gradle.kts ./
+
+COPY platform/java/ platform/java/
+COPY products/audio-video/libs/common/ products/audio-video/libs/common/
+COPY products/audio-video/modules/intelligence/multimodal-service/ \
+     products/audio-video/modules/intelligence/multimodal-service/
+COPY platform/contracts/ platform/contracts/
+
+RUN chmod +x gradlew && \
+    ./gradlew :products:audio-video:modules:intelligence:multimodal-service:shadowJar \
+      --no-daemon \
+      -x test \
+      -x checkstyleMain
+
+# ---- Runtime stage ----
+FROM eclipse-temurin:21-jre-jammy AS runtime
+
+RUN groupadd -r multimodal && useradd -r -g multimodal multimodal
+
+WORKDIR /app
+
+COPY --from=builder \
+    /workspace/products/audio-video/modules/intelligence/multimodal-service/build/libs/*-all.jar \
+    app.jar
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:${AV_HEALTH_PORT:-8093}/health || exit 1
+
+USER multimodal
+
+EXPOSE 50054 8093
+
+ENV MULTIMODAL_GRPC_PORT=50054 \
+    AV_HEALTH_PORT=8093 \
+    STT_SERVICE_HOST=stt-service \
+    STT_SERVICE_PORT=50051 \
+    VISION_SERVICE_HOST=vision-service \
+    VISION_SERVICE_PORT=50053 \
+    AV_RATE_LIMIT_TPS=10 \
+    AV_RATE_LIMIT_BURST=20 \
+    AV_RATE_LIMIT_MAX_CONCURRENT=5 \
+    AV_CB_FAILURE_THRESHOLD=5 \
+    AV_CB_RESET_TIMEOUT_MS=30000
+
+ENTRYPOINT ["java", \
+    "-XX:+UseContainerSupport", \
+    "-XX:MaxRAMPercentage=75.0", \
+    "-Djava.security.egd=file:/dev/./urandom", \
+    "-jar", "app.jar"]

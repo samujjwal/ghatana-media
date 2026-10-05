@@ -1,0 +1,207 @@
+artifactVersion: media.phase-0.applications-channels.v1
+phaseTask: P0-009
+status:
+  maturity: proposed-for-phase-0-review
+  productAdmission: pending
+  runtimeSupportClaims: none
+  note: >-
+    Repository/API/client presence is evidence of a source surface only. It
+    does not prove package publication, deployment, qualification, licensing,
+    end-user support, or runtime availability.
+dependencies:
+  p0-001:
+    status: accepted-boundary-slice
+    compatibilityCommitment: Preserve existing public API/protobuf/package identities subject to the migration gates.
+  p0-003:
+    status: pending
+    effect: Capability/channel denominator and per-operation support matrix are not final.
+  p0-007:
+    status: pending
+    effect: Quality profiles and safe device-specific fallbacks are not final.
+  p0-008:
+    status: pending
+    effect: Cross-product public bindings, health, fallback, and expiry are not fully admitted.
+  nonfunctionalRequirements:
+    status: authored-proposal-pending-p0-010-integration-and-independent-acceptance
+    artifact: nonfunctional-requirements.yaml
+    editedHere: false
+
+statusVocabulary:
+  observed-source-surface: A contract, client package, or archived implementation exists in the inspected source tree.
+  proposed-not-admitted: Master plan proposes the channel/form factor; Phase 0 has not admitted it.
+  compatibility-preservation-required: Existing identity/call surface must remain compatible during migration, without a new runtime-support claim.
+  not-evaluated: No current build/deployment/license/qualification/runtime evidence is asserted here.
+  accepted: Requires named owner review and admitted evidence; no channel/device/locale below currently has this status.
+
+sourceEvidence:
+  repository: samujjwal/ghatana
+  revision: 245e966591913bc73f59fad9bf43651673b0280e
+  observations:
+    - path: services/media/contracts/openapi/media.yaml
+      fact: An OpenAPI Media contract is present in the inventoried source.
+      doesNotProve: A deployed or currently available HTTP API.
+    - path: services/media/modules/speech/stt-service/src/main/proto/stt_service.proto
+      fact: An STT gRPC contract is present in the inventoried source.
+      doesNotProve: A deployed or qualified gRPC service.
+    - path: services/media/modules/speech/tts-service/src/main/proto/tts_service.proto
+      fact: A TTS gRPC contract is present in the inventoried source.
+      doesNotProve: Voice/language or runtime availability.
+    - path: services/media/libs/audio-video-client/package.json
+      fact: A TypeScript client package source is present.
+      doesNotProve: Published package availability or consumer parity.
+    - path: archive/media-desktop-apps/desktop/README.md
+      fact: Legacy desktop application material is retained in an archive.
+      doesNotProve: An active or supported desktop application.
+  currentBoundary: >-
+    The archived desktop application and product-specific legacy experience are
+    preservation material only unless separately qualified and admitted.
+
+channels:
+  - id: media.channel.web
+    name: Web application
+    definitionState: proposed
+    implementationState: no-admitted-active-web-product-established-by-migration-inventory
+    qualificationState: NOT_EVALUATED
+    licenseAdmissionState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    phase0Admission: pending
+    evidence: Master-plan proposed view routes in section 20.2; active supported Web deployment is not evidenced by this artifact.
+    intendedRole: Primary interactive product surface if selected and admitted.
+    viewReferences: [M-HOME, M-PROJECTS, M-PROJECT, M-ASSETS, M-ASSET, M-UPLOAD, M-CREATE, M-PLAN, M-STORYBOARD, M-IMAGE, M-VIDEO, M-AUDIO, M-SPEECH, M-VOICE, M-CAPTIONS, M-DUB, M-ENHANCE, M-COMPARE, M-EDIT, M-MASK, M-ANIMATION, M-SCENE, M-SIMULATION, M-COMPOSER, M-COLOR, M-QUALITY, M-RENDER, M-ACTIVITY, M-JOB, M-OUTPUTS, M-OUTPUT, M-DELIVERY, M-REVIEW, M-RIGHTS, M-PROVENANCE, M-PROFILES, M-PROVIDERS, M-OPERATIONS, M-SETTINGS, M-AUTH, M-HELP]
+    supportRule: Design for responsive, semantic, keyboard-operable processes; availability for any deployment/browser remains unverified.
+
+  - id: media.channel.http-api
+    name: HTTP/OpenAPI
+    definitionState: proposed
+    implementationState: observed-source-contract
+    qualificationState: NOT_EVALUATED
+    licenseAdmissionState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    phase0Admission: pending
+    compatibilityStatus: compatibility-preservation-required
+    evidence: services/media/contracts/openapi/media.yaml
+    intendedRole: Public machine/product integration and supported read/write operations as admitted per operation.
+    supportRule: Routes, operations, authentication, finality, idempotency, and availability require owner-reviewed public bindings; the OpenAPI file alone does not establish them.
+
+  - id: media.channel.grpc-api
+    name: gRPC service contracts
+    definitionState: proposed
+    implementationState: observed-source-contract
+    qualificationState: NOT_EVALUATED
+    licenseAdmissionState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    phase0Admission: pending
+    compatibilityStatus: compatibility-preservation-required
+    evidence:
+      - services/media/modules/speech/stt-service/src/main/proto/stt_service.proto
+      - services/media/modules/speech/tts-service/src/main/proto/tts_service.proto
+      - services/media/modules/vision/vision-service/src/main/proto/vision_service.proto
+      - services/media/modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    supportRule: Each service and operation requires its own provider, auth, cancellation, finality, and runtime disposition.
+
+  - id: media.channel.sdk
+    name: Client libraries
+    definitionState: proposed
+    implementationState: observed-source-packages
+    qualificationState: NOT_EVALUATED
+    licenseAdmissionState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    phase0Admission: pending
+    compatibilityStatus: compatibility-preservation-required
+    evidence:
+      - services/media/libs/audio-video-client/package.json
+      - services/media/libs/audio-video-types/package.json
+      - services/media/libs/audio-video-ui/package.json
+    supportRule: Source package presence is not publication or consumer-compatibility proof; publishable exports and supported client environments remain to be verified.
+
+  - id: media.channel.cli
+    name: Command-line batch interface
+    definitionState: proposed
+    implementationState: no-user-facing-Media-CLI-admission-established
+    qualificationState: NOT_EVALUATED
+    licenseAdmissionState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    phase0Admission: pending
+    evidence: Master-plan sections 17 and 20 propose safe bounded batch rendering through CLI; exact commands and installed behavior remain to be authored.
+    intendedRole: Deterministic non-interactive plan/submit/watch/reconcile over the same Media semantic state/actions as Web and API.
+    supportRule: Consequential operations require explicit authority; scripts/build entrypoints are not treated as a product CLI.
+
+  - id: media.channel.product-integration
+    name: Product-to-product integration
+    definitionState: proposed
+    implementationState: mixed-observed-references-and-proposed-edges
+    qualificationState: NOT_EVALUATED
+    licenseAdmissionState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    phase0Admission: pending-per-owner-contract
+    intendedRole: Share typed requests/results and owner-referenced artifacts without sharing private databases or duplicating domain authority.
+    handoffContract: handoff-contracts.yaml
+    supportRule: Each integration is separately admitted; a consumer reference or open request is not fulfillment.
+
+  - id: media.channel.legacy-desktop
+    name: Archived desktop product experience
+    definitionState: historical-archive
+    implementationState: archived-source-only
+    qualificationState: NOT_EVALUATED
+    licenseAdmissionState: NOT_EVALUATED
+    runtimeAvailability: NOT_ADMITTED
+    phase0Admission: not-admitted
+    evidence: archive/media-desktop-apps/desktop/README.md and archive/media-desktop-apps/ai-voice-desktop/README.md
+    supportRule: Archive retention preserves source history only; do not list as a supported current product channel.
+
+channelInvariants:
+  - Web, CLI, API, SDK, and product integrations project the same versioned product semantics, authorization, finality, and recovery rules.
+  - A view detaching from a long-running request does not mean cancellation; cancellation must use the operation contract and report its certainty.
+  - No channel silently weakens privacy, rights, fidelity, cost bounds, or publication review.
+  - Unsupported channel/operation combinations remain visible as unsupported or not evaluated; never convert UNKNOWN to AVAILABLE.
+  - Proposed Web routes in master-plan section 20.2 are product-view references and not server endpoint claims.
+
+devicesAndResponsiveViewports:
+  admissionStatus: no-physical-device-matrix-admitted
+  implementationAndRuntimeSupport: NOT_EVALUATED
+  designViewports:
+    sourceDocument: docs/migration/expert-reviewed-master-plan.md
+    sourceSection: '19.3 Canonical responsive and terminal variants'
+    status: proposed-verification-fixtures-not-device-support-claims
+    values:
+      - { id: large-desktop, widthCssPx: 1536, heightCssPx: 960, workflowMode: pending-adaptive-contract }
+      - { id: desktop, widthCssPx: 1280, heightCssPx: 800, workflowMode: pending-adaptive-contract }
+      - { id: compact-desktop, widthCssPx: 1024, heightCssPx: 768, workflowMode: pending-adaptive-contract }
+      - { id: tablet-portrait, widthCssPx: 768, heightCssPx: 1024, workflowMode: pending-adaptive-contract }
+      - { id: mobile-large, widthCssPx: 390, heightCssPx: 844, workflowMode: pending-adaptive-contract }
+      - { id: mobile-compact, widthCssPx: 320, heightCssPx: 640, workflowMode: pending-adaptive-contract }
+    additionalFixtures:
+      - 200-percent text zoom and relevant browser zoom/reflow
+      - keyboard-only, screen reader, forced colors, and reduced-motion scenarios for supported Web processes
+    rules:
+      - Phase 1 must decide which workflows are fully editable, limited-edit, or review/monitoring on each admitted form factor.
+      - Mobile layouts must retain recovery and critical information; responsive recomposition is not feature-admission evidence.
+      - Native Android and iOS are not admitted by the archived Tauri configuration files.
+
+localeAdmission:
+  status: no-product-locale-set-admitted
+  implementationAndRuntimeSupport: NOT_EVALUATED_BY_LOCALE
+  dimensionsAreIndependent:
+    - uiLocale
+    - speechRecognitionLanguage
+    - subtitleLanguage
+    - synthesisVoiceLocale
+    - metadataFormattingLocale
+    - timeAndNumberFormattingLocale
+  evidenceOnlyIdentifiers:
+    - { tag: en, evidence: Media code/model/test fixtures contain English defaults or examples; product-wide UI admission is not established. }
+    - { tag: fr-CA, evidence: A language-detection test uses a French-Canadian locale; no product locale admission follows. }
+  proposedResilienceFixtures:
+    - { tag: en, script: Latin, status: proposed-test-fixture-not-launch-claim }
+    - { tag: hi-IN, script: Devanagari, status: proposed-test-fixture-not-launch-claim }
+    - { tag: ar, script: Arabic/RTL, status: proposed-only-no-locale-support-claim }
+    - { tag: qps-ploc, script: pseudo-localization, status: proposed-only-no-locale-support-claim }
+  rules:
+    - Unadmitted or unqualified language/voice choices appear as unavailable with a reason; never silently fall back to English.
+    - Locale admission requires testing long labels, translated-caption wrapping, bidi/RTL, shaping, licensed font fallback, and formatting independently per capability.
+    - Evidence in one STT/TTS model or one fixture does not imply UI, subtitle, voice, or mastering support.
+
+applicationAndConsumerContext:
+  ownerRegistry: handoff-contracts.yaml
+  observedConsumerInventory: migration/consumer-inventory.yaml
+  note: Consumer availability, contract acceptance, fulfillment, activation, and channel admission are distinct statuses.

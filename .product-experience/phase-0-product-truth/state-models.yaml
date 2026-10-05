@@ -1,0 +1,733 @@
+schemaVersion: media.state-models.v1
+productId: media
+authorityStatus: authored-proposal; pending-P0-010-independent-acceptance
+semanticOwner: media
+executionOwner: media-runtime-with-platform-mechanics-behind-public-contracts
+authorityRules:
+- Job status, stage progress, cancellation outcome, remote outcome certainty, quality disposition, review state, and delivery
+  state are separate dimensions.
+- An accepted command and its attempt identity are durably recorded before an external side effect may begin.
+- Once dispatch may have occurred, timeout, process loss, lease expiry, or connection loss is not proof of non-execution.
+- Unknown external outcomes remain visible until reconciled; blind replay is prohibited unless an owner contract proves idempotent
+  replay safe.
+- A stale lease or fencing token cannot commit progress, select a canonical result, or publish finality.
+- Terminal output versions are immutable; correction appends a reconciliation or revision record.
+- Product state belongs to Media. Shared Workflow may provide neutral command, idempotency, and compare-and-set mechanics;
+  it does not own Media state semantics or act as a GPU scheduler.
+models:
+- modelId: media-job
+  purpose: one logical accepted processing request and its product-level finality
+  statusDimension: overall-job-status
+  states:
+  - id: QUEUED
+    terminal: false
+    meaning: accepted and durably registered; no attempt currently owns execution
+  - id: RUNNING
+    terminal: false
+    meaning: at least one current fenced attempt is executing an admitted stage
+  - id: RETRY_PENDING
+    terminal: false
+    meaning: prior attempt ended in a classified retryable outcome and bounded retry authority remains
+  - id: OUTCOME_UNKNOWN
+    terminal: false
+    meaning: an external effect may have occurred but its result is not known
+  - id: RECONCILING
+    terminal: false
+    meaning: provider, store, or operator evidence is being checked before a safe next action
+  - id: COMPLETED
+    terminal: true
+    meaning: verified outputs are registered and satisfy the accepted result contract
+  - id: PARTIALLY_SUCCEEDED
+    terminal: true
+    meaning: a declared subset succeeded and the remaining work has a recorded disposition
+  - id: FAILED
+    terminal: true
+    meaning: no eligible continuation remains and failure truth is persisted
+  - id: CANCELLED
+    terminal: true
+    meaning: cancellation finality is confirmed for all effects that could still mutate this job
+  transitions:
+  - from: [QUEUED]
+    to: [RUNNING, CANCELLED, FAILED]
+    guard: request-is-valid-and-current-authority-allows-admission
+  - from: [RUNNING]
+    to: [RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, PARTIALLY_SUCCEEDED, FAILED]
+    guard: current-fence-and-recorded-attempt-outcome
+  - from: [RETRY_PENDING]
+    to: [RUNNING, CANCELLED, FAILED, OUTCOME_UNKNOWN]
+    guard: retry-budget-policy-and-authority-rechecked
+  - from: [OUTCOME_UNKNOWN]
+    to: [RECONCILING]
+    guard: provider-or-owner-reconciliation-begins
+  - from: [RECONCILING]
+    to: [RUNNING, RETRY_PENDING, COMPLETED, PARTIALLY_SUCCEEDED, FAILED, CANCELLED, OUTCOME_UNKNOWN]
+    guard: durable-reconciliation-evidence-and-safe-decision
+  safeNextActions:
+    QUEUED: [inspect-request, cancel-before-dispatch, begin-one-fenced-attempt-after-current-policy-check]
+    RUNNING: [observe-progress, request-cancellation, inspect-bounded-stage-status]
+    RETRY_PENDING: [inspect-retry-budget, retry-only-after-rights-consent-cost-and-policy-recheck, cancel]
+    OUTCOME_UNKNOWN: [reconcile-stable-request-and-provider-identity, preserve-unknown-finality, request-operator-review]
+    RECONCILING: [collect-owner-evidence, record-reconciliation-decision, keep-dispatch-blocked-until-outcome-is-classified]
+    COMPLETED: [read-immutable-output-version, request-new-revision-as-new-work]
+    PARTIALLY_SUCCEEDED: [inspect-per-output-disposition, accept-declared-subset, continue-only-explicitly-authorized-remaining-work]
+    FAILED: [inspect-classified-failure-and-evidence, create-new-logical-request-only-after-correcting-cause]
+    CANCELLED: [read-cancellation-evidence, submit-a-new-explicit-request-if-work-is-still-needed]
+  transitionRecordRequirements:
+    eachTransitionMustBind: [initiatingAuthority, durableWriteOrder, emittedEffects, idempotencyIdentity, retryClass, auditClass,
+      finalityEvidence, safeNextAction]
+    unboundTransitionPolicy: blocked-pending-contract-owner-review
+  terminalStatePolicy:
+    completedOutputsAreImmutable: true
+    correctionsCreateNewRevision: true
+    cancellationMustNotHidePossibleRemoteWork: true
+    retryCreatesNewAttemptWithinSameLogicalRequest: true
+  currentSourceObservation:
+    evidence: docs/ARCHITECTURE.md#job-flow
+    observedFacts:
+    - local launcher starts accepted jobs through an asynchronous in-process future
+    - durable provider stores leases and optimistic versions when selected
+    - startup reconciliation does not silently replay unknown provider outcomes
+    - production-like durable queue-and-retry behavior is not established by the local publisher
+    limitations: source-description-only; not runtime qualification
+
+- modelId: media-attempt
+  purpose: one fenced execution attempt for a stage or provider dispatch
+  statusDimension: technical-attempt-state
+  states:
+  - id: CLAIMED
+    terminal: false
+    meaning: worker owns a valid lease and fencing token
+  - id: DISPATCH_INTENT_RECORDED
+    terminal: false
+    meaning: durable intent and idempotency identity exist before external dispatch
+  - id: DISPATCHED
+    terminal: false
+    meaning: external request may have crossed the boundary
+  - id: RUNNING
+    terminal: false
+    meaning: execution is observed as active by the attempt owner
+  - id: CANCEL_REQUESTED
+    terminal: false
+    meaning: stop was requested; the effect is not yet known to be stopped
+  - id: SUCCEEDED
+    terminal: true
+    meaning: provider returned an outcome that still requires result validation and registration
+  - id: FAILED
+    terminal: true
+    meaning: attempt failure is classified and recorded
+  - id: CANCEL_CONFIRMED
+    terminal: true
+    meaning: provider or local execution authority confirms no further mutation from this attempt
+  - id: OUTCOME_UNKNOWN
+    terminal: true
+    meaning: attempt may have produced external work or cost without a confirmable result
+  - id: SUPERSEDED
+    terminal: true
+    meaning: a newer fence owns writes; this attempt cannot commit
+  transitionGuards:
+  - claim-requires-current-lease-and-increasing-fence
+  - dispatch-requires-recorded-intent-policy-and-budget-check
+  - terminal-write-requires-current-fence
+  - cancellation-request-is-not-cancellation-confirmation
+  - uncertain-dispatched-attempt-enters-reconciliation-not-automatic-retry
+  transitions:
+  - from: [CLAIMED]
+    to: [DISPATCH_INTENT_RECORDED, CANCEL_CONFIRMED, FAILED, SUPERSEDED]
+    guard: current-lease-and-policy-rechecked-before-dispatch
+  - from: [DISPATCH_INTENT_RECORDED]
+    to: [DISPATCHED, CANCEL_CONFIRMED, FAILED, OUTCOME_UNKNOWN]
+    guard: durable-dispatch-intent-and-idempotency-identity-exist
+  - from: [DISPATCHED]
+    to: [RUNNING, CANCEL_REQUESTED, SUCCEEDED, FAILED, OUTCOME_UNKNOWN, SUPERSEDED]
+    guard: dispatch-may-have-crossed-boundary-and-current-fence-remains-valid
+  - from: [RUNNING]
+    to: [CANCEL_REQUESTED, SUCCEEDED, FAILED, OUTCOME_UNKNOWN, SUPERSEDED]
+    guard: provider-observation-is-recorded-under-current-fence
+  - from: [CANCEL_REQUESTED]
+    to: [CANCEL_CONFIRMED, SUCCEEDED, FAILED, OUTCOME_UNKNOWN, SUPERSEDED]
+    guard: cancellation-race-is-resolved-from-provider-or-local-authority-evidence
+  safeNextActions:
+    CLAIMED: [validate-grant-and-bounds, persist-dispatch-intent-before-effect, release-lease-if-not-dispatched]
+    DISPATCH_INTENT_RECORDED: [dispatch-once-with-recorded-idempotency-identity, cancel-before-dispatch-if-still-provably-unsent]
+    DISPATCHED: [observe-or-reconcile-provider, request-cancellation, preserve-unknown-outcome]
+    RUNNING: [observe-within-budget, request-cancellation, persist-progress-under-current-fence]
+    CANCEL_REQUESTED: [await-authoritative-stop-confirmation, reconcile-racing-success, retain-unknown-state-if-uncertain]
+    SUCCEEDED: [validate-result, register-output-under-current-fence, do-not-equate-provider-success-with-product-finality]
+    FAILED: [record-classified-failure, retry-only-through-new-bounded-attempt]
+    CANCEL_CONFIRMED: [record-stop-evidence, release-resources, do-not-reuse-attempt-identity]
+    OUTCOME_UNKNOWN: [reconcile-with-stable-provider-identity, no-blind-replay]
+    SUPERSEDED: [discard-stale-write, retain-audit-reference, do-not-finalize]
+  retryPolicy:
+    boundedBy: attempt-count-deadline-compute-cost-and-policy
+    createsNewAttempt: true
+    inheritsParentDeadlineAndRemainingBudget: true
+    profileFallbackRechecksRights-consent-cost-quality-and-egress: true
+
+- modelId: media-upload-and-artifact
+  purpose: receive, verify, promote, retain, and erase immutable media artifacts
+  statusDimension: artifact-ingestion-and-lifecycle
+  states:
+  - id: RECEIVING
+    terminal: false
+    meaning: bounded ordered upload parts are being accepted
+  - id: VERIFYING
+    terminal: false
+    meaning: expected length, per-part integrity, full digest, policy, and detected format are being checked
+  - id: AVAILABLE
+    terminal: false
+    meaning: verified artifact bytes and metadata may be referenced by authorized jobs
+  - id: QUARANTINED
+    terminal: false
+    meaning: content is isolated pending security, rights, policy, or format review
+  - id: REJECTED
+    terminal: true
+    meaning: admission or verification failed; the artifact is not usable
+  - id: EXPIRED
+    terminal: false
+    meaning: retention expiry has elapsed and physical cleanup is due or in progress
+  - id: ERASURE_REQUESTED
+    terminal: false
+    meaning: authorized erasure intent is durably recorded
+  - id: ACCESS_REVOKED
+    terminal: false
+    meaning: new reads, reuse, and dispatch are blocked while erasure work proceeds
+  - id: PHYSICAL_ERASURE_PENDING
+    terminal: false
+    meaning: bytes, derivatives, metadata, caches, and declared replicas are being removed or reconciled
+  - id: BLOCKED_BY_HOLD
+    terminal: false
+    meaning: an active lawful or policy hold prevents some or all physical erasure
+  - id: ERASURE_CONFIRMED
+    terminal: true
+    meaning: every in-scope controlled copy has verifiable deletion evidence
+  - id: EXTERNAL_ERASURE_UNCONFIRMED
+    terminal: true
+    meaning: Media cannot confirm deletion of a remote or recipient-held copy
+  invariants:
+  - incomplete-upload-state-is-never-an-available-artifact
+  - digest-and-size-are-verified-before-promotion
+  - quarantine-never-means-implicitly-safe
+  - shared-physical-bytes-are-not-deleted-while-authorized-retained-references-exist
+  - expiry-filtering-alone-is-not-physical-erasure
+  - restore-replays-erasure-tombstones-before-access
+  erasureScope:
+    includes: [originals, derivatives, thumbnails, proxies, transcripts, captions, masks, geometry, embeddings, voice-models,
+      source-requests, temporary-files, cached-intermediates, exports, provider-copies, backups]
+    externalCopies: report-control-boundary-and-confirmation-status; do-not-claim-recall-without-proof
+    auditAndProvenance: retain-only-minimal-allowed-records-under-explicit-retention-policy
+  transitions:
+  - from: [RECEIVING]
+    to: [VERIFYING, REJECTED, EXPIRED]
+    guard: upload-bounds-and-current-authority-remain-valid
+  - from: [VERIFYING]
+    to: [AVAILABLE, QUARANTINED, REJECTED]
+    guard: integrity-format-rights-and-security-disposition-is-recorded
+  - from: [AVAILABLE]
+    to: [QUARANTINED, EXPIRED, ERASURE_REQUESTED]
+    guard: new-policy-or-retention-or-authorized-erasure-event
+  - from: [QUARANTINED]
+    to: [AVAILABLE, REJECTED, ERASURE_REQUESTED]
+    guard: explicit-review-or-erasure-decision-with-evidence
+  - from: [EXPIRED]
+    to: [PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD]
+    guard: expiry-policy-and-hold-check-are-re-evaluated
+  - from: [ERASURE_REQUESTED]
+    to: [ACCESS_REVOKED, BLOCKED_BY_HOLD]
+    guard: authorized-erasure-is-durably-recorded-before-access-is-revoked
+  - from: [ACCESS_REVOKED]
+    to: [PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD, EXTERNAL_ERASURE_UNCONFIRMED]
+    guard: controlled-copy-inventory-and-hold-check
+  - from: [PHYSICAL_ERASURE_PENDING]
+    to: [ERASURE_CONFIRMED, BLOCKED_BY_HOLD, EXTERNAL_ERASURE_UNCONFIRMED]
+    guard: per-copy-deletion-evidence-or-explicit-control-boundary-is-recorded
+  - from: [BLOCKED_BY_HOLD]
+    to: [PHYSICAL_ERASURE_PENDING, EXTERNAL_ERASURE_UNCONFIRMED]
+    guard: hold-release-or-destination-boundary-reconciliation
+  safeNextActions:
+    RECEIVING: [accept-bounded-parts, abort-and-expire-if-policy-or-deadline-requires]
+    VERIFYING: [verify-integrity-format-and-policy, quarantine-on-uncertainty, reject-invalid-content]
+    AVAILABLE: [serve-only-after-current-authorization-check, preserve-immutable-version, begin-eligible-erasure]
+    QUARANTINED: [hold-new-reads-and-dispatch, request-authorized-review, reject-or-release-with-recorded-evidence]
+    REJECTED: [retain-minimal-required-audit, create-new-upload-only-as-new-identity]
+    EXPIRED: [recheck-hold-and-retention, start-physical-erasure, record-cleanup-failure]
+    ERASURE_REQUESTED: [revalidate-authority, revoke-new-access, enumerate-controlled-copies]
+    ACCESS_REVOKED: [deny-new-reads-and-work, purge-or-reconcile-each-controlled-copy]
+    PHYSICAL_ERASURE_PENDING: [retry-bounded-deletion, preserve-tombstone, audit-copy-level-result]
+    BLOCKED_BY_HOLD: [maintain-access-revocation-where-authorized, preserve-minimum-held-copy, recheck-on-hold-change]
+    ERASURE_CONFIRMED: [return-minimal-erasure-receipt, retain-only-permitted-audit-record]
+    EXTERNAL_ERASURE_UNCONFIRMED: [report-destination-boundary, do-not-claim-remote-recall, retain-reconciliation-reference]
+  currentSourceObservation:
+    evidence: docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md#retention-and-physical-erasure
+    observedFacts:
+    - durable privacy maintenance deletes object bytes before deleting expired metadata
+    - deletion failure leaves metadata available for retry and audit
+    - current source names a physical-erasure SPI and bounded purge batches
+    limitations: source-description-only; production eligibility requires deployment evidence
+
+- modelId: media-stream-session
+  purpose: govern ordered, reconnectable media streams with explicit close and frame finality
+  statusDimension: stream-session-state
+  states:
+  - id: OPEN
+    terminal: false
+    meaning: session has an authorized provider and persisted token hash
+  - id: CONNECTED
+    terminal: false
+    meaning: current connection holds a valid short reconnect lease
+  - id: DEGRADED
+    terminal: false
+    meaning: stream can continue only under its declared bounded degradation rules
+  - id: DRAINING
+    terminal: false
+    meaning: close fences new frames and active work is being terminated
+  - id: CLOSED
+    terminal: true
+    meaning: no new frames or reconnects are accepted and provider close is recorded
+  - id: FAILED
+    terminal: true
+    meaning: the stream cannot continue; accepted frames and uncertain remote effects remain auditable
+  invariants:
+  - frame-sequence-is-monotonic-and-acknowledgement-matches-submitted-sequence
+  - reconnect-requires-current-token-lease-and-reverified-consent
+  - close-fences-new-dispatch-and-cancels-active-frame-work
+  - prior-verified-consent-may-authorize-termination-only-not-new-work
+  - buffers-and-retained-frame-metadata-are-bounded
+  transitions:
+  - from: [OPEN]
+    to: [CONNECTED, DRAINING, FAILED]
+    guard: session-grant-and-provider-binding-are-current
+  - from: [CONNECTED]
+    to: [DEGRADED, DRAINING, FAILED]
+    guard: lease-sequence-and-consent-are-rechecked-per-effect
+  - from: [DEGRADED]
+    to: [CONNECTED, DRAINING, FAILED]
+    guard: recovery-is-within-declared-degradation-and-budget-policy
+  - from: [DRAINING]
+    to: [CLOSED, FAILED]
+    guard: new-work-is-fenced-and-active-frame-effects-are-confirmed-or-recorded-unknown
+  safeNextActions:
+    OPEN: [connect-with-current-token-and-consent, close-before-first-frame]
+    CONNECTED: [submit-next-authorized-frame-sequence, request-drain, reconnect-only-with-valid-lease]
+    DEGRADED: [surface-limitation, continue-only-if-policy-permits, request-drain]
+    DRAINING: [fence-new-frames, await-or-reconcile-active-effects, record-close-evidence]
+    CLOSED: [read-final-stream-record, create-new-session-for-new-work]
+    FAILED: [inspect-accepted-frame-and-remote-outcomes, reconcile-before-retry]
+  currentSourceObservation:
+    evidence: docs/ARCHITECTURE.md#stream-flow
+    observedFacts: [token-hash-persistence, reconnect-lease, ordered-acknowledgement, bounded-buffer, draining-close]
+    limitations: source-description-only; local composition is not a production queue or qualification claim
+
+- modelId: media-rights-and-consent
+  purpose: keep user assertions, verified consent, licenses, and authority decisions distinct
+  statusDimension: rights-and-consent-disposition
+  rightsAssertionStates: [ASSERTED, UNDER_REVIEW, VERIFIED_FOR_DECLARED_SCOPE, RESTRICTED, REJECTED, REVOKED, EXPIRED]
+  consentStates: [PENDING_VERIFICATION, ACTIVE, REVOKED, EXPIRED, SUPERSEDED]
+  rightsTransitions:
+  - from: [ASSERTED]
+    to: [UNDER_REVIEW, RESTRICTED, REJECTED]
+    guard: user-assertion-is-recorded-as-unverified-input
+  - from: [UNDER_REVIEW]
+    to: [VERIFIED_FOR_DECLARED_SCOPE, RESTRICTED, REJECTED]
+    guard: assigned-reviewer-or-authority-produces-scope-bound-evidence
+  - from: [VERIFIED_FOR_DECLARED_SCOPE]
+    to: [RESTRICTED, REVOKED, EXPIRED]
+    guard: policy-change-revocation-or-validity-window-event
+  - from: [RESTRICTED]
+    to: [UNDER_REVIEW, REVOKED, EXPIRED]
+    guard: new-evidence-or-revocation-or-expiry
+  consentTransitions:
+  - from: [PENDING_VERIFICATION]
+    to: [ACTIVE, REVOKED, EXPIRED, SUPERSEDED]
+    guard: trusted-consent-authority-verifies-current-scope-before-activation
+  - from: [ACTIVE]
+    to: [REVOKED, EXPIRED, SUPERSEDED]
+    guard: authority-recorded-revocation-expiry-or-replacement
+  safeNextActions:
+    rights.ASSERTED: [label-unverified, block-rights-dependent-effects, request-scope-specific-review]
+    rights.UNDER_REVIEW: [hold-sensitive-operation, collect-minimum-required-evidence]
+    rights.VERIFIED_FOR_DECLARED_SCOPE: [use-only-within-verified-scope-and-validity, recheck-at-effect-boundary]
+    rights.RESTRICTED: [block-disallowed-use, retain-restriction-reason-and-recheck-condition]
+    rights.REJECTED: [block-rejected-use, accept-new-evidence-only-through-new-review]
+    rights.REVOKED: [block-new-work, cancel-or-reconcile-in-flight-effects-per-policy]
+    rights.EXPIRED: [block-new-work, request-renewal-or-restrict]
+    consent.PENDING_VERIFICATION: [block-dependent-processing, ask-authority-to-verify]
+    consent.ACTIVE: [recheck-principal-purpose-region-validity-at-each-effect]
+    consent.REVOKED: [block-new-work-and-frames, reconcile-in-flight-work, retain-audit-evidence]
+    consent.EXPIRED: [block-new-work, request-renewal-through-authority]
+    consent.SUPERSEDED: [use-current-authority-reference-only, do-not-reactivate-old-consent]
+  invariants:
+  - rights-attestation-is-a-user-assertion-not-a-verified-license
+  - caller-supplied-consent-ids-and-booleans-are-intent-not-authority
+  - consent-is-bound-to-tenant-principal-purpose-region-and-validity
+  - biometric-work-requires-explicit-authority-owned-biometric-permission
+  - revocation-blocks-new-work-and-frames-at-the-next-enforcement-boundary
+  - previously-verified-consent-evidence-for-a-stream-can-authorize-termination-only
+  - model-output-cannot-authorize-itself
+  currentSourceObservation:
+    evidence: docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md#consent-requirements
+    observedFacts: [authority-owned-consent-decision, tenant-and-principal-binding, purpose-and-region-checks, explicit-biometric-grant]
+    limitations: the plan must define consumer-facing legal/rights review states; current runtime API is not the complete
+      customer workflow
+
+- modelId: media-review
+  purpose: review immutable artifact versions under an explicitly delegated review scope
+  statusDimension: review-disposition
+  states: [DRAFT, REQUESTED, IN_REVIEW, CHANGES_REQUESTED, APPROVED, REJECTED, WITHDRAWN, SUPERSEDED, EXPIRED]
+  transitions:
+  - from: [DRAFT]
+    to: [REQUESTED, WITHDRAWN, EXPIRED]
+    guard: immutable-version-and-review-purpose-are-selected
+  - from: [REQUESTED]
+    to: [IN_REVIEW, WITHDRAWN, EXPIRED, SUPERSEDED]
+    guard: reviewer-delegation-and-version-remain-current
+  - from: [IN_REVIEW]
+    to: [CHANGES_REQUESTED, APPROVED, REJECTED, WITHDRAWN, EXPIRED, SUPERSEDED]
+    guard: authorized-reviewer-decides-on-exact-version-and-purpose
+  - from: [CHANGES_REQUESTED]
+    to: [SUPERSEDED, WITHDRAWN, EXPIRED]
+    guard: revision-creates-new-version-and-new-review-request
+  - from: [APPROVED]
+    to: [SUPERSEDED, EXPIRED, WITHDRAWN]
+    guard: version-change-validity-expiry-or-authorized-withdrawal
+  safeNextActions:
+    DRAFT: [select-version-and-purpose, request-review, withdraw]
+    REQUESTED: [assign-authorized-reviewer, inspect-version-bound-evidence, withdraw-or-expire]
+    IN_REVIEW: [record-scoped-review-decision, request-changes, escalate-policy-gap]
+    CHANGES_REQUESTED: [create-new-version, retain-prior-review-history, request-new-review]
+    APPROVED: [consume-only-for-matching-version-purpose-and-delegation, revalidate-required-policy]
+    REJECTED: [retain-decision-and-reason, create-new-version-or-request-only-if-policy-allows]
+    WITHDRAWN: [read-withdrawal-record, create-new-review-request-if-needed]
+    SUPERSEDED: [follow-new-version-review, retain-prior-decision-for-audit]
+    EXPIRED: [request-review-again-under-current-authority]
+  invariants:
+  - review-is-bound-to-an-exact-immutable-version-and-scope
+  - changed-version-invalidates-prior-approval-for-delivery-when-policy-requires-current-approval
+  - expired-or-revoked-delegation-cannot-finalize-a-review
+  - approval-does-not-override-rights-privacy-quality-or-fidelity-blocks
+  - reviewer-comments-have-explicit-visibility-and-retention
+  evidenceClass: future-product-definition; no current runtime review workflow asserted
+
+- modelId: media-delivery
+  purpose: distinguish internal output readiness from external export or publication effects
+  statusDimension: delivery-finality
+  states: [NOT_STARTED, PREPARING, READY_FOR_AUTHORIZED_DELIVERY, SUBMITTED, ACKNOWLEDGED, PARTIALLY_DELIVERED, OUTCOME_UNKNOWN,
+    RECONCILING, FAILED, REVOKED]
+  transitions:
+  - from: [NOT_STARTED]
+    to: [PREPARING, REVOKED]
+    guard: delivery-intent-and-destination-are-authorized
+  - from: [PREPARING]
+    to: [READY_FOR_AUTHORIZED_DELIVERY, FAILED, REVOKED]
+    guard: exact-output-version-and-destination-policy-are-checked
+  - from: [READY_FOR_AUTHORIZED_DELIVERY]
+    to: [SUBMITTED, FAILED, REVOKED]
+    guard: approval-and-idempotency-identity-are-durable-before-external-submit
+  - from: [SUBMITTED]
+    to: [ACKNOWLEDGED, PARTIALLY_DELIVERED, OUTCOME_UNKNOWN, FAILED, REVOKED]
+    guard: destination-evidence-is-recorded-and-uncertainty-is-preserved
+  - from: [OUTCOME_UNKNOWN]
+    to: [RECONCILING]
+    guard: destination-query-or-owner-reconciliation-starts
+  - from: [RECONCILING]
+    to: [ACKNOWLEDGED, PARTIALLY_DELIVERED, OUTCOME_UNKNOWN, FAILED, REVOKED]
+    guard: stable-submission-identity-and-destination-evidence-support-classification
+  - from: [PARTIALLY_DELIVERED]
+    to: [RECONCILING, ACKNOWLEDGED, FAILED, REVOKED]
+    guard: remaining-destination-effects-are-explicitly-accounted-for
+  safeNextActions:
+    NOT_STARTED: [check-current-rights-and-destination-authority, prepare-only-if-authorized]
+    PREPARING: [validate-exact-version-format-and-policy, stop-on-expired-approval]
+    READY_FOR_AUTHORIZED_DELIVERY: [recheck-authority-and-consent, persist-idempotency-before-submit]
+    SUBMITTED: [observe-destination, reconcile-by-stable-submission-id, do-not-blind-retry]
+    ACKNOWLEDGED: [record-destination-receipt, retain-exact-submitted-version-reference]
+    PARTIALLY_DELIVERED: [show-delivered-and-undelivered-effects-separately, reconcile-or-stop-per-policy]
+    OUTCOME_UNKNOWN: [reconcile-destination, preserve-uncertain-finality]
+    RECONCILING: [record-owner-evidence-and-decision, retry-only-if-destination-contract-proves-safe]
+    FAILED: [record-classified-destination-failure, request-new-explicit-delivery-after-cause-review]
+    REVOKED: [block-unsent-effects, reconcile-already-submitted-effects, report-recall-limit]
+  invariants:
+  - output-registration-does-not-imply-external-publication
+  - external-submission-persists-intent-and-idempotency-identity-first
+  - timeout-after-submission-remains-outcome-unknown-until-destination-reconciliation
+  - downloaded-or-published-copies-may-be-beyond-media-control
+  - delivery-approval-is-specific-to-version-destination-and-policy-context
+  evidenceClass: future-product-definition; no external-delivery capability qualification asserted
+
+- modelId: media-quality-disposition
+  purpose: record whether required quality properties are measured, abstained, passed, failed, or need human review
+  statusDimension: quality-disposition
+  states: [NOT_ASSESSED, ASSESSING, PASS, FAIL, ABSTAINED, REVIEW_REQUIRED, SUPERSEDED]
+  transitions:
+  - from: [NOT_ASSESSED]
+    to: [ASSESSING, REVIEW_REQUIRED]
+    guard: metric-applicability-and-version-bound-protocol-are-declared
+  - from: [ASSESSING]
+    to: [PASS, FAIL, ABSTAINED, REVIEW_REQUIRED, SUPERSEDED]
+    guard: measurements-or-abstention-reason-are-recorded-for-exact-output
+  - from: [PASS, FAIL, ABSTAINED, REVIEW_REQUIRED]
+    to: [SUPERSEDED]
+    guard: output-or-material-measurement-protocol-changes
+  safeNextActions:
+    NOT_ASSESSED: [declare-applicable-dimensions-and-protocol, request-authorized-assessment]
+    ASSESSING: [measure-with-bounded-resources, abstain-with-reason-when-out-of-domain]
+    PASS: [show-dimensions-and-evidence, allow-only-actions-whose-other-gates-pass]
+    FAIL: [surface-failed-dimensions, stop-protected-operation-or-request-authorized-remediation]
+    ABSTAINED: [report-not-measured, require-alternative-evidence-or-human-review]
+    REVIEW_REQUIRED: [route-to-authorized-reviewer, preserve-measurement-uncertainty]
+    SUPERSEDED: [reassess-new-output-or-material-protocol-version]
+  invariants:
+  - quality-dimensions-are-explicit-and-applicability-is-reported
+  - an-opaque-composite-score-cannot-override-rights-safety-or-domain-fidelity
+  - abstention-is-not-pass
+  - accepted-quality-is-bound-to-exact-output-version-and-measurement-protocol
+  - optimization-stops-on-budget-exhaustion-no-significant-improvement-ineligible-repair-or-uncertain-outcome
+  evidenceClass: future-product-definition; measured quality targets remain unaccepted
+
+- modelId: media-project
+  purpose: model the project container lifecycle independently from jobs, immutable revisions, membership, and authorization
+  statusDimension: project-container-lifecycle
+  authorityStatus: proposed-for-P0-005-review
+  states:
+  - id: ACTIVE
+    terminal: false
+    meaning: The project is open for authorized inspection and versioned change under its current head revision.
+  - id: ARCHIVED
+    terminal: false
+    meaning: The project is retained but excluded from ordinary active-work views; source and revision history remain immutable.
+  transitions:
+  - from:
+    - ACTIVE
+    to:
+    - ARCHIVED
+    guard: an authorized project owner requests archive and the current head/revision identity is recorded
+  - from:
+    - ARCHIVED
+    to:
+    - ACTIVE
+    guard: an authorized restore request revalidates project access, retention, tombstones, and referenced artifact availability;
+      restore does not clear erasure
+  safeNextActions:
+    ACTIVE:
+    - inspect-current-head-and-membership-through-owner-contracts
+    - create-versioned-change-against-current-head
+    - archive-with-auditable-reason
+    ARCHIVED:
+    - inspect-retained-project-metadata-with-current-authorization
+    - restore-only-after-current-access-and-tombstone-checks
+    - branch-to-a-new-project-if-restoration-is-not-authorized
+  transitionRecordRequirements:
+  - project-id-and-tenant-scope
+  - actor-and-delegation-reference
+  - expected-current-head-version
+  - policy-decision-and-operation-purpose
+  - durable-transition-record-before-external-or-visible-effect
+  invariants:
+  - archive-does-not-delete-or-rewrite-revisions
+  - restore-does-not-reactivate-erased-assets-or-bypass-tombstones
+  - project-role-labels-do-not-grant-access
+  - project-state-is-independent-of-job-and-provider-finality
+  currentSourceObservation:
+    evidence: docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities
+    observedFacts:
+    - project create/archive/restore and collaboration are in declared capability scope
+    limitations: Project container lifecycle and access contract remain authored proposals; no runtime schema or permission
+      grant is implied.
+- modelId: media-project-version
+  purpose: model mutable edit drafts, immutable committed project revisions, optimistic concurrency, branch/restore, and conflict
+    disposition
+  statusDimension: project-revision-lifecycle
+  authorityStatus: proposed-for-P0-005-review
+  versionIdentity:
+    identity: tenant-scoped project ID plus immutable revision ID
+    headConcurrency: commit uses compare-and-swap against an explicit expected head revision; stale head never overwrites
+      current state
+    restoreRule: restoring an older revision creates a new draft revision referencing the chosen source revision; old records
+      are never rewritten
+    authorizationRule: membership, grants, and action policy are checked through owner contracts at read and effect boundaries
+  states:
+  - id: DRAFT
+    terminal: false
+    meaning: A mutable candidate revision based on an explicit parent/head revision; it is not the canonical project head.
+  - id: COMMITTED
+    terminal: false
+    meaning: An immutable revision atomically accepted as the current project head after expected-head comparison and validation.
+  - id: SUPERSEDED
+    terminal: true
+    meaning: An immutable previously committed revision that is no longer the project head; retained for authorized history/branch/restore.
+  - id: CONFLICTED
+    terminal: true
+    meaning: An immutable commit attempt rejected because the expected head was stale or a declared merge constraint failed.
+  - id: ABANDONED
+    terminal: true
+    meaning: An uncommitted draft explicitly abandoned or expired without changing the project head.
+  transitions:
+  - from:
+    - DRAFT
+    to:
+    - COMMITTED
+    guard: current authorization and policy pass; validation succeeds; expected head compare-and-swap succeeds; revision and
+      head update commit atomically
+  - from:
+    - DRAFT
+    to:
+    - CONFLICTED
+    guard: expected head or declared merge precondition no longer matches; no partial project or artifact selection is committed
+  - from:
+    - DRAFT
+    to:
+    - ABANDONED
+    guard: authorized explicit abandon or bounded draft-expiry policy records the disposition
+  - from:
+    - COMMITTED
+    to:
+    - SUPERSEDED
+    guard: a newer revision atomically becomes the project head; prior revision content and evidence remain immutable
+  safeNextActions:
+    DRAFT:
+    - edit-within-project-and-rights-scope
+    - commit-with-explicit-if-match-head
+    - branch-or-abandon-with-audit-record
+    COMMITTED:
+    - inspect-exact-immutable-revision
+    - create-a-new-draft-for-any-change
+    - branch-or-restore-only-as-a-new-version
+    SUPERSEDED:
+    - inspect-under-current-authorization
+    - create-a-new-draft-to-branch-or-restore
+    - never-rewrite-historical-revision
+    CONFLICTED:
+    - inspect-expected-and-current-head-diff
+    - resolve-in-a-new-draft-or-branch
+    - do-not-auto-retry-stale-write
+    ABANDONED:
+    - inspect-minimal-audit-evidence
+    - create-a-new-draft-if-work-is-still-authorized
+    - do-not-reactivate-old-draft
+  transitionRecordRequirements:
+  - project-id-and-tenant-scope
+  - revision-id-and-parent-revision-id
+  - expected-head-revision-and-observed-head-at-commit
+  - actor-and-delegation-reference
+  - policy-and-rights-decision
+  - changed-operation-and-source-lineage
+  - validation-and-merge-disposition
+  - durable-commit-or-conflict-record
+  invariants:
+  - committed-and-superseded-revisions-are-immutable
+  - stale-write-never-replaces-a-newer-head
+  - every-conflict-is-inspectable-and-does-not-partially-commit
+  - restore-branch-and-undo-redo-create-new-revision-history
+  - project-membership-and-permission-evaluation-remain-owned-by-identity-policy-contracts
+  - artifact-erasure-tombstones-remain-authoritative-across-restores
+  currentSourceObservation:
+    evidence: docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities;docs/migration/expert-reviewed-master-plan.md#12-1-state-model-and-publication-invariants
+    observedFacts:
+    - versioned projects, optimistic concurrency, review, branch and restore are in declared product scope
+    limitations: This is a product-state proposal; persistence, merge semantics, collaboration transport, and runtime qualification
+      remain unbound.
+- modelId: media-project-membership
+  purpose: model the project-scoped membership relationship while leaving identity, authentication, and authorization decisions
+    with their public owners
+  statusDimension: project-membership-lifecycle
+  authorityStatus: proposed-for-P0-005-review
+  states:
+  - id: INVITED
+    terminal: false
+    meaning: A scoped membership invitation exists but has not been accepted or activated.
+  - id: ACTIVE
+    terminal: false
+    meaning: An accepted membership relationship exists; every action is still checked against current grants and project
+      policy.
+  - id: SUSPENDED
+    terminal: false
+    meaning: The relationship is retained but project actions are blocked pending authorized reactivation or revocation.
+  - id: REVOKED
+    terminal: true
+    meaning: The membership relationship is ended; prior actions remain auditable and access is re-evaluated at every boundary.
+  - id: EXPIRED
+    terminal: true
+    meaning: An invitation expired without becoming active.
+  transitions:
+  - from:
+    - INVITED
+    to:
+    - ACTIVE
+    guard: invitee acceptance, inviter authority, tenant/project scope, and current policy are verified
+  - from:
+    - INVITED
+    to:
+    - REVOKED
+    - EXPIRED
+    guard: authorized revocation or declared invitation expiry is durably recorded
+  - from:
+    - ACTIVE
+    to:
+    - SUSPENDED
+    - REVOKED
+    guard: current project authority and policy allow the membership change; affected work is reconciled
+  - from:
+    - SUSPENDED
+    to:
+    - ACTIVE
+    guard: authorized reactivation rechecks identity, delegation, policy, and project scope
+  - from:
+    - SUSPENDED
+    to:
+    - REVOKED
+    guard: authorized revocation is durably recorded
+  safeNextActions:
+    INVITED:
+    - inspect-scope-and-expiry
+    - accept-only-as-the-invited-principal
+    - decline-or-request-authorized-revocation
+    ACTIVE:
+    - recheck-current-grants-at-each-project-action
+    - request-authorized-suspension-or-revocation
+    SUSPENDED:
+    - deny-project-effects
+    - reactivate-only-after-current-authority-review
+    - revoke-with-audit-record
+    REVOKED:
+    - deny-new-project-access
+    - retain-required-audit-history
+    - create-a-new-invitation-only-as-a-new-identity-bound-record
+    EXPIRED:
+    - deny-activation
+    - create-a-new-invitation-only-after-current-authority-check
+  transitionRecordRequirements:
+  - tenant-and-project-id
+  - principal-and-inviter-reference
+  - invitation-scope-and-expiry
+  - owner-contract-authorization-reference
+  - durable-membership-transition
+  - in-flight-effect-reconciliation
+  invariants:
+  - membership-does-not-equal-authentication-or-action-authorization
+  - suspended-or-revoked-membership-blocks-new-project-actions-at-next-check
+  - membership-changes-do-not-rewrite-historical-revisions-or-approvals
+  - cross-tenant-membership-is-denied-unless-an-owner-contract-explicitly-admits-it
+  currentSourceObservation:
+    evidence: docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities
+    observedFacts:
+    - project collaboration and explicit membership are declared capability scope
+    limitations: This is a Media relationship-state proposal; identity and authorization mechanisms remain owned by platform
+      contracts.
+transitionRequirements:
+  everyTransitionMustDeclare: [actor-or-service-authority, preconditions, durable-write-order, emitted-effects, idempotency,
+    retry-class, audit-class, terminality, safe-next-action]
+  forbiddenShortcuts: [unknown-to-completed-without-reconciliation, requested-cancel-to-cancelled-without-confirmation, expired-to-erased-without-physical-evidence,
+    changed-version-retaining-stale-approval, output-ready-to-published-without-destination-acknowledgement]
+  acceptanceFixturesRequired: [duplicate-submission-race, lease-expiry-before-dispatch, lease-expiry-after-dispatch, cancellation-racing-dispatch,
+    crash-after-provider-success-before-output-registration, partial-erasure-and-retry, restore-with-erasure-tombstone, stale-review-version,
+    publication-timeout-after-submit]
+  fixtureCatalog: conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+  fixtureCatalogStatus: proposed-scenarios-only; not-executed-runtime-evidence
+  requirementBinding: >-
+    Proposed project, version, membership, job, attempt, artifact, stream,
+    rights/consent, review, delivery, and quality coverage is linked through
+    P0-003 requirement and capability records. Actor and intent references are
+    authored proposals; affected domain-reviewer appointments and owner-specific
+    authority/effect bindings remain pending P0-002, P0-006, and P0-008 review.
+    Every listed machine state has a declared safe next-action set. No runtime
+    transition evidence is asserted.
+  status: proposed-not-runtime-qualification

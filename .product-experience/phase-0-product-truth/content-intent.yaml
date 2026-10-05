@@ -1,0 +1,118 @@
+schemaVersion: media.content-intent.v1
+productId: media
+authorityStatus: authored-proposal; pending-rights-owner-and-P0-010-review
+defaults:
+  userSuppliedAssets: user-asserted-rights; not-verified-license-or-consent
+  generatedContent: label-origin-and-model-provenance-when-known; never-claim-source-rights-from-generation
+  fixtures: synthetic-unless-a-recorded-license-and-source-chain-says-otherwise
+  trainingAndSecondaryUse: denied-unless-separately-authorized
+  privateContentReuse: denied-across-tenants
+contentClasses:
+  - classId: MEDIA-ORIGINAL
+    examples: [uploaded-video, recorded-audio, imported-image, source-scene, subtitle-file]
+    classificationFloor: confidential-unless-policy-or-source-record-requires-higher-restriction
+    retention: explicit-per-object-or-request; no-default-indefinite-retention
+    reuse: same-tenant-and-authorized-owner-only; recheck-rights-consent-and-policy
+  - classId: MEDIA-DERIVATIVE
+    examples: [transcode, proxy, thumbnail, transcript, caption, mask, track, embedding, rendered-frame]
+    classificationFloor: inherit-source-floor-unless-authorized-semantic-deidentification-promotes-it
+    provenance: retain-exact-parent-version-operation-engine-model-and-conversion-loss-where-known
+  - classId: MEDIA-BIOMETRIC
+    examples: [face-template, voiceprint, speaker-embedding, identity-linked-tracks]
+    classificationFloor: restricted-or-critical-by-policy
+    permission: explicit-authority-owned-biometric-consent
+    persistence: prohibited-in-generic-job-result-ledger; dedicated-store-requires-separate-owner-contract
+  - classId: MEDIA-USER-PROMPT
+    examples: [creation-prompt, editing-instruction, generation-parameters]
+    classificationFloor: confidential-when-linked-to-tenant-project-or-person
+    logging: never-emit-raw-prompt-to-ordinary-logs-or-metric-labels
+  - classId: MEDIA-MODEL-AND-ENGINE
+    examples: [weights, adapter, codec, renderer, font, texture, shader, plugin]
+    admission: pin-version-digest-source-license-and-platform-support-before-distribution-or-execution
+    qualification: separate-implementation-presence-from-license-security-quality-and-runtime-qualification
+fixturePolicy:
+  identity: deterministic-seed-clock-and-stable-fixture-identifiers
+  useOfRealPersonalData: prohibited-by-default
+  execution: no-paid-inference-no-external-upload-no-model-download-without-separate-explicit-authorization
+  reset: fixture-reset-removes-temporary-state-and-restores-known-projection
+  labels: visible-synthetic-or-licensed-fixture-label-in-every-review-context
+families:
+  - id: FIXTURE-EDUCATIONAL-EXPLAINER
+    purpose: demonstrate a composed narrated video with synthetic educational content
+    modalities: [text, image, narration, captions, video, timeline]
+    requiredStates: [first-use, partial-generation, rights-review, quality-review, completed]
+  - id: FIXTURE-PRODUCT-DEMONSTRATION
+    purpose: demonstrate controlled product media creation and versioned delivery
+    modalities: [video, audio, graphics, captions, delivery]
+    requiredStates: [asset-import, plan, render, review, output-version]
+  - id: FIXTURE-PODCAST-INTERVIEW
+    purpose: exercise speech, speaker, caption, consent, and mixing flows with synthetic speech
+    modalities: [audio, transcription, speaker-segments, captions, stems]
+    requiredStates: [uncertain-language, corrected-transcript, revoked-consent, review]
+  - id: FIXTURE-DUB-CORRECTION
+    purpose: expose translation meaning review, voice rights, timing, and synchronization decisions
+    modalities: [video, transcript, translation, speech, timing]
+    requiredStates: [meaning-conflict, timing-overflow, voice-rights-denied, accepted-version]
+  - id: FIXTURE-DETERMINISTIC-ANIMATION
+    purpose: exercise keyframes, curves, rig/path controls, undo, and export constraints
+    modalities: [scene, animation, timeline, render]
+    requiredStates: [selection, accessible-preview, unsupported-interchange-feature]
+  - id: FIXTURE-SCIENTIFIC-SIMULATION
+    purpose: exercise declared model, units, initial conditions, solver, measurements, and fidelity disclosure
+    modalities: [domain-model, scene, simulation, visualization]
+    requiredStates: [invalid-unit, unstable-solver, lower-visual-detail-preserved-fidelity, review-required]
+  - id: FIXTURE-SYNTHETIC-DATA-EXPORT
+    purpose: exercise controlled synthetic generation and external format limitations
+    modalities: [structured-data, rendered-media, export]
+    requiredStates: [source-disclosure, schema-validation, unsupported-feature, recipient-policy]
+  - id: FIXTURE-DAMAGED-MEDIA
+    purpose: exercise degraded image/video/audio without promising reconstruction
+    modalities: [image, video, audio, quality-measurement, enhancement]
+    defects: [low-resolution, camera-shake, motion-blur, compression, flicker, exposure-mismatch, noise, reverb, clipping, bandwidth-limit, av-drift]
+    requiredStates: [measurement-abstained, repair-ineligible, bounded-candidate, no-significant-improvement]
+  - id: FIXTURE-RIGHTS-DENIAL
+    purpose: show why ownership assertion, consent, license, biometric permission, and provider egress are separate
+    modalities: [image, voice, model, provider]
+    requiredStates: [unverified-attestation, consent-expired, license-unknown, explicit-biometric-denial]
+  - id: FIXTURE-QUALITY-DEGRADATION
+    purpose: show quality applicability, protected properties, bounded optimization, and honest abstention
+    modalities: [video, audio, simulation, quality-policy]
+    requiredStates: [metric-not-applicable, fidelity-floor-blocked, budget-exhausted, candidate-rejected]
+  - id: FIXTURE-PROVIDER-AMBIGUITY
+    purpose: exercise timeout or connection loss after an external effect may have started
+    modalities: [job, attempt, provider, audit]
+    requiredStates: [dispatch-intent-recorded, outcome-unknown, reconciliation, safe-no-replay]
+  - id: FIXTURE-PARTIAL-COMPLETION
+    purpose: exercise partial scene/job success and preserved child results
+    modalities: [job, output-version, activity, recovery]
+    requiredStates: [partial-success, retry-budget-exhausted, immutable-completed-child, user-decision]
+  - id: FIXTURE-CONSUMER-HANDOFF
+    purpose: exercise consumer-owned document and media handoffs without changing service ownership
+    modalities: [scene-text-recognition, document-intelligence-reference, consumer-api]
+    requiredStates: [media-scene-text-intent, public-client-unavailable, handoff-blocked, consumer-version-mismatch]
+  - id: FIXTURE-ERASURE
+    purpose: exercise access revocation, holds, physical deletion, backup restore, and external uncertainty
+    modalities: [artifact, derivative, cache, backup, provider-copy]
+    requiredStates: [access-revoked, blocked-by-hold, partial-erasure, restore-tombstone-replay, external-erasure-unconfirmed]
+  - id: FIXTURE-A11Y-LOCALIZATION
+    purpose: exercise adaptive layouts, localization, screen-reader, keyboard and long translated media labels
+    modalities: [web, cli, captions, timeline, scene-inspector]
+    requiredStates: [keyboard-only, 200-percent-text, rtl-or-pseudo-localized, unsupported-locale]
+rightsAndLicensing:
+  evidenceRequiredPerDistributedAsset: [origin, exact-source-version-or-digest, license-expression, applicable-notice, modification-status, transitive-native-components, model-dataset-font-texture-audio-rights, security-review, replacement-path]
+  unknownLicenseDisposition: do-not-distribute-or-execute-until-reviewed
+  userAttestation: records-claim-and-scope; never-stands-in-for-copyright-or-likeness-verification
+  externalModelAndProvider: capture-exact-model-provider-terms-retention-egress-and-training-posture
+openOwnerDecisions:
+  - id: CONTENT-DEC-01
+    question: Which output-origin vocabulary and C2PA integration subset are admitted, and who owns trust-list/policy maintenance?
+    owner: Media provenance owner with security and rights reviewers
+    blocks: provenance-product-claim
+  - id: CONTENT-DEC-02
+    question: Which source-media/font/model/dataset fixtures have an approved distributable license bundle?
+    owner: Media supply-chain and rights owners
+    blocks: public-fixture-package
+  - id: CONTENT-DEC-03
+    question: Which biometric and likeness report/appeal/recourse workflows are required for the first product release?
+    owner: Media rights owner
+    blocks: rights-journey-acceptance

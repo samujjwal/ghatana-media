@@ -1,0 +1,135 @@
+---
+# =============================================================================
+# AI Voice Service — Kubernetes Manifests
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-voice-config
+  namespace: audio-video
+  labels:
+    app: ai-voice
+    app.kubernetes.io/part-of: ghatana-audio-video
+data:
+  AI_VOICE_GRPC_PORT: "50055"
+  AI_VOICE_HEALTH_PORT: "8095"
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-voice
+  namespace: audio-video
+  labels:
+    app: ai-voice
+    app.kubernetes.io/part-of: ghatana-audio-video
+    app.kubernetes.io/version: latest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-voice
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: ai-voice
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8095"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: audio-video-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: ai-voice
+          image: ghcr.io/ghatana/audio-video/ai-voice:latest
+          imagePullPolicy: Always
+          ports:
+            - name: grpc
+              containerPort: 50055
+              protocol: TCP
+            - name: http-health
+              containerPort: 8095
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: ai-voice-config
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "1000m"
+            limits:
+              memory: "8Gi"
+              cpu: "4000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 5
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http-health
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 18
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: voice-models
+              mountPath: /app/models
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: voice-models
+          persistentVolumeClaim:
+            claimName: ai-voice-models-pvc
+      terminationGracePeriodSeconds: 120
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-voice
+  namespace: audio-video
+  labels:
+    app: ai-voice
+    app.kubernetes.io/part-of: ghatana-audio-video
+spec:
+  type: ClusterIP
+  selector:
+    app: ai-voice
+  ports:
+    - name: grpc
+      port: 50055
+      targetPort: 50055
+      protocol: TCP
+    - name: http-health
+      port: 8095
+      targetPort: 8095
+      protocol: TCP

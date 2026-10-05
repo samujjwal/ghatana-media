@@ -1,0 +1,82 @@
+schemaVersion: media.migration-contract-compatibility.v1
+productId: media
+source:
+  repository: samujjwal/ghatana
+  path: services/media
+  revision: 245e966591913bc73f59fad9bf43651673b0280e
+  sourceWorkingTree: dirty-outside-media-subtree
+target:
+  repository: samujjwal/ghatana-media
+  status: migration-only
+compatibilityPolicy:
+  wirePaths: preserve-supported-paths-and-response-shapes
+  openapiIdentity: preserve-and-regenerate-from-authored-owner-sources
+  protobuf: preserve-package-identities-and-field-numbers
+  typescriptPackages: preserve-package-names-subpaths-and-exports-initially
+  persistence: preserve-schema-names-and-migration-checksums
+  cancellation: preserve-wait-vs-server-cancel-and-document-worker-generation-token
+  qualification: preserve-existing-restrictions-and-non-activation-state
+  productionReadiness: unchanged-by-repository-relocation
+knownCompatibilitySurfaces:
+  - id: media-http-runtime
+    source: services/media/README.md
+    paths:
+      - /api/v1/artifacts/uploads
+      - /api/v1/jobs
+      - /api/v1/streams
+    constraint: preserve-lifecycle-and-errors; reconcile SDK/facade differences additively
+  - id: tutorputor-governed-artifact
+    ownerRepository: ghatana-products
+    requestId: TP-GHATANA-MEDIA-001
+    ownerPath: services/media
+    operations:
+      - appendMediaChunk
+      - beginMediaUpload
+      - cancelMediaJob
+      - completeMediaUpload
+      - getMediaArtifact
+      - getMediaConsent
+      - getMediaJob
+      - grantMediaConsent
+      - listMediaConsents
+      - revokeMediaConsent
+      - submitMediaJob
+    state: contract-accepted-fulfillment-and-consumer-proof-pending
+  - id: data-cloud-media-compatibility
+    ownerRepository: ghatana
+    paths:
+      - /api/v1/media
+      - /api/v1/media/artifacts
+    constraint: retain-governed-read-model-and-navigation; no-data-cloud-authority-over-media-lifecycle
+  - id: document-intelligence-org-consumer
+    ownerRepository: gharbatai
+    package: '@ghatana/document-intelligence-client'
+    currentSourceBinding: ghatana/services/media/modules/intelligence/document-intelligence-worker/clients/typescript
+    targetService: ghatana/services/document-intelligence
+    targetClientPath: services/document-intelligence/clients/typescript
+    contract: ghatana-shared/@ghatana/document-extraction
+    constraint: preserve-frozen-contract-cancellation-generation-and-current-qualification
+    blocker: source-link-needs-rebinding-to-new-service-public-client-and-qualification-parity
+  - id: media-scene-text-recognition
+    ownerRepository: ghatana-media
+    status: future-media-specific-capability-not-currently-implemented
+    boundary: media-owns-time-ranges-scene-tracks-regions-and-edit-or-overlay-intent
+    providerBoundary: public-document-intelligence-api-via-thin-media-adapter
+    constraint: no-generic-ocr-implementation-or-shared-extraction-schema-copied-to-media
+  - id: shared-auth-gateway-consumer-path
+    ownerRepository: ghatana-shared
+    currentSourceBinding: ghatana/services/media/libs/common
+    constraint: update-consumer-path-after-source-cutover; contract-remains-shared-owned
+unresolved:
+  - id: GAP-05
+    status: open
+    scope: exact-route-dto-protobuf-and-client-parity
+  - id: GAP-06
+    status: open
+    scope: authored-service-contract-sources-overlays-generators-and-registries
+  - id: GAP-14
+    status: open
+    scope: Document-Intelligence-worker-consumer-relocation-parity-and-qualification-preservation
+  - id: GAP-15
+    status: open
+    scope: named-owner-and-cutover-authorization-records

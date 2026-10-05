@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tts-service
+  namespace: audio-video
+  labels:
+    app: tts-service
+    app.kubernetes.io/part-of: ghatana-audio-video
+    app.kubernetes.io/version: latest
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tts-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: tts-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8091"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: audio-video-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: tts
+          image: ghcr.io/ghatana/audio-video/tts-service:latest
+          imagePullPolicy: Always
+          ports:
+            - name: grpc
+              containerPort: 50052
+              protocol: TCP
+            - name: http-health
+              containerPort: 8091
+              protocol: TCP
+          env:
+            - name: TTS_GRPC_PORT
+              value: "50052"
+            - name: AV_HEALTH_PORT
+              value: "8091"
+            - name: AV_RATE_LIMIT_TPS
+              value: "50"
+            - name: AV_RATE_LIMIT_BURST
+              value: "100"
+            - name: AV_RATE_LIMIT_MAX_CONCURRENT
+              value: "20"
+            - name: AV_CB_FAILURE_THRESHOLD
+              value: "5"
+            - name: AV_CB_RESET_TIMEOUT_MS
+              value: "30000"
+            - name: AV_MAX_REQUEST_BYTES
+              value: "104857600"
+            - name: AV_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: audio-video-secrets
+                  key: jwt-secret
+                  optional: true
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8091
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8091
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 5
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8091
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 12
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: models
+              mountPath: /models
+              readOnly: true
+            - name: voice-registry
+              mountPath: /voice-registry
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: models
+          persistentVolumeClaim:
+            claimName: tts-models-pvc
+        - name: voice-registry
+          persistentVolumeClaim:
+            claimName: tts-voice-registry-pvc
+      terminationGracePeriodSeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tts-service
+  namespace: audio-video
+  labels:
+    app: tts-service
+spec:
+  selector:
+    app: tts-service
+  ports:
+    - name: grpc
+      port: 50052
+      targetPort: 50052
+      protocol: TCP
+    - name: http-health
+      port: 8091
+      targetPort: 8091
+      protocol: TCP
+  type: ClusterIP

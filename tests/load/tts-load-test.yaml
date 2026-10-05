@@ -1,0 +1,23 @@
+proto: ../../contracts/proto/tts.proto
+call: com.ghatana.tts.TtsService/Synthesize
+
+host: localhost:50052
+insecure: true
+
+concurrency: 50
+total: 1000
+
+data:
+  text: "The quick brown fox jumps over the lazy dog."
+  voice_id: "en_US-lessac-medium"
+  speed: 1.0
+  pitch: 0.0
+
+metadata:
+  tenant-id: load-test-tenant
+  request-id: "{{.RequestNumber}}"
+
+timeout: 30s
+
+output: tts-results.json
+format: json

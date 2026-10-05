@@ -1,0 +1,46 @@
+{
+  "name": "@ghatana/ai-voice-desktop-app",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AI Voice Production Studio - Interactive voice replacement and music production",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "test": "pnpm exec vitest --run",
+    "test:e2e": "pnpm exec playwright test",
+    "test:integration": "python -m pytest tests/test_stem_separation_integration.py -v"
+  },
+  "dependencies": {
+    "@ghatana/design-system": "0.1.2",
+    "@ghatana/ai-voice-ui-react": "workspace:*",
+    "@tauri-apps/api": "^2.10.1",
+    "@tauri-apps/plugin-dialog": "^2.7.0",
+    "@tauri-apps/plugin-shell": "^2.3.5",
+    "clsx": "^2.1.1",
+    "jotai": "^2.19.1",
+    "lucide-react": "^1.8.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "tailwind-merge": "^3.5.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.10.1",
+    "@tailwindcss/postcss": "^4.2.2",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.9",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.8",
+    "vite-plugin-tauri": "^4.0.0",
+    "vitest": "catalog:",
+    "jsdom": "catalog:"
+  }
+}

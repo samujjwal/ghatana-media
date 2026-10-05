@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0.0",
+  "repo": "ghatana-media",
+  "kind": "standalone-product",
+  "description": "Standalone Media product repository; migration-only until an admitted source cutover.",
+  "lastUpdated": "2026-10-04",
+  "ownsAfterCutover": [
+    "Media product semantics and media-specific runtime implementation",
+    "Media artifact, upload, job, stream, consent, privacy, speech, vision, scene-text, and lifecycle contracts",
+    "Media client packages, tests, fixtures, qualification records, deployment and operations material"
+  ],
+  "currentAuthority": {
+    "repository": "ghatana",
+    "path": "services/media",
+    "status": "canonical-until-cutover"
+  },
+  "mayConsumePublicContractsFrom": [
+    "ghatana",
+    "ghatana-shared",
+    "ghatana-tools",
+    "ghatana-kernel"
+  ],
+  "mayCallOverNetwork": [
+    "ghatana/services/ai-inference",
+    "ghatana/services/document-intelligence",
+    "ghatana/services/data-cloud",
+    "ghatana/services/event-plane",
+    "ghatana/services/action-plane",
+    "ghatana-shared/shared-services"
+  ],
+  "mustNotImportImplementationFrom": [
+    "ghatana",
+    "ghatana-products",
+    "ghatana-kernel",
+    "ghatana-shared",
+    "ghatana-tools",
+    "ghatana-yappc"
+  ],
+  "authorityInvariant": "Exactly one editable semantic/runtime authority exists at every migration stage."
+}

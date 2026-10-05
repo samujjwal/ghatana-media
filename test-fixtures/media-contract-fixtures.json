@@ -1,0 +1,277 @@
+{
+  "_comment": "Representative media contract fixtures for audio-video integration tests. Updated 2026-04-24.",
+
+  "runtimeConfig": {
+    "languageTag": "en-GB",
+    "sttSampleRate": 22050,
+    "sttChannels": 1,
+    "sttBitsPerSample": 16,
+    "defaultImageWidth": 1280,
+    "defaultImageHeight": 720,
+    "syncToleranceMs": 55,
+    "syncAudioBufferMs": 650,
+    "syncVideoBufferMs": 280,
+    "defaultVideoSampleFps": 2,
+    "defaultVideoMaxFrames": 24,
+    "sttModelId": "whisper-small",
+    "visionModelId": "yolov8s",
+    "ttsVoiceId": "piper-en-gb",
+    "metricsEnabled": true,
+    "maxInputStreams": 3,
+    "maxOutputStreams": 4,
+    "deviceAcquireTimeoutMs": 4200,
+    "leakDetectionThresholdMs": 61000
+  },
+
+  "audioFormats": [
+    {
+      "id": "pcm-mono-16k",
+      "codec": "PCM_S16LE",
+      "sampleRate": 16000,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "description": "Narrow-band mono PCM — optimum for STT pipeline",
+      "maxFileSizeBytes": 3840000,
+      "durationSeconds": 120
+    },
+    {
+      "id": "pcm-stereo-44k",
+      "codec": "PCM_S16LE",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "description": "CD-quality stereo PCM — downsampled to 16 kHz before STT",
+      "maxFileSizeBytes": 21168000,
+      "durationSeconds": 120
+    },
+    {
+      "id": "opus-mono-48k",
+      "codec": "OPUS",
+      "sampleRate": 48000,
+      "channels": 1,
+      "bitrate": 32000,
+      "description": "Opus compressed mono — typical WebRTC stream format",
+      "maxFileSizeBytes": 480000,
+      "durationSeconds": 120
+    }
+  ],
+
+  "videoFormats": [
+    {
+      "id": "h264-720p-30fps",
+      "codec": "H264",
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "keyframeIntervalSec": 2,
+      "description": "Standard HD video for screen recording",
+      "maxFileSizeBytes": 31457280
+    },
+    {
+      "id": "h264-480p-15fps",
+      "codec": "H264",
+      "width": 854,
+      "height": 480,
+      "fps": 15,
+      "keyframeIntervalSec": 2,
+      "description": "Low-bandwidth video for constrained connections",
+      "maxFileSizeBytes": 7864320
+    },
+    {
+      "id": "vp9-1080p-24fps",
+      "codec": "VP9",
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "keyframeIntervalSec": 4,
+      "description": "High-fidelity VP9 for archival recordings",
+      "maxFileSizeBytes": 157286400
+    }
+  ],
+
+  "sttScenarios": [
+    {
+      "id": "clear-speech-en-gb",
+      "languageTag": "en-GB",
+      "audioFormatId": "pcm-mono-16k",
+      "durationSeconds": 10,
+      "expectedTranscript": "Hello, this is a representative test transcript for the English GB locale.",
+      "expectedConfidenceMin": 0.85,
+      "expectedWordCount": 15,
+      "containsPii": false
+    },
+    {
+      "id": "noisy-environment-en-us",
+      "languageTag": "en-US",
+      "audioFormatId": "pcm-mono-16k",
+      "durationSeconds": 15,
+      "expectedTranscript": "Testing audio in noisy background conditions with reduced confidence.",
+      "expectedConfidenceMin": 0.60,
+      "expectedWordCount": 12,
+      "containsPii": false
+    },
+    {
+      "id": "pii-content-en-gb",
+      "languageTag": "en-GB",
+      "audioFormatId": "pcm-mono-16k",
+      "durationSeconds": 8,
+      "expectedTranscript": "My name is [REDACTED_NAME] and my email is [REDACTED_EMAIL].",
+      "expectedConfidenceMin": 0.80,
+      "expectedWordCount": 12,
+      "containsPii": true,
+      "piiTypes": ["NAME", "EMAIL"]
+    },
+    {
+      "id": "silence-only",
+      "languageTag": "en-GB",
+      "audioFormatId": "pcm-mono-16k",
+      "durationSeconds": 5,
+      "expectedTranscript": "",
+      "expectedConfidenceMin": 0.0,
+      "expectedWordCount": 0,
+      "containsPii": false,
+      "expectEmptyResult": true
+    }
+  ],
+
+  "retentionScenarios": [
+    {
+      "id": "transcript-30day-purge",
+      "dataType": "TRANSCRIPT",
+      "retentionDays": 30,
+      "tenantId": "test-tenant-retention-1",
+      "sessionId": "session-retention-001",
+      "createdOffsetDays": -31,
+      "expectPurged": true
+    },
+    {
+      "id": "transcript-within-window",
+      "dataType": "TRANSCRIPT",
+      "retentionDays": 30,
+      "tenantId": "test-tenant-retention-1",
+      "sessionId": "session-retention-002",
+      "createdOffsetDays": -15,
+      "expectPurged": false
+    },
+    {
+      "id": "session-metadata-90day-purge",
+      "dataType": "SESSION_METADATA",
+      "retentionDays": 90,
+      "tenantId": "test-tenant-retention-2",
+      "sessionId": "session-retention-003",
+      "createdOffsetDays": -91,
+      "expectPurged": true
+    },
+    {
+      "id": "biometric-revocation-purge",
+      "dataType": "SPEAKER_EMBEDDING",
+      "retentionDays": 30,
+      "tenantId": "test-tenant-retention-3",
+      "sessionId": "session-retention-004",
+      "createdOffsetDays": -5,
+      "consentRevoked": true,
+      "expectPurged": true
+    }
+  ],
+
+  "consentScenarios": [
+    {
+      "id": "active-audio-consent",
+      "userId": "user-consent-001",
+      "tenantId": "test-tenant-consent-1",
+      "consentType": "AUDIO_CAPTURE",
+      "grantedOffsetDays": -10,
+      "revokedOffsetDays": null,
+      "expectSessionAllowed": true
+    },
+    {
+      "id": "revoked-audio-consent",
+      "userId": "user-consent-002",
+      "tenantId": "test-tenant-consent-1",
+      "consentType": "AUDIO_CAPTURE",
+      "grantedOffsetDays": -20,
+      "revokedOffsetDays": -1,
+      "expectSessionAllowed": false
+    },
+    {
+      "id": "missing-consent",
+      "userId": "user-consent-003",
+      "tenantId": "test-tenant-consent-1",
+      "consentType": "AUDIO_CAPTURE",
+      "grantedOffsetDays": null,
+      "revokedOffsetDays": null,
+      "expectSessionAllowed": false
+    },
+    {
+      "id": "video-consent-without-audio",
+      "userId": "user-consent-004",
+      "tenantId": "test-tenant-consent-1",
+      "consentType": "VIDEO_CAPTURE",
+      "grantedOffsetDays": -5,
+      "revokedOffsetDays": null,
+      "expectSessionAllowed": true,
+      "audioSessionAllowed": false
+    }
+  ],
+
+  "streamingLoadScenarios": [
+    {
+      "id": "baseline-single-session",
+      "concurrentSessions": 1,
+      "audioFormatId": "opus-mono-48k",
+      "durationSeconds": 60,
+      "expectedMaxLatencyMs": 200,
+      "expectedDropRatePercent": 0.0
+    },
+    {
+      "id": "medium-load-10-sessions",
+      "concurrentSessions": 10,
+      "audioFormatId": "opus-mono-48k",
+      "durationSeconds": 30,
+      "expectedMaxLatencyMs": 500,
+      "expectedDropRatePercent": 0.1
+    },
+    {
+      "id": "backpressure-stress-50-sessions",
+      "concurrentSessions": 50,
+      "audioFormatId": "pcm-mono-16k",
+      "durationSeconds": 30,
+      "expectedMaxLatencyMs": 2000,
+      "expectedDropRatePercent": 1.0,
+      "expectBackpressureActivated": true
+    }
+  ],
+
+  "errorCodes": [
+    {
+      "code": "media.temporarily_unavailable",
+      "category": "runtime",
+      "retryable": true,
+      "message": "Temporary backend outage — retry with exponential backoff"
+    },
+    {
+      "code": "media.consent_required",
+      "category": "authorization",
+      "retryable": false,
+      "message": "Explicit consent for media capture is required before processing"
+    },
+    {
+      "code": "media.format_unsupported",
+      "category": "validation",
+      "retryable": false,
+      "message": "The supplied audio/video format is not supported by this pipeline"
+    },
+    {
+      "code": "media.retention_window_expired",
+      "category": "compliance",
+      "retryable": false,
+      "message": "The requested media record has been purged per the retention policy"
+    },
+    {
+      "code": "media.cross_tenant_access_denied",
+      "category": "security",
+      "retryable": false,
+      "message": "Cross-tenant media access is not permitted"
+    }
+  ]
+}

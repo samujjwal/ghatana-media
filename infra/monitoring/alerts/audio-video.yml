@@ -1,0 +1,280 @@
+groups:
+  # -------------------------------------------------------------------------
+  # 1. Service Availability — all 5 Audio-Video services
+  # -------------------------------------------------------------------------
+  - name: audio_video.availability
+    rules:
+      - alert: SttServiceDown
+        expr: up{job="stt-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          product: audio-video
+          component: stt
+        annotations:
+          summary: "STT gRPC service is down"
+          description: "{{ $labels.instance }} has been unreachable for more than 1 minute. Speech-to-text transcription will fail."
+          runbook: "https://wiki.ghatana.io/runbooks/audio-video/stt-down"
+
+      - alert: TtsServiceDown
+        expr: up{job="tts-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          product: audio-video
+          component: tts
+        annotations:
+          summary: "TTS gRPC service is down"
+          description: "{{ $labels.instance }} has been unreachable for more than 1 minute. Text-to-speech synthesis will fail."
+          runbook: "https://wiki.ghatana.io/runbooks/audio-video/tts-down"
+
+      - alert: VisionServiceDown
+        expr: up{job="vision-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          product: audio-video
+          component: vision
+        annotations:
+          summary: "Vision gRPC service is down"
+          description: "{{ $labels.instance }} has been unreachable for more than 1 minute. Video/image analysis will fail."
+          runbook: "https://wiki.ghatana.io/runbooks/audio-video/vision-down"
+
+      - alert: MultimodalServiceDown
+        expr: up{job="multimodal-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          product: audio-video
+          component: multimodal
+        annotations:
+          summary: "Multimodal gRPC service is down"
+          description: "{{ $labels.instance }} has been unreachable for more than 1 minute."
+
+      - alert: AiVoiceServiceDown
+        expr: up{job="ai-voice-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          product: audio-video
+          component: ai-voice
+        annotations:
+          summary: "AI Voice (Python) service is down"
+          description: "{{ $labels.instance }} has been unreachable for more than 1 minute."
+
+  # -------------------------------------------------------------------------
+  # 2. STT (Speech-to-Text) Performance
+  # -------------------------------------------------------------------------
+  - name: audio_video.stt
+    rules:
+      - alert: SttGrpcHighErrorRate
+        expr: |
+          (
+            rate(grpc_server_handled_total{job="stt-service", grpc_code!="OK"}[5m])
+            /
+            rate(grpc_server_handled_total{job="stt-service"}[5m])
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          product: audio-video
+          component: stt
+        annotations:
+          summary: "STT service gRPC error rate above 5%"
+          description: "STT gRPC error rate on {{ $labels.instance }} is {{ $value | humanizePercentage }}."
+
+      - alert: SttTranscriptionLatencyHigh
+        expr: |
+          histogram_quantile(0.95,
+            rate(grpc_server_handling_seconds_bucket{job="stt-service", grpc_method="Transcribe"}[5m])
+          ) > 5
+        for: 5m
+        labels:
+          severity: warning
+          product: audio-video
+          component: stt
+        annotations:
+          summary: "STT Transcribe p95 latency above 5s"
+          description: "STT p95 transcription latency is {{ $value | humanizeDuration }} on {{ $labels.instance }}."
+
+      - alert: SttTranscriptionLatencyCritical
+        expr: |
+          histogram_quantile(0.95,
+            rate(grpc_server_handling_seconds_bucket{job="stt-service", grpc_method="Transcribe"}[5m])
+          ) > 15
+        for: 3m
+        labels:
+          severity: critical
+          product: audio-video
+          component: stt
+        annotations:
+          summary: "STT Transcribe p95 latency above 15s (critical)"
+          description: "STT transcription severely degraded: p95={{ $value | humanizeDuration }} on {{ $labels.instance }}."
+
+  # -------------------------------------------------------------------------
+  # 3. TTS (Text-to-Speech) Performance
+  # -------------------------------------------------------------------------
+  - name: audio_video.tts
+    rules:
+      - alert: TtsGrpcHighErrorRate
+        expr: |
+          (
+            rate(grpc_server_handled_total{job="tts-service", grpc_code!="OK"}[5m])
+            /
+            rate(grpc_server_handled_total{job="tts-service"}[5m])
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          product: audio-video
+          component: tts
+        annotations:
+          summary: "TTS service gRPC error rate above 5%"
+          description: "TTS gRPC error rate on {{ $labels.instance }} is {{ $value | humanizePercentage }}."
+
+      - alert: TtsSynthesisLatencyHigh
+        expr: |
+          histogram_quantile(0.95,
+            rate(grpc_server_handling_seconds_bucket{job="tts-service", grpc_method="Synthesize"}[5m])
+          ) > 3
+        for: 5m
+        labels:
+          severity: warning
+          product: audio-video
+          component: tts
+        annotations:
+          summary: "TTS Synthesize p95 latency above 3s"
+          description: "TTS p95 synthesis latency is {{ $value | humanizeDuration }} on {{ $labels.instance }}."
+
+  # -------------------------------------------------------------------------
+  # 4. Vision Service Performance
+  # -------------------------------------------------------------------------
+  - name: audio_video.vision
+    rules:
+      - alert: VisionHighErrorRate
+        expr: |
+          (
+            rate(grpc_server_handled_total{job="vision-service", grpc_code!="OK"}[5m])
+            /
+            rate(grpc_server_handled_total{job="vision-service"}[5m])
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          product: audio-video
+          component: vision
+        annotations:
+          summary: "Vision service gRPC error rate above 5%"
+          description: "Vision error rate on {{ $labels.instance }} is {{ $value | humanizePercentage }}."
+
+      - alert: VisionInferenceLatencyHigh
+        expr: |
+          histogram_quantile(0.95,
+            rate(grpc_server_handling_seconds_bucket{job="vision-service"}[5m])
+          ) > 2
+        for: 5m
+        labels:
+          severity: warning
+          product: audio-video
+          component: vision
+        annotations:
+          summary: "Vision service p95 inference latency above 2s"
+          description: "Vision inference p95={{ $value | humanizeDuration }} on {{ $labels.instance }}."
+
+  # -------------------------------------------------------------------------
+  # 5. JVM Health (STT + TTS + Vision + Multimodal — all Java gRPC services)
+  # -------------------------------------------------------------------------
+  - name: audio_video.jvm
+    rules:
+      - alert: AudioVideoHighHeapMemory
+        expr: |
+          (
+            jvm_memory_used_bytes{job=~"stt-service|tts-service|vision-service|multimodal-service", area="heap"}
+            /
+            jvm_memory_max_bytes{job=~"stt-service|tts-service|vision-service|multimodal-service", area="heap"}
+          ) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          product: audio-video
+        annotations:
+          summary: "Audio-Video JVM heap usage above 85%"
+          description: "{{ $labels.job }} heap on {{ $labels.instance }} at {{ $value | humanizePercentage }}."
+
+      - alert: AudioVideoHighHeapMemoryCritical
+        expr: |
+          (
+            jvm_memory_used_bytes{job=~"stt-service|tts-service|vision-service|multimodal-service", area="heap"}
+            /
+            jvm_memory_max_bytes{job=~"stt-service|tts-service|vision-service|multimodal-service", area="heap"}
+          ) > 0.95
+        for: 3m
+        labels:
+          severity: critical
+          product: audio-video
+        annotations:
+          summary: "Audio-Video JVM heap critically full (>95%)"
+          description: "OOM imminent: {{ $labels.job }} on {{ $labels.instance }} at {{ $value | humanizePercentage }}."
+
+      - alert: AudioVideoFrequentGcPauses
+        expr: |
+          rate(jvm_gc_pause_seconds_sum{job=~"stt-service|tts-service|vision-service|multimodal-service"}[5m])
+          /
+          rate(jvm_gc_pause_seconds_count{job=~"stt-service|tts-service|vision-service|multimodal-service"}[5m])
+          > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          product: audio-video
+        annotations:
+          summary: "Audio-Video JVM GC pauses averaging above 500ms"
+          description: "{{ $labels.job }} on {{ $labels.instance }} averaging {{ $value | humanizeDuration }} GC pauses."
+
+      - alert: AudioVideoThreadPoolExhaustion
+        expr: |
+          jvm_threads_states_threads{job=~"stt-service|tts-service|vision-service|multimodal-service", state="blocked"} > 30
+        for: 5m
+        labels:
+          severity: warning
+          product: audio-video
+        annotations:
+          summary: "Audio-Video JVM has >30 blocked threads"
+          description: "{{ $labels.job }} on {{ $labels.instance }} has {{ $value }} blocked threads — possible deadlock."
+
+  # -------------------------------------------------------------------------
+  # 6. Infrastructure
+  # -------------------------------------------------------------------------
+  - name: audio_video.infrastructure
+    rules:
+      - alert: AudioVideoNodeHighCpu
+        expr: |
+          100 - (avg by(instance) (rate(node_cpu_seconds_total{job="node", mode="idle"}[5m])) * 100) > 85
+        for: 10m
+        labels:
+          severity: warning
+          product: audio-video
+        annotations:
+          summary: "Audio-Video node CPU above 85%"
+          description: "Node {{ $labels.instance }} sustained CPU at {{ $value | humanize }}% for 10 minutes."
+
+      - alert: AudioVideoNodeDiskSpaceLow
+        expr: |
+          (node_filesystem_avail_bytes{job="node", mountpoint="/"} / node_filesystem_size_bytes{job="node", mountpoint="/"}) < 0.10
+        for: 5m
+        labels:
+          severity: warning
+          product: audio-video
+        annotations:
+          summary: "Audio-Video node disk space below 10%"
+          description: "{{ $labels.instance }} has {{ $value | humanizePercentage }} disk remaining on /."
+
+      - alert: AudioVideoNodeHighMemory
+        expr: |
+          (1 - (node_memory_MemAvailable_bytes{job="node"} / node_memory_MemTotal_bytes{job="node"})) > 0.90
+        for: 5m
+        labels:
+          severity: critical
+          product: audio-video
+        annotations:
+          summary: "Audio-Video node memory above 90%"
+          description: "Node {{ $labels.instance }} at {{ $value | humanizePercentage }} memory usage."

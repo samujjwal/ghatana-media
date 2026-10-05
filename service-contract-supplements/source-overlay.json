@@ -1,0 +1,224 @@
+{
+  "overlayKind": "service-contract-source",
+  "serviceId": "media",
+  "overlayId": "artifact-job-stream-runtime-v3",
+  "patch": {
+    "currentState": {
+      "implementationStatus": "implemented",
+      "runtimeStatus": "active",
+      "readiness": "internal-preview",
+      "startedState": "started",
+      "knownGaps": [
+        "Focused S3/PostgreSQL, multipart, checksum, governed deduplication, consent, privacy-maintenance, semantic-redaction, job restart, stream reconnect/backpressure, provider, transport, and black-box verification is deferred.",
+        "Production profile remains prohibited until durable artifact/job/stream/consent state, privacy erasure, remote providers, recovery, failure injection, and canonical evidence pass."
+      ],
+      "evidenceRefs": [
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeActiveTest.java",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaSemanticRedactionRuntimeTest.java",
+        "runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaPrivacySanitizersTest.java",
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java",
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaHttpProvidersTest.java",
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaExternalGovernanceTest.java"
+      ]
+    },
+    "dependencyHealth": {
+      "dependencies": {
+        "data-cloud": {
+          "required": false,
+          "requiredScope": "capability",
+          "activationCondition": "MEDIA_DATA_CLOUD_METADATA_INTEGRATION_ENABLED",
+          "relationship": "integrates-with",
+          "degradationPolicy": "best-effort",
+          "healthProbe": "pnpm check:runtime-stage -- --stage validate --services data-cloud",
+          "failureInjectionTests": ["node ./scripts/check-runtime-dependency-health-from-contracts.mjs --pair media:data-cloud"],
+          "contractTests": ["node ./scripts/check-runtime-dependency-health-from-contracts.mjs --pair media:data-cloud"]
+        },
+        "ai-inference": {
+          "required": false,
+          "requiredScope": "capability",
+          "activationCondition": "selected Media provider delegates generic model inference",
+          "relationship": "integrates-with",
+          "degradationPolicy": "fail-closed",
+          "healthProbe": "pnpm check:runtime-stage -- --stage validate --services ai-inference",
+          "failureInjectionTests": ["node ./scripts/check-runtime-dependency-health-from-contracts.mjs --pair media:ai-inference"],
+          "contractTests": ["node ./scripts/check-runtime-dependency-health-from-contracts.mjs --pair media:ai-inference"]
+        }
+      }
+    },
+    "requirements": [
+      {
+        "id": "MEDIA-RUNTIME-001",
+        "statement": "Media exposes a standalone tenant-scoped consent, artifact, asynchronous processing-job, reconnectable streaming, and privacy-maintenance runtime over typed stores and providers.",
+        "rationale": "A large provider module graph requires one stable lifecycle and transport boundary instead of a health-only launcher.",
+        "scope": "Media runtime contracts, launcher, consent lifecycle, artifact lifecycle, jobs, stream sessions, privacy maintenance, providers, transport, and shutdown",
+        "nonGoals": ["Implementing codecs in the launcher", "Persisting media blobs in Data Cloud"],
+        "preconditions": ["Exactly one artifact, job, and stream store plus at least one processing and streaming provider are ready; external providers additionally require durable consent authority"],
+        "successBehavior": "Consent is tenant/principal bound, uploads resume sequentially and complete only after size/hash verification, jobs execute asynchronously with governed results, streams reconnect with leases and ordered bounded buffers, and expired durable media state is physically purged.",
+        "failureBehavior": "Invalid/revoked consent, out-of-order chunks/frames, checksum mismatch, missing providers, invalid tokens, expired leases, concurrency exhaustion, backpressure, timeout, cancellation, or unsafe de-identification remain explicit and fail closed.",
+        "securityInvariant": "All consent/artifact/job/stream routes are authenticated and tenant scoped; raw credentials, location/device metadata, raw biometric vectors, and raw media fields are not persisted in runtime metadata/results; external processing requires authority-owned consent and residency grants.",
+        "reliabilityInvariant": "Consent state, job terminal states, artifact references, upload finalization claims, and stream sessions are durable before exposure; erasure removes object bytes before metadata truth is deleted.",
+        "performanceConstraint": "Bodies, chunks, frames, jobs, concurrency, provider attempts, timeouts, multipart parts, buffers, privacy purge batches, and list limits are bounded.",
+        "implementationRefs": [
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java",
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaConsentAdministration.java",
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java",
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaMetadataSanitizer.java",
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaJobResultSanitizer.java",
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaLauncher.java",
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java",
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaConsentAdministrationRuntime.java",
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaPrivacyMaintenanceRuntime.java",
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaSemanticRedactionRuntime.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactStore.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaConsentAuthority.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaConsentAdministration.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaPrivacyMaintenance.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/HttpMediaProcessingProvider.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/HttpMediaStreamingProvider.java"
+        ],
+        "testRefs": [
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeActiveTest.java",
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaSemanticRedactionRuntimeTest.java",
+          "runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaPrivacySanitizersTest.java",
+          "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java",
+          "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaExternalGovernanceTest.java"
+        ],
+        "status": "implemented",
+        "staticBlockers": [],
+        "designRefs": []
+      },
+      {
+        "id": "MEDIA-UPLOAD-001",
+        "statement": "Artifact ingestion is resumable, sequential, size-bound, checksum-verified, classified, retention-bound, governed-deduplicated, metadata-minimized, and finalized through a durable claim into encrypted object storage.",
+        "rationale": "Large privacy-sensitive media cannot rely on unbounded one-shot uploads, unverified object references, or byte-level reuse that weakens metadata policy.",
+        "scope": "Upload request/session/chunks/completion, S3 multipart finalization, governed byte deduplication, metadata minimization, and artifact metadata",
+        "nonGoals": ["Serving raw artifact bytes through metadata routes"],
+        "preconditions": ["Expected size, SHA-256, file name, content type, classification, retention, and minimized metadata are declared"],
+        "successBehavior": "Each chunk advances exactly one index and completion publishes immutable encrypted object metadata after full-content SHA-256 validation; same-tenant byte identity reuses an artifact only when file name, content type, classification, metadata, and remaining retention are compatible.",
+        "failureBehavior": "Expired, oversized, out-of-order, incomplete, checksum-mismatched, concurrent, stale-finalization, or governed-metadata-incompatible uploads fail closed or recover through the durable claim.",
+        "securityInvariant": "Object keys are tenant-opaque, file names are normalized, location/device/credential metadata is removed before persistence, storage paths cannot escape configured roots, and byte equality never lowers classification, metadata, or retention requirements.",
+        "reliabilityInvariant": "Artifact metadata references an immutable completed object; stale finalization claims are detectable and recoverable; deduplication is serialized against the tenant-scoped artifact row and returns only policy-compatible state.",
+        "performanceConstraint": "Chunk, total size, digest reads, multipart part size/count, provider waits, and deduplication lookup are bounded.",
+        "implementationRefs": [
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java",
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaMetadataSanitizer.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactStore.java",
+          "providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql",
+          "providers/aws-postgresql/src/main/resources/db/media-runtime/V002__media_upload_finalization_claim.sql"
+        ],
+        "testRefs": ["providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java"],
+        "status": "implemented",
+        "staticBlockers": [],
+        "designRefs": []
+      },
+      {
+        "id": "MEDIA-STREAM-001",
+        "statement": "Media stream sessions are durable, tenant-scoped, consent-governed, token-protected, lease-bound, reconnectable, sequence-ordered, backpressure-aware, and explicitly terminal.",
+        "rationale": "Audio/video streaming needs restart-safe session and privacy truth rather than process-local connection state.",
+        "scope": "Stream session contracts, PostgreSQL store, consent verification, remote streaming provider, and HTTP lifecycle",
+        "nonGoals": ["Owning provider codec internals"],
+        "preconditions": ["Stream store and a capability-compatible provider are ready; external streaming additionally has a verified consent decision"],
+        "successBehavior": "Open verifies consent and returns one connection token, connect renews a bounded lease and re-verifies current consent, frames advance contiguous sequence numbers with live consent, and close can terminate using last verified non-secret consent evidence after revocation.",
+        "failureBehavior": "Invalid/revoked consent, invalid tokens, stale versions, expired leases, out-of-order frames, oversized frames, unsupported kinds, provider backpressure, or close failures remain explicit.",
+        "securityInvariant": "Only token hashes and non-secret consent evidence are persisted; connection tokens remain header-only and tenant/principal identity is preserved.",
+        "reliabilityInvariant": "Reconnect count, last sequence, provider-buffer state, lease expiry, consent identity/provenance, and terminal state survive process restart.",
+        "performanceConstraint": "Frame size, buffer capacity, provider calls, lease duration, and active stream counts are bounded.",
+        "implementationRefs": [
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaConsentAuthority.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/HttpMediaStreamingProvider.java",
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java"
+        ],
+        "testRefs": [
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeActiveTest.java",
+          "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java",
+          "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaHttpProvidersTest.java",
+          "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaExternalGovernanceTest.java"
+        ],
+        "status": "implemented",
+        "staticBlockers": [],
+        "designRefs": []
+      },
+      {
+        "id": "MEDIA-PRIVACY-001",
+        "statement": "Media privacy is enforced through durable consent administration/verification, authority-owned purpose/residency/egress/biometric grants, physical retention and erasure, structural metadata/result minimization, and fail-closed semantic de-identification promotion.",
+        "rationale": "Recordings, transcripts, faces, voices, and derived biometric data require executable privacy controls rather than documentation-only claims.",
+        "scope": "Consent grant/revoke/verification, privacy maintenance, metadata/result sanitization, external provider governance, semantic transcript promotion, health, routes, and shutdown",
+        "nonGoals": ["Treating structural key filtering as semantic transcript de-identification", "Enabling an anonymous transcript tier without semantic-redaction evidence"],
+        "preconditions": ["Production has durable consent and privacy-maintenance providers; de-identified promotion additionally has a ready semantic-redaction provider"],
+        "successBehavior": "External media is dispatched only under matching active authority grants; revoked consent blocks new processing while existing sessions remain terminable; expired object bytes and metadata are physically removed; sensitive fields are minimized; DEIDENTIFIED promotion requires provider-owned positive classification and provenance.",
+        "failureBehavior": "Missing/revoked consent, disallowed purpose/region/egress/biometrics, erasure failure, unavailable redactor, redactor identity mismatch, unsafe classification, or redaction timeout fail closed without persisting raw sensitive output as a promoted result.",
+        "securityInvariant": "Callers cannot self-authorize consent permissions or de-identification; credential/raw-biometric/raw-media fields are excluded from durable job results and semantic-redaction provenance is structurally sanitized.",
+        "reliabilityInvariant": "Consent and retention truth are durable and revocation-aware; purge failures keep metadata for retry; semantic-redaction failures produce terminal failure state without promoted raw content.",
+        "performanceConstraint": "Consent lists, privacy purge cycles, result depth/field counts, redaction timeout, and provider fan-out are bounded.",
+        "implementationRefs": [
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java",
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaConsentAdministration.java",
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java",
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaMetadataSanitizer.java",
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaJobResultSanitizer.java",
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaSemanticRedactionRuntime.java",
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaPrivacyMaintenanceRuntime.java",
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaConsentAdministrationRuntime.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaConsentAuthority.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaConsentAdministration.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaPrivacyMaintenance.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/HttpMediaProcessingProvider.java",
+          "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/HttpMediaStreamingProvider.java",
+          "providers/aws-postgresql/src/main/resources/db/media-runtime/V003__media_consent_authority.sql"
+        ],
+        "testRefs": [
+          "runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaPrivacySanitizersTest.java",
+          "launcher/src/test/java/com/ghatana/media/launcher/MediaSemanticRedactionRuntimeTest.java",
+          "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaExternalGovernanceTest.java"
+        ],
+        "status": "implemented",
+        "staticBlockers": [],
+        "designRefs": ["docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md"]
+      },
+      {
+        "id": "MEDIA-MODALITY-001",
+        "statement": "Media exposes canonical, modality-grounded STT, TTS, vision, and multimodal provider contracts with explicit provider identity, health/degradation truth, bounded execution, and consent/privacy enforcement.",
+        "rationale": "Typed modality boundaries prevent generic text-completion output from masquerading as speech or visual inference and make provider failure observable and fail-closed.",
+        "scope": "Media modality capability discovery, provider health, degradation policy, execution bounds, typed result shape, provenance, consent, privacy, and multimodal context",
+        "nonGoals": ["Using generic text completion as an STT, TTS, vision, or multimodal substitute", "Reintroducing a remote Vision adapter outside the typed provider boundary"],
+        "preconditions": ["A provider declares the modality it serves, provider/model identity, processing boundary, health/degradation posture, and bounded execution limits"],
+        "successBehavior": "STT, TTS, vision, and multimodal results carry an explicit modality and grounded payload shape plus provider/model provenance; external execution requires active authority-owned consent and privacy-compatible residency/retention; provider absence is reported as unavailable/degraded truth rather than a fabricated successful result.",
+        "failureBehavior": "Mismatched modality payloads, generic text-completion masquerading, oversized/deep results, missing provider identity, unavailable providers, expired or mismatched consent, disallowed residency/retention, or biometric output without eligibility fail closed.",
+        "securityInvariant": "Raw media, credentials, biometric vectors, and ungoverned multimodal context do not cross or enter the durable result boundary; consent permissions remain authority-owned and cannot be widened by callers.",
+        "reliabilityInvariant": "Provider identity, health, degradation policy, bounded execution, and terminal failure truth remain explicit across capability discovery and job completion.",
+        "performanceConstraint": "Modality input/output, result fields/depth, collections, provider waits, and execution concurrency remain bounded.",
+        "implementationRefs": [
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaModalityContracts.java",
+          "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java",
+          "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java"
+        ],
+        "testRefs": [
+          "runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaModalityContractsTest.java",
+          "runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaProcessingProviderFallbackContractTest.java"
+        ],
+        "status": "implemented",
+        "staticBlockers": [],
+        "designRefs": []
+      },
+      {"id":"MEDIA-CONTRACT-001","status":"implemented","staticBlockers":[],"designRefs":[]}
+    ],
+    "evidence": {
+      "tests": [
+        {"path":"launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeActiveTest.java","requirementRefs":["MEDIA-RUNTIME-001","MEDIA-STREAM-001"],"command":"pnpm check:runtime-stage -- --stage test --services media","proves":"Validates standalone Media runtime activation, provider readiness, and lifecycle behavior"},
+        {"path":"providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java","requirementRefs":["MEDIA-RUNTIME-001"],"command":"pnpm check:runtime-stage -- --stage test --services media","proves":"Validates durable Media runtime state composition"},
+        {"path":"providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaHttpProvidersTest.java","requirementRefs":["MEDIA-RUNTIME-001","MEDIA-STREAM-001"],"command":"pnpm check:runtime-stage -- --stage test --services media","proves":"Validates remote processing and streaming providers"},
+        {"path":"providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaExternalGovernanceTest.java","requirementRefs":["MEDIA-PRIVACY-001"],"command":"pnpm check:runtime-stage -- --stage test --services media","proves":"Validates consent, residency, egress, and biometric gates before network dispatch"},
+        {"path":"runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaPrivacySanitizersTest.java","requirementRefs":["MEDIA-PRIVACY-001"],"command":"pnpm check:runtime-stage -- --stage test --services media","proves":"Validates structural metadata and result minimization"},
+        {"path":"launcher/src/test/java/com/ghatana/media/launcher/MediaSemanticRedactionRuntimeTest.java","requirementRefs":["MEDIA-PRIVACY-001"],"command":"pnpm check:runtime-stage -- --stage test --services media","proves":"Validates fail-closed semantic de-identification promotion and provenance"},
+        {"path":"runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaModalityContractsTest.java","requirementRefs":["MEDIA-MODALITY-001"],"command":"./gradlew :services:media:runtime-contracts:test --tests '*MediaModalityContractsTest' --no-build-cache","proves":"Validates grounded STT/TTS/vision/multimodal result shapes, provider identity, bounds, and external consent/privacy gates"}
+      ],
+      "documentation": [{"path":"docs/architecture/RUNTIME_SERVICE_BOUNDARIES.md","section":"Runtime Service Contract Evidence"},{"path":"docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md","section":"Executable Enforcement Map"}]
+    }
+  }
+}

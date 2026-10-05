@@ -1,0 +1,103 @@
+{
+  "criteriaId": "media-runtime",
+  "name": "Media Runtime Criteria",
+  "description": "Requires bounded resumable artifact ingestion, asynchronous provider-driven processing, request-fenced cancellation, session-close-fenced streaming, fail-closed ambiguous remote outcomes, conservative provider fallback contracts, cancellation-safe streams, and transfer-framing-independent terminal requests.",
+  "version": "1.3.0",
+  "producerId": "media-runtime",
+  "criteria": [
+    {
+      "id": "media-runtime-authority",
+      "level": "MUST",
+      "description": "The Media Runtime authority guard must pass.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "command-validation",
+        "target": "scripts/conformance/check-media-runtime-authority.mjs",
+        "command": "node scripts/conformance/check-media-runtime-authority.mjs",
+        "validation": {
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "id": "media-provider-fallback-contract-is-conservative",
+      "level": "MUST",
+      "description": "The generic MediaProcessingProvider contract must not treat timeout or network ambiguity as automatic fallback authority. A second provider may be selected only when the failed provider explicitly certifies that failure as fallback-safe.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "test-validation",
+        "target": "MediaProcessingProviderFallbackContractTest",
+        "command": "node scripts/conformance/check-media-provider-fallback-contract.mjs && ./gradlew :services:media:runtime-contracts:test --tests '*MediaProcessingProviderFallbackContractTest' --no-build-cache",
+        "validation": {
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "id": "media-provider-effect-fences",
+      "level": "MUST",
+      "description": "Production HTTP processing must linearize cancellation against new dispatch, streaming close must fence stale frames, active HTTP work must be cancelled, provider responses must remain bounded, and ambiguous processing timeout/network outcomes must not automatically fail over.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "test-validation",
+        "target": "HTTP Media provider cancellation and close fencing",
+        "command": "node scripts/conformance/check-media-processing-cancellation-fence.mjs && ./gradlew :services:media:providers:aws-postgresql:test --tests '*HttpMediaProcessingCancellationFenceTest' --tests '*HttpMediaStreamingCloseFenceTest' --no-build-cache",
+        "validation": {
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "id": "media-terminal-frame-transport",
+      "level": "MUST",
+      "description": "End-of-stream requests may carry a bounded empty body without requiring Content-Length: 0, while ordinary frames remain non-empty and all frame bodies remain size-bounded.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "test-validation",
+        "target": "MediaHttpTerminalFrameBodyTest",
+        "command": "node scripts/conformance/check-media-terminal-frame-authority.mjs && ./gradlew :services:media:launcher:test --tests '*MediaHttpTerminalFrameBodyTest' --no-build-cache",
+        "validation": {
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "id": "media-runtime-journey",
+      "level": "MUST",
+      "description": "Focused Media Runtime contracts, launcher, and production-provider tests must pass.",
+      "impact": "BLOCKING",
+      "measurement": {
+        "type": "gradle-validation",
+        "target": ":services:media:runtime-contracts:test :services:media:launcher:test :services:media:providers:aws-postgresql:test",
+        "command": "./gradlew :services:media:runtime-contracts:test :services:media:launcher:test :services:media:providers:aws-postgresql:test --no-build-cache",
+        "validation": {
+          "exitCode": 0
+        }
+      }
+    }
+  ],
+  "acceptanceCriteria": {
+    "pass": "Upload ordering, bounds, checksum, artifacts, jobs, request-fenced cancellation, session-close-fenced streaming, conservative provider fallback semantics, provider routing, terminal frame interoperability, and lifecycle are proven.",
+    "fail": "Any artifact, upload, checksum, tenant, provider effect fence, fallback-safety contract, remote-failure classification, job, stream framing, route, or lifecycle proof fails.",
+    "reviewGate": "The Ghatana Tools Evidence Generator produces canonical Media Runtime evidence; GitHub Actions status is non-scoring provenance only."
+  },
+  "governance": {
+    "owner": "Media Engineering",
+    "reviewCycle": "per-sprint",
+    "escalationPath": "media-runtime-leads"
+  },
+  "surfaceId": "media.runtime-api-security",
+  "toolBinding": {
+    "toolId": "evidence-generator",
+    "operationId": "run",
+    "provider": "samujjwal/ghatana-tools",
+    "lifecycleState": "active"
+  },
+  "verificationTier": "tier-0",
+  "executionState": "deferred",
+  "invalidationPolicy": {
+    "sourceChange": "recollect",
+    "criteriaOnlyChange": "reevaluate-when-observations-valid",
+    "dependencyChange": "recollect-dependent-surfaces-only"
+  }
+}

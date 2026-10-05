@@ -1,0 +1,397 @@
+schemaVersion: media.goals-jtbd.v1
+productId: media
+status: proposed-for-phase-0-review
+sourceRefs:
+- master-plan:task-P0-002
+- master-plan:section-2
+- master-plan:section-6
+- master-plan:section-14
+- product-truth:P0-001-boundary-slice
+- decision:MDI-001
+scopeStatement: >-
+  The intended Media product scope spans understanding, creation, restoration,
+  enhancement, editing, animation, simulation, synchronization, composition,
+  mastering, quality assessment, and delivery of governed media. Inclusion in
+  this scope defines product meaning; it does not assert that a capability is
+  implemented, licensed, qualified, or available in any runtime.
+outcomes:
+- id: media.goal.finished-asset
+  outcome: Produce a useful media asset that satisfies the user's declared intent and constraints.
+  successMeaning: The output is reviewable against the declared requirements, with material changes and limitations disclosed.
+  failureConsequences: The user receives no usable result, or receives an output that misrepresents its content, quality,
+    rights, or finality.
+  actorRefs: [media.creator, media.editor]
+- id: media.goal.preserve-source
+  outcome: Improve or transform media without losing the original bytes or accepted project revisions.
+  successMeaning: The source remains recoverable and each derived result has an understandable version and lineage.
+  failureConsequences: Source loss, silent overwrite, or confusing generated reconstruction with recovered original detail.
+  actorRefs: [media.creator, media.editor, media.reviewer]
+- id: media.goal.understand-media
+  outcome: Find and use relevant audio, visual, speech, and scene information from media for a declared purpose.
+  successMeaning: Observations include applicable uncertainty, time/region context, and provenance; document-intelligence
+    use stays behind its public boundary.
+  failureConsequences: Incorrect, duplicate, untimed, or overclaimed recognition results mislead downstream editing or decisions.
+  actorRefs: [media.creator, media.editor, media.developer-integrator]
+- id: media.goal.explain-or-demonstrate
+  outcome: Communicate an idea through composed, animated, or simulated media while preserving domain-owner truth.
+  successMeaning: The representation and its fidelity limits are clear, and Media does not claim pedagogical, clinical, or
+    scientific authority it does not own.
+  failureConsequences: A visually convincing result is mistaken for a validated scientific model or authoritative domain conclusion.
+  actorRefs: [media.creator, media.reviewer]
+- id: media.goal.improve-with-disclosure
+  outcome: Restore or enhance a source while making material reconstruction, quality, and identity tradeoffs inspectable.
+  successMeaning: The user can compare source and result and understand which details are measured, transformed, estimated,
+    or generated.
+  failureConsequences: Generated detail is misrepresented as fact, identity changes go unnoticed, or the requested quality
+    is silently weakened.
+  actorRefs: [media.creator, media.editor, media.reviewer]
+- id: media.goal.review-trustworthy-output
+  outcome: Review an exact version and its relevant quality, rights, provenance, and approval evidence.
+  successMeaning: Review scope, version, purpose, authority, and decision are explicit and remain linked.
+  failureConsequences: Approval is applied to a different or changed version, or is mistaken for rights clearance or external
+    publication.
+  actorRefs: [media.reviewer, media.privacy-rights-reviewer]
+- id: media.goal.deliver-approved-output
+  outcome: Deliver or publish an approved output through an authorized destination and declared effect boundary.
+  successMeaning: Current policy is checked at the effect boundary and outcome/finality are accurately recorded.
+  failureConsequences: Unauthorized disclosure or publication, duplicate external effects, or an unknown outcome represented
+    as success or failure.
+  actorRefs: [media.creator, media.reviewer, media.operator]
+- id: media.goal.integrate-repeatably
+  outcome: Invoke Media through a stable public contract and reconcile work without inventing parallel state.
+  successMeaning: Integration behavior preserves identity, idempotency, cancellation, status, and finality semantics.
+  failureConsequences: Consumer drift, unsafe retries, or product/runtime source coupling creates inconsistent authority.
+  actorRefs: [media.developer-integrator, media.automation-client]
+- id: media.goal.resolve-safely
+  outcome: Understand and resolve a blocked or degraded operation without weakening policy or losing eligible work.
+  successMeaning: The blocker, known/unknown outcome, preserved work, and safe next action are clear.
+  failureConsequences: Blind replay, loss of completed work, hidden policy downgrade, or incorrect operational claims.
+  actorRefs: [media.operator, media.administrator, media.worker]
+jobs:
+- id: media.job.start-from-intent
+  outcomeRefs: [media.goal.finished-asset]
+  actorRefs: [media.creator]
+  job: When I have an idea or brief, help me express a media outcome and choose a safe starting path without requiring engine
+    or model selection.
+  successConditions:
+  - Intent, applicable inputs, constraints, and next action are understandable.
+  - Missing authentication, rights, policy, or capability prerequisites are surfaced before consequential work.
+  failureConsequences: Unclear setup or hidden prerequisites prevent useful work or cause an unauthorized operation.
+  authorityRefs: [media.role.creator]
+- id: media.job.import-and-understand
+  outcomeRefs: [media.goal.understand-media]
+  actorRefs: [media.creator, media.editor]
+  job: When I provide media, help me inspect relevant properties and observations so I can decide how to use it.
+  successConditions:
+  - Inferred properties are labeled as estimates and observations retain relevant time/region context.
+  - Generic document parsing remains with Document Intelligence; Media owns temporal or scene-text meaning around recognized
+    observations.
+  failureConsequences: A MIME-type shortcut misroutes document work, or uncertain observations are treated as fact.
+  authorityRefs: [media.role.creator, media.role.editor]
+- id: media.job.create-compose
+  outcomeRefs: [media.goal.finished-asset, media.goal.explain-or-demonstrate]
+  actorRefs: [media.creator]
+  job: When I need a new image, audio, video, animation, or composed sequence, help me make it from a brief, source, or admitted
+    recipe.
+  successConditions:
+  - The plan expresses user intent, applicable limits, expected output, and material tradeoffs.
+  - Exact text, branding, logos, captions, figures, and disclosures can be placed deterministically where required.
+  failureConsequences: Output conflicts with constraints, or exact content is altered by generative rendering.
+  authorityRefs: [media.role.creator]
+- id: media.job.edit-versioned
+  outcomeRefs: [media.goal.finished-asset, media.goal.preserve-source]
+  actorRefs: [media.editor]
+  job: When I edit a project, help me make reviewable changes while preserving sources and accepted revisions.
+  successConditions:
+  - Edits are attached to a project revision and conflicts or pending saves are visible.
+  - Undo, cancellation, and external-effect reversal have distinct and truthful meanings.
+  failureConsequences: A stale edit overwrites newer work or an irreversible effect is presented as locally reversible.
+  authorityRefs: [media.role.editor]
+- id: media.job.animate
+  outcomeRefs: [media.goal.finished-asset, media.goal.explain-or-demonstrate]
+  actorRefs: [media.creator, media.editor]
+  job: When I need motion, help me create and inspect animation as a native media creation mode.
+  successConditions:
+  - Animation is not hidden behind or equated with generative video.
+  - Time, scene, rendering, fidelity, and any reuse boundary are explicit where relevant.
+  failureConsequences: Animation controls imply unsupported engine coverage or time behavior.
+  authorityRefs: [media.role.creator, media.role.editor]
+- id: media.job.simulate
+  outcomeRefs: [media.goal.explain-or-demonstrate]
+  actorRefs: [media.creator, media.reviewer]
+  job: When I need a simulated or procedural result, help me select a declared model and understand its fidelity and reproducibility
+    limits.
+  successConditions:
+  - A rendered illustration, procedural scene, and qualified simulation are distinguishable.
+  - Domain equations, calibration, and scientific or pedagogical conclusions remain with their qualified domain owners.
+  failureConsequences: Visual plausibility is treated as scientific validity or reproducibility is overstated.
+  authorityRefs: [media.role.creator, media.role.fidelity-reviewer]
+- id: media.job.improve-preserve
+  outcomeRefs: [media.goal.improve-with-disclosure, media.goal.preserve-source]
+  actorRefs: [media.creator, media.editor, media.reviewer]
+  job: When I restore or enhance media, help me compare changes and retain the source while disclosing material reconstruction.
+  successConditions:
+  - The result is compared against applicable quality and preservation criteria.
+  - Repair effort is bounded and generated reconstruction is not described as recovered original detail.
+  failureConsequences: Source damage, hidden identity/detail change, unbounded repair, or misleading quality claims.
+  authorityRefs: [media.role.editor, media.role.quality-fidelity-reviewer]
+- id: media.job.review-exact-version
+  outcomeRefs: [media.goal.review-trustworthy-output]
+  actorRefs: [media.reviewer, media.privacy-rights-reviewer]
+  job: When I review an output, help me make a decision about the exact version and declared review purpose.
+  successConditions:
+  - Review evidence, version, reviewer authority, and expiry or invalidation are visible when applicable.
+  - Material regeneration invalidates only approvals whose reviewed material changed, under the accepted policy.
+  failureConsequences: Stale approval or role confusion is used to bypass rights, quality, or publication checks.
+  authorityRefs: [media.role.reviewer, media.role.privacy-rights-reviewer]
+- id: media.job.deliver-authorized
+  outcomeRefs: [media.goal.deliver-approved-output]
+  actorRefs: [media.creator, media.reviewer, media.operator]
+  job: When I deliver or publish, help me verify the exact output, current authority, and final effect status.
+  successConditions:
+  - Required approval is bound to the exact output, destination, scope, and applicable validity.
+  - Unknown provider or destination outcome is reconciled and never blindly replayed.
+  failureConsequences: Unauthorized or duplicate publication, or false certainty about a remote outcome.
+  authorityRefs: [media.role.publication-approver, media.role.operator]
+- id: media.job.integrate-public-contract
+  outcomeRefs: [media.goal.integrate-repeatably]
+  actorRefs: [media.developer-integrator, media.automation-client]
+  job: When I connect an application or automation, help me invoke work and observe status through a stable supported contract.
+  successConditions:
+  - Public contract semantics cover identity, idempotency, cancellation, errors, and finality.
+  - Consumer integration does not import product implementation or create duplicate Media state authority.
+  failureConsequences: Consumer code becomes coupled to internals or reports a different result than Media.
+  authorityRefs: [media.role.developer-integrator, media.role.automation-client]
+- id: media.job.resolve-blocked-work
+  outcomeRefs: [media.goal.resolve-safely]
+  actorRefs: [media.operator, media.administrator, media.worker]
+  job: When work is blocked, degraded, or uncertain, help me preserve completed results and choose a safe next action.
+  successConditions:
+  - The state, blocker, affected work, and certainty of external execution are explicit.
+  - Recovery cannot silently relax privacy, rights, safety, quality, or effect-finality requirements.
+  failureConsequences: Blind retry, lost completed work, or a hidden downgrade causes harmful or duplicate effects.
+  authorityRefs: [media.role.operator, media.role.administrator, media.role.worker]
+intents:
+- id: media.intent.create
+  outcomeRefs: [media.goal.finished-asset]
+  actorRefs: [media.creator]
+  description: Create a new governed media result from intent, a brief, source material, or an admitted recipe.
+- id: media.intent.improve
+  outcomeRefs: [media.goal.improve-with-disclosure, media.goal.preserve-source]
+  actorRefs: [media.creator, media.editor]
+  description: Restore or enhance while preserving source and exposing material reconstruction or quality tradeoffs.
+- id: media.intent.edit
+  outcomeRefs: [media.goal.finished-asset, media.goal.preserve-source]
+  actorRefs: [media.editor]
+  description: Change media through versioned, reviewable operations.
+- id: media.intent.animate
+  outcomeRefs: [media.goal.finished-asset]
+  actorRefs: [media.creator, media.editor]
+  description: Create time-varying visual media as a first-class animation workflow.
+- id: media.intent.simulate
+  outcomeRefs: [media.goal.explain-or-demonstrate]
+  actorRefs: [media.creator, media.reviewer]
+  description: Run or present a declared simulation/procedural workflow with explicit fidelity boundaries.
+- id: media.intent.understand
+  outcomeRefs: [media.goal.understand-media]
+  actorRefs: [media.creator, media.editor, media.developer-integrator]
+  description: Inspect media and derive audio, speech, visual, or scene observations for a declared use.
+- id: media.intent.deliver
+  outcomeRefs: [media.goal.deliver-approved-output]
+  actorRefs: [media.creator, media.reviewer]
+  description: Prepare, export, or publish an authorized output to a declared destination.
+- id: media.intent.restore-project
+  outcomeRefs:
+  - media.goal.preserve-source
+  - media.goal.resolve-safely
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.operator
+  description: Archive, restore, branch, and recover a versioned project while preserving revision history, current access
+    policy, and source lineage.
+  journeyRefs:
+  - J-01
+  - J-26
+- id: media.intent.manage-artifact-lifecycle
+  outcomeRefs:
+  - media.goal.preserve-source
+  - media.goal.resolve-safely
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.administrator
+  - media.privacy-rights-reviewer
+  description: Inspect and manage artifact retention, revocation, and erasure with explicit scope, copy-level evidence, and
+    truthful external-control limits.
+  journeyRefs:
+  - J-26
+- id: media.intent.resolve-job
+  outcomeRefs:
+  - media.goal.resolve-safely
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.operator
+  - media.automation-client
+  - media.worker
+  description: Inspect, cancel, retry, reconcile, or recover a job without replaying unknown external effects or weakening
+    policy.
+  journeyRefs:
+  - J-20
+  - J-27
+- id: media.intent.recover-live-session
+  outcomeRefs:
+  - media.goal.resolve-safely
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.operator
+  - media.automation-client
+  description: Recover or close a live media session after disconnect, lease loss, cancellation, or uncertain frame processing
+    while preserving ordering and consent boundaries.
+  journeyRefs:
+  - J-29
+- id: media.intent.discover-profile
+  outcomeRefs:
+  - media.goal.integrate-repeatably
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.developer-integrator
+  - media.operator
+  description: Discover and validate declared media profiles, their requirements, limitations, and compatible bindings without
+    implying runtime availability.
+  journeyRefs:
+  - J-30
+- id: media.intent.inspect-capability
+  outcomeRefs:
+  - media.goal.integrate-repeatably
+  - media.goal.resolve-safely
+  actorRefs:
+  - media.developer-integrator
+  - media.operator
+  description: Inspect declared capabilities, provider diagnostics, and execution compatibility while distinguishing contract,
+    license, qualification, and runtime status.
+  journeyRefs:
+  - J-30
+- id: media.intent.inspect-readiness
+  outcomeRefs:
+  - media.goal.resolve-safely
+  - media.goal.integrate-repeatably
+  actorRefs:
+  - media.operator
+  - media.administrator
+  - media.automation-client
+  description: Inspect scoped service or capability readiness and degradation using bounded, authorized diagnostics without
+    exposing unrelated tenant or content details.
+  journeyRefs:
+  - J-27
+  - J-30
+- id: media.intent.manage-rights-consent
+  outcomeRefs:
+  - media.goal.review-trustworthy-output
+  - media.goal.resolve-safely
+  actorRefs:
+  - media.privacy-rights-reviewer
+  - media.reviewer
+  - media.administrator
+  description: Review or update purpose-bound rights and consent evidence, including revocation and expiry, through the responsible
+    authority without treating user assertion as verification.
+  journeyRefs:
+  - J-21
+  - J-26
+- id: media.intent.inspect-provenance
+  outcomeRefs:
+  - media.goal.preserve-source
+  - media.goal.review-trustworthy-output
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.reviewer
+  - media.privacy-rights-reviewer
+  description: Inspect source lineage, transformations, origin disclosures, retention, and erasure evidence for an exact artifact
+    or project version.
+  journeyRefs:
+  - J-21
+  - J-26
+firstUse:
+  id: media.journey.first-use
+  status: proposed-sequence-for-phase-2-detail
+  actorRefs: [media.creator]
+  entryConditions:
+  - The person can reach Media through an authenticated, tenant-scoped entry point.
+  - If authentication or project access is missing, explain the required prerequisite before accepting protected inputs.
+  steps:
+  - id: media.first-use.choose-intent
+    action: Choose a goal such as Create, Improve, Edit, Animate, Simulate, Understand, or Deliver, or describe the desired
+      outcome.
+    expectedResult: A canonical intent is selected; conversation, if present, compiles into inspectable intent rather than
+      a second authority.
+  - id: media.first-use.provide-context
+    action: Start with a brief or select/import source material and choose an authorized project context.
+    expectedResult: Required access, rights, consent, and source constraints are identified before consequential processing.
+  - id: media.first-use.review-plan
+    action: Review a policy-compatible plan and material choices such as output, quality, duration, privacy, and cost where
+      applicable.
+    expectedResult: Defaults are explainable; missing or unavailable capabilities and material tradeoffs are visible.
+  - id: media.first-use.start-work
+    action: Confirm the requested operation when policy requires it and submit the canonical action.
+    expectedResult: The product returns an inspectable job/action identity and truthful current status.
+  - id: media.first-use.review-result
+    action: Inspect the result, provenance, quality evidence, and any required review or approval.
+    expectedResult: The person can accept, revise, or recover eligible work without confusing review with publication.
+  invariants:
+  - First use does not require provider, model, queue, or engine selection.
+  - First use cannot bypass authentication, authorization, rights, consent, or policy checks.
+  - A browser or CLI detachment does not imply that long-running work was cancelled.
+disclosureLevels:
+  sharedSemanticModel: true
+  levels:
+  - id: media.disclosure.simple
+    purpose: Express intent and use safe, policy-compatible defaults.
+    exposes: [intent, essential-source-choice, material-tradeoffs, current-state, safe-next-action]
+  - id: media.disclosure.guided
+    purpose: Make material choices with contextual explanations.
+    exposes: [quality, style, duration, reference, output, privacy, cost-when-applicable]
+  - id: media.disclosure.expert
+    purpose: Inspect and control typed technical details when needed.
+    exposes: [typed-graph, curves, solver-limits, generation-controls, color, audio, encoding]
+  switchingRule: >-
+    Changing disclosure level preserves the same semantic action, state, edits,
+    and authority. It does not create a separate workflow or silently change
+    policy, quality, or finality.
+scope:
+  includedFamilies:
+  - existing media processing and streaming
+  - speech recognition and synthesis
+  - image, video, audio, and music creation
+  - enhancement, restoration, and editing
+  - animation and simulation
+  - synchronization, composition, color, and mastering
+  - quality assessment and delivery
+  - spatial-media extension points
+  - media-specific visual recognition and temporal/scene-text semantics
+  documentIntelligenceBoundary:
+    mediaOwns:
+    - scene and frame selection, sampling, time ranges, and temporal tracking
+    - scene identity, duplicate suppression, overlays, and editing/composition intent around recognized text
+    - a narrow adapter consuming Document Intelligence public APIs when appropriate
+    platformOwns:
+    - generic OCR/parser implementation and document workflow
+    - PDF and Office parsing and schema-guided document extraction
+    - Shared document identity and document-extraction contracts
+    ownershipRule: semantic-intent-not-mime-type
+    sourceRef: decision:MDI-001
+  exclusionsFromMediaAuthority:
+  - generic Document Intelligence/OCR runtime and parser providers
+  - generic model/provider router, credentials, quota, and failover
+  - generic identity, workflow, audit, observability, and product-development frameworks
+  - Data Cloud governed metadata/read-model and compatibility ownership
+  - pedagogical truth, clinical decisions, campaign claims, and scientific model authority
+  - external provider certification and legal/rights determinations
+  - Explorer simulations as evidence of production runtime behavior
+  claimBoundaries:
+  - Intended scope is not implementation, qualification, license admission, or runtime availability.
+  - Media simulation presentation is not automatically a qualified scientific simulator.
+  - Product experience simulation and production runtime execution are distinct.

@@ -1,0 +1,56 @@
+# =============================================================================
+# TTS Service - Multi-stage Dockerfile
+# =============================================================================
+
+# ---- Build stage ----
+FROM eclipse-temurin:21-jdk-jammy AS builder
+
+WORKDIR /workspace
+
+COPY gradlew gradlew.bat ./
+COPY gradle/ gradle/
+COPY settings.gradle.kts gradle.properties ./
+COPY buildSrc/ buildSrc/
+COPY build.gradle.kts ./
+
+COPY platform/java/ platform/java/
+COPY products/audio-video/libs/common/ products/audio-video/libs/common/
+COPY products/audio-video/modules/speech/tts-service/ products/audio-video/modules/speech/tts-service/
+COPY platform/contracts/ platform/contracts/
+
+RUN chmod +x gradlew && \
+    ./gradlew :products:audio-video:modules:speech:tts-service:shadowJar \
+      --no-daemon \
+      -x test \
+      -x checkstyleMain
+
+# ---- Runtime (CPU) stage ----
+FROM eclipse-temurin:21-jre-jammy AS runtime-cpu
+
+RUN groupadd -r tts && useradd -r -g tts tts
+
+WORKDIR /app
+
+COPY --from=builder /workspace/products/audio-video/modules/speech/tts-service/build/libs/*-all.jar app.jar
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:${AV_HEALTH_PORT:-8091}/health || exit 1
+
+USER tts
+
+EXPOSE 50052 8091
+
+ENV TTS_GRPC_PORT=50052 \
+    AV_HEALTH_PORT=8091 \
+    AV_RATE_LIMIT_TPS=50 \
+    AV_RATE_LIMIT_BURST=100 \
+    AV_RATE_LIMIT_MAX_CONCURRENT=20 \
+    AV_CB_FAILURE_THRESHOLD=5 \
+    AV_CB_RESET_TIMEOUT_MS=30000 \
+    AV_MAX_REQUEST_BYTES=104857600
+
+ENTRYPOINT ["java", \
+    "-XX:+UseContainerSupport", \
+    "-XX:MaxRAMPercentage=75.0", \
+    "-Djava.security.egd=file:/dev/./urandom", \
+    "-jar", "app.jar"]

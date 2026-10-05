@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stt-service-config
+  namespace: audio-video
+  labels:
+    app: stt-service
+    app.kubernetes.io/part-of: ghatana-audio-video
+data:
+  STT_GRPC_PORT: "50051"
+  AV_HEALTH_PORT: "8090"
+  AV_RATE_LIMIT_TPS: "50"
+  AV_RATE_LIMIT_BURST: "100"
+  AV_RATE_LIMIT_MAX_CONCURRENT: "20"
+  AV_CB_FAILURE_THRESHOLD: "5"
+  AV_CB_RESET_TIMEOUT_MS: "30000"
+  AV_MAX_REQUEST_BYTES: "104857600"

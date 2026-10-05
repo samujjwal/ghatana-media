@@ -1,0 +1,96 @@
+{
+  "producerId": "media-runtime",
+  "name": "Media Runtime Proof",
+  "description": "Validates resumable uploads, checksum completion, artifact metadata, asynchronous jobs, conservative provider fallback contracts, request-fenced processing cancellation, session-close-fenced streaming, bounded provider responses, reconnectable streams, transfer-framing-independent terminal frames, exact routes, and lifecycle.",
+  "version": "1.3.0",
+  "criteriaId": "media-runtime",
+  "type": "validation",
+  "repo": "ghatana-media",
+  "scope": "media-runtime",
+  "unitScope": [
+    "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java",
+    "runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaProcessingProviderFallbackContractTest.java",
+    "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+    "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java",
+    "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeStreamTimeoutTest.java",
+    "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeJobTimeoutTest.java",
+    "launcher/src/test/java/com/ghatana/media/launcher/MediaHttpTerminalFrameBodyTest.java",
+    "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/MediaHttpProviderClient.java",
+    "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/HttpMediaProcessingProvider.java",
+    "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/HttpMediaStreamingProvider.java",
+    "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/HttpMediaProcessingCancellationFenceTest.java",
+    "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/HttpMediaStreamingCloseFenceTest.java",
+    "contracts/openapi/media.yaml",
+    "config/runtime-hardening-known-gaps.json",
+    "config/runtime-hardening-known-gaps-overlays/2026-08-05-media-terminal-frame-body.json",
+    "scripts/conformance/check-media-runtime-authority.mjs",
+    "scripts/conformance/check-media-provider-fallback-contract.mjs",
+    "scripts/conformance/check-media-processing-cancellation-fence.mjs",
+    "scripts/conformance/check-media-terminal-frame-authority.mjs",
+    "scripts/conformance/lib/media-runtime-authority-truth.mjs",
+    "scripts/conformance/lib/media-terminal-frame-truth.mjs",
+    "scripts/conformance/__tests__/media-runtime-authority-truth.test.mjs",
+    "scripts/conformance/__tests__/media-terminal-frame-truth.test.mjs"
+  ],
+  "execution": {
+    "platform": "java-evidence-generator",
+    "command": "./gradlew",
+    "args": [
+      ":services:media:runtime-contracts:test",
+      ":services:media:launcher:test",
+      ":services:media:providers:aws-postgresql:test",
+      "--no-build-cache"
+    ],
+    "timeout": "10m",
+    "requiresDocker": false
+  },
+  "outputs": {
+    "artifactType": "media-runtime-proof",
+    "canonicalOutputOwner": "java-evidence-generator",
+    "localDiagnosticPath": "build/proofs/media-runtime/proof.json",
+    "format": "json",
+    "evidenceGeneratorRepository": "ghatana-tools",
+    "evidenceGeneratorCoordinate": "evidence-generator"
+  },
+  "governance": {
+    "owner": "Media Engineering",
+    "reviewCycle": "per-sprint",
+    "escalationPath": "media-runtime-leads"
+  },
+  "surfaceId": "media-api",
+  "toolBinding": {
+    "toolId": "evidence-generator",
+    "operationId": "run",
+    "provider": "samujjwal/ghatana-tools",
+    "lifecycleState": "active"
+  },
+  "verificationTier": "tier-0",
+  "environmentSensitive": false,
+  "operationKind": "surface-evidence-producer",
+  "executionState": "deferred",
+  "recollectionPolicy": {
+    "sourceChange": "recollect",
+    "criteriaOnlyChange": "reevaluate-when-observations-valid",
+    "dependencyChange": "recollect-dependent-surfaces-only"
+  },
+  "invalidationInputs": {
+    "sourcePaths": [
+      "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+      "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java",
+      "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeStreamTimeoutTest.java",
+      "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeJobTimeoutTest.java",
+      "launcher/src/test/java/com/ghatana/media/launcher/MediaHttpTerminalFrameBodyTest.java",
+      "contracts/openapi/media.yaml",
+      "config/runtime-hardening-known-gaps.json",
+      "config/runtime-hardening-known-gaps-overlays/2026-08-05-media-terminal-frame-body.json",
+      "scripts/conformance/check-media-runtime-authority.mjs",
+      "scripts/conformance/check-media-terminal-frame-authority.mjs",
+      "scripts/conformance/lib/media-runtime-authority-truth.mjs",
+      "scripts/conformance/lib/media-terminal-frame-truth.mjs",
+      "scripts/conformance/__tests__/media-runtime-authority-truth.test.mjs",
+      "scripts/conformance/__tests__/media-terminal-frame-truth.test.mjs"
+    ],
+    "dependencySurfaceIds": [],
+    "environmentInputs": []
+  }
+}

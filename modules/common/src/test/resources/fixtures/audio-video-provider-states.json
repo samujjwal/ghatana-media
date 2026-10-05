@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "version": "2026-06-19-v1",
+    "generatedAt": "2026-06-19T00:00:00.000Z",
+    "seed": "audio-video-provider-states-v1",
+    "tenant": "tenant-dc-fixtures-001",
+    "actor": "actor-dc-fixtures-001",
+    "correlationId": "corr-dc-fixtures-001",
+    "traceId": "trace-dc-fixtures-001"
+  },
+  "providerStates": [
+    {
+      "providerJobId": "av-job-001",
+      "providerType": "audio-video",
+      "capability": "stt",
+      "tenantId": "tenant-dc-fixtures-001",
+      "state": "succeeded",
+      "providerState": "completed",
+      "terminal": true,
+      "policyAllowed": true,
+      "policyReason": "fixture-allowed",
+      "requiresBlockingAudit": false,
+      "traceId": "trace-dc-fixtures-001"
+    },
+    {
+      "providerJobId": "av-job-002",
+      "providerType": "audio-video",
+      "capability": "tts",
+      "tenantId": "tenant-dc-fixtures-001",
+      "state": "failed",
+      "providerState": "failed",
+      "terminal": true,
+      "policyAllowed": false,
+      "policyReason": "fixture-denied",
+      "requiresBlockingAudit": true,
+      "traceId": "trace-dc-fixtures-001"
+    },
+    {
+      "providerJobId": "av-job-003",
+      "providerType": "audio-video",
+      "capability": "vision",
+      "tenantId": "tenant-dc-fixtures-001",
+      "state": "running",
+      "providerState": "in_progress",
+      "terminal": false,
+      "policyAllowed": true,
+      "policyReason": "fixture-allowed",
+      "requiresBlockingAudit": false,
+      "traceId": "trace-dc-fixtures-001"
+    },
+    {
+      "providerJobId": "av-job-004",
+      "providerType": "audio-video",
+      "capability": "multimodal",
+      "tenantId": "tenant-dc-fixtures-001",
+      "state": "cancelled",
+      "providerState": "cancelled",
+      "terminal": true,
+      "policyAllowed": true,
+      "policyReason": "fixture-cancelled",
+      "requiresBlockingAudit": false,
+      "traceId": "trace-dc-fixtures-001"
+    }
+  ]
+}

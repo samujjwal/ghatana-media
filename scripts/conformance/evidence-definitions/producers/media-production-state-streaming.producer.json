@@ -1,0 +1,77 @@
+{
+  "producerId": "media-production-state-streaming",
+  "name": "Media Production State and Streaming",
+  "description": "Validates S3/PostgreSQL resumable artifacts, governed and concurrency-safe tenant-scoped byte deduplication, durable jobs, stream sessions, reconnect leases, sequence ordering, backpressure, remote processing/streaming adapters, and provider security.",
+  "version": "1.0.2",
+  "criteriaId": "media-production-state-streaming",
+  "type": "test",
+  "repo": "ghatana-media",
+  "scope": "media-production-state-streaming",
+  "unitScope": [
+    "runtime-contracts",
+    "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactStore.java",
+    "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java",
+    "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java",
+    "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java",
+    "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaHttpProvidersTest.java",
+    "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+    "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java"
+  ],
+  "execution": {
+    "platform": "java-evidence-generator",
+    "command": "./gradlew",
+    "args": [
+      ":services:media:providers:aws-postgresql:test",
+      "--tests",
+      "com.ghatana.media.provider.aws.MediaAwsPostgresqlRuntimeStateTest",
+      "--tests",
+      "com.ghatana.media.provider.aws.MediaHttpProvidersTest",
+      "--no-build-cache"
+    ],
+    "timeout": "20m",
+    "requiresDocker": true
+  },
+  "outputs": {
+    "artifactType": "media-production-state-streaming-proof",
+    "canonicalOutputOwner": "java-evidence-generator",
+    "localDiagnosticPath": "build/proofs/media-production-state-streaming/proof.json",
+    "format": "json",
+    "evidenceGeneratorRepository": "ghatana-tools",
+    "evidenceGeneratorCoordinate": "evidence-generator"
+  },
+  "governance": {
+    "owner": "Media Engineering",
+    "reviewCycle": "per-change",
+    "escalationPath": "media-runtime-leads"
+  },
+  "surfaceId": "media-api",
+  "toolBinding": {
+    "toolId": "evidence-generator",
+    "operationId": "run",
+    "provider": "samujjwal/ghatana-tools",
+    "lifecycleState": "active"
+  },
+  "verificationTier": "tier-0",
+  "environmentSensitive": false,
+  "operationKind": "surface-evidence-producer",
+  "executionState": "deferred",
+  "recollectionPolicy": {
+    "sourceChange": "recollect",
+    "criteriaOnlyChange": "reevaluate-when-observations-valid",
+    "dependencyChange": "recollect-dependent-surfaces-only"
+  },
+  "invalidationInputs": {
+    "sourcePaths": [
+      "runtime-contracts",
+      "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactStore.java",
+      "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java",
+      "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java",
+      "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java",
+      "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaHttpProvidersTest.java",
+      "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+      "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java"
+    ],
+    "dependencySurfaceIds": [],
+    "environmentInputs": []
+  }
+}

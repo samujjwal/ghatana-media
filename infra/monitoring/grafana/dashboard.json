@@ -1,0 +1,347 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__requires": [
+    {"type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0"},
+    {"type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "1.0.0"},
+    {"type": "panel", "id": "stat", "name": "Stat", "version": ""},
+    {"type": "panel", "id": "timeseries", "name": "Time series", "version": ""},
+    {"type": "panel", "id": "gauge", "name": "Gauge", "version": ""}
+  ],
+  "annotations": {"list": []},
+  "description": "Audio-Video Platform — STT, TTS, Vision, Multimodal, AI-Voice observability",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "title": "Service Health Overview",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"text": "DOWN"}, "1": {"text": "UP"}}, "type": "value"}],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 1},
+      "id": 2,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "STT Service",
+      "type": "stat",
+      "targets": [{"expr": "up{job=\"stt-service\"}", "legendFormat": "stt"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"text": "DOWN"}, "1": {"text": "UP"}}, "type": "value"}],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 1},
+      "id": 3,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "TTS Service",
+      "type": "stat",
+      "targets": [{"expr": "up{job=\"tts-service\"}", "legendFormat": "tts"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"text": "DOWN"}, "1": {"text": "UP"}}, "type": "value"}],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 8, "y": 1},
+      "id": 4,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "Vision Service",
+      "type": "stat",
+      "targets": [{"expr": "up{job=\"vision-service\"}", "legendFormat": "vision"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"text": "DOWN"}, "1": {"text": "UP"}}, "type": "value"}],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 12, "y": 1},
+      "id": 5,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "Multimodal Service",
+      "type": "stat",
+      "targets": [{"expr": "up{job=\"multimodal-service\"}", "legendFormat": "multimodal"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [{"options": {"0": {"text": "DOWN"}, "1": {"text": "UP"}}, "type": "value"}],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 16, "y": 1},
+      "id": 6,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "AI Voice Service",
+      "type": "stat",
+      "targets": [{"expr": "up{job=\"ai-voice-service\"}", "legendFormat": "ai-voice"}]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 5},
+      "id": 10,
+      "title": "gRPC Request Throughput — All Services",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 1, "fillOpacity": 10}, "unit": "reqps"},
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
+      "id": 11,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom"}},
+      "title": "gRPC Requests per Second (by service)",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "rate(grpc_server_started_total{job=\"stt-service\"}[5m])", "legendFormat": "STT"},
+        {"expr": "rate(grpc_server_started_total{job=\"tts-service\"}[5m])", "legendFormat": "TTS"},
+        {"expr": "rate(grpc_server_started_total{job=\"vision-service\"}[5m])", "legendFormat": "Vision"},
+        {"expr": "rate(grpc_server_started_total{job=\"multimodal-service\"}[5m])", "legendFormat": "Multimodal"},
+        {"expr": "rate(grpc_server_started_total{job=\"ai-voice-service\"}[5m])", "legendFormat": "AI Voice"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 1, "fillOpacity": 10}, "unit": "percentunit"},
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6},
+      "id": 12,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom"}},
+      "title": "gRPC Error Rate (by service)",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "rate(grpc_server_handled_total{job=\"stt-service\", grpc_code!=\"OK\"}[5m]) / rate(grpc_server_handled_total{job=\"stt-service\"}[5m])", "legendFormat": "STT error rate"},
+        {"expr": "rate(grpc_server_handled_total{job=\"tts-service\", grpc_code!=\"OK\"}[5m]) / rate(grpc_server_handled_total{job=\"tts-service\"}[5m])", "legendFormat": "TTS error rate"},
+        {"expr": "rate(grpc_server_handled_total{job=\"vision-service\", grpc_code!=\"OK\"}[5m]) / rate(grpc_server_handled_total{job=\"vision-service\"}[5m])", "legendFormat": "Vision error rate"},
+        {"expr": "rate(grpc_server_handled_total{job=\"multimodal-service\", grpc_code!=\"OK\"}[5m]) / rate(grpc_server_handled_total{job=\"multimodal-service\"}[5m])", "legendFormat": "Multimodal error rate"}
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 14},
+      "id": 20,
+      "title": "STT Transcription Latency",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 1, "fillOpacity": 10}, "unit": "s"},
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 15},
+      "id": 21,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom"}},
+      "title": "STT Transcribe Latency (p50 / p95 / p99)",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "histogram_quantile(0.50, rate(grpc_server_handling_seconds_bucket{job=\"stt-service\", grpc_method=\"Transcribe\"}[5m]))", "legendFormat": "p50"},
+        {"expr": "histogram_quantile(0.95, rate(grpc_server_handling_seconds_bucket{job=\"stt-service\", grpc_method=\"Transcribe\"}[5m]))", "legendFormat": "p95"},
+        {"expr": "histogram_quantile(0.99, rate(grpc_server_handling_seconds_bucket{job=\"stt-service\", grpc_method=\"Transcribe\"}[5m]))", "legendFormat": "p99"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 1, "fillOpacity": 10}, "unit": "s"},
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 15},
+      "id": 22,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom"}},
+      "title": "TTS Synthesize / Vision Infer Latency (p95)",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "histogram_quantile(0.95, rate(grpc_server_handling_seconds_bucket{job=\"tts-service\", grpc_method=\"Synthesize\"}[5m]))", "legendFormat": "TTS p95"},
+        {"expr": "histogram_quantile(0.95, rate(grpc_server_handling_seconds_bucket{job=\"vision-service\"}[5m]))", "legendFormat": "Vision p95"},
+        {"expr": "histogram_quantile(0.95, rate(grpc_server_handling_seconds_bucket{job=\"multimodal-service\"}[5m]))", "legendFormat": "Multimodal p95"}
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 23},
+      "id": 30,
+      "title": "JVM Runtime — Java gRPC Services",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 1, "fillOpacity": 10}, "unit": "bytes"},
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 24},
+      "id": 31,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom"}},
+      "title": "JVM Heap Used (by service)",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "jvm_memory_used_bytes{job=~\"stt-service|tts-service|vision-service|multimodal-service\", area=\"heap\"}", "legendFormat": "{{job}}"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 1}, "unit": "short"},
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 24},
+      "id": 32,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom"}},
+      "title": "JVM Thread Count (blocked) by Service",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "jvm_threads_states_threads{job=~\"stt-service|tts-service|vision-service|multimodal-service\", state=\"blocked\"}", "legendFormat": "{{job}} blocked"},
+        {"expr": "jvm_threads_states_threads{job=~\"stt-service|tts-service|vision-service|multimodal-service\", state=\"runnable\"}", "legendFormat": "{{job}} runnable"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 1}, "unit": "s"},
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 24},
+      "id": 33,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom"}},
+      "title": "GC Pause Duration (avg) by Service",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "rate(jvm_gc_pause_seconds_sum{job=~\"stt-service|tts-service|vision-service|multimodal-service\"}[5m]) / rate(jvm_gc_pause_seconds_count{job=~\"stt-service|tts-service|vision-service|multimodal-service\"}[5m])", "legendFormat": "{{job}}"}
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 32},
+      "id": 40,
+      "title": "Host Infrastructure",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 1}, "unit": "percent"},
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 33},
+      "id": 41,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom"}},
+      "title": "Host CPU Usage %",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "100 - (avg by(instance) (rate(node_cpu_seconds_total{job=\"node\", mode=\"idle\"}[5m])) * 100)", "legendFormat": "{{instance}}"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 1}, "unit": "percentunit"},
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 33},
+      "id": 42,
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom"}},
+      "title": "Host Memory Usage %",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "1 - (node_memory_MemAvailable_bytes{job=\"node\"} / node_memory_MemTotal_bytes{job=\"node\"})", "legendFormat": "{{instance}}"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 1}, "unit": "bytes"},
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 33},
+      "id": 43,
+      "options": {"legend": {"calcs": ["mean", "min"], "displayMode": "table", "placement": "bottom"}},
+      "title": "Host Disk Space Available",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "node_filesystem_avail_bytes{job=\"node\", mountpoint=\"/\"}", "legendFormat": "{{instance}} /"}
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["audio-video", "platform", "monitoring", "grpc", "stt", "tts", "vision"],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+        "definition": "label_values(up{job=~\"stt-service|tts-service|vision-service|multimodal-service|ai-voice-service\"}, instance)",
+        "label": "Instance",
+        "name": "instance",
+        "options": [],
+        "query": "label_values(up{job=~\"stt-service|tts-service|vision-service|multimodal-service|ai-voice-service\"}, instance)",
+        "refresh": 2,
+        "type": "query"
+      },
+      {
+        "current": {"selected": false, "text": "All", "value": "$__all"},
+        "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+        "definition": "label_values(up{job=~\"stt-service|tts-service|vision-service|multimodal-service|ai-voice-service\"}, job)",
+        "includeAll": true,
+        "label": "Service",
+        "name": "service",
+        "options": [],
+        "query": "label_values(up{job=~\"stt-service|tts-service|vision-service|multimodal-service|ai-voice-service\"}, job)",
+        "refresh": 2,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {"from": "now-6h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Audio-Video Platform — STT / TTS / Vision / Multimodal / AI Voice",
+  "uid": "audio-video-platform-001",
+  "version": 1
+}

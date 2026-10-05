@@ -1,0 +1,208 @@
+fixtureDocumentVersion: media.p0-004.golden-fixtures.v1
+phaseTask: P0-004
+status:
+  kind: non-production-conformance-specification
+  acceptance: not-submitted
+  execution: not-run-against-a-domain-adapter
+  schemaBoundary: >-
+    This file describes examples and expected rules only. It is not a Media
+    runtime payload schema and does not replace Media, TutorPutor, OpenTimelineIO,
+    glTF, protobuf, or any other owner contract.
+
+references:
+  domainModel: .product-experience/phase-0-product-truth/domain-model.yaml
+  timeUnitsFidelity: .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+  specification: docs/migration/expert-reviewed-master-plan.md#p0-004-phase-0
+
+fixtures:
+  - id: temporal-24000-1001-exact-audio-map
+    class: golden-example
+    sourceContractFacts:
+      - Current Media surfaces use numeric fps/durationMs and protobuf millisecond timestamps; they do not prove exact VFR/sample mapping.
+      - This vector exercises the proposed rational mapping only.
+    input:
+      video:
+        frameRate: { numerator: 24000, denominator: 1001 }
+        firstFrameIndex: 0
+        frameCount: 24000
+        intervalConvention: '[start,end)'
+      audio:
+        sampleRateHz: 48000
+        firstSampleIndex: 0
+    expected:
+      intervalStartSeconds: { numerator: 0, denominator: 1 }
+      intervalEndSeconds: { numerator: 1001, denominator: 1 }
+      durationSeconds: { numerator: 1001, denominator: 1 }
+      lastFramePresentationSeconds: { numerator: 24022999, denominator: 24000 }
+      audioSampleCount: 48048000
+      samplesPerVideoFrame: 2002
+      exactFrameBoundaryToAudioSampleMapping: true
+      lastFramePresentationIsDuration: false
+      forbid:
+        - Replacing 24000/1001 with 24/1 without an explicit normalization artifact and conversion record.
+        - Treating the last frame PTS as the half-open interval end.
+        - Accumulating floating-point millisecond deltas.
+
+  - id: temporal-explicit-point-rounding
+    class: golden-example
+    input:
+      pointTimeSeconds: { numerator: 1, denominator: 48 }
+      destinationFrameRate: { numerator: 24, denominator: 1 }
+      operation: map-point-to-nearest-frame-index
+      roundingPolicy: ROUND_NEAREST_TIES_TO_EVEN
+    expected:
+      exactFrameCoordinate: { numerator: 1, denominator: 2 }
+      frameIndex: 0
+      recordedPolicy: ROUND_NEAREST_TIES_TO_EVEN
+      note: >-
+        This example tests that a named policy is applied and recorded. Other
+        conversion operations may require a different explicit policy.
+
+  - id: temporal-variable-frame-rate-preservation
+    class: golden-example
+    input:
+      sourceTimeBaseSeconds: { numerator: 1, denominator: 90000 }
+      presentationTimestampTicks: [0, 3003, 6006, 12012]
+    expected:
+      preserveExactPresentationTimestampTicks: [0, 3003, 6006, 12012]
+      preserveIrregularGapBetweenLastTwoFrames: { numerator: 6006, denominator: 90000 }
+      normalizeWithoutNewArtifact: false
+
+  - id: coordinate-native-serialization-roundtrip
+    class: golden-example
+    input:
+      convention:
+        handedness: right-handed
+        upAxis: '+Y'
+        vectorConvention: column-vectors
+        matrixSerialization: column-major
+        localTransformOrder: T-times-R-times-S
+      translationMeters: [1, 2, 3]
+      quaternionXyzw: [0, 0, 0, 1]
+      scale: [1, 1, 1]
+    expected:
+      quaternionXyzwAfterRoundtrip: [0, 0, 0, 1]
+      columnMajorMatrix4x4:
+        - 1
+        - 0
+        - 0
+        - 0
+        - 0
+        - 1
+        - 0
+        - 0
+        - 0
+        - 0
+        - 1
+        - 0
+        - 1
+        - 2
+        - 3
+        - 1
+      translationMetersAfterRoundtrip: [1, 2, 3]
+      exactForThisIdentityRotationFixture: true
+    qualification: >-
+      This pins proposed serialization math only. It is not evidence that a
+      Media-native scene schema or external-engine conversion is implemented.
+
+  - id: coordinate-parent-world-composition
+    class: golden-example
+    input:
+      convention: parentWorld-times-local
+      parentTranslationMeters: [10, 0, 0]
+      localTranslationMeters: [1, 2, 3]
+      bothRotations: identity
+      bothScales: [1, 1, 1]
+    expected:
+      worldTranslationMeters: [11, 2, 3]
+      multiplicationOrderIsObservable: true
+
+  - id: image-space-pixel-centers
+    class: golden-example
+    input:
+      imageDimensionsPixels: { width: 1920, height: 1080 }
+      origin: top-left
+      pixelCoordinate: [0.5, 0.5]
+      normalizedMapping: [x / width, y / height]
+    expected:
+      normalizedCoordinate: [{ numerator: 1, denominator: 3840 }, { numerator: 1, denominator: 2160 }]
+      normalizedMappingMustNameReferenceDimensions: true
+
+  - id: dimensions-reject-missing-or-incompatible-unit
+    class: negative-input
+    cases:
+      - id: physical-mass-without-unit
+        input: { field: mass, value: 1, unit: null }
+        expectedDisposition: reject-quantitative-core-input
+        reason: Core physical quantity is ambiguously unitless.
+      - id: physical-mass-declared-as-time
+        input: { field: mass, value: 1, unit: s }
+        expectedDisposition: reject-dimensional-mismatch
+        reason: A time dimension cannot satisfy a mass parameter.
+      - id: addition-of-incompatible-dimensions
+        input:
+          operation: add
+          left: { value: 1, unit: m }
+          right: { value: 1, unit: s }
+        expectedDisposition: reject-dimensional-mismatch
+        reason: Addition requires compatible dimensions.
+    note: >-
+      The expected errors are product-model requirements. No dimensional
+      validator implementation or unit registry is claimed by this file.
+
+  - id: color-alpha-descriptor-roundtrip
+    class: golden-example
+    input:
+      pixelEncoding: RGBA8
+      colorPrimaries: BT.709
+      transferFunction: IEC-61966-2-1-sRGB
+      matrixCoefficients: RGB
+      range: FULL
+      alphaMode: STRAIGHT
+      encodedChannelBytes: [128, 64, 32, 128]
+      operation: descriptor-and-pixel-serialization-roundtrip-without-color-conversion
+    expected:
+      descriptorFieldsUnchanged: true
+      encodedChannelBytesUnchanged: [128, 64, 32, 128]
+      colorTransformApplied: false
+      inferenceFromMissingDescriptor: forbidden
+    qualification: >-
+      This is a metadata-preservation vector, not a claim that Media currently
+      records or round-trips these descriptors.
+
+  - id: alpha-operation-with-unknown-alpha-mode
+    class: negative-input
+    input:
+      alphaMode: UNKNOWN
+      operation: premultiply
+    expectedDisposition: reject-or-require-explicit-source-interpretation
+    reason: Premultiplication cannot safely infer whether input RGB is straight or already premultiplied.
+
+  - id: tutorputor-legacy-unitless-manifest-boundary
+    class: ir-compatibility-fixture
+    owner: TutorPutor
+    sourceContract:
+      path: products/tutorputor/contracts/v1/simulation/types.ts
+      shape: PhysicsMetadata
+    legacyInput:
+      timeScale: 2
+      units: omitted
+    expectedDisposition:
+      - Preserve this data as legacy TutorPutor input under TutorPutor's compatibility adapter.
+      - Do not infer length, mass, or time units from timeScale.
+      - Do not promote it to a quantitative/scientific Media SimulationWorld without an explicit owner-approved conversion and dimensional validation.
+    mediaOwnership: no-copy-of-tutorputor-ir
+    conversionStatus: unverified
+
+  - id: tutorputor-learning-ir-is-reference-only
+    class: ir-compatibility-fixture
+    owner: TutorPutor
+    sourceContract:
+      path: products/tutorputor/contracts/v1/experience/experience-ir.ts
+      shape: ExperienceIR
+    input:
+      reference: { id: tutorputor.experience.example, version: '1.0.0' }
+    expectedDisposition:
+      - Keep the owner reference opaque and versioned if an accepted public integration permits it.
+      - Do not flatten learning purpose, pedagogy, learner evidence, or assessment into a Media-owned duplicate schema.
+    adapterAcceptance: pending-owner-review

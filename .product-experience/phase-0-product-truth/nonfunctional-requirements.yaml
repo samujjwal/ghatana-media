@@ -1,0 +1,136 @@
+schemaVersion: media.nonfunctional-requirements.v1
+productId: media
+authorityStatus: authored-proposal; pending-P0-010-independent-acceptance
+measurementRule: proposed-budgets-are-not-observed-results-or-production-SLOs
+requirements:
+  - id: NFR-SEC-001
+    area: security
+    statement: All input, decoding, import, model, scene, shader, script, and archive processing is bounded and isolated before content is promoted to trusted usable state.
+    priority: must
+    owner: Media security owner
+    acceptance: adversarial-format-and-resource-fixtures-stay-within-declared-worker-boundaries
+    related: [P0-006, POLICY-INPUT-EXECUTION]
+  - id: NFR-PRIV-001
+    area: privacy
+    statement: Tenant, classification, consent, purpose, residency, egress, provider-retention, training, and rights remain independent policy axes at every applicable processing boundary.
+    priority: must
+    owner: Media privacy and rights owners
+    acceptance: each-admission-dispatch-read-reuse-output-and-export-boundary-has-a-fail-closed-decision
+    related: [P0-006, POLICY-GOVERNANCE-AXES]
+  - id: NFR-AUD-001
+    area: audit-and-integrity
+    statement: Required external effects have durable accountable intent before dispatch; uncertain effects are never replayed merely to repair missing evidence.
+    priority: must
+    owner: Media audit owner with Shared audit contract owner
+    acceptance: fault-injection-at-audit-write-effect-submit-and-final-persist-preserves-truthful-finality
+    related: [STATE-JOB, STATE-ATTEMPT, POLICY-AUDIT]
+  - id: NFR-OBS-001
+    area: telemetry
+    statement: Operational logs, traces, metrics, audit, and provenance have distinct schemas and retention; redaction failure never falls back to raw sensitive content.
+    priority: must
+    owner: Media observability owner with Shared observability owner
+    acceptance: sensitive-fixtures-do-not-appear-in-telemetry-and-failure-is-reported-as-safe-diagnostic-degradation
+    related: [P0-006, POLICY-TELEMETRY]
+  - id: NFR-ACCESS-001
+    area: accessibility
+    statement: Every supported task is keyboard operable with visible focus and non-drag alternatives; screen-reader output exposes selected media objects, measurements, status, and permitted actions.
+    priority: must
+    owner: Media UX accessibility owner
+    acceptance: phase-1-view-and-component-contracts-define-keyboard-focus-screen-reader-zoom-reflow-reduced-motion-and-forced-color-cases
+    related: [P0-009]
+  - id: NFR-LOC-001
+    area: localization
+    statement: UI locale, speech language, subtitle language, voice locale, and metadata/time formatting are independent; unsupported languages are declared unavailable rather than silently substituted.
+    priority: must
+    owner: Media localization owner with Shared localization owner
+    acceptance: Latin-and-Devanagari-fixtures-and-RTL-or-pseudo-localization-where-claimed-exercise-bidi-font-fallback-shaping-and-caption-wrapping
+    related: [P0-009]
+  - id: NFR-SIMPLE-001
+    area: simplicity
+    statement: The primary experience is intent-first with progressive disclosure; expert controls and provider details do not burden ordinary users or hide consequential choices.
+    priority: must
+    owner: Media product and UX owners
+    acceptance: formative-usability-protocol-measures-first-use-task-success-recovery-and-decision-burden-on-admitted-journeys
+    related: [P0-002, P0-009]
+  - id: NFR-PERF-001
+    area: performance
+    statement: Control-plane and local interaction performance is measured separately from external model, render, simulation, and encoding work on frozen reference environments.
+    priority: should
+    owner: Media performance owner
+    initialProposedBudgets:
+      - surface: small-status-or-metadata-request
+        target: p95-300ms-at-50-requests-per-second-excluding-external-model-execution
+        environment: not-yet-named
+      - surface: bounded-job-admission
+        target: p95-500ms-when-store-policy-and-capacity-are-healthy-and-source-references-are-registered
+        environment: not-yet-named
+      - surface: visible-web-control-feedback
+        target: within-100ms-on-reference-project
+        environment: not-yet-named
+      - surface: editor-scrub-selection-undo
+        target: p95-100ms-for-admitted-preview-size-fixture
+        environment: not-yet-named
+      - surface: CLI-help-and-version
+        target: p95-500ms-without-network-or-GPU-initialization
+        environment: not-yet-named
+      - surface: cancellation-request-acknowledgement
+        target: within-1s-on-healthy-control-plane; provider-termination-measured-separately
+        environment: not-yet-named
+    acceptance: targets-are-proposals-until-environment-corpus-load-method-and-owner-approval-are-recorded
+    related: [P0-007, P0-009]
+  - id: NFR-COST-001
+    area: cost-and-resource-safety
+    statement: Every job and optimization has finite CPU, memory, storage, GPU, process, time, retry, and monetary bounds; each fallback rechecks budget and quality authority.
+    priority: must
+    owner: Media runtime and quality owners
+    acceptance: adversarial-resource-and-budget-exhaustion-fixtures-terminate-or-remain-explicitly-uncertain-without-unbounded-work
+    related: [STATE-ATTEMPT, QUALITY-BOUNDS]
+  - id: NFR-TIME-001
+    area: temporal-correctness
+    statement: Sample, frame, clip, and event timestamps use explicit rational clocks and declared rounding/resampling rules with no silent drift.
+    priority: must
+    owner: Media domain owner
+    acceptance: synthetic-impulse-and-frame-boundary-fixtures-meet-declared-sample-frame-tolerances
+    related: [P0-004]
+  - id: NFR-FIDELITY-001
+    area: fidelity-and-quality
+    statement: Scientific/domain fidelity is separate from visual quality; quality measures state applicability and abstention, and never override rights or domain constraints.
+    priority: must
+    owner: Media quality owner and relevant domain owner
+    acceptance: negative-fixtures-cover-invalid-units-misleading-upscaling-unsupported-repair-and-model-or-solver-qualification-gaps
+    related: [P0-004, P0-007]
+  - id: NFR-RECOVERY-001
+    area: recovery
+    statement: Restart, retry, cancellation, restore, and reconciliation preserve identity, idempotency, fences, erasure tombstones, and uncertainty.
+    priority: must
+    owner: Media distributed-systems and operations owners
+    acceptance: crash-race-restore-partial-success-and-unknown-provider-outcome-fixtures-have-safe-next-actions
+    related: [P0-005, P0-006]
+  - id: NFR-DEPLOY-001
+    area: deployment-and-offline
+    statement: Local-development, private-local, connected-production, and hybrid-production are explicit capability-scoped contracts; no profile silently enables network egress, model download, or a lower-fidelity fallback.
+    priority: must
+    owner: Media deployment owner
+    acceptance: each-profile-defines-identity-durability-encryption-backup-quota-integrations-capabilities-and-stop-conditions
+    related: [P0-006, P0-008]
+  - id: NFR-SLO-001
+    area: service-reliability
+    statement: Production SLO, RPO, RTO, restore, and soak limits are owner-approved and backed by deployment-specific observation before activation.
+    priority: must
+    owner: Media SRE and runtime operations owner
+    acceptance: no-number-is-claimed-until-service-owner-freezes-target-environment-measurement-and-evidence
+    status: open-owner-decision
+    related: [P0-009, GAP-13]
+openDecisions:
+  - id: NFR-DEC-REF-ENV
+    question: Which supported CPU/GPU/browser/OS/storage/reference environments define the proposed interactive and control-plane budgets?
+    owner: Media performance owner
+    blocks: qualification-of-performance-targets
+  - id: NFR-DEC-LOCALES
+    question: Which UI, speech, subtitle, and voice locale sets are admitted for each release profile?
+    owner: Media product and localization owners
+    blocks: locale-support-claims
+  - id: NFR-DEC-SLO
+    question: Which production SLO, RPO, RTO, and restore/soak objectives are accepted by runtime operations?
+    owner: Media SRE and runtime operations owner
+    blocks: production-activation

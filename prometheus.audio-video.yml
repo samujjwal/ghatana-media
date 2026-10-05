@@ -1,0 +1,97 @@
+# Prometheus Configuration for Audio-Video Platform
+# Scrapes metrics from all 5 Audio-Video services:
+#   STT (port 8090), TTS (8091), Vision (8092), Multimodal (8093), AI-Voice (8095)
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: "audio-video-production"
+    environment: "prod"
+    product: "audio-video"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+rule_files:
+  - "infra/monitoring/alerts/*.yml"
+
+scrape_configs:
+  # STT Service — Java/gRPC, Spring Actuator metrics on port 8090
+  - job_name: "stt-service"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["stt-service:8090"]
+        labels:
+          service: "stt-service"
+          tier: "application"
+          runtime: "jvm"
+          protocol: "grpc"
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: '([^:]+)(?::\d+)?'
+        replacement: "${1}"
+
+  # TTS Service — Java/gRPC, Spring Actuator metrics on port 8091
+  - job_name: "tts-service"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["tts-service:8091"]
+        labels:
+          service: "tts-service"
+          tier: "application"
+          runtime: "jvm"
+          protocol: "grpc"
+
+  # Vision Service — Java/gRPC, Spring Actuator metrics on port 8092
+  - job_name: "vision-service"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["vision-service:8092"]
+        labels:
+          service: "vision-service"
+          tier: "application"
+          runtime: "jvm"
+          protocol: "grpc"
+
+  # Multimodal Service — Java/gRPC, Spring Actuator metrics on port 8093
+  - job_name: "multimodal-service"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["multimodal-service:8093"]
+        labels:
+          service: "multimodal-service"
+          tier: "application"
+          runtime: "jvm"
+          protocol: "grpc"
+
+  # AI Voice Service — Python/gRPC, Prometheus client on port 8095
+  - job_name: "ai-voice-service"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["ai-voice-service:8095"]
+        labels:
+          service: "ai-voice-service"
+          tier: "application"
+          runtime: "python"
+          protocol: "grpc"
+
+  # Node Exporter (system-level metrics)
+  - job_name: "node"
+    static_configs:
+      - targets: ["node-exporter:9100"]
+        labels:
+          service: "node-exporter"
+          tier: "infrastructure"
+
+  # Prometheus Self-Monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+        labels:
+          service: "prometheus"
+          tier: "monitoring"

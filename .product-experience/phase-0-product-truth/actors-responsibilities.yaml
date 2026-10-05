@@ -1,0 +1,303 @@
+schemaVersion: media.actors-responsibilities.v1
+productId: media
+status: proposed-for-phase-0-review
+sourceRefs:
+- master-plan:task-P0-002
+- master-plan:section-2
+- master-plan:section-3
+- master-plan:section-11
+- master-plan:section-14
+- product-truth:P0-001-boundary-slice
+- decision:MDI-001
+interpretation:
+  actorsModel: >-
+    Usage actors identify whose outcomes and responsibilities a requirement
+    serves. They are not authenticated identities, RBAC roles, tenant claims,
+    or grants of permission.
+  responsibilityRolesModel: >-
+    Responsibility roles identify work or review accountability. Assignment
+    to a responsibility role does not itself grant access or authority to
+    execute a consequential action.
+  personaModel: >-
+    Personas describe context, expertise, and goals; they do not confer product
+    permissions or replace the actor and responsibility-role records.
+  authorizationSource: >-
+    Authentication, tenant isolation, action authorization, delegation, and
+    approval authority must come from the applicable trusted identity and
+    policy contracts. This artifact does not define RBAC.
+principals:
+- id: media.principal.human-user
+  kind: human
+  outcome: Complete or review media work appropriate to the person's assigned authority.
+  authorityBoundary: >-
+    Actions are limited by authenticated identity, tenant/project scope,
+    applicable policy, and any required approval; product role labels alone
+    are insufficient.
+- id: media.principal.automation-client
+  kind: machine-client
+  outcome: Submit and inspect declared media work through supported public contracts.
+  authorityBoundary: >-
+    Uses a scoped machine identity and explicit delegated authority; it has no
+    implicit human, administrator, rights, or publication authority.
+- id: media.principal.media-worker
+  kind: product-runtime
+  outcome: Execute only an admitted, authorized, bounded media plan and report truthful results.
+  authorityBoundary: >-
+    A worker acts only on a validated job grant and current policy at effect
+    boundaries; it cannot expand scope, approve its own work, or infer
+    permission from artifact availability.
+- id: media.principal.external-provider
+  kind: external-service
+  outcome: Perform the explicitly contracted provider operation on submitted inputs.
+  authorityBoundary: >-
+    Provider access, processing location, retention, and outputs are bounded
+    by the admitted contract and current policy; provider success does not
+    grant rights, establish quality, or authorize publication.
+actors:
+- id: media.creator
+  principalRef: media.principal.human-user
+  outcome: Turn an idea, brief, or source material into a governed media result.
+  responsibilities:
+  - Express intent and review proposed inputs, constraints, and material tradeoffs.
+  - Supply or select source material only within applicable rights and access policy.
+  - Review and accept outputs where the workflow requires creator acceptance.
+  responsibilityRoleRefs: [media.role.creator]
+  authorityBoundary: >-
+    May initiate only actions authorized for the current identity and project;
+    creation intent is not a license grant, privacy exception, or publication approval.
+- id: media.editor
+  principalRef: media.principal.human-user
+  outcome: Make controlled, reviewable changes while preserving source material and accepted revisions.
+  responsibilities:
+  - Edit through versioned, non-destructive operations.
+  - Review changed regions, timing, quality, and provenance before accepting a revision.
+  responsibilityRoleRefs: [media.role.editor]
+  authorityBoundary: >-
+    Editing authority is limited to the selected project and authorized assets;
+    an edit or local approval does not reverse a completed external publication.
+- id: media.reviewer
+  principalRef: media.principal.human-user
+  outcome: Decide whether an exact version meets its stated review purpose.
+  responsibilities:
+  - Review the version, context, evidence, and requested review criteria.
+  - Record a decision that remains bound to that exact version and purpose.
+  responsibilityRoleRefs: [media.role.reviewer]
+  authorityBoundary: >-
+    Review authority is purpose- and scope-limited. A review does not imply
+    rights clearance, scientific validation, or publication permission unless
+    separately assigned and authorized.
+- id: media.developer-integrator
+  principalRef: media.principal.human-user
+  outcome: Integrate Media through supported contracts and maintain compatible clients and workflows.
+  responsibilities:
+  - Use documented public APIs, SDKs, CLI contracts, and integration boundaries.
+  - Surface contract errors and finality without inventing product state.
+  responsibilityRoleRefs: [media.role.developer-integrator]
+  authorityBoundary: >-
+    Integration access is controlled by credentials and scopes; developer
+    status does not authorize access to customer content or production effects.
+- id: media.automation-client
+  principalRef: media.principal.automation-client
+  outcome: Automate repeatable, declared media workflows with inspectable inputs and outcomes.
+  responsibilities:
+  - Submit bounded requests through the public API/SDK/CLI contract.
+  - Preserve idempotency, cancellation, and unknown-finality semantics.
+  responsibilityRoleRefs: [media.role.automation-client]
+  authorityBoundary: >-
+    Automation inherits only its scoped machine identity and delegated policy;
+    it cannot infer a retry-safe outcome from timeout or lost observation.
+- id: media.operator
+  principalRef: media.principal.human-user
+  outcome: Maintain service operation and help resolve blocked or degraded work safely.
+  responsibilities:
+  - Inspect health, bounded diagnostics, queue/service state, and safe recovery options.
+  - Preserve job, audit, and artifact finality while responding to incidents.
+  responsibilityRoleRefs: [media.role.operator]
+  authorityBoundary: >-
+    Operational access does not grant content rights or permission to alter
+    customer assets, bypass product policy, or claim a job outcome without evidence.
+- id: media.administrator
+  principalRef: media.principal.human-user
+  outcome: Configure approved product and tenant settings within assigned scope.
+  responsibilities:
+  - Apply reviewed configuration and manage scoped identities/settings.
+  - Keep configuration changes auditable and reversible where safe.
+  responsibilityRoleRefs: [media.role.administrator]
+  authorityBoundary: >-
+    Administrative status is scoped and policy-derived; it does not imply
+    unrestricted access to media contents, rights, approval, or external publication.
+- id: media.privacy-rights-reviewer
+  principalRef: media.principal.human-user
+  outcome: Assess whether a processing or lifecycle decision respects privacy, consent, retention, and rights obligations.
+  responsibilities:
+  - Review relevant processing purpose, data flow, consent, rights, retention, and deletion implications.
+  - Identify required approvals or unresolved policy conditions before a consequential effect.
+  responsibilityRoleRefs: [media.role.privacy-rights-reviewer]
+  authorityBoundary: >-
+    Review conclusions are advisory or gating only as defined by an assigned
+    policy/approval contract; review does not invent legal rights or waive policy.
+- id: media.worker
+  principalRef: media.principal.media-worker
+  outcome: Execute the admitted processing step and preserve traceable, bounded results.
+  responsibilities:
+  - Validate its scoped inputs and plan, enforce resource/cancellation bounds, and report outputs and failures.
+  - Preserve provenance and avoid unauthorized side effects.
+  responsibilityRoleRefs: [media.role.worker]
+  authorityBoundary: >-
+    A worker is not a user or approver. It must not widen its plan, silently
+    downgrade quality or policy, or use generic document-intelligence internals.
+- id: media.external-provider
+  principalRef: media.principal.external-provider
+  outcome: Complete only the provider operation requested under an admitted contract.
+  responsibilities:
+  - Return contract-defined result, error, provenance, and execution identity where supported.
+  - Honor the admitted data-processing and execution boundary.
+  responsibilityRoleRefs: [media.role.external-provider]
+  authorityBoundary: >-
+    A provider is not an authority for Media product semantics, rights,
+    quality acceptance, approval, or final external effects.
+- id: media.domain-reviewer
+  principalRef: media.principal.human-user
+  outcome: Review a declared domain model, unit system, assumptions, and fidelity boundary for a specific purpose.
+  responsibilities:
+  - Identify the relevant domain authority and scope for a review.
+  - Assess declared assumptions and evidence only within the assigned domain scope.
+  - Record uncertainty, exclusions, and required owner follow-up.
+  responsibilityRoleRefs:
+  - media.role.domain-reviewer
+  authorityBoundary: The role does not itself grant access or approval. A relevant domain owner must appoint the reviewer
+    and define the evidence basis; no scientific, clinical, pedagogical, legal, or safety conclusion is implied without the
+    applicable owner contract.
+responsibilityRoles:
+- id: media.role.creator
+  category: operational
+  responsibility: Initiate creation intent and review creator-owned choices.
+  grantsPermission: false
+- id: media.role.editor
+  category: operational
+  responsibility: Make and review versioned media edits within assigned scope.
+  grantsPermission: false
+- id: media.role.reviewer
+  category: operational
+  responsibility: Review an exact artifact or project revision for a declared purpose.
+  grantsPermission: false
+- id: media.role.developer-integrator
+  category: operational
+  responsibility: Build and maintain consumers of supported Media contracts.
+  grantsPermission: false
+- id: media.role.automation-client
+  category: operational
+  responsibility: Submit machine-originated work with explicit scope and idempotency.
+  grantsPermission: false
+- id: media.role.operator
+  category: operational
+  responsibility: Operate service health and safe recovery paths.
+  grantsPermission: false
+- id: media.role.administrator
+  category: operational
+  responsibility: Manage approved scoped configuration and identity settings.
+  grantsPermission: false
+- id: media.role.privacy-rights-reviewer
+  category: accountability
+  responsibility: Accountable reviewer for privacy, consent, retention, and rights semantics.
+  appointmentStatus: required-before-affected-acceptance
+  grantsPermission: false
+- id: media.role.worker
+  category: runtime
+  responsibility: Execute a bounded admitted plan and report truthful outcomes.
+  grantsPermission: false
+- id: media.role.external-provider
+  category: external-system
+  responsibility: Perform a contracted provider operation within its admitted boundary.
+  grantsPermission: false
+- id: media.role.product-manager
+  category: accountability
+  responsibility: Accountable owner for product outcomes, scope, and product-level acceptance.
+  appointmentStatus: required-before-affected-acceptance
+  grantsPermission: false
+- id: media.role.ux-architect
+  category: accountability
+  responsibility: Accountable owner for intent clarity, disclosure levels, and interaction semantics.
+  appointmentStatus: required-before-affected-acceptance
+  grantsPermission: false
+- id: media.role.security-privacy-lead
+  category: accountability
+  responsibility: Accountable owner for security boundaries, identity, and privacy controls.
+  appointmentStatus: required-before-affected-acceptance
+  grantsPermission: false
+- id: media.role.media-domain-lead
+  category: accountability
+  responsibility: Accountable owner for Media domain semantics and capability behavior.
+  appointmentStatus: required-before-affected-acceptance
+  grantsPermission: false
+- id: media.role.quality-fidelity-reviewer
+  category: accountability
+  responsibility: Review measurable media-quality claims and qualification boundaries.
+  appointmentStatus: required-before-affected-acceptance
+  grantsPermission: false
+- id: media.role.fidelity-reviewer
+  category: accountability
+  responsibility: Review fidelity, reconstruction disclosure, and simulation/reproducibility claims.
+  appointmentStatus: required-before-affected-acceptance
+  grantsPermission: false
+- id: media.role.accessibility-lead
+  category: accountability
+  responsibility: Review accessible operation, review, and output alternatives.
+  appointmentStatus: required-before-affected-acceptance
+  grantsPermission: false
+- id: media.role.sre
+  category: accountability
+  responsibility: Review operational diagnostics, recovery, deadlines, and runtime failure semantics.
+  appointmentStatus: required-before-affected-acceptance
+  grantsPermission: false
+- id: media.role.platform-owner
+  category: accountability
+  responsibility: Review ecosystem ownership, reuse, and platform-boundary decisions.
+  appointmentStatus: required-before-affected-acceptance
+  grantsPermission: false
+- id: media.role.publication-approver
+  category: accountability
+  responsibility: Approve publication only for the exact output and scope covered by an assigned policy.
+  appointmentStatus: required-before-publication-acceptance
+  grantsPermission: false
+- id: media.role.domain-reviewer
+  category: accountability
+  responsibility: Review domain-specific assumptions, units, and fidelity boundaries within a named owner-approved scope.
+  appointmentStatus: required-before-affected-acceptance; relevant-domain-owner-and-evidence-basis-pending
+  grantsPermission: false
+personas:
+- id: media.persona.independent-creator
+  context: A person creating or improving media for an individual or small-team project.
+  actorRefs: [media.creator, media.editor]
+  typicalGoals: [media.goal.finished-asset, media.goal.preserve-source]
+  permissionImplication: none
+- id: media.persona.educator-or-researcher
+  context: A person preparing explanatory, educational, or research media while retaining domain-specific truth ownership.
+  actorRefs: [media.creator, media.reviewer]
+  typicalGoals: [media.goal.explain-or-demonstrate, media.goal.review-trustworthy-output]
+  permissionImplication: none
+- id: media.persona.campaign-producer
+  context: A person preparing campaign media subject to separate brand, claims, and publication authority.
+  actorRefs: [media.creator, media.editor, media.reviewer]
+  typicalGoals: [media.goal.finished-asset, media.goal.deliver-approved-output]
+  permissionImplication: none
+- id: media.persona.archive-restorer
+  context: A person restoring or improving historical material while distinguishing reconstruction from recovered fact.
+  actorRefs: [media.creator, media.editor, media.reviewer]
+  typicalGoals: [media.goal.preserve-source, media.goal.improve-with-disclosure]
+  permissionImplication: none
+- id: media.persona.integrator
+  context: A developer or operator integrating Media into an existing system or automation.
+  actorRefs: [media.developer-integrator, media.automation-client, media.operator]
+  typicalGoals: [media.goal.integrate-repeatably, media.goal.resolve-safely]
+  permissionImplication: none
+accountability:
+  approvalRoles:
+    privacy: media.role.privacy-rights-reviewer
+    fidelity: media.role.fidelity-reviewer
+    publication: media.role.publication-approver
+  assignmentState: roles-identified-but-human-appointments-not-recorded
+  rule: >-
+    Phase 0 acceptance for affected requirements remains review-required until
+    the accountable human role is appointed and records a decision. A role
+    label alone does not establish that review occurred.

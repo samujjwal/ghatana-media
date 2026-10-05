@@ -1,0 +1,55 @@
+{
+  "name": "@audio-video/types",
+  "version": "0.0.1",
+  "description": "Canonical TypeScript contracts for media artifacts, jobs, providers, and audio-video operations",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./contracts": {
+      "types": "./dist/contracts.d.ts",
+      "import": "./dist/contracts.js"
+    }
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samujjwal/ghatana-media.git",
+    "directory": "libs/audio-video-types"
+  },
+  "keywords": [
+    "typescript",
+    "contracts",
+    "audio",
+    "video",
+    "multimodal",
+    "ghatana"
+  ],
+  "author": "Ghatana Team",
+  "license": "MIT"
+}

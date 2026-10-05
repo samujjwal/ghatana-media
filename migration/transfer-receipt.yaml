@@ -1,0 +1,142 @@
+schemaVersion: media.migration-transfer-receipt.v1
+productId: media
+recordedOn: 2026-10-04
+authority:
+  userRequest: migrate-media-code-and-documents-to-expected-repositories
+  acceptedBoundaryScope: P0-001-migration-specific-boundary-slice
+  supplementalDecision: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+sourceSnapshot:
+  repository: samujjwal/ghatana
+  revision: 245e966591913bc73f59fad9bf43651673b0280e
+  inventory: migration/source-inventory.yaml
+  inventorySha256: a5690700fb575155c72ba2c56e548533924f44debcf0a48522718f87fd411a4d
+target:
+  repository: samujjwal/ghatana-media
+  localBranch: main
+  initialRemoteState: empty-no-advertised-refs
+  worktreeState: uncommitted-local-migration-preparation
+  pushed: false
+  mediaSourceCutover: not-executed
+targetPreparations:
+  - .gitignore added for generated builds, dependency installs, local credentials, and model caches
+  - root README adapted to explain target status, current build limitations, and the accepted Media/Document Intelligence boundary
+  - boundary, P0-001 slice, source/path/consumer inventories, ownership overlay, and plan snapshots added under migration and product-experience documentation
+  - repo-local Gradle wrapper metadata, active Media dependency catalog, and Media-local SpotBugs filter prepared
+  - private pnpm workspace root and the 13 catalog entries used by the four Media TypeScript packages added from the existing Ghatana catalog
+  - target repository and root-relative directory metadata updated in the three published Media client packages without changing their identities or versions
+transfers:
+  - id: TR-MEDIA-COPY
+    source: ghatana/services/media/**
+    destination: ghatana-media/**
+    sourceTrackedPaths: 646
+    copiedPaths: 645
+    intentionallyOmitted:
+      - source: services/media/service-contract.yaml
+        count: 1
+        reason: generated projection; regenerate only after authored source and generator ownership are resolved (GAP-06)
+    documentedDifferences:
+      - destination: README.md
+        sourceBlob: acd3f35df459ff92d7abc8041d3571d16fd7760a
+        targetBlob: 782014aae6442debeb0ea0a411f03a3a8d9496e6
+        change: rewritten as target-repository migration status and ownership guide; runtime documentation links retained
+      - destination: gradle
+        sourceBlob: 1ce6c4c1ed03cee6301225f4ec3e643e03ea7f9a
+        change: source symlink to the Ghatana-wide Gradle directory replaced with target-local wrapper files and a Media dependency catalog
+      - destination: providers/aws-postgresql/build.gradle.kts
+        sourceBlob: 44995e7256ba0b6ef6dcb2a6a2d32fbbfbe63da8
+        targetBlob: 2e070952b8b7dc303bbfc66bc98e4560ac4f627c
+        change: SpotBugs path now points to the target-local Media filter; Data Cloud suppressions were not transferred
+    fingerprintExceptionRegister: migration/transfer-exceptions.yaml
+    workflowCandidates:
+      - migration/candidates/root-media/audio-video-ci.yml
+      - migration/candidates/root-media/gitea-audio-video-ci.yml
+      - migration/candidates/root-media/gitea-audio-video-cd.yml
+  - id: TR-LEGACY-ARCHIVE
+    source: ghatana/archive/media-desktop-apps/**
+    destination: ghatana-media/archive/media-desktop-apps/**
+    paths: 179
+    operation: copied-for-archival-preservation
+    sourceDeleted: false
+    activeCapabilityClaim: false
+    scopeQualification: pending
+  - id: TR-ROOT-CANDIDATES
+    sourceRepository: samujjwal/ghatana
+    destinationRepository: samujjwal/ghatana-media
+    paths: 30
+    includes:
+      mediaWorkflowAndMonitoring: 2
+      conformanceScriptsAndTests: 20
+      evidenceDefinitions: 8
+    operation: copied-to-target-worktree-for-migration-review
+    ownershipAndActivation: pending-domain-tooling-and-evidence-schema-review
+    ciWorkflow:
+      destination: migration/candidates/root-media/audio-video-ci.yml
+      state: quarantined-outside-active-workflow-discovery
+      reason: copied-workflow-targets-obsolete-products-audio-video-paths-and-contains-deployment-steps
+    monitoringRule:
+      destination: monitoring/prometheus/rules/media.yml
+      state: staged-pending-operations-owner-review
+  - id: TR-DOCUMENT-INTELLIGENCE
+    sourceBefore: ghatana/services/media/modules/intelligence/document-intelligence-worker/**
+    sourceAfter: ghatana/services/document-intelligence/**
+    trackedPaths: 1480
+    operation: git-mv-with-worker-relative-layout-preserved
+    scope: Ghatana-platform-service; excluded-from-ghatana-media
+    sourceWorktreeCommit: absent
+    ignoredLocalEnvironmentsAndModelCaches: restored-at-original-ignored-path-and-excluded-from-transfer
+ownerAndConsumerUpdates:
+  ghatana:
+    - root package scripts, workspace, lockfile importer, and CI now reference services/document-intelligence
+    - Media focused check no longer owns the generic Document Intelligence worker checks
+    - relocated TypeScript client removed from Media runtime-service pnpm package list
+    - no runtime registry entry or generated service contract was invented for Document Intelligence
+  ghatana-products:
+    - Media product-extraction policy and in-progress source/target ownership record added
+    - target projection registered as in-progress; implementation remains source-canonical
+  gharbatai:
+    - active consumer build, verifier, authority, test-group, and documentation references rebound to services/document-intelligence
+    - four historical test-sweep ledger references remain unchanged
+  otherOwners:
+    - Shared document-extraction packages remain Shared-owned
+    - Data Cloud and Kernel implementation paths remain with their owners
+    - TutorPutor contract/admission reconciliation remains open
+verification:
+  targetFileTransfer:
+    eligibleSourcePaths: 854
+    matchedSourceBlobAndMode: 811
+    missing: 0
+    documentedDifferences: 43
+    exceptionRegister: migration/transfer-exceptions.yaml
+  focusedChecks:
+    - source inventory and path map parse and reconcile to 2811 records and committed source fingerprints
+    - Gharbatai JSON/YAML, script syntax, package path alignment, and Org API typecheck passed
+    - product-extraction migration tests passed (6/6); Media migration record and authority validators passed
+    - target Gradle catalog aliases, wrapper equality, TOML/XML parsing, and local SpotBugs path checks passed
+    - Media evidence producers resolve to ghatana-media and invoke the target-local ./gradlew with task arguments preserved from the source definitions
+    - Document Intelligence rehome path/dependency/proof-graph and Python syntax checks passed
+  notRunOrBlocked:
+    - frozen pnpm workspace lock validation fails on a pre-existing ghatana-tools/libs/cli-contracts package.json change (ajv and ajv-formats) outside this migration; targeted Media/Document Intelligence workspace and lockfile path alignment assertions pass
+    - target pnpm lockfile-only regeneration could not resolve @ghatana/design-system@0.1.2 offline; an online retry returned npm registry 404 with no authorization header, so pnpm-lock.yaml was restored byte-for-byte and no node_modules were created (GAP-02)
+    - standalone Media Gradle build is blocked by ancestor-based settings, included workspace builds, private/unresolved project dependencies, and missing public artifact/version bindings (GAP-02)
+    - service-contract regeneration is blocked on authored source, overlay, generator, and registry ownership (GAP-06)
+    - Document Intelligence TypeScript client build is blocked because the Shared document-extraction workspace package is not linked in the relocated checkout
+    - Python worker tests could not run because required uv/pytest environment was unavailable
+    - consumer route/DTO/client parity and TutorPutor contract reconciliation remain open (GAP-05)
+    - the runtime-service closure validator does not recognize the relocated service yet; no service contract was fabricated
+    - Media conformance tests passed 20 of 21; the readiness test requires five Data Cloud-owned files absent from this standalone target
+    - product semantic-authority uniqueness validation still reports a pre-existing PHR record inconsistency; unrelated PHR records were not changed
+cutover:
+  status: blocked-pending-required-parity-and-build-gates
+  blockers: [GAP-01, GAP-02, GAP-03, GAP-05, GAP-06, GAP-14, GAP-15, GAP-MEDIA-DI-PUBLIC-CLIENT]
+  releaseOwnerApproval: not-recorded
+  wholeMediaSourceCutover: not-performed
+  runtimeOrDataHandover: not-performed
+  productionDeploymentOrActivation: not-performed
+  phaseWorkResumedByUserDirection: true
+  phaseWorkStatus:
+    P0-001: accepted-migration-boundary-slice
+    P0-002..P0-009: authored-proposals-being-integrated
+    P0-010: pending-independent-semantic-review-and-owner-acceptance
+    P1-001..P1-006: gated-on-P0-010
+    P2-001..P2-008: gated-on-P1-006
+    P3-001..P3-007: gated-on-P2-008

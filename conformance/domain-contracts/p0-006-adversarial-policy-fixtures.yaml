@@ -1,0 +1,313 @@
+fixtureDocumentVersion: media.p0-006.adversarial-policy-fixtures.v1
+phaseTask: P0-006
+status:
+  kind: proposed-adversarial-policy-fixture-specification
+  acceptance: not-submitted
+  execution: not-run
+  runtimeEvidence: none
+  scope: These scenarios specify policy decisions and safe behavior; they do not define implementation APIs, security qualification,
+    or runtime conformance.
+references:
+  policyAuthority: .product-experience/phase-0-product-truth/policy-authority-model.yaml
+  nonfunctionalRequirements: .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+  contentIntent: .product-experience/phase-0-product-truth/content-intent.yaml
+  stateModels: .product-experience/phase-0-product-truth/state-models.yaml
+  specification: docs/migration/expert-reviewed-master-plan.md#p0-006-phase-0
+fixtureRequirements:
+  everyCaseMustSpecify:
+  - attackOrFaultPoint
+  - expectedDecision
+  - expectedEvidence
+  - forbiddenBehavior
+  - safeNextAction
+  stateRefs: Any referenced state is an already-declared state or an explicitly qualified rights/consent dimension in state-models.yaml.
+  statusRule: Specification-only until security/privacy/rights owners review and an implementation owner executes an admitted
+    test.
+fixtures:
+- id: cross-tenant-deduplication-existence-is-not-disclosed
+  initialConditions: A second tenant submits bytes identical to a private artifact owned by the first tenant.
+  attackOrFaultPoint: Compare cache, deduplication, embedding, and lookup behavior across tenant scopes, including response
+    size and timing where observable.
+  expectedDecision: Deny cross-tenant lookup and reuse; provide no existence oracle; preserve tenant-scoped audit evidence
+    without sensitive metric labels.
+  stateRefs: []
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Reject or isolate the request using tenant-scoped identity and policy; expose only a nonrevealing denial.
+  policyRefs:
+  - deny-cross-tenant-access-and-reuse
+  - private-embeddings-never-shared-by-default
+  expectedEvidence:
+  - tenant-scoped-denial-decision
+  - no-cross-tenant-cache-reference-or-embedding-write
+  - no-artifact-existence-or-content-disclosure
+- id: expired-or-revoked-consent-blocks-new-frame-and-provider-dispatch
+  initialConditions: An active stream or queued attempt has consent that expires or is revoked before the next external effect.
+  attackOrFaultPoint: Revocation/expiry races frame admission, attempt claim, and provider dispatch.
+  expectedDecision: Recheck the authoritative consent at each effect boundary; block new frames and dispatch. If an effect
+    may already have crossed the boundary, retain unknown finality and reconcile.
+  stateRefs:
+  - modelId: media-rights-and-consent
+    states:
+    - consent.ACTIVE
+    - consent.REVOKED
+    - consent.EXPIRED
+  - modelId: media-job
+    states:
+    - RUNNING
+    - OUTCOME_UNKNOWN
+    - RECONCILING
+  - modelId: media-attempt
+    states:
+    - DISPATCH_INTENT_RECORDED
+    - DISPATCHED
+    - OUTCOME_UNKNOWN
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Stop unsent work; reconcile already-dispatched work with the stable provider identity and keep outputs access-restricted
+    as policy requires.
+  policyRefs:
+  - consent-is-bound-to-tenant-principal-purpose-region-and-validity
+  - revocation-blocks-new-work-and-frames-at-the-next-enforcement-boundary
+  expectedEvidence:
+  - authoritative-consent-version-and-effect-boundary-check
+  - no-dispatch-record-after-effective-revocation
+  - provider-reconciliation-reference-if-an-effect-may-have-crossed
+- id: prior-stream-consent-can-close-session-but-cannot-reconnect-or-send-frame
+  initialConditions: A stream has prior valid consent for an already-open session, then that consent is revoked.
+  attackOrFaultPoint: The client reconnects after lease loss or attempts to submit a new frame using the prior stream token.
+  expectedDecision: Permit only policy-defined termination/drain behavior; reject reconnect and new frame dispatch until fresh
+    authoritative consent and token scope are verified.
+  stateRefs:
+  - modelId: media-stream-session
+    states:
+    - CONNECTED
+    - DRAINING
+    - CLOSED
+    - FAILED
+  - modelId: media-rights-and-consent
+    states:
+    - consent.REVOKED
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Fence new frames and drain or close using the admitted stop path; require current consent for any new session.
+  policyRefs:
+  - previously-verified-consent-evidence-for-a-stream-can-authorize-termination-only
+  expectedEvidence:
+  - revoked-consent-reference
+  - new-frame-and-reconnect-denial
+  - drain-or-close-finality-record
+- id: archive-path-traversal-symlink-and-decompression-bomb-remain-confined
+  initialConditions: An uploaded archive contains traversal paths, symlinks, nested archives, or extreme decompression ratios.
+  attackOrFaultPoint: The isolated decoder parses entries and attempts to write outside its scratch root or exceed configured
+    budgets.
+  expectedDecision: Reject or quarantine before promoting content; extraction stays confined and resource bounds terminate
+    the operation truthfully.
+  stateRefs:
+  - modelId: media-upload-and-artifact
+    states:
+    - VERIFYING
+    - QUARANTINED
+    - REJECTED
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Keep the artifact unavailable, retain minimal safe diagnostic/audit evidence, and expose a bounded rejection
+    or quarantine disposition.
+  policyRefs:
+  - normalize-filenames-and-confine-archive-extraction-without-escaping-links
+  - bound-decompression-dimensions-duration-frame-count-samples-and-parser-complexity
+  expectedEvidence:
+  - detected-format-and-bounded-extraction-disposition
+  - quarantine-or-rejection-record
+  - evidence-that-no-output-was-promoted-outside-confined-scratch
+- id: user-or-model-url-cannot-reach-private-or-cloud-metadata-endpoints
+  initialConditions: A user-controlled import URL or model-generated URL resolves to loopback, private, link-local, or cloud
+    metadata addresses.
+  attackOrFaultPoint: Redirects, DNS changes, mixed IPv4/IPv6 answers, or alternate schemes attempt to cross the egress boundary.
+  expectedDecision: Deny the request unless a specific destination is admitted; apply scheme, DNS/IP, redirect, response-size,
+    credential, and timeout policy at connection time.
+  stateRefs: []
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Do not fetch; report a policy-safe blocked reason and emit no credentials or raw sensitive URL into low-cardinality
+    telemetry.
+  policyRefs:
+  - enforce-url-scheme-destination-dns-ip-redirect-response-size-and-timeout-policy
+  - block-loopback-private-link-local-and-metadata-service-destinations-unless-explicitly-admitted
+  expectedEvidence:
+  - normalized-destination-policy-decision
+  - connection-time-dns-ip-and-redirect-check-result
+  - no-request-or-credential-forwarding-to-denied-destination
+- id: credentials-never-flow-to-user-supplied-destination
+  initialConditions: A user or model supplies a destination that requests, redirects to, or embeds a platform/provider credential.
+  attackOrFaultPoint: The import, callback, rendering, or delivery adapter attempts to attach ambient credentials to that
+    destination.
+  expectedDecision: Reject the destination and prevent credential forwarding; credential selection remains within owner-approved
+    adapters.
+  stateRefs: []
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Block before network dispatch and record only a bounded security event.
+  policyRefs:
+  - never-forward-service-credentials-to-user-or-model-supplied-destinations
+  expectedEvidence:
+  - destination-and-credential-boundary-denial
+  - no-secret-in-request-or-telemetry
+  - bounded-security-event
+- id: imported-scene-or-generated-script-cannot-execute-outside-admitted-sandbox
+  initialConditions: A project bundle includes a scene script, shader, plugin, or model-generated executable content.
+  attackOrFaultPoint: The content attempts default host execution, filesystem/network access, process creation, or reading
+    another tenant’s data.
+  expectedDecision: Disable execution by default; if a separately admitted sandbox exists, enforce declared capability, resource,
+    and egress bounds and confine outputs.
+  stateRefs:
+  - modelId: media-upload-and-artifact
+    states:
+    - VERIFYING
+    - QUARANTINED
+    - REJECTED
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Keep the project content inert or quarantined; do not provide host secrets or privileged tools.
+  policyRefs:
+  - disable-imported-scene-script-execution-by-default
+  - do-not-run-model-generated-code-on-the-host
+  expectedEvidence:
+  - execution-admission-or-default-disabled-record
+  - sandbox-capability-and-resource-disposition-if-admitted
+  - no-host-secret-or-out-of-scope-write
+- id: untrusted-transcript-or-OCR-cannot-change-policy-or-select-privileged-tool
+  initialConditions: A transcript, OCR result, subtitle, metadata field, or agent request contains instructions to override
+    policy or invoke a privileged tool.
+  attackOrFaultPoint: The content is included in a plan, prompt, or tool-selection context.
+  expectedDecision: Treat extracted text as untrusted data; retain provenance and context, but do not let it alter policy,
+    authority, tenant scope, or privileged tool selection.
+  stateRefs: []
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Present the text as content for an authorized task and require a separately authorized action for any effect.
+  policyRefs:
+  - untrusted-content-cannot-modify-system-policy
+  - untrusted-content-cannot-select-privileged-tools-or-exfiltrate-other-assets
+  expectedEvidence:
+  - source-and-time-or-region-provenance-for-extracted-text
+  - policy-and-tool-selection-derived-only-from-trusted-authority
+  - no-cross-tenant-or-privileged-effect
+- id: audit-intent-failure-blocks-external-effect
+  initialConditions: The required durable audit/effect-intent service is unavailable or rejects a consequential action record.
+  attackOrFaultPoint: A worker is ready to dispatch inference, export, share, or publish, but cannot record the required intent.
+  expectedDecision: Fail closed before crossing the external effect boundary. If evidence is insufficient to prove the effect
+    was unsent, classify finality as unknown and reconcile rather than replay.
+  stateRefs:
+  - modelId: media-attempt
+    states:
+    - CLAIMED
+    - DISPATCH_INTENT_RECORDED
+    - OUTCOME_UNKNOWN
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Do not dispatch while unsent is proven; otherwise preserve uncertainty and reconcile under current policy.
+  policyRefs:
+  - audit-intent-failure-blocks-external-effect
+  - observable-telemetry-may-degrade-only-with-safe-diagnostic-behavior; required-audit-intent-fails-closed
+  expectedEvidence:
+  - required-audit-intent-failure-record
+  - proof-of-no-dispatch-or-outcome-unknown-reconciliation-reference
+  - no-external-effect-when-unsent-is-established
+- id: telemetry-redaction-failure-never-emits-raw-content
+  initialConditions: A telemetry redactor fails while processing an event containing prompts, source text, identifiers, or
+    private media metadata.
+  attackOrFaultPoint: Logging, tracing, and metrics sinks receive an event that cannot be safely minimized or redacted.
+  expectedDecision: Drop or quarantine unsafe telemetry; never fall back to raw content. Keep required protected audit records
+    on their separate owner-governed path.
+  stateRefs: []
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Return safe diagnostic status without exposing source content; do not weaken required audit durability.
+  policyRefs:
+  - 'redactionFailure: drop-or-quarantine-unsafe-telemetry-never-fallback-to-raw-content'
+  expectedEvidence:
+  - redaction-failure-safe-diagnostic
+  - drop-or-quarantine-disposition
+  - separate-required-audit-path-status-without-raw-content
+- id: partial-erasure-remains-visible-through-restore-and-retry
+  initialConditions: An authorized erasure has removed some controlled copies while backups or derivatives remain pending.
+  attackOrFaultPoint: A backup restore or retry races tombstone replay and access/index/dispatch enablement.
+  expectedDecision: Apply the authoritative tombstone before access; maintain ACCESS_REVOKED and PHYSICAL_ERASURE_PENDING
+    until copy-level evidence supports a terminal disposition.
+  stateRefs:
+  - modelId: media-upload-and-artifact
+    states:
+    - ACCESS_REVOKED
+    - PHYSICAL_ERASURE_PENDING
+    - ERASURE_CONFIRMED
+    - EXTERNAL_ERASURE_UNCONFIRMED
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Keep the tombstone, reconcile every controlled copy, and retry only eligible unfinished deletions.
+  policyRefs:
+  - replay-erasure-tombstones-before-restored-data-is-accessible
+  - metadata-hidden-or-key-unavailable-alone-is-not-physical-erasure-confirmation
+  expectedEvidence:
+  - authoritative-erasure-tombstone-and-scope
+  - per-copy-erasure-progress-or-pending-disposition
+  - restore-gate-proof-that-tombstone-replay-precedes-access
+- id: external-delete-without-provider-proof-is-reported-unconfirmed
+  initialConditions: A deletion request was sent to an external recipient/provider but no authoritative deletion receipt is
+    available.
+  attackOrFaultPoint: The remote endpoint times out, returns an ambiguous response, or cannot identify the exact object/version.
+  expectedDecision: Report EXTERNAL_ERASURE_UNCONFIRMED; do not claim remote deletion or recall and do not blind-retry a non-idempotent
+    effect.
+  stateRefs:
+  - modelId: media-upload-and-artifact
+    states:
+    - EXTERNAL_ERASURE_UNCONFIRMED
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Reconcile by stable destination/object identity where supported; keep the external-control boundary explicit.
+  policyRefs:
+  - external-delete-without-provider-proof-is-reported-unconfirmed
+  expectedEvidence:
+  - stable-destination-and-object-version-reference
+  - missing-or-ambiguous-provider-deletion-receipt
+  - EXTERNAL_ERASURE_UNCONFIRMED-disposition
+- id: cancelled-remote-work-remains-uncertain-until-provider-confirmation
+  initialConditions: A client cancels after provider dispatch may have occurred, but no stop/final result is observed.
+  attackOrFaultPoint: Cancellation races a delayed provider success or lost worker lease.
+  expectedDecision: Keep outcome unknown until authoritative provider evidence establishes finality; a cancellation request
+    is not CANCELLED confirmation and cannot trigger blind retry.
+  stateRefs:
+  - modelId: media-job
+    states:
+    - OUTCOME_UNKNOWN
+    - RECONCILING
+    - CANCELLED
+  - modelId: media-attempt
+    states:
+    - DISPATCHED
+    - CANCEL_REQUESTED
+    - CANCEL_CONFIRMED
+    - OUTCOME_UNKNOWN
+  forbiddenBehavior:
+  - Bypass tenant, rights, consent, egress, execution, audit, or finality controls.
+  - Expose sensitive content or assert success/erasure/termination without authoritative evidence.
+  safeNextAction: Reconcile the stable attempt identity, preserve any valid result evidence, and expose the known/unknown
+    effect boundary.
+  policyRefs:
+  - cancelled-remote-work-remains-uncertain-until-provider-confirmation
+  expectedEvidence:
+  - stable-job-and-attempt-identity
+  - cancellation-request-and-provider-stop-or-result-evidence
+  - OUTCOME_UNKNOWN-until-authoritative-finality

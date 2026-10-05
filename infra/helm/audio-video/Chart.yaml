@@ -1,0 +1,13 @@
+apiVersion: v2
+name: audio-video
+description: Ghatana Audio-Video platform Helm chart (STT, TTS, Vision, Multimodal, AI-Voice)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - audio-video
+  - speech
+  - vision
+  - ghatana
+maintainers:
+  - name: Ghatana Platform Team

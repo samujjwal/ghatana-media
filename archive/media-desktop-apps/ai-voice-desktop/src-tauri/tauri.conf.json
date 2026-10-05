@@ -1,0 +1,43 @@
+{
+    "$schema": "https://schema.tauri.app/config/2",
+    "productName": "AI Voice Studio",
+    "version": "0.1.0",
+    "identifier": "com.ghatana.ai-voice",
+    "bundle": {
+        "macOS": {
+            "infoPlist": "Info.plist"
+        }
+    },
+    "build": {
+        "frontendDist": "../dist",
+        "devUrl": "http://localhost:1422",
+        "beforeDevCommand": "pnpm dev",
+        "beforeBuildCommand": "pnpm build"
+    },
+    "app": {
+        "windows": [
+            {
+                "label": "main",
+                "title": "AI Voice Production Studio",
+                "width": 1400,
+                "height": 900,
+                "resizable": true,
+                "fullscreen": false,
+                "minWidth": 1024,
+                "minHeight": 768
+            }
+        ],
+        "security": {
+            "assetProtocol": {
+                "enable": true,
+                "scope": ["$APPDATA/**", "$HOME/**"]
+            },
+            "csp": null
+        }
+    },
+    "plugins": {
+        "shell": {
+            "open": true
+        }
+    }
+}

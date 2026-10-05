@@ -1,0 +1,53 @@
+# =============================================================================
+# AI Voice Service - Multi-stage Dockerfile
+# Python gRPC server for voice cloning/synthesis on port 50055
+# =============================================================================
+
+# ---- Builder: resolve dependencies into a venv ----
+FROM python:3.11-slim-bookworm AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc g++ make libsndfile1-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+COPY products/audio-video/modules/intelligence/ai-voice/requirements.txt ./requirements.txt
+
+RUN python -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
+
+# ---- Runtime stage ----
+FROM python:3.11-slim-bookworm AS runtime
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libsndfile1 curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Non-root user
+RUN groupadd -r aivoice && useradd -r -g aivoice aivoice
+
+WORKDIR /app
+
+# Venv from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Application source
+COPY --chown=aivoice:aivoice \
+    products/audio-video/modules/intelligence/ai-voice/ ./
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:${AI_VOICE_HEALTH_PORT:-8095}/health || exit 1
+
+USER aivoice
+
+EXPOSE 50055 8095
+
+ENV AI_VOICE_GRPC_PORT=50055 \
+    AI_VOICE_HEALTH_PORT=8095 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+ENTRYPOINT ["python", "grpc_server.py"]

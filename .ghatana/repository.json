@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ghatana.dev/schemas/ghatana.repository.v1.schema.json",
+  "schemaVersion": "ghatana.repository.v1",
+  "repositoryId": "ghatana:ghatana-media",
+  "namespace": "ghatana",
+  "name": "ghatana-media",
+  "description": "Standalone Ghatana Media product repository. During behavior-preserving migration, ghatana/services/media remains canonical; generic document intelligence stays with Ghatana's platform services.",
+  "extensions": {
+    "kind": "standalone-product",
+    "sourceRepository": "ghatana",
+    "sourcePath": "services/media",
+    "migrationState": "preparation"
+  }
+}

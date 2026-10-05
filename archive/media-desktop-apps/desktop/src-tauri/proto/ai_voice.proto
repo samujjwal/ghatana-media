@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package ai_voice;
+
+service AIVoiceService {
+    // Process text with AI voice transformation (style transfer, emotion injection, voice cloning).
+    rpc ProcessVoice(VoiceProcessRequest) returns (VoiceProcessResponse);
+    // Stream synthesised audio back in real time.
+    rpc StreamProcessVoice(VoiceProcessRequest) returns (stream AudioChunk);
+    rpc GetStatus(StatusRequest) returns (StatusResponse);
+    rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message VoiceProcessRequest {
+    // Source text to synthesise.
+    string text = 1;
+    // Task identifier, e.g. "synthesize", "clone", "style_transfer", "emotion".
+    string task = 2;
+    // Optional voice ID to use as the target voice model.
+    string voice_id = 3;
+    // Optional emotion hint (e.g. "happy", "sad", "neutral", "angry").
+    string emotion = 4;
+    // Optional speaking rate (0.5 – 2.0; 1.0 = normal).
+    float speaking_rate = 5;
+    // Optional pitch adjust in semitones (–12 to +12; 0 = unchanged).
+    float pitch_semitones = 6;
+}
+
+message VoiceProcessResponse {
+    // Synthesised audio payload (PCM or compressed, depending on server config).
+    bytes audio_data = 1;
+    // Sample rate of the returned audio.
+    int32 sample_rate = 2;
+    // Length of synthesised audio in milliseconds.
+    int64 duration_ms = 3;
+    // Wall-clock processing time in milliseconds.
+    int64 processing_time_ms = 4;
+    // Human-readable summary of what was applied.
+    string applied_task = 5;
+    // Voice model used for synthesis.
+    string voice_used = 6;
+}
+
+message AudioChunk {
+    bytes audio_data = 1;
+    int32 sample_rate = 2;
+    int64 timestamp_ms = 3;
+    bool is_final = 4;
+}
+
+message StatusRequest {}
+
+message StatusResponse {
+    string state = 1;
+    string active_voice = 2;
+    int32 active_sessions = 3;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+    bool healthy = 1;
+    string version = 2;
+}

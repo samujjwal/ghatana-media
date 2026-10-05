@@ -1,0 +1,388 @@
+# =============================================================================
+# Audio-Video Product Suite - CI/CD Pipeline
+# =============================================================================
+name: Audio-Video CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'products/audio-video/**'
+      - 'libs/java/observability/**'
+      - 'libs/java/ai-integration/**'
+      - '.github/workflows/audio-video-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'products/audio-video/**'
+      - 'libs/java/observability/**'
+      - 'libs/java/ai-integration/**'
+
+env:
+  JAVA_VERSION: '21'
+  GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true'
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/audio-video
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Build and Test - STT Service
+  # ---------------------------------------------------------------------------
+  build-stt:
+    name: Build STT Service
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build common library
+        run: |
+          ./gradlew :products:audio-video:libs:common:build \
+            --no-daemon \
+            -x checkstyleMain \
+            -x checkstyleTest
+
+      - name: Build STT Service
+        run: |
+          ./gradlew :products:audio-video:modules:speech:stt-service:build \
+            --no-daemon \
+            -x checkstyleMain \
+            -x checkstyleTest
+
+      - name: Run STT Tests
+        run: |
+          ./gradlew :products:audio-video:modules:speech:stt-service:test \
+            --no-daemon
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stt-test-results
+          path: products/audio-video/modules/speech/stt-service/build/reports/tests/
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stt-coverage
+          path: products/audio-video/modules/speech/stt-service/build/reports/jacoco/
+
+  # ---------------------------------------------------------------------------
+  # Build and Test - TTS Service
+  # ---------------------------------------------------------------------------
+  build-tts:
+    name: Build TTS Service
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build TTS Service
+        run: |
+          ./gradlew :products:audio-video:modules:speech:tts-service:build \
+            --no-daemon \
+            -x checkstyleMain \
+            -x checkstyleTest
+
+      - name: Run TTS Tests
+        run: |
+          ./gradlew :products:audio-video:modules:speech:tts-service:test \
+            --no-daemon
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tts-test-results
+          path: products/audio-video/modules/speech/tts-service/build/reports/tests/
+
+  # ---------------------------------------------------------------------------
+  # Build and Test - Vision Service (AV-001)
+  # ---------------------------------------------------------------------------
+  build-vision:
+    name: Build Vision Service
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build Vision Service
+        run: |
+          ./gradlew :products:audio-video:modules:vision:vision-service:build \
+            --no-daemon \
+            -x checkstyleMain \
+            -x checkstyleTest
+
+      - name: Run Vision Tests
+        run: |
+          ./gradlew :products:audio-video:modules:vision:vision-service:test \
+            --no-daemon
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vision-test-results
+          path: products/audio-video/modules/vision/vision-service/build/reports/tests/
+
+  # ---------------------------------------------------------------------------
+  # Build and Test - Multimodal Service (AV-001)
+  # ---------------------------------------------------------------------------
+  build-multimodal:
+    name: Build Multimodal Service
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build Multimodal Service
+        run: |
+          ./gradlew :products:audio-video:modules:intelligence:multimodal-service:build \
+            --no-daemon \
+            -x checkstyleMain \
+            -x checkstyleTest
+
+      - name: Run Multimodal Tests
+        run: |
+          ./gradlew :products:audio-video:modules:intelligence:multimodal-service:test \
+            --no-daemon
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: multimodal-test-results
+          path: products/audio-video/modules/intelligence/multimodal-service/build/reports/tests/
+
+  # ---------------------------------------------------------------------------
+  # Security Scanning
+  # ---------------------------------------------------------------------------
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: [build-stt, build-tts, build-vision, build-multimodal]
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'products/audio-video'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # ---------------------------------------------------------------------------
+  # Build Docker Images
+  # ---------------------------------------------------------------------------
+  build-docker:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [build-stt, build-tts, build-vision, build-multimodal, security-scan]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        service: [stt, tts, vision, multimodal]
+        include:
+          - service: stt
+            dockerfile: products/audio-video/docker/Dockerfile.stt-service
+            image: stt-service
+          - service: tts
+            dockerfile: products/audio-video/docker/Dockerfile.tts-service
+            image: tts-service
+          - service: vision
+            dockerfile: products/audio-video/docker/Dockerfile.vision-service
+            image: vision-service
+          - service: multimodal
+            dockerfile: products/audio-video/docker/Dockerfile.multimodal-service
+            image: multimodal-service
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.image }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          target: runtime-cpu
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ---------------------------------------------------------------------------
+  # Integration Tests (AV-003: Removed continue-on-error)
+  # ---------------------------------------------------------------------------
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [build-docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Run Integration Tests
+        run: |
+          ./gradlew :products:audio-video:modules:integration-tests:integrationTest \
+            --no-daemon \
+            -Dredis.host=localhost \
+            -Dredis.port=6379
+
+      - name: Upload Integration Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: '**/build/reports/tests/integrationTest/'
+
+  # ---------------------------------------------------------------------------
+  # Deploy to Staging
+  # ---------------------------------------------------------------------------
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: staging
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f products/audio-video/infra/kubernetes/stt-configmap.yaml
+          kubectl apply -f products/audio-video/infra/kubernetes/stt-deployment.yaml
+          kubectl apply -f products/audio-video/infra/kubernetes/tts-deployment.yaml
+          kubectl rollout status deployment/stt-service -n audio-video --timeout=300s
+          kubectl rollout status deployment/tts-service -n audio-video --timeout=300s
+
+      - name: Verify Deployment
+        run: |
+          kubectl get pods -n audio-video
+          kubectl get services -n audio-video

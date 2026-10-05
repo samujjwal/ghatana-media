@@ -1,0 +1,269 @@
+artifactVersion: media.phase-0.time-units-fidelity.v1
+phaseTask: P0-004
+status:
+  maturity: proposal-with-source-observations
+  acceptance: not-submitted
+  ownerReview: pending
+  implementation: no-conversions-are-qualified-by-this-file
+  statement: >-
+    Proposed Media rules below are not current API guarantees. Existing field
+    names and semantics remain compatibility-bound until an approved,
+    versioned adapter or schema change is implemented and verified.
+
+sourceBasis:
+  media:
+    repository: samujjwal/ghatana
+    revision: 245e966591913bc73f59fad9bf43651673b0280e
+    observations:
+      - path: services/media/libs/audio-video-types/src/index.ts
+        evidence: >-
+          AudioData and VideoData use durationMs; audio uses sampleRate,
+          channels, and bitsPerSample; video uses numeric fps, width, and
+          height. WordTimestamp start/end omit a unit in the interface.
+      - path: services/media/libs/audio-video-types/src/index.ts
+        evidence: >-
+          DEFAULT_AUDIO_FORMAT sets 16000 Hz for the STT input default; that
+          is not a universal audio-mastering format. Media fixtures cover
+          22050, 44100, and 48000 Hz as well.
+      - path: services/media/modules/speech/stt-service/src/main/proto/stt_service.proto
+        evidence: >-
+          AudioChunk/Transcription timestamp_ms and WordTiming start_ms/end_ms
+          are integer millisecond wire fields; sample_rate is a separate field.
+      - path: services/media/modules/speech/tts-service/src/main/proto/tts_service.proto
+        evidence: >-
+          SynthesizeResponse and AudioChunk expose sample_rate and duration_ms
+          or timestamp_ms as separately named fields.
+      - path: services/media/modules/vision/vision-service/src/main/proto/vision_service.proto
+        evidence: >-
+          Video-frame requests/results and sampled video outputs use
+          timestamp_ms and video_duration_ms; sample_fps is an integer field.
+      - path: services/media/runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+        evidence: >-
+          Job, artifact, consent, and stream lifecycle times use java.time.Instant;
+          operation bounds and stream lease lengths use java.time.Duration.
+      - path: services/media/test-fixtures/media-contract-fixtures.json
+        evidence: >-
+          Existing examples mix seconds, milliseconds, integer fps, sample
+          rates, dimensions, and provider-specific profiles; these fixtures
+          are not a universal mastering contract.
+  tutorputor:
+    repository: samujjwal/ghatana-products
+    revision: ca6a6d5fe88ffd2e2d19a83d2069c678c5044716
+    ownership: TutorPutor; values are compatibility evidence, not Media-owned schemas
+    observations:
+      - path: products/tutorputor/contracts/v1/simulation/types.ts
+        evidence: >-
+          Legacy SimKeyframe.timestamp is numeric without a declared unit;
+          PhysicsMetadata.units are optional; timeScale, EconomicsMetadata
+          timeStep/simulationDuration, and domain-specific timeScale fields
+          are not one common typed clock. Sampling rate is documented as
+          keyframes per second.
+      - path: products/tutorputor/libs/tutorputor-simulation/src/physics/types/entities.ts
+        evidence: >-
+          Legacy PhysicsEntity x/y are canvas coordinates and rotation is in
+          degrees; mass is documented in kilograms and angular velocity in
+          radians per second.
+      - path: products/tutorputor/contracts/v1/experience/runtime.ts
+        evidence: >-
+          AEF RuntimeCommand uses deltaMs, while RuntimeClocks tSim, tStory,
+          and wallStartedAt are numbers without units in the TypeScript shape.
+      - path: products/tutorputor/contracts/v1/experience/scene-ir.ts
+        evidence: >-
+          AEF legacy TimelineSegment durationMs is an integer; its v1.1
+          TimelineTrack keyframe atMs is numeric.
+      - path: products/tutorputor/contracts/v1/experience/scientific.ts
+        evidence: >-
+          The AEF scientific helper requires unit-bearing quantities and a
+          timeUnit plus FIXED/EVENT_DRIVEN/IRREGULAR sampling declaration for
+          scientific time series.
+      - path: products/tutorputor/contracts/v1/experience/fidelity.ts
+        evidence: >-
+          AEF owns F0-F4 fidelity tiers and EXACT, TOLERANCE_BOUND,
+          DISTRIBUTION_BOUND, NON_REPLAYABLE_EXTERNAL determinism labels.
+
+timeRepresentationProposal:
+  evidence: proposed-media-contract
+  canonicalInternalForm:
+    rationalTime:
+      shape: { value: integer_ticks, timescale: positive_ticks_per_second }
+      meaning: Exact rational seconds value/timescale; do not accumulate floating-point milliseconds.
+      example: { value: 1001, timescale: 24000 }
+    rationalRate:
+      shape: { numerator: positive_integer, denominator: positive_integer }
+      meaning: Exact count per second, such as frames/second or samples/second.
+      example: { numerator: 24000, denominator: 1001 }
+  interval:
+    proposedRule: Half-open interval [start, end); start is included and end excluded.
+    duration: Exact rational subtraction of endpoints; a timestamp is not a duration.
+  integerDomains:
+    - frame indices are non-negative integers tied to a declared source or output frame-rate/time map.
+    - audio sample indices are non-negative integers tied to the declared sample rate and channel/sample format.
+    - protocol sequence numbers are not timestamps.
+  frameNumbering:
+    proposedRule: New Media-native frame/sample index contracts start at zero and state this explicitly.
+    compatibilityRule: Existing APIs/protobufs are not reinterpreted; an adapter must record the legacy indexing convention or mark it unresolved.
+  rounding:
+    exactPath: Preserve rational values where the destination supports them.
+    intervalToDiscreteSamplesOrFrames: FLOOR_START_CEIL_END; retain the source interval and record the mapping policy.
+    pointToIntegerTickWhenExactConversionIsImpossible: ROUND_NEAREST_TIES_TO_EVEN, explicitly recorded with the conversion profile.
+    omittedPolicy: Reject conversion or return an explicit unresolved/loss result; never silently truncate or round.
+    status: proposed-and-unverified
+
+separateClocks:
+  - id: media_presentation_time
+    meaning: Presentation position in the admitted output/edit timeline.
+    unit: rational seconds or integer output frames/samples.
+    evidence: Media currently exposes milliseconds/duration and numeric fps on several compatibility surfaces.
+  - id: source_decode_and_presentation_timestamps
+    meaning: Container/decoder timestamps for source samples or frames, including discontinuities and variable-frame-rate inputs.
+    unit: Original time base plus integer PTS/DTS; preserve stream identity and mapping.
+    evidence: Current Media protobuf projections expose millisecond timestamps but no general rational VFR timestamp map was found.
+  - id: audio_sample_time
+    meaning: Sample index in one identified audio stream.
+    unit: integer sample index plus samples-per-second rational rate.
+    requiredMetadata: [sampleRate, sampleFormat, channelLayout, sampleCount, encoderPriming, encoderPadding]
+  - id: t_sim
+    meaning: Domain model or physical simulation time.
+    unit: Explicit domain unit; seconds is the proposed native unit only when the domain model permits SI seconds.
+    coupling: Story pause/scrub does not advance t_sim unless an explicit, bounded model command says so.
+  - id: t_story
+    meaning: Explanation, animation, or editorial presentation time.
+    unit: Rational seconds or an exact frame/sample position.
+    coupling: Pausing or seeking story time does not change model state unless a declared timeline action dispatches a model command.
+  - id: wall_clock_deadline
+    meaning: Operational deadline or lifecycle instant, separate from media and simulation timelines.
+    unit: Absolute wall-clock Instant for a deadline; Duration for a timeout/lease interval; monotonic elapsed time for durations measured inside a process.
+    evidence: Existing Media Java runtime uses Instant and Duration for these purposes.
+
+conversionRequirements:
+  - Each conversion names source clock/time base, destination clock/rate, origin, and rounding/interval policy.
+  - Frame/sample mapping is based on the exact rational source rate and PTS map, not a rounded fps label.
+  - At 24000/1001 fps, do not replace the source rate with 24 fps without creating a new normalized artifact and recording drift/loss.
+  - VFR imports retain a presentation-time map or create a separately identified normalized artifact with an explicit conversion report.
+  - Preserve sample count, encoder priming/padding, stream discontinuities, and measured drift where available.
+  - Drop-frame timecode support, interpretation, and round-trip behavior are unverified; timecode is never inferred from elapsed duration.
+  - Distinguish frameCount/rate duration from (frameCount - 1)/rate last-frame presentation timestamp; use the admitted container/model contract to interpret endpoints.
+
+unitAndCoordinateProposal:
+  status: proposed-by-master-plan; validation-against-admitted-scene-model-contracts-pending
+  physicalUnits:
+    initialNativeConvention: { length: m, time: s, mass: kg, angle: rad }
+    requirement: Quantitative physical/model parameters and outputs carry dimensioned quantities; unitless physical core inputs are invalid.
+    vocabulary: No unit registry or identifier syntax is selected by this artifact; unit vocabulary and conversion authority need owner approval.
+  sceneCoordinates:
+    handedness: right-handed
+    upAxis: +Y
+    cameraForward: -Z
+    localTransformOrder: T-times-R-times-S
+    worldTransformOrder: parentWorld-times-local
+    vectors: column-vectors
+    matrixSerialization: column-major
+    quaternionComponentOrder: [x, y, z, w]
+    pivots: explicit transforms; never hidden engine defaults
+    status: Proposed initial Media convention from master-plan section 8.3; not verified against an admitted Media scene/model contract.
+  imageSpace:
+    origin: top-left
+    coordinates: pixel centers
+    normalizedCoordinates: mapping and reference dimensions must be explicit
+    existingBoundingBoxCaveat: Current Media and TutorPutor x/y/width/height interfaces do not consistently declare coordinate units/origin; preserve and qualify by adapter.
+  dimensionalValidation:
+    - Every quantitative parameter declares dimension/unit or is explicitly dimensionless.
+    - Add/subtract/compare requires compatible dimensions; multiplication/division derives dimensions.
+    - Unit conversion is explicit and tested; no silent degree/radian, axis, scale, or pixel/world conversion.
+    - Visual values such as pixel coordinates, opacity, color, layout, or easing are not physical model state by default.
+
+imageColorAudioDescriptors:
+  imageAndVideo:
+    evidence: proposed-media-contract
+    captureWhenKnown:
+      - width and height in pixels
+      - pixel aspect ratio
+      - orientation
+      - clean aperture when used
+      - exact frame rate and source/output time map
+      - bit depth and chroma subsampling
+      - range, color primaries, transfer function, and matrix coefficients
+      - alpha mode and relevant HDR metadata
+      - color configuration/LUT identity and version when used
+    unknownPolicy: Preserve unknown or absent metadata as unknown; do not invent a default color space, alpha mode, orientation, or aspect ratio.
+    processingRules:
+      - State whether processing is display-referred or scene-referred.
+      - Premultiply/unpremultiply is an explicit conversion step and must preserve alpha where required.
+      - Requested display aspect ratio, model-native dimensions, and final crop/pad/scale are distinct plan fields.
+  audio:
+    evidence: proposed-media-contract
+    captureWhenKnown:
+      - codec and container
+      - sample format, sample rate, channel count and layout
+      - exact duration and sample count
+      - loudness and true-peak measurements when available
+      - encoder delay and padding
+    defaultPolicy: Provider/STT defaults do not define universal mastering output; select output targets through an admitted profile.
+  status: Descriptor coverage is proposed; existing Media contracts and fixtures do not demonstrate complete capture or color/alpha round-trip.
+
+simulationAndFidelity:
+  stateSeparation:
+    - Model/physical state owns equations or an authoritative model reference, state, quantities, units, initial and boundary conditions, and validity domain.
+    - Scene state owns renderable visual entities/assets/transforms/materials/camera/light/style and bindings to model state or observables.
+    - Animation owns presentation tracks and controls; an explicit bridge assigns ownership for any property also affected by simulation.
+    - Scene meshes and collision geometry are separately identified; a rendered shape is not evidence of physics geometry.
+  solverRecordRequirements:
+    - Identify equations, constraints, or an authoritative domain model reference.
+    - Record solver type and version, fixed/adaptive step policy, tolerances and integration policy when applicable.
+    - Record collision representation, mass/inertia/material parameters, initial/boundary conditions, and sampling contract when applicable.
+    - A quantitative/scientific claim requires validity range and named validation/reference cases; omitted requirements keep the result unverified or illustrative.
+  domainFidelity:
+    principle: Scientific/model fidelity is separate from visual quality and visual level of detail.
+    ownerRule: Preserve domain-owner tier identifiers and semantics through a reviewed mapping; do not mint a Media alias for TutorPutor F0-F4.
+    tutorputorBoundary: TutorPutor owns AEF F0-F4; mapping and adapter acceptance are pending with that owner.
+  replayClasses:
+    classes:
+      - class: EXACT_ENVIRONMENT
+        permittedClaim: Same declared engine/model/runtime/hardware/configuration/assets/seed yields identical declared output representation within the explicitly qualified envelope.
+        mustRecord: [engine, model, runtime, hardware, configuration, assets, seed, outputRepresentation, qualificationEvidence]
+      - class: TOLERANCE_BOUND
+        permittedClaim: Numeric, geometric, perceptual, or timing deviations satisfy named metrics and tolerances over the stated scope.
+        mustRecord: [metrics, tolerances, scope, measurementMethod]
+      - class: STATISTICAL
+        permittedClaim: Repeated output follows the specified distribution/quality protocol; a seed alone does not promise identical output.
+        mustRecord: [protocol, sampleCount, metrics, acceptanceBounds, seedPolicy]
+      - class: REPLAY_UNAVAILABLE
+        permittedClaim: Capture source/output and execution provenance only; do not advertise replay.
+        mustRecord: [sourceRefs, outputRefs, executionProvenance, unavailableReason]
+    default: If not qualified, exact GPU/solver/output replay is not claimed; use REPLAY_UNAVAILABLE or leave fidelity unresolved.
+  conversionDisposition:
+    proposedReportFields: [sourceContract, sourceVersion, targetContract, targetVersion, supportedSubset, transform, roundingPolicy, lossClass, lossDetails, acceptanceDisposition, fixtureRefs]
+    lossClasses:
+      - EXACT
+      - TOLERANCE_BOUNDED
+      - LOSSY
+      - NON_INVERTIBLE
+      - UNSUPPORTED
+      - UNVERIFIED
+    policy: A lossy conversion requires explicit user/policy disposition; unsupported features fail clearly rather than flattening silently.
+    status: Proposed reporting vocabulary; no Media interchange adapter is claimed as qualified.
+
+unverifiedConversions:
+  - source: Legacy millisecond protobuf timestamps
+    target: Exact rational PTS/sample/frame clocks
+    blocker: Existing fields may already have rounded or discarded source time-base information.
+  - source: Numeric fps and durationMs client types
+    target: Rational rate and frame/sample mapping
+    blocker: No universal rounding, frame-index origin, VFR, or container mapping is encoded by the current interface.
+  - source: TutorPutor legacy renderer-shaped Simulation Manifest/USP
+    target: TutorPutor AEF Model IR/Scene IR or a Media-owned render adapter
+    blocker: Owner-approved adapter, unit inference policy, dimensional fixtures, and round-trip qualification are absent.
+  - source: Proposed right-handed Media scene convention
+    target: Existing admitted 2D/3D engine contracts
+    blocker: No Media-native scene/model contract was found in the inventoried service tree; source-engine convention survey and conversion tests remain pending.
+  - source: Encoded color/alpha metadata and values
+    target: Any color transform, compositing operation, or interchange format
+    blocker: Current Media types do not establish primaries/transfer/matrix/range/alpha semantics or a qualified transform chain.
+  - source: Solver/model execution
+    target: EXACT_ENVIRONMENT or TOLERANCE_BOUND replay claim
+    blocker: No qualified model-specific solver envelope or fidelity evidence is established by this artifact.
+
+fixtureSpecification:
+  path: conformance/domain-contracts/p0-004-golden-fixtures.yaml
+  status: examples-and-expected-rules-only
+  executionStatus: not-executed-against-runtime-adapters

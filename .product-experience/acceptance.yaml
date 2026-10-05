@@ -1,0 +1,199 @@
+schemaVersion: media.product-acceptance-inputs.v1
+productId: media
+mode: authored-human-review-inputs-only
+artifactPathBase: repository-root-relative
+sourceRefs:
+  - master-plan:section-18.3
+  - master-plan:task-P0-010
+  - master-plan:section-5.2
+  - source-manifest:phaseScope
+acceptanceAuthority:
+  principle: >-
+    These records collect scope, required human approvals, and evidence inputs.
+    They do not calculate acceptance. Acceptance results and currentness must
+    come from an owner-approved validation workflow after its schema binding is
+    established.
+  editableDecisionState: human-review-inputs-only
+  independentReviewRequiredForFullPhase0: P0-010
+  schemaAndValidatorBinding: pending
+  blockerRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+  currentnessGenerationGapRef: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+recordedHumanDecisionInputs:
+  - id: ACCEPT-INPUT-P0-001
+    phaseTask: P0-001
+    decisionInput: accepted
+    acceptedScope:
+      - Media product identity and bounded repository/product boundary
+      - Initial ownership split, including the MDI-001 supplemental decision
+      - Named consumer and compatibility commitments in the boundary record
+      - Authority-transfer conditions and the rule that migration preparation is not cutover
+    evidenceRefs:
+      - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+      - BOUNDARY.md
+      - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+      - docs/migration/decisions/document-intelligence-ownership-instruction.md
+    sourceOfDecision: explicit-user-approval-of-the-minimal-P0-001-boundary-slice
+    decisionDate: '2026-10-04'
+    exclusions:
+      - Full Phase 0 Product Truth acceptance
+      - Runtime implementation, qualification, licensing, or availability
+      - Source cutover, runtime/data handover, production deployment, or release readiness
+      - Acceptance of P0-002 through P0-010 or any later phase
+phaseAcceptanceInputs:
+  - id: ACCEPT-INPUT-P0-002
+    phaseTask: P0-002
+    decisionInput: pending-no-acceptance-recorded
+    artifactRefs:
+      - .product-experience/phase-0-product-truth/constitution.yaml
+      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/glossary.yaml
+    requiredReviewRoles:
+      - media-product-manager
+      - media-UX-architect
+      - security-privacy-reviewer-for-privacy-meaning
+      - fidelity-reviewer-for-fidelity-meaning
+      - publication-approver-for-publication-meaning
+    requiredEvidenceInputs:
+      - Confirm each constitutional invariant has an accountable owner and acceptance owner.
+      - Confirm every actor has an outcome and authority boundary; responsibility roles are not RBAC grants.
+      - Confirm outcomes, intents, first-use behavior, disclosure levels, scope, non-goals, and term distinctions.
+      - Record appointments and review decisions for privacy/rights, fidelity, and publication roles.
+    decisionOwnerAppointments: pending
+  - id: ACCEPT-INPUT-P0-003
+    phaseTask: P0-003
+    decisionInput: pending-no-acceptance-recorded
+    artifactRefs:
+      - .product-experience/phase-0-product-truth/capabilities.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+    requiredReviewRoles: [media-domain-lead, capability-specialists, relevant-domain-owners]
+    requiredEvidenceInputs:
+      - Reconcile every named capability source to a finite leaf, alias, or justified disposition.
+      - Resolve requirement/capability/actor/state/acceptance references and full-scope coverage.
+      - Appoint the domain-reviewer role and define its evidence scope before accepting the affected spatial, simulation, simulation-output, or recipe-template leaves.
+      - Keep implementation, license, qualification, and runtime availability separate.
+    decisionOwnerAppointments: pending
+  - id: ACCEPT-INPUT-P0-004
+    phaseTask: P0-004
+    decisionInput: pending-no-acceptance-recorded
+    artifactRefs:
+      - .product-experience/phase-0-product-truth/domain-model.yaml
+      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+    requiredReviewRoles: [media-architect, graphics-specialist, audio-specialist, simulation-specialist, relevant-domain-owners]
+    requiredEvidenceInputs:
+      - Review proposed records, rational time, units, coordinates, clocks, fidelity, replay classes, and conversion-loss behavior.
+      - Validate conventions against admitted owner contracts and record owner-approved mappings or unresolved gaps.
+      - Review the task's golden temporal/coordinate/color examples and dimensional negative cases when authored.
+    decisionOwnerAppointments: pending
+  - id: ACCEPT-INPUT-P0-005
+    phaseTask: P0-005
+    decisionInput: pending-no-acceptance-recorded
+    artifactRefs:
+      - .product-experience/phase-0-product-truth/state-models.yaml
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+    requiredReviewRoles: [distributed-systems-lead, security-and-privacy-owner, relevant-platform-contract-owners]
+    requiredEvidenceInputs:
+      - Review lifecycle states, guards, durable identity, retries, reconciliation, cancellation, and finality.
+      - Confirm every reachable state has legal transitions and safe recovery semantics.
+      - Review duplicate-command and commit-boundary verification evidence before acceptance.
+    decisionOwnerAppointments: pending
+  - id: ACCEPT-INPUT-P0-006
+    phaseTask: P0-006
+    decisionInput: pending-no-acceptance-recorded
+    artifactRefs:
+      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+      - .product-experience/phase-0-product-truth/content-intent.yaml
+      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+    requiredReviewRoles: [security-privacy-engineer, rights-owner, platform-owners-for-shared-primitives]
+    requiredEvidenceInputs:
+      - Review data classes, access/effect boundaries, consent, retention, erasure, rights, telemetry, and local/private axes.
+      - Confirm every consequential effect has authority, policy, and fail behavior.
+      - Review adversarial cases for isolation, SSRF, untrusted content/tools, revoked consent, restore, and audit failure.
+    decisionOwnerAppointments: pending
+  - id: ACCEPT-INPUT-P0-007
+    phaseTask: P0-007
+    decisionInput: pending-no-acceptance-recorded
+    artifactRefs:
+      - .product-experience/phase-0-product-truth/profile-semantics.yaml
+      - .product-experience/phase-0-product-truth/quality-policy.yaml
+      - .product-experience/phase-0-product-truth/qualification-policy.yaml
+    requiredReviewRoles: [media-quality-lead, AI-ML-lead, quality-domain-specialists, privacy-rights-owner-for-identity-metrics]
+    requiredEvidenceInputs:
+      - Confirm profile axes remain orthogonal and fallback permissions are explicit and bounded.
+      - Confirm dimensions, applicability, abstention, calibration needs, uncertainty, and protected properties are scoped.
+      - Define specialist-approved budgets/floors before any optimization is admitted.
+      - Review negative fixtures for OOM downgrade, misleading upscaling, unsupported repair, wrong metric domain, no improvement, and exhausted budget.
+    decisionOwnerAppointments: pending
+  - id: ACCEPT-INPUT-P0-008
+    phaseTask: P0-008
+    decisionInput: pending-no-acceptance-recorded
+    artifactRefs:
+      - .product-experience/phase-0-product-truth/dependency-contracts.yaml
+      - .product-experience/phase-0-product-truth/reuse-decisions.yaml
+      - .product-experience/gaps.yaml
+    requiredReviewRoles: [ecosystem-architect, capability-owners, external-public-contract-owners]
+    requiredEvidenceInputs:
+      - Resolve each dependency edge to a public contract, owner, version/availability, error/finality mapping, and test.
+      - Review owner-approved reuse, extraction, or integration decisions and the remaining gaps.
+      - Confirm there are no product-source imports or fabricated external interfaces.
+    decisionOwnerAppointments: pending
+  - id: ACCEPT-INPUT-P0-009
+    phaseTask: P0-009
+    decisionInput: pending-no-acceptance-recorded
+    artifactRefs:
+      - .product-experience/phase-0-product-truth/information-architecture.yaml
+      - .product-experience/phase-0-product-truth/applications-channels.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+    requiredReviewRoles: [UX-accessibility-lead, SRE, localization-and-channel-owners]
+    requiredEvidenceInputs:
+      - Map each admitted outcome to a journey, channel, important non-happy path, and accessibility disposition.
+      - Separate proposed workload/SLO budgets from measured values and deployment commitments.
+      - Review the authored handoff boundary register, complete owner contract bindings, and review first-use, offline, unavailable-capability, and recovery behavior.
+    decisionOwnerAppointments: pending
+  - id: ACCEPT-INPUT-P0-010
+    phaseTask: P0-010
+    decisionInput: pending-independent-review-not-executed
+    artifactRefs:
+      - .product-experience/traceability.yaml
+      - .product-experience/authority-map.yaml
+      - .product-experience/acceptance.yaml
+      - .product-experience/currentness.yaml
+    requiredReviewRoles: [independent-product-definition-reviewer]
+    requiredEvidenceInputs:
+      - Independently walk all Phase 0 outcomes, capabilities, actors, states, authorities, failures, and dependencies.
+      - Validate owner-bound schemas, IDs, aliases, references, source roles, and semantic invariants.
+      - Reconcile competing documentation at the owning layer and record accepted material fingerprints.
+      - Obtain generated Phase 0 coverage/currentness observations from the owner-approved Tools workflow.
+      - Record unresolved runtime and external-owner gaps without treating them as product-definition acceptance blockers unless meaning is unresolved.
+    decisionOwnerAppointments: pending
+laterPhaseAcceptanceInputs:
+  - id: ACCEPT-INPUT-P1
+    phase: P1
+    decisionInput: pending-prerequisite-P0-010
+    prerequisite: independent-Phase-0-acceptance
+  - id: ACCEPT-INPUT-P2
+    phase: P2
+    decisionInput: pending-prerequisite-P1-006
+    prerequisite: accepted-Phase-1-design-language
+  - id: ACCEPT-INPUT-P3
+    phase: P3
+    decisionInput: pending-prerequisite-P2-008
+    prerequisite: accepted-Phase-2-product-experience
+generatedResults:
+  storedInThisFile: false
+  currentness:
+    expectedPath: .product-experience/currentness.yaml
+    status: not-generated; artifact-not-created
+    rule: Generated observation only; never hand-maintained readiness.
+  phaseAcceptance:
+    status: no-owner-approved-validator-bound
+    rule: This file contains inputs and human decision evidence only; no generic local closure engine is defined.
+    ownerBindingGap: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    generationGap: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION

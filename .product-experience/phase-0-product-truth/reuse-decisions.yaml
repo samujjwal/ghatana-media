@@ -1,0 +1,167 @@
+schemaVersion: media.reuse-decisions.v1
+productId: media
+status: P0-008-owner-boundary-and-candidate-disposition-draft; publication-isolation-and-owner-acceptance-pending
+decisions:
+  - id: REUSE-SHARED-WORKFLOW
+    need: durable command reservation, compare-and-set state transitions, ambiguity mechanics
+    owner: ghatana-shared
+    contract: platform/java/workflow
+    decision: reuse-owner-contract-behind-media-state-and-persistence-adapters
+    version: not-yet-verified
+    publication: not-yet-verified
+    sourceCouplingAllowed: false
+    blocker: GAP-02
+  - id: REUSE-SHARED-OUTBOX
+    need: claim-aware publication, ordering and acknowledgement mechanics
+    owner: ghatana-shared
+    contract: platform/java/messaging
+    decision: reuse-owner-contract-behind-media-outbox-and-cadence
+    version: not-yet-verified
+    publication: not-yet-verified
+    sourceCouplingAllowed: false
+    blocker: GAP-02
+  - id: REUSE-SHARED-AUDIT-OBSERVABILITY
+    need: neutral audit and safe telemetry interfaces
+    owner: ghatana-shared
+    contract: platform/java/audit; platform/java/observability
+    decision: reuse-public-interfaces-with-media-owned-vocabulary-and-retention
+    version: not-yet-verified
+    publication: not-yet-verified
+    sourceCouplingAllowed: false
+    blocker: GAP-02
+  - id: REUSE-SHARED-DOCUMENT-CONTRACTS
+    need: governed document identity and provider-neutral document-extraction contracts
+    owner: ghatana-shared
+    contract: '@ghatana/documents; @ghatana/document-extraction'
+    decision: retain-shared-as-canonical; consumers use frozen public contracts
+    version: source-observed-at-a1b2cb5c772524150fcf582157b0fba8999267b4
+    publication: package-publication-and-isolated-consumption-not-verified-here
+    sourceCouplingAllowed: false
+    blocker: GAP-02
+  - id: REUSE-DOCUMENT-INTELLIGENCE
+    need: OCR/parser provider runtime and generic document parsing/extraction
+    owner: ghatana
+    target: services/document-intelligence
+    decision: rehome-current-worker-behavior-preservingly-outside-ghatana-media
+    sourceAuthorityBeforeMove: services/media/modules/intelligence/document-intelligence-worker
+    dependencyDirection: consumers-use-public-api; service-may-consume-ai-inference
+    publication: public-client-version-and-artifact-not-yet-verified
+    sourceCouplingAllowed: false
+    blocker: GAP-MEDIA-DI-PUBLIC-CLIENT
+  - id: REUSE-DATA-CLOUD
+    need: governed media metadata, customer read model and compatibility UI
+    owner: ghatana/services/data-cloud
+    decision: preserve-as-non-authoritative-consumer; Media lifecycle remains Media-owned
+    sourceCouplingAllowed: false
+  - id: REUSE-AI-INFERENCE
+    need: generic model/provider routing, quota, credentials and failover
+    owner: ghatana/services/ai-inference
+    decision: all generic model execution remains inference-owned; no direct Media bypass
+    sourceCouplingAllowed: false
+  - id: REUSE-TOOLS-EXPERIENCE-SPECIFICATION
+    need: neutral product-experience definition and validation contracts
+    owner: ghatana-tools
+    contract: '@ghatana/experience-specification'
+    decision: use the public package for its declared experience-definition scope; it does not define full Phase 0 requirements or execute an Explorer
+    sourceRevision: 6f35f2aa4193479fe4cce3d7e9f913cf6e611308
+    version: 0.1.0-SNAPSHOT
+    publication: not-verified
+    phaseUse: phase-2-shape-only-until-tools-owner-verifies-full-lifecycle-schema-bindings
+    sourceCouplingAllowed: false
+    blocker: GAP-02
+  - id: REUSE-TOOLS-PRODUCT-DEFINITION
+    need: neutral-normative-product-definition-shape-for-purpose-scope-actors-outcomes-capabilities-requirements-domain-rules-policies-invariants-and-ownership
+    owner: ghatana-tools
+    contract: '@ghatana/product-definition'
+    decision: adopt-v1-shape-and-validator-for-the-neutral-product-meaning-subset; keep time-fidelity-state-and-media-qualification-detail-in-Media-owned-records
+    sourceRevision: 6f35f2aa4193479fe4cce3d7e9f913cf6e611308
+    sourceVersion: 0.1.0-SNAPSHOT
+    publication: local-owner-manifest-and-schema-observed; immutable-public-artifact-and-isolated-consumer-not-verified
+    phaseUse: phase-0-authority-shape-pending-public-package-consumption
+    sourceCouplingAllowed: false
+    blocker: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+  - id: REUSE-TOOLS-EXPERIENCE-LANGUAGE
+    need: neutral-interaction-responsive-accessibility-localization-and-presentation-language-shape
+    owner: ghatana-tools
+    contract: '@ghatana/experience-language'
+    decision: adopt-v1-shape-for-phase-1; Media owns domain state presentation and token aliases only
+    sourceRevision: 6f35f2aa4193479fe4cce3d7e9f913cf6e611308
+    sourceVersion: 0.1.0-SNAPSHOT
+    publication: local-owner-manifest-and-schema-observed; immutable-public-artifact-and-isolated-consumer-not-verified
+    phaseUse: phase-1-pending-phase-0-acceptance-and-public-consumer
+    sourceCouplingAllowed: false
+    blocker: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+  - id: REUSE-TOOLS-EXPERIENCE-PACKAGE-AND-EXPLORER
+    need: product-owned-deterministic-experience-package-contract-and-generic-review-host
+    owner: ghatana-tools
+    contract: '@ghatana/experience-package; @ghatana/experience-explorer-contracts; @ghatana/product-dev-explorer'
+    decision: use-owner-package-and-host-if-public-version-and-built-browser-contract-meet-phase3; request-missing-generic-host-behavior-from-Tools
+    sourceRevision: 6f35f2aa4193479fe4cce3d7e9f913cf6e611308
+    sourceVersion: 0.1.0-SNAPSHOT
+    publication: source-contract-and-headless-host-observed; public-isolated-consumer-and-browser-admission-unverified
+    phaseUse: phase-3-only-after-Phase2-acceptance
+    sourceCouplingAllowed: false
+    blockers: [GAP-02, GAP-11, GAP-12]
+  - id: REUSE-TUTORPUTOR-SIMULATION
+    need: animation, rendering, physics, simulation and AEF
+    owner: ghatana-products/products/tutorputor
+    decision: do-not-import-broad-barrel; dependency closure includes TutorPutor core/contracts and must be owner-reviewed before extraction or public integration
+    sourceCouplingAllowed: false
+    blocker: GAP-03
+  - id: REUSE-DATA-CLOUD-MEDIA-READ-MODEL
+    need: existing-governed-customer-media-metadata-and-compatibility-experience
+    owner: ghatana-services-data-cloud
+    contract: /api/v1/media-read-model-and-governed-metadata-paths
+    decision: retain-as-consumer-and-read-model-only; Media-remains-canonical-for-artifact-upload-job-and-stream-lifecycle
+    sourceRevision: 245e966591913bc73f59fad9bf43651673b0280e
+    publication: existing-source-and-reference-scan-observed; cross-repository-route-DTO-and-client-parity-not-verified
+    sourceCouplingAllowed: false
+    blocker: GAP-05
+  - id: REUSE-EVENT-AND-ACTION-PLANE
+    need: durable-event-publication-and-privileged-effect-execution
+    owner: ghatana
+    contract: public-Event-Plane-and-Action-Plane-interfaces
+    decision: use-owner-boundaries-only; Media-retains-event-meaning-and-effect-preconditions; no-direct-privileged-bypass
+    sourceRevision: 245e966591913bc73f59fad9bf43651673b0280e
+    publication: source-contract-and-production-durability-qualification-not-verified
+    sourceCouplingAllowed: false
+    blockers: [GAP-02, GAP-13]
+  - id: REUSE-EXTERNAL-ENGINES-AND-MODELS
+    need: image-video-audio-animation-simulation-enhancement-generation-and-quality-capabilities
+    owner: each-proposed-library-model-engine-and-license-holder
+    decision: keep-existing-candidates-unadmitted-until-Ghatana-reuse-license-security-isolation-and-benchmark-gates-pass; no-new-runtime-selected
+    publication: candidate-register-in-master-plan-is-not-an-admission-record
+    sourceCouplingAllowed: false
+    blockers: [GAP-08, GAP-09, GAP-10]
+externalMechanics:
+  decision: no-new-OSS-runtime-selected-in-the-migration-boundary-slice
+  admission: deferred-until-Ghatana-reuse-and-license-gates-are-complete
+  sourceCouplingRule: no-source-workspace-dependencies-in-ghatana-media
+selectionOrder:
+  - inspect-Ghatana-Shared-Tools-Kernel-and-Product-owner-contracts-and-public-artifacts
+  - record-fit-gap-owner-version-license-availability-replacement-and-isolated-consumer-evidence
+  - use-existing-public-contract-when-fit-is-sufficient; request-owner-extension-when-neutral-contract-is-missing
+  - extract-shared-mechanics-only-after-all-affected-owners-accept-both-boundary-and-isolated-tests
+  - select-external-library-or-model-only-after-reuse-license-security-and-profile-benchmark-admission
+notAdmittedByThisRecord:
+  - generic-OCR-or-document-intelligence-inside-Media
+  - AI-Inference-owned-model-router-credentials-quota-or-generic-provider-failover
+  - local-copy-of-Tools-ProductDefinition-ExperienceLanguage-or-ExperienceSpecification-schema
+  - broad-TutorPutor-barrel-import-or-unreviewed-physics-renderer-AEF-adapter
+  - new-engine-or-model-purchase-download-install-or-production-activation
+ownerRequests:
+  - requestId: REQ-TOOLS-PUBLIC-PRODUCT-DEFINITION
+    owner: ghatana-tools
+    need: immutable-version-publication-and-isolated-consumer-contract-for-ProductDefinition
+    status: not-sent
+    blocker: GAP-02
+  - requestId: REQ-TOOLS-PHASE-VALIDATION
+    owner: ghatana-tools
+    need: accepted-phase-specific-validation-and-promotion-binding-for-media-product-definition-language-experience-and-explorer-package
+    status: not-sent
+    blocker: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+  - requestId: REQ-DI-PUBLIC-CLIENT
+    owner: ghatana-and-ghatana-shared
+    need: published-document-intelligence-client-with-compatible-service-version
+    status: not-sent
+    blocker: GAP-MEDIA-DI-PUBLIC-CLIENT

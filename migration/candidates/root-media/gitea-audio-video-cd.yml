@@ -1,0 +1,103 @@
+name: Audio-Video CD
+
+on:
+  workflow_run:
+    workflows: [Audio-Video CI]
+    types: [completed]
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # 1. Deploy to Staging (automatic)
+  # ─────────────────────────────────────────────────────────────────────────
+  deploy-staging:
+    name: Deploy → Staging
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment:
+      name: audio-video-staging
+      url: https://audio-video.staging.ghatana.com
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Configure kubectl (staging)
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Deploy all audio-video services (staging)
+        run: |
+          IMAGE_TAG="sha-${{ github.event.workflow_run.head_sha }}"
+          helm upgrade --install audio-video \
+            infra/helm/audio-video \
+            --namespace audio-video \
+            --create-namespace \
+            --set global.imagePullPolicy=Always \
+            --set stt.image.tag="${IMAGE_TAG}" \
+            --set tts.image.tag="${IMAGE_TAG}" \
+            --set vision.image.tag="${IMAGE_TAG}" \
+            --set multimodal.image.tag="${IMAGE_TAG}" \
+            --set aiVoice.image.tag="${IMAGE_TAG}" \
+            --set platformServices.aiRegistryUrl="http://ai-registry.platform-staging.svc.cluster.local:8080" \
+            --set platformServices.featureStoreUrl="http://feature-store.platform-staging.svc.cluster.local:8080" \
+            --atomic \
+            --timeout 10m \
+            --wait
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 2. Deploy to Production (manual approval gate)
+  # ─────────────────────────────────────────────────────────────────────────
+  deploy-production:
+    name: Deploy → Production
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    environment:
+      name: audio-video-production
+      url: https://audio-video.ghatana.com
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Configure kubectl (production)
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Deploy all audio-video services (production)
+        run: |
+          IMAGE_TAG="sha-${{ github.event.workflow_run.head_sha }}"
+          helm upgrade --install audio-video \
+            infra/helm/audio-video \
+            --namespace audio-video \
+            --create-namespace \
+            --set global.imagePullPolicy=Always \
+            --set stt.image.tag="${IMAGE_TAG}" \
+            --set tts.image.tag="${IMAGE_TAG}" \
+            --set vision.image.tag="${IMAGE_TAG}" \
+            --set multimodal.image.tag="${IMAGE_TAG}" \
+            --set aiVoice.image.tag="${IMAGE_TAG}" \
+            --set platformServices.aiRegistryUrl="http://ai-registry.platform.svc.cluster.local:8080" \
+            --set platformServices.featureStoreUrl="http://feature-store.platform.svc.cluster.local:8080" \
+            --set platformServices.authGatewayUrl="http://auth-gateway.platform.svc.cluster.local:8080" \
+            --atomic \
+            --timeout 15m \
+            --wait
+
+      - name: Verify production deployment
+        run: |
+          kubectl get pods -n audio-video -l app.kubernetes.io/part-of=ghatana-audio-video
+          echo "Audio-Video production deployment successful — sha-${{ github.event.workflow_run.head_sha }}"

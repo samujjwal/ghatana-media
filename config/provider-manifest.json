@@ -1,0 +1,151 @@
+{
+  "schemaVersion": "ghatana.runtime-provider-manifest.v1",
+  "providerId": "ghatana-media",
+  "providerVersion": "1.0.0",
+  "capabilityId": "media.lifecycle",
+  "capabilityVersion": "1.0.0",
+  "description": "Provider-neutral media service contract declaration; readiness remains unconfirmed until native provider and consumer observations are admitted.",
+  "contractRef": "contracts/openapi/media.yaml",
+  "operations": [
+    {
+      "operationId": "upload",
+      "inputSchemaRef": "contracts/openapi/media.yaml#/components/schemas/UploadRequest",
+      "outputSchemaRef": "contracts/openapi/media.yaml#/components/schemas/UploadSession",
+      "errorCodes": [
+        "INVALID_REQUEST",
+        "UNAUTHORIZED",
+        "FORBIDDEN",
+        "TIMEOUT",
+        "PROVIDER_UNAVAILABLE",
+        "UNKNOWN_RESULT"
+      ]
+    }
+  ],
+  "supportedProductShapes": [
+    "service",
+    "console"
+  ],
+  "supportedDeliveryModes": [
+    "synchronous",
+    "asynchronous"
+  ],
+  "supportedDataClassifications": [
+    "PUBLIC",
+    "INTERNAL",
+    "CONFIDENTIAL",
+    "RESTRICTED"
+  ],
+  "requiredPermissions": [
+    "media.lifecycle:execute"
+  ],
+  "requiredSecretReferences": [
+    "MEDIA_PROVIDER_SECRET"
+  ],
+  "transactionSemantics": "NONE",
+  "idempotent": true,
+  "ambiguityBehavior": "FAIL_CLOSED",
+  "timeoutMs": 120000,
+  "cancellation": {
+    "supported": true,
+    "propagatesToProvider": true
+  },
+  "compatibility": {
+    "kernelContractVersion": "1.0.0",
+    "runtimeApiVersion": "1.0.0"
+  },
+  "providerProvenance": {
+    "status": "UNCONFIRMED",
+    "implementationDigest": null,
+    "imageDigest": null,
+    "contentDigest": null
+  },
+  "kernelDependencyBindings": [
+    {
+      "requestId": "KERNEL-DEP-GHATANA-OCR-PROVIDER-001",
+      "capabilityId": "media.ocr",
+      "providerSpi": "OcrProvider",
+      "closureUnitIds": [
+        "ghatana.runtime-provider.media.ocr::provider-conformance",
+        "ghatana.runtime-provider.media.ocr::kernel-materialization",
+        "ghatana.runtime-provider.media.ocr::consumer-conformance"
+      ],
+      "environmentPrerequisites": [],
+      "sourceRequestFingerprint": "sha256:d5193947deb17abb17508a2dd496bd9fdb26fddb4297b85884865b05482d4282"
+    }
+  ],
+  "conformance": {
+    "suiteId": "kernel.provider-runtime.v1",
+    "profile": "service-runtime-provider.v1",
+    "status": "pending",
+    "evidenceRefs": [],
+    "automaticSelectionEligible": false,
+    "runnerRef": "service-contract.yaml",
+    "reportSchemaRef": "config/kernel-provider-conformance-report.v1.schema.json",
+    "requiredScenarios": [
+      "HAPPY_PATH",
+      "INVALID_INPUT",
+      "TIMEOUT",
+      "RETRY",
+      "CANCELLATION",
+      "AMBIGUOUS_RESULT",
+      "IDEMPOTENT_REPLAY",
+      "STALE_FENCE",
+      "CALLBACK_VALIDATION",
+      "PROVIDER_OUTAGE",
+      "RECOVERY"
+    ],
+    "scenarioMappings": [
+      {
+        "scenario": "HAPPY_PATH",
+        "probe": "happy_path"
+      },
+      {
+        "scenario": "INVALID_INPUT",
+        "probe": "invalid_input"
+      },
+      {
+        "scenario": "TIMEOUT",
+        "probe": "timeout"
+      },
+      {
+        "scenario": "RETRY",
+        "probe": "retry"
+      },
+      {
+        "scenario": "CANCELLATION",
+        "probe": "cancellation"
+      },
+      {
+        "scenario": "AMBIGUOUS_RESULT",
+        "probe": "ambiguous_result"
+      },
+      {
+        "scenario": "IDEMPOTENT_REPLAY",
+        "probe": "idempotent_replay"
+      },
+      {
+        "scenario": "STALE_FENCE",
+        "probe": "stale_fence"
+      },
+      {
+        "scenario": "CALLBACK_VALIDATION",
+        "probe": "callback_validation"
+      },
+      {
+        "scenario": "PROVIDER_OUTAGE",
+        "probe": "provider_outage"
+      },
+      {
+        "scenario": "RECOVERY",
+        "probe": "recovery"
+      }
+    ],
+    "blockers": [
+      {
+        "scenario": "HAPPY_PATH",
+        "code": "PROVIDER_OBSERVATION_PENDING",
+        "detail": "Native provider and consumer conformance observations have not been admitted."
+      }
+    ]
+  }
+}

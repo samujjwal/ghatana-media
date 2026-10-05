@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Log4j2 configuration for Media runtime service.
+
+  Emits structured JSON logs to stdout with MDC context fields:
+  - serviceName, version
+  - requestId (correlation ID)
+  - tenantId, traceId
+  - httpMethod, httpPath, principal
+
+  In LOCAL and TEST profiles, a human-readable console pattern is used
+  for developer convenience. Set system property -Dmedia.log.format=json
+  to force JSON in any profile.
+-->
+<Configuration status="WARN" name="media-runtime" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_FORMAT">${sys:media.log.format:-plain}</Property>
+        <Property name="LOG_LEVEL">${sys:media.log.level:-INFO}</Property>
+        <Property name="PLAIN_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %X{serviceName:-media} %X{requestId:--} %X{tenantId:--} %logger{36} - %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="ConsolePlain" target="SYSTEM_OUT">
+            <PatternLayout pattern="${PLAIN_PATTERN}"/>
+        </Console>
+
+        <Console name="ConsoleJson" target="SYSTEM_OUT">
+            <JsonLayout compact="true" eventEol="true" properties="true" locationInfo="false">
+                <KeyValuePair key="serviceName" value="media"/>
+                <KeyValuePair key="version" value="0.0.1"/>
+            </JsonLayout>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.ghatana.media" level="${LOG_LEVEL}" additivity="false">
+            <AppenderRef ref="${LOG_FORMAT:eq:json}?ConsoleJson:ConsolePlain"/>
+        </Logger>
+
+        <Logger name="io.activej" level="WARN"/>
+        <Logger name="org.apache" level="WARN"/>
+        <Logger name="com.tngtech.archunit" level="${sys:archunit.log.level:-WARN}"/>
+
+        <Root level="${LOG_LEVEL}">
+            <AppenderRef ref="${LOG_FORMAT:eq:json}?ConsoleJson:ConsolePlain"/>
+        </Root>
+    </Loggers>
+</Configuration>

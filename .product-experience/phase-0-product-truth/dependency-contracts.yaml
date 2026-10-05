@@ -1,0 +1,211 @@
+schemaVersion: media.migration-boundary-dependencies.v1
+productId: media
+status: migration-boundary-accepted; capability-level-bindings-authored-as-proposals-pending-P0-010
+rules:
+  sourceCoupling: forbidden-across-repository-boundaries
+  buildConsumption: immutable-published-artifacts-or-owner-approved-public-contracts
+  networkConsumption: supported-owner-api-or-bounded-integration-provider
+  reverseImplementationImport: forbidden
+  generatedContracts: regenerate-from-single-registered-authored-owner
+dependencies:
+  - owner: ghatana-shared
+    surfaces:
+      - workflow command/state mechanics
+      - claim-aware outbox publication
+      - audit and observability interfaces
+      - identity/authentication contracts
+      - frozen document-extraction contracts
+      - design-system primitives and localization
+    boundary: public-published-contracts-only
+  - owner: ghatana
+    surfaces:
+      - AI Inference API/client
+      - Data Cloud governed metadata/read models and compatibility API
+      - Event Plane and Action Plane APIs
+      - generic runtime integration contracts
+    boundary: public-artifacts-or-supported-network-contracts-only
+  - owner: ghatana/services/document-intelligence
+    surfaces:
+      - reusable OCR/parser provider runtime
+      - PDF, Office and image document parsing
+      - generic schema-guided extraction and quality/provenance results
+      - public document-intelligence API and client
+    boundary: Media consumes the public API only for media-specific recognition intent
+    dependencyDirection: document-intelligence-may-use-ai-inference; media-and-other-products-consume-document-intelligence
+  - owner: ghatana-kernel
+    surfaces:
+      - product lifecycle and shell integration contracts
+    boundary: only-explicitly-adopted-public-contracts
+  - owner: ghatana-tools
+    surfaces:
+      - product-development lifecycle and experience-specification contracts
+      - developer verification facade
+    boundary: public-packages-and-commands-only
+  - owner: ghatana-products
+    surfaces:
+      - canonical product portfolio and extraction registry
+      - TutorPutor Media contract consumer
+    boundary: registry-and-public-consumer-contracts-only
+  - owner: ghatana-yappc
+    surfaces: []
+    boundary: no-current-direct-media-consumer-observed
+    observationLimit: tracked-current-main-tree-only
+dependencyContracts:
+  - dependencyId: DEP-SHARED-WORKFLOW
+    owner: ghatana-shared
+    surface: platform/java/workflow
+    usedFor: [media-job-command-identity, compare-and-set-state-mechanics, idempotency, lease-fencing-mechanics]
+    mediaAuthority: job-and-attempt-state-meaning-transition-guards-retry-policy-finality
+    bindingStatus: source-interface-observed-public-version-and-isolated-consumer-unverified
+    version: not-verified
+    failureAndFinality: unknown-after-dispatch-remains-unknown; shared-mechanics-do-not-authorize-blind-replay
+    sourceCouplingAllowed: false
+    blocker: GAP-02
+  - dependencyId: DEP-SHARED-OUTBOX
+    owner: ghatana-shared
+    surface: platform/java/messaging
+    usedFor: [claim-aware-publication-ordering-and-acknowledgement-mechanics]
+    mediaAuthority: event-vocabulary-outbox-storage-retry-cadence-and-publication-finality
+    bindingStatus: owner-contract-source-observed-public-version-and-isolated-consumer-unverified
+    version: not-verified
+    failureAndFinality: failed-publication-is-not-assumed-delivered; publish-failure-after-effect-is-unconfirmed
+    sourceCouplingAllowed: false
+    blocker: GAP-02
+  - dependencyId: DEP-SHARED-AUDIT-OBSERVABILITY
+    owner: ghatana-shared
+    surface: platform/java/audit-and-platform/java/observability
+    usedFor: [neutral-audit-and-telemetry-mechanics]
+    mediaAuthority: media-event-vocabulary-data-minimization-and-retention
+    bindingStatus: boundary-recorded; public-version-and-required-audit-durability-unverified
+    failureAndFinality: required-audit-intent-failure-blocks-external-effect; telemetry-failure-may-degrade-safely
+    sourceCouplingAllowed: false
+    blocker: GAP-02
+  - dependencyId: DEP-SHARED-IDENTITY
+    owner: ghatana-shared
+    surface: identity-and-authentication-public-contracts
+    usedFor: [verified-principal-tenant-delegation-audience-and-expiry]
+    mediaAuthority: media-operation-purpose-rights-and-resource-scope
+    bindingStatus: owner-contract-and-cutover-consumer-binding-unverified
+    failureAndFinality: missing-expired-or-conflicting-authority-fails-closed
+    sourceCouplingAllowed: false
+    blocker: GAP-15
+  - dependencyId: DEP-SHARED-DOCUMENT-CONTRACTS
+    owner: ghatana-shared
+    surface: ['@ghatana/documents', '@ghatana/document-extraction']
+    usedFor: [neutral-document-identity-and-extraction-contracts]
+    mediaAuthority: no-document-schema-or-worker-ownership
+    bindingStatus: frozen-source-contracts-observed; public-package-publication-and-isolated-consumption-unverified
+    failureAndFinality: unsupported-contract-version-blocks-consumption-without-local-clone
+    sourceCouplingAllowed: false
+    blocker: GAP-02
+  - dependencyId: DEP-SHARED-DESIGN-LOCALIZATION
+    owner: ghatana-shared
+    surface: design-system-token-headless-accessibility-and-localization-contracts
+    usedFor: [visual-primitives, semantic-controls, formatting-and-localization]
+    mediaAuthority: media-token-aliases-and-domain-specific-patterns-only
+    bindingStatus: source-owners-identified; exact-package-version-and-isolated-consumption-unverified
+    failureAndFinality: missing-token-or-locale-must-not-be-substituted-silently
+    sourceCouplingAllowed: false
+    blocker: GAP-02
+  - dependencyId: DEP-DOCUMENT-INTELLIGENCE-API
+    owner: ghatana-services-document-intelligence
+    surface: services/document-intelligence-public-api-and-client
+    usedFor: [media-specific-scene-text-and-temporal-recognition-intent]
+    mediaAuthority: frame-timestamp-scene-association-tracking-and-overlay-intent
+    sharedContractOwner: ghatana-shared
+    bindingStatus: worker-rehomed; public-client-artifact-version-and-consumer-rebinding-pending
+    failureAndFinality: unavailable-or-unbound-client-blocks-recognition-admission; no-local-OCR-fallback
+    dependencyDirection: media-consumes-public-api; document-intelligence-may-consume-ai-inference
+    sourceCouplingAllowed: false
+    blocker: GAP-MEDIA-DI-PUBLIC-CLIENT
+  - dependencyId: DEP-AI-INFERENCE
+    owner: ghatana-services-ai-inference
+    surface: public-model-execution-and-governance-api
+    usedFor: [generic-model-routing-quota-credential-residency-and-failover]
+    mediaAuthority: media-capability-intent-result-contract-and-quality-acceptance
+    bindingStatus: runtime-client-and-isolated-public-artifact-consumer-unverified
+    failureAndFinality: selected-provider-failure-is-unknown-unless-owner-contract-certifies-safe-fallback
+    sourceCouplingAllowed: false
+    blocker: GAP-02
+  - dependencyId: DEP-DATA-CLOUD
+    owner: ghatana-services-data-cloud
+    surface: governed-media-metadata-read-model-and-compatibility-API
+    usedFor: [optional-customer-metadata-and-read-only-compatibility-surface]
+    mediaAuthority: artifact-upload-job-stream-consent-and-processing-lifecycle
+    bindingStatus: existing-consumer-observed-public-version-and-parity-unverified
+    failureAndFinality: optional-read-model-outage-does-not-change-media-canonical-state
+    sourceCouplingAllowed: false
+    blocker: GAP-05
+  - dependencyId: DEP-EVENT-PLANE
+    owner: ghatana-services-event-plane
+    surface: durable-event-publication-contract
+    usedFor: [media-lifecycle-progress-and-outcome-events]
+    mediaAuthority: event-meaning-and-outbox-record
+    bindingStatus: current-source-synchronous-publisher-is-not-production-retry-queue; public-durable-binding-unverified
+    failureAndFinality: publication-failure-remains-unconfirmed-and-reconcilable
+    sourceCouplingAllowed: false
+    blocker: GAP-13
+  - dependencyId: DEP-ACTION-PLANE
+    owner: ghatana-services-action-plane
+    surface: privileged-delegated-effect-contract
+    usedFor: [approved-external-publication-and-other-privileged-effects]
+    mediaAuthority: media-target-version-rights-and-delivery-preconditions
+    bindingStatus: owner-public-contract-and-isolated-consumer-unverified
+    failureAndFinality: durable-effect-intent-before-submit; unknown-after-submit-requires-destination-reconciliation
+    sourceCouplingAllowed: false
+    blocker: GAP-02
+  - dependencyId: DEP-TOOLS-DEFINITION
+    owner: ghatana-tools
+    surface: ['@ghatana/product-definition', '@ghatana/experience-language', '@ghatana/experience-specification']
+    usedFor: [phase0-normative-product-shape, phase1-experience-language-shape, phase2-experience-definition-shape]
+    mediaAuthority: product-specific-meaning-and-owner-reference-resolution
+    bindingStatus: local-source-schemas-mapped-in-schema-bindings.yaml; public-publication-and-isolated-consumption-unverified
+    failureAndFinality: package-structural-validation-is-not-runtime-enforcement-or-phase-acceptance
+    sourceCouplingAllowed: false
+    blocker: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+  - dependencyId: DEP-TOOLS-EXPLORER
+    owner: ghatana-tools
+    surface: ['@ghatana/experience-package', '@ghatana/experience-explorer-contracts', '@ghatana/product-dev-explorer']
+    usedFor: [phase3-product-package-contract-and-generic-explorer-host]
+    mediaAuthority: Media-product-state-action-effects-domain-renderers-and-synthetic-fixtures
+    bindingStatus: local-source-contracts-observed-host-is-headless-publication-and-built-browser-review-unverified
+    failureAndFinality: missing-host-capability-is-requested-from-Tools-not-implemented-as-a-parallel-generic-host
+    sourceCouplingAllowed: false
+    blocker: GAP-11
+  - dependencyId: DEP-KERNEL-SHELL
+    owner: ghatana-kernel
+    surface: product-lifecycle-and-shell-integration-contracts
+    usedFor: [optional-product-navigation-and-lifecycle-integration]
+    mediaAuthority: media-product-function-and-supported-screen-journeys
+    bindingStatus: consumer-boundary-and-public-version-unverified
+    failureAndFinality: standalone-Media-experience-does-not-claim-Kernel-adoption
+    sourceCouplingAllowed: false
+    blocker: GAP-15
+  - dependencyId: DEP-TUTORPUTOR-SIMULATION
+    owner: ghatana-products-products-tutorputor
+    surface: animation-renderer-physics-and-AEF-contract-requests
+    usedFor: [candidate-media-animation-simulation-and-spatial-interchange]
+    mediaAuthority: media-scene-time-profile-rendering-and-output-provenance-semantics
+    bindingStatus: source-and-contract-closure-requires-owner-review-before-adapter
+    failureAndFinality: no-framework-import-until-public-contract-and-lossy-conversion-disposition-are-approved
+    sourceCouplingAllowed: false
+    blocker: GAP-03
+dependencyGraphRules:
+  - core-platform-imports-media-product-source-are-forbidden
+  - all-dependencies-use-public-versioned-artifacts-or-supported-owner-network-apis
+  - product-semantics-never-move-to-a-provider-or-neutral-platform-package
+  - availability-failure-degradation-and-finality-are-defined-per-edge
+  - optional-dependency-failure-does-not-disable-unrelated-deterministic-capabilities
+  - unresolved-contract-version-or-license-is-a-block-not-a-fallback-to-source-coupling
+  - contract-and-capability-upstream-changes-invalidate-only-the-declared-dependents
+unresolvedRequests:
+  - requestId: REQ-TOOLS-PHASE-VALIDATORS
+    owner: ghatana-tools-product-definition-owner
+    need: published-validation-command-and-admission-binding-for-Phase-0-through-Phase-3-authority
+    status: owner-request-not-yet-sent
+    blocker: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+  - requestId: REQ-DI-PUBLIC-CLIENT
+    owner: ghatana-services-document-intelligence-and-ghatana-shared
+    need: immutable-public-client-package-and-compatible-supported-service-api
+    status: source-workspace-rehome-complete; artifact-and-consumer-proof-pending
+    blocker: GAP-MEDIA-DI-PUBLIC-CLIENT

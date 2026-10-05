@@ -1,0 +1,324 @@
+artifactVersion: media.phase-0.handoff-contracts.v1
+phaseTask: P0-009
+status:
+  maturity: proposed-boundary-register
+  acceptance: not-submitted
+  noRuntimeContractClaim: true
+dependencies:
+  p0-001: accepted-boundary-slice
+  p0-002: proposed-actors-and-outcomes-await-review
+  p0-003: pending-operation-denominator
+  p0-005: pending-job-command-cancellation-and-finality-models
+  p0-006: pending-authority-rights-consent-and-data-classification-model
+  p0-007: pending-quality-profile-fallback-and-provider-selection-policy
+  p0-008: pending-public-contract-availability-health-fallback-and-expiry-bindings
+  mediaMigration: source-cutover-not-authorized-or-executed
+
+sourceReferences:
+  ownerMatrix:
+    document: docs/migration/expert-reviewed-master-plan.md
+    section: '3.1 Mandatory dependency-selection order'
+  handoffRules:
+    document: docs/migration/expert-reviewed-master-plan.md
+    section: '17 Cross-product recipes and dependency handoffs'
+  consumerEvidence: migration/consumer-inventory.yaml
+  mediaBoundary: .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+  documentIntelligenceDecision: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+
+handoffEnvelope:
+  requiredForEveryAdmittedCall:
+    - source owner and destination owner
+    - operation and version
+    - authentication/delegation and the authority source
+    - data classification and purpose
+    - minimum expected context
+    - deadline/timeout and supported cancellation behavior
+    - finality and uncertainty representation
+    - idempotency/retry/reconciliation behavior
+    - safe error mapping
+    - return/continuation path
+    - accepted artifact/result references
+  invariants:
+    - A service call does not authorize another owner's database mutation.
+    - User intent, a signed URL, an artifact reference, or a cached plan does not widen authority.
+    - Revalidate expiring/revoked policy at dispatch and artifact access where applicable.
+    - A timeout or lost client connection does not prove that remote work stopped.
+    - Do not blind-retry an unknown external effect; inspect/reconcile its stable request/effect identity first.
+    - Unsupported or unavailable calls return an explicit bounded failure; no fabricated success or silent provider substitution.
+    - Correlation/trace/job/attempt references are diagnostic context, not authorization.
+    - Context and media bytes are minimized; credentials, raw prompts, voiceprints, signed URLs, and unrestricted tenant/user IDs are not propagated as general baggage.
+  unresolvedFieldValue: >-
+    A field marked pending-owner-contract is a known contract gap. It is not a
+    default, an inferred guarantee, or permission to invent a route/payload.
+
+handoffs:
+  - id: shared-auth-identity
+    status: observed-consumer-path; public-owner-contract-and-consumer-binding-remain-shared-owned
+    direction: Media client to Shared Auth Gateway
+    sourceOwner: Media
+    destinationOwner: ghatana-shared identity/authentication owner
+    operationAndVersion:
+      observed: GET /api/v1/auth/validate
+      versionStatus: Route identity is recorded; no separate versioned auth schema is copied here.
+      evidence: migration/consumer-inventory.yaml#shared-auth-gateway-client-path
+    authenticationAndDelegation:
+      observedHeaders: [Authorization, X-Tenant-ID]
+      authority: Shared identity/authentication contract; a Media role label is not a grant.
+      pending: Exact current public request/response revision and delegation semantics must be confirmed against Shared owner contract.
+    classificationAndPurpose: Caller purpose and tenant context are minimized; authorization decision remains Shared-owned.
+    expectedContext: Authenticated credential reference, requested tenant context, correlation reference; no media bytes.
+    timeoutCancellation: Timeout/deadline and cancellation are pending confirmation from the Shared contract; do not cancel identity state by closing a view.
+    finality: Identity validation response is not Media job/output finality.
+    retryReconciliation: Follow the admitted Shared read/validation contract; never retry with widened tenant or delegated scope.
+    errorMapping: Map denial/expiry to re-authentication or access-denied; unavailable/indeterminate auth fails closed with safe retry guidance.
+    returnContinuation: Return to the same intended route/context after successful re-auth; denial retains no protected detail.
+    acceptedArtifactReferences: []
+
+  - id: datacloud-media-compatibility
+    status: observed-retained-consumer-surface; lifecycle-writes-fail-closed-without-explicit-provider
+    direction: Data Cloud client to Data Cloud Media compatibility/read-model surface; optional future adapter to Media public contract
+    sourceOwner: Data Cloud consumer/application
+    destinationOwner: Ghatana Data Cloud for read-model/compatibility routes; Media remains artifact/job/stream semantic owner
+    operationAndVersion:
+      observedRoutes:
+        - /api/v1/media/artifacts
+        - artifact, job, consent, transcript, frame-index, and processing route families documented under /api/v1/media
+      authority: Data Cloud route boundary marks /api/v1/media READ_MODEL_OR_COMPATIBILITY and non-authoritative.
+      evidence: migration/consumer-inventory.yaml#datacloud-media-compatibility
+      pending: Exact per-operation Media public provider version and consumer parity are not established by the route inventory.
+    authenticationAndDelegation: Existing Data Cloud route auth/tenant policy is owner-controlled; no direct Media database credential or owner mutation.
+    classificationAndPurpose: Governed metadata/read-model projection and scoped search/reference access; use current owner policy and purpose.
+    expectedContext: Opaque artifact/job/consent references and scoped query; exact per-route payload is the owning OpenAPI contract.
+    timeoutCancellation: Per-route behavior not resolved here; query/read timeout is separate from cancellation of a Media job.
+    finality: Read-model responses are non-authoritative. Mutation/processing routes fail closed when no explicit Media provider is configured.
+    retryReconciliation: Preserve Data Cloud navigation and compatibility until consumer migration; mutations use the admitted Media request identity and reconcile uncertain jobs.
+    errorMapping: Retain consumer-safe unavailable/forbidden/conflict/unknown status distinctions from owner contracts; exact mapping pending.
+    returnContinuation: Return to Data Cloud media artifact/job views with the same scoped context and route identity.
+    acceptedArtifactReferences: Data Cloud may hold governed metadata references; Media remains the artifact-byte/lifecycle authority.
+    prohibited:
+      - Treating Data Cloud metadata rows as canonical Media artifact/job state.
+      - Making Data Cloud read-model authority depend on Media's database.
+
+  - id: tutorputor-governed-media-artifact
+    status: current-contract-provider-admission-accepted; request-open; fulfillment-unfulfilled; activation-shadow
+    direction: TutorPutor consumer to Media public provider contract
+    sourceOwner: TutorPutor
+    destinationOwner: Media
+    operationAndVersion:
+      requestId: TP-GHATANA-MEDIA-001
+      contractIdentity: tutorputor.ghatana.media.v2
+      operations:
+        - appendMediaChunk
+        - beginMediaUpload
+        - cancelMediaJob
+        - completeMediaUpload
+        - getMediaArtifact
+        - getMediaConsent
+        - getMediaJob
+        - grantMediaConsent
+        - listMediaConsents
+        - revokeMediaConsent
+        - submitMediaJob
+      statusEvidence: migration/consumer-inventory.yaml#tutorputor-governed-media-artifact
+    authenticationAndDelegation: Must follow the accepted current Media provider contract; exact per-operation principal/delegation mapping remains to be reconciled by owners.
+    classificationAndPurpose: Preserve Media consent, purpose, classification, residency, retention, and external-processing constraints from the current contract.
+    expectedContext: Tenant/principal/request/correlation and artifact/job/consent refs only as authorized by the provider contract.
+    timeoutCancellation: Preserve declared operation bounds and cancellation outcomes; exact async and timeout parity remains a consumer/provider verification item.
+    finality: Consumer status explicitly says fulfillment UNFULFILLED and activation SHADOW; no runtime completion or canonical-lifecycle write is claimed.
+    retryReconciliation: P0-005 must bind idempotency, attempt identity, safe retry, cancellation, and unknown-outcome reconciliation; do not infer semantics from contract acceptance.
+    errorMapping: Preserve current contract errors; exact TutorPutor consumer mapping and conformance proof remain pending.
+    returnContinuation: Return status/result through the consumer's accepted provider contract; consumer retains its own learning/pedagogy/assessment state.
+    acceptedArtifactReferences: Opaque Media artifact/job/consent references described by the accepted contract.
+    ownerBoundary:
+      - TutorPutor owns Experience IR, Model IR, Scene IR, pedagogy, scientific meaning, learning evidence, and assessment.
+      - Media supplies only the admitted Media artifact/job/provider capability; no canonical lifecycle mutation by TutorPutor is admitted in the inventory.
+      - The open 11-operation request is not proof that all operations are implemented or qualified.
+
+  - id: tutorputor-domain-scene
+    status: proposed-cross-product-reuse; no-media-scene-binding-admitted
+    direction: TutorPutor domain/model references to Media rendering/animation; output references return to TutorPutor
+    sourceOwner: TutorPutor for learning/model truth; Media for media scene/rendering semantics
+    destinationOwner: Media for an explicitly accepted render/animation boundary; TutorPutor for lesson/experience artifact use
+    operationAndVersion:
+      value: No public operation or Media scene/animation adapter version is established.
+      ownerContractReferences:
+        - products/tutorputor/contracts/v1/experience/model-ir.ts
+        - products/tutorputor/contracts/v1/experience/scene-ir.ts
+        - products/tutorputor/contracts/v1/experience/experience-ir.ts
+    authenticationAndDelegation: Pending owner-approved contract and project/learner context; no authority is inferred from a model reference.
+    classificationAndPurpose: Domain and learning evidence retain TutorPutor classification/purpose; media output lineage and rights remain explicit.
+    expectedContext: Versioned owner references, supported subset, units/fidelity, accessibility requirements, and authorized output reference; exact schema pending.
+    timeoutCancellation: Pending public operation; do not invent a solver/render deadline or cancellation guarantee.
+    finality: A rendered artifact is not evidence of TutorPutor pedagogy, scientific validity, or learner outcome.
+    retryReconciliation: Pending admitted operation identity, bounded execution, and artifact version semantics.
+    errorMapping: Unsupported IR/features, units, fidelity, or adapter state must be explicit; mapping requires owner review.
+    returnContinuation: Return opaque media artifact/version and conversion/fidelity report to TutorPutor for its own lesson/experience decision.
+    acceptedArtifactReferences: Only owner-authorized, versioned model/scene/experience and output refs.
+    prohibition: Do not import @tutorputor/simulation broad internals or copy/fork TutorPutor IRs into Media.
+
+  - id: document-intelligence-scene-text
+    status: ownership-boundary-established; future-public-call-not-admitted
+    direction: Media scene-text/temporal observation adapter to Ghatana Document Intelligence public API
+    sourceOwner: Media for video frame selection, sampling, time ranges, tracking, scene identity, duplicate suppression, and overlay/edit intent
+    destinationOwner: Ghatana services/document-intelligence for generic OCR/parser/document workflow
+    operationAndVersion:
+      value: Public operation/version and payload contract are pending owner admission; no endpoint or request shape is invented here.
+      authority: Shared retains @ghatana/document-extraction; Media must call an admitted public Document Intelligence boundary.
+    authenticationAndDelegation: Pending public caller identity, purpose, tenant, and policy/delegation binding.
+    classificationAndPurpose: Media-specific temporal/scene-text purpose only; apply current consent, privacy, retention, residency, and provider policies.
+    expectedContext: If the admitted API supports it, bind recognized result to opaque source artifact, frame/time map, scene, and Media correlation refs; exact fields remain unknown until owner contract review.
+    timeoutCancellation: Pending Document Intelligence public contract; do not infer worker cancellation from client disconnect.
+    finality: OCR/parser result is an observation with provenance/uncertainty; Media temporal association is not identity proof or document authority.
+    retryReconciliation: Use the admitted service request identity and cancellation/finality rules; no direct worker source link from Media.
+    errorMapping: Generic extraction errors remain Document Intelligence-owned; Media maps only documented public reason codes.
+    returnContinuation: Attach accepted typed observation refs to the source time/scene and continue through Media editing/overlay intent.
+    acceptedArtifactReferences: Opaque source, public result, and approved Media derivative refs only.
+    prohibition:
+      - Moving generic OCR/parser/document workflow into Media.
+      - Importing Shared document-extraction implementation/schema as a Media-owned duplicate.
+      - Treating a receipt/image as scene text solely because its MIME type is image.
+
+  - id: gharbatai-direct-document-intelligence
+    status: observed-consumer-reference-rebound; runtime-qualification-not-established
+    direction: Gharbatai Org API directly to Document Intelligence client/service; no Media intermediary
+    sourceOwner: Gharbatai Org API
+    destinationOwner: Ghatana services/document-intelligence; Shared owns document-extraction contracts
+    operationAndVersion:
+      package: '@ghatana/document-intelligence-client'
+      contract: '@ghatana/document-extraction'
+      workerPathAfterRehome: services/document-intelligence
+      evidence: migration/consumer-inventory.yaml#gharbatai-org-document-intelligence
+    authenticationAndDelegation: Gharbatai/Document Intelligence owner contract; exact runtime identity and authorization remain outside Media.
+    classificationAndPurpose: Document-intelligence consumer purpose/retention stays with Gharbatai and the public DI contract.
+    expectedContext: Consumer-scoped request through the public client; Media receives no raw document or authority through this handoff.
+    timeoutCancellation: Preserve the DI generation-token cancellation contract; consumer runtime qualification remains not established by the inventory.
+    finality: Preserve current non-activation and qualification state; source relocation does not enable the feature.
+    retryReconciliation: Gharbatai owns its direct request and verification path; no Media retry path is introduced.
+    errorMapping: Keep DI public reason codes and consumer-specific error mapping; do not turn relocation/build failure into a Media success.
+    returnContinuation: Return to Gharbatai's existing document-extraction workflow.
+    acceptedArtifactReferences: Consumer-owned document/result refs under the public extraction contract.
+
+  - id: phr-document-client-references
+    status: documentation-only-reference; active-source-import-not-found-in-bounded-scan
+    direction: PHR documentation proposes Media client/UI packages; no active runtime handoff established
+    sourceOwner: PHR
+    destinationOwner: Media client package only if PHR owner confirms current intent and public artifact admission
+    operationAndVersion:
+      packageReferences: ['@ghatana/audio-video-client', '@ghatana/audio-video-types', '@ghatana/audio-video-ui']
+      version: No active manifest import/public package version found in the bounded scan.
+      evidence: migration/consumer-inventory.yaml#phr-audio-video-package-documentation
+    authenticationAndDelegation: Not established; PHR owner must confirm intended use and auth boundary.
+    classificationAndPurpose: Any clinical/media use remains PHR purpose and policy; Media does not infer clinical meaning.
+    expectedContext: Pending PHR owner confirmation; do not move protected data into Media for documentation-only package references.
+    timeoutCancellation: Not established because no active call path was found.
+    finality: No PHR runtime outcome or feature activation is claimed.
+    retryReconciliation: No active Media client request is established.
+    errorMapping: Pending PHR owner confirmation.
+    returnContinuation: Preserve and reconcile documentation with published package bindings after the consumer owner confirms scope.
+    acceptedArtifactReferences: None established by current consumer inventory.
+
+  - id: digital-marketing-creative-brief
+    status: master-plan-proposed; external-owner-contract-not-admitted
+    direction: Digital Marketing sends approved brief/brand/claim/copy/asset references to Media; Media returns reviewed output refs
+    sourceOwner: Digital Marketing for brand, campaign, offer, claims, and campaign approval
+    destinationOwner: Media for composition and media artifact creation; Action Plane for consequential publication
+    operationAndVersion:
+      value: No named public operation/version is established by current consumer inventory.
+      sourceDocument: docs/migration/expert-reviewed-master-plan.md
+      sourceSection: '17 Cross-product recipes and dependency handoffs'
+    authenticationAndDelegation: Pending Marketing owner contract; brief and brand references are not publication permission.
+    classificationAndPurpose: Campaign/brand/claim purpose and rights must accompany approved references; exact classification is pending owner policy.
+    expectedContext: Approved creative brief, versioned brand kit/claim/copy refs, constraints, and desired output spec; exact schema pending.
+    timeoutCancellation: Pending public operation and any long-running render contract.
+    finality: Media returns exact output refs and review state; Media does not approve marketing claims or publish externally.
+    retryReconciliation: Bounded render jobs use Media job identity; external publication reconciles through Action Plane.
+    errorMapping: Unsupported font/asset/claim scope or expired approval must be explicit and safely returned to Marketing owner.
+    returnContinuation: Return versioned outputs and disclosed media/quality provenance for Marketing review; publication decision returns through Action Plane.
+    acceptedArtifactReferences: Authorized versioned brand/claim refs and exact Media output refs only.
+
+  - id: ai-inference-execution
+    status: owner-boundary-established; exact-per-capability-bindings-pending-p0-008
+    direction: Media bounded capability adapter to AI Inference public operation; provider/model selection remains AI Inference-owned
+    sourceOwner: Media for intent, source artifacts, output requirements, and media operation state
+    destinationOwner: Ghatana AI Inference for generic model/provider eligibility, routing, credentials, quota, health, and failover
+    operationAndVersion:
+      value: Exact public operation/version is not recorded in the current Media migration inventory.
+      admission: Resolve one public AI Inference contract per admitted leaf capability in P0-008.
+    authenticationAndDelegation: Use public service identity/delegation and current policy; Media does not pass credentials or widen authority through intent.
+    classificationAndPurpose: Bind purpose, classification, residency/egress, retention, consent, and biometric restrictions where applicable.
+    expectedContext: Typed operation/version, immutable artifact refs, Media bounds/deadline, policy-decision refs, and opaque correlation/job refs.
+    timeoutCancellation: Use the AI Inference public cancellation/reconciliation contract; timeout is not provider cancellation confirmation.
+    finality: Model/provider response is an execution result, not automatic quality, rights, fidelity, or publication approval.
+    retryReconciliation: Bounded idempotent request and provider outcome reconciliation; exact semantics pending P0-005/P0-008 owner bindings.
+    errorMapping: Preserve public health, quota, license, policy, capacity, and unknown-outcome reasons; do not silently select an unqualified fallback.
+    returnContinuation: Return provider-neutral result/provenance refs to Media plan/job for Media-specific validation and registration.
+    acceptedArtifactReferences: Authorized input/output artifact refs and owner-provided execution refs.
+    prohibition: Media does not create a second generic model registry/router or select a model unavailable under current policy.
+
+  - id: action-plane-publication
+    status: master-plan-required-boundary; exact-public-effect-contract-pending-p0-008
+    direction: Media requests an authorized external publication effect through Action Plane
+    sourceOwner: Media for output/version, delivery intent, and media lifecycle
+    destinationOwner: Ghatana Action Plane for privileged effect authority, approval, idempotency, execution, and reconciliation
+    operationAndVersion:
+      value: No exact Action Plane operation/version is admitted in this artifact.
+      source: docs/migration/expert-reviewed-master-plan.md#3.1-mandatory-dependency-selection-order
+    authenticationAndDelegation: Current verified principal, explicit delegation, approval, and allowed destination are required from trusted owner contracts.
+    classificationAndPurpose: Revalidate output classification, rights, consent, residency/egress, disclosure, and publication purpose immediately before the effect.
+    expectedContext: Exact output/version/digest, destination, effect intent, approval refs, idempotency/effect key, policy decision refs, and safe correlation refs.
+    timeoutCancellation: Cancellation outcome and remote dispatch boundary are set by Action Plane contract; after dispatch, uncertain effects require reconciliation.
+    finality: Distinguish requested, accepted, dispatched, confirmed, rejected, partial, and unknown according to the admitted Action Plane status contract; no exact enum is invented here.
+    retryReconciliation: Reconcile by stable effect identity before retry; duplicate publication is forbidden by default.
+    errorMapping: Map documented Action Plane reasons; preserve unknown finality and safe next action.
+    returnContinuation: Return receipt/effect status to Media delivery view and link to exact output; Media does not claim remote recall.
+    acceptedArtifactReferences: Exact Media output and Action Plane effect receipt refs.
+
+  - id: agent-runtime-media-action
+    status: master-plan-proposed; agent-public-action-binding-not-admitted
+    direction: Agent Runtime sends bounded intent/action to Media and receives job/result references
+    sourceOwner: Ghatana Agent Runtime for reasoning/agent execution; Action Plane for privileged effects
+    destinationOwner: Media for its public actions and media-owned state
+    operationAndVersion:
+      value: Exact public Media action/Agent Runtime operation is pending P0-008.
+      source: docs/migration/expert-reviewed-master-plan.md#17-cross-product-recipes-and-dependency-handoffs
+    authenticationAndDelegation: Explicit bounded delegation; an agent cannot self-authorize or use Media intent to widen scope.
+    classificationAndPurpose: Pass only purpose-required media/intent/policy references; no unrestricted user context or secret-bearing baggage.
+    expectedContext: Bounded recipe/operation, source refs, deadlines/budget, delegation and policy decision refs, correlation ref.
+    timeoutCancellation: Follow both public contracts; a stopped agent is not proof the Media job was cancelled.
+    finality: Agent plan completion is distinct from Media job completion and any Action Plane external effect.
+    retryReconciliation: Prevent recursive budget reset; observe existing Media request before new submission.
+    errorMapping: Map documented unsupported/denied/limit/unknown reasons without fabricating success.
+    returnContinuation: Return Media job and artifact refs plus finality to the agent caller; require human review where policy says.
+    acceptedArtifactReferences: Opaque Media job/output refs only.
+
+  - id: yappc-product-authoring
+    status: optional-master-plan-edge; no-direct-consumer-found-in-bounded-inventory
+    direction: YAPPC public product/capability authoring facility to Media authoring/integration only if separately admitted
+    sourceOwner: YAPPC for its product metadata/authoring contracts
+    destinationOwner: Media for Media-specific product meaning and artifacts
+    operationAndVersion: No current public operation/version or active consumer path is established; do not import YAPPC internals.
+    authenticationAndDelegation: Pending public contract and owner approval.
+    classificationAndPurpose: Pending product authoring contract; Media content/asset rights remain Media-owned.
+    expectedContext: Minimal public product/capability references if adopted; no implementation source references.
+    timeoutCancellation: Pending operation; not a runtime dependency today.
+    finality: No authoring or runtime support claim.
+    retryReconciliation: Pending public contract; no Media state is written by this proposed edge.
+    errorMapping: Pending owner contract.
+    returnContinuation: Continue in Media's own authoring experience unless the public integration is later accepted.
+    acceptedArtifactReferences: None currently admitted.
+
+  - id: kernel-product-lifecycle
+    status: optional-master-plan-edge; no-direct-consumer-found-in-bounded-inventory
+    direction: Media to a published Kernel lifecycle/shell/provider contract only when deliberately adopted
+    sourceOwner: Media for product meaning and media jobs
+    destinationOwner: Ghatana Kernel for generic lifecycle/shell/provider contracts
+    operationAndVersion: No adopted Kernel operation/version is established; repository relocation does not imply Kernel-native materialization.
+    authenticationAndDelegation: Pending a selected public contract and identity binding.
+    classificationAndPurpose: Pass minimal authorized lifecycle references; never transfer Media database authority.
+    expectedContext: Published capability/lifecycle refs only; no private Kernel or Media implementation objects.
+    timeoutCancellation: Pending selected contract.
+    finality: Media remains authority for Media artifact/job/stream semantics.
+    retryReconciliation: Pending selected contract; must preserve exactly-one Media writer and authority epoch.
+    errorMapping: Pending selected contract.
+    returnContinuation: Return to Media project/job state through explicit public references.
+    acceptedArtifactReferences: None admitted by migration inventory.
