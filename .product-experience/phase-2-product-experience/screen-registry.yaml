@@ -183,7 +183,7 @@ screens:
   - screen-contracts/use-authorized-voice.yaml
   contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
 - id: media.view.edit-captions
-  label: Edit captions
+  label: Correct captions
   legacyViewRef: M-CAPTIONS
   route: Project caption editor
   purpose: Timings, language, accessibility and review

@@ -722,7 +722,7 @@ phaseAuthorities:
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
       no-Phase-2-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-CAPTIONS-YAML
-    title: Edit captions
+    title: Correct captions
     path: phase-2-product-experience/screen-contracts/edit-captions.yaml
     role: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase

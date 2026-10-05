@@ -536,8 +536,8 @@ subjects:
 projection:
   generatedBy: scripts/generate-development-subject-catalog.mjs
   sourceAuthority: config/development-subject-authorities.v1.json
-  sourceAuthorityFingerprint: sha256:f8d5f834a7c5b49403511115a3b397d0d1cfc0035749ef80996cda0d63a7fdbb
-  currentnessFingerprint: sha256:4b14fe75c132a63d6effab30fcf46b750e6d5dc9859249bf916ab7d37f4e6df8
+  sourceAuthorityFingerprint: sha256:c7973b1326970308d60c7ca114fab903086474129799f0849ceb806dd0d2fff9
+  currentnessFingerprint: sha256:a446da6a96b96fc9db7c6c5cf11eafe81af32603cb4322e2e61a80b55b2f03a1
   materialFingerprints:
     - sourcePath: .product-experience/phase-0-product-truth/actors-responsibilities.yaml
       fingerprint: sha256:76f66242b91c1401baaf85f70d1ff87dc2a06ed1728d8832f30d8c58e5ae5056
@@ -786,7 +786,7 @@ projection:
     - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/work-with-speech.yaml
       fingerprint: sha256:2ed61ca0df7e8863c433f6a417d155cea7e3e625d5a5c10373733a085ca3458f
     - sourcePath: .product-experience/phase-2-product-experience/screen-registry.yaml
-      fingerprint: sha256:75376ad5769c6d1a31fa5bfbae32adb1f5bff5c56601ac6b032f71f3edb31f5e
+      fingerprint: sha256:020f543a5708294a094f51d72594f56cc33a697e1af339f7b63d7cd1e7e9c4fd
     - sourcePath: .product-experience/phase-2-product-experience/simulation-semantics.yaml
       fingerprint: sha256:54252e08ac307aa940a91ba11a846d00473ce8a864d84a67b948a57cb538ce37
     - sourcePath: .product-experience/phase-2-product-experience/state-transition-bindings.yaml
@@ -798,7 +798,7 @@ projection:
     - sourcePath: .product-experience/phase-3-experience-explorer/scenario-fixtures.yaml
       fingerprint: sha256:1b967062606e884beaf3a78c8a29e2a1a2b947183f115719c482f62d6b0d120d
     - sourcePath: .product-experience/phase-3-experience-explorer/verification-matrix.yaml
-      fingerprint: sha256:7280fa7a3a75fe1764ead34d2113e0ab2369824b96cfe5d85de044b755695fd0
+      fingerprint: sha256:9c19aa48e9ada25a04bcab728a8e01d9630fc9f460617adace257c3915c97c86
     - sourcePath: .product-experience/phase-3-experience-explorer/view-projections.yaml
       fingerprint: sha256:e37e70446b9a8298435556a6570a517a367eb5d736cfaf3b7398038b4139dbda
   catalogFingerprint: sha256:7318d372ed83a0ab3c2321fcf1a33ca291e5b9d8a7b352ad945443507f5d37f9

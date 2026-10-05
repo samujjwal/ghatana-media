@@ -1702,7 +1702,7 @@ productArtifactIndex:
       status: pending-owner-approved-Tools-generation
       value: null
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:c2991e9b4ab6a626cb3b1282de2c5a6f2f3fefb81b10007dae8a5e5195be2f45
+    provisionalContentSha256: sha256:8187df833cfaecf9d6dda4856b6b4da875f0229c5cb35389d607c6e95d7cdfbf
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -4724,7 +4724,7 @@ productArtifactIndex:
       status: pending-owner-approved-Tools-generation
       value: null
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:75376ad5769c6d1a31fa5bfbae32adb1f5bff5c56601ac6b032f71f3edb31f5e
+    provisionalContentSha256: sha256:020f543a5708294a094f51d72594f56cc33a697e1af339f7b63d7cd1e7e9c4fd
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5076,7 +5076,7 @@ productArtifactIndex:
       status: pending-owner-approved-Tools-generation
       value: null
       blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    provisionalContentSha256: sha256:7280fa7a3a75fe1764ead34d2113e0ab2369824b96cfe5d85de044b755695fd0
+    provisionalContentSha256: sha256:9c19aa48e9ada25a04bcab728a8e01d9630fc9f460617adace257c3915c97c86
     contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness
       result.
     dependencies:
@@ -5438,7 +5438,7 @@ productArtifactIndex:
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
       no-Phase-2-acceptance
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-CAPTIONS-YAML
-    title: Edit captions
+    title: Correct captions
     owner: ghatana-media-product-and-UX-owners
     authorityClass: authored-proposal
     authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase

@@ -219,8 +219,9 @@ checks:
   environment: local-browser-127.0.0.1:4178
   observation: PASS
   detail: On 2026-10-05, browser accessibility and visual inspection confirmed that Product and Explore show the same
-    intent-based names for source selection, transcript review, and caption-version comparison in the page title,
-    breadcrumb, document title, and workflow navigation. At 390x844 and 320x640, the five-step workflow navigation
+    intent-based names for source selection, transcript review, caption correction, and caption-version comparison in
+    the page title, breadcrumb, document title, and workflow navigation. The unknown-job recovery action reads Check
+    job outcome, matching its Resolve a job outcome view title. At 390x844 and 320x640, the five-step workflow navigation
     stays above the page content in one row, and the screenshot showed no horizontal overflow. With one saved caption version, the
     comparison view explains that a second version is needed and offers Correct captions as the next action. Verify
     reads the indexed artifact count and displays 146 source records. This is local UI and fixture evidence; it does
