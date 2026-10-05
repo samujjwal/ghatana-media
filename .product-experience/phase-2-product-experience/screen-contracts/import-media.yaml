@@ -1,0 +1,92 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.import-media
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.understand
+purpose: admit one authorized source and report its actual transfer and integrity state
+contextGoalNowNext:
+  context: Current workspace, optional project target, source selection, and stable upload identity when one exists.
+  goal: Transfer a source under the admitted contract and reach a truthful verification disposition.
+  now: Show selected source and admitted limits before transfer; then show only server-acknowledged progress and
+    current finality.
+  next: Resume the same eligible upload, inspect a verification result, or return with a clear blocked/recovery
+    state.
+anatomy:
+- workspace-and-project-target
+- accessible-source-picker
+- admitted-source-limits
+- transfer-identity
+- acknowledged-progress
+- integrity-and-policy-state
+- safe-next-action
+componentRefs:
+- media.component.artifact-source-picker
+- media.component.artifact-transfer-status
+states:
+- empty
+- source-selected
+- receiving
+- interrupted
+- verifying
+- outcome-unknown
+- available
+- quarantined
+- rejected
+- permission-revoked
+- offline
+actions:
+- media.action.begin-artifact-upload
+- media.action.resume-artifact-upload
+- media.action.inspect-artifact
+validation: Admit source type and bounds from the owner contract, not from filename heuristics. Never promote an
+  incomplete upload, unverified digest, quarantined object, or unknown result to AVAILABLE.
+recovery: Resume only the same upload after stable identity, source metadata, workspace, and current authority match;
+  otherwise keep the partial source isolated or expire it under policy and explain the confirmed disposition.
+responsive: Keep stable identity, integrity state, and safe next action visible without horizontal scrolling; progress
+  may collapse only when its finality remains visible.
+accessibility: native-file-picker; drag-and-drop-is-optional; announced-progress-is-throttled-and-server-acknowledged;
+  state-and-blocking-reason-are-textual
+copyRefs:
+- media.copy.artifact.transfer-paused
+- media.copy.artifact.integrity-failed
+- media.copy.artifact.quarantined
+- media.copy.artifact.unsupported
+- media.copy.artifact.outcome-unknown
+- media.copy.artifact.verified
+fixtureState: seven-Phase-3-metadata-only-fixtures-authored; no-file-bytes-or-production-upload-contract
+scenarioRefs:
+- media.scenario.upload-interrupted
+- media.scenario.upload-checksum-mismatch
+- media.scenario.upload-format-unsupported
+- media.scenario.upload-quarantined
+- media.scenario.upload-verified-available
+- media.scenario.upload-outcome-unknown
+- media.scenario.upload-permission-revoked
+actionBindingState: bound-to-existing-P2-actions
+actionIntents: []
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+copyDisposition: canonical-copy-IDs-pending
+fixtureDisposition: synthetic-fixture-contract-not-authored
+journeyRefs:
+- J-02
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-02
+fixtureRefs: []
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

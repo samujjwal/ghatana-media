@@ -1,0 +1,21 @@
+schemaVersion: media.accessibility-language.v1
+productId: media
+authority: Media-specific accessibility contracts over Shared primitives
+status: authored-proposal; accessibility-specialist-and-P0-010-review-pending
+reviewTarget: applicable-WCAG-criteria-to-be-selected-by-the-accessibility-owner
+requirements:
+  - All visible actions have a keyboard path, visible focus, and accessible name that includes purpose and affected object.
+  - Playback, transcript, waveform, and timeline have equivalent semantic controls; no operation depends only on drag, color, sound, or motion.
+  - Live status announcements are concise and throttled; stable content is not re-announced on every progress update.
+  - Errors are associated with the control or segment that needs correction and explain the safe next action.
+  - Captions and transcripts remain readable at 200-percent text and supported reflow sizes.
+  - Reduced-motion preferences remove decorative movement without hiding state or progress.
+  - Forced-colors mode preserves source/derived distinctions, selection, focus, and error meaning.
+  - Localized labels and caption content remain separate from stable reason codes and machine fields.
+verificationEvidenceRequired:
+  - keyboard-only-observation
+  - screen-reader-observation
+  - zoom-and-reflow-observation
+  - forced-colors-and-reduced-motion-observation
+  - human-reviewer-and-version
+acceptance: review-required; no conformance result is asserted

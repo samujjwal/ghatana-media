@@ -1,0 +1,90 @@
+schemaVersion: media.cli-command-registry.v1
+productId: media
+status: implemented-local-fixture-command-simulator; production-runtime-cli-not-connected
+registryRule: one-command-registry; all-aliases-resolve-to-canonical-command-id
+executionScope: deterministic-synthetic-fixtures-only; no-Media-runtime-or-provider-connection
+globalOptions:
+  --format: "human|json|jsonl; accepted by every command; defaults to human"
+commands:
+  - id: media.cli.upload.inspect
+    label: Inspect an upload result
+    canonicalCommand: ghatana-media upload inspect
+    options: [--upload]
+    actionRef: media.action.inspect-artifact
+    result: current-transfer-status-and-artifact-integrity-with-upload-identity-distinct-from-job-identity
+  - id: media.cli.upload.resume
+    label: Resume an interrupted upload
+    canonicalCommand: ghatana-media upload resume
+    options: [--upload]
+    actionRef: media.action.resume-artifact-upload
+    result: same-upload-identity-and-previously-acknowledged-transfer-state
+  - id: media.cli.transcribe
+    label: Transcribe a recording
+    canonicalCommand: ghatana-media transcribe
+    options: [--source-version, --language]
+    actionRef: media.action.request-transcription
+    result: stable-job-reference-and-current-finality
+  - id: media.cli.transcript.review
+    label: Review a transcript
+    canonicalCommand: ghatana-media transcript review
+    options: [--transcript-version]
+    actionRef: media.action.review-transcript
+    result: source-linked-transcript-and-explicit-uncertainty
+  - id: media.cli.job.inspect
+    label: Inspect job status
+    canonicalCommand: ghatana-media job inspect
+    options: [--job]
+    actionRef: media.action.inspect-job
+    result: current-job-state-and-finality
+  - id: media.cli.job.cancel
+    label: Request cancellation for a job
+    canonicalCommand: ghatana-media job cancel
+    options: [--job]
+    actionRef: media.action.request-cancellation
+    result: cancellation-request-and-current-finality; this-fixture-command-supports-transcription-jobs-only
+    finality: pending-until-the-owning-job-confirms-a-stop-or-reports-a-racing-result
+  - id: media.cli.caption.correct-text
+    label: Correct caption text
+    canonicalCommand: ghatana-media caption correct-text
+    options: [--artifact-version, --segment, --text]
+    actionRef: media.action.correct-caption
+    result: draft-caption-version
+  - id: media.cli.caption.align-timing
+    label: Match caption timing to the recording
+    canonicalCommand: ghatana-media caption align-timing
+    options: [--artifact-version, --segment, --start-tick, --end-tick]
+    timeBasis: integer-ticks-on-the-exact-source-clock; read-tick-rate-from-source-version; half-open-range
+    actionRef: media.action.align-caption-timing
+    result: draft-caption-version-with-explicit-source-clock-ranges
+  - id: media.cli.caption.save-version
+    label: Save a caption version
+    canonicalCommand: ghatana-media caption save-version
+    options: [--draft-version, --purpose]
+    purposeRequirement: non-empty-and-at-most-240-characters
+    actionRef: media.action.save-caption-version
+    result: immutable-caption-version-or-explicit-block
+  - id: media.cli.caption.compare-versions
+    label: Compare caption versions
+    canonicalCommand: ghatana-media caption compare-versions
+    options: [--left-version, --right-version]
+    actionRef: media.action.compare-caption-versions
+    result: text-timing-provenance-and-source-version-comparison
+  - id: media.cli.job.reconcile
+    label: Check an uncertain job outcome
+    canonicalCommand: ghatana-media job reconcile
+    options: [--job]
+    actionRef: media.action.reconcile-job
+    result: existing-job-reconciliation; never-new-dispatch
+output:
+  human: outcome-first-and-localized-when-admitted
+  machineFormats: [json, jsonl]
+  resultSchemaVersion: media.cli-result.v1
+  errorSchemaVersion: media.cli-error.v1
+  errorFields: [schemaVersion, code, message]
+  machineParseErrors: one-json-object-or-one-jsonl-error-record-on-stdout; no-human-diagnostics-on-stdout
+  stableFields: [schemaVersion, actionId, workflow, jobId, uploadId, workflowState, state, finality, verificationStage, sourceVersion, resultVersion, reasonCode, nextAction]
+  localSimulationExitCodes:
+    success: 0
+    parse-or-blocked-action: 2
+  productionRuntimeExitCodeBinding: pending-owner-approved-runtime-contract
+  sigint: distinguish-stop-watching-from-cancellation-request-and-confirmed-cancellation

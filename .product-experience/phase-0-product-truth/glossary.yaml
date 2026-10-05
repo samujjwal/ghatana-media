@@ -9,6 +9,19 @@ sourceRefs:
   - master-plan:section-14
   - product-truth:P0-001-boundary-slice
   - decision:MDI-001
+identifierNaming:
+  productId: media
+  capabilityId: media.<family>.<operation>
+  viewId: media.view.<user-outcome>
+  actionId: media.action.<verb-object>
+  cliCommandId: media.cli.<user-intent-or-operation>
+  scenarioId: media.scenario.<condition-or-outcome>
+  semanticSegments: lowercase-kebab-case; stable; no-vendor-model-or-provider-names
+  requirementIds: preserve-canonical-MEDIA-identifiers-from-the-master-plan
+  journeyIds: preserve-plan-assigned-J-01-through-J-28; J-29-and-J-30-are-supplementary-Phase-0-journey-refs
+  legacyViews: reviewed-plan-M-*-identifiers-are-crosswalk-references; do-not-mint-new-M-*-view-identifiers
+  publicPackages: follow-the-product-registry; preserve-supported-existing-package-names-during-migration
+  compatibility: do-not-create-duplicate-new-name-and-old-name-implementations
 terms:
   - id: media.term.ghatana-media
     term: Ghatana Media
@@ -128,8 +141,14 @@ terms:
     term: ProcessingJob
     definition: A durable, observable unit of requested Media work with intent, attempts, state, outputs, and truthful finality.
     aliases: [Media job, job]
-    distinctions: [RenderJob is a typed view of a ProcessingJob with render intent, not a separate lifecycle authority.]
+    distinctions: [RenderJob and ArtifactVerificationJob are typed views of ProcessingJob intent, not separate lifecycle authorities; job finality does not replace artifact lifecycle state.]
     forbiddenConflations: [provider request, browser attachment, project revision]
+  - id: media.term.artifact-verification-job
+    term: Artifact verification job
+    definition: A ProcessingJob with the intent to collect integrity, format, and required policy evidence for an uploaded artifact.
+    aliases: [verification job]
+    distinctions: [Its stable job identity is separate from the related upload identity and any resulting artifact identity; completion records job finality, while artifact availability follows the artifact lifecycle contract.]
+    forbiddenConflations: [upload transfer, artifact version, transcription job, artifact availability without owner evidence]
   - id: media.term.quality
     term: Quality
     definition: Measured or reviewed properties of an output against stated, capability-specific acceptance criteria.
@@ -214,6 +233,51 @@ terms:
     aliases: [t_story, animation time]
     distinctions: [It may be edited independently from a scientific model's simulation time.]
     forbiddenConflations: [simulation time, source decode timestamp, wall-clock deadline]
+  - id: media.term.transcript
+    term: Transcript
+    definition: A versioned textual observation of spoken content, optionally linked to speakers and source media time.
+    aliases: [speech transcript]
+    distinctions: [Recognition, alignment, language, and speaker uncertainty remain explicit; a transcript is not itself a caption track.]
+    forbiddenConflations: [caption presentation, verified quotation, source audio]
+  - id: media.term.caption
+    term: Caption
+    definition: Timed on-screen text that represents spoken content and, when required by the declared accessibility intent, relevant non-speech audio.
+    aliases: [caption track]
+    distinctions: [Captions are a presentation artifact with timing and language; subtitles may be dialogue-only or translated when explicitly specified.]
+    forbiddenConflations: [raw transcript, subtitle language translation, audio source]
+  - id: media.term.legacy-audio-video-identity
+    term: Legacy Audio-Video identity
+    definition: Existing internal build, Java namespace, or package identity retained as a compatibility name during behavior-preserving relocation.
+    aliases: [audio-video, AudioVideo]
+    distinctions: [These names remain valid only where an existing build or public compatibility contract requires them; new product-facing names use Ghatana Media or Media.]
+    forbiddenConflations: [a separate Audio-Video product, the full Media capability scope, a user-facing intent]
+namingRules:
+  productDisplayName: Ghatana Media
+  productShortName: Media
+  subsystemNames:
+    mediaSynth: >-
+      MediaSynth is the generative orchestration subsystem. It is not a second
+      product, generic inference router, or mandatory standalone service.
+  compatibilityNames:
+    source: docs/migration/expert-reviewed-master-plan.md#2-1-stable-naming
+    allowedOnlyFor: existing-build-coordinates-java-namespaces-and-published-package-identities
+    examples: [audio-video, AudioVideo, com.ghatana.audio.video, '@audio-video/types', '@audio-video/client', '@audio-video/ui']
+    rule: Preserve during migration; do not use as new product labels, new capability names, or new package names.
+  newIdentifiers:
+    capability: 'media.<family>.<intent-based-operation>'
+    requirement: 'MEDIA-REQ-*'
+    view: 'media.view.<user-outcome>'
+    action: 'media.action.<verb-object>'
+    component: 'media.component.<user-task-or-domain-object>'
+    scenario: 'media.scenario.<observable-condition>'
+    rule: IDs are stable, lowercase, domain-owned, and omit vendor, model, provider, and implementation names.
+  userFacingLabels:
+    rule: Start with the user's action or intended result and name its object; use domain terms only when they are explained in the glossary.
+    avoid: [Details, Process, Manage, Configure, Run, Profile, Provider, Queue]
+    examples:
+      - { insteadOf: 'Force-align transcript', use: 'Match transcript timing to audio' }
+      - { insteadOf: 'Live captioning profile', use: 'Enable live captions' }
+      - { insteadOf: 'Retry', use: 'Check status before retrying when outcome is unknown' }
 unitsAndConventions:
   status: proposed-needs-owner-contract-validation
   rules:

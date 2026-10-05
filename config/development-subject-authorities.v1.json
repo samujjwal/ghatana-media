@@ -1,0 +1,803 @@
+{
+  "schemaVersion": "ghatana.development-subject-authorities.v1",
+  "repositoryMetadata": {
+    "displayName": "Ghatana Media",
+    "sourceControlLocator": "github:samujjwal/ghatana-media"
+  },
+  "subjects": [
+    {
+      "id": "media",
+      "kind": "PRODUCT",
+      "identity": "ghatana.product/media",
+      "displayName": "Ghatana Media",
+      "authorityRoots": [
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/accessibility.yaml",
+          "schemaVersion": "media.accessibility-language.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/action-finality-grammar.yaml",
+          "schemaVersion": "media.action-finality-grammar.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/animation-simulation-grammar.yaml",
+          "schemaVersion": "media.animation-simulation-grammar.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/cli-language.yaml",
+          "schemaVersion": "media.cli-language.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/component-contracts.yaml",
+          "schemaVersion": "media.component-contracts.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/localization-content.yaml",
+          "schemaVersion": "media.localization-content.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/media-editing-grammar.yaml",
+          "schemaVersion": "media.editing-grammar.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/media-token-aliases.yaml",
+          "schemaVersion": "media.design-token-aliases.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/motion.yaml",
+          "schemaVersion": "media.motion-language.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/responsive-adaptive.yaml",
+          "schemaVersion": "media.responsive-adaptive.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/semantic-state-grammar.yaml",
+          "schemaVersion": "media.semantic-state-grammar.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/trust-provenance-grammar.yaml",
+          "schemaVersion": "media.trust-provenance-grammar.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-experience-language",
+          "sourcePath": ".product-experience/phase-1-design-language/typography-layout.yaml",
+          "schemaVersion": "media.typography-layout.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/actors-responsibilities.yaml",
+          "schemaVersion": "media.actors-responsibilities.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/applications-channels.yaml",
+          "schemaVersion": "media.phase-0.applications-channels.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/capabilities.yaml",
+          "schemaVersion": "media.capabilities.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/constitution.yaml",
+          "schemaVersion": "media.product-constitution.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/content-intent.yaml",
+          "schemaVersion": "media.content-intent.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/dependency-contracts.yaml",
+          "schemaVersion": "media.migration-boundary-dependencies.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/domain-model.yaml",
+          "schemaVersion": "media.phase-0.domain-model.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/glossary.yaml",
+          "schemaVersion": "media.product-glossary.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/goals-jtbd.yaml",
+          "schemaVersion": "media.goals-jtbd.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/handoff-contracts.yaml",
+          "schemaVersion": "media.phase-0.handoff-contracts.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/information-architecture.yaml",
+          "schemaVersion": "media.phase-0.information-architecture.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/journey-catalog.yaml",
+          "schemaVersion": "media.phase-0.journey-catalog.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/nonfunctional-requirements.yaml",
+          "schemaVersion": "media.nonfunctional-requirements.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/policy-authority-model.yaml",
+          "schemaVersion": "media.migration-boundary-authority.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/profile-semantics.yaml",
+          "schemaVersion": "media.profile-semantics.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/qualification-policy.yaml",
+          "schemaVersion": "media.qualification-policy.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/quality-policy.yaml",
+          "schemaVersion": "media.quality-policy.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/requirements.yaml",
+          "schemaVersion": "media.requirements.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/reuse-decisions.yaml",
+          "schemaVersion": "media.reuse-decisions.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/state-models.yaml",
+          "schemaVersion": "media.state-models.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "establish-product-definition",
+          "sourcePath": ".product-experience/phase-0-product-truth/time-units-fidelity.yaml",
+          "schemaVersion": "media.phase-0.time-units-fidelity.v1",
+          "classification": "PRODUCT_SEMANTIC_AUTHORITY"
+        },
+        {
+          "stageId": "materialize-implementation",
+          "sourcePath": ".product-experience/phase-3-experience-explorer/interaction-dispositions.yaml",
+          "schemaVersion": "media.explorer-interaction-dispositions.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "materialize-implementation",
+          "sourcePath": ".product-experience/phase-3-experience-explorer/media-experience-package.yaml",
+          "schemaVersion": "media.experience-package-binding.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "materialize-implementation",
+          "sourcePath": ".product-experience/phase-3-experience-explorer/scenario-fixtures.yaml",
+          "schemaVersion": "media.experience-fixture-index.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "materialize-implementation",
+          "sourcePath": ".product-experience/phase-3-experience-explorer/verification-matrix.yaml",
+          "schemaVersion": "media.explorer-verification-matrix.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "materialize-implementation",
+          "sourcePath": ".product-experience/phase-3-experience-explorer/view-projections.yaml",
+          "schemaVersion": "media.experience-view-projections.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/action-registry.yaml",
+          "schemaVersion": "media.action-registry.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/api-experience-mapping.yaml",
+          "schemaVersion": "media.api-experience-mapping.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/application-channel-registry.yaml",
+          "schemaVersion": "media.application-channel-registry.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/cli-command-registry.yaml",
+          "schemaVersion": "media.cli-command-registry.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/content-copy-catalog.yaml",
+          "schemaVersion": "media.content-copy-catalog.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/data-view-contracts.yaml",
+          "schemaVersion": "media.data-view-contracts.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/handoff-bindings.yaml",
+          "schemaVersion": "media.handoff-bindings.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/interaction-registry.yaml",
+          "schemaVersion": "media.interaction-registry.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/first-use-and-project-creation.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-registry.yaml",
+          "schemaVersion": "media.journey-registry.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/navigation-contracts.yaml",
+          "schemaVersion": "media.navigation-contracts.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/recovery-finality-contracts.yaml",
+          "schemaVersion": "media.recovery-finality-contracts.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/responsive-variants.yaml",
+          "schemaVersion": "media.experience-responsive-variants.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/scenario-fixture-registry.yaml",
+          "schemaVersion": "media.scenario-fixture-registry.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/authenticate-and-select-context.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/browse-media.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/compare-caption-versions.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/correct-captions.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/create-media.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/find-projects.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/import-media.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/artifact-verification-job-family.yaml",
+          "schemaVersion": "media.job-view-specialization.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/inspect-media.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/resolve-job-outcome.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/resume-work.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/review-transcript.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/select-source.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/transcription-progress.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/work-in-project.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-registry.yaml",
+          "schemaVersion": "media.screen-registry.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/simulation-semantics.yaml",
+          "schemaVersion": "media.product-simulation-semantics.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/state-transition-bindings.yaml",
+          "schemaVersion": "media.state-transition-bindings.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/inspect-job.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/review-creation-plan.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/arrange-scenes.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/create-image.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/create-video.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/create-audio.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/work-with-speech.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/use-authorized-voice.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/edit-captions.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/review-dubbing.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/improve-media.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/compare-results.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/edit-media.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/edit-media-region.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/animate-media.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/compose-scene.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/explore-simulation.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/compose-media.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/adjust-color.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/review-quality.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/prepare-render.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/review-outputs.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/inspect-output.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/deliver-output.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/review-exact-version.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/review-rights-and-consent.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/inspect-provenance.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/choose-eligible-processing-option.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/check-processing-options.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/check-processing-readiness.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/review-workspace-settings.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/screen-contracts/find-task-guidance.yaml",
+          "schemaVersion": "media.screen-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        },
+        {
+          "stageId": "specify-executable-experience",
+          "sourcePath": ".product-experience/phase-2-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
+          "schemaVersion": "media.journey-contract.v1",
+          "classification": "EXPERIENCE_AUTHORITY"
+        }
+      ]
+    }
+  ]
+}

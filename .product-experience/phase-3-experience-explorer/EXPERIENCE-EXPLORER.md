@@ -1,0 +1,103 @@
+# Media Experience Explorer Package
+
+**Authority:** Phase 3 proposal projecting Phase 0–2 records\
+**Acceptance:** blocked on P2-008, published Tools bindings, full baseline coverage, and human visual/accessibility review\
+**Implemented here:** deterministic J-01 first-use fixtures, J-02 upload-metadata fixtures, J-20 transcription-job observation/cancellation fixtures, selected J-03 transcript/caption simulation, and a local browser review client
+
+The package is Media-specific. It projects synthetic J-01 project setup, the
+J-02 artifact-intake scenarios, a bounded J-20 transcription-job recovery slice,
+and one defined audio transcript-review lane. It does not establish runtime
+capability, provider success, quality, licensing, or production availability.
+Media owns the simulated product state and actions; Tools owns the generic
+Experience Explorer host and package contracts.
+
+The current Tools checkout contains the headless `@ghatana/product-dev-explorer`
+package and the four workspace contracts, but its explorer package declares
+`standaloneProven: false` and has no generic browser renderer in the inspected
+source. `apps/media-experience-explorer/` is a Media-owned local browser client
+for one selected lane. It does not replace the Tools host or provide the
+published, isolated-consumer binding. Those remain open under `GAP-11` and
+`GAP-MEDIA-TOOLS-SCHEMA-BINDING`; the reducer is ready for an owner-bound Media
+package adapter when those contracts are admitted.
+
+## Four host modes
+
+| Mode | Media behavior in the selected lane |
+|---|---|
+| Product | Shows only the selected first-use, artifact-intake, transcription, caption-review, or existing-job status surface. The header, mode tabs, Explorer tabpanel, and Explorer actions are absent; the document title follows the product view. |
+| Explore | Selects a named scenario, supported web or CLI projection, preview width, and accessibility profile; actor and locale remain fixture-declared. J-01 is Web-only; J-02 upload recovery and J-20 transcription job inspection, cancellation, and reconciliation have local CLI commands. |
+| Specification | Inspects the Phase 0 outcome/capability, Phase 1 component/state rule, and Phase 2 action/view/journey records. All 41 baseline view contracts and six selected-lane specializations have read-only previews of their declared structure, states, actions, channels, and guidance; actions remain labeled as not executable. Search filters records by title and filename, with the source YAML retained below the preview. |
+| Verify | Reports current package bindings, reducer observations, structural and action coverage, and the required browser/accessibility evidence still missing. |
+
+The workbench opens in Explore mode. Opening the product preview enters a
+standalone Product route; browser history returns to the workbench. The host
+owns mode navigation and diagnostics. Product mode owns its intended content.
+All modes call the same deterministic Media action/effect model.
+Explorer mode labels describe host functions; Product meaning continues to use
+the Phase 2 view and action identifiers under the Phase 0 naming policy.
+
+## Implemented and pending
+
+- `libs/media-experience-simulation/` implements a deterministic state factory,
+  guarded reducer, explicit simulated events, a shared channel projection, the
+  `media-experience-fixture` fixture runner, and the `ghatana-media` canonical
+  command simulator for synthetic fixtures. Its JSON and JSONL outputs expose
+  the same projection used by the model tests; they do not connect to the Media
+  runtime or a provider.
+- `apps/media-experience-explorer/` renders Product, Explore, Specification,
+  and Verify modes for six synthetic J-01 first-use states, J-02 metadata-only
+  artifact intake and verification-job states, J-20 transcription-job state,
+  and the selected transcript/caption lane. Product mode has three first-use
+  routes, three J-02 artifact-intake views, one synthetic activity view, and a
+  shared job-status view for verification and transcription jobs; four J-03
+  view labels remain. Specification mode indexes all 146 source records and
+  previews every one of the 41 baseline view contracts and six selected-lane
+  specializations without claiming those proposals are executable. It does
+  not implement all 41 Phase 2 baseline views or all required journeys.
+- The four Product route labels bind to Phase 2 by intent: Source renders
+  `media.view.select-source`, Transcript renders
+  `media.view.review-transcript`, Captions renders
+  `media.view.correct-captions`, and Versions renders
+  `media.view.compare-caption-versions`. `media.view.monitor-transcription`
+  and `media.view.resolve-job-outcome` are represented by inline job status and
+  safe-action summaries in the Transcript and Captions routes; they are not
+  separate routes in this local implementation.
+- J-01 fixtures keep unauthenticated or denied workspace data hidden, preserve
+  the same unknown project-create request, and create an empty project only in
+  local synthetic state. They do not call Shared identity or project services.
+- The J-02 routes show the library, upload transfer metadata, artifact
+  integrity/policy disposition, and a separate verification-job view. The
+  interrupted fixture can resume the same stable upload ID. No file bytes,
+  real upload endpoint, production format allowlist, or verification worker is
+  connected. Three synthetic job fixtures keep job and related upload
+  identities separate; the owner-issued job contract remains unbound and the
+  fixtures do not establish artifact availability.
+- The J-02 activity route projects one synthetic verification job and opens its
+  exact job view. It does not claim a production activity query, ordering,
+  pagination, or event timestamps.
+- The J-20 transcription job route preserves the exact job and source version,
+  separates attempt state from job finality, omits unmeasured progress, and
+  distinguishes stopping observation from cancellation. Cancellation remains
+  pending until simulated owner confirmation; unknown outcomes retain the same
+  job identity. The local CLI can inspect, request cancellation, and reconcile
+  transcription fixtures through the same reducer. Live watch, retries, job
+  persistence across process restart, and runtime bindings remain unavailable.
+- `media-experience-package.yaml` records the package authority boundary and
+  external host dependency.
+- `scenario-fixtures.yaml` indexes the fixture payloads in the simulation
+  package and their Phase 2 scenario contracts.
+- `view-projections.yaml` maps the selected screens to the same product state.
+- `verification-matrix.yaml` records required structural, behavior, responsive,
+  accessibility, packaging, and human-review observations.
+- The canonical command simulator uses the command IDs and guarded reducer
+  declared in Phase 2. Versioned JSON/JSONL result and parse-error records stay
+  machine-readable on stdout; human diagnostics stay on stderr. It is a local
+  synthetic-fixture executable, not the production Media runtime CLI. API
+  transport parity remains unspecified.
+- The simulation package typechecks with TypeScript 6.0.3 and all 31 tests
+  across the reducer and two CLI surfaces pass. The local browser client builds
+  with Vite 7.3.1 and bundles 146 current specification records. These
+  local observations do not establish a Tools-host binding or phase acceptance.
+- Browser rendering is locally observed at selected widths. Full accessibility
+  testing, all-view coverage, independent visual review, and owner acceptance
+  remain outstanding, so Phase 3 is not accepted.

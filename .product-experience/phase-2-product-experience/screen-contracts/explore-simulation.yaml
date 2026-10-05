@@ -1,0 +1,79 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.explore-simulation
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+- media.domain-reviewer
+intentRef: media.intent.simulate
+purpose: Initial conditions, domain fidelity, time control and instruments
+contextGoalNowNext:
+  context: A declared simulation model and revision, initial conditions, units, timebase, fidelity evidence, and
+    output measurements.
+  goal: Run or inspect a simulation only within a stated domain and fidelity boundary.
+  now: Show model, initial conditions, parameter units/ranges, time control, qualified domain, and output status.
+  next: Correct inputs, review fidelity evidence, or submit only after explicit validation and authorization.
+anatomy:
+- model-and-simulation-version
+- initial-conditions
+- parameter-controls-and-units
+- domain-and-fidelity-qualification
+- time-control
+- measurement-and-event-table
+- run-finality
+componentRefs:
+- media.component.simulation-instruments
+- media.component.scene-inspector
+- media.component.creation-plan-summary
+- media.component.quality-inspector
+states:
+- unconfigured
+- ready
+- invalid-input
+- unqualified-domain
+- running
+- partial-output
+- outcome-unknown
+- completed
+- failed
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- set an initial condition
+- inspect the domain and fidelity basis
+- validate a simulation plan
+- submit and inspect a run
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Simulation is not observation of reality; units and coordinate/time bases are explicit; qualification
+  claims are limited to their evidence scope.
+recovery: Keep the exact model and run identity; reconcile unknown state; disclose partial outputs and avoid blind
+  rerun.
+responsive: Use grouped parameter forms and measurement tables; pin run state, units, and fidelity label.
+accessibility: Provide numeric keyboard controls and structured output tables with units and timestamps; plots have
+  text equivalents.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-14
+- phase-0:journey:J-15
+journeyRefs:
+- J-14
+- J-15
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

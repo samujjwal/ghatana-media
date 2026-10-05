@@ -2,7 +2,12 @@ rootProject.name = "audio-video"
 
 // Detect build mode
 val isStandaloneBuild = gradle.parent == null
-val monorepoRoot = if (isStandaloneBuild) rootDir.parentFile.parentFile else rootDir.parentFile.parentFile
+val siblingGhatanaRoot = File(rootDir.parentFile, "ghatana")
+val monorepoRoot = if (isStandaloneBuild) {
+    siblingGhatanaRoot.takeIf { it.isDirectory } ?: rootDir
+} else {
+    rootDir.parentFile.parentFile
+}
 val productProjectPrefix = if (isStandaloneBuild) "services:media" else "media"
 // Standalone builds retain the monorepo project coordinates so existing media
 // build files and dependency declarations remain identical in both modes.
@@ -57,7 +62,7 @@ include("$productProjectPrefix:adapters")
 project(":$productProjectPrefix:adapters").projectDir = File(rootDir, "adapters")
 
 // Include contracts (needed by domain-models and other libs)
-val contractsDir = File(monorepoRoot, "contracts")
+val contractsDir = File(if (isStandaloneBuild) rootDir else monorepoRoot, "contracts")
 if (contractsDir.exists()) {
     include("contracts")
     project(":contracts").projectDir = contractsDir
@@ -235,7 +240,11 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-    val sharedBuildLogic = File(rootDir.parentFile.parentFile.parentFile, "ghatana-shared/build-logic")
+    val sharedBuildLogic = if (gradle.parent == null) {
+        File(rootDir.parentFile, "ghatana-shared/build-logic")
+    } else {
+        File(rootDir.parentFile.parentFile.parentFile, "ghatana-shared/build-logic")
+    }
     if (sharedBuildLogic.exists()) {
         includeBuild(sharedBuildLogic)
     }

@@ -1,0 +1,27 @@
+schemaVersion: media.experience-package-binding.v1
+productId: media
+status: first-use-artifact-intake-and-selected-caption-projection-proposal; Tools-host-and-public-binding-pending
+packageId: media.experience.simulation
+laneRef: .product-experience/lanes/transcribe-and-correct-captions.yaml
+journeyRefs: [J-01, J-02, J-03, J-20]
+authorityRefs:
+  productTruth: .product-experience/phase-0-product-truth
+  designLanguage: .product-experience/phase-1-design-language
+  productExperience: .product-experience/phase-2-product-experience
+productSpecificImplementation:
+  package: libs/media-experience-simulation
+  authority: deterministic-Media-state-actions-and-fixtures-only
+localBrowserReviewClient: apps/media-experience-explorer
+localBrowserScope: J-01-synthetic-project-setup-J-02-metadata-only-artifact-intake-activity-and-verification-job-views-J-20-transcription-job-observation-and-cancellation-and-selected-J-03-audio-caption-lane; not-the-generic-Tools-Explorer-host
+externalContracts:
+  experiencePackage: '@ghatana/experience-package'
+  explorerContracts: '@ghatana/experience-explorer-contracts'
+  explorerHost: '@ghatana/product-dev-explorer'
+  bindings: source-observed; public-artifact-and-isolated-consumer-not-verified
+hostModes: [product, explore, specification, verify]
+separationRules:
+  productModeContainsExplorerChrome: false
+  productModeContainsRequirementIds: false
+  simulatedRuntimeProof: prohibited
+  genericExplorerHostImplementedByMedia: false
+blockers: [GAP-MEDIA-TOOLS-SCHEMA-BINDING, GAP-11, GAP-12]

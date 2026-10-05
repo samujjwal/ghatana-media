@@ -1,0 +1,27 @@
+schemaVersion: media.application-channel-registry.v1
+productId: media
+status: selected-lane-first-use-and-upload-proposals; P0-010-and-P1-006-pending
+source: .product-experience/phase-0-product-truth/applications-channels.yaml
+laneRef: .product-experience/lanes/transcribe-and-correct-captions.yaml
+scopeRule: This registry covers the selected caption lane only; unlisted P0 channels remain in full scope with no support or admission implied.
+channels:
+  - channelRef: media.channel.web
+    role: interactive-source-and-caption-review
+    support: specification-only; runtime-not-claimed
+  - channelRef: media.channel.cli
+    role: batch-submission-job-inspection-and-caption-revision
+    support: command-contract-proposal-for-upload-inspection-resume-existing-job-reconciliation-and-caption-revision; byte-transfer-runtime-unbound; production-runtime-not-claimed
+  - channelRef: media.channel.grpc-api
+    role: machine-readable-transcription-operation
+    support: logical-operation-only; wire-route-and-version-pending-GAP-05
+  - channelRef: media.channel.sdk
+    role: consumer-access-to-the-same-logical-actions
+    support: compatibility-preservation-required; publication-and-consumer-parity-pending-GAP-05
+  - channelRef: media.channel.http-api
+    role: compatible-machine-readable-project-and-artifact-lifecycle-actions
+    support: logical-operation-only; exact-route-version-and-consumer-parity-pending-GAP-05
+crossChannelInvariants:
+  - The same source version, job identity, transcript/caption version, authority outcome, and finality are represented everywhere.
+  - A channel may have different controls; it may not make an unsafe action safe or hide uncertainty.
+  - Machine-readable IDs and reason codes remain stable when human-readable labels are localized.
+  - Web, HTTP API, and SDK share the same exact artifact-version, integrity, authorization, and finality meaning.

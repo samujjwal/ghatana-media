@@ -4,6 +4,7 @@ authorityStatus: authored-proposal; pending-P0-010-independent-acceptance
 semanticOwner: media
 executionOwner: media-runtime-with-platform-mechanics-behind-public-contracts
 authorityRules:
+- A watcher, poller, event-stream client, or UI attachment is an observer; stopping or detaching it changes no job or attempt state and carries no cancellation authority. A separately authorized cancel operation is required.
 - Job status, stage progress, cancellation outcome, remote outcome certainty, quality disposition, review state, and delivery
   state are separate dimensions.
 - An accepted command and its attempt identity are durably recorded before an external side effect may begin.
@@ -203,9 +204,21 @@ models:
   - id: EXTERNAL_ERASURE_UNCONFIRMED
     terminal: true
     meaning: Media cannot confirm deletion of a remote or recipient-held copy
+  verificationJobSemantics:
+    status: proposal; owner-issued-job-contract-remains-unbound
+    lifecycleModelRef: media-job
+    intent: collect-integrity-format-and-required-policy-evidence-for-an-uploaded-artifact
+    identity: stable-job-reference-distinct-from-related-upload-identity-and-any-resulting-artifact-identity
+    relationToArtifactLifecycle:
+      - Job status and finality describe the verification operation; the artifact remains in VERIFYING until its owner records the required checks and disposition.
+      - A completed verification job does not by itself establish AVAILABLE; quarantine, rejection, or unresolved evidence remain possible dispositions.
+    unknownOutcome:
+      safeNextAction: inspect-or-reconcile-the-existing-job-and-related-upload-identities
+      prohibited: create-a-duplicate-verification-effect-or-infer-artifact-availability-from-upload-receipt-or-job-status-alone
   invariants:
   - incomplete-upload-state-is-never-an-available-artifact
   - digest-and-size-are-verified-before-promotion
+  - verification-job-identity-and-finality-remain-separate-from-upload-and-artifact-lifecycle-state
   - quarantine-never-means-implicitly-safe
   - shared-physical-bytes-are-not-deleted-while-authorized-retained-references-exist
   - expiry-filtering-alone-is-not-physical-erasure

@@ -1,0 +1,36 @@
+schemaVersion: media.cli-language.v1
+productId: media
+authority: Product command language and human-readable terminal output
+status: authored-proposal; CLI-owner-and-P0-010-review-pending
+commandPrinciples:
+  - Start from a product verb and object; provider, model, queue, and codec names are advanced diagnostic data only.
+  - Use one registry of command IDs; aliases must resolve to the same action and may not duplicate behavior.
+  - Human labels can localize; JSON keys, reason codes, and stable IDs do not.
+  - TTY progress is concise; non-TTY output is stable and line-oriented.
+  - JSON output contains state, finality, source/result references, and the next safe action.
+commandNaming:
+  rootCommand: ghatana-media
+  rule: Prefer a user-intent verb and a concrete object; stable IDs, exact options, aliases, and effects are owned by the Phase 2 command registry.
+  commandRegistry: .product-experience/phase-2-product-experience/cli-command-registry.yaml
+  status: naming-rule-only; no-installed-cli-claim
+machineOutput:
+  formats: [json, jsonl]
+  stableExitCodesRequired: true
+  unknownOutcome: represent-explicitly-and-disable-blind-retry
+  exitCodeMapping: local-simulator-mapping-is-defined-in-the-phase-2-registry; production-runtime-mapping-awaits-owner-review
+  sigintSemantics: distinguish-stop-watching-from-request-cancellation-and-confirmed-cancellation
+identityAndFinality:
+  bindingRef: .product-experience/phase-2-product-experience/cli-command-registry.yaml
+  fields:
+    workflow: names-the-current-workflow-projection
+    jobId: identifies-one-processing-job-and-is-stable-across-inspection-and-reconciliation
+    uploadId: identifies-one-transfer-and-is-never-an-alias-for-jobId
+    verificationStage: describes-the-current-stage-of-an-artifact-verification-job; it-does-not-prove-artifact-availability
+    workflowState: reports-the-selected-workflow-record-state-when-available; it-may-equal-state-when-that-record-is-the-primary-entity
+    state: reports-the-current-state-of-the-primary-record
+    finality: reports-whether-the-effect-is-confirmed-pending-or-unknown; never-infer-it-from-state
+  relatedEntities: retain-jobId-and-uploadId-as-separate-fields-when-both-are-present
+  status: proposed-semantic-binding; owner-and-P0-010-review-pending
+terminalFixtures:
+  widths: [80, 120, 160]
+  include: [tty, non-tty, color-disabled, narrow-wrap, unicode-name, error, progress, json, jsonl]

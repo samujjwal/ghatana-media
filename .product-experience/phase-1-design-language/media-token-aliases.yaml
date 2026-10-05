@@ -1,0 +1,40 @@
+schemaVersion: media.design-token-aliases.v1
+productId: media
+authority: media-semantic-aliases; Shared owns token values and primitive tokens
+status: authored-proposal; shared-package-binding-and-P0-010-pending
+dependencies:
+  phase0: .product-experience/phase-0-product-truth/glossary.yaml
+  sharedOwner: ghatana-shared
+  bindingGap: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+rules:
+  - A Media alias may name semantic intent but may not assign a hex color, font file, spacing scale, or shadow value.
+  - Every alias resolves to a published Shared token before visual acceptance.
+  - Text, icon, shape, and accessible name carry state; color is never the only signal.
+aliases:
+  - id: media.token.state.completed
+    purpose: communicate a verified completed product outcome
+    sharedTokenRef: unresolved
+  - id: media.token.state.in-progress
+    purpose: communicate current bounded work without implying completion
+    sharedTokenRef: unresolved
+  - id: media.token.state.needs-review
+    purpose: communicate a human decision or uncertainty that blocks acceptance
+    sharedTokenRef: unresolved
+  - id: media.token.state.blocked
+    purpose: communicate a missing precondition and the next safe action
+    sharedTokenRef: unresolved
+  - id: media.token.trust.measured
+    purpose: identify a measured value with method and scope
+    sharedTokenRef: unresolved
+  - id: media.token.trust.recognized
+    purpose: identify machine-recognized content with uncertainty and provenance
+    sharedTokenRef: unresolved
+  - id: media.token.trust.generated
+    purpose: identify generated or reconstructed content
+    sharedTokenRef: unresolved
+  - id: media.token.surface.source
+    purpose: distinguish original source material from derived results
+    sharedTokenRef: unresolved
+  - id: media.token.surface.derived
+    purpose: distinguish derived, editable, or reviewable output from source material
+    sharedTokenRef: unresolved

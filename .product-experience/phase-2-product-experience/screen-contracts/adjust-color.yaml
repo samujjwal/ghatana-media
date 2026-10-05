@@ -1,0 +1,76 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.adjust-color
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.edit
+purpose: Input/output color interpretation and shot matching
+contextGoalNowNext:
+  context: An exact source or candidate version, input/output color interpretation, selected region/shot, and grading
+    revision.
+  goal: Review and adjust color within declared color-space and output-profile constraints.
+  now: Show input interpretation, target gamut/transfer function, measured or authored adjustments, and shot-matching
+    basis.
+  next: Edit a bounded adjustment, compare against the source, or save a new color revision.
+anatomy:
+- source-and-grade-version
+- input-color-interpretation
+- output-color-target
+- shot-and-region-selection
+- adjustment-controls-and-curves
+- comparison-and-measurements
+- save-state
+componentRefs:
+- media.component.timeline-keyframe-editor
+- media.component.result-comparison
+- media.component.quality-inspector
+- media.component.scene-inspector
+states:
+- input-unknown
+- ready
+- target-incompatible
+- measurement-unavailable
+- adjustment-dirty
+- comparison-ready
+- version-conflict
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- select a shot or region
+- inspect input/output color interpretation
+- edit an admitted adjustment
+- compare and save a revision
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Do not assume color space from a file name; state conversion and gamut tradeoffs; distinguish subjective
+  grade from measured signal.
+recovery: Keep the original source and grade revision; if target interpretation is unknown, block export and explain
+  the missing evidence.
+responsive: Focus on one shot with persistent input/target labels; stack controls and measurement details below
+  preview.
+accessibility: Expose adjustment values and color-space names as text; do not use color chips alone; provide keyboard
+  numeric controls.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-18
+journeyRefs:
+- J-18
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

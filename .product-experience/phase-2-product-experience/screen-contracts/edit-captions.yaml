@@ -1,0 +1,85 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.edit-captions
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.edit
+purpose: Timings, language, accessibility and review
+contextGoalNowNext:
+  context: An immutable source version, transcript basis, caption language, active caption version, and selected
+    segment.
+  goal: Create a reviewable caption version by editing text or source-time alignment.
+  now: Show source context, recognition provenance, segment timing, language, alignment state, and version conflict
+    state.
+  next: Correct a segment, resolve a conflict, save a new caption version, or preserve an incomplete draft.
+anatomy:
+- source-and-language-context
+- caption-version
+- timed-segment-list
+- alignment-state
+- text-and-timing-editor
+- conflict-and-save-actions
+componentRefs:
+- media.component.source-player
+- media.component.caption-track-editor
+- media.component.transcript-review
+- media.component.provenance-summary
+states:
+- draft
+- alignment-required
+- language-uncertain
+- dirty
+- saving
+- saved
+- version-conflict
+- read-only
+- consent-revoked
+actions:
+- media.action.correct-caption
+- media.action.align-caption-timing
+- media.action.save-caption-version
+- media.action.resolve-caption-conflict
+- media.action.compare-caption-versions
+actionBindingState: bound-to-existing-P2-actions
+actionIntents:
+- correct caption text
+- edit exact segment timing
+- compare or resolve version conflict
+- save a new immutable caption version
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Editing never changes source bytes; transcript and captions remain distinct records; saved versions
+  carry source-time provenance.
+recovery: Preserve unsaved work and the selected segment; on conflict compare exact revisions before resolving;
+  require current authority before save.
+responsive: Stack text and timing fields while retaining source time, segment selection, and save/conflict status.
+accessibility: Provide numeric time-entry alternatives to dragging; identify each segment by time range and text;
+  restore focus to the edited row.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-03
+- phase-0:journey:J-16
+- phase-0:journey:J-18
+journeyRefs:
+- J-03
+- J-16
+- J-18
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

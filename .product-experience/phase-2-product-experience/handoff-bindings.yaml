@@ -1,0 +1,24 @@
+schemaVersion: media.handoff-bindings.v1
+productId: media
+status: boundary-proposal; external-public-bindings-unverified
+handoffs:
+  - id: media.handoff.identity
+    owner: ghatana-shared
+    contract: Shared identity and current principal/tenant context
+    use: resolve-user-and-workspace-before-source-access-or-edit
+    status: source-boundary-known; published-consumer-binding-pending-GAP-02
+  - id: media.handoff.rights-consent
+    owner: Media rights authority plus applicable platform owner
+    contract: scope-bound rights and consent decisions
+    use: recheck-current-authority-before-submit-and-commit
+    status: product-meaning-proposed; runtime-owner-contract-pending
+  - id: media.handoff.transcription-execution
+    owner: ghatana/services/ai-inference for generic model execution
+    contract: admitted transcription operation through an owner-approved public boundary
+    use: submit-only-after-capability-license-qualification-and-policy-check
+    status: blocked-by-GAP-08-and-GAP-09
+  - id: media.handoff.experience-explorer
+    owner: ghatana-tools
+    contract: published experience package and browser host binding
+    use: load-the-media-package-without-a-local-generic-host-copy
+    status: blocked-by-GAP-MEDIA-TOOLS-SCHEMA-BINDING-and-GAP-11

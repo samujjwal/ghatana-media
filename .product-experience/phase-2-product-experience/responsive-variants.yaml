@@ -1,0 +1,25 @@
+schemaVersion: media.experience-responsive-variants.v1
+productId: media
+status: selected-lane-browser-observations-recorded; independent-review-required
+source: .product-experience/phase-1-design-language/responsive-adaptive.yaml
+variants:
+  - id: media.view.review-transcript.wide
+    viewport: 1536x960
+    composition: player-and-transcript-side-by-side; provenance-in-context-panel
+  - id: media.view.review-transcript.tablet
+    viewport: 768x1024
+    composition: transcript-primary; player-in-position-retaining-drawer
+  - id: media.view.correct-captions.mobile
+    viewport: 390x844
+    composition: one-caption-segment-at-a-time; explicit-time-entry-and-save-actions
+  - id: media.view.correct-captions.minimum
+    viewport: 320x640
+    composition: stacked-fields; no-horizontal-scroll-for-primary-actions
+invariants: [preserve-context, preserve-safe-next-action, allow-zoom-reflow, no-color-only-status]
+observations:
+  browserClient: local-Media-owned-Vite-client; not-the-generic-Tools-Explorer-host
+  testedView: media.view.correct-captions
+  cssViewports: [1536x960, 1280x800, 1024x768, 768x1024, 390x844, 320x640]
+  result: no-visible-product-descendant-horizontal-overflow-at-recorded-widths
+  caveat: browser-automation-observation-only; does-not-cover-other-views-channels-or-accessibility
+acceptance: REVIEW_REQUIRED; independent-visual-accessibility-and-all-view-review-pending

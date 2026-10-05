@@ -1,0 +1,14 @@
+schemaVersion: media.motion-language.v1
+productId: media
+authority: Media motion purpose and reduced-motion behavior
+status: authored-proposal; accessibility-review-pending
+rules:
+  - Motion may show a direct state transition or media-time relationship; it is not decoration on a consequential action.
+  - Never animate generated or estimated content in a way that implies truth or confidence.
+  - Reduced-motion mode removes nonessential transitions and provides a static equivalent.
+  - Progress is represented by state and text as well as visual movement.
+  - Do not make rapid waveform, caption, or frame updates the only indication of change.
+limits:
+  auto-playing-previews: require-user-intent
+  looping-preview: off-by-default
+  status-animation: bounded-and-nonessential

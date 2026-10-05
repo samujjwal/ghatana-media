@@ -1,0 +1,73 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.check-processing-readiness
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.operator
+- media.administrator
+- media.developer-integrator
+intentRef: media.intent.check-processing-readiness
+purpose: Safe diagnostics, capacity/recovery/erasure and audit access
+contextGoalNowNext:
+  context: A permitted readiness scope, operation or dependency identifier, time of observation, and safe recovery
+    evidence.
+  goal: Diagnose whether a declared operation is currently ready and what authorized recovery is available.
+  now: Show scoped checks, freshness, capacity or dependency limits, and safe next steps without exposing secrets
+    or private data.
+  next: Retry a read-only diagnostic, open an approved recovery action, or refer to the responsible operator.
+anatomy:
+- readiness-scope
+- observation-time-and-freshness
+- check-results
+- capacity-and-dependency-disposition
+- safe-recovery-guidance
+- audit-reference
+componentRefs:
+- media.component.activity-recovery-feed
+- media.component.job-status-card
+- media.component.provenance-summary
+states:
+- checking
+- ready
+- degraded
+- unavailable
+- stale-observation
+- recovery-required
+- access-denied
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- inspect readiness for a declared operation
+- refresh a read-only check
+- open an authorized recovery instruction
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Readiness is scoped and time-bound; does not expose credentials or raw sensitive diagnostics; never
+  promises successful processing.
+recovery: Keep the diagnostic scope and timestamp; offer only owner-authorized recovery steps; record when a check
+  is stale.
+responsive: Show readiness summary and stale/degraded state first; expand dependency details progressively.
+accessibility: Use a semantic list of checks with text state, scope, and observation time; announce refresh completion
+  once.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-30
+journeyRefs:
+- J-30
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

@@ -3,6 +3,7 @@
 # migrated Media Gradle build; update this file as Media build metadata.
 
 [versions]
+java = "21"
 activej = "6.0-rc2"
 assertj = "3.27.7"
 aws-sdk = "2.54.1"

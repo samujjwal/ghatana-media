@@ -11,6 +11,7 @@ toolsSnapshot:
   ownerRepository: samujjwal/ghatana-tools
   sourceRevision: 6f35f2aa4193479fe4cce3d7e9f913cf6e611308
   observation: local-owner-checkout; no public registry publication verified
+  workingTreeStatus: modified-local-checkout; product-dev-catalog-and-CLI-changes-remain-uncommitted
 bindings:
   phase0:
     authorityShape:
@@ -28,6 +29,7 @@ bindings:
       ownerConsumerValidation: pending-public-artifact-and-isolated-consumer-run
     sourceMapping:
       targetAuthority: .product-experience/phase-0-product-truth/product-definition.yaml
+      projectionStatus: not-generated; phase-0-source-authorities-are-proposals
       detailAuthorities: [constitution.yaml, actors-responsibilities.yaml, goals-jtbd.yaml, glossary.yaml, capabilities.yaml, requirements.yaml, domain-model.yaml, time-units-fidelity.yaml, state-models.yaml, policy-authority-model.yaml, dependency-contracts.yaml, nonfunctional-requirements.yaml, profile-semantics.yaml, quality-policy.yaml, content-intent.yaml, qualification-policy.yaml]
       projectionRule: product-definition.yaml-is-the-Tools-contract-projection-of-the-media-owned-details; no-duplicated-independent-editing
   phase1:
@@ -45,6 +47,7 @@ bindings:
       ownerConsumerValidation: pending-public-artifact-and-isolated-consumer-run
     sourceMapping:
       targetAuthority: .product-experience/phase-1-design-language/media-experience-language.yaml
+      projectionStatus: not-generated; phase-1-source-authorities-are-proposals
       mediaTokens: aliases-only-to-Shared-token-authority
   phase2:
     authorityShape:
@@ -59,7 +62,8 @@ bindings:
       packageLimitations: [structural-and-reference-validation-only, no-state-machine-execution, no-product-simulation, external-owner-resolvers-required]
       ownerConsumerValidation: pending-public-artifact-and-isolated-consumer-run
     sourceMapping:
-      targetAuthority: .product-experience/phase-2-complete-product-experience/experience-definition.yaml
+      targetAuthority: .product-experience/phase-2-product-experience/experience-definition.yaml
+      projectionStatus: not-generated; phase-2-source-authorities-are-proposals
       detailAuthorities: [screen-contracts, journey-contracts, action-registry.yaml, interaction-registry.yaml, state-transition-bindings.yaml, cli-command-registry.yaml, api-experience-mapping.yaml, scenario-fixture-registry.yaml, simulation-semantics.yaml, recovery-finality-contracts.yaml, handoff-bindings.yaml, responsive-variants.yaml]
       projectionRule: use-Tools-shape-for-views-actions-states-journeys-fixtures; do-not-claim-runtime-execution
   phase3:
@@ -86,7 +90,8 @@ bindings:
       packageLimitations: [headless-review-host-no-product-specific-visual-shell, no-owner-authored-scenario-manifest-declared, no-platform-support-claim-declared]
       ownerConsumerValidation: pending-public-artifact-and-built-browser-review
     sourceMapping:
-      targetAuthority: .product-experience/phase-3-experience-explorer/media-experience-package
+      targetAuthority: .product-experience/phase-3-experience-explorer/media-experience-package.yaml
+      projectionStatus: Media-owned-adapter-proposal; Tools-host-binding-not-verified
       productSemanticsAndState: Media-owned
       ExplorerHostAndGenericControls: Tools-owned
       productSpecificAdapter: Media-owned

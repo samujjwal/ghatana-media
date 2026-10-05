@@ -1,0 +1,732 @@
+[
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/PRODUCT-TRUTH.md",
+    "title": "Product truth"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/actors-responsibilities.yaml",
+    "title": "Actors and responsibilities"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/applications-channels.yaml",
+    "title": "Applications and channels"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/capabilities.yaml",
+    "title": "Capability catalog"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml",
+    "title": "Capability preservation crosswalk"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/constitution.yaml",
+    "title": "Constitution"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/content-intent.yaml",
+    "title": "Content intent"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/dependency-contracts.yaml",
+    "title": "Dependency contracts"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/domain-model.yaml",
+    "title": "Domain model"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/glossary.yaml",
+    "title": "Glossary and naming rules"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/goals-jtbd.yaml",
+    "title": "Goals and jobs to be done"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/handoff-contracts.yaml",
+    "title": "Handoff contracts"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/information-architecture.yaml",
+    "title": "Information architecture"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/journey-catalog.yaml",
+    "title": "Journey Catalog"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/nonfunctional-requirements.yaml",
+    "title": "Nonfunctional requirements"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/policy-authority-model.yaml",
+    "title": "Policy and authority model"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/profile-semantics.yaml",
+    "title": "Profile semantics"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/qualification-policy.yaml",
+    "title": "Qualification policy"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/quality-policy.yaml",
+    "title": "Quality policy"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/requirements.yaml",
+    "title": "Product requirements"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/reuse-decisions.yaml",
+    "title": "Reuse decisions"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/schema-bindings.yaml",
+    "title": "Schema Bindings"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/state-models.yaml",
+    "title": "Lifecycle and authority states"
+  },
+  {
+    "phase": "P0",
+    "path": ".product-experience/phase-0-product-truth/time-units-fidelity.yaml",
+    "title": "Time, units, and fidelity"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/DESIGN-LANGUAGE.md",
+    "title": "Design language"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/accessibility.yaml",
+    "title": "Accessibility rules"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/action-finality-grammar.yaml",
+    "title": "Action finality grammar"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/animation-simulation-grammar.yaml",
+    "title": "Animation and simulation grammar"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/cli-language.yaml",
+    "title": "CLI language"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/component-contracts.yaml",
+    "title": "Component contracts"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/localization-content.yaml",
+    "title": "Localization and content"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/media-editing-grammar.yaml",
+    "title": "Media editing grammar"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/media-token-aliases.yaml",
+    "title": "Media token aliases"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/motion.yaml",
+    "title": "Motion rules"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/responsive-adaptive.yaml",
+    "title": "Responsive and adaptive behavior"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/semantic-state-grammar.yaml",
+    "title": "Semantic state grammar"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/trust-provenance-grammar.yaml",
+    "title": "Trust and provenance grammar"
+  },
+  {
+    "phase": "P1",
+    "path": ".product-experience/phase-1-design-language/typography-layout.yaml",
+    "title": "Typography and layout"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/lanes/transcribe-and-correct-captions.yaml",
+    "title": "Transcribe and correct captions"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md",
+    "title": "Product experience"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/action-registry.yaml",
+    "title": "Action registry"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/api-experience-mapping.yaml",
+    "title": "API experience mapping"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/application-channel-registry.yaml",
+    "title": "Application channel registry"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/cli-command-registry.yaml",
+    "title": "CLI command registry"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/content-copy-catalog.yaml",
+    "title": "Content copy catalog"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/data-view-contracts.yaml",
+    "title": "Data view contracts"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/handoff-bindings.yaml",
+    "title": "Handoff bindings"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/interaction-registry.yaml",
+    "title": "Interaction registry"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/first-use-and-project-creation.yaml",
+    "title": "First use and project creation"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+    "title": "Transcribe and correct captions"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
+    "title": "Upload, import, and verify an artifact"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-registry.yaml",
+    "title": "Journey registry"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/navigation-contracts.yaml",
+    "title": "Navigation contracts"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/recovery-finality-contracts.yaml",
+    "title": "Recovery and finality contracts"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/responsive-variants.yaml",
+    "title": "Responsive variants"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/scenario-fixture-registry.yaml",
+    "title": "Scenario fixture registry"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/adjust-color.yaml",
+    "title": "Adjust color"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/animate-media.yaml",
+    "title": "Animate media"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/arrange-scenes.yaml",
+    "title": "Arrange scenes"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/artifact-verification-job-family.yaml",
+    "title": "Artifact verification job family"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/authenticate-and-select-context.yaml",
+    "title": "Authenticate and select context"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/browse-media.yaml",
+    "title": "Browse media"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/check-processing-options.yaml",
+    "title": "Check processing options"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/check-processing-readiness.yaml",
+    "title": "Check processing readiness"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/choose-eligible-processing-option.yaml",
+    "title": "Choose an eligible processing option"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/compare-caption-versions.yaml",
+    "title": "Compare caption versions"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/compare-results.yaml",
+    "title": "Compare results"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/compose-scene.yaml",
+    "title": "Compose a scene"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/compose-media.yaml",
+    "title": "Compose media"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/correct-captions.yaml",
+    "title": "Correct captions"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/create-video.yaml",
+    "title": "Create a video"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/create-image.yaml",
+    "title": "Create an image"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/create-audio.yaml",
+    "title": "Create audio"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/create-media.yaml",
+    "title": "Create media"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/deliver-output.yaml",
+    "title": "Deliver an output"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/edit-media-region.yaml",
+    "title": "Edit a media region"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/edit-captions.yaml",
+    "title": "Edit captions"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/edit-media.yaml",
+    "title": "Edit media"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/explore-simulation.yaml",
+    "title": "Explore a simulation"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/find-projects.yaml",
+    "title": "Find projects"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/find-task-guidance.yaml",
+    "title": "Find task guidance"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/import-media.yaml",
+    "title": "Import media"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/improve-media.yaml",
+    "title": "Improve media"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/inspect-job.yaml",
+    "title": "Inspect a job"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/inspect-output.yaml",
+    "title": "Inspect an output"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/inspect-media.yaml",
+    "title": "Inspect media"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/inspect-provenance.yaml",
+    "title": "Inspect provenance"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/transcription-progress.yaml",
+    "title": "Monitor transcription"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/prepare-render.yaml",
+    "title": "Prepare a render"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/resolve-job-outcome.yaml",
+    "title": "Resolve a job outcome"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/resume-work.yaml",
+    "title": "Resume work"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/review-creation-plan.yaml",
+    "title": "Review a creation plan"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/review-transcript.yaml",
+    "title": "Review a transcript"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml",
+    "title": "Review activity"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/review-exact-version.yaml",
+    "title": "Review an exact version"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/review-dubbing.yaml",
+    "title": "Review dubbing"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/review-outputs.yaml",
+    "title": "Review outputs"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/review-quality.yaml",
+    "title": "Review quality"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/review-rights-and-consent.yaml",
+    "title": "Review rights and consent"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/review-workspace-settings.yaml",
+    "title": "Review workspace settings"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/select-source.yaml",
+    "title": "Select a source"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/use-authorized-voice.yaml",
+    "title": "Use an authorized voice"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/work-in-project.yaml",
+    "title": "Work in a project"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-contracts/work-with-speech.yaml",
+    "title": "Work with speech"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/screen-registry.yaml",
+    "title": "View registry"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/simulation-semantics.yaml",
+    "title": "Simulation semantics"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/state-transition-bindings.yaml",
+    "title": "State transition bindings"
+  },
+  {
+    "phase": "P3",
+    "path": ".product-experience/phase-3-experience-explorer/EXPERIENCE-EXPLORER.md",
+    "title": "Experience Explorer"
+  },
+  {
+    "phase": "P3",
+    "path": ".product-experience/phase-3-experience-explorer/interaction-dispositions.yaml",
+    "title": "Interaction Dispositions"
+  },
+  {
+    "phase": "P3",
+    "path": ".product-experience/phase-3-experience-explorer/media-experience-package.yaml",
+    "title": "Media Experience Package"
+  },
+  {
+    "phase": "P3",
+    "path": ".product-experience/phase-3-experience-explorer/scenario-fixtures.yaml",
+    "title": "Scenario Fixtures"
+  },
+  {
+    "phase": "P3",
+    "path": ".product-experience/phase-3-experience-explorer/verification-matrix.yaml",
+    "title": "Verification Matrix"
+  },
+  {
+    "phase": "P3",
+    "path": ".product-experience/phase-3-experience-explorer/view-projections.yaml",
+    "title": "View Projections"
+  },
+  {
+    "phase": "Cross-phase",
+    "path": ".product-experience/PRODUCT-CONSTITUTION.md",
+    "title": "Product constitution"
+  },
+  {
+    "phase": "Cross-phase",
+    "path": ".product-experience/README.md",
+    "title": "Experience records guide"
+  },
+  {
+    "phase": "Cross-phase",
+    "path": ".product-experience/acceptance.yaml",
+    "title": "Phase acceptance inputs"
+  },
+  {
+    "phase": "Cross-phase",
+    "path": ".product-experience/authority-map.yaml",
+    "title": "Authority map"
+  },
+  {
+    "phase": "Cross-phase",
+    "path": ".product-experience/decision-log.md",
+    "title": "Decision log"
+  },
+  {
+    "phase": "Cross-phase",
+    "path": ".product-experience/gaps.yaml",
+    "title": "Gap register"
+  },
+  {
+    "phase": "Cross-phase",
+    "path": ".product-experience/source-manifest.yaml",
+    "title": "Source manifest"
+  },
+  {
+    "phase": "Cross-phase",
+    "path": ".product-experience/traceability.yaml",
+    "title": "Cross-phase traceability"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
+    "title": "Long Running Job Observation And Recovery"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
+    "title": "J-04 · Authorized text-to-speech to approved audio"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
+    "title": "J-05 · Image/video analysis, geometry, and tracks"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
+    "title": "J-06 · Multimodal or document consumer request to grounded typed result"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
+    "title": "J-07 · Noisy/clipped interview cleanup with preservation and comparison"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
+    "title": "J-08 · Low-quality video repair with measured comparison"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml",
+    "title": "J-09 · Prompt/brief to storyboard, composition, render, review, and delivery"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
+    "title": "J-10 · Controlled generation with references and continuity review"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
+    "title": "J-11 · Region mask/tracking edit with comparison and undo"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
+    "title": "J-12 · Deterministic 2D/vector/procedural animation"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
+    "title": "J-13 · 3D character, rig, path, or control animation"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
+    "title": "J-14 · Explore a domain simulation and its measurements"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
+    "title": "J-15 · Simulation/procedural passes with protected semantic validation"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
+    "title": "J-16 · Existing-video translation/dubbing and voice/timing review"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
+    "title": "J-17 · Music, effects, Foley, stems, mix, and mastering"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
+    "title": "J-18 · Compose clips, captions, exact graphics, color, and audio master"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
+    "title": "J-19 · Inspect quality and run bounded optimization"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
+    "title": "J-21 · Review/comment/approve exact version and re-review changed material"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
+    "title": "J-22 · Export/download/publish with destination acknowledgement"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml",
+    "title": "J-23 · Private/local workflow while disconnected and reconnect"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml",
+    "title": "J-24 · CLI batch/JSON plan through verified outputs"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
+    "title": "J-25 · Agent or product integration with bounded delegated Media action"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
+    "title": "J-26 · Delete/revoke/retention/hold and visible lifecycle"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
+    "title": "J-27 · Continue safely when processing is unavailable"
+  },
+  {
+    "phase": "P2",
+    "path": ".product-experience/phase-2-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
+    "title": "J-28 · Spatial/360/interactive/synthetic-data export to declared consumer"
+  }
+]

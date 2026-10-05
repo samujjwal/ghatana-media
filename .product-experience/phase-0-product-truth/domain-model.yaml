@@ -156,7 +156,7 @@ recordLifecycleRules:
     examples: [ResolvedMediaPlan]
   run:
     proposedMeaning: Mutable progression of one admitted execution, with immutable observations/checkpoints and explicit attempts.
-    examples: [ProcessingJob, JobAttempt, JobLease, MediaRun, Checkpoint]
+    examples: [ProcessingJob, ArtifactVerificationJob, JobAttempt, JobLease, MediaRun, Checkpoint]
   artifact:
     proposedMeaning: Immutable byte identity and technical descriptor, with access, retention, and lifecycle represented separately.
     examples: [MediaArtifact, ArtifactVersion, RenderOutcome, DeliveryOutcome]
@@ -185,8 +185,12 @@ proposedRecordCatalog:
     stateBoundary: Specification only; no provider or engine execution object is part of its public shape.
   - id: ProcessingJob-and-RenderJob
     evidence: proposed-media-contract
-    meaning: Durable requested operation with immutable request/plan references, owner, state, attempts, and outputs; RenderJob is a render-specific view.
-    stateBoundary: Job status progresses independently of the immutable request and plan.
+    meaning: Durable requested operation with immutable request/plan references, owner, state, attempts, and outputs; RenderJob and ArtifactVerificationJob are intent-specific views.
+    stateBoundary: Job status progresses independently of the immutable request and plan; verification-job finality does not replace artifact lifecycle disposition.
+  - id: ArtifactVerificationJob
+    evidence: proposed-media-contract
+    meaning: An intent-specific ProcessingJob that collects integrity, format, and required policy evidence for an uploaded artifact.
+    stateBoundary: Its stable identity is distinct from the related upload and any resulting artifact; owner evidence controls the artifact lifecycle transition.
   - id: JobAttempt-and-JobLease
     evidence: proposed-media-contract
     meaning: Attempt identity, worker claim/fencing token, deadline, side-effect boundary, provider execution reference, and reconciliation state.

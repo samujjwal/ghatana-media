@@ -6,6 +6,19 @@ settings:
 
 importers:
 
+  apps/media-experience-explorer:
+    dependencies:
+      '@ghatana/media-experience-simulation':
+        specifier: workspace:*
+        version: link:../../libs/media-experience-simulation
+    devDependencies:
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vite:
+        specifier: ^7.3.1
+        version: 7.3.1(jiti@2.6.1)(lightningcss@1.30.2)
+
   apps/desktop:
     dependencies:
       '@ghatana/audio-video-client':
@@ -104,6 +117,12 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+
+  libs/media-experience-simulation:
+    devDependencies:
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
 
 packages:
 
@@ -946,6 +965,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   update-browserslist-db@1.2.3:
     resolution: {integrity: sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==}
     hasBin: true
@@ -1705,6 +1729,8 @@ snapshots:
       picomatch: 4.0.3
 
   typescript@5.9.3: {}
+
+  typescript@6.0.3: {}
 
   update-browserslist-db@1.2.3(browserslist@4.28.1):
     dependencies:

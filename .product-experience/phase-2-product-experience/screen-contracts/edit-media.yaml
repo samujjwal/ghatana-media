@@ -1,0 +1,78 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.edit-media
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.edit
+purpose: Region/track operations, exact constraints and undo
+contextGoalNowNext:
+  context: A versioned source or composition, selected track/region, exact edit constraints, and undo history.
+  goal: Make a bounded, reviewable media edit that preserves the source and records a new revision.
+  now: Show the selected target, edit range, constraints, version state, and operations that will change the output.
+  next: Apply an admitted edit, review the candidate, undo a versioned change, or save a new revision.
+anatomy:
+- source-and-composition-version
+- track-and-region-list
+- exact-selection-and-timebase
+- edit-parameters-and-constraints
+- undo-redo-history
+- candidate-and-save-status
+componentRefs:
+- media.component.timeline-keyframe-editor
+- media.component.mask-tracking-editor
+- media.component.creation-plan-summary
+- media.component.result-comparison
+states:
+- ready
+- selection-active
+- unsupported-edit
+- dirty
+- applying
+- partial
+- candidate-ready
+- version-conflict
+- read-only
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- select a track or region
+- enter exact edit constraints
+- apply an admitted edit
+- undo or redo a versioned change
+- save a new revision
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Source remains immutable; constraints are visible; undo/redo points to revisions; preview does not equal
+  committed output.
+recovery: Preserve edit intent and selection after an error; resolve version conflicts against exact source revisions;
+  do not overwrite source.
+responsive: Use a selected-track/region editor and contextual parameter panel; keep source version and dirty state
+  visible.
+accessibility: Provide keyboard selection and numeric controls; expose canvas/timeline items semantically; maintain
+  focus after edits.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-11
+- phase-0:journey:J-18
+journeyRefs:
+- J-11
+- J-18
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

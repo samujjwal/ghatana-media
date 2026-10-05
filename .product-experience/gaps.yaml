@@ -58,11 +58,29 @@ gaps:
   status: open
   scope: actual-Tools-Explorer-runtime-support-for-Media-targets
   owner: Tools-Explorer-owner
+  evidence: A Media-owned Vite browser client renders three synthetic J-01 first-use routes, three J-02 artifact-intake
+    views, activity, and verification-job views, plus a shared job-detail view for J-20 transcription jobs. It provides
+    J-02 upload inspection/resume and job inspection/reconciliation commands, J-20 transcription-job inspection/cancellation/reconciliation,
+    and the selected transcript/caption lane in Product, Explore, Specification, and Verify modes. J-01, J-02, J-03,
+    and J-20 use synthetic fixtures. Specification mode indexes 146 records and renders read-only previews for all
+    41 baseline screen contracts and six selected-lane specializations. The inspected Tools Explorer remains headless
+    and declares standalonePro false;
+    the local client is not a generic Tools host and has no published isolated package binding.
+  remaining: implement-and-owner-bind-a-Tools-browser-host-for-Media-package-contracts
   impact: blocks-P3-001-Explorer-package-acceptance
 - id: GAP-12
   status: open
   scope: built-Explorer-browser-visual-accessibility-and-human-review-evidence
   owner: independent-experience-reviewer
+  evidence: The local browser client builds. Browser automation recorded the selected caption editor at CSS viewports
+    1536x960, 1280x800, 1024x768, 768x1024, 390x844, and 320x640 with no visible product-descendant horizontal overflow.
+    The verification-job and transcription-job product previews were additionally inspected at 320px and 390px configured
+    widths without visible horizontal overflow. The new Specification-mode contract preview was rendered for all 47
+    screen contracts; at 390x844 and 320x640 it stacked into one column and matched the available page width after a
+    mobile grid minimum-size correction. These observations are limited to the Media-owned Vite client; independent
+    visual review, keyboard/screen-reader/zoom/forced-colors coverage, and all-view/channel variant evidence are
+    not recorded.
+  remaining: complete-the-required-responsive-accessibility-and-independent-human-review-matrix
   impact: blocks-Phase-3-acceptance
 - id: GAP-13
   status: open
@@ -79,6 +97,18 @@ gaps:
   scope: named-cross-repository-owners-and-recorded-source-cutover-authorizations
   owner: both-repository-maintainers-and-release-owner
   impact: blocks-MIG-006-and-MIG-007
+- id: GAP-MEDIA-PHASE2-COVERAGE
+  status: open
+  scope: complete-view-journey-action-state-and-channel-contracts-for-the-phase-2-baseline
+  owner: ghatana-media-product-design-and-experience-owners
+  evidence: 41 baseline screens each have a Phase 2 proposal contract; six selected-lane view specializations remain indexed.
+    All 28 required journeys now have proposal files. The 24 new files carry Phase 0 outcomes, actors, preconditions, critical
+    exceptions, recovery/context intent, proposed channels, and ordered legacy views mapped to intent-based screens. J-01/J-02/J-03/J-20
+    retain scoped proposals. Action/state transitions, per-channel behavior, scenarios, wire contracts, capability bindings, and owner
+    review remain pending; no journey proposal is owner-accepted as complete.
+  remaining: complete-action-state-scenario-copy-capability-and-owner-bindings-for-all-28-required-journeys; close-action-state-copy-scenario-and-capability-bindings-for-all-41-views;
+    define-full-Web-CLI-API-embedded-and-wire-behavior; complete-independent-accessibility-localization-and-owner-review
+  impact: blocks-P2-008-full-Phase-2-acceptance-and-Phase-3-coverage
 - id: GAP-MEDIA-DI-PUBLIC-CLIENT
   status: open
   scope: public-Document-Intelligence-client-publication-and-consumer-rebinding
@@ -88,16 +118,24 @@ gaps:
   status: open
   scope: public-artifact-publication-isolated-consumption-and-owner-accepted-four-phase-validator-bindings
   owner: ghatana-tools-product-definition-owner
-  evidence: local-source-contracts-mapped-in-phase-0-product-truth-schema-bindings-yaml
-  observedPackages: [product-definition, experience-language, experience-specification, experience-package, experience-explorer-contracts,
-    product-dev-explorer]
-  remaining: immutable-public-versions-isolated-consumer-validation-and-recorded-owner-acceptance-for-phase-validator-bindings
+  evidence: Media is registered in all four Tools lifecycle stages and appears in the generated currentness-tracked
+    catalog. The local Tools workspace reports no structural catalog gaps, but phase verification returns CANDIDATE_PLAN
+    with PLANNER_BINDING_OWNER_AMBIGUOUS and no evidence authority; this is not phase certification.
+  observedPackages:
+  - product-definition
+  - experience-language
+  - experience-specification
+  - experience-package
+  - experience-explorer-contracts
+  - product-dev-explorer
+  remaining: immutable-public-versions-isolated-consumer-validation-owner-resolved-phase-planning-bindings-and-recorded-owner-acceptance-for-phase-validator-bindings
   impact: blocks-full-GOV-003-and-Phase-0-through-Phase-3-certification-not-the-migration-boundary-slice
 - id: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
   status: open
   scope: owner-approved-generated-Phase-0-coverage-and-currentness-observation
   owner: ghatana-tools-product-definition-owner
-  dependencies: [GAP-MEDIA-TOOLS-SCHEMA-BINDING]
+  dependencies:
+  - GAP-MEDIA-TOOLS-SCHEMA-BINDING
   requiredEvidence: reproducible-owner-approved-coverage-currentness-output-bound-to-published-Phase-0-schema-and-validator-versions
   remaining: Tools-generation-contract-and-output-not-bound-or-produced; currentness.yaml-must-remain-absent-until-owner-approved-generation-is-available
   impact: blocks-P0-010-independent-acceptance-and-the-P1-prerequisite-gate-not-the-P0-001-migration-boundary-slice
@@ -110,18 +148,30 @@ gaps:
     groups record appointment pending
   remaining: Name the responsible domain owner/reviewer and approved evidence scope before affected capability acceptance.
   impact: blocks-affected-domain-capability-acceptance-and-must-be-reconciled-at-P0-010
-
 - id: GAP-MEDIA-CAPABILITY-LEAF-DETAIL
   status: open
   scope: per-leaf-supported-parameters-and-units-ranges-defaults-channels-priority-implementation-lane-and-availability-for-the-462-capability-leaves
   owner: Media-capability-specialists-and-relevant-domain-owners
-  evidence: .product-experience/phase-0-product-truth/capabilities.yaml; master-plan-section-6.1
-  remaining: Replace shared placeholder parameter/channel records with leaf-specific definitions, justified aliases, or explicit unsupported dispositions; record priority, implementation lane, and availability for each leaf and obtain relevant owner review.
+  evidence: .product-experience/phase-0-product-truth/capabilities.yaml; master-plan-section-6.1; nine-job-operation-proposals
+    plus eight operation-specific artifact-intake/speech/profile proposals now define selected parameter shapes,
+    preconditions, effects, recovery, explicit unsupported cases, and acceptance cases.
+  remaining: Detail the other 445 capability leaves with operation-specific parameter ranges/defaults, priority,
+    implementation lane, explicit per-operation channel dispositions, availability, and owner review. The 17 expanded
+    proposals also require contract-owner review and exact bounds.
   impact: blocks-full-P0-003-capability-definition-P0-009-channel-disposition-and-P0-010-closure
 - id: GAP-MEDIA-QUALITY-CAPABILITY-MAPPING
   status: open
   scope: owner-reviewed-applicability-mapping-from-quality-dimensions-and-metrics-to-capability-leaves
   owner: Media-quality-lead-and-capability-specialists
   evidence: .product-experience/phase-0-product-truth/quality-policy.yaml; TRACE-REL-QUALITY-CAPABILITIES
-  remaining: Map each metric only to justified capability leaves or an explicit non-applicability disposition; define specialist-approved applicability and evidence scope before any qualification claim.
+  remaining: Map each metric only to justified capability leaves or an explicit non-applicability disposition; define
+    specialist-approved applicability and evidence scope before any qualification claim.
   impact: blocks-P0-007-quality-policy-integration-and-P0-010-closure
+- id: GAP-MEDIA-PHASE1-COMPONENT-COVERAGE
+  status: open
+  scope: P1-component-contract-owner-binding-action-state-and-human-review
+  owner: Media-design-system-accessibility-and-capability-owners
+  evidence: .product-experience/phase-1-design-language/component-contracts.yaml; master-plan-section-19.2
+  remaining: Bind-component-actions-to-admitted-P2-actions-and-exact-channel-states; resolve-Shared-design-system-token-and-primitive-bindings;
+    review-keyboard-focus-responsive-accessibility-localization-and-prohibited-use-for-each-family
+  impact: blocks-P1-006-acceptance-and-any-claim-that-proposed-component-families-are-implemented-or-accessible

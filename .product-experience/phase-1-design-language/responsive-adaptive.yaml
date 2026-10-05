@@ -1,0 +1,24 @@
+schemaVersion: media.responsive-adaptive.v1
+productId: media
+authority: Media responsive composition and task capability at each viewport
+status: authored-proposal; P0-010-and-human-viewport-review-pending
+source: .product-experience/phase-1-design-language/typography-layout.yaml
+variants:
+  wide-desktop:
+    viewports: [1536x960, 1280x800]
+    workMode: source-player-and-transcript-visible-together; optional-provenance-in-context-panel
+  compact-desktop:
+    viewports: [1024x768]
+    workMode: transcript-primary; source-player-remains-one-action-away-with-position-retained
+  tablet:
+    viewports: [768x1024]
+    workMode: focused-editing-with-contextual-source-drawer
+  mobile:
+    viewports: [390x844, 320x640]
+    workMode: review-and-monitoring-first; supported-edit-actions-remain-operable
+invariants:
+  - Source identity, current version, consent or denial, outcome uncertainty, and safe next action remain visible or one clear disclosure away.
+  - Narrow layouts reflow; they do not hide recovery actions or replace text with color-only badges.
+  - Timeline and waveform gestures have non-drag alternatives.
+  - 200-percent text and localized expansion do not remove information or action semantics.
+statusNote: viewport values are proposed verification fixtures, not supported-device claims.

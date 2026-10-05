@@ -1,0 +1,20 @@
+{
+  "name": "@ghatana/media-experience-explorer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browser review client for Media first-use, artifact-intake and verification, and transcription and caption simulations",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@ghatana/media-experience-simulation": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

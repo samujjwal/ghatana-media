@@ -1,0 +1,94 @@
+schemaVersion: media.interaction-registry.v1
+productId: media
+status: selected-lane-first-use-and-upload-proposals; interaction-review-pending
+interactions:
+  - id: media.interaction.select-artifact-source
+    componentRef: media.component.artifact-source-picker
+    input: keyboard-or-pointer-selection-of-one-local-file-or-admitted-source-reference
+    effectRef: media.action.select-artifact-source
+    focusAfter: selected-source-name-and-admitted-limit-summary
+  - id: media.interaction.begin-artifact-upload
+    componentRef: media.component.artifact-source-picker
+    input: explicit-upload-action-after-source-and-owner-admitted-limits-are-reviewed
+    effectRef: media.action.begin-artifact-upload
+    focusAfter: stable-upload-identity-and-server-acknowledged-status
+  - id: media.interaction.resume-artifact-upload
+    componentRef: media.component.artifact-transfer-status
+    input: explicit-resume-of-the-same-matching-upload
+    effectRef: media.action.resume-artifact-upload
+    focusAfter: current-transfer-state-and-safe-next-action
+  - id: media.interaction.inspect-artifact
+    componentRef: media.component.artifact-integrity-summary
+    input: open-one-authorized-artifact-or-upload-identity
+    effectRef: media.action.inspect-artifact
+    focusAfter: artifact-version-and-integrity-heading
+  - id: media.interaction.attach-source-asset
+    componentRef: media.component.artifact-integrity-summary
+    input: select-an-exact-project-revision-and-confirm-the-artifact-version-reference
+    effectRef: media.action.attach-source-asset
+    focusAfter: confirmed-project-revision-or-explicit-unknown-outcome
+  - id: media.interaction.choose-intent
+    componentRef: media.component.intent-launcher
+    input: explicit-selection-of-one-canonical-user-outcome
+    effectRef: media.action.choose-intent
+    focusAfter: selected-intent-summary
+  - id: media.interaction.create-project
+    componentRef: media.component.project-browser
+    input: validated-project-request-and-explicit-create-confirmation
+    effectRef: media.action.create-project
+    focusAfter: confirmed-project-title-and-revision-or-create-recovery-state
+  - id: media.interaction.inspect-project-creation
+    componentRef: media.component.project-browser
+    input: inspect-the-same-project-create-request-after-an-unknown-response
+    effectRef: media.action.inspect-project-creation
+    focusAfter: same-request-status-and-safe-next-action
+  - id: media.interaction.open-project
+    componentRef: media.component.project-browser
+    input: explicit-selection-of-one-authorized-project
+    effectRef: media.action.open-project
+    focusAfter: project-context-heading
+  - id: media.interaction.select-source
+    componentRef: media.component.source-picker
+    input: keyboard-or-pointer-selection-of-one-source-version
+    effectRef: media.action.choose-source
+    focusAfter: selected-source-row
+  - id: media.interaction.seek-source
+    componentRef: media.component.source-player
+    input: keyboard-time-step-or-explicit-time-entry
+    effectRef: media.action.seek-source
+    focusAfter: playback-controls
+  - id: media.interaction.edit-caption-text
+    componentRef: media.component.caption-track-editor
+    input: keyboard-text-edit
+    effectRef: media.action.correct-caption
+    focusAfter: edited-caption-field
+  - id: media.interaction.correct-caption-time
+    componentRef: media.component.caption-track-editor
+    input: keyboard-numeric-time-or-accessible-range-control
+    effectRef: media.action.align-caption-timing
+    focusAfter: edited-caption-time-field
+  - id: media.interaction.save-caption-version
+    componentRef: media.component.caption-track-editor
+    input: explicit-save-version-action-after-validation
+    effectRef: media.action.save-caption-version
+    focusAfter: new-version-summary
+  - id: media.interaction.compare-caption-versions
+    componentRef: media.component.caption-track-editor
+    input: select-two-caption-versions-for-read-only-comparison
+    effectRef: media.action.compare-caption-versions
+    focusAfter: comparison-summary
+  - id: media.interaction.resolve-caption-conflict
+    componentRef: media.component.caption-track-editor
+    input: choose-whether-to-keep-local-edits-or-use-the-latest-version
+    effectRef: media.action.resolve-caption-conflict
+    focusAfter: resolved-caption-draft
+  - id: media.interaction.reconcile-job
+    componentRef: media.component.job-status-card
+    input: explicit-check-status-action
+    effectRef: media.action.reconcile-job
+    focusAfter: reconciliation-status
+  - id: media.interaction.open-job-from-activity
+    componentRef: media.component.job-status-card
+    input: activate-the-named-inspect-action-for-one-exact-job-row
+    effectRef: media.action.inspect-job
+    focusAfter: exact-job-status-heading

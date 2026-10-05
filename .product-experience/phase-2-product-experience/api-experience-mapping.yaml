@@ -1,0 +1,80 @@
+schemaVersion: media.api-experience-mapping.v1
+productId: media
+status: logical-operation-proposal; exact-wire-parity-blocked-by-GAP-05
+sourceAuthority: .product-experience/phase-0-product-truth/applications-channels.yaml
+mappings:
+  - actionRef: media.action.begin-artifact-upload
+    channels: [media.channel.http-api, media.channel.sdk]
+    logicalOperation: begin-one-bounded-artifact-upload
+    routeOrRpc: unresolved-under-GAP-05
+    requestMeaning: exact-source-metadata-project-target-when-present-current-purpose-and-stable-request-identity
+    responseMeaning: stable-upload-identity-and-owner-acknowledged-transfer-contract-not-an-available-artifact
+  - actionRef: media.action.resume-artifact-upload
+    channels: [media.channel.http-api, media.channel.sdk]
+    logicalOperation: resume-one-matching-artifact-upload
+    routeOrRpc: unresolved-under-GAP-05
+    requestMeaning: existing-upload-identity-source-match-and-current-authority
+    responseMeaning: current-owner-acknowledged-transfer-state-and-integrity-disposition
+  - actionRef: media.action.inspect-artifact
+    channels: [media.channel.http-api, media.channel.sdk]
+    logicalOperation: inspect-one-exact-artifact-version-or-existing-upload
+    routeOrRpc: unresolved-under-GAP-05
+    responseMeaning: immutable-artifact-identity-integrity-metadata-and-separate-policy-dispositions
+  - actionRef: media.action.attach-source-asset
+    channels: [media.channel.http-api, media.channel.sdk]
+    logicalOperation: attach-one-available-artifact-version-to-an-exact-project-revision
+    routeOrRpc: unresolved-under-GAP-05
+    requestMeaning: exact-project-revision-artifact-version-and-stable-request-identity
+    responseMeaning: resulting-project-revision-and-recorded-artifact-reference-or-explicit-unknown-finality
+  - actionRef: media.action.request-transcription
+    channels: [media.channel.grpc-api, media.channel.sdk]
+    logicalOperation: submit-transcription-for-source-version
+    routeOrRpc: unresolved-under-GAP-05
+    requestMeaning: exact-source-version-language-intent-purpose-and-idempotency-key
+    responseMeaning: stable-job-reference-current-state-and-finality
+  - actionRef: media.action.inspect-job
+    channels: [media.channel.grpc-api, media.channel.sdk]
+    logicalOperation: inspect-existing-job
+    routeOrRpc: unresolved-under-GAP-05
+    responseMeaning: product-job-and-attempt-status-with-safe-next-action
+  - actionRef: media.action.request-cancellation
+    channels: [media.channel.grpc-api, media.channel.sdk]
+    logicalOperation: request-cancellation-for-existing-job
+    routeOrRpc: unresolved-under-GAP-05
+    responseMeaning: cancellation-request-finality-and-any-racing-result
+  - actionRef: media.action.reconcile-job
+    channels: [media.channel.grpc-api, media.channel.sdk]
+    logicalOperation: reconcile-existing-unknown-outcome
+    routeOrRpc: unresolved-under-GAP-05
+    responseMeaning: evidence-classified-outcome-or-explicitly-retained-unknown
+  - actionRef: media.action.save-caption-version
+    channels: [media.channel.grpc-api, media.channel.sdk]
+    logicalOperation: register-new-caption-artifact-version
+    routeOrRpc: unresolved-under-GAP-05
+    responseMeaning: immutable-version-reference-and-registration-finality
+  - actionRef: media.action.review-transcript
+    channels: [media.channel.grpc-api, media.channel.sdk]
+    logicalOperation: read-source-linked-transcript
+    routeOrRpc: unresolved-under-GAP-05
+    responseMeaning: transcript-version-time-language-uncertainty-and-provenance
+  - actionRef: media.action.correct-caption
+    channels: [media.channel.grpc-api, media.channel.sdk]
+    logicalOperation: create-source-linked-caption-draft
+    routeOrRpc: unresolved-under-GAP-05
+    responseMeaning: draft-version-and-explicit-persistence-state
+  - actionRef: media.action.align-caption-timing
+    channels: [media.channel.grpc-api, media.channel.sdk]
+    logicalOperation: update-caption-time-ranges
+    routeOrRpc: unresolved-under-GAP-05
+    responseMeaning: draft-version-with-source-clock-ranges-and-alignment-disposition
+  - actionRef: media.action.resolve-caption-conflict
+    channels: [media.channel.grpc-api, media.channel.sdk]
+    logicalOperation: resolve-caption-draft-against-latest-version
+    routeOrRpc: unresolved-under-GAP-05
+    responseMeaning: resolved-draft-parent-and-preserved-version-history
+  - actionRef: media.action.compare-caption-versions
+    channels: [media.channel.grpc-api, media.channel.sdk]
+    logicalOperation: compare-two-caption-versions
+    routeOrRpc: unresolved-under-GAP-05
+    responseMeaning: text-timing-provenance-and-source-version-compatibility
+compatibility: Preserve currently supported wire identity and DTO/proto shape until consumer parity is verified; this file does not define a replacement route.

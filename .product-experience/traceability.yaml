@@ -4,19 +4,15 @@ mode: authored-relations
 status: partial-authored-links; independent-P0-010-semantic-closure-pending
 artifactPathBase: repository-root-relative
 sourceRefs:
-  - master-plan:section-5
-  - master-plan:section-18
-  - master-plan:task-P0-010
-  - source-manifest:phaseScope
+- master-plan:section-5
+- master-plan:section-18
+- master-plan:task-P0-010
+- source-manifest:phaseScope
 coverageSemantics:
-  thisFileContains: >-
-    Authored task-to-artifact, phase-gate, and selected cross-artifact relation
-    declarations. It is not a generated graph, exhaustive leaf-level
-    denominator, validator output, or acceptance result.
-  relationshipOwnership: >-
-    Semantic references remain in their owning records where available. This
-    file indexes relationships and records missing integration points; it does
-    not copy requirements, capabilities, journeys, or external schemas.
+  thisFileContains: Authored task-to-artifact, phase-gate, and selected cross-artifact relation declarations. It
+    is not a generated graph, exhaustive leaf-level denominator, validator output, or acceptance result.
+  relationshipOwnership: Semantic references remain in their owning records where available. This file indexes relationships
+    and records missing integration points; it does not copy requirements, capabilities, journeys, or external schemas.
   completeness: partial
   independentReviewRequired: true
   closureStatus: not-assessed-by-independent-P0-010-review
@@ -24,216 +20,658 @@ coverageSemantics:
 planTaskDependencies:
   source: docs/migration/expert-reviewed-master-plan.md
   records:
-    - taskRef: P0-001
-      dependsOnPlanTaskRefs: [GOV-002, GOV-003]
-      localStatus: accepted-boundary-slice-only
-    - taskRef: P0-002
-      dependsOnPlanTaskRefs: [P0-001]
-      localStatus: authored-proposal
-    - taskRef: P0-003
-      dependsOnPlanTaskRefs: [P0-002]
-      localStatus: authored-in-progress
-    - taskRef: P0-004
-      dependsOnPlanTaskRefs: [P0-003]
-      localStatus: authored-proposal
-    - taskRef: P0-005
-      dependsOnPlanTaskRefs: [P0-004]
-      localStatus: authored-proposal
-    - taskRef: P0-006
-      dependsOnPlanTaskRefs: [P0-002, P0-004, P0-005]
-      localStatus: authored-proposal
-    - taskRef: P0-007
-      dependsOnPlanTaskRefs: [P0-003, P0-004, P0-006]
-      localStatus: authored-proposal
-    - taskRef: P0-008
-      dependsOnPlanTaskRefs: [GOV-002, P0-006, MIG-002]
-      localStatus: authored-proposal
-    - taskRef: P0-009
-      dependsOnPlanTaskRefs: [P0-002, P0-003, P0-007]
-      localStatus: authored-proposal
-    - taskRef: P0-010
-      dependsOnPlanTaskRefs: [P0-001, P0-002, P0-003, P0-004, P0-005, P0-006, P0-007, P0-008, P0-009]
-      localStatus: independent-review-not-executed
+  - taskRef: P0-001
+    dependsOnPlanTaskRefs:
+    - GOV-002
+    - GOV-003
+    localStatus: accepted-boundary-slice-only
+  - taskRef: P0-002
+    dependsOnPlanTaskRefs:
+    - P0-001
+    localStatus: authored-proposal
+  - taskRef: P0-003
+    dependsOnPlanTaskRefs:
+    - P0-002
+    localStatus: 17-of-462-leaves-have-operation-specific-proposals-including-nine-job-and-eight-artifact-intake-speech-profile-records;
+      445-leaf-details-and-owner-review-pending
+  - taskRef: P0-004
+    dependsOnPlanTaskRefs:
+    - P0-003
+    localStatus: authored-proposal
+  - taskRef: P0-005
+    dependsOnPlanTaskRefs:
+    - P0-004
+    localStatus: observer-detach-is-non-mutating-and-cancellation-finality-rule-authored; distributed-systems-security-and-owner-review-pending
+  - taskRef: P0-006
+    dependsOnPlanTaskRefs:
+    - P0-002
+    - P0-004
+    - P0-005
+    localStatus: authored-proposal
+  - taskRef: P0-007
+    dependsOnPlanTaskRefs:
+    - P0-003
+    - P0-004
+    - P0-006
+    localStatus: authored-proposal
+  - taskRef: P0-008
+    dependsOnPlanTaskRefs:
+    - GOV-002
+    - P0-006
+    - MIG-002
+    localStatus: authored-proposal
+  - taskRef: P0-009
+    dependsOnPlanTaskRefs:
+    - P0-002
+    - P0-003
+    - P0-007
+    localStatus: canonical-api-and-embedded-channel-identities-and-alias-normalization-authored; per-operation-channel-proposals-expanded-for-eight-selected-leaves;
+      full-channel-dispositions-and-owner-accessibility-review-pending
+  - taskRef: P0-010
+    dependsOnPlanTaskRefs:
+    - P0-001
+    - P0-002
+    - P0-003
+    - P0-004
+    - P0-005
+    - P0-006
+    - P0-007
+    - P0-008
+    - P0-009
+    localStatus: independent-review-not-executed
+  - taskRef: P1-001
+    dependsOnPlanTaskRefs:
+    - P0-010
+    - GOV-002
+    localStatus: selected-lane-token-and-layout-proposal-authored; Shared bindings-and-design-review-pending
+  - taskRef: P1-002
+    dependsOnPlanTaskRefs:
+    - P1-001
+    localStatus: all-17-master-plan-component-families-indexed-across-28-proposal-contracts; Shared-bindings-action-mapping-and-design-review-pending
+  - taskRef: P1-003
+    dependsOnPlanTaskRefs:
+    - P1-001
+    localStatus: selected-lane-state-finality-and-provenance-grammar-authored; owner-review-pending
+  - taskRef: P1-004
+    dependsOnPlanTaskRefs:
+    - P1-002
+    - P1-003
+    localStatus: selected-lane-responsive-accessibility-localization-and-motion-proposals-authored; review-pending
+  - taskRef: P1-005
+    dependsOnPlanTaskRefs:
+    - P1-003
+    localStatus: selected-lane-CLI-language-proposal-authored; golden-output-and-CLI-review-pending
+  - taskRef: P1-006
+    dependsOnPlanTaskRefs:
+    - P1-001
+    - P1-002
+    - P1-003
+    - P1-004
+    - P1-005
+    localStatus: not-executed; full-Phase-1-review-and-generated-design-coverage-pending
+  - taskRef: P2-001
+    dependsOnPlanTaskRefs:
+    - P1-006
+    localStatus: all-41-baseline-view-contracts-authored-as-proposals; six-selected-lane-specializations-indexed;
+      action-copy-fixture-wire-bindings-and-owner-review-pending
+  - taskRef: P2-002
+    dependsOnPlanTaskRefs:
+    - P2-001
+    localStatus: 30-journeys-indexed; all-28-required-journeys-have-proposal-files; J-01-J-03-and-J-20-retain-scoped-proposal-slices; complete-action-state-scenario-channel-recovery-and-owner-coverage-pending
+  - taskRef: P2-003
+    dependsOnPlanTaskRefs:
+    - P2-001
+    - P0-007
+    localStatus: outside-selected-transcription-caption-lane; full-generation-editing-and-quality-experience-pending
+  - taskRef: P2-004
+    dependsOnPlanTaskRefs:
+    - P2-001
+    - P0-004
+    - P0-008
+    localStatus: outside-selected-transcription-caption-lane; animation-simulation-domain-screens-and-handoffs-pending
+  - taskRef: P2-005
+    dependsOnPlanTaskRefs:
+    - P2-001
+    localStatus: speech-and-caption-subset-authored; streaming-and-document-integration-pending
+  - taskRef: P2-006
+    dependsOnPlanTaskRefs:
+    - P2-002
+    - P2-003
+    - P2-004
+    - P2-005
+    localStatus: J-02-upload-inspect-resume-and-verification-job-inspect-reconcile-CLI-mapping-J-20-transcription-job-inspect-cancel-reconcile-and-J-03-selected-lane-CLI-authored;
+      API-wire-routes-and-full-contract-coverage-pending-GAP-05
+  - taskRef: P2-007
+    dependsOnPlanTaskRefs:
+    - P2-002
+    - P2-003
+    - P2-004
+    - P2-005
+    - P2-006
+    localStatus: J-02-metadata-only-scenarios-J-20-transcription-job-fixtures-and-J-03-selected-lane-fixtures-implemented;
+      full-scope-and-channel-coverage-pending
+  - taskRef: P2-008
+    dependsOnPlanTaskRefs:
+    - P2-001
+    - P2-002
+    - P2-003
+    - P2-004
+    - P2-005
+    - P2-006
+    - P2-007
+    localStatus: not-executed; full-outcome-to-experience-walk-and-generated-coverage-pending
+  - taskRef: P3-001
+    dependsOnPlanTaskRefs:
+    - P2-008
+    - GOV-002
+    localStatus: Media-specific-package-proposal-and-reducer-authored; public-Tools-binding-and-host-load-pending-GAP-11
+  - taskRef: P3-002
+    dependsOnPlanTaskRefs:
+    - P3-001
+    localStatus: J-01-first-use-J-02-transfer-and-verification-J-20-transcription-job-and-J-03-caption-reducers-authored;
+      TypeScript-6.0.3-typechecks-and-10-reducer-17-CLI-checks-passed; production-runtime-proof-not-claimed
+  - taskRef: P3-003
+    dependsOnPlanTaskRefs:
+    - P3-002
+    localStatus: three-J-01-first-use-routes-three-J-02-artifact-intake-views-activity-and-shared-J-02-J-20-job-detail-J-20-job-recovery-commands-and-four-J-03-Product-view-labels-rendered-in-Media-owned-Vite-client;
+      generic-Tools-browser-host-and-published-binding-pending-GAP-11
+  - taskRef: P3-004
+    dependsOnPlanTaskRefs:
+    - P3-002
+    - P2-006
+    localStatus: shared-J-01-J-02-J-20-and-J-03-model-projection-implemented; synthetic-CLI-covers-J-02-J-20-and-J-03;
+      J-01-proposal-is-Web-only; API-Explorer-adapter-and-full-channel-coverage-pending
+  - taskRef: P3-005
+    dependsOnPlanTaskRefs:
+    - P3-003
+    - P3-004
+    localStatus: Media-owned-browser-client-builds-with-restricted-CSP-and-bundled-specification-assets; generic-Tools-host-binding-base-path-offline-cache-and-deep-link-evidence-pending
+  - taskRef: P3-006
+    dependsOnPlanTaskRefs:
+    - P3-005
+    - P1-004
+    localStatus: selected-caption-editor-geometry-observed-at-six-viewports; J-02-activity-verification-job-and-J-20-transcription-job-previews-observed-at-320px-and-390px;
+      all-view-accessibility-and-independent-visual-review-pending
+  - taskRef: P3-007
+    dependsOnPlanTaskRefs:
+    - P3-006
+    localStatus: not-executed; human-visual-usability-and-accessibility-review-pending
 taskArtifactLinks:
-  - id: TRACE-P0-001
-    taskRef: P0-001
-    relation: defines-accepted-boundary-slice
-    artifactRefs:
-      - BOUNDARY.md
-      - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
-      - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
-      - docs/migration/decisions/document-intelligence-ownership-instruction.md
-    acceptanceState: accepted-boundary-slice-only
-    sourceAuthority: explicit-user-boundary-approval-and-supplemental-ownership-instruction
-  - id: TRACE-P0-002
-    taskRef: P0-002
-    relation: authors-proposed-constitution-actors-outcomes-and-terms
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/constitution.yaml
-      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
-      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
-      - .product-experience/phase-0-product-truth/glossary.yaml
-      - .product-experience/PRODUCT-CONSTITUTION.md
-    acceptanceState: pending-human-and-role-appointment-review
-  - id: TRACE-P0-003
-    taskRef: P0-003
-    relation: authors-proposed-capabilities-requirements-and-qualification-dispositions
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/capabilities.yaml
-      - .product-experience/phase-0-product-truth/requirements.yaml
-      - .product-experience/phase-0-product-truth/qualification-policy.yaml
-      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
-    acceptanceState: pending-capability-specialist-review-and-P0-010
-  - id: TRACE-P0-004
-    taskRef: P0-004
-    relation: authors-proposed-domain-time-unit-and-fidelity-semantics
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/domain-model.yaml
-      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
-      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
-    acceptanceState: pending-graphics-audio-simulation-and-owner-review
-  - id: TRACE-P0-005
-    taskRef: P0-005
-    relation: authors-proposed-state-authority-and-recovery-semantics
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/state-models.yaml
-      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
-      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
-    acceptanceState: pending-distributed-systems-security-and-owner-review
-  - id: TRACE-P0-006
-    taskRef: P0-006
-    relation: authors-proposed-security-privacy-rights-and-content-policy
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
-      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
-      - .product-experience/phase-0-product-truth/content-intent.yaml
-      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
-    acceptanceState: pending-security-privacy-and-rights-owner-review
-  - id: TRACE-P0-007
-    taskRef: P0-007
-    relation: authors-proposed-profile-quality-calibration-and-bounded-optimization-semantics
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/profile-semantics.yaml
-      - .product-experience/phase-0-product-truth/quality-policy.yaml
-      - .product-experience/phase-0-product-truth/qualification-policy.yaml
-    acceptanceState: pending-quality-AI-ML-domain-and-P0-010-review
-  - id: TRACE-P0-008
-    taskRef: P0-008
-    relation: authors-proposed-dependency-ownership-and-reuse-decisions
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/dependency-contracts.yaml
-      - .product-experience/phase-0-product-truth/reuse-decisions.yaml
-      - .product-experience/gaps.yaml
-    acceptanceState: pending-public-contract-and-external-owner-review
-  - id: TRACE-P0-009
-    taskRef: P0-009
-    relation: authors-proposed-channel-journey-and-workload-semantics
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/information-architecture.yaml
-      - .product-experience/phase-0-product-truth/applications-channels.yaml
-      - .product-experience/phase-0-product-truth/journey-catalog.yaml
-      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
-      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
-    artifactPresence:
-      .product-experience/phase-0-product-truth/handoff-contracts.yaml: authored-proposal; acceptance and owner contract binding remain pending
-    acceptanceState: pending-UX-accessibility-SRE-and-P0-010-review
-  - id: TRACE-P0-010
-    taskRef: P0-010
-    relation: independent-semantic-acceptance-inputs-and-generated-coverage-currentness
-    artifactRefs:
-      - .product-experience/acceptance.yaml
-      - .product-experience/traceability.yaml
-      - .product-experience/currentness.yaml
-    artifactPresence:
-      .product-experience/acceptance.yaml: authored-inputs-only-no-generated-result
-      .product-experience/traceability.yaml: authored-partial-relations
-      .product-experience/currentness.yaml: not-created-generated-only
-    acceptanceState: not-executed-independent-review-pending
+- id: TRACE-P0-001
+  taskRef: P0-001
+  relation: defines-accepted-boundary-slice
+  artifactRefs:
+  - BOUNDARY.md
+  - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+  - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+  - docs/migration/decisions/document-intelligence-ownership-instruction.md
+  acceptanceState: accepted-boundary-slice-only
+  sourceAuthority: explicit-user-boundary-approval-and-supplemental-ownership-instruction
+- id: TRACE-P0-002
+  taskRef: P0-002
+  relation: authors-proposed-constitution-actors-outcomes-and-terms
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/constitution.yaml
+  - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+  - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+  - .product-experience/phase-0-product-truth/glossary.yaml
+  - .product-experience/PRODUCT-CONSTITUTION.md
+  acceptanceState: pending-human-and-role-appointment-review
+- id: TRACE-P0-003
+  taskRef: P0-003
+  relation: authors-proposed-capabilities-requirements-and-qualification-dispositions
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/capabilities.yaml
+  - .product-experience/phase-0-product-truth/requirements.yaml
+  - .product-experience/phase-0-product-truth/qualification-policy.yaml
+  - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+  acceptanceState: 17-of-462-leaves-have-operation-specific-proposals; remaining-445-leaf-details-and-owner-review-pending
+- id: TRACE-P0-004
+  taskRef: P0-004
+  relation: authors-proposed-domain-time-unit-and-fidelity-semantics
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/domain-model.yaml
+  - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+  - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+  acceptanceState: pending-graphics-audio-simulation-and-owner-review
+- id: TRACE-P0-005
+  taskRef: P0-005
+  relation: authors-proposed-state-authority-and-recovery-semantics
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/state-models.yaml
+  - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+  - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+  acceptanceState: pending-distributed-systems-security-and-owner-review
+- id: TRACE-P0-006
+  taskRef: P0-006
+  relation: authors-proposed-security-privacy-rights-and-content-policy
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+  - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+  - .product-experience/phase-0-product-truth/content-intent.yaml
+  - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+  acceptanceState: pending-security-privacy-and-rights-owner-review
+- id: TRACE-P0-007
+  taskRef: P0-007
+  relation: authors-proposed-profile-quality-calibration-and-bounded-optimization-semantics
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/profile-semantics.yaml
+  - .product-experience/phase-0-product-truth/quality-policy.yaml
+  - .product-experience/phase-0-product-truth/qualification-policy.yaml
+  acceptanceState: pending-quality-AI-ML-domain-and-P0-010-review
+- id: TRACE-P0-008
+  taskRef: P0-008
+  relation: authors-proposed-dependency-ownership-and-reuse-decisions
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/dependency-contracts.yaml
+  - .product-experience/phase-0-product-truth/reuse-decisions.yaml
+  - .product-experience/gaps.yaml
+  acceptanceState: pending-public-contract-and-external-owner-review
+- id: TRACE-P0-009
+  taskRef: P0-009
+  relation: authors-proposed-channel-journey-and-workload-semantics
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/information-architecture.yaml
+  - .product-experience/phase-0-product-truth/applications-channels.yaml
+  - .product-experience/phase-0-product-truth/journey-catalog.yaml
+  - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+  - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+  artifactPresence:
+    .product-experience/phase-0-product-truth/handoff-contracts.yaml: authored-proposal; acceptance and owner contract
+      binding remain pending
+  acceptanceState: canonical-channel-identities-authored-and-eight-selected-operation-channel-proposals-expanded;
+    full-per-operation-channel-and-accessibility-review-pending
+- id: TRACE-P0-010
+  taskRef: P0-010
+  relation: independent-semantic-acceptance-inputs-and-generated-coverage-currentness
+  artifactRefs:
+  - .product-experience/acceptance.yaml
+  - .product-experience/traceability.yaml
+  - .product-experience/currentness.yaml
+  artifactPresence:
+    .product-experience/acceptance.yaml: authored-inputs-only-no-generated-result
+    .product-experience/traceability.yaml: authored-partial-relations
+    .product-experience/currentness.yaml: not-created-generated-only
+  acceptanceState: not-executed-independent-review-pending
+- id: TRACE-P1-001
+  taskRef: P1-001
+  relation: authors-proposed-design-language-grammar-for-selected-lane
+  artifactRefs:
+  - .product-experience/phase-1-design-language/media-token-aliases.yaml
+  - .product-experience/phase-1-design-language/typography-layout.yaml
+  acceptanceState: selected-lane-token-and-layout-proposal-authored; Shared bindings-and-design-review-pending
+- id: TRACE-P1-002
+  taskRef: P1-002
+  relation: authors-master-plan-component-family-contracts-and-selected-editing-grammar
+  artifactRefs:
+  - .product-experience/phase-1-design-language/component-contracts.yaml
+  - .product-experience/phase-1-design-language/media-editing-grammar.yaml
+  - .product-experience/phase-1-design-language/animation-simulation-grammar.yaml
+  acceptanceState: all-17-master-plan-component-families-indexed-across-28-proposal-contracts; Shared-bindings-action-mapping-and-design-review-pending
+- id: TRACE-P1-003
+  taskRef: P1-003
+  relation: authors-proposed-design-language-grammar-for-selected-lane
+  artifactRefs:
+  - .product-experience/phase-1-design-language/semantic-state-grammar.yaml
+  - .product-experience/phase-1-design-language/action-finality-grammar.yaml
+  - .product-experience/phase-1-design-language/trust-provenance-grammar.yaml
+  acceptanceState: selected-lane-state-finality-and-provenance-grammar-authored; owner-review-pending
+- id: TRACE-P1-004
+  taskRef: P1-004
+  relation: authors-proposed-design-language-grammar-for-selected-lane
+  artifactRefs:
+  - .product-experience/phase-1-design-language/responsive-adaptive.yaml
+  - .product-experience/phase-1-design-language/accessibility.yaml
+  - .product-experience/phase-1-design-language/localization-content.yaml
+  - .product-experience/phase-1-design-language/motion.yaml
+  acceptanceState: selected-lane-responsive-accessibility-localization-and-motion-proposals-authored; review-pending
+- id: TRACE-P1-005
+  taskRef: P1-005
+  relation: authors-proposed-design-language-grammar-for-selected-lane
+  artifactRefs:
+  - .product-experience/phase-1-design-language/cli-language.yaml
+  acceptanceState: selected-lane-CLI-language-proposal-authored; golden-output-and-CLI-review-pending
+- id: TRACE-P1-006
+  taskRef: P1-006
+  relation: authors-proposed-design-language-grammar-for-selected-lane
+  artifactRefs:
+  - .product-experience/phase-1-design-language/DESIGN-LANGUAGE.md
+  - .product-experience/acceptance.yaml
+  - .product-experience/traceability.yaml
+  acceptanceState: not-executed; full-Phase-1-review-and-generated-design-coverage-pending
+- id: TRACE-P2-001
+  taskRef: P2-001
+  relation: authors-one-proposal-contract-for-each-baseline-view-and-indexes-selected-lane-specializations
+  artifactRefs:
+  - .product-experience/phase-2-product-experience/application-channel-registry.yaml
+  - .product-experience/phase-2-product-experience/navigation-contracts.yaml
+  - .product-experience/phase-2-product-experience/screen-registry.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/authenticate-and-select-context.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/resume-work.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/find-projects.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/work-in-project.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/create-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/browse-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/import-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/inspect-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/artifact-verification-job-family.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/inspect-job.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-creation-plan.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/arrange-scenes.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/create-image.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/create-video.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/create-audio.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/work-with-speech.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/use-authorized-voice.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/edit-captions.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-dubbing.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/improve-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/compare-results.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/edit-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/edit-media-region.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/animate-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/compose-scene.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/explore-simulation.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/compose-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/adjust-color.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-quality.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/prepare-render.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-outputs.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/inspect-output.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/deliver-output.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-exact-version.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-rights-and-consent.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/inspect-provenance.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/check-processing-options.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/check-processing-readiness.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-workspace-settings.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/find-task-guidance.yaml
+  acceptanceState: all-41-baseline-view-contracts-authored-with-component-state-action-intent-recovery-responsive-accessibility-and-channel-disposition-fields;
+    action-intent-copy-fixture-wire-bindings-and-owner-review-pending
+- id: TRACE-P2-002
+  taskRef: P2-002
+  relation: authors-phase2-journey-proposals-from-phase0-outcomes-and-registered-views
+  artifactRefs:
+  - .product-experience/phase-2-product-experience/action-registry.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/first-use-and-project-creation.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/clean-noisy-interview-audio.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/repair-video-with-measured-quality.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/translate-and-dub-existing-video.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/authenticate-and-select-context.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/resume-work.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/find-projects.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/work-in-project.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/create-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/browse-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/import-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/inspect-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/artifact-verification-job-family.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/inspect-job.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/select-source.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/transcription-progress.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-transcript.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/correct-captions.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/resolve-job-outcome.yaml
+  - .product-experience/phase-2-product-experience/recovery-finality-contracts.yaml
+  - .product-experience/phase-2-product-experience/journey-registry.yaml
+  acceptanceState: 30-journeys-indexed; all-28-required-journeys-have-proposal-files; J-01-J-03-and-J-20-retain-scoped-proposal-slices; all-journeys-still-need-complete-action-state-scenario-channel-recovery-and-owner-coverage
+- id: TRACE-P2-003
+  taskRef: P2-003
+  relation: authors-phase2-journey-proposals-from-phase0-outcomes-and-registered-views
+  artifactRefs:
+  - .product-experience/lanes/transcribe-and-correct-captions.yaml
+  acceptanceState: outside-selected-transcription-caption-lane; full-generation-editing-and-quality-experience-pending
+- id: TRACE-P2-004
+  taskRef: P2-004
+  relation: authors-phase2-journey-proposals-from-phase0-outcomes-and-registered-views
+  artifactRefs:
+  - .product-experience/lanes/transcribe-and-correct-captions.yaml
+  acceptanceState: outside-selected-transcription-caption-lane; animation-simulation-domain-screens-and-handoffs-pending
+- id: TRACE-P2-005
+  taskRef: P2-005
+  relation: authors-phase2-journey-proposals-from-phase0-outcomes-and-registered-views
+  artifactRefs:
+  - .product-experience/lanes/transcribe-and-correct-captions.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+  - .product-experience/phase-2-product-experience/handoff-bindings.yaml
+  acceptanceState: speech-and-caption-subset-authored; streaming-and-document-integration-pending
+- id: TRACE-P2-006
+  taskRef: P2-006
+  relation: authors-phase2-journey-proposals-from-phase0-outcomes-and-registered-views
+  artifactRefs:
+  - .product-experience/phase-2-product-experience/cli-command-registry.yaml
+  - .product-experience/phase-2-product-experience/api-experience-mapping.yaml
+  acceptanceState: J-02-upload-inspect-and-resume-CLI-mapping-J-20-transcription-job-inspect-cancel-and-reconcile-fixture-commands-and-J-03-selected-lane-CLI-authored;
+    API-wire-routes-and-full-contract-coverage-pending-GAP-05
+- id: TRACE-P2-007
+  taskRef: P2-007
+  relation: authors-phase2-journey-proposals-from-phase0-outcomes-and-registered-views
+  artifactRefs:
+  - .product-experience/phase-2-product-experience/scenario-fixture-registry.yaml
+  - .product-experience/phase-2-product-experience/simulation-semantics.yaml
+  - .product-experience/phase-2-product-experience/data-view-contracts.yaml
+  - .product-experience/phase-2-product-experience/content-copy-catalog.yaml
+  acceptanceState: J-02-metadata-only-scenarios-and-J-03-selected-lane-fixtures-implemented; full-scope-and-channel-coverage-pending
+- id: TRACE-P2-008
+  taskRef: P2-008
+  relation: authors-phase2-journey-proposals-from-phase0-outcomes-and-registered-views
+  artifactRefs:
+  - .product-experience/phase-2-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md
+  - .product-experience/acceptance.yaml
+  - .product-experience/traceability.yaml
+  acceptanceState: not-executed; full-outcome-to-experience-walk-and-generated-coverage-pending
+- id: TRACE-P3-001
+  taskRef: P3-001
+  relation: authors-deterministic-simulation-and-Explorer-evidence-contracts-with-host-gaps-explicit
+  artifactRefs:
+  - .product-experience/phase-3-experience-explorer/EXPERIENCE-EXPLORER.md
+  - .product-experience/phase-3-experience-explorer/media-experience-package.yaml
+  acceptanceState: Media-specific-package-proposal-and-reducer-authored; public-Tools-binding-and-host-load-pending-GAP-11
+- id: TRACE-P3-002
+  taskRef: P3-002
+  relation: authors-deterministic-simulation-and-Explorer-evidence-contracts-with-host-gaps-explicit
+  artifactRefs:
+  - .product-experience/phase-3-experience-explorer/scenario-fixtures.yaml
+  - libs/media-experience-simulation/src/model.ts
+  - libs/media-experience-simulation/src/fixtures.ts
+  - libs/media-experience-simulation/src/index.ts
+  - libs/media-experience-simulation/tests/simulation.test.mjs
+  - libs/media-experience-simulation/tests/product-cli.test.mjs
+  acceptanceState: J-01-first-use-J-02-transfer-and-verification-job-J-20-transcription-job-recovery-and-J-03-caption-reducers-authored;
+    TypeScript-6.0.3-typecheck-and-10-reducer-checks-passed; production-runtime-proof-not-claimed
+- id: TRACE-P3-003
+  taskRef: P3-003
+  relation: authors-deterministic-simulation-and-Explorer-evidence-contracts-with-host-gaps-explicit
+  artifactRefs:
+  - .product-experience/phase-3-experience-explorer/view-projections.yaml
+  - .product-experience/phase-2-product-experience/screen-registry.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/inspect-job.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
+  - apps/media-experience-explorer/src/main.ts
+  acceptanceState: three-J-01-first-use-routes-three-J-02-artifact-intake-views-plus-activity-and-shared-J-02-J-20-job-status-views-and-four-J-03-Product-view-labels-rendered-in-Media-owned-Vite-client;
+    generic-Tools-host-and-published-binding-pending-GAP-11
+- id: TRACE-P3-004
+  taskRef: P3-004
+  relation: authors-deterministic-simulation-and-Explorer-evidence-contracts-with-host-gaps-explicit
+  artifactRefs:
+  - .product-experience/phase-3-experience-explorer/interaction-dispositions.yaml
+  - .product-experience/phase-2-product-experience/cli-command-registry.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
+  - .product-experience/phase-2-product-experience/api-experience-mapping.yaml
+  - libs/media-experience-simulation/bin/media-experience-fixture.mjs
+  - libs/media-experience-simulation/bin/ghatana-media.mjs
+  - libs/media-experience-simulation/src/cli.ts
+  - libs/media-experience-simulation/tests/cli.test.mjs
+  - libs/media-experience-simulation/tests/product-cli.test.mjs
+  acceptanceState: shared-J-01-J-02-J-20-and-J-03-model-projection-implemented; synthetic-CLI-covers-J-02-J-20-and-J-03-only;
+    J-01-proposal-is-Web-only; API-Explorer-adapter-and-full-channel-coverage-pending
+- id: TRACE-P3-005
+  taskRef: P3-005
+  relation: authors-deterministic-simulation-and-Explorer-evidence-contracts-with-host-gaps-explicit
+  artifactRefs:
+  - .product-experience/phase-3-experience-explorer/verification-matrix.yaml
+  - .product-experience/phase-3-experience-explorer/media-experience-package.yaml
+  acceptanceState: Media-owned-browser-client-builds-with-restricted-CSP-and-bundled-specification-assets; generic-Tools-host-binding-base-path-offline-cache-and-deep-link-evidence-pending
+- id: TRACE-P3-006
+  taskRef: P3-006
+  relation: authors-deterministic-simulation-and-Explorer-evidence-contracts-with-host-gaps-explicit
+  artifactRefs:
+  - .product-experience/phase-3-experience-explorer/verification-matrix.yaml
+  acceptanceState: selected-caption-editor-rendered-at-six-viewports-and-J-02-activity-layout-observed-at-320px-and-390px;
+    accessibility-is-partial-and-full-view-or-independent-visual-review-pending
+- id: TRACE-P3-007
+  taskRef: P3-007
+  relation: authors-deterministic-simulation-and-Explorer-evidence-contracts-with-host-gaps-explicit
+  artifactRefs:
+  - .product-experience/phase-3-experience-explorer/verification-matrix.yaml
+  - .product-experience/acceptance.yaml
+  acceptanceState: not-executed; human-visual-usability-and-accessibility-review-pending
 crossArtifactRelations:
-  - id: TRACE-REL-GOALS-ACTORS
-    from: .product-experience/phase-0-product-truth/goals-jtbd.yaml
-    relation: references
-    to: .product-experience/phase-0-product-truth/actors-responsibilities.yaml
-    referenceField: actorRefs
-    status: locally-authored-reference-set; semantic-owner-review-pending
-  - id: TRACE-REL-PERSONAS-GOALS
-    from: .product-experience/phase-0-product-truth/actors-responsibilities.yaml
-    relation: references
-    to: .product-experience/phase-0-product-truth/goals-jtbd.yaml
-    referenceField: personas.actorRefs-and-typicalGoals
-    status: locally-authored-reference-set; semantic-owner-review-pending
-  - id: TRACE-REL-REQUIREMENTS-CAPABILITIES
-    from: .product-experience/phase-0-product-truth/requirements.yaml
-    relation: references
-    to: .product-experience/phase-0-product-truth/capabilities.yaml
-    referenceField: capabilityIds
-    status: family-leaf-IDs-present; per-leaf-parameters-channels-priority-lane-and-availability-pending-GAP-MEDIA-CAPABILITY-LEAF-DETAIL-and-P0-010
-  - id: TRACE-REL-QUALITY-DIMENSIONS
-    from: .product-experience/phase-0-product-truth/quality-policy.yaml
-    relation: references
-    to: .product-experience/phase-0-product-truth/quality-policy.yaml
-    referenceField: metricDefinitions.dimensionRefs
-    status: local-dimension-references-authored; calibration-and-acceptance-pending
-  - id: TRACE-REL-QUALITY-CAPABILITIES
-    from: .product-experience/phase-0-product-truth/quality-policy.yaml
-    relation: planned-reference-to
-    to: .product-experience/phase-0-product-truth/capabilities.yaml
-    referenceField: metricDefinitions.capabilityRefs
-    status: intentionally-unmapped-until-justified-leaf-applicability-is-reviewed; pending-GAP-MEDIA-QUALITY-CAPABILITY-MAPPING
-  - id: TRACE-REL-QUALITY-DOMAIN-OWNERS
-    from: .product-experience/phase-0-product-truth/quality-policy.yaml
-    relation: planned-reference-to
-    to: external-domain-owner-contracts
-    referenceField: metricDefinitions.domain-and-fidelity-scope
-    status: pending-P0-004-and-owner-approved-mapping
-  - id: TRACE-REL-PROFILES-QUALITY-FLOORS
-    from: .product-experience/phase-0-product-truth/profile-semantics.yaml
-    relation: planned-reference-to
-    to: .product-experience/phase-0-product-truth/quality-policy.yaml
-    referenceField: fallbackSemantics.permissionFields.*.qualityFloorRefs
-    status: field-contract-authored; concrete-floors-pending-specialist-and-capability-integration
-  - id: TRACE-REL-JOURNEYS-OUTCOMES-CHANNELS
-    from: .product-experience/phase-0-product-truth/journey-catalog.yaml
-    relation: must-reconcile-with
-    to: [.product-experience/phase-0-product-truth/goals-jtbd.yaml, .product-experience/phase-0-product-truth/applications-channels.yaml]
-    status: pending-P0-009-and-P0-010-review
-  - id: TRACE-REL-DEPENDENCY-OWNER-BINDINGS
-    from: .product-experience/phase-0-product-truth/dependency-contracts.yaml
-    relation: binds-to-public-owner-contracts
-    to: externalAuthorities
-    status: boundary-owners-recorded; capability-level-public-bindings-pending-P0-008
+- id: TRACE-REL-GOALS-ACTORS
+  from: .product-experience/phase-0-product-truth/goals-jtbd.yaml
+  relation: references
+  to: .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+  referenceField: actorRefs
+  status: locally-authored-reference-set; semantic-owner-review-pending
+- id: TRACE-REL-PERSONAS-GOALS
+  from: .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+  relation: references
+  to: .product-experience/phase-0-product-truth/goals-jtbd.yaml
+  referenceField: personas.actorRefs-and-typicalGoals
+  status: locally-authored-reference-set; semantic-owner-review-pending
+- id: TRACE-REL-REQUIREMENTS-CAPABILITIES
+  from: .product-experience/phase-0-product-truth/requirements.yaml
+  relation: references
+  to: .product-experience/phase-0-product-truth/capabilities.yaml
+  referenceField: capabilityIds
+  status: family-leaf-IDs-present; per-leaf-parameters-channels-priority-lane-and-availability-pending-GAP-MEDIA-CAPABILITY-LEAF-DETAIL-and-P0-010
+- id: TRACE-REL-QUALITY-DIMENSIONS
+  from: .product-experience/phase-0-product-truth/quality-policy.yaml
+  relation: references
+  to: .product-experience/phase-0-product-truth/quality-policy.yaml
+  referenceField: metricDefinitions.dimensionRefs
+  status: local-dimension-references-authored; calibration-and-acceptance-pending
+- id: TRACE-REL-QUALITY-CAPABILITIES
+  from: .product-experience/phase-0-product-truth/quality-policy.yaml
+  relation: planned-reference-to
+  to: .product-experience/phase-0-product-truth/capabilities.yaml
+  referenceField: metricDefinitions.capabilityRefs
+  status: intentionally-unmapped-until-justified-leaf-applicability-is-reviewed; pending-GAP-MEDIA-QUALITY-CAPABILITY-MAPPING
+- id: TRACE-REL-QUALITY-DOMAIN-OWNERS
+  from: .product-experience/phase-0-product-truth/quality-policy.yaml
+  relation: planned-reference-to
+  to: external-domain-owner-contracts
+  referenceField: metricDefinitions.domain-and-fidelity-scope
+  status: pending-P0-004-and-owner-approved-mapping
+- id: TRACE-REL-PROFILES-QUALITY-FLOORS
+  from: .product-experience/phase-0-product-truth/profile-semantics.yaml
+  relation: planned-reference-to
+  to: .product-experience/phase-0-product-truth/quality-policy.yaml
+  referenceField: fallbackSemantics.permissionFields.*.qualityFloorRefs
+  status: field-contract-authored; concrete-floors-pending-specialist-and-capability-integration
+- id: TRACE-REL-JOURNEYS-OUTCOMES-CHANNELS
+  from: .product-experience/phase-0-product-truth/journey-catalog.yaml
+  relation: must-reconcile-with
+  to:
+  - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+  - .product-experience/phase-0-product-truth/applications-channels.yaml
+  status: pending-P0-009-and-P0-010-review
+- id: TRACE-REL-DEPENDENCY-OWNER-BINDINGS
+  from: .product-experience/phase-0-product-truth/dependency-contracts.yaml
+  relation: binds-to-public-owner-contracts
+  to: externalAuthorities
+  status: boundary-owners-recorded; capability-level-public-bindings-pending-P0-008
+- id: TRACE-REL-P1-USES-P0
+  from: .product-experience/phase-1-design-language
+  relation: projects-design-language-over
+  to:
+  - .product-experience/phase-0-product-truth/glossary.yaml
+  - .product-experience/phase-0-product-truth/state-models.yaml
+  - .product-experience/phase-0-product-truth/capabilities.yaml
+  referenceField: sourceRefs-and-explicit-ID-bindings
+  status: selected-lane-references-authored; Shared-token-binding-and-P0-010-acceptance-pending
+- id: TRACE-REL-P2-USES-P0-P1
+  from: .product-experience/phase-2-product-experience
+  relation: binds-experience-to
+  to:
+  - .product-experience/phase-0-product-truth
+  - .product-experience/phase-1-design-language
+  referenceField: laneRef-actionRefs-screenRefs-and-stateBindings
+  status: selected-lane-relations-authored; full-scope-and-upstream-acceptance-pending
+- id: TRACE-REL-P3-USES-P2
+  from: .product-experience/phase-3-experience-explorer
+  relation: projects-simulation-from
+  to:
+  - .product-experience/phase-2-product-experience/action-registry.yaml
+  - .product-experience/phase-2-product-experience/scenario-fixture-registry.yaml
+  - .product-experience/phase-2-product-experience/screen-registry.yaml
+  referenceField: package-authorityRefs-fixtureRefs-and-viewRefs
+  status: J-01-J-02-and-J-03-Media-reducer-and-fixture-relations-authored; public-Tools-host-and-P2-008-acceptance-pending
 phaseGates:
-  - id: TRACE-GATE-P0-001
-    gate: P0-001 boundary acceptance
-    state: accepted-boundary-slice-only
-  - id: TRACE-GATE-P0-FULL
-    gate: P0-010 independent Product Truth acceptance
-    state: pending; requires complete Phase 0 semantic/reference review and generated coverage/currentness evidence
-  - id: TRACE-GATE-P1
-    gate: Phase 1 authoring and acceptance
-    state: pending-P0-010
-  - id: TRACE-GATE-P2
-    gate: Phase 2 authoring and acceptance
-    state: pending-P1-006
-  - id: TRACE-GATE-P3
-    gate: Phase 3 authoring and acceptance
-    state: pending-P2-008
+- id: TRACE-GATE-P0-001
+  gate: P0-001 boundary acceptance
+  state: accepted-boundary-slice-only
+- id: TRACE-GATE-P0-FULL
+  gate: P0-010 independent Product Truth acceptance
+  state: pending; requires complete Phase 0 semantic/reference review and generated coverage/currentness evidence
+- id: TRACE-GATE-P1
+  gate: Phase 1 authoring and acceptance
+  state: pending-P0-010
+- id: TRACE-GATE-P2
+  gate: Phase 2 authoring and acceptance
+  state: pending-P1-006
+- id: TRACE-GATE-P3
+  gate: Phase 3 authoring and acceptance
+  state: pending-P2-008
 coverageGaps:
   authoritativeRegister: .product-experience/gaps.yaml
   references:
-    - GAP-02
-    - GAP-03
-    - GAP-05
-    - GAP-06
-    - GAP-08
-    - GAP-09
-    - GAP-10
-    - GAP-11
-    - GAP-12
-    - GAP-13
-    - GAP-14
-    - GAP-15
-    - GAP-MEDIA-DI-PUBLIC-CLIENT
-    - GAP-MEDIA-DOMAIN-REVIEWER-APPOINTMENT
-    - GAP-MEDIA-TOOLS-SCHEMA-BINDING
-    - GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+  - GAP-02
+  - GAP-03
+  - GAP-05
+  - GAP-06
+  - GAP-08
+  - GAP-09
+  - GAP-10
+  - GAP-11
+  - GAP-12
+  - GAP-13
+  - GAP-14
+  - GAP-15
+  - GAP-MEDIA-DI-PUBLIC-CLIENT
+  - GAP-MEDIA-DOMAIN-REVIEWER-APPOINTMENT
+  - GAP-MEDIA-TOOLS-SCHEMA-BINDING
+  - GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+  - GAP-01
+  - GAP-07
+  - GAP-MEDIA-PHASE2-COVERAGE
+  - GAP-MEDIA-CAPABILITY-LEAF-DETAIL
+  - GAP-MEDIA-QUALITY-CAPABILITY-MAPPING
+  - GAP-MEDIA-PHASE1-COMPONENT-COVERAGE

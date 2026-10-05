@@ -445,6 +445,10 @@ requirements:
     when: Admission is evaluated.
     then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported
       as available.
+  - id: MEDIA-REQ-CAP-JOB-AC-03
+    given: A job is accepted, a caller is watching it, and a cancel or retry is requested while outcome certainty is pending.
+    when: The watcher detaches or is interrupted, then an authorized caller performs the explicit cancel/reconcile/retry operation.
+    then: Detaching changes no job state; cancellation remains pending until stop evidence is confirmed; an uncertain effect is reconciled under the same job identity before any new attempt is allowed.
   relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
@@ -703,7 +707,7 @@ requirements:
   kind: functional
   priority: must
   traceToIntentIds:
-  - media.intent.discover-profile
+  - media.intent.choose-eligible-processing-option
   intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
   actorRoles:
   - developer-integrator
@@ -811,7 +815,7 @@ requirements:
   kind: functional
   priority: must
   traceToIntentIds:
-  - media.intent.inspect-capability
+  - media.intent.check-processing-options
   intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
   actorRoles:
   - developer-integrator
@@ -913,7 +917,7 @@ requirements:
   kind: functional
   priority: must
   traceToIntentIds:
-  - media.intent.inspect-readiness
+  - media.intent.check-processing-readiness
   intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
   actorRoles:
   - operator
@@ -1009,7 +1013,7 @@ requirements:
   priority: must
   traceToIntentIds:
   - media.intent.deliver
-  - media.intent.manage-rights-consent
+  - media.intent.review-rights-and-consent
   intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
   actorRoles:
   - creator

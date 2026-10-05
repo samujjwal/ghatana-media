@@ -1,0 +1,66 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.select-source
+status: proposal; wire-and-policy-bindings-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.understand
+purpose: select one authorized source artifact version for speech understanding
+contextGoalNowNext:
+  context: Project and source candidates visible to the current user.
+  goal: Select a verified source version for transcription and caption review.
+  now: Show source identity, version, media kind, integrity, and rights disposition.
+  next: Continue only when source access and processing policy allow it.
+anatomy:
+- project-context
+- source-search
+- source-list
+- source-version
+- integrity-status
+- rights-summary
+- choose-action
+states:
+- empty
+- loading
+- source-available
+- source-verifying
+- source-quarantined
+- permission-denied
+- offline
+actions:
+- media.action.choose-source
+- media.action.inspect-source
+validation: Require one exact audio source version for this lane; video sources remain visible but unavailable until
+  audio extraction and source-time mapping are admitted. Do not infer authorization from a file name or fixture.
+recovery: Preserve search and project context; explain re-authentication, quarantine review, or a safe alternate
+  source.
+responsive: use-typography-layout-and-responsive-variants; preserve-source-selection
+accessibility: labelled-search-and-list; keyboard-selection; source-state-is-not-color-only
+copyRefs:
+- media.copy.source.empty
+- media.copy.source.quarantined
+- media.copy.source.denied
+fixtureRefs:
+- media.scenario.source-available
+- media.scenario.source-quarantined
+componentRefs:
+- media.component.source-picker
+- media.component.source-player
+journeyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: selected-lane-view-proposal
+- channelRef: media.channel.cli
+  disposition: selected-lane-command-counterpart-pending
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+actionBindingState: bound-to-existing-P2-actions
+actionIntents: []

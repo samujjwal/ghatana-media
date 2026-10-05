@@ -1,0 +1,77 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.review-exact-version
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.reviewer
+- media.creator
+- media.privacy-rights-reviewer
+intentRef: media.intent.review-exact-version
+purpose: Scoped exact-version review/comment/approve/reject
+contextGoalNowNext:
+  context: An immutable artifact or composition version, reviewer scope, existing comments, and current approval
+    state.
+  goal: Record a scoped review decision on the exact version and require review again if material content changes.
+  now: Show version identity, review scope, policy and rights status, prior decisions, and the evidence available
+    to this reviewer.
+  next: Comment, approve, reject, request changes, or defer when the reviewer has the authority for that decision.
+anatomy:
+- exact-version-identity
+- review-scope
+- content-and-evidence-summary
+- comment-thread
+- decision-and-authorization
+- approval-history
+componentRefs:
+- media.component.artifact-integrity-summary
+- media.component.provenance-summary
+- media.component.quality-inspector
+- media.component.rights-retention-review
+states:
+- review-pending
+- evidence-incomplete
+- authorized-to-review
+- decision-recorded
+- approval-expired
+- new-version-requires-review
+- access-denied
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- inspect the exact version and review scope
+- record a comment
+- approve or reject when authorized
+- request changes or defer
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Decision binds to an immutable version and stated scope; changing material content creates a new review
+  requirement; reviewer authority is explicit.
+recovery: Keep comments and decision history attached to their version; revoke or reopen approval when authority
+  or content changes.
+responsive: Show version and review scope before comments; keep the decision state and authorized actions visible.
+accessibility: Use labeled form fields and a semantic comment history; announce decision result and return focus
+  to the version heading.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-09
+- phase-0:journey:J-21
+journeyRefs:
+- J-09
+- J-21
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

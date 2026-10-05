@@ -1,0 +1,95 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.compare-results
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.improve
+purpose: Before/after, candidate ranking and applicable measurements
+contextGoalNowNext:
+  context: Exact source and candidate versions, alignment basis, relevant measurements, and provenance for each
+    result.
+  goal: Compare results on an explicit, task-relevant basis without implying unsupported ranking.
+  now: Show candidate identities, synchronization/alignment, applicable metrics, abstentions, reviewer notes, and
+    limitations.
+  next: Select a candidate for review, inspect evidence, or return to the editing workflow.
+anatomy:
+- candidate-identities-and-versions
+- alignment-controls
+- before-after-or-multi-candidate-view
+- metric-and-evidence-summary
+- reviewer-notes
+- provenance-and-limitations
+componentRefs:
+- media.component.result-comparison
+- media.component.quality-inspector
+- media.component.provenance-summary
+states:
+- loading
+- aligned
+- alignment-pending
+- partial-evidence
+- measurement-unavailable
+- candidate-unavailable
+- ready-for-review
+actions:
+- media.action.compare-caption-versions
+- media.action.inspect-provenance
+actionBindingState: bound-to-existing-P2-actions
+actionIntents:
+- select exact candidates
+- choose alignment basis
+- inspect a metric and its evidence
+- record a candidate for further review
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Do not rank without a declared metric basis; identify missing evidence; compare like time ranges and
+  versions.
+recovery: Keep candidate identities when alignment fails; expose manual review as an alternative; never silently
+  substitute a newer version.
+responsive: Show one pair at a time with a candidate list and exact versions above the comparison content.
+accessibility: Expose visual differences as a textual evidence summary where possible; keyboard-operable synchronization
+  and candidate selection.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-03
+- phase-0:journey:J-04
+- phase-0:journey:J-05
+- phase-0:journey:J-07
+- phase-0:journey:J-08
+- phase-0:journey:J-10
+- phase-0:journey:J-11
+- phase-0:journey:J-12
+- phase-0:journey:J-15
+- phase-0:journey:J-16
+- phase-0:journey:J-19
+journeyRefs:
+- J-03
+- J-04
+- J-05
+- J-07
+- J-08
+- J-10
+- J-11
+- J-12
+- J-15
+- J-16
+- J-19
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

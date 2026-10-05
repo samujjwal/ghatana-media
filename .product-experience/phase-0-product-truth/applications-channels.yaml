@@ -70,6 +70,29 @@ channels:
     viewReferences: [M-HOME, M-PROJECTS, M-PROJECT, M-ASSETS, M-ASSET, M-UPLOAD, M-CREATE, M-PLAN, M-STORYBOARD, M-IMAGE, M-VIDEO, M-AUDIO, M-SPEECH, M-VOICE, M-CAPTIONS, M-DUB, M-ENHANCE, M-COMPARE, M-EDIT, M-MASK, M-ANIMATION, M-SCENE, M-SIMULATION, M-COMPOSER, M-COLOR, M-QUALITY, M-RENDER, M-ACTIVITY, M-JOB, M-OUTPUTS, M-OUTPUT, M-DELIVERY, M-REVIEW, M-RIGHTS, M-PROVENANCE, M-PROFILES, M-PROVIDERS, M-OPERATIONS, M-SETTINGS, M-AUTH, M-HELP]
     supportRule: Design for responsive, semantic, keyboard-operable processes; availability for any deployment/browser remains unverified.
 
+  - id: media.channel.api
+    name: Protocol-neutral API
+    definitionState: proposed
+    implementationState: no-admitted-protocol-neutral-API-surface-established
+    qualificationState: NOT_EVALUATED
+    licenseAdmissionState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    phase0Admission: pending
+    intendedRole: Logical API semantics shared by admitted concrete transports; this identity does not imply HTTP or gRPC availability for any operation.
+    concreteTransportReferences: [media.channel.http-api, media.channel.grpc-api]
+    supportRule: Resolve per-operation transport bindings and contracts before claiming endpoint support; protocol-neutral API references do not widen HTTP or gRPC admission.
+
+  - id: media.channel.embedded
+    name: Embedded Media experience
+    definitionState: proposed
+    implementationState: no-admitted-embedded-Media-surface-established
+    qualificationState: NOT_EVALUATED
+    licenseAdmissionState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    phase0Admission: pending
+    intendedRole: Media experience or capability presented inside an explicitly admitted host product context while Media retains its domain and state authority.
+    supportRule: Host context, identity, rights, navigation, and handoff contracts are required; this channel is distinct from product-to-product API integration and does not imply an embedded runtime exists.
+
   - id: media.channel.http-api
     name: HTTP/OpenAPI
     definitionState: proposed
@@ -148,6 +171,23 @@ channels:
     phase0Admission: not-admitted
     evidence: archive/media-desktop-apps/desktop/README.md and archive/media-desktop-apps/ai-voice-desktop/README.md
     supportRule: Archive retention preserves source history only; do not list as a supported current product channel.
+
+capabilityChannelAliases:
+  status: proposed-vocabulary-normalization; does-not-establish-per-operation-support
+  mapping:
+    web: media.channel.web
+    cli: media.channel.cli
+    api: media.channel.api
+    embedded: media.channel.embedded
+    http-api: media.channel.http-api
+    grpc-api: media.channel.grpc-api
+    sdk: media.channel.sdk
+    product-integration: media.channel.product-integration
+  rules:
+    - Capability supportedChannels entries are proposal-time vocabulary and normalize only through this map.
+    - The api alias is protocol-neutral; it never implies simultaneous HTTP/OpenAPI and gRPC support.
+    - The embedded alias means a host-context Media experience; it is not a synonym for product-integration.
+    - Channel identity, implementation, qualification, license admission, runtime availability, and owner acceptance remain separate.
 
 channelInvariants:
   - Web, CLI, API, SDK, and product integrations project the same versioned product semantics, authorization, finality, and recovery rules.

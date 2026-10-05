@@ -1,0 +1,79 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.deliver-output
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.deliver
+purpose: Destination/format/rights/approval and publication finality
+contextGoalNowNext:
+  context: An approved exact output version, named destination/profile, permitted-use evidence, and delivery acknowledgment
+    state.
+  goal: Deliver an authorized output and retain the exact destination and finality evidence.
+  now: Show selected output version, destination, format, rights and approval, expected effects, and whether delivery
+    is pending or acknowledged.
+  next: Resolve blockers, confirm an explicit delivery action, or reconcile an uncertain acknowledgment.
+anatomy:
+- output-version
+- destination-and-profile
+- rights-and-approval-evidence
+- format-and-fallback-disposition
+- delivery-effects
+- acknowledgment-and-finality
+componentRefs:
+- media.component.delivery-profile-picker
+- media.component.rights-retention-review
+- media.component.artifact-integrity-summary
+- media.component.provenance-summary
+states:
+- destination-required
+- approval-required
+- rights-unknown
+- profile-incompatible
+- ready
+- delivery-pending
+- outcome-unknown
+- acknowledged
+- rejected
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- choose a named destination
+- review rights, approval, and format effects
+- deliver the exact version explicitly
+- reconcile uncertain acknowledgment
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Delivery and publication finality are not inferred from upload; distinguish accepted, queued, delivered,
+  and rejected acknowledgments.
+recovery: Retain the same request identity after disconnect; reconcile the destination acknowledgment before retry.
+responsive: Put output identity, destination, blocking decision, and finality near the primary action.
+accessibility: Confirmation names the exact output and destination; provide text for blocked states and meaningful
+  result announcements.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-09
+- phase-0:journey:J-22
+- phase-0:journey:J-28
+journeyRefs:
+- J-09
+- J-22
+- J-28
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

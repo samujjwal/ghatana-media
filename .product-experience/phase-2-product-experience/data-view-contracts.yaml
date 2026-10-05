@@ -1,0 +1,34 @@
+schemaVersion: media.data-view-contracts.v1
+productId: media
+status: selected-lane-first-use-and-upload-proposals; data-owner-review-pending
+views:
+  - id: media.data-view.project-summary
+    fields: [projectIdentity, workspaceMembership, title, immutableRevisionReference, sourceAndDerivedAssetReferences, settingsAndAccessPolicy]
+    omit: [embedded-artifact-bytes, credentials, cross-workspace-projects, implied-access-to-referenced-artifacts]
+    status: product-view-proposal; exact-public-schema-binding-pending
+  - id: media.data-view.artifact-version-summary
+    fields: [artifactIdentity, immutableVersion, digestWhenAuthorized, byteSize, mediaType, technicalDescriptors, originReference, integrityDisposition, rightsDisposition, retentionDisposition]
+    omit: [raw-bytes, unneeded-biometric-data, credentials, cross-tenant-identifiers, inferred-rights-clearance]
+    status: product-view-proposal; exact-public-schema-and-owner-policy-bindings-pending
+  - id: media.data-view.upload-status
+    fields: [stableUploadIdentity, acknowledgedPartsWhenDisclosed, expectedSizeWhenDeclared, integrityStage, finality, safeNextAction]
+    omit: [unacknowledged-client-bytes-as-received, provider-secrets, raw-content-in-logs]
+    status: product-view-proposal; exact-public-upload-contract-pending
+  - id: media.data-view.source-summary
+    fields: [artifactId, artifactVersion, mediaKind, integrityDisposition, rightsDisposition, retentionSummary]
+    omit: [raw-bytes, unneeded-biometric-data, credentials, cross-tenant-identifiers]
+  - id: media.data-view.transcript-segment
+    fields: [segmentId, sourceVersion, startTime, endTime, sourceClockId, text, languageDisposition, speakerDisposition, recognitionOrigin]
+    units: [Phase0-media-time-and-explicit-language-tags]
+    omit: [uncalibrated-numeric-confidence, hidden-source-switch, raw-provider-prompt]
+  - id: media.data-view.job-status
+    fields: [jobId, sourceVersionWhenApplicable, relatedUploadIdWhenApplicable, state, attemptStateWhenAuthorized, measuredProgressWhenReported, lastEvidenceTimeWhenOwnerReports, finality, safeNextAction]
+    omit: [tenant-secret, provider-credential, raw-content-in-logs]
+  - id: media.data-view.job-activity-item
+    fields: [jobId, jobPurpose, state, finality, lastEvidenceTime, safeNextAction]
+    omit: [tenant-secret, provider-credential, raw-content-in-logs, inferred-event-time]
+    sourceViewRef: media.data-view.job-status
+    status: activity-list-projection-proposal; list-query-and-ordering-owner-binding-pending
+  - id: media.data-view.caption-version
+    fields: [artifactId, artifactVersion, parentVersion, sourceVersion, segments, provenance, reviewDisposition]
+    omit: [mutable-overwrite-of-prior-version, implied-publication-state]

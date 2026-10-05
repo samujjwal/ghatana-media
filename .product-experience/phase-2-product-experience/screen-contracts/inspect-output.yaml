@@ -1,0 +1,95 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.inspect-output
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.deliver
+purpose: Playback/download/review/provenance and delivery action
+contextGoalNowNext:
+  context: One exact output artifact version, its playback or preview, provenance, integrity, and allowed delivery
+    actions.
+  goal: Inspect an output version and its recorded origin before deciding whether to use or deliver it.
+  now: Show the preview, artifact identity, integrity and quality evidence, provenance limitations, and current
+    rights state.
+  next: Download, request approval, or return to the output list only when the relevant action is admitted.
+anatomy:
+- output-version-identity
+- accessible-preview
+- integrity-and-quality-summary
+- provenance-and-limitations
+- rights-and-approval-state
+- allowed-next-actions
+componentRefs:
+- media.component.source-player
+- media.component.artifact-integrity-summary
+- media.component.provenance-summary
+- media.component.quality-inspector
+states:
+- loading
+- available
+- verifying
+- quarantined
+- rejected
+- metadata-incomplete
+- rights-blocked
+- preview-unavailable
+actions:
+- media.action.inspect-artifact
+- media.action.inspect-provenance
+actionBindingState: bound-to-existing-P2-actions
+actionIntents:
+- inspect an output preview and exact version
+- review provenance and quality limits
+- continue to an admitted delivery action
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Preview is not the original bytes; quality and rights are separate; provenance does not establish authenticity
+  or clearance.
+recovery: Keep the exact output version selected; explain unavailable preview; do not replace a denied version with
+  another one.
+responsive: Keep version, integrity, and rights state visible; stack preview before optional metadata on narrow
+  screens.
+accessibility: Provide text-equivalent content for preview where available; label media controls; expose integrity
+  and limitations without color.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-04
+- phase-0:journey:J-06
+- phase-0:journey:J-07
+- phase-0:journey:J-12
+- phase-0:journey:J-13
+- phase-0:journey:J-17
+- phase-0:journey:J-18
+- phase-0:journey:J-21
+- phase-0:journey:J-22
+- phase-0:journey:J-25
+journeyRefs:
+- J-04
+- J-06
+- J-07
+- J-12
+- J-13
+- J-17
+- J-18
+- J-21
+- J-22
+- J-25
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

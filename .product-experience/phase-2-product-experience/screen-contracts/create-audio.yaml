@@ -1,0 +1,84 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.create-audio
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.create
+purpose: Sources/stems/cleanup/mix/mastering
+contextGoalNowNext:
+  context: Audio source versions, requested output, stems or processing choices, mix revision, and delivery constraints.
+  goal: Prepare an audio creation or transformation request with explicit source and processing state.
+  now: Show admitted sources, selected operations, measured input properties when available, mix/master parameters,
+    and unresolved rights or profile constraints.
+  next: Edit an admitted operation, inspect a mix/candidate, or explicitly submit a validated plan.
+anatomy:
+- audio-outcome
+- source-and-stem-list
+- operation-and-processing-chain
+- mix-and-master-controls
+- measurement-summary
+- rights-and-profile-disposition
+- job-and-candidate-state
+componentRefs:
+- media.component.artifact-browser
+- media.component.waveform-spectrogram
+- media.component.audio-mixer
+- media.component.creation-plan-summary
+- media.component.result-comparison
+states:
+- draft
+- source-missing
+- operation-unavailable
+- rights-review-required
+- processing
+- partial
+- outcome-unknown
+- candidate-ready
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- choose an admitted audio operation
+- inspect source measurements
+- edit mix controls
+- submit a validated request
+- compare output versions
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Distinguish generated, transformed, and source audio; label target levels separately from measurements;
+  preserve stem and mix provenance.
+recovery: Retain the exact mix revision and job identity; reconcile unknown finality before another submission.
+responsive: Show one selected track or bus at a time and keep source identity, units, and output state visible.
+accessibility: Offer numeric alternatives to faders and time selections; expose measurements, units, and clipping
+  as structured text.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-03
+- phase-0:journey:J-07
+- phase-0:journey:J-09
+- phase-0:journey:J-16
+- phase-0:journey:J-17
+journeyRefs:
+- J-03
+- J-07
+- J-09
+- J-16
+- J-17
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

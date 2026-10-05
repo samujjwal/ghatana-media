@@ -75,6 +75,12 @@ rights-aware and tenant-isolated processing; accessible, intent-first use; and
 separate evidence for definition, implementation, licensing, qualification,
 and runtime support.
 
+Stable identifiers follow the naming policy in [`glossary.yaml`](glossary.yaml):
+new capability, view, action, command, and scenario names express their Media
+operation or user intent. Existing public package names and plan-assigned
+requirement and journey identifiers remain compatibility or crosswalk
+references.
+
 The full finite operation catalog is in [`capabilities.yaml`](capabilities.yaml)
 and its [`capability-preservation-crosswalk.yaml`](capability-preservation-crosswalk.yaml).
 All listed operations define product scope, not shipped support. Each operation
@@ -127,5 +133,6 @@ IDs, aliases, references, source roles, and complete outcome/capability/state/
 authority/failure paths through independent semantic review. Named owner
 decisions and immutable public Tools package bindings are also outstanding.
 Phase 1 depends on P0-010 acceptance; Phase 2 depends on Phase 1; Phase 3
-depends on Phase 2. No later phase is represented as accepted or started ahead
-of those gates.
+depends on Phase 2. Later-phase artifacts and local implementation are
+provisional work products; none is represented as accepted ahead of its
+dependency gates.

@@ -1,0 +1,79 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.improve-media
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.improve
+purpose: Preserve/enhance/creative choice, measured defects, safe plan
+contextGoalNowNext:
+  context: One source version, selected improvement intent, available defect measurements, bounded repair plan,
+    and candidate version.
+  goal: Choose a preservation, enhancement, or creative change with an evidence-based scope.
+  now: Show measured defects and their basis, unassessed dimensions, proposed change bounds, rights effects, and
+    reversible comparison path.
+  next: Inspect evidence, edit the bounds, or submit a validated repair plan explicitly.
+anatomy:
+- source-version
+- improvement-intent
+- measured-defects
+- unassessed-dimensions
+- bounded-repair-plan
+- candidate-and-provenance
+- safe-action
+componentRefs:
+- media.component.quality-inspector
+- media.component.creation-plan-summary
+- media.component.result-comparison
+- media.component.provenance-summary
+states:
+- source-required
+- measurement-pending
+- defect-observed
+- partial-evidence
+- plan-ready
+- bounds-invalid
+- policy-blocked
+- candidate-ready
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- inspect a measured defect and its evidence
+- choose preservation, enhancement, or creative intent
+- review or change repair bounds
+- submit an admitted plan
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: A measurement is scoped to its metric and method; recommendation is not applied repair; creative intent
+  is distinct from restoration.
+recovery: Preserve the source version; report partial or failed operations honestly; keep candidate lineage and
+  bounds for reconciliation.
+responsive: Show source, intent, measured defect, and bounds first; make advanced processing controls progressive
+  disclosures.
+accessibility: Provide a structured list of dimensions and evidence; name which dimensions are not assessed; offer
+  keyboard access to comparison.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-07
+- phase-0:journey:J-08
+journeyRefs:
+- J-07
+- J-08
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

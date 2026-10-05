@@ -1,0 +1,92 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.review-activity
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+- media.operator
+intentRef: media.intent.resolve-job
+purpose: find a job that needs attention and open its exact status before taking another consequential action
+contextGoalNowNext:
+  context: Current authorized workspace and the jobs visible under its read authority.
+  goal: Identify which recorded job needs inspection, reconciliation, or a later follow-up.
+  now: Group the available job summaries by recorded state and keep job identity, finality, and safe next action
+    visible.
+  next: Open one exact job; reconcile only that same job when its recorded outcome is unknown.
+anatomy:
+- activity-heading
+- job-activity-list
+- job-purpose
+- job-state-and-finality
+- safe-next-action
+- empty-state
+componentRefs:
+- media.component.job-status-card
+states:
+- loading
+- populated
+- empty
+- partial
+- stale
+- access-denied
+- offline
+- job-outcome-unknown
+- evidence-unavailable
+actions:
+- media.action.inspect-job
+- media.action.reconcile-job
+validation: Activity rows use the authorized job-status projection; the list query, ordering, pagination, and owner
+  wire binding remain undefined until their owning contract is published.
+recovery: Preserve the workspace query and exact job identity; open the same job to refresh stale evidence; keep
+  unknown finality visible and block duplicate submission.
+responsive: Keep job purpose, state, finality, and the inspect action together; stack secondary identity details
+  below them at narrow widths.
+accessibility: Each job row has a heading and named inspect action; state and finality are textual; updates are
+  announced only when the recorded state changes.
+copyRefs:
+- media.copy.activity.empty
+- media.copy.job.unknown
+- media.copy.job.reconciled
+fixtureState: one-synthetic-artifact-verification-job-projected; complete-activity-query-not-implemented
+scenarioRefs:
+- media.scenario.artifact-verification-running
+- media.scenario.artifact-verification-outcome-unknown
+- media.scenario.artifact-verification-completed
+actionBindingState: bound-to-existing-P2-actions
+actionIntents: []
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+copyDisposition: canonical-copy-IDs-pending
+fixtureDisposition: synthetic-fixture-contract-not-authored
+journeyRefs:
+- J-02
+- J-20
+- J-23
+- J-26
+- J-27
+- J-29
+- J-30
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-02
+- phase-0:journey:J-20
+- phase-0:journey:J-23
+- phase-0:journey:J-26
+- phase-0:journey:J-27
+- phase-0:journey:J-29
+- phase-0:journey:J-30
+fixtureRefs: []
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

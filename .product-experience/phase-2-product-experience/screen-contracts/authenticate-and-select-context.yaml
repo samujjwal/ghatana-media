@@ -1,0 +1,71 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.authenticate-and-select-context
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+- media.administrator
+intentRef: media.intent.restore-project
+purpose: resolve the current identity and authorized workspace before showing protected Media project data
+contextGoalNowNext:
+  context: A requested Media destination may be waiting behind an identity or workspace handoff.
+  goal: Resolve a current principal and authorized tenant/workspace through Shared's public identity contract.
+  now: Show the handoff state and the destination to return to; Media does not collect credentials.
+  next: Return to the requested Media view only after the upstream identity contract confirms current access.
+anatomy:
+- return-destination
+- identity-handoff
+- workspace-selection-when-authorized
+- access-state
+- recovery-guidance
+componentRefs:
+- media.component.identity-context-boundary
+handoffRefs:
+- media.handoff.identity
+states:
+- identity-required
+- reauthentication-required
+- context-selectable
+- context-denied
+- service-unavailable
+- offline
+actions: []
+validation: Do not infer authentication, tenant membership, workspace access, or action authority from a remembered
+  selection or actor label.
+recovery: Preserve the return destination and non-sensitive intent draft; keep project data hidden until current
+  access is confirmed.
+responsive: use-typography-layout-and-responsive-variants; prioritize-the-identity-handoff-and-return-destination
+accessibility: labelled-upstream-controls; keyboard-operable-return-flow; announce-context-denial-as-text
+copyRefs:
+- media.copy.identity.reauthentication-required
+- media.copy.context.access-denied
+fixtureState: required-J-01-scenarios-are-not-yet-realized-in-Phase-3
+scenarioRefs:
+- media.scenario.identity-required
+- media.scenario.workspace-access-denied
+actionBindingState: intent-bindings-pending
+actionIntents: []
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+copyDisposition: canonical-copy-IDs-pending
+fixtureDisposition: synthetic-fixture-contract-not-authored
+journeyRefs:
+- J-01
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-01
+fixtureRefs: []
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

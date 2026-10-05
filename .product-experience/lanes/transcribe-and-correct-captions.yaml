@@ -1,0 +1,41 @@
+schemaVersion: media.implementation-lane.v1
+productId: media
+laneId: media.lane.transcribe-and-correct-captions
+status: definition-slice-proposal; not-runtime-availability-or-phase-acceptance
+purpose: review a source recording, produce a transcript draft, correct caption timing/text, and preserve an immutable caption version
+sourceMediaKinds:
+  included: [audio]
+  excluded: [video]
+  reason: The selected transcription capability accepts audio artifacts or live audio streams; video audio-extraction and its source-time mapping are outside this lane.
+sourceAuthorities:
+  capabilities: .product-experience/phase-0-product-truth/capabilities.yaml
+  requirements: .product-experience/phase-0-product-truth/requirements.yaml
+  actorsAndOutcomes: .product-experience/phase-0-product-truth/goals-jtbd.yaml
+includedCapabilityIds:
+  - media.artifact.inspect
+  - media.artifact.derive
+  - media.artifact.output.register
+  - media.artifact.provenance.export
+  - media.job.submit
+  - media.job.inspect
+  - media.job.cancel
+  - media.job.reconcile
+  - media.speech.transcription.file
+  - media.speech.transcription.language.detect
+  - media.speech.transcription.word-timestamp.create
+  - media.speech.transcription.forced-align
+  - media.speech.transcription.subtitle.generate
+excludedCapabilityRule:
+  set: all-leaf-ids-in-capabilities-yaml-minus-includedCapabilityIds
+  reason: This bounded definition/simulation lane does not qualify or activate other product capabilities; full-scope Phase 0 requirements remain in force.
+  status: explicit-development-scope-only
+journeyRefs: [J-03]
+relatedJourneyRefs: [J-02, J-20, J-27]
+channels: [media.channel.web, media.channel.cli, media.channel.grpc-api, media.channel.sdk]
+notClaimed:
+  - video-transcription-or-audio-extraction
+  - upload-or-import-execution
+  - provider-or-model-availability
+  - supported-language-admission
+  - production-job-durability
+  - caption-quality-or-accessibility-certification

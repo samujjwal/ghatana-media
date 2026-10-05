@@ -1354,7 +1354,7 @@ requirementBindings:
   - media.role.operator
   unresolvedActorRoleMappings: []
   traceToIntentIds:
-  - media.intent.discover-profile
+  - media.intent.choose-eligible-processing-option
   intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
   unresolvedIntentTraceDispositions: []
   relatedOutcomeRefs:
@@ -1386,7 +1386,7 @@ requirementBindings:
   - media.role.operator
   unresolvedActorRoleMappings: []
   traceToIntentIds:
-  - media.intent.inspect-capability
+  - media.intent.check-processing-options
   intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
   unresolvedIntentTraceDispositions: []
   relatedOutcomeRefs:
@@ -1417,7 +1417,7 @@ requirementBindings:
   - media.role.operator
   unresolvedActorRoleMappings: []
   traceToIntentIds:
-  - media.intent.inspect-readiness
+  - media.intent.check-processing-readiness
   intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
   unresolvedIntentTraceDispositions: []
   relatedOutcomeRefs:
@@ -1447,7 +1447,7 @@ requirementBindings:
   unresolvedActorRoleMappings: []
   traceToIntentIds:
   - media.intent.deliver
-  - media.intent.manage-rights-consent
+  - media.intent.review-rights-and-consent
   intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
   unresolvedIntentTraceDispositions: []
   relatedOutcomeRefs:

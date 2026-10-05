@@ -3,189 +3,405 @@ productId: media
 mode: authored-human-review-inputs-only
 artifactPathBase: repository-root-relative
 sourceRefs:
-  - master-plan:section-18.3
-  - master-plan:task-P0-010
-  - master-plan:section-5.2
-  - source-manifest:phaseScope
+- master-plan:section-18.3
+- master-plan:task-P0-010
+- master-plan:section-5.2
+- source-manifest:phaseScope
 acceptanceAuthority:
-  principle: >-
-    These records collect scope, required human approvals, and evidence inputs.
-    They do not calculate acceptance. Acceptance results and currentness must
-    come from an owner-approved validation workflow after its schema binding is
-    established.
+  principle: These records collect scope, required human approvals, and evidence inputs. They do not calculate acceptance.
+    Acceptance results and currentness must come from an owner-approved validation workflow after its schema binding
+    is established.
   editableDecisionState: human-review-inputs-only
   independentReviewRequiredForFullPhase0: P0-010
   schemaAndValidatorBinding: pending
   blockerRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
   currentnessGenerationGapRef: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
 recordedHumanDecisionInputs:
-  - id: ACCEPT-INPUT-P0-001
-    phaseTask: P0-001
-    decisionInput: accepted
-    acceptedScope:
-      - Media product identity and bounded repository/product boundary
-      - Initial ownership split, including the MDI-001 supplemental decision
-      - Named consumer and compatibility commitments in the boundary record
-      - Authority-transfer conditions and the rule that migration preparation is not cutover
-    evidenceRefs:
-      - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
-      - BOUNDARY.md
-      - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
-      - docs/migration/decisions/document-intelligence-ownership-instruction.md
-    sourceOfDecision: explicit-user-approval-of-the-minimal-P0-001-boundary-slice
-    decisionDate: '2026-10-04'
-    exclusions:
-      - Full Phase 0 Product Truth acceptance
-      - Runtime implementation, qualification, licensing, or availability
-      - Source cutover, runtime/data handover, production deployment, or release readiness
-      - Acceptance of P0-002 through P0-010 or any later phase
+- id: ACCEPT-INPUT-P0-001
+  phaseTask: P0-001
+  decisionInput: accepted
+  acceptedScope:
+  - Media product identity and bounded repository/product boundary
+  - Initial ownership split, including the MDI-001 supplemental decision
+  - Named consumer and compatibility commitments in the boundary record
+  - Authority-transfer conditions and the rule that migration preparation is not cutover
+  evidenceRefs:
+  - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+  - BOUNDARY.md
+  - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+  - docs/migration/decisions/document-intelligence-ownership-instruction.md
+  sourceOfDecision: explicit-user-approval-of-the-minimal-P0-001-boundary-slice
+  decisionDate: '2026-10-04'
+  exclusions:
+  - Full Phase 0 Product Truth acceptance
+  - Runtime implementation, qualification, licensing, or availability
+  - Source cutover, runtime/data handover, production deployment, or release readiness
+  - Acceptance of P0-002 through P0-010 or any later phase
 phaseAcceptanceInputs:
-  - id: ACCEPT-INPUT-P0-002
-    phaseTask: P0-002
-    decisionInput: pending-no-acceptance-recorded
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/constitution.yaml
-      - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
-      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
-      - .product-experience/phase-0-product-truth/glossary.yaml
-    requiredReviewRoles:
-      - media-product-manager
-      - media-UX-architect
-      - security-privacy-reviewer-for-privacy-meaning
-      - fidelity-reviewer-for-fidelity-meaning
-      - publication-approver-for-publication-meaning
-    requiredEvidenceInputs:
-      - Confirm each constitutional invariant has an accountable owner and acceptance owner.
-      - Confirm every actor has an outcome and authority boundary; responsibility roles are not RBAC grants.
-      - Confirm outcomes, intents, first-use behavior, disclosure levels, scope, non-goals, and term distinctions.
-      - Record appointments and review decisions for privacy/rights, fidelity, and publication roles.
-    decisionOwnerAppointments: pending
-  - id: ACCEPT-INPUT-P0-003
-    phaseTask: P0-003
-    decisionInput: pending-no-acceptance-recorded
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/capabilities.yaml
-      - .product-experience/phase-0-product-truth/requirements.yaml
-      - .product-experience/phase-0-product-truth/qualification-policy.yaml
-      - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
-    requiredReviewRoles: [media-domain-lead, capability-specialists, relevant-domain-owners]
-    requiredEvidenceInputs:
-      - Reconcile every named capability source to a finite leaf, alias, or justified disposition.
-      - Resolve requirement/capability/actor/state/acceptance references and full-scope coverage.
-      - Appoint the domain-reviewer role and define its evidence scope before accepting the affected spatial, simulation, simulation-output, or recipe-template leaves.
-      - Keep implementation, license, qualification, and runtime availability separate.
-    decisionOwnerAppointments: pending
-  - id: ACCEPT-INPUT-P0-004
-    phaseTask: P0-004
-    decisionInput: pending-no-acceptance-recorded
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/domain-model.yaml
-      - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
-      - conformance/domain-contracts/p0-004-golden-fixtures.yaml
-    requiredReviewRoles: [media-architect, graphics-specialist, audio-specialist, simulation-specialist, relevant-domain-owners]
-    requiredEvidenceInputs:
-      - Review proposed records, rational time, units, coordinates, clocks, fidelity, replay classes, and conversion-loss behavior.
-      - Validate conventions against admitted owner contracts and record owner-approved mappings or unresolved gaps.
-      - Review the task's golden temporal/coordinate/color examples and dimensional negative cases when authored.
-    decisionOwnerAppointments: pending
-  - id: ACCEPT-INPUT-P0-005
-    phaseTask: P0-005
-    decisionInput: pending-no-acceptance-recorded
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/state-models.yaml
-      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
-      - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
-    requiredReviewRoles: [distributed-systems-lead, security-and-privacy-owner, relevant-platform-contract-owners]
-    requiredEvidenceInputs:
-      - Review lifecycle states, guards, durable identity, retries, reconciliation, cancellation, and finality.
-      - Confirm every reachable state has legal transitions and safe recovery semantics.
-      - Review duplicate-command and commit-boundary verification evidence before acceptance.
-    decisionOwnerAppointments: pending
-  - id: ACCEPT-INPUT-P0-006
-    phaseTask: P0-006
-    decisionInput: pending-no-acceptance-recorded
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/policy-authority-model.yaml
-      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
-      - .product-experience/phase-0-product-truth/content-intent.yaml
-      - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
-    requiredReviewRoles: [security-privacy-engineer, rights-owner, platform-owners-for-shared-primitives]
-    requiredEvidenceInputs:
-      - Review data classes, access/effect boundaries, consent, retention, erasure, rights, telemetry, and local/private axes.
-      - Confirm every consequential effect has authority, policy, and fail behavior.
-      - Review adversarial cases for isolation, SSRF, untrusted content/tools, revoked consent, restore, and audit failure.
-    decisionOwnerAppointments: pending
-  - id: ACCEPT-INPUT-P0-007
-    phaseTask: P0-007
-    decisionInput: pending-no-acceptance-recorded
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/profile-semantics.yaml
-      - .product-experience/phase-0-product-truth/quality-policy.yaml
-      - .product-experience/phase-0-product-truth/qualification-policy.yaml
-    requiredReviewRoles: [media-quality-lead, AI-ML-lead, quality-domain-specialists, privacy-rights-owner-for-identity-metrics]
-    requiredEvidenceInputs:
-      - Confirm profile axes remain orthogonal and fallback permissions are explicit and bounded.
-      - Confirm dimensions, applicability, abstention, calibration needs, uncertainty, and protected properties are scoped.
-      - Define specialist-approved budgets/floors before any optimization is admitted.
-      - Review negative fixtures for OOM downgrade, misleading upscaling, unsupported repair, wrong metric domain, no improvement, and exhausted budget.
-    decisionOwnerAppointments: pending
-  - id: ACCEPT-INPUT-P0-008
-    phaseTask: P0-008
-    decisionInput: pending-no-acceptance-recorded
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/dependency-contracts.yaml
-      - .product-experience/phase-0-product-truth/reuse-decisions.yaml
-      - .product-experience/gaps.yaml
-    requiredReviewRoles: [ecosystem-architect, capability-owners, external-public-contract-owners]
-    requiredEvidenceInputs:
-      - Resolve each dependency edge to a public contract, owner, version/availability, error/finality mapping, and test.
-      - Review owner-approved reuse, extraction, or integration decisions and the remaining gaps.
-      - Confirm there are no product-source imports or fabricated external interfaces.
-    decisionOwnerAppointments: pending
-  - id: ACCEPT-INPUT-P0-009
-    phaseTask: P0-009
-    decisionInput: pending-no-acceptance-recorded
-    artifactRefs:
-      - .product-experience/phase-0-product-truth/information-architecture.yaml
-      - .product-experience/phase-0-product-truth/applications-channels.yaml
-      - .product-experience/phase-0-product-truth/journey-catalog.yaml
-      - .product-experience/phase-0-product-truth/handoff-contracts.yaml
-      - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
-    requiredReviewRoles: [UX-accessibility-lead, SRE, localization-and-channel-owners]
-    requiredEvidenceInputs:
-      - Map each admitted outcome to a journey, channel, important non-happy path, and accessibility disposition.
-      - Separate proposed workload/SLO budgets from measured values and deployment commitments.
-      - Review the authored handoff boundary register, complete owner contract bindings, and review first-use, offline, unavailable-capability, and recovery behavior.
-    decisionOwnerAppointments: pending
-  - id: ACCEPT-INPUT-P0-010
-    phaseTask: P0-010
-    decisionInput: pending-independent-review-not-executed
-    artifactRefs:
-      - .product-experience/traceability.yaml
-      - .product-experience/authority-map.yaml
-      - .product-experience/acceptance.yaml
-      - .product-experience/currentness.yaml
-    requiredReviewRoles: [independent-product-definition-reviewer]
-    requiredEvidenceInputs:
-      - Independently walk all Phase 0 outcomes, capabilities, actors, states, authorities, failures, and dependencies.
-      - Validate owner-bound schemas, IDs, aliases, references, source roles, and semantic invariants.
-      - Reconcile competing documentation at the owning layer and record accepted material fingerprints.
-      - Obtain generated Phase 0 coverage/currentness observations from the owner-approved Tools workflow.
-      - Record unresolved runtime and external-owner gaps without treating them as product-definition acceptance blockers unless meaning is unresolved.
-    decisionOwnerAppointments: pending
+- id: ACCEPT-INPUT-P0-002
+  phaseTask: P0-002
+  decisionInput: pending-no-acceptance-recorded
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/constitution.yaml
+  - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+  - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+  - .product-experience/phase-0-product-truth/glossary.yaml
+  requiredReviewRoles:
+  - media-product-manager
+  - media-UX-architect
+  - security-privacy-reviewer-for-privacy-meaning
+  - fidelity-reviewer-for-fidelity-meaning
+  - publication-approver-for-publication-meaning
+  requiredEvidenceInputs:
+  - Confirm each constitutional invariant has an accountable owner and acceptance owner.
+  - Confirm every actor has an outcome and authority boundary; responsibility roles are not RBAC grants.
+  - Confirm outcomes, intents, first-use behavior, disclosure levels, scope, non-goals, and term distinctions.
+  - Record appointments and review decisions for privacy/rights, fidelity, and publication roles.
+  decisionOwnerAppointments: pending
+- id: ACCEPT-INPUT-P0-003
+  phaseTask: P0-003
+  decisionInput: pending-no-acceptance-recorded
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/capabilities.yaml
+  - .product-experience/phase-0-product-truth/requirements.yaml
+  - .product-experience/phase-0-product-truth/qualification-policy.yaml
+  - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+  requiredReviewRoles:
+  - media-domain-lead
+  - capability-specialists
+  - relevant-domain-owners
+  requiredEvidenceInputs:
+  - Reconcile every named capability source to a finite leaf, alias, or justified disposition.
+  - Resolve requirement/capability/actor/state/acceptance references and full-scope coverage.
+  - Appoint the domain-reviewer role and define its evidence scope before accepting the affected spatial, simulation,
+    simulation-output, or recipe-template leaves.
+  - Keep implementation, license, qualification, and runtime availability separate.
+  decisionOwnerAppointments: pending
+- id: ACCEPT-INPUT-P0-004
+  phaseTask: P0-004
+  decisionInput: pending-no-acceptance-recorded
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/domain-model.yaml
+  - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+  - conformance/domain-contracts/p0-004-golden-fixtures.yaml
+  requiredReviewRoles:
+  - media-architect
+  - graphics-specialist
+  - audio-specialist
+  - simulation-specialist
+  - relevant-domain-owners
+  requiredEvidenceInputs:
+  - Review proposed records, rational time, units, coordinates, clocks, fidelity, replay classes, and conversion-loss
+    behavior.
+  - Validate conventions against admitted owner contracts and record owner-approved mappings or unresolved gaps.
+  - Review the task's golden temporal/coordinate/color examples and dimensional negative cases when authored.
+  decisionOwnerAppointments: pending
+- id: ACCEPT-INPUT-P0-005
+  phaseTask: P0-005
+  decisionInput: pending-no-acceptance-recorded
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/state-models.yaml
+  - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+  - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
+  requiredReviewRoles:
+  - distributed-systems-lead
+  - security-and-privacy-owner
+  - relevant-platform-contract-owners
+  requiredEvidenceInputs:
+  - Review lifecycle states, guards, durable identity, retries, reconciliation, cancellation, and finality.
+  - Confirm every reachable state has legal transitions and safe recovery semantics.
+  - Review duplicate-command and commit-boundary verification evidence before acceptance.
+  decisionOwnerAppointments: pending
+- id: ACCEPT-INPUT-P0-006
+  phaseTask: P0-006
+  decisionInput: pending-no-acceptance-recorded
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+  - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+  - .product-experience/phase-0-product-truth/content-intent.yaml
+  - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
+  requiredReviewRoles:
+  - security-privacy-engineer
+  - rights-owner
+  - platform-owners-for-shared-primitives
+  requiredEvidenceInputs:
+  - Review data classes, access/effect boundaries, consent, retention, erasure, rights, telemetry, and local/private
+    axes.
+  - Confirm every consequential effect has authority, policy, and fail behavior.
+  - Review adversarial cases for isolation, SSRF, untrusted content/tools, revoked consent, restore, and audit failure.
+  decisionOwnerAppointments: pending
+- id: ACCEPT-INPUT-P0-007
+  phaseTask: P0-007
+  decisionInput: pending-no-acceptance-recorded
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/profile-semantics.yaml
+  - .product-experience/phase-0-product-truth/quality-policy.yaml
+  - .product-experience/phase-0-product-truth/qualification-policy.yaml
+  requiredReviewRoles:
+  - media-quality-lead
+  - AI-ML-lead
+  - quality-domain-specialists
+  - privacy-rights-owner-for-identity-metrics
+  requiredEvidenceInputs:
+  - Confirm profile axes remain orthogonal and fallback permissions are explicit and bounded.
+  - Confirm dimensions, applicability, abstention, calibration needs, uncertainty, and protected properties are
+    scoped.
+  - Define specialist-approved budgets/floors before any optimization is admitted.
+  - Review negative fixtures for OOM downgrade, misleading upscaling, unsupported repair, wrong metric domain, no
+    improvement, and exhausted budget.
+  decisionOwnerAppointments: pending
+- id: ACCEPT-INPUT-P0-008
+  phaseTask: P0-008
+  decisionInput: pending-no-acceptance-recorded
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/dependency-contracts.yaml
+  - .product-experience/phase-0-product-truth/reuse-decisions.yaml
+  - .product-experience/gaps.yaml
+  requiredReviewRoles:
+  - ecosystem-architect
+  - capability-owners
+  - external-public-contract-owners
+  requiredEvidenceInputs:
+  - Resolve each dependency edge to a public contract, owner, version/availability, error/finality mapping, and
+    test.
+  - Review owner-approved reuse, extraction, or integration decisions and the remaining gaps.
+  - Confirm there are no product-source imports or fabricated external interfaces.
+  decisionOwnerAppointments: pending
+- id: ACCEPT-INPUT-P0-009
+  phaseTask: P0-009
+  decisionInput: pending-no-acceptance-recorded
+  artifactRefs:
+  - .product-experience/phase-0-product-truth/information-architecture.yaml
+  - .product-experience/phase-0-product-truth/applications-channels.yaml
+  - .product-experience/phase-0-product-truth/journey-catalog.yaml
+  - .product-experience/phase-0-product-truth/handoff-contracts.yaml
+  - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+  requiredReviewRoles:
+  - UX-accessibility-lead
+  - SRE
+  - localization-and-channel-owners
+  requiredEvidenceInputs:
+  - Map each admitted outcome to a journey, channel, important non-happy path, and accessibility disposition.
+  - Separate proposed workload/SLO budgets from measured values and deployment commitments.
+  - Review the authored handoff boundary register, complete owner contract bindings, and review first-use, offline,
+    unavailable-capability, and recovery behavior.
+  decisionOwnerAppointments: pending
+- id: ACCEPT-INPUT-P0-010
+  phaseTask: P0-010
+  decisionInput: pending-independent-review-not-executed
+  artifactRefs:
+  - .product-experience/traceability.yaml
+  - .product-experience/authority-map.yaml
+  - .product-experience/acceptance.yaml
+  - .product-experience/currentness.yaml
+  requiredReviewRoles:
+  - independent-product-definition-reviewer
+  requiredEvidenceInputs:
+  - Independently walk all Phase 0 outcomes, capabilities, actors, states, authorities, failures, and dependencies.
+  - Validate owner-bound schemas, IDs, aliases, references, source roles, and semantic invariants.
+  - Reconcile competing documentation at the owning layer and record accepted material fingerprints.
+  - Obtain generated Phase 0 coverage/currentness observations from the owner-approved Tools workflow.
+  - Record unresolved runtime and external-owner gaps without treating them as product-definition acceptance blockers
+    unless meaning is unresolved.
+  decisionOwnerAppointments: pending
 laterPhaseAcceptanceInputs:
-  - id: ACCEPT-INPUT-P1
-    phase: P1
-    decisionInput: pending-prerequisite-P0-010
-    prerequisite: independent-Phase-0-acceptance
-  - id: ACCEPT-INPUT-P2
-    phase: P2
-    decisionInput: pending-prerequisite-P1-006
-    prerequisite: accepted-Phase-1-design-language
-  - id: ACCEPT-INPUT-P3
-    phase: P3
-    decisionInput: pending-prerequisite-P2-008
-    prerequisite: accepted-Phase-2-product-experience
+- id: ACCEPT-INPUT-P1
+  phase: P1
+  decisionInput: pending-prerequisite-P0-010-and-human-review
+  prerequisite: independent-Phase-0-acceptance
+  artifactRefs:
+  - .product-experience/phase-1-design-language/DESIGN-LANGUAGE.md
+  - .product-experience/phase-1-design-language/accessibility.yaml
+  - .product-experience/phase-1-design-language/action-finality-grammar.yaml
+  - .product-experience/phase-1-design-language/animation-simulation-grammar.yaml
+  - .product-experience/phase-1-design-language/cli-language.yaml
+  - .product-experience/phase-1-design-language/component-contracts.yaml
+  - .product-experience/phase-1-design-language/localization-content.yaml
+  - .product-experience/phase-1-design-language/media-editing-grammar.yaml
+  - .product-experience/phase-1-design-language/media-token-aliases.yaml
+  - .product-experience/phase-1-design-language/motion.yaml
+  - .product-experience/phase-1-design-language/responsive-adaptive.yaml
+  - .product-experience/phase-1-design-language/semantic-state-grammar.yaml
+  - .product-experience/phase-1-design-language/trust-provenance-grammar.yaml
+  - .product-experience/phase-1-design-language/typography-layout.yaml
+  requiredReviewRoles:
+  - design-system-consumer-lead
+  - media-interaction-and-animation-designers
+  - UX-and-trust-operations-designers
+  - accessibility-and-localization-specialist
+  - CLI-and-SDK-designer-and-technical-writer
+  - design-authority-reviewer
+  requiredEvidenceInputs:
+  - Resolve each semantic alias to a published Shared design-system token or record the owner-approved gap; do not
+    create a parallel token/component authority.
+  - Walk every state, trust, action-finality, editing, responsive, accessibility, localization, motion, and CLI
+    rule against accepted Phase 0 meaning.
+  - Review task-complete component anatomy, keyboard alternatives, screen-reader language, localization and viewport
+    behavior with the named human reviewers.
+  - Produce the plan-required generated design-coverage observation after the public Tools schema and validator
+    binding is available.
+  - The current artifacts include first-use and artifact-intake components plus the selected transcription and caption-correction
+    lane; full Phase 1 scope and human approvals remain required.
+  decisionOwnerAppointments: pending
+- id: ACCEPT-INPUT-P2
+  phase: P2
+  decisionInput: pending-prerequisite-P1-006-and-full-experience-review
+  prerequisite: accepted-Phase-1-design-language
+  artifactRefs:
+  - .product-experience/lanes/transcribe-and-correct-captions.yaml
+  - .product-experience/phase-2-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md
+  - .product-experience/phase-2-product-experience/action-registry.yaml
+  - .product-experience/phase-2-product-experience/api-experience-mapping.yaml
+  - .product-experience/phase-2-product-experience/application-channel-registry.yaml
+  - .product-experience/phase-2-product-experience/cli-command-registry.yaml
+  - .product-experience/phase-2-product-experience/content-copy-catalog.yaml
+  - .product-experience/phase-2-product-experience/data-view-contracts.yaml
+  - .product-experience/phase-2-product-experience/handoff-bindings.yaml
+  - .product-experience/phase-2-product-experience/interaction-registry.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/first-use-and-project-creation.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/clean-noisy-interview-audio.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/repair-video-with-measured-quality.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/translate-and-dub-existing-video.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml
+  - .product-experience/phase-2-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml
+  - .product-experience/phase-2-product-experience/journey-registry.yaml
+  - .product-experience/phase-2-product-experience/navigation-contracts.yaml
+  - .product-experience/phase-2-product-experience/recovery-finality-contracts.yaml
+  - .product-experience/phase-2-product-experience/responsive-variants.yaml
+  - .product-experience/phase-2-product-experience/scenario-fixture-registry.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/compare-caption-versions.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/correct-captions.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/authenticate-and-select-context.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/browse-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/create-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/find-projects.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/import-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/artifact-verification-job-family.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/inspect-job.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/inspect-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/resolve-job-outcome.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/resume-work.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-transcript.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/select-source.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/transcription-progress.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/work-in-project.yaml
+  - .product-experience/phase-2-product-experience/screen-registry.yaml
+  - .product-experience/phase-2-product-experience/simulation-semantics.yaml
+  - .product-experience/phase-2-product-experience/state-transition-bindings.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-creation-plan.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/arrange-scenes.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/create-image.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/create-video.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/create-audio.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/work-with-speech.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/use-authorized-voice.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/edit-captions.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-dubbing.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/improve-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/compare-results.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/edit-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/edit-media-region.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/animate-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/compose-scene.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/explore-simulation.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/compose-media.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/adjust-color.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-quality.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/prepare-render.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-outputs.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/inspect-output.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/deliver-output.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-exact-version.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-rights-and-consent.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/inspect-provenance.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/check-processing-options.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/check-processing-readiness.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/review-workspace-settings.yaml
+  - .product-experience/phase-2-product-experience/screen-contracts/find-task-guidance.yaml
+  requiredReviewRoles:
+  - UX-information-architect
+  - product-UX-and-distributed-systems-analyst
+  - generation-editing-and-quality-experience-lead
+  - animation-simulation-and-domain-integration-architect
+  - audio-speech-and-streaming-experience-lead
+  - API-SDK-CLI-contract-owner
+  - experience-simulation-and-content-lead
+  - independent-experience-reviewer
+  requiredEvidenceInputs:
+  - Walk every Phase 0 outcome and capability in both directions through all required views, routes, actions, journeys,
+    state paths, channel dispositions, and handoffs.
+  - Complete the full view inventory and all non-happy-path, responsive, accessibility, localization, recovery,
+    and contextual-permission contracts; current authored detail includes partial J-01/J-02/J-03/J-20 slices and Phase 0-grounded ordered-view proposals for all 28 required journeys; complete action/state/scenario/channel and owner bindings remain open.
+  - Bind API and SDK operations to actual owner-approved wire contracts; GAP-05 remains open and the proposal invents
+    no route.
+  - Reconcile every visible action with one action/effect, current authority, finality, recovery path, and deterministic
+    scenario; keep review approval separate from caption-version registration.
+  - Obtain required human review and generated Phase 2 coverage evidence; no P2-008 completion or full-experience
+    acceptance is recorded.
+  decisionOwnerAppointments: pending
+- id: ACCEPT-INPUT-P3
+  phase: P3
+  decisionInput: pending-prerequisite-P2-008-tools-binding-browser-evidence-and-human-review
+  prerequisite: accepted-Phase-2-product-experience
+  artifactRefs:
+  - .product-experience/phase-3-experience-explorer/EXPERIENCE-EXPLORER.md
+  - .product-experience/phase-3-experience-explorer/interaction-dispositions.yaml
+  - .product-experience/phase-3-experience-explorer/media-experience-package.yaml
+  - .product-experience/phase-3-experience-explorer/scenario-fixtures.yaml
+  - .product-experience/phase-3-experience-explorer/verification-matrix.yaml
+  - .product-experience/phase-3-experience-explorer/view-projections.yaml
+  - libs/media-experience-simulation
+  requiredReviewRoles:
+  - Explorer-adapter-engineer
+  - Tools-Explorer-owner
+  - product-simulation-engineer
+  - Media-UI-engineers
+  - CLI-and-API-experience-engineer
+  - frontend-packaging-and-security-engineer
+  - QA-accessibility-and-visual-engineer
+  - human-product-design-and-accessibility-reviewers
+  requiredEvidenceInputs:
+  - Load the Media package through published public Tools contracts in an isolated consumer and reject missing or
+    incompatible bindings.
+  - Prove deterministic reset, replay, state transition, action preconditions, conflict resolution, finality, and
+    cross-view projection with owner-approved reducer verification.
+  - Render every accepted Phase 2 view and channel in the actual Explorer host. A Media-owned local Vite client
+    currently renders three synthetic J-01 first-use routes, three J-02 artifact-intake views plus activity and
+    verification-job views, selected J-02 CLI inspection/recovery commands, J-20 transcription-job observation/cancellation
+    and CLI commands, and four J-03 transcript/caption Product views in Product, Explore, Specification, and Verify
+    modes; it is not the generic Tools Explorer host, does not cover the Phase 2 baseline, and has no published
+    isolated package binding.
+  - Verify built browser assets, base path, CSP, offline mode, deep links, cache/currentness, keyboard, screen reader,
+    zoom, forced colors, reduced motion, responsive variants, and supported localization.
+  - Record current environment, package, fixture and browser observations; complete attributed human visual, usability,
+    and accessibility reviews. Local observations exist for the selected caption editor at recorded viewport sizes,
+    the verification-job preview at 320px and 390px, and the transcription-job route at narrow widths; no independent
+    review or complete all-view/channel results are present.
+  decisionOwnerAppointments: pending
 generatedResults:
   storedInThisFile: false
   currentness:

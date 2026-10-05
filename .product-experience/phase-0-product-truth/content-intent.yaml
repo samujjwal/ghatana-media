@@ -98,6 +98,16 @@ families:
     purpose: exercise adaptive layouts, localization, screen-reader, keyboard and long translated media labels
     modalities: [web, cli, captions, timeline, scene-inspector]
     requiredStates: [keyboard-only, 200-percent-text, rtl-or-pseudo-localized, unsupported-locale]
+  - id: FIXTURE-FIRST-USE-PROJECT-SETUP
+    purpose: exercise identity handoff, authorized workspace selection, empty project creation, and safe first-use recovery
+    modalities: [identity-context, project, web]
+    content: synthetic-identity-and-project-metadata-only; no-real-personal-data-or-media-bytes
+    requiredStates: [identity-required, reauthentication-required, workspace-empty, workspace-denied, project-create-outcome-unknown, project-created-empty]
+  - id: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
+    purpose: exercise bounded media intake, integrity verification, quarantine, and truthful recovery without real uploads
+    modalities: [web, artifact-metadata, upload-state, integrity]
+    content: deterministic-metadata-only; no-media-bytes-external-source-credentials-or-network-transfer
+    requiredStates: [interrupted-transfer, checksum-mismatch, unsupported-format, quarantined, verified-available, outcome-unknown, verification-job-running, verification-job-outcome-unknown, verification-job-completed]
 rightsAndLicensing:
   evidenceRequiredPerDistributedAsset: [origin, exact-source-version-or-digest, license-expression, applicable-notice, modification-status, transitive-native-components, model-dataset-font-texture-audio-rights, security-review, replacement-path]
   unknownLicenseDisposition: do-not-distribute-or-execute-until-reviewed

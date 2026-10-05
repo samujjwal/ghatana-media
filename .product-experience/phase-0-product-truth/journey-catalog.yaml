@@ -3,7 +3,7 @@ phaseTask: P0-009
 status:
   maturity: proposed-for-phase-0-review
   acceptance: not-submitted
-  implementation: journey-contracts-not-yet-authored
+  implementation: selected-journey-contract-proposals-authored-in-phase-2; full-contract-inventory-pending
   runtimeSupport: not-claimed
 dependencies:
   p0-001: accepted-boundary-slice
@@ -147,7 +147,7 @@ journeys:
   title: Audio/video transcription through corrected captions
   outcomeRefs: [media.goal.understand-media, media.goal.review-trustworthy-output]
   actors: [media.creator, media.editor, media.reviewer]
-  proposedChannels: [media.channel.web, media.channel.grpc-api, media.channel.sdk]
+  proposedChannels: [media.channel.web, media.channel.cli, media.channel.grpc-api, media.channel.sdk]
   viewRefs: [M-AUDIO, M-VIDEO, M-SPEECH, M-CAPTIONS, M-COMPARE]
   preconditions: Audio/video access, language intent, and required consent/processing policy are available.
   completion: Timestamped transcript/caption draft is reviewable with language, timing, provenance, uncertainty, and exact
@@ -191,6 +191,7 @@ journeys:
 - id: J-06
   title: Multimodal or document consumer request to grounded typed result
   outcomeRefs: [media.goal.understand-media, media.goal.integrate-repeatably]
+  intentRefs: [media.intent.find-task-guidance]
   actors: [media.developer-integrator, media.automation-client]
   proposedChannels: [media.channel.http-api, media.channel.grpc-api, media.channel.product-integration]
   viewRefs: [M-HELP, M-OUTPUT, M-PROVENANCE]
@@ -308,7 +309,7 @@ journeys:
   contextAndReturn: Keep rig, scene version, coordinate conventions, control edits, and export disposition.
   accessibility: media.a11y.baseline
 - id: J-14
-  title: Domain model and initial conditions to simulation and measurements
+  title: Explore a domain simulation and its measurements
   outcomeRefs: [media.goal.explain-or-demonstrate, media.goal.finished-asset]
   actors: [media.creator, media.reviewer]
   responsibilityRoleRefs: [media.role.fidelity-reviewer]
@@ -440,7 +441,7 @@ journeys:
   contextAndReturn: Retain comments bound to artifact version and time/region and return to the project/output.
   accessibility: media.a11y.baseline
   intentRefs:
-  - media.intent.manage-rights-consent
+  - media.intent.review-rights-and-consent
   - media.intent.inspect-provenance
 - id: J-22
   title: Export/download/publish with destination acknowledgement
@@ -531,10 +532,10 @@ journeys:
   intentRefs:
   - media.intent.restore-project
   - media.intent.manage-artifact-lifecycle
-  - media.intent.manage-rights-consent
+  - media.intent.review-rights-and-consent
   - media.intent.inspect-provenance
 - id: J-27
-  title: Provider/license/capacity outage and explicit fallback or block
+  title: Continue safely when processing is unavailable
   outcomeRefs:
   - media.goal.resolve-safely
   - media.goal.finished-asset
@@ -561,7 +562,7 @@ journeys:
   accessibility: media.a11y.baseline
   intentRefs:
   - media.intent.resolve-job
-  - media.intent.inspect-readiness
+  - media.intent.check-processing-readiness
 - id: J-28
   title: Spatial/360/interactive/synthetic-data export to declared consumer
   outcomeRefs: [media.goal.finished-asset, media.goal.explain-or-demonstrate, media.goal.deliver-approved-output]
@@ -607,11 +608,11 @@ journeys:
   contextAndReturn: Preserve session ID, last acknowledged frame sequence, current lease/consent version, and per-frame finality.
   accessibility: media.a11y.baseline
 - id: J-30
-  title: Profile, capability compatibility, and readiness inspection
+  title: Check which processing options are eligible
   intentRefs:
-  - media.intent.discover-profile
-  - media.intent.inspect-capability
-  - media.intent.inspect-readiness
+  - media.intent.choose-eligible-processing-option
+  - media.intent.check-processing-options
+  - media.intent.check-processing-readiness
   outcomeRefs:
   - media.goal.integrate-repeatably
   - media.goal.resolve-safely

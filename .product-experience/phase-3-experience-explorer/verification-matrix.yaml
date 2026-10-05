@@ -1,0 +1,235 @@
+schemaVersion: media.explorer-verification-matrix.v1
+productId: media
+status: locally-built-and-partially-observed; no-Explorer-acceptance
+checks:
+- id: media.explorer.check.simulation-package-typecheck
+  scope: strict-TypeScript-check-of-the-Media-simulation-package
+  implementation: libs/media-experience-simulation
+  environment: TypeScript-6.0.3
+  command: pnpm dlx --package typescript@6.0.3 tsc --noEmit -p libs/media-experience-simulation/tsconfig.json
+  observation: PASS
+  detail: No compiler diagnostics were emitted.
+- id: media.explorer.check.browser-client-typecheck
+  scope: strict-TypeScript-check-of-the-Media-browser-review-client
+  implementation: apps/media-experience-explorer
+  environment: TypeScript-6.0.3
+  command: pnpm dlx --package typescript@6.0.3 tsc --noEmit -p apps/media-experience-explorer/tsconfig.json
+  observation: PASS
+  detail: No compiler diagnostics were emitted.
+- id: media.explorer.check.fixture-determinism-and-action-guards
+  scope: deterministic-first-use-artifact-intake-verification-job-and-caption-fixtures-with-identity-finality-and-separate-entity-guards
+  implementation: libs/media-experience-simulation
+  command: pnpm dlx --package typescript@6.0.3 tsc -p libs/media-experience-simulation/tsconfig.json && node --test
+    libs/media-experience-simulation/tests/simulation.test.mjs
+  observation: PASS
+  detail: Ten reducer checks passed, including deterministic replay, first-use authority and hidden-data guards,
+    stable project-create, upload, and verification-job identities, unknown-result blocking, integrity outcomes,
+    and access denial.
+- id: media.explorer.check.fixture-runner-cli
+  scope: deterministic-workflow-fixture-runner-json-jsonl-help-and-invalid-input
+  implementation: libs/media-experience-simulation/bin/media-experience-fixture.mjs
+  command: pnpm dlx --package typescript@6.0.3 tsc -p libs/media-experience-simulation/tsconfig.json && node --test
+    libs/media-experience-simulation/tests/cli.test.mjs
+  observation: PASS
+  detail: Six fixture-runner CLI checks passed; fixture output reports upload status separately from processing
+    jobs. This runner remains distinct from the canonical ghatana-media command simulator.
+- id: media.explorer.check.canonical-command-cli
+  scope: registered-ghatana-media-commands-version-validation-formatting-and-exit-status
+  implementation: libs/media-experience-simulation/bin/ghatana-media.mjs
+  command: pnpm dlx --package typescript@6.0.3 tsc -p libs/media-experience-simulation/tsconfig.json && node --test
+    libs/media-experience-simulation/tests/product-cli.test.mjs
+  observation: PASS
+  detail: Fifteen command parser and executable checks passed, including the conventional invocation that omits the
+    binary name from its arguments, same-upload-ID upload recovery, literal flag-shaped caption text, structured
+    JSON/JSONL argument errors, and transcription-job cancellation that retains RUNNING/PENDING with
+    CANCEL_REQUESTED until confirmation. A media output destination is rejected because this executable only writes
+    fixture reports to stdout. The CLI remains a synthetic-fixture simulator with no runtime or provider connection.
+- id: media.explorer.check.browser-build
+  scope: browser-client-bundle-external-stylesheet-specification-assets-and-content-security-policy
+  implementation: apps/media-experience-explorer
+  environment: Vite-7.3.1
+  command: pnpm dlx vite@7.3.1 build --config apps/media-experience-explorer/vite.config.mjs
+  observation: PASS
+  detail: Production bundle built with a 154.56 kB JavaScript asset, a 75.80 kB CSS asset, and all 146 current specification
+    records; strict TypeScript checking passed for the updated client.
+- id: media.explorer.check.screen-contract-proposal-previews
+  scope: read-only-Specification-previews-for-all-41-baseline-and-six-selected-lane-screen-contracts
+  implementation: apps/media-experience-explorer
+  environment: local-browser-127.0.0.1:4178
+  observation: PASS
+  detail: The Specification artifact index exposes all 47 media.screen-contract.v1 proposals. Browser review selected
+    each contract and confirmed its read-only preview and non-executable-action disclaimer; the source YAML remains
+    below the preview. At 390x844 and 320x640, the selected preview stacked into one column and the document width
+    matched the available layout width with no page-level horizontal overflow. This is local preview evidence only;
+    it does not realize the views or represent independent human review or phase acceptance.
+- id: media.explorer.check.cross-channel-parity
+  scope: browser-cli-and-terminal-projections-from-one-parser-reducer-and-fixture-state
+  implementation: libs/media-experience-simulation
+  observation: PARTIAL
+  detail: Browser and terminal CLI use the canonical parser and reducer. On 2026-10-05, the terminal CLI regression
+    checks confirmed upload resume preserves its transfer identity without creating a processing job; the embedded
+    CLI also returned the transcription job projection and was updated to expose artifact-verification job identity,
+    related upload, stage, and finality from the same parser and reducer. The local browser rendered an unknown
+    artifact-verification reconciliation in CLI mode with the same job and upload IDs, unknown finality, and inspection
+    as the next action. API transport and embedded application channels remain unavailable.
+- id: media.explorer.check.product-chrome-separation
+  scope: local-Product-mode-versus-Explore-Specification-and-Verify-chrome
+  implementation: apps/media-experience-explorer
+  observation: PASS
+  detail: The built client renders Product without the Explorer header, mode tabs, Explorer tabpanel, or Explore
+    actions. The
+- id: media.explorer.check.artifact-intake-product-route
+  scope: J-02-metadata-only-import-route-inspection-and-stable-upload-resume
+  implementation: apps/media-experience-explorer
+  observation: PASS
+  detail: On 2026-10-05, the browser preview displayed the interrupted upload identity, confirmed-part count, integrity
+    disposition, and no-byte-transfer boundary. Resuming kept the same upload ID, advanced only the synthetic transfer
+    status to RECEIVING, and left the UI in inspect mode; this is local fixture evidence, not independent human
+    acceptance or real transfer verification.
+- id: media.explorer.check.artifact-verification-job-product-route
+  scope: J-02-synthetic-verification-job-state-related-upload-identity-and-unknown-finality
+  implementation: apps/media-experience-explorer
+  observation: PASS
+  detail: On 2026-10-05, the local browser showed a separate verification-job ID and related upload ID, Integrity
+    Check stage, unavailable progress, and unknown finality. Checking the existing outcome preserved both identities
+    and remained unknown without owner evidence; opening
+- id: media.explorer.check.activity-product-route
+  scope: J-02-synthetic-activity-view-opening-the-exact-uncertain-verification-job
+  implementation: apps/media-experience-explorer
+  environment: local-browser-127.0.0.1:4173
+  observation: PASS
+  detail: On 2026-10-05, the activity route showed one synthetic unknown verification job with distinct job and
+    related-upload IDs. Inspect job opened the exact detail view and preserved both IDs and unknown finality. DOM
+    measurements at preview widths 320px and 390px showed no horizontal overflow. The fixture has no production
+    activity query or event timestamps; independent human acceptance remains open.
+- id: media.explorer.check.artifact-verification-job-cli-projection
+  scope: J-02-CLI-inspection-and-reconciliation-of-the-existing-verification-job
+  implementation: apps/media-experience-explorer
+  environment: local-browser-127.0.0.1:4173
+  observation: PASS
+  detail: On 2026-10-05, Explore switched to the CLI channel for the artifact-verification unknown-outcome fixture
+    and ran job reconcile in JSON mode. Output retained the distinct verification job and related upload IDs, INTEGRITY_CHECK
+    stage, OUTCOME_UNKNOWN state, UNKNOWN finality, and inspect-job next action; no effects were emitted. This is
+    local fixture evidence, not owner-contract or human acceptance.
+- id: media.explorer.check.long-running-job-product-route
+  scope: J-20-transcription-job-identity-observation-cancellation-pending-and-unknown-outcome-recovery
+  implementation: apps/media-experience-explorer
+  environment: local-browser-127.0.0.1:4173
+  observation: PASS
+  detail: On 2026-10-05, the Product route showed the existing transcription job separately from its exact source
+    version, omitted unmeasured progress, and kept RUNNING distinct from cancellation finality. Request cancellation
+    set attemptState CANCEL_REQUESTED and finality PENDING; Stop watching returned to transcript work without changing
+    the job. Reattaching showed the same job identity and pending state. The unknown-outcome fixture kept the same
+    identity and UNKNOWN finality through reconciliation to RECONCILING without a new request. At configured preview
+    widths 390px and 320px, the job panel had no horizontal overflow (app scroll widths 388px and 318px respectively).
+    This is local synthetic evidence; live watch, retries, runtime owner bindings, and independent acceptance remain
+    open.
+- id: media.explorer.check.long-running-job-cancellation-cli
+  scope: J-20-canonical-CLI-job-cancel-command-and-shared-reducer-finality
+  implementation: libs/media-experience-simulation
+  environment: local-command-line
+  command: node --test libs/media-experience-simulation/tests/product-cli.test.mjs
+  observation: PASS
+  detail: The CLI accepted job cancel only for the current transcription-job identity and returned the same job
+    ID, RUNNING state, CANCEL_REQUESTED attempt state, PENDING finality, and inspect-job as the next action. A repeated
+    request was blocked while pending; a separate fixture confirmation transitioned to CANCELLED/CONFIRMED. On
+    2026-10-05, the browser CLI projection also inspected the running-job fixture and requested cancellation; it kept
+    RUNNING with pending finality and exposed inspect-job as the next safe action. These commands are fixture-only;
+    production CLI and cancellation owner contracts are not connected.
+- id: media.explorer.check.first-use-product-route
+  scope: J-01-synthetic-identity-workspace-and-empty-project-creation-boundaries
+  implementation: apps/media-experience-explorer
+  observation: PASS
+  detail: On 2026-10-05, the rebuilt browser showed the empty-project action creating one synthetic project ID and
+    version, kept identity-required and workspace-denied views free of workspace/project identifiers, preserved
+    the unknown create request through inspection, and kept the unavailable-intent project without a processing
+    job. These are local fixture observations; identity and project services remain unbound, and responsive geometry
+    is recorded separately.
+- id: media.explorer.check.tools-phase-planning
+  scope: representative-material-verification-for-P0-P1-P2-and-P3-with-the-canonical-Tools-planner
+  implementation: Ghatana-Tools product-dev workspace verify
+  subject: samujjwal/ghatana-media:media
+  observation: CANDIDATE_PLAN
+  detail: All four phase materials resolve in the current Ghatana Tools subject catalog, but each result has selectedOperationIds
+    empty, evidenceAuthorityId unavailable, structuralFallback true, and failure PLANNER_BINDING_OWNER_AMBIGUOUS.
+    These results are not PASS or phase certification.
+  materialChecks:
+  - phase: P0
+    material: .product-experience/phase-0-product-truth/capabilities.yaml
+    stageId: establish-product-definition
+    claim: PRODUCT_SEMANTIC_AUTHORITY
+    status: CANDIDATE_PLAN
+    evidenceAuthorityId: unavailable
+    selectedOperationIds: []
+    failure: PLANNER_BINDING_OWNER_AMBIGUOUS
+  - phase: P1
+    material: .product-experience/phase-1-design-language/component-contracts.yaml
+    stageId: establish-experience-language
+    claim: EXPERIENCE_AUTHORITY
+    status: CANDIDATE_PLAN
+    evidenceAuthorityId: unavailable
+    selectedOperationIds: []
+    failure: PLANNER_BINDING_OWNER_AMBIGUOUS
+  - phase: P2
+    material: .product-experience/phase-2-product-experience/screen-registry.yaml
+    stageId: specify-executable-experience
+    claim: EXPERIENCE_AUTHORITY
+    status: CANDIDATE_PLAN
+    evidenceAuthorityId: unavailable
+    selectedOperationIds: []
+    failure: PLANNER_BINDING_OWNER_AMBIGUOUS
+  - phase: P3
+    material: .product-experience/phase-3-experience-explorer/media-experience-package.yaml
+    stageId: materialize-implementation
+    claim: EXPERIENCE_AUTHORITY
+    status: CANDIDATE_PLAN
+    evidenceAuthorityId: unavailable
+    selectedOperationIds: []
+    failure: PLANNER_BINDING_OWNER_AMBIGUOUS
+- id: media.explorer.check.responsive-geometry
+  scope: Responsive layout of the selected caption editor, job previews, and Verify summary at recorded viewport sizes.
+  implementation: apps/media-experience-explorer
+  observation: PASS
+  detail: The selected Product caption editor was checked at browser viewports 1536x960, 1280x800, 1024x768, 768x1024,
+    390x844, and 320x640 after layout settled. The verification-job and transcription-job Product previews were
+    inspected at configured widths 320px and 390px; their app scroll widths remained two CSS pixels below the configured
+    widths, with no horizontal overflow. The host reserves 15 CSS px for its scrollbar, so caption-editor layout
+    widths were 1521, 1265, 1009, 753, 375, and 305 CSS px respectively. The Verify status summary was also inspected
+    at browser viewports 390x844 and 320x640; the host-available inner widths were 354px and 291px, and document/body
+    widths were 341px and 277px, with all four phase cards stacked inside the available width. This covers only the
+    current Verify summary. A later direct viewport-override check of the updated Verify screen used 390x844 and 320x640
+    (inner widths 390px and 320px; document widths 375px and 305px); all four phase cards fit their content widths with
+    no horizontal overflow. Other baseline views, zoom, localization, and device-level rendering remain unverified.
+- id: media.explorer.check.accessibility
+  scope: keyboard-screen-reader-zoom-forced-colors-reduced-motion-localization
+  implementation: apps/media-experience-explorer
+  observation: PARTIAL
+  detail: Landmark, mode-tab, panel, form-label, skip-link, product-route focus, and live-announcement semantics
+    are present; screen-reader, zoom, forced-colors, and full keyboard-path reviews remain unrecorded.
+- id: media.explorer.check.packaging-csp-offline
+  scope: bundled-assets-base-path-deep-link-reload-mime-cache-csp-and-offline-fixtures
+  implementation: apps/media-experience-explorer
+  observation: PARTIAL
+  detail: Static preview returned the app and phase source assets successfully under a preview CSP with connect-src
+    self; phase YAML was served as text/yaml, and the browser fetched it without console errors. Non-root base paths,
+    deep-link reload, cache behavior, and offline operation remain unverified.
+- id: media.explorer.check.intent-based-view-names-and-caption-comparison-prerequisite
+  scope: Product-and-Explore-route-names-source-selection-caption-comparison-next-action-and-narrow-workflow-navigation
+  implementation: apps/media-experience-explorer
+  environment: local-browser-127.0.0.1:4178
+  observation: PASS
+  detail: On 2026-10-05, browser accessibility and visual inspection confirmed that Product and Explore show the same
+    intent-based names for source selection, transcript review, and caption-version comparison in the page title,
+    breadcrumb, document title, and workflow navigation. At 390x844 and 320x640, the five-step workflow navigation
+    stays above the page content in one row, and the screenshot showed no horizontal overflow. With one saved caption version, the
+    comparison view explains that a second version is needed and offers Correct captions as the next action. Verify
+    reads the indexed artifact count and displays 146 source records. This is local UI and fixture evidence; it does
+    not realize all baseline views or establish independent human review or phase acceptance.
+- id: media.explorer.check.human-visual-review
+  scope: every-canonical-view-and-required-variant
+  blocker: GAP-12
+  observation: REVIEW_REQUIRED
+  detail: Local inspection is implementation evidence only; no independent reviewer decision is recorded.
+acceptanceRule: Phase3 cannot pass until all 41 Phase2 baseline views, lane specializations, 28 required journeys,
+  and CLI/API channel dispositions are realizable in the admitted host; observations are current; required variants
+  pass; and human review is recorded.

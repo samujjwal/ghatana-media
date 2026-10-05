@@ -1,0 +1,85 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.prepare-render
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.create
+purpose: Snapshot/profile, validation, cost and submission
+contextGoalNowNext:
+  context: A frozen composition revision, named output profile, validation findings, cost/quality estimates, and
+    submission identity.
+  goal: Validate and explicitly submit a render with an exact snapshot and disclosed delivery consequences.
+  now: Show immutable input revision, profile, material overrides, compatibility checks, estimated resources, rights
+    state, and finality semantics.
+  next: Resolve validation, select a compatible profile, or submit the exact validated snapshot through an admitted
+    action.
+anatomy:
+- composition-snapshot
+- profile-and-overrides
+- compatibility-and-validation
+- resource-and-quality-estimates
+- rights-and-delivery-effects
+- job-submission-and-finality
+componentRefs:
+- media.component.creation-plan-summary
+- media.component.delivery-profile-picker
+- media.component.rights-retention-review
+- media.component.job-status-card
+states:
+- draft
+- validation-required
+- profile-incompatible
+- estimate-incomplete
+- rights-review-required
+- ready-to-submit
+- submission-pending
+- outcome-unknown
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- validate an exact snapshot
+- choose a named compatible profile
+- review estimates and rights effects
+- submit the render explicitly
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: The submitted snapshot is immutable; estimates are labeled; fallback and lossy conversion require explicit
+  disclosure; render completion is not publication.
+recovery: On unknown submission, reconcile the same request/job; never start a second render blindly.
+responsive: Keep snapshot identity, profile, blockers, and submit finality visible before secondary settings.
+accessibility: Present validation as a structured list with focusable reasons; label estimates and units; confirmation
+  names the exact snapshot and profile.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-09
+- phase-0:journey:J-13
+- phase-0:journey:J-14
+- phase-0:journey:J-18
+- phase-0:journey:J-19
+- phase-0:journey:J-28
+journeyRefs:
+- J-09
+- J-13
+- J-14
+- J-18
+- J-19
+- J-28
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

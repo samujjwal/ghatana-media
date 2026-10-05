@@ -1,0 +1,72 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.find-task-guidance
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+- media.operator
+- media.developer-integrator
+intentRef: media.intent.find-task-guidance
+purpose: Product-specific assistance and safe diagnostic sharing
+contextGoalNowNext:
+  context: The current user goal and non-sensitive product context, selected guidance language, and safe diagnostic-sharing
+    choice.
+  goal: Find product guidance that helps complete the current task without exposing protected information.
+  now: Show relevant steps, supported limitations, and optional diagnostic fields before any sharing action.
+  next: Follow the guidance, open a related view, or choose exactly which safe diagnostics to share.
+anatomy:
+- guidance-query-or-context
+- relevant-instructions
+- support-limitations
+- related-view-links
+- diagnostic-preview-and-redaction
+- sharing-choice
+componentRefs:
+- media.component.intent-launcher
+- media.component.provenance-summary
+- media.component.rights-retention-review
+states:
+- loading
+- results-ready
+- no-guidance
+- stale-guidance
+- diagnostic-redaction-required
+- share-confirmation
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- search product guidance
+- open a related view
+- preview and redact diagnostics
+- share diagnostics only after explicit choice
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Guidance does not claim unsupported capabilities; diagnostics exclude secrets and protected content
+  by default; sharing is explicit.
+recovery: Keep the current workflow context when returning from guidance; disclose when guidance is stale or unavailable.
+responsive: Show concise next steps first; expand prerequisites and limitations; keep diagnostic sharing separate.
+accessibility: Use descriptive headings and links, keyboard navigation, and plain-language uncertainty; do not require
+  visual interpretation.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-06
+journeyRefs:
+- J-06
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

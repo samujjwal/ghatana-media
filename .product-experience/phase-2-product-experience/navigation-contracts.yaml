@@ -1,0 +1,75 @@
+schemaVersion: media.navigation-contracts.v1
+productId: media
+status: selected-lane-first-use-and-upload-proposals; P0-010-and-P1-006-pending
+intentRef: media.intent.understand
+additionalJourneyFlows:
+  - journeyRef: J-02
+    intentRef: media.intent.understand
+    entryPoints:
+      - from: media.view.browse-media
+        label: Import an admitted source
+        next: media.view.import-media
+      - from: media.view.import-media
+        label: Inspect an asynchronous verification job when an owner job identity is returned
+        next: media.view.inspect-job
+      - from: media.view.import-media
+        label: Inspect the exact available or quarantined artifact version
+        next: media.view.inspect-media
+      - from: media.view.browse-media
+        label: Inspect one authorized artifact version
+        next: media.view.inspect-media
+    rules:
+      - Keep upload identity, selected project target, acknowledged transfer state, and source identity through navigation.
+      - An unknown upload result returns to inspection of the same upload identity; it never enables duplicate transfer.
+      - Enter the job view only with an owner-issued stable job identity; an upload identity alone is not a job.
+      - Integrity, format, rights, retention, and project-attachment dispositions remain separately visible.
+  - journeyRef: J-01
+    intentRef: media.intent.restore-project
+    entryPoints:
+      - from: media.view.authenticate-and-select-context
+        handoffRef: media.handoff.identity
+        next: media.view.resume-work
+      - from: media.view.resume-work
+        label: Find or create a project
+        next: media.view.find-projects
+      - from: media.view.find-projects
+        label: Create or open an authorized project
+        next: media.view.work-in-project
+      - from: media.view.work-in-project
+        label: Choose a Media outcome
+        next: media.view.create-media
+    rules:
+      - Preserve the requested destination and non-sensitive intent draft across the identity handoff.
+      - Do not show protected project data before the current workspace decision is confirmed.
+      - An uncertain project-create result returns to the same request for reconciliation; it does not enable blind duplicate creation.
+  - journeyRef: J-20
+    intentRef: media.intent.resolve-job
+    entryPoints:
+      - from: media.view.monitor-transcription
+        label: Inspect the existing transcription job
+        next: media.view.inspect-job
+      - from: media.view.inspect-job
+        label: Stop watching and return to transcript work
+        next: media.view.monitor-transcription
+    rules:
+      - Preserve the same job identity when leaving and re-entering the status view.
+      - Stop watching is view navigation only; it does not cancel work or change job state.
+      - Keep cancellation pending until owner evidence confirms a stop or a racing result.
+      - For unknown outcomes, reconcile the existing job before any new submission.
+entryPoints:
+  - from: media.view.select-source
+    label: Choose a recording to understand
+    next: media.view.monitor-transcription
+  - from: media.view.monitor-transcription
+    label: Review transcript
+    next: media.view.review-transcript
+  - from: media.view.review-transcript
+    label: Correct captions
+    next: media.view.correct-captions
+  - from: media.view.correct-captions
+    label: Compare versions
+    next: media.view.compare-caption-versions
+rules:
+  - Preserve project, exact source version, selected language intent, source time, job identity, and draft edits across navigation.
+  - Keep recovery available from every job state; never route OUTCOME_UNKNOWN to a new submission.
+  - Back navigation returns to the prior view and position without committing a draft or changing source media.

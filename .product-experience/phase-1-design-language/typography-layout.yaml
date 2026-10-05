@@ -1,0 +1,29 @@
+schemaVersion: media.typography-layout.v1
+productId: media
+authority: Media reading hierarchy and layout behavior; Shared owns typography and layout primitives
+status: authored-proposal; shared-token-binding-and-P0-010-pending
+dependencies:
+  phase0: .product-experience/phase-0-product-truth/information-architecture.yaml
+  sharedOwner: ghatana-shared
+readingOrder:
+  - user-outcome
+  - source-and-current-version
+  - current-status-and-uncertainty
+  - primary-safe-action
+  - supporting-evidence-and-provenance
+  - advanced-controls
+density:
+  simple: one primary task, essential source context, and the next safe action
+  guided: decision inputs, timing details, rights status, and review evidence
+  expert: typed media parameters and provenance; no hidden change to action meaning
+proposedResponsiveViewports:
+  source: docs/migration/expert-reviewed-master-plan.md#19-3-canonical-responsive-and-terminal-variants
+  widths: [1536, 1280, 1024, 768, 390, 320]
+  heights: [960, 800, 768, 1024, 844, 640]
+  status: proposed-fixtures-not-browser-acceptance
+layoutRules:
+  - Transcript text and its source-time reference stay adjacent at every width.
+  - At narrow widths, source playback and transcript editing switch between clear task views; neither loses its position or pending edits.
+  - Use contextual drawers for optional technical details instead of compressing the primary transcript region.
+  - Long localized labels wrap; they do not clip, overlap controls, or change meaning.
+  - The source-versus-caption distinction remains visible without relying on color.

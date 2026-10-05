@@ -1,0 +1,72 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.check-processing-options
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.developer-integrator
+- media.operator
+intentRef: media.intent.check-processing-options
+purpose: Declared/qualified/live limits; no ordinary model-selection burden
+contextGoalNowNext:
+  context: A Media operation intent, declared capability contract, provider-independent support state, and qualification
+    evidence.
+  goal: Determine what Media declares and what evidence exists before planning an operation.
+  now: Separate declared, implemented, qualified, currently available, and unavailable states; show material limits
+    and owner evidence.
+  next: Return to the matching outcome, inspect readiness, or stop when no admitted operation applies.
+anatomy:
+- operation-intent
+- capability-contract
+- support-and-qualification-disposition
+- parameter-and-channel-scope
+- availability-evidence
+- limitations-and-owner
+componentRefs:
+- media.component.intent-launcher
+- media.component.creation-plan-summary
+- media.component.quality-inspector
+states:
+- declared
+- proposal-only
+- implemented-unqualified
+- qualified
+- unavailable
+- owner-review-required
+- evidence-stale
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- search by user outcome
+- inspect a declared operation contract
+- open scoped qualification evidence
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: A declaration is not implementation or availability; providers are not ordinary user intent choices;
+  qualification only applies to its named scope.
+recovery: When evidence is absent or stale, retain the declared scope and clearly report that operation as unverified.
+responsive: Use an outcome-first searchable list; keep support status and limitations visible beside each result.
+accessibility: Status and qualification scope are readable text; keyboard filters and clear result counts; do not
+  rely on provider logos or color.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-30
+journeyRefs:
+- J-30
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

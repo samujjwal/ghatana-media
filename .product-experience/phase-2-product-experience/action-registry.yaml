@@ -1,0 +1,226 @@
+schemaVersion: media.action-registry.v1
+productId: media
+status: selected-lane-first-use-and-upload-proposals; consequential-action-review-pending
+actions:
+  - id: media.action.select-artifact-source
+    label: Choose a source file
+    actorRefs: [media.creator, media.editor]
+    preconditions: [current-workspace-context, source-choice-is-local-or-an-already-admitted-reference]
+    effect: bind-one-exact-source-selection-to-the-current-upload-draft-without-transferring-bytes
+    reversible: true
+    finality: local-selection-only
+    failure: preserve-the-workspace-and-project-target; explain-an-unavailable-or-disallowed-source
+  - id: media.action.begin-artifact-upload
+    label: Upload this source
+    actorRefs: [media.creator, media.editor]
+    capabilityRefs: [media.artifact.upload, media.artifact.import]
+    preconditions: [current-principal-and-workspace, exact-source-selected, current-upload-and-import-authority, rights-consent-retention-and-format-admission]
+    confirmation: show-the-source-name-and-owner-admitted-transfer-limits-before-beginning
+    effect: establish-one-stable-upload-identity-and-accept-only-owner-acknowledged-bounded-parts
+    reversible: not-after-accepted-parts-without-an-explicit-owner-policy-and-recorded-disposition
+    finality: upload-receipt-is-not-artifact-availability; verification-must-record-size-digest-format-and-policy-disposition
+    failure: preserve-the-stable-upload-identity; inspect-an-unknown-result-before-starting-another-upload
+  - id: media.action.resume-artifact-upload
+    label: Resume this upload
+    actorRefs: [media.creator, media.editor]
+    capabilityRefs: [media.artifact.upload.resume]
+    preconditions: [existing-stable-upload-identity, matching-source-metadata, current-workspace, current-authority-and-retention-policy]
+    effect: continue-only-the-matching-upload-from-its-owner-acknowledged-transfer-state
+    reversible: not-after-accepted-parts-without-an-explicit-owner-policy-and-recorded-disposition
+    finality: remains-receiving-or-interrupted-until-server-receipt-and-integrity-state-are-recorded
+    failure: keep-the-same-upload-identity-and-partial-state; do-not-create-a-duplicate-or-claim-local-bytes-were-received
+  - id: media.action.inspect-artifact
+    label: Inspect this artifact version
+    actorRefs: [media.creator, media.editor, media.reviewer]
+    capabilityRefs: [media.artifact.inspect]
+    preconditions: [exact-artifact-or-upload-identity, current-read-authority]
+    effect: read-the-exact-artifact-version-integrity-metadata-and-separately-governed-policy-dispositions
+    reversible: true
+    finality: read-only; inspection-does-not-promote-quarantine-or-attach-to-a-project
+    failure: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
+  - id: media.action.attach-source-asset
+    label: Attach this artifact version to a project
+    actorRefs: [media.creator, media.editor]
+    capabilityRefs: [media.project.source-asset.attach]
+    preconditions: [artifact-version-is-AVAILABLE, exact-project-revision, current-project-write-authority, current-artifact-read-authority]
+    confirmation: identify-the-exact-artifact-version-and-project-that-will-reference-it
+    effect: create-a-versioned-project-reference-to-the-immutable-artifact-without-copying-or-changing-source-bytes
+    reversible: false
+    finality: confirmed-only-after-the-new-project-revision-records-the-artifact-reference
+    failure: keep-both-artifact-and-project-versions-unchanged; reconcile-an-unknown-project-update-against-the-same-request-identity
+  - id: media.action.choose-intent
+    label: Choose an outcome
+    actorRefs: [media.creator, media.editor]
+    intentRefs: [media.intent.create, media.intent.improve, media.intent.edit, media.intent.animate, media.intent.simulate, media.intent.understand, media.intent.deliver]
+    preconditions: [current-project-context-when-required, intent-is-in-the-admitted-product-catalog]
+    effect: select-a-local-intent-draft-without-selecting-a-provider-or-submitting-work
+    reversible: true
+    finality: local-selection-only
+    failure: preserve-the-project-and-current-selection; explain-when-an-intent-is-unavailable
+  - id: media.action.create-project
+    label: Create a project
+    actorRefs: [media.creator, media.administrator]
+    capabilityRefs: [media.project.create]
+    preconditions: [authenticated-principal, authorized-workspace, current-project-create-authority, owner-approved-project-request-shape]
+    requestShapeStatus: project-title-and-create-default-policy-require-P0-003-owner-review
+    confirmation: show-the-selected-workspace-and-requested-project-details-before-creation
+    effect: create-one-empty-versioned-project-in-the-selected-authorized-workspace
+    reversible: false
+    finality: confirmed-only-after-the-project-identity-and-initial-revision-are-recorded
+    failure: do-not-claim-creation-without-confirming-evidence; reconcile-an-unknown-result-against-the-same-request-identity
+  - id: media.action.inspect-project-creation
+    label: Inspect project creation status
+    actorRefs: [media.creator, media.administrator]
+    capabilityRefs: [media.project.inspect]
+    preconditions: [existing-project-create-request-identity, current-project-read-authority]
+    effect: read-the-observed-status-for-the-same-project-create-request-without-submitting-another-request
+    reversible: true
+    finality: read-only; unknown-remains-unknown-without-authoritative-project-evidence
+    failure: preserve-the-same-request-identity-and-do-not-offer-blind-duplicate-creation
+  - id: media.action.open-project
+    label: Open this project
+    actorRefs: [media.creator, media.editor, media.reviewer]
+    capabilityRefs: [media.project.inspect]
+    preconditions: [project-is-visible-in-current-workspace, current-project-read-authority]
+    effect: open-one-exact-project-revision-without-changing-project-or-artifact-bytes
+    reversible: true
+    finality: read-only
+    failure: keep-the-project-list-and-query-context; hide-data-when-current-access-cannot-be-confirmed
+  - id: media.action.choose-source
+    label: Choose a recording
+    actorRefs: [media.creator, media.editor]
+    capabilityRefs: [media.artifact.inspect]
+    preconditions: [source-version-visible, current-read-authority]
+    effect: bind-one-exact-source-version-to-the-current-workflow
+    reversible: true
+    finality: local-selection-only
+    failure: preserve-project-and-filter-context
+  - id: media.action.request-transcription
+    label: Transcribe this recording
+    actorRefs: [media.creator, media.editor]
+    capabilityRefs: [media.job.submit, media.speech.transcription.file]
+    preconditions: [source-available, explicit-language-intent, current-rights-and-consent, admitted-capability-and-policy]
+    confirmation: disclose-processing-location-and-material-cost-when-known
+    effect: submit-one-logical-transcription-request-for-the-exact-source-version
+    reversible: only-before-dispatch-when-the-owning-state-confirms-no-external-effect
+    finality: stable-job-reference-required; remote-outcome-may-be-unknown
+    failure: show-classified-state-and-safe-next-action; never-submit-duplicate-on-unknown
+  - id: media.action.inspect-source
+    label: Inspect this recording
+    actorRefs: [media.creator, media.editor]
+    capabilityRefs: [media.artifact.inspect]
+    preconditions: [current-read-authority]
+    effect: read-source-metadata-for-one-exact-artifact-version
+    reversible: true
+    finality: read-only
+    failure: explain-unavailable-metadata-without-rejecting-the-source-implicitly
+  - id: media.action.play-source
+    label: Play this recording
+    actorRefs: [media.creator, media.editor, media.reviewer]
+    capabilityRefs: [media.artifact.inspect]
+    preconditions: [source-version-readable]
+    effect: local-playback-of-the-exact-source-version
+    reversible: true
+    finality: local-only
+    failure: keep-transcript-accessible-when-playback-is-unavailable
+  - id: media.action.seek-source
+    label: Move to a point in the recording
+    actorRefs: [media.creator, media.editor, media.reviewer]
+    capabilityRefs: [media.artifact.inspect]
+    preconditions: [source-version-readable, source-clock-known]
+    effect: change-playback-position-without-changing-the-source
+    reversible: true
+    finality: local-only
+    failure: preserve-current-selection-and-report-unavailable-range
+  - id: media.action.review-transcript
+    label: Review recognized text
+    actorRefs: [media.creator, media.editor, media.reviewer]
+    capabilityRefs: [media.artifact.inspect]
+    preconditions: [transcript-version-readable]
+    effect: open-the-source-linked-transcript-and-its-uncertainty
+    reversible: true
+    finality: read-only-unless-a-separate-review-decision-is-recorded
+    failure: keep-recognition-result-labelled-as-unverified
+  - id: media.action.inspect-job
+    label: Inspect this job
+    actorRefs: [media.creator, media.editor, media.operator]
+    capabilityRefs: [media.job.inspect]
+    preconditions: [stable-job-reference]
+    effect: read-current-job-and-attempt-evidence
+    reversible: true
+    finality: read-only
+    failure: keep-last-known-state-labelled-stale
+  - id: media.action.request-cancellation
+    label: Request to stop this job
+    actorRefs: [media.creator, media.editor, media.operator]
+    capabilityRefs: [media.job.cancel]
+    preconditions: [stable-job-reference, current-cancellation-authority]
+    confirmation: explain-that-a-request-is-not-a-confirmed-stop
+    effect: request-cancellation-for-the-existing-logical-job
+    reversible: false
+    finality: pending-until-authoritative-stop-or-racing-result-is-recorded
+    failure: keep-job-visible-as-running-or-unknown
+  - id: media.action.reconcile-job
+    label: Check an uncertain result
+    actorRefs: [media.creator, media.editor, media.operator]
+    capabilityRefs: [media.job.reconcile]
+    preconditions: [existing-job-is-outcome-unknown]
+    effect: collect-evidence-for-the-existing-job-identity-without-new-dispatch
+    reversible: true
+    finality: remains-unknown-until-evidence-classifies-outcome
+    failure: preserve-unknown-state-and-disable-resubmission
+  - id: media.action.correct-caption
+    label: Correct caption text
+    actorRefs: [media.creator, media.editor]
+    capabilityRefs: [media.artifact.derive]
+    preconditions: [source-version-readable, transcript-or-caption-draft-readable, current-edit-authority]
+    effect: append-a-caption-draft-derived-from-the-exact-parent-version
+    reversible: draft-changes-can-be-undone; source-and-committed-versions-are-immutable
+    finality: draft-save-status-is-explicit
+    failure: preserve-local-edit-and-surface-version-conflict
+  - id: media.action.align-caption-timing
+    label: Correct caption timing
+    actorRefs: [media.creator, media.editor]
+    capabilityRefs: [media.speech.transcription.forced-align, media.artifact.derive]
+    preconditions: [exact-source-clock-known, source-version-readable, current-edit-authority]
+    effect: bind-caption-segments-to-half-open-source-time-ranges
+    reversible: draft-changes-can-be-undone; source-and-committed-versions-are-immutable
+    finality: timing-requires-review-when-alignment-is-incomplete-or-estimated
+    failure: retain-original-times-and-mark-alignment-required
+  - id: media.action.save-caption-version
+    label: Save this caption version
+    actorRefs: [media.creator, media.editor]
+    capabilityRefs: [media.artifact.output.register, media.artifact.provenance.export]
+    preconditions: [caption-draft-valid, parent-source-current, current-commit-authority, rights-and-retention-rechecked]
+    confirmation: identify-the-new-immutable-version-and-any-review-requirement
+    effect: register-a-new-caption-artifact-version-with-parent-and-operation-provenance
+    reversible: false
+    finality: internal-version-registration-only; no-delivery-or-publication
+    failure: keep-draft-and-report-whether-registration-finality-is-known
+  - id: media.action.resolve-caption-conflict
+    label: Resolve this caption conflict
+    actorRefs: [media.creator, media.editor]
+    capabilityRefs: [media.artifact.derive]
+    preconditions: [local-caption-draft-and-newer-caption-version-exist, current-edit-authority]
+    effect: explicitly-keep-local-edits-on-the-new-parent-or-replace-them-with-the-newer-version
+    reversible: creates-a-new-draft; both-prior-versions-remain-immutable
+    finality: local-draft-resolution-only
+    failure: preserve-local-edits-and-both-competing-versions
+  - id: media.action.compare-caption-versions
+    label: Compare caption versions
+    actorRefs: [media.creator, media.editor, media.reviewer]
+    capabilityRefs: [media.artifact.inspect]
+    preconditions: [two-caption-versions-readable]
+    effect: show-text-timing-provenance-and-source-version-differences-without-changing-either-version
+    reversible: true
+    finality: read-only
+    failure: label-source-mismatch-or-incomplete-comparison-explicitly
+  - id: media.action.inspect-provenance
+    label: Inspect source and result history
+    actorRefs: [media.creator, media.editor, media.reviewer]
+    capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
+    preconditions: [current-read-authority]
+    effect: read-version-bound-source-and-processing-lineage
+    reversible: true
+    finality: read-only
+    failure: disclose-missing-provenance-fields

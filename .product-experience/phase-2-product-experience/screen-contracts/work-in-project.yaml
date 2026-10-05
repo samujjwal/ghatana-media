@@ -1,0 +1,77 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.work-in-project
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+- media.reviewer
+intentRef: media.intent.restore-project
+purpose: show the current project's exact identity, version context, and safe next action
+contextGoalNowNext:
+  context: One project is selected under a currently authorized workspace.
+  goal: Understand what is in the project and continue the requested work without losing project context.
+  now: Distinguish an empty project from one with media, derived outputs, pending work, or stale data.
+  next: Choose an admitted Media intent or return to the authorized project list.
+anatomy:
+- workspace-context
+- project-identity-and-version
+- source-and-output-summary
+- pending-work-summary
+- intent-launcher
+- recovery-and-navigation
+componentRefs:
+- media.component.project-context-summary
+- media.component.intent-launcher
+states:
+- empty-project
+- populated-project
+- pending-work
+- stale-project-version
+- identity-expired
+- access-denied
+- offline
+actions:
+- media.action.choose-intent
+validation: Never present a project revision as the bytes of its referenced artifacts; do not imply that project
+  presence authorizes access to every referenced artifact.
+recovery: Keep the exact project and revision context on refresh or re-authentication; require current authority
+  before exposing protected artifacts or consequential actions.
+responsive: use-typography-layout-and-responsive-variants; preserve-project-identity-and-current-work-state-before-secondary-panels
+accessibility: project-name-and-version-are-announced-together; ordered-next-actions; state-and-access-limits-have-text
+copyRefs:
+- media.copy.project.empty
+- media.copy.context.access-denied
+fixtureState: required-J-01-empty-and-populated-project-scenarios-are-not-yet-realized-in-Phase-3
+scenarioRefs:
+- media.scenario.project-created-empty
+- media.scenario.workspace-access-denied
+actionBindingState: bound-to-existing-P2-actions
+actionIntents: []
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+copyDisposition: canonical-copy-IDs-pending
+fixtureDisposition: synthetic-fixture-contract-not-authored
+journeyRefs:
+- J-01
+- J-20
+- J-23
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-01
+- phase-0:journey:J-20
+- phase-0:journey:J-23
+fixtureRefs: []
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

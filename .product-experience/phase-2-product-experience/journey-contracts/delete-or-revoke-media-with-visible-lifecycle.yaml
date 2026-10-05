@@ -1,0 +1,102 @@
+schemaVersion: media.journey-contract.v1
+productId: media
+journeyId: J-26
+phase0JourneyRef: J-26
+phase0Authority: .product-experience/phase-0-product-truth/journey-catalog.yaml
+title: Delete/revoke/retention/hold and visible lifecycle
+status: phase0-grounded-proposal; phase2-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
+scope: Phase 0 outcome and ordered view intents mapped to the Phase 2 screen registry; exact action/state transitions,
+  per-channel behavior, scenarios, wire bindings, and runtime commitments remain unresolved.
+outcomes:
+- media.goal.resolve-safely
+- media.goal.preserve-source
+- media.goal.review-trustworthy-output
+actors:
+- media.administrator
+- media.privacy-rights-reviewer
+- media.operator
+- media.creator
+- media.editor
+- media.reviewer
+channels:
+- media.channel.web
+- media.channel.http-api
+- media.channel.product-integration
+channelBindingState: Phase 0 proposed channels only; per-channel operation, state, transport, and accessibility
+  equivalence remain unbound.
+preconditions:
+- Identity, deletion/revocation authority, retention/hold state, and affected artifact/derivative scope are resolved.
+steps:
+- view: media.view.review-rights-and-consent
+  legacyViewRef: M-RIGHTS
+  screenContractRef: screen-contracts/review-rights-and-consent.yaml
+  viewIntent: Consent/license/likeness/processing restrictions and remediation
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs: []
+- view: media.view.inspect-media
+  legacyViewRef: M-ASSET
+  screenContractRef: screen-contracts/inspect-media.yaml
+  viewIntent: Playback/technical metadata, versions, rights and actions
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs:
+  - media.action.attach-source-asset
+  - media.action.inspect-artifact
+- view: media.view.review-activity
+  legacyViewRef: M-ACTIVITY
+  screenContractRef: screen-contracts/review-activity.yaml
+  viewIntent: Jobs/notifications requiring attention; not infrastructure dashboard
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs:
+  - media.action.inspect-job
+  - media.action.reconcile-job
+stepBindingRule: The ordered view path is sourced from Phase 0 and each legacy view maps to one registered intent-based
+  screen. Null actionRef and empty stateRefs are deliberate open bindings, not no-op actions or completed transitions.
+terminalSuccess: Product lifecycle reflects completion/partial/blocked status without claiming remote copies were
+  recalled.
+criticalNonhappyPaths:
+- id: phase0-critical-exception
+  condition: Retention hold, backup/cache/external copy, provider deletion uncertainty, or partial erasure.
+  responseIntent: Follow the Phase 0 recovery intent; exact per-condition state, copy, and action bindings remain
+    pending.
+recovery: Preserve required minimal audit, continue owner-authorized erasure, and show the remaining scope/finality
+  honestly.
+contextPreserved:
+- Keep affected versions/derivatives, authority refs, lifecycle state, and consumer/provider follow-up refs.
+channelEquivalents:
+- web
+- http-api
+- product-integration
+accessibilityIntentRef: media.a11y.baseline
+requiredScenarioBehaviors:
+  status: scenario-fixtures-and-owner-approved-expected-results-pending
+  successIntent: Product lifecycle reflects completion/partial/blocked status without claiming remote copies were
+    recalled.
+  criticalNonhappyIntent: Retention hold, backup/cache/external copy, provider deletion uncertainty, or partial
+    erasure.
+scenarioRefs: []
+unresolvedProductDecisions:
+- Bind each view transition to an owner-approved action, state, and finality contract; no action identifier or state
+  transition is inferred by this proposal.
+- Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed channel.
+- Author deterministic fixtures with owner-approved expected results for success, critical exceptions, recovery,
+  and preserved context.
+- Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner and independent
+  review before Phase 2 acceptance.
+intentRefs:
+- media.intent.restore-project
+- media.intent.manage-artifact-lifecycle
+- media.intent.review-rights-and-consent
+- media.intent.inspect-provenance
+conditionalHandoffRefs:
+- document-intelligence-scene-text
+handoffCondition: Only if affected derivatives were produced through an admitted Document Intelligence boundary
+  and its public deletion/retention contract applies.

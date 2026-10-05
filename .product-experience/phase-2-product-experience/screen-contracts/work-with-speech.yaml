@@ -1,0 +1,85 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.work-with-speech
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.understand
+purpose: Transcription/TTS/pronunciation/language/voice choices
+contextGoalNowNext:
+  context: The exact source version, language intent, rights/consent scope, transcript or synthesis job, and resulting
+    speech artifact.
+  goal: Understand, produce, or transform speech only within the admitted language and consent boundaries.
+  now: Show whether the task is recognition, synthesis, translation, or speech transformation; disclose source identity,
+    language support, consent state, and uncertainty.
+  next: Choose a source or admitted speech action, review a result, or stop when authority or support is unresolved.
+anatomy:
+- speech-task-choice
+- source-version
+- language-and-locale-disposition
+- consent-and-permitted-use
+- job-state
+- recognized-or-synthesized-content
+- provenance-and-limitations
+componentRefs:
+- media.component.source-picker
+- media.component.source-player
+- media.component.transcript-review
+- media.component.job-status-card
+- media.component.rights-retention-review
+states:
+- source-required
+- language-unsupported
+- consent-required
+- ready
+- running
+- partial
+- outcome-unknown
+- review-required
+actions:
+- media.action.choose-source
+- media.action.request-transcription
+- media.action.inspect-job
+- media.action.review-transcript
+actionBindingState: bound-to-existing-P2-actions
+actionIntents:
+- choose a source and language intent
+- request an admitted speech operation
+- inspect the resulting job
+- review recognized or synthesized content
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Do not infer locale or speaker identity from fixture settings; distinguish recognition from verified
+  text and synthesis from a real-person recording.
+recovery: Preserve source and job identity when consent changes; stop affected processing on revocation and retain
+  the explicit outcome.
+responsive: Keep source, language/consent disposition, and current job state before secondary speech settings.
+accessibility: Expose recognition uncertainty, language support, and consent state in text; retain transcript as
+  the equivalent content path.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-03
+- phase-0:journey:J-04
+- phase-0:journey:J-16
+journeyRefs:
+- J-03
+- J-04
+- J-16
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

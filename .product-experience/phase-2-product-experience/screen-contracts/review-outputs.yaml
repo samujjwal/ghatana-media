@@ -1,0 +1,78 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.review-outputs
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.deliver
+purpose: Master/renditions/version/approval status
+contextGoalNowNext:
+  context: An exact render job, output manifest, master and rendition identities, approval state, and provenance.
+  goal: Review the outputs and determine which versions are ready for inspection or approval.
+  now: Show job finality separately from each output’s integrity, quality, rights, and approval state.
+  next: Inspect an output version, request review, or reconcile an incomplete job.
+anatomy:
+- render-job-and-finality
+- output-manifest
+- master-and-rendition-list
+- integrity-and-quality-dispositions
+- approval-and-rights-state
+- provenance-links
+componentRefs:
+- media.component.job-status-card
+- media.component.artifact-browser
+- media.component.artifact-integrity-summary
+- media.component.quality-inspector
+- media.component.provenance-summary
+states:
+- job-running
+- job-partial
+- outputs-available
+- verification-pending
+- output-quarantined
+- approval-required
+- no-output
+- outcome-unknown
+actions:
+- media.action.inspect-job
+- media.action.inspect-artifact
+- media.action.inspect-provenance
+actionBindingState: bound-to-existing-P2-actions
+actionIntents:
+- inspect an exact output version
+- review output evidence
+- open an approval view
+- reconcile the render job
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Job completion and output availability are separate; each rendition has an immutable identity; unapproved
+  outputs are not presented as published.
+recovery: Preserve the manifest for partial jobs; reconcile unknown finality; show missing outputs without suggesting
+  blind retry.
+responsive: List outputs by rendition with state and safe action; keep job finality above the list.
+accessibility: Expose output names, version, verification and approval state in each row; announce job changes once.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-20
+- phase-0:journey:J-24
+journeyRefs:
+- J-20
+- J-24
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

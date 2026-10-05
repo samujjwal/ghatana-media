@@ -67,6 +67,11 @@ outcomes:
   successMeaning: The blocker, known/unknown outcome, preserved work, and safe next action are clear.
   failureConsequences: Blind replay, loss of completed work, hidden policy downgrade, or incorrect operational claims.
   actorRefs: [media.operator, media.administrator, media.worker]
+- id: media.goal.apply-permitted-settings
+  outcome: Apply authorized user preferences and workspace policies while preserving shared authority and access boundaries.
+  successMeaning: Effective scope, inheritance, policy owner, and effect on active work are visible before a change is saved.
+  failureConsequences: An unauthorized setting bypasses policy, or effective behavior changes without clear notice.
+  actorRefs: [media.creator, media.editor, media.administrator]
 jobs:
 - id: media.job.start-from-intent
   outcomeRefs: [media.goal.finished-asset]
@@ -200,6 +205,19 @@ intents:
   outcomeRefs: [media.goal.deliver-approved-output]
   actorRefs: [media.creator, media.reviewer]
   description: Prepare, export, or publish an authorized output to a declared destination.
+- id: media.intent.review-workspace-settings
+  outcomeRefs: [media.goal.apply-permitted-settings]
+  actorRefs: [media.creator, media.editor, media.administrator]
+  description: Review or change authorized user and workspace settings with their effective scope, owner, inheritance, and effects on active work.
+- id: media.intent.review-exact-version
+  outcomeRefs: [media.goal.review-trustworthy-output]
+  actorRefs: [media.reviewer, media.creator, media.privacy-rights-reviewer]
+  description: Review, comment on, approve, reject, or request changes for an immutable version within an explicit scope and assigned authority.
+  journeyRefs: [J-09, J-21]
+- id: media.intent.find-task-guidance
+  outcomeRefs: [media.goal.finished-asset, media.goal.resolve-safely, media.goal.integrate-repeatably]
+  actorRefs: [media.creator, media.editor, media.operator, media.developer-integrator]
+  description: Find task-specific Media guidance and safe next steps; preview and redact diagnostics before explicitly sharing them.
 - id: media.intent.restore-project
   outcomeRefs:
   - media.goal.preserve-source
@@ -252,7 +270,7 @@ intents:
     while preserving ordering and consent boundaries.
   journeyRefs:
   - J-29
-- id: media.intent.discover-profile
+- id: media.intent.choose-eligible-processing-option
   outcomeRefs:
   - media.goal.integrate-repeatably
   actorRefs:
@@ -260,22 +278,22 @@ intents:
   - media.editor
   - media.developer-integrator
   - media.operator
-  description: Discover and validate declared media profiles, their requirements, limitations, and compatible bindings without
-    implying runtime availability.
+  description: Choose an eligible processing option after reviewing its requirements, limitations, and compatible bindings;
+    the choice does not imply runtime availability.
   journeyRefs:
   - J-30
-- id: media.intent.inspect-capability
+- id: media.intent.check-processing-options
   outcomeRefs:
   - media.goal.integrate-repeatably
   - media.goal.resolve-safely
   actorRefs:
   - media.developer-integrator
   - media.operator
-  description: Inspect declared capabilities, provider diagnostics, and execution compatibility while distinguishing contract,
-    license, qualification, and runtime status.
+  description: Check available processing options and execution compatibility while distinguishing contract, license,
+    qualification, and runtime status.
   journeyRefs:
   - J-30
-- id: media.intent.inspect-readiness
+- id: media.intent.check-processing-readiness
   outcomeRefs:
   - media.goal.resolve-safely
   - media.goal.integrate-repeatably
@@ -283,12 +301,12 @@ intents:
   - media.operator
   - media.administrator
   - media.automation-client
-  description: Inspect scoped service or capability readiness and degradation using bounded, authorized diagnostics without
-    exposing unrelated tenant or content details.
+  description: Check scoped service readiness and degradation using bounded, authorized diagnostics without exposing unrelated
+    tenant or content details.
   journeyRefs:
   - J-27
   - J-30
-- id: media.intent.manage-rights-consent
+- id: media.intent.review-rights-and-consent
   outcomeRefs:
   - media.goal.review-trustworthy-output
   - media.goal.resolve-safely
@@ -296,8 +314,8 @@ intents:
   - media.privacy-rights-reviewer
   - media.reviewer
   - media.administrator
-  description: Review or update purpose-bound rights and consent evidence, including revocation and expiry, through the responsible
-    authority without treating user assertion as verification.
+  description: Review purpose-bound rights and consent evidence, including revocation and expiry, with the responsible authority;
+    do not treat user assertion as verification.
   journeyRefs:
   - J-21
   - J-26

@@ -1,0 +1,122 @@
+schemaVersion: media.experience-fixture-index.v1
+productId: media
+status: deterministic-synthetic-fixtures; local-browser-bound; Tools-host-binding-pending
+payloadAuthority: libs/media-experience-simulation/src/fixtures.ts
+contentPolicy: .product-experience/phase-0-product-truth/content-intent.yaml
+fixtures:
+  - scenarioId: media.scenario.first-use-empty
+    payloadId: first-use-empty
+    phase2Ref: media.scenario.first-use-empty
+    content: synthetic-authorized-workspace-with-no-projects; create-action-uses-fixture-authority-only
+  - scenarioId: media.scenario.identity-required
+    payloadId: identity-required
+    phase2Ref: media.scenario.identity-required
+    content: protected-workspace-and-project-data-hidden; return-destination-preserved; no-identity-provider-call
+  - scenarioId: media.scenario.workspace-access-denied
+    payloadId: workspace-access-denied
+    phase2Ref: media.scenario.workspace-access-denied
+    content: workspace-and-project-identifiers-hidden; project-create-authority-denied
+  - scenarioId: media.scenario.project-create-outcome-unknown
+    payloadId: project-create-outcome-unknown
+    phase2Ref: media.scenario.project-create-outcome-unknown
+    content: stable-request-identity-preserved; no-authoritative-lookup-or-blind-retry
+  - scenarioId: media.scenario.project-created-empty
+    payloadId: project-created-empty
+    phase2Ref: media.scenario.project-created-empty
+    content: synthetic-project-and-version-identities; no-source-or-processing-job
+  - scenarioId: media.scenario.intent-unavailable
+    payloadId: intent-unavailable
+    phase2Ref: media.scenario.intent-unavailable
+    content: created-empty-project-preserved; unavailable-intent-does-not-start-processing
+  - scenarioId: media.scenario.upload-interrupted
+    payloadId: upload-interrupted
+    phase2Ref: media.scenario.upload-interrupted
+    content: synthetic-upload-metadata; two-of-four-fixture-parts-acknowledged; no-file-bytes
+  - scenarioId: media.scenario.upload-checksum-mismatch
+    payloadId: upload-checksum-mismatch
+    phase2Ref: media.scenario.upload-checksum-mismatch
+    content: synthetic-integrity-mismatch; artifact-not-available; no-file-bytes
+  - scenarioId: media.scenario.upload-format-unsupported
+    payloadId: upload-format-unsupported
+    phase2Ref: media.scenario.upload-format-unsupported
+    content: synthetic-owner-declared-unsupported-outcome; does-not-define-supported-production-formats
+  - scenarioId: media.scenario.upload-quarantined
+    payloadId: upload-quarantined
+    phase2Ref: media.scenario.upload-quarantined
+    content: synthetic-review-required-outcome; artifact-not-available
+  - scenarioId: media.scenario.upload-verified-available
+    payloadId: upload-verified-available
+    phase2Ref: media.scenario.upload-verified-available
+    content: synthetic-verified-artifact-metadata; no-file-bytes
+  - scenarioId: media.scenario.upload-outcome-unknown
+    payloadId: upload-outcome-unknown
+    phase2Ref: media.scenario.upload-outcome-unknown
+    content: synthetic-unknown-finality; preserve-and-inspect-same-upload-id
+  - scenarioId: media.scenario.upload-permission-revoked
+    payloadId: upload-permission-revoked
+    phase2Ref: media.scenario.upload-permission-revoked
+    content: synthetic-access-revoked-outcome; protected-metadata-not-exposed
+  - scenarioId: media.scenario.artifact-verification-running
+    payloadId: artifact-verification-running
+    phase2Ref: media.scenario.artifact-verification-running
+    content: synthetic-owner-job-identity; related-upload-identity-remains-distinct; no-file-bytes
+  - scenarioId: media.scenario.artifact-verification-outcome-unknown
+    payloadId: artifact-verification-outcome-unknown
+    phase2Ref: media.scenario.artifact-verification-outcome-unknown
+    content: stable-synthetic-job-and-upload-identities; reconciliation-retains-unknown-without-owner-evidence
+  - scenarioId: media.scenario.artifact-verification-completed
+    payloadId: artifact-verification-completed
+    phase2Ref: media.scenario.artifact-verification-completed
+    content: synthetic-confirmed-job-evidence; no-inference-from-transfer-status
+  - scenarioId: media.scenario.source-available
+    payloadId: source-available
+    phase2Ref: media.scenario.source-available
+    content: synthetic-metadata-only
+  - scenarioId: media.scenario.source-quarantined
+    payloadId: source-quarantined
+    phase2Ref: media.scenario.source-quarantined
+    content: synthetic-metadata-only
+  - scenarioId: media.scenario.transcript-ready
+    payloadId: transcript-ready
+    phase2Ref: media.scenario.transcript-ready
+    content: synthetic-transcript; no-real-personal-data
+  - scenarioId: media.scenario.language-uncertain
+    payloadId: language-uncertain
+    phase2Ref: media.scenario.language-uncertain
+    content: synthetic-transcript; uncertainty-is-fixture-state
+  - scenarioId: media.scenario.alignment-required
+    payloadId: alignment-required
+    phase2Ref: media.scenario.alignment-required
+    content: synthetic-transcript; missing-time-is-explicit
+  - scenarioId: media.scenario.consent-revoked
+    payloadId: consent-revoked
+    phase2Ref: media.scenario.consent-revoked
+    content: synthetic-metadata-only
+  - scenarioId: media.scenario.job-outcome-unknown
+    payloadId: job-outcome-unknown
+    phase2Ref: media.scenario.job-outcome-unknown
+    content: synthetic-dispatch-evidence-only
+  - scenarioId: media.scenario.caption-corrected
+    payloadId: caption-corrected
+    phase2Ref: media.scenario.caption-corrected
+    content: synthetic-transcript; caption-text-is-user-edited
+  - scenarioId: media.scenario.job-running
+    payloadId: job-running
+    phase2Ref: media.scenario.job-running
+    content: synthetic-job-state-only
+  - scenarioId: media.scenario.job-reconciled
+    payloadId: job-reconciled
+    phase2Ref: media.scenario.job-reconciled
+    content: synthetic-reconciliation-evidence-only
+  - scenarioId: media.scenario.caption-version-comparison
+    payloadId: caption-version-comparison
+    phase2Ref: media.scenario.caption-version-comparison
+    content: synthetic-transcript; two-caption-versions-share-source-v1
+  - scenarioId: media.scenario.caption-source-mismatch
+    payloadId: caption-source-mismatch
+    phase2Ref: media.scenario.caption-source-mismatch
+    content: synthetic-transcript; compared-versions-have-different-source-versions
+  - scenarioId: media.scenario.caption-conflict
+    payloadId: caption-conflict
+    phase2Ref: media.scenario.caption-conflict
+    content: synthetic-transcript; competing-version-is-fixture-state

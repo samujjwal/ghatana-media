@@ -2718,6 +2718,7 @@ capabilities:
   unresolvedStateModelBindings: []
   journeyRefs:
   - J-01
+  - J-02
   - J-26
 - id: media.project.derived-asset.attach
   familyId: media.project
@@ -3385,7 +3386,8 @@ capabilities:
   operation: upload
   label: Upload artifact
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can upload artifact with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Persist acknowledged bytes for one authorized source under a stable upload identity, then expose verification
+    as a separate step before an artifact version is available.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Ingest, upload, resume, import, inspect, search/list, download, derive, register outputs, share/revoke,
@@ -3396,19 +3398,34 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id020
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id021
+  inputArtifactTypes:
+  - selected-local-source-or-admitted-source-reference
+  - authorized-workspace-and-optional-project-reference
+  - declared-content-metadata-and-purpose
+  - rights-retention-and-policy-references
   outputArtifactTypes:
-  - governed-artifact-reference-or-lifecycle-observation
+  - stable-uploadId-and-owner-acknowledged-transfer-state
+  - verification-job-reference-only-if-issued-by-owner-contract
+  - artifact-version-reference-only-after-owner-confirmed-registration
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The actor has current write authority for the target workspace and any selected project attachment.
+  - The source is readable and the declared media type and size are within an owner-approved admission contract; this
+    repository does not define the allowlist or numeric bounds.
+  - Required purpose, rights, retention, locality, and egress decisions are resolved before any bytes leave the selected
+    source boundary.
+  - The upload contract supplies a stable upload identity and an idempotency rule before transfer begins.
+  supportedParameters: 'Proposed typed request fields: source stream or admitted reference; workspaceId; optional
+    projectId; declared media type; declared byte length and digest when known; purpose and rights references; client
+    idempotency key. Exact field names, formats, allowlist, byte and part bounds, digest algorithms, session lifetime,
+    and defaults require the artifact-service owner contract; no parameter or format is currently support-approved.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - Only owner-acknowledged durable byte ranges are reported as received; browser-selected or locally-read bytes are
+    not upload progress.
+  - A client digest or declared media type is evidence supplied by the client, not verification.
+  - Upload identity, verification job identity, immutable artifact version, and project membership are distinct references
+    and states.
+  - A completed transfer does not make an artifact available; verification and quarantine policy decide artifact availability.
+  - A failed or unknown transfer retains the same upload identity for inspection and safe recovery.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -3435,8 +3452,9 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: Resume or reconcile against the same owner-issued uploadId and authoritative acknowledged
+    ranges. Never create a second upload after an unknown response without first inspecting that identity. Detaching
+    a browser observer does not cancel transfer; cancellation semantics require an owner-issued operation.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -3451,13 +3469,19 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-ARTIFACT
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes upload artifact.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests upload artifact.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The source, target authority, rights, and operation-specific media bounds are admitted.
+    when: The actor begins artifact upload.
+    then: The response returns a stable uploadId and reports only ranges acknowledged by the owner; it identifies
+      verification as pending or separately issued and does not claim an available artifact.
+  - given: The client disconnects after sending bytes but before receiving the acknowledgement.
+    when: The actor inspects or resumes the same uploadId.
+    then: The owner returns authoritative acknowledged ranges and the actor resends only unacknowledged data under
+      the same upload identity.
+  - given: The format, size, target authority, rights, or integrity disposition is unknown, denied, or outside owner
+      bounds.
+    when: The actor requests upload.
+    then: The transfer is blocked or quarantined under an explicit owner contract; no unsupported file is called uploaded
+      or usable.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -3473,11 +3497,12 @@ capabilities:
   - cli
   - api
   - embedded
-  channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
+  channelDispositionState: per-operation-channel-contract-proposed; exact-web-cli-api-embedded-bindings-and-owner-accessibility-review-pending
   explicitUnsupportedCases:
-  - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
-    license, locality, or profile.
-  - Any unsupported parameter value or combination; do not substitute silently.
+  - No implicit format allowlist, byte limit, chunk size, multipart protocol, digest algorithm, retry interval, or
+    session expiry is defined here.
+  - No claim that a browser check, filename, client digest, or transfer completion establishes format support, integrity,
+    rights, or artifact availability.
   supportDimensions:
     implementationState: UNKNOWN
     licenseAdmissionState: UNKNOWN
@@ -3561,13 +3586,14 @@ capabilities:
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
   journeyRefs:
-  - J-26
+  - J-02
 - id: media.artifact.upload.resume
   familyId: media.artifact
   operation: upload.resume
   label: Resume upload
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can resume upload with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Continue one existing authorized upload from owner-confirmed transfer state without changing its upload
+    identity or overstating progress.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Ingest, upload, resume, import, inspect, search/list, download, derive, register outputs, share/revoke,
@@ -3578,19 +3604,28 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id020
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id021
+  inputArtifactTypes:
+  - owner-issued-uploadId
+  - owner-issued-resume-authority-or-session-reference
+  - current-workspace-identity
   outputArtifactTypes:
-  - governed-artifact-reference-or-lifecycle-observation
+  - same-uploadId-and-authoritative-transfer-state
+  - newly-acknowledged-ranges-only
+  - verification-reference-only-if-issued-by-owner-contract
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The uploadId resolves to an existing non-final upload created in the authorized workspace.
+  - Current actor, tenant, workspace, rights, retention, and target-project authority are re-evaluated.
+  - The owner contract can return durable acknowledged ranges or an equivalent authoritative resume token; client
+    offsets are never authoritative.
+  supportedParameters: 'Proposed typed request fields: uploadId and an owner-issued resume token or session reference.
+    The caller does not choose a byte offset, target project, or replacement upload identity. Token format, expiry,
+    part size, and range semantics require the upload-service owner contract.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - Resume keeps the same uploadId and the original target/purpose unless the owner contract explicitly permits a
+    separately authorized change.
+  - Only data not present in owner-confirmed acknowledged ranges may be resent.
+  - A resumed upload remains distinct from its verification job and final artifact version.
+  - No new upload session is silently created when the old upload is expired, revoked, quarantined, or unknown.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -3617,8 +3652,9 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: Inspect the existing upload before resume. If the owner cannot resolve its state,
+    preserve the same identity and return an unknown outcome; do not restart with a new uploadId. A resume request
+    is not a cancellation request.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -3633,13 +3669,16 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-ARTIFACT
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes resume upload.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests resume upload.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The uploadId is current, resumable, authorized, and bound to the same target.
+    when: The actor resumes the upload.
+    then: The response retains the uploadId and reports acknowledged ranges before accepting more data; progress advances
+      only after the owner durably acknowledges new bytes.
+  - given: The supplied uploadId is unknown, final, expired, revoked, or belongs to another authority scope.
+    when: The actor requests resume.
+    then: The operation is rejected with a stable reason and safe recovery guidance; a new upload is not created implicitly.
+  - given: The actor lost the previous response.
+    when: The actor inspects and resumes the same uploadId.
+    then: The owner reconciles authoritative transfer state and avoids duplicate acknowledged ranges.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -3655,11 +3694,12 @@ capabilities:
   - cli
   - api
   - embedded
-  channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
+  channelDispositionState: per-operation-channel-contract-proposed; exact-web-cli-api-embedded-bindings-and-owner-accessibility-review-pending
   explicitUnsupportedCases:
-  - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
-    license, locality, or profile.
-  - Any unsupported parameter value or combination; do not substitute silently.
+  - Caller-supplied offsets, guessed upload identifiers, replacement of target identity, and blind restart after unknown
+    finality.
+  - Resume after owner-declared expiry, revocation, quarantine, or terminal rejection unless a separately admitted
+    operation authorizes recovery.
   supportDimensions:
     implementationState: UNKNOWN
     licenseAdmissionState: UNKNOWN
@@ -3743,13 +3783,15 @@ capabilities:
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
   journeyRefs:
-  - J-26
+  - J-02
+  - J-20
 - id: media.artifact.import
   familyId: media.artifact
   operation: import
   label: Import artifact
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can import artifact with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Resolve an admitted source reference or staged upload and create a governed Media artifact version only
+    after source authority and integrity requirements are satisfied.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Ingest, upload, resume, import, inspect, search/list, download, derive, register outputs, share/revoke,
@@ -3760,19 +3802,29 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id020
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id021
+  inputArtifactTypes:
+  - admitted-source-reference-or-staged-uploadId
+  - target-workspace-and-optional-project-reference
+  - purpose-rights-and-retention-references
   outputArtifactTypes:
-  - governed-artifact-reference-or-lifecycle-observation
+  - import-observation-and-source-resolution-evidence
+  - artifact-version-reference-only-after-owner-confirmed-registration
+  - verification-or-quarantine-state-when-issued
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The source reference is resolvable under current actor, tenant, workspace, and source-system authority.
+  - The source is permitted for the requested import purpose and locality; external fetch/egress behavior is explicitly
+    authorized.
+  - The target workspace and optional project are authorized; artifact integrity and retention rules are defined by
+    the owning service.
+  supportedParameters: 'Proposed typed request fields: one admitted sourceRef or existing uploadId; target workspaceId;
+    optional projectId; purpose/rights references; optional idempotency key. Source-reference grammar, external retrieval
+    rules, size bounds, and whether import copies or references bytes must be defined by the owning service.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - 'Import is not upload: an external source reference may resolve to bytes or an existing immutable artifact according
+    to the owner contract.'
+  - Resolution never bypasses source-system permission, policy, locality, or retention requirements.
+  - No artifact is reported available until verification and registration are confirmed.
+  - Existing source identity and resulting artifact version are recorded separately with provenance.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -3799,8 +3851,8 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: Reconcile an uncertain import by the same idempotency identity and source reference.
+    Do not refetch an external source or create a duplicate artifact after an unknown outcome without owner reconciliation.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -3815,13 +3867,13 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-ARTIFACT
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes import artifact.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests import artifact.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The source reference is resolvable and permitted for this target and purpose.
+    when: The actor requests import.
+    then: The result distinguishes source resolution, byte transfer if any, verification, and artifact-version registration,
+      and records source lineage.
+  - given: The source is denied, missing, expired, unsupported, or has unknown rights.
+    when: The actor requests import.
+    then: The operation blocks with a stable reason; no inaccessible source is fetched and no artifact is created.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -3837,11 +3889,11 @@ capabilities:
   - cli
   - api
   - embedded
-  channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
+  channelDispositionState: per-operation-channel-contract-proposed; exact-web-cli-api-embedded-bindings-and-owner-accessibility-review-pending
   explicitUnsupportedCases:
-  - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
-    license, locality, or profile.
-  - Any unsupported parameter value or combination; do not substitute silently.
+  - Importing from arbitrary URLs or untrusted remote sources without owner-defined allowlists, SSRF controls, locality,
+    and egress policy.
+  - Treating successful source resolution as integrity verification, project attachment, or rights clearance.
   supportDimensions:
     implementationState: UNKNOWN
     licenseAdmissionState: UNKNOWN
@@ -3925,13 +3977,15 @@ capabilities:
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
   journeyRefs:
-  - J-26
+  - J-02
+  - J-06
 - id: media.artifact.inspect
   familyId: media.artifact
   operation: inspect
   label: Inspect artifact
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can inspect artifact with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Return the authorized status and recorded metadata for one exact immutable artifact version without modifying
+    bytes, project membership, or rights.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Ingest, upload, resume, import, inspect, search/list, download, derive, register outputs, share/revoke,
@@ -3942,19 +3996,26 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id020
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id021
+  inputArtifactTypes:
+  - opaque-artifactId-and-immutable-version-reference
   outputArtifactTypes:
-  - governed-artifact-reference-or-lifecycle-observation
+  - authorized-artifact-version-summary
+  - integrity-and-lifecycle-disposition
+  - rights-retention-and-provenance-references-when-authorized
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The caller supplies an exact artifact identity/version or an owner-supported current-version selector.
+  - Read access is checked for this artifact independently from project membership and upload authority.
+  - Sensitive metadata and digests are disclosed only when the caller and policy allow them.
+  supportedParameters: 'Proposed typed input: one opaque artifactId plus immutable versionId. A current-version selector
+    is allowed only if the owner contract defines freshness semantics. Optional metadata expansion is separately authorized.
+    Inspection has no mutation parameters; exact identifiers, pagination, and field projection remain owner-contract
+    details.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - Inspection is read-only and bound to one artifact version; it does not select a replacement version.
+  - Unknown media metadata, digest, rights, or integrity remains unknown rather than inferred from a filename or project
+    link.
+  - Project membership, artifact availability, content integrity, and permitted use are distinct facts.
+  - Protected fields are omitted or redacted according to current authority.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -3981,8 +4042,8 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: A timed-out read may be repeated against the same exact artifact version; the response
+    includes observation time/freshness where the owner supplies it. Read retry does not mutate artifact lifecycle.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -3997,13 +4058,13 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-ARTIFACT
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes inspect artifact.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests inspect artifact.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The caller has read access to an exact available artifact version.
+    when: The actor inspects the version.
+    then: The result returns only authorized metadata and recorded integrity/lifecycle states with an observation
+      basis; bytes and project membership are unchanged.
+  - given: The identifier is stale, inaccessible, quarantined, or metadata is incomplete.
+    when: The actor inspects it.
+    then: The exact state and safe next action are returned without substituting another version or implying availability.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -4017,13 +4078,14 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
-  channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
+  - http-api
+  - grpc-api
+  - sdk
+  - product-integration
+  channelDispositionState: per-operation-channel-contract-proposed; exact-web-cli-api-embedded-bindings-and-owner-accessibility-review-pending
   explicitUnsupportedCases:
-  - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
-    license, locality, or profile.
-  - Any unsupported parameter value or combination; do not substitute silently.
+  - Inspecting an artifact by unscoped filename alone; returning unauthorized digests or protected metadata; using
+    project membership as artifact read authority.
   supportDimensions:
     implementationState: UNKNOWN
     licenseAdmissionState: UNKNOWN
@@ -4107,7 +4169,9 @@ capabilities:
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
   journeyRefs:
-  - J-26
+  - J-02
+  - J-21
+  - J-22
 - id: media.artifact.search
   familyId: media.artifact
   operation: search
@@ -4745,8 +4809,10 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
+  - http-api
+  - grpc-api
+  - sdk
+  - product-integration
   channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
   explicitUnsupportedCases:
   - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
@@ -4835,6 +4901,7 @@ capabilities:
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
   journeyRefs:
+  - J-03
   - J-26
 - id: media.artifact.output.register
   familyId: media.artifact
@@ -4927,8 +4994,10 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
+  - http-api
+  - grpc-api
+  - sdk
+  - product-integration
   channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
   explicitUnsupportedCases:
   - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
@@ -5017,6 +5086,7 @@ capabilities:
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
   journeyRefs:
+  - J-03
   - J-26
 - id: media.artifact.share
   familyId: media.artifact
@@ -5837,8 +5907,10 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
+  - http-api
+  - grpc-api
+  - sdk
+  - product-integration
   channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
   explicitUnsupportedCases:
   - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
@@ -5927,6 +5999,7 @@ capabilities:
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
   journeyRefs:
+  - J-03
   - J-26
 - id: media.artifact.source-reference.resolve
   familyId: media.artifact
@@ -6115,7 +6188,8 @@ capabilities:
   operation: submit
   label: Submit job
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can submit job with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Durably accept one authorized operation request under its semantic idempotency identity and return the
+    Media job reference.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Submit, inspect, list, watch, cancel, retry, reconcile, inspect outputs and bounded execution history
@@ -6128,21 +6202,27 @@ capabilities:
   - operator
   - automation-agent
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: &id039
-  - admitted-operation-request
-  - idempotency-context-when-applicable
+  inputArtifactTypes:
+  - typed-operation-request
+  - client-idempotency-key-and-canonical-request-fingerprint
   outputArtifactTypes:
-  - job-observation-or-terminal-result
+  - accepted-media-job-reference-and-admission-observation
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - Verified tenant, principal, workspace, and delegated authority for the requested operation.
+  - The request supplies a stable operation ID and version, typed inputs, project or context references, requested
+    profile, permitted fallback, bounded deadline and budget, and a client idempotency key.
+  - Rights, privacy, policy, capability, license, resource, and deployment admission are evaluated before any external
+    effect.
+  supportedParameters: 'Proposed request fields: operation ID and version; typed artifact/version references or
+    typed text/scene input; parameter object; project/context references; requested profiles; permitted fallback;
+    bounded deadline/budget; client idempotency key. The owning public contract must define exact field names, finite
+    bounds, defaults, key-retention behavior, and response schema before implementation or admission.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - Persist accepted job and command identity before external dispatch.
+  - The same key and canonical request fingerprint return the same accepted job; reusing the key for different semantic
+    content returns a conflict.
+  - Acceptance is not completion; no engine, model, profile, fallback, or finality is inferred.
+  - Unknown or unsupported inputs fail closed unless an explicitly admitted fallback applies.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -6168,8 +6248,9 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: Admission and dispatch use one stable semantic job identity. An uncertain submission
+    is observed or reconciled against that identity before any replay. A client detaching from observation does
+    not cancel the accepted job.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -6184,13 +6265,17 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-JOB
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes submit job.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests submit job.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The request is authorized and every requested profile, right, budget, and capability dimension is admitted.
+    when: The caller submits the typed operation with an idempotency key.
+    then: The response identifies the durable Media job, canonical status, operation/version, request fingerprint,
+      observation reference, and replay disposition; it does not claim completion.
+  - given: The same idempotency key is received with a different canonical request fingerprint.
+    when: Admission evaluates the submission.
+    then: The request conflicts and no second semantic job or external effect is created.
+  - given: A required right, capability, license, profile, or bound is unknown, denied, or unsupported.
+    when: Admission evaluates the submission.
+    then: The request is blocked or uses only an explicitly permitted fallback; availability and finality are not
+      fabricated.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -6204,8 +6289,9 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
+  - http-api
+  - grpc-api
+  - sdk
   channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
   explicitUnsupportedCases:
   - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
@@ -6281,6 +6367,7 @@ capabilities:
       - CANCELLED
   unresolvedStateModelBindings: []
   journeyRefs:
+  - J-03
   - J-20
   - J-27
 - id: media.job.inspect
@@ -6288,7 +6375,8 @@ capabilities:
   operation: inspect
   label: Inspect job
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can inspect job with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Return a tenant-authorized snapshot of one Media job with its current status dimensions and safe next
+    actions.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Submit, inspect, list, watch, cancel, retry, reconcile, inspect outputs and bounded execution history
@@ -6298,19 +6386,24 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id038
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id039
+  inputArtifactTypes:
+  - tenant-scoped-media-job-reference
+  - job-read-authorization
   outputArtifactTypes:
-  - job-observation-or-terminal-result
+  - media-job-status-snapshot
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The caller has verified identity and read authority for the referenced tenant-scoped job.
+  - The job reference resolves within the caller’s authorized workspace; unauthorized and nonexistent references
+    do not disclose cross-tenant existence.
+  supportedParameters: 'Proposed input: one opaque Media job reference. The owning contract must define the exact
+    reference format and which status, progress, attempt, finality, provenance, and safe-next-action fields are
+    returned. Inspection has no mutation parameters.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - Inspection is read-only and tenant-scoped.
+  - Job status, stage progress, attempt status, remote-outcome certainty, cancellation outcome, quality disposition,
+    review state, and delivery state remain distinct.
+  - Missing progress or outcome evidence is reported as unknown; no percentage or terminal state is inferred.
+  - Sensitive request content, credentials, provider bodies, and unrestricted identifiers are excluded.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -6336,8 +6429,9 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: Inspection observes the existing semantic job and never creates an attempt, retries
+    an effect, or changes cancellation state. If the observed outcome is uncertain, it must retain that uncertainty
+    and direct the caller to reconcile the same job identity.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -6352,13 +6446,14 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-JOB
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes inspect job.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests inspect job.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The caller has read authority for the job.
+    when: The caller inspects its job reference.
+    then: The result returns the current status dimensions, known/unknown progress, finality evidence, provenance
+      references, and safe next actions without mutating the job.
+  - given: The job outcome is uncertain or reconciliation is active.
+    when: The caller inspects the job.
+    then: The result preserves uncertainty and does not report completion, failure, or cancellation without authoritative
+      evidence.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -6372,8 +6467,9 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
+  - http-api
+  - grpc-api
+  - sdk
   channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
   explicitUnsupportedCases:
   - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
@@ -6449,6 +6545,7 @@ capabilities:
       - CANCELLED
   unresolvedStateModelBindings: []
   journeyRefs:
+  - J-03
   - J-20
   - J-27
 - id: media.job.list
@@ -6456,7 +6553,7 @@ capabilities:
   operation: list
   label: List jobs
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can list jobs with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Return a bounded, authorized page of Media jobs matching the caller’s declared filters.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Submit, inspect, list, watch, cancel, retry, reconcile, inspect outputs and bounded execution history
@@ -6466,19 +6563,20 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id038
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id039
+  inputArtifactTypes:
+  - tenant-scoped-job-query
   outputArtifactTypes:
-  - job-observation-or-terminal-result
+  - bounded-media-job-page-and-opaque-continuation
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The caller has verified identity and list authority for the requested tenant/workspace scope.
+  - Filters and sort fields are restricted to the admitted public query contract; page size and query cost are bounded.
+  supportedParameters: 'Proposed query fields: tenant/workspace scope derived from verified authority; admitted
+    status/operation/time filters; bounded page size; stable sort order; opaque continuation token. Exact filters,
+    bounds, sorting, and cursor lifetime require the owning public contract.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - A continuation token is opaque, scope-bound, and cannot widen tenant/workspace authority.
+  - Results do not expose raw request bodies, credentials, provider payloads, or unauthorized job existence.
+  - A page is a query result, not a snapshot guarantee unless the public contract explicitly provides one.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -6504,8 +6602,8 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: Listing is read-only and does not dispatch, retry, cancel, or reconcile listed
+    jobs. Each returned job retains its own identity and finality state.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -6520,13 +6618,13 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-JOB
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes list jobs.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests list jobs.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The caller has list authority and supplies admitted bounded filters.
+    when: The caller lists jobs.
+    then: The response contains only authorized job summaries and an opaque continuation token when more results
+      remain.
+  - given: The filters, page size, cursor, or scope exceed the public query contract.
+    when: The request is evaluated.
+    then: It is rejected with a safe validation or authorization outcome; the query is not silently widened.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -6624,7 +6722,7 @@ capabilities:
   operation: watch
   label: Watch job
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can watch job with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Observe one authorized Media job through bounded polling or an admitted resumable event stream.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Submit, inspect, list, watch, cancel, retry, reconcile, inspect outputs and bounded execution history
@@ -6634,19 +6732,22 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id038
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id039
+  inputArtifactTypes:
+  - tenant-scoped-media-job-reference
+  - optional-resume-cursor
   outputArtifactTypes:
-  - job-observation-or-terminal-result
+  - bounded-job-observation-sequence-and-terminal-observation-when-known
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The caller has verified read authority for the referenced job.
+  - The observation mode, wait duration, polling interval, or event continuation is bounded by the owning contract.
+  supportedParameters: 'Proposed observation fields: opaque job reference; bounded polling/wait controls or event-stream
+    continuation cursor. Exact units, bounds, event IDs, retention, and resume behavior require the owning contract;
+    no observation parameter grants mutation authority.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - Observation events use monotonic continuation identifiers when the event stream is admitted.
+  - Disconnect, timeout, Ctrl-C, or closing the view ends local observation only; it does not cancel or alter the
+    server job.
+  - Unknown or missing progress remains unknown and event gaps are surfaced rather than converted to success.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -6672,8 +6773,9 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: A watcher is an observer. Detaching or losing its connection has no job or attempt
+    state effect. Cancellation requires a separately authorized cancel operation; uncertain outcomes require reconciliation
+    against the same job identity.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -6688,13 +6790,13 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-JOB
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes watch job.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests watch job.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The caller is authorized to observe the job and the requested mode is admitted.
+    when: The caller watches the job.
+    then: The observer receives bounded status/progress observations and resumes only from a valid continuation
+      cursor when supported.
+  - given: The user stops watching, disconnects, times out, or presses Ctrl-C.
+    when: The local observation ends.
+    then: Only the observer stops; job and attempt state remain unchanged.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -6792,7 +6894,8 @@ capabilities:
   operation: cancel
   label: Cancel job
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can cancel job with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Request cancellation of an authorized Media job and report whether the request, stop, or final cancellation
+    is confirmed.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Submit, inspect, list, watch, cancel, retry, reconcile, inspect outputs and bounded execution history
@@ -6802,19 +6905,24 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id038
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id039
+  inputArtifactTypes:
+  - tenant-scoped-media-job-reference
+  - authorized-cancellation-command-identity
   outputArtifactTypes:
-  - job-observation-or-terminal-result
+  - cancellation-request-observation-with-job-and-attempt-references
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The caller has verified identity and explicit cancellation authority for this job and operation.
+  - The job is re-read under current authority and policy before the cancellation effect.
+  - The cancellation command identity is durable and replay behavior is defined by the owner contract.
+  supportedParameters: 'Proposed fields: opaque job reference; explicit cancellation-command identity; optional
+    bounded reason code only if defined by the owning contract. The response must distinguish accepted/requested,
+    confirmed, too-late, and unknown outcomes; exact enums and retry rules remain contract-owned.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - A cancellation request is not cancellation confirmation.
+  - The job remains nonterminal or finality-unknown until authoritative evidence confirms that every effect able
+    to mutate the job has stopped.
+  - A racing success or partial result is reconciled and preserved; immutable completed outputs are not erased.
+  - Canceling a local watcher is not a remote cancellation request.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -6840,8 +6948,8 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: Persist and deduplicate the explicit cancellation command. Keep the job in cancellation-requested/finality-unknown
+    until owner evidence confirms stop; reconcile races with success or provider ambiguity before reporting CANCELLED.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -6856,13 +6964,13 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-JOB
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes cancel job.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests cancel job.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The caller has cancellation authority and the job is still cancellable.
+    when: The caller submits an explicit cancel command.
+    then: The system records the request and reports pending cancellation until authoritative stop evidence is available.
+  - given: A provider outcome is ambiguous or success races with cancellation.
+    when: Cancellation is processed.
+    then: The job remains uncertain or records the evidenced successful result; it is not reported CANCELLED without
+      proof that no effect can continue.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -6876,8 +6984,9 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
+  - http-api
+  - grpc-api
+  - sdk
   channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
   explicitUnsupportedCases:
   - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
@@ -6953,6 +7062,7 @@ capabilities:
       - CANCELLED
   unresolvedStateModelBindings: []
   journeyRefs:
+  - J-03
   - J-20
   - J-27
 - id: media.job.retry
@@ -6960,7 +7070,8 @@ capabilities:
   operation: retry
   label: Retry job
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can retry job with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Start one newly authorized, bounded attempt within the same logical Media job when retry policy permits
+    it.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Submit, inspect, list, watch, cancel, retry, reconcile, inspect outputs and bounded execution history
@@ -6970,19 +7081,27 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id038
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id039
+  inputArtifactTypes:
+  - tenant-scoped-media-job-reference
+  - classified-retryable-attempt-reference
+  - explicit-retry-command-identity
   outputArtifactTypes:
-  - job-observation-or-terminal-result
+  - same-media-job-reference-and-new-attempt-observation
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The caller has verified retry authority for the job.
+  - The job is RETRY_PENDING or another owner-defined retryable state with a classified prior attempt and remaining
+    retry budget.
+  - Rights, consent, policy, capability, license, cost, resource, and deployment eligibility are rechecked at the
+    effect boundary.
+  - The prior outcome is not ambiguous; OUTCOME_UNKNOWN must be reconciled before retry.
+  supportedParameters: 'Proposed fields: opaque job reference; classified prior attempt reference; explicit retry-command
+    identity; bounded retry reason code if defined by the owner contract. Retry budget, eligibility, and delay are
+    policy-owned, not caller-selected defaults.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - A retry creates a new attempt under the same semantic job; it does not create a second logical request.
+  - Do not retry an uncertain external effect or reuse an attempt identity.
+  - Recheck authority and budget immediately before dispatch; record the new attempt and fence before effects.
+  - No implicit retry follows a timeout, connection loss, or watcher detach.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -7008,8 +7127,9 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: Retry is allowed only after the prior attempt is classified as retryable and
+    remaining policy authority is confirmed. Reconcile OUTCOME_UNKNOWN first; create one new fenced attempt under
+    the existing job identity.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -7024,13 +7144,12 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-JOB
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes retry job.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests retry job.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The job is retryable, the previous attempt is classified, and all current policy/budget checks pass.
+    when: The caller requests an explicit retry.
+    then: A new attempt is recorded under the same logical job reference with its own attempt identity and provenance.
+  - given: The previous attempt may have dispatched an external effect or retry authority is absent.
+    when: The caller requests a retry.
+    then: No new attempt is dispatched; reconcile the same job first or return an explicit ineligible outcome.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -7128,7 +7247,7 @@ capabilities:
   operation: reconcile
   label: Reconcile job
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can reconcile job with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Resolve the certainty and safe next action for one existing Media job from stable owner evidence.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Submit, inspect, list, watch, cancel, retry, reconcile, inspect outputs and bounded execution history
@@ -7138,19 +7257,24 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id038
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id039
+  inputArtifactTypes:
+  - tenant-scoped-media-job-reference
+  - stable-attempt-or-provider-operation-reference
+  - authorized-reconciliation-evidence-reference
   outputArtifactTypes:
-  - job-observation-or-terminal-result
+  - classified-job-and-attempt-outcome-with-evidence-references
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The caller has verified reconciliation authority for the job and relevant provider/store evidence.
+  - The reconciliation targets the existing semantic job and stable attempt/provider operation identity.
+  - Evidence is obtained from an owning provider, persistence, or operator contract and is safe to retain.
+  supportedParameters: 'Proposed fields: opaque job reference; attempt or stable provider-operation reference; bounded
+    evidence/continuation reference. Exact evidence types and redaction rules are owner-defined; raw provider bodies
+    and credentials are never accepted as unrestricted input.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - Reconciliation observes and classifies an existing effect; it is not a new submission.
+  - Unknown stays visible until sufficient authoritative evidence exists.
+  - Do not infer non-execution from timeout, process loss, lease expiry, or connection loss.
+  - Do not replay or create a new attempt as a side effect of reconciliation.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -7176,8 +7300,9 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: Resolve the stable job/attempt identity against authoritative evidence, append
+    the evidence and classification, then expose only a safe next action. If evidence remains insufficient, keep
+    OUTCOME_UNKNOWN and dispatch blocked.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -7192,13 +7317,13 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-JOB
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes reconcile job.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests reconcile job.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: An existing job has an uncertain external outcome and stable owner evidence is available.
+    when: An authorized caller reconciles that job.
+    then: The system records evidence and classifies the outcome or preserves uncertainty, without creating a second
+      semantic job or dispatch.
+  - given: Evidence is absent, conflicting, or insufficient to prove finality.
+    when: Reconciliation completes.
+    then: The result remains unknown, identifies the evidence gap, and blocks blind retry.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -7212,8 +7337,9 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
+  - http-api
+  - grpc-api
+  - sdk
   channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
   explicitUnsupportedCases:
   - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
@@ -7289,6 +7415,7 @@ capabilities:
       - CANCELLED
   unresolvedStateModelBindings: []
   journeyRefs:
+  - J-03
   - J-20
   - J-27
 - id: media.job.outputs.inspect
@@ -7296,7 +7423,7 @@ capabilities:
   operation: outputs.inspect
   label: Inspect job outputs
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can inspect job outputs with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Return authorized output references and per-output finality for one Media job.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Submit, inspect, list, watch, cancel, retry, reconcile, inspect outputs and bounded execution history
@@ -7306,19 +7433,23 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id038
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id039
+  inputArtifactTypes:
+  - tenant-scoped-media-job-reference
+  - optional-output-continuation
   outputArtifactTypes:
-  - job-observation-or-terminal-result
+  - bounded-job-output-reference-page-with-per-output-disposition
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The caller has verified read authority for the job and each referenced output.
+  - Output registration and access are evaluated under current rights, retention, and delivery policy.
+  supportedParameters: 'Proposed fields: opaque job reference; bounded output page size and optional opaque continuation
+    cursor if output cardinality requires pagination. Exact bounds and access-reference lifetime require the owning
+    contract.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - Return output references and metadata only when the caller is authorized; bytes are obtained through governed
+    artifact access.
+  - Each output reports its own registration, verification, quality, and finality disposition; a partial job is
+    never presented as wholly complete.
+  - Completed output versions are immutable; corrections append a revision or reconciliation record.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -7344,8 +7475,8 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: Output inspection is read-only. If output registration or the job outcome is
+    uncertain, retain that uncertainty and reconcile the same job/attempt before presenting terminal output finality.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -7360,13 +7491,13 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-JOB
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes inspect job outputs.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests inspect job outputs.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The caller is authorized and outputs are registered for the job.
+    when: The caller inspects job outputs.
+    then: The response returns authorized immutable output references with per-output verification and finality
+      dispositions.
+  - given: The job is partially successful or an output is not yet verified.
+    when: The caller inspects outputs.
+    then: Each output’s state is explicit; partial or pending outputs do not imply whole-job completion.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -7464,7 +7595,7 @@ capabilities:
   operation: history.inspect
   label: Inspect bounded execution history
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can inspect bounded execution history with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Return a bounded, redacted execution history for one authorized Media job.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Submit, inspect, list, watch, cancel, retry, reconcile, inspect outputs and bounded execution history
@@ -7474,19 +7605,22 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id038
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id039
+  inputArtifactTypes:
+  - tenant-scoped-media-job-reference
+  - optional-history-continuation
   outputArtifactTypes:
-  - job-observation-or-terminal-result
+  - bounded-redacted-job-command-attempt-and-transition-history
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The caller has verified audit/read authority for the job and requested history scope.
+  - History range, page size, and continuation are bounded by retention and access policy.
+  supportedParameters: 'Proposed fields: opaque job reference; bounded time or event range; page size; opaque continuation
+    token. Exact limits, retention, ordering, and event schema require the owning audit contract.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - History preserves command, attempt, transition, effect-intent, evidence, and finality references needed for
+    recovery.
+  - Redact credentials, raw media, prompts, unrestricted tenant/user identifiers, and provider bodies.
+  - History inspection is read-only and does not grant authority to replay, retry, cancel, or change a recorded
+    result.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -7512,8 +7646,9 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: History is an immutable/read-only audit projection. Reconciliation appends new
+    evidence and state transitions; it does not rewrite prior events. Never infer finality from a missing history
+    event.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -7528,13 +7663,13 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-JOB
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes inspect bounded execution history.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests inspect bounded execution history.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The caller has audit/read authority and requests a bounded history range.
+    when: The caller inspects job history.
+    then: The response returns an ordered, redacted page of recorded job/attempt transitions and an opaque continuation
+      when needed.
+  - given: The caller lacks history authority or requests an unbounded range.
+    when: The request is evaluated.
+    then: The system rejects or bounds the request without exposing protected event content.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -10322,9 +10457,9 @@ capabilities:
 - id: media.stream.caption.live
   familyId: media.stream
   operation: caption.live
-  label: Live captioning profile
+  label: Enable live captions
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can live captioning profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: A caller can create live captions for an authorized audio/video stream with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Audio/video/multimodal session open/connect/frame/ack/close, reconnect, ordering, leases, bounded buffers
@@ -10391,10 +10526,10 @@ capabilities:
   - MEDIA-REQ-CAP-STREAM
   acceptanceCases:
   - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes live captioning profile.
+    when: The actor enables live captions.
     then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
   - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests live captioning profile.
+    when: The actor requests live captions.
     then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
       is fabricated.
   qualificationDimensions:
@@ -10490,7 +10625,7 @@ capabilities:
 - id: media.profile.discover
   familyId: media.profile
   operation: discover
-  label: Discover profiles
+  label: Choose an eligible processing option
   definitionState: IN_SCOPE_DRAFT
   outcome: A caller can discover profiles with explicit preconditions, effect, provenance, and recovery semantics.
   sourceScope:
@@ -10602,7 +10737,7 @@ capabilities:
   unresolvedActorRoleLabels: []
   pendingActorRoleAppointments: []
   intentRefs:
-  - media.intent.discover-profile
+  - media.intent.choose-eligible-processing-option
   outcomeRefs:
   - media.goal.integrate-repeatably
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
@@ -10620,7 +10755,8 @@ capabilities:
   operation: validate
   label: Validate profile
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can validate profile with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Evaluate one named output profile against an explicit outcome and input constraints, returning per-dimension
+    compatibility and blockers without executing delivery.
   sourceScope:
     masterPlanSection: §6.2
     sourcePhrase: Profile discovery/validation
@@ -10631,19 +10767,28 @@ capabilities:
   - §9.5
   actorRoles: *id068
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id069
+  inputArtifactTypes:
+  - canonical-profileId-and-profileVersion
+  - intended-output-and-destination-constraints
+  - authorized-input-descriptors
   outputArtifactTypes:
-  - profile-description-or-validation-result
+  - versioned-profile-validation-result
+  - per-dimension-compatible-incompatible-or-unknown-dispositions
+  - required-change-and-limitation-list
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The profile is discoverable under the current actor and workspace authority and has an owner-issued version.
+  - Requested output dimensions and intended destination are explicit enough to compare against the profile contract.
+  - Only currently published profile attributes are used; live provider readiness is a separate operation.
+  supportedParameters: 'Proposed typed request fields: profileId/profileVersion; intended output kind and destination
+    category; exact input media descriptors; requested format/rendition constraints; optional permitted override references.
+    The owner must define each dimension, units, finite ranges, default resolution, compatibility rules, and freshness;
+    validation has no export or delivery parameters.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - Validation is read-only and does not choose a different profile, apply fallback, encode, publish, or promise runtime
+    availability.
+  - Each dimension returns compatible, incompatible, or unknown with evidence and observation freshness.
+  - An override is accepted only when explicitly named and authorized; a profile name is not a qualification certificate.
+  - Live readiness, licensed execution, and consumer playback compatibility remain separate checks.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -10667,8 +10812,8 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: A validation result is an observation bound to profile version and input constraints.
+    Revalidate after either changes; stale results cannot authorize render or delivery.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -10683,13 +10828,14 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-PROFILE
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes validate profile.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests validate profile.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The exact profile version, requested output, destination class, and input constraints are known.
+    when: The actor validates the profile.
+    then: The response returns per-dimension compatibility with reasons and evidence freshness and performs no media
+      execution.
+  - given: The profile or one required dimension is missing, stale, unsupported, or unqualified.
+    when: The actor validates it.
+    then: The result reports unknown/incompatible dimensions and required evidence; no alternate profile is silently
+      selected.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -10705,11 +10851,10 @@ capabilities:
   - cli
   - api
   - embedded
-  channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
+  channelDispositionState: per-operation-channel-contract-proposed; exact-web-cli-api-embedded-bindings-and-owner-accessibility-review-pending
   explicitUnsupportedCases:
-  - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
-    license, locality, or profile.
-  - Any unsupported parameter value or combination; do not substitute silently.
+  - Automatic profile fallback, executable availability claims, encode/deliver side effects, and unsupported dimensions
+    inferred from profile names.
   supportDimensions:
     implementationState: UNKNOWN
     licenseAdmissionState: UNKNOWN
@@ -10726,7 +10871,7 @@ capabilities:
   unresolvedActorRoleLabels: []
   pendingActorRoleAppointments: []
   intentRefs:
-  - media.intent.discover-profile
+  - media.intent.choose-eligible-processing-option
   outcomeRefs:
   - media.goal.integrate-repeatably
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
@@ -10739,6 +10884,7 @@ capabilities:
   unresolvedStateModelBindings: []
   journeyRefs:
   - J-30
+  - J-22
 - id: media.capability.discover
   familyId: media.capability
   operation: discover
@@ -10853,7 +10999,7 @@ capabilities:
   unresolvedActorRoleLabels: []
   pendingActorRoleAppointments: []
   intentRefs:
-  - media.intent.inspect-capability
+  - media.intent.check-processing-options
   outcomeRefs:
   - media.goal.integrate-repeatably
   - media.goal.resolve-safely
@@ -10977,7 +11123,7 @@ capabilities:
   unresolvedActorRoleLabels: []
   pendingActorRoleAppointments: []
   intentRefs:
-  - media.intent.inspect-capability
+  - media.intent.check-processing-options
   outcomeRefs:
   - media.goal.integrate-repeatably
   - media.goal.resolve-safely
@@ -11101,7 +11247,7 @@ capabilities:
   unresolvedActorRoleLabels: []
   pendingActorRoleAppointments: []
   intentRefs:
-  - media.intent.inspect-capability
+  - media.intent.check-processing-options
   outcomeRefs:
   - media.goal.integrate-repeatably
   - media.goal.resolve-safely
@@ -11227,7 +11373,7 @@ capabilities:
   unresolvedActorRoleLabels: []
   pendingActorRoleAppointments: []
   intentRefs:
-  - media.intent.inspect-readiness
+  - media.intent.check-processing-readiness
   outcomeRefs:
   - media.goal.integrate-repeatably
   - media.goal.resolve-safely
@@ -11362,7 +11508,7 @@ capabilities:
   pendingActorRoleAppointments: []
   intentRefs:
   - media.intent.deliver
-  - media.intent.manage-rights-consent
+  - media.intent.review-rights-and-consent
   outcomeRefs:
   - media.goal.deliver-approved-output
   - media.goal.resolve-safely
@@ -11513,7 +11659,7 @@ capabilities:
   pendingActorRoleAppointments: []
   intentRefs:
   - media.intent.deliver
-  - media.intent.manage-rights-consent
+  - media.intent.review-rights-and-consent
   outcomeRefs:
   - media.goal.deliver-approved-output
   - media.goal.resolve-safely
@@ -11664,7 +11810,7 @@ capabilities:
   pendingActorRoleAppointments: []
   intentRefs:
   - media.intent.deliver
-  - media.intent.manage-rights-consent
+  - media.intent.review-rights-and-consent
   outcomeRefs:
   - media.goal.deliver-approved-output
   - media.goal.resolve-safely
@@ -13062,7 +13208,8 @@ capabilities:
   operation: file
   label: Transcribe audio file
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can transcribe audio file with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Submit one authorized audio artifact version for a qualified file-transcription operation and return a
+    job reference or an explicit block.
   sourceScope:
     masterPlanSection: §6.3
     sourcePhrase: File and streaming STT; language detection; voice-activity detection; speaker diarization, segmentation
@@ -13077,21 +13224,31 @@ capabilities:
   - editor
   - reviewer
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: &id095
-  - audio-artifact-or-live-stream
-  - language-hint-when-provided
+  inputArtifactTypes:
+  - authorized-audio-artifactId-and-immutable-version
+  - optional-language-intent-and-qualified-profile
+  - purpose-and-consent-references
   outputArtifactTypes:
-  - transcript-or-speech-analysis-artifact-with-timing-and-uncertainty
+  - owner-issued-transcription-job-reference
+  - transcript-draft-with-source-version-and-timebase-if-produced
+  - language-and-recognition-evidence-when-provided
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The exact source artifact version is readable and the requested operation is permitted for its purpose and consent
+    scope.
+  - The input media type, duration/size bounds, language, and output dimensions are admitted by owner-reviewed qualification.
+  - An idempotency identity is used for job creation; transcript output is a draft until explicit review and version
+    registration.
+  supportedParameters: 'Proposed typed request fields: source artifactId and versionId; optional requested language
+    tag; optional operation/profile version; optional output granularity (segment or word timing) only when qualified;
+    purpose/consent references; client idempotency key. No language, file-size/duration limit, diarization behavior,
+    confidence scale, or timing resolution is admitted here; owners must publish exact bounds and defaults.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - The source version is immutable and is retained as transcript provenance.
+  - Language detection, speaker attribution, word timing, and confidence are returned only when an admitted operation
+    supplies them; none is inferred from fixture locale or display name.
+  - Recognition output is unverified text and remains distinct from captions or a registered transcript version.
+  - Progress and finality use the shared owner-issued job contract; provider response is not product acceptance.
+  - Personal or biometric identity inference is out of scope absent explicit authority and qualification.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -13118,8 +13275,9 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: Submit with stable operation version and idempotency key. Inspect or reconcile
+    the same owner-issued job after timeout before resubmission. Cancellation remains pending until owner confirmation;
+    detaching from observation does not cancel processing.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -13134,13 +13292,18 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes transcribe audio file.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests transcribe audio file.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: Audio source, current rights/consent, requested language, profile, and required bounds are admitted.
+    when: The actor requests file transcription.
+    then: The response returns one durable job identity and the requested operation/profile version without claiming
+      a transcript is complete or verified.
+  - given: The job produces partial or uncertain recognition.
+    when: The caller inspects its result.
+    then: The result preserves source version/timebase, labels recognized text as unverified, scopes uncertainty to
+      supplied evidence, and exposes a review path.
+  - given: Language, format, consent, or qualification is unknown or denied.
+    when: The actor requests transcription.
+    then: The operation blocks or returns only a permitted partial result with explicit limitation; no language or
+      speaker identity is invented.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -13154,13 +13317,13 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
-  channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
+  - grpc-api
+  - sdk
+  channelDispositionState: per-operation-channel-contract-proposed; exact-web-cli-api-embedded-bindings-and-owner-accessibility-review-pending
   explicitUnsupportedCases:
-  - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
-    license, locality, or profile.
-  - Any unsupported parameter value or combination; do not substitute silently.
+  - No implicit supported-language list, default locale, confidence threshold, speaker identification, diarization
+    guarantee, file duration/size, sample-rate, or provider is defined here.
+  - No claim that returned transcript text is human-verified, an accessible caption, or a registered caption version.
   supportDimensions:
     implementationState: UNKNOWN
     licenseAdmissionState: UNKNOWN
@@ -13233,7 +13396,10 @@ capabilities:
       - ERASURE_CONFIRMED
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
-  journeyRefs: []
+  journeyRefs:
+  - J-03
+  - J-20
+  - J-27
 - id: media.speech.transcription.stream
   familyId: media.speech.transcription
   operation: stream
@@ -13251,7 +13417,9 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id094
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id095
+  inputArtifactTypes: &id095
+  - audio-artifact-or-live-stream
+  - language-hint-when-provided
   outputArtifactTypes:
   - transcript-or-speech-analysis-artifact-with-timing-and-uncertainty
   preconditions:
@@ -13498,8 +13666,8 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
+  - grpc-api
+  - sdk
   channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
   explicitUnsupportedCases:
   - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
@@ -13577,7 +13745,8 @@ capabilities:
       - ERASURE_CONFIRMED
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
-  journeyRefs: []
+  journeyRefs:
+  - J-03
 - id: media.speech.transcription.voice-activity.detect
   familyId: media.speech.transcription
   operation: voice-activity.detect
@@ -14533,8 +14702,8 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
+  - grpc-api
+  - sdk
   channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
   explicitUnsupportedCases:
   - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
@@ -14612,7 +14781,8 @@ capabilities:
       - ERASURE_CONFIRMED
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
-  journeyRefs: []
+  journeyRefs:
+  - J-03
 - id: media.speech.transcription.phoneme-timestamp.create
   familyId: media.speech.transcription
   operation: phoneme-timestamp.create
@@ -14788,9 +14958,10 @@ capabilities:
 - id: media.speech.transcription.forced-align
   familyId: media.speech.transcription
   operation: forced-align
-  label: Force-align transcript
+  label: Match transcript timing to audio
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can force-align transcript with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Align a supplied transcript version to an authorized source-audio version and return timing observations
+    with explicit uncertainty.
   sourceScope:
     masterPlanSection: §6.3
     sourcePhrase: File and streaming STT; language detection; voice-activity detection; speaker diarization, segmentation
@@ -14802,19 +14973,29 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id094
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id095
+  inputArtifactTypes:
+  - exact-audio-artifactId-and-versionId
+  - exact-transcript-or-text-version
+  - language-intent-when-required
   outputArtifactTypes:
-  - transcript-or-speech-analysis-artifact-with-timing-and-uncertainty
+  - aligned-transcript-candidate-with-source-timebase
+  - segment-or-word-timing-observations-when-qualified
+  - alignment-limitations-and-provenance
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - Audio and transcript versions are independently authorized and explicitly related by the caller or prior provenance.
+  - The requested language and media conditions are supported by an owner-qualified alignment profile.
+  - The input text is not silently rewritten; any normalization is disclosed and reversible.
+  supportedParameters: 'Proposed typed request fields: source artifactId/versionId; transcript versionId or typed
+    text with stable content fingerprint; optional requested language tag; optional granularity (segment or word)
+    only when qualified; profile version and idempotency key if asynchronous. Exact timebase, output precision, language
+    list, bounds, and scoring semantics require owner qualification.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - Alignment returns a candidate timing map; it does not verify transcript wording or create a caption version by
+    itself.
+  - All times bind to the exact source version and declared timebase; rounding and unsupported precision are explicit.
+  - Low-confidence, unmatched, or ambiguous segments remain unaligned or review-required rather than receiving fabricated
+    times.
+  - Text content is preserved unless a separately admitted operation changes it.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -14841,8 +15022,9 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: If executed asynchronously, use the stable job identity and reconcile an unknown
+    result before replay. A partial alignment is retained as partial evidence and can be reviewed without discarding
+    the transcript.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -14857,13 +15039,14 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes force-align transcript.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests force-align transcript.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The source and transcript are exact, authorized, and the language/granularity are qualified.
+    when: The actor requests forced alignment.
+    then: The result binds timing observations to the source version and timebase and identifies unmatched or uncertain
+      segments.
+  - given: The transcript does not correspond to the source or alignment confidence is insufficient.
+    when: The operation returns.
+    then: Affected intervals are marked unresolved and a manual timing review is available; no false complete alignment
+      is reported.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -14877,13 +15060,13 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
-  channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
+  - grpc-api
+  - sdk
+  channelDispositionState: per-operation-channel-contract-proposed; exact-web-cli-api-embedded-bindings-and-owner-accessibility-review-pending
   explicitUnsupportedCases:
-  - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
-    license, locality, or profile.
-  - Any unsupported parameter value or combination; do not substitute silently.
+  - No universal alignment confidence scale, timestamp precision, language support, or guaranteed word-level result
+    is defined.
+  - No transcript verification, translation, speaker identification, or caption registration is implied.
   supportDimensions:
     implementationState: UNKNOWN
     licenseAdmissionState: UNKNOWN
@@ -14956,7 +15139,8 @@ capabilities:
       - ERASURE_CONFIRMED
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
-  journeyRefs: []
+  journeyRefs:
+  - J-03
 - id: media.speech.transcription.punctuate-capitalize
   familyId: media.speech.transcription
   operation: punctuate-capitalize
@@ -15651,7 +15835,8 @@ capabilities:
   operation: subtitle.generate
   label: Generate subtitles
   definitionState: IN_SCOPE_DRAFT
-  outcome: A caller can generate subtitles with explicit preconditions, effect, provenance, and recovery semantics.
+  outcome: Create an unreviewed subtitle/caption draft from an authorized transcript or qualified speech result while
+    retaining source timing and language provenance.
   sourceScope:
     masterPlanSection: §6.3
     sourcePhrase: File and streaming STT; language detection; voice-activity detection; speaker diarization, segmentation
@@ -15663,19 +15848,29 @@ capabilities:
   - §18.2–18.3
   actorRoles: *id094
   actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs; owner-acceptance-pending
-  inputArtifactTypes: *id095
+  inputArtifactTypes:
+  - exact-transcript-or-recognition-result-version
+  - source-audio-or-video-version
+  - requested-output-language-and-profile
   outputArtifactTypes:
-  - transcript-or-speech-analysis-artifact-with-timing-and-uncertainty
+  - subtitle-draft-version
+  - segment-timing-and-alignment-disposition
+  - source-and-operation-provenance
   preconditions:
-  - Verified actor/workspace and required delegated authority.
-  - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
-  - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-  supportedParameters: Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported
-    values before a claim of support.
+  - The source and transcript/result versions are accessible and their relationship is explicit.
+  - Requested output language, caption format, encoding, and timing conventions are admitted by the selected output
+    profile.
+  - Rights, consent, accessibility, and retention requirements allow the requested derivative.
+  supportedParameters: 'Proposed typed request fields: transcript/result version; source artifact version; requested
+    output language tag; named subtitle profile/format version; optional segmentation and line-length constraints
+    only where owner-qualified; idempotency key if asynchronous. Exact format allowlist, line/character limits, timing
+    precision, defaults, and language availability require profile-owner review.'
   constraints:
-  - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
-  - Unsupported combinations remain explicit; no silent substitution.
-  - Preserve source and report reconstruction or estimation distinctly from measured/ground-truth output.
+  - Generated subtitles are a draft and are not a human-verified transcript or an approved deliverable.
+  - Source timing and output timing are distinct when translation changes duration; any estimate is labeled.
+  - The output retains exact source/result lineage and does not modify source bytes.
+  - Caption accessibility, speaker labeling, and text safety remain reviewable obligations; generation does not satisfy
+    them automatically.
   actionStateReferences:
     action: operation-and-effect-defined-by-this-record
     stateCoverage:
@@ -15702,8 +15897,8 @@ capabilities:
   - Minimize sensitive data and retain no provider copy or derived biometric/identity material absent explicit authority.
   qualityFidelityContract: Record requested/effective profile, applicable dimensions, method/version, uncertainty/abstention,
     preservation behavior, and actual produced-versus-estimated outputs; no universal quality or scientific guarantee.
-  cancellationRetryReconciliation: Define operation-specific cancellation, retry idempotency, uncertain external outcome,
-    and reconciliation before runtime admission; watching disconnect is not server cancellation.
+  cancellationRetryReconciliation: If asynchronous, inspect/reconcile the same job before resubmission. Preserve the
+    draft and its version on partial failure; do not overwrite an edited caption version on retry.
   executionResourceRequirements: Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile;
     values are not selected or measured here.
   accessibilityRepresentation: Interactive controls and outputs require a semantic, keyboard-operable representation; canvas-only/pointer-only
@@ -15718,13 +15913,14 @@ capabilities:
   requirementIds:
   - MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION
   acceptanceCases:
-  - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
-    when: The actor invokes generate subtitles.
-    then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
-  - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
-    when: The actor requests generate subtitles.
-    then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality
-      is fabricated.
+  - given: The exact transcript and source versions, output language, and format profile are admitted.
+    when: The actor requests subtitle generation.
+    then: The result is a distinct draft caption version with source lineage and timing/alignment disposition; it
+      is not registered as approved output.
+  - given: Translation or timing changes require review, or required format support is unknown.
+    when: The operation returns.
+    then: The affected segments and unsupported format are explicit; the draft remains editable or the operation is
+      blocked.
   qualificationDimensions:
   - operation-and-contract-version
   - input-format-and-size
@@ -15738,13 +15934,13 @@ capabilities:
   supportedChannels:
   - web
   - cli
-  - api
-  - embedded
-  channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
+  - grpc-api
+  - sdk
+  channelDispositionState: per-operation-channel-contract-proposed; exact-web-cli-api-embedded-bindings-and-owner-accessibility-review-pending
   explicitUnsupportedCases:
-  - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider,
-    license, locality, or profile.
-  - Any unsupported parameter value or combination; do not substitute silently.
+  - No unqualified format/container, line-length limit, language, speaker attribution, timing-precision promise, or
+    subtitle accessibility certification is implied.
+  - No automatic registration, approval, delivery, or source modification.
   supportDimensions:
     implementationState: UNKNOWN
     licenseAdmissionState: UNKNOWN
@@ -15817,7 +16013,10 @@ capabilities:
       - ERASURE_CONFIRMED
       - EXTERNAL_ERASURE_UNCONFIRMED
   unresolvedStateModelBindings: []
-  journeyRefs: []
+  journeyRefs:
+  - J-03
+  - J-16
+  - J-18
 - id: media.vision.detect
   familyId: media.vision
   operation: detect

@@ -1,0 +1,89 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.review-quality
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.improve
+purpose: Applicable dimensions, abstentions, defects and repair plan
+contextGoalNowNext:
+  context: An exact candidate version, applicable quality dimensions, methods and evidence, abstentions, and bounded
+    repair options.
+  goal: Decide what the evidence supports about this version and whether further review or repair is needed.
+  now: Show assessed and unassessed dimensions, metric basis and units, evidence, defect scope, and recommendation
+    limits.
+  next: Inspect supporting evidence, compare an exact candidate, or review a bounded repair plan.
+anatomy:
+- target-version
+- applicable-dimensions
+- metric-values-and-units
+- evidence-and-method
+- abstentions-and-limitations
+- defect-and-repair-plan
+- candidate-provenance
+componentRefs:
+- media.component.quality-inspector
+- media.component.result-comparison
+- media.component.provenance-summary
+states:
+- not-assessed
+- partial
+- measured
+- conflicting-evidence
+- recommendation-only
+- repair-plan-ready
+- unavailable
+actions:
+- media.action.inspect-provenance
+actionBindingState: bound-to-existing-P2-actions
+actionIntents:
+- inspect evidence for a quality dimension
+- compare a candidate on an explicit metric
+- review a bounded repair proposal
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: No overall pass when a material dimension is unassessed; recommendations are not applied changes; metrics
+  identify method, scope, and qualification.
+recovery: Retain abstentions and contradictory observations; offer manual review; do not convert unavailable evidence
+  to a pass.
+responsive: Lead with target version, material defects, and abstentions; let people open methodology and supporting
+  evidence.
+accessibility: List metrics and abstentions semantically; provide units, methods, and limitations in text; use no
+  color-only pass/fail.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-05
+- phase-0:journey:J-08
+- phase-0:journey:J-10
+- phase-0:journey:J-14
+- phase-0:journey:J-15
+- phase-0:journey:J-17
+- phase-0:journey:J-19
+- phase-0:journey:J-27
+journeyRefs:
+- J-05
+- J-08
+- J-10
+- J-14
+- J-15
+- J-17
+- J-19
+- J-27
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

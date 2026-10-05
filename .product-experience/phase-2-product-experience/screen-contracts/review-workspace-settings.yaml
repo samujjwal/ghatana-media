@@ -1,0 +1,71 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.review-workspace-settings
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+- media.administrator
+intentRef: media.intent.review-workspace-settings
+purpose: User/workspace policies, accessibility and integration scope
+contextGoalNowNext:
+  context: A user or workspace setting category, current value, policy owner, inheritance, and effect on active
+    work.
+  goal: Change a permitted preference or workspace policy with clear scope and effective date.
+  now: Show inherited versus local values, authority, affected workflows, accessibility impact, and unsaved changes.
+  next: Edit a setting within authority, save explicitly, or return to the previous value.
+anatomy:
+- settings-scope
+- category-navigation
+- current-and-inherited-values
+- policy-owner
+- affected-workflows
+- save-and-reset-actions
+componentRefs:
+- media.component.identity-context-boundary
+- media.component.project-context-summary
+- media.component.creation-plan-summary
+states:
+- loading
+- read-only
+- editable
+- policy-locked
+- dirty
+- saving
+- saved
+- conflict
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- inspect a setting and its owner
+- change a permitted preference
+- save or restore the prior value
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: User preferences and workspace policy are distinct; inaccessible changes do not bypass Shared authority;
+  policy changes disclose affected jobs.
+recovery: Preserve the last saved value; on conflict refresh effective policy before saving; do not silently discard
+  edits.
+responsive: Use category navigation with one setting group per view; keep scope and inherited status visible.
+accessibility: Use labeled native controls, visible focus, textual lock reasons, and confirmation of saved effective
+  values.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+journeyRefs: []
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

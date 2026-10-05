@@ -1,0 +1,35 @@
+schemaVersion: media.trust-provenance-grammar.v1
+productId: media
+authority: Media labels for result origin and evidential limits
+status: authored-proposal; rights-security-and-P0-010-review-pending
+labels:
+  - id: media.origin.source
+    label: Original source
+    means: Preserved input bytes or an owner-referenced immutable source version.
+    limits: Does not assert ownership, license, or authenticity.
+  - id: media.origin.measured
+    label: Measured
+    means: A value produced by a named method with units and applicable uncertainty.
+    limits: Applicability and calibration are capability-specific.
+  - id: media.origin.recognized
+    label: Recognized
+    means: Content inferred from media by a declared recognition method.
+    limits: Preserve uncertainty, source range, method, and version.
+  - id: media.origin.estimated
+    label: Estimated
+    means: A value or alignment inferred with incomplete evidence.
+    limits: Never display as verified ground truth.
+  - id: media.origin.generated
+    label: Generated
+    means: New content synthesized or reconstructed by an admitted operation.
+    limits: Do not describe invented detail as recovered source evidence.
+  - id: media.origin.unknown
+    label: Not confirmed
+    means: Origin or external outcome cannot currently be established.
+    limits: Keep the affected action blocked until its owner supplies evidence.
+requiredContext:
+  - source-version
+  - operation-and-version-when-known
+  - applicable-time-or-region
+  - uncertainty-or-abstention
+  - conversion-loss-and-limitations-when-known

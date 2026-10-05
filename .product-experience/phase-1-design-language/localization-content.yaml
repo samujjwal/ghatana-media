@@ -1,0 +1,18 @@
+schemaVersion: media.localization-content.v1
+productId: media
+authority: Media language, locale, and content behavior
+status: authored-proposal; locale-owner-and-P0-010-review-pending
+rules:
+  - A locale present in a fixture is not an admitted runtime language.
+  - Keep user-facing translations separate from stable action IDs, field names, and reason codes.
+  - Preserve original recognized text and record translation as a derived version with provenance.
+  - Never silently convert transcript language or measurement units.
+  - Dates, numbers, decimal marks, and time display follow the selected presentation locale while stored rational media time remains unchanged.
+  - Unsupported locale output is blocked or clearly marked as a reviewable draft; it is never presented as qualified.
+fixtureLocale:
+  value: en
+  purpose: synthetic-content-example-only
+  supportedAtRuntime: not-claimed
+copyReview:
+  requiresNativeOrQualifiedLanguageReviewer: true
+  machineTranslationMayBePresentedAsApprovedCopy: false

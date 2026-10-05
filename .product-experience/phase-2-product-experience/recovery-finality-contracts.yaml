@@ -1,0 +1,24 @@
+schemaVersion: media.recovery-finality-contracts.v1
+productId: media
+status: selected-lane-proposal; distributed-systems-and-rights-review-pending
+contracts:
+  - id: media.recovery.language-uncertain
+    state: transcript-language-or-recognition-uncertain
+    allowed: correct-manually-or-preserve-draft-under-current-authority
+    blocked: label-as-verified-or-commit-when-required-alignment-is-missing
+  - id: media.recovery.alignment-incomplete
+    state: caption-time-range-missing-or-estimated
+    allowed: enter-explicit-time-ranges-or-retain-draft
+    blocked: present-estimated-timing-as-measured
+  - id: media.recovery.consent-revoked
+    state: media-rights-and-consent.consent.REVOKED
+    allowed: block-new-work-and-reconcile-in-flight-effects
+    blocked: restart-or-route-around-consent
+  - id: media.recovery.outcome-unknown
+    state: media-job.OUTCOME_UNKNOWN
+    allowed: inspect-or-reconcile-existing-job-identity
+    blocked: submit-duplicate-request-or-report-cancellation-as-confirmed
+  - id: media.recovery.version-conflict
+    state: concurrent-caption-revision
+    allowed: preserve-local-and-current-versions; choose-keep-local-or-use-latest-before-registering-a-new-version
+    blocked: overwrite-a-committed-version

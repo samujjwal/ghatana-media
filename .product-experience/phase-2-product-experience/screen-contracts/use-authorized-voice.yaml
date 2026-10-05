@@ -1,0 +1,74 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.use-authorized-voice
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.reviewer
+- media.privacy-rights-reviewer
+intentRef: media.intent.create
+purpose: Training/conversion permissions and model references
+contextGoalNowNext:
+  context: A voice asset or reference, the authority for its permitted use, the requested operation, and any derived
+    model reference.
+  goal: Use a voice only for an explicitly authorized operation and scope.
+  now: Show consent evidence, permitted operation and duration, identity of the source version, retention or revocation
+    effects, and resulting provenance.
+  next: Continue only within the recorded permitted scope, request review, or leave the workflow without processing.
+anatomy:
+- voice-source-reference
+- consent-evidence-and-scope
+- operation-and-recipient
+- retention-and-revocation-effects
+- derived-model-reference
+- audit-and-provenance
+componentRefs:
+- media.component.rights-retention-review
+- media.component.provenance-summary
+- media.component.creation-plan-summary
+states:
+- evidence-required
+- permitted-with-scope
+- denied
+- expired
+- revoked
+- review-required
+- derived-output-pending
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- inspect consent and permitted-use evidence
+- request an authorized review
+- continue within the recorded scope
+- revoke or stop where authorized
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Voice possession is not consent; scope includes operation and use; revocation and retention effects
+  are explicit; no voice identity is inferred.
+recovery: When evidence is unavailable or revoked, block the operation and explain the authorized remediation path;
+  do not reuse a cached permission.
+responsive: Put decision, scope, and expiry/revocation state first; show the evidence chain in a separate disclosure.
+accessibility: Announce blocked or revoked use in text; make evidence and scope readable without relying on an icon
+  or badge.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-04
+journeyRefs:
+- J-04
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending

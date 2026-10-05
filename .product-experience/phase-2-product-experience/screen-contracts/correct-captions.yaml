@@ -1,0 +1,65 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.correct-captions
+status: proposal; content-version-and-rights-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.edit
+purpose: edit caption text or source timing in a draft derived from one exact source version
+contextGoalNowNext:
+  context: Source version, transcript version, caption draft version, selected segment, and current consent state.
+  goal: Correct caption content and alignment without overwriting source media.
+  now: Show each caption's text, language, exact time range, and alignment disposition.
+  next: Save a draft, compare it, or register a new immutable caption version if permitted.
+anatomy:
+- source-player
+- caption-segment-list
+- timing-editor
+- text-editor
+- draft-status
+- save-version-action
+states:
+- draft
+- needs-alignment
+- conflict
+- read-only
+- consent-revoked
+actions:
+- media.action.correct-caption
+- media.action.align-caption-timing
+- media.action.resolve-caption-conflict
+- media.action.save-caption-version
+validation: Require non-empty text and valid half-open source-time intervals; preserve source and parent-version
+  references.
+recovery: Keep unsaved edits locally and identify conflicts; never claim a version was registered after an uncertain
+  save.
+responsive: provide-numeric-timing-entry-and-keyboard-segment-navigation
+accessibility: inline-errors-associated-with-segment; focus-returns-to-edited-segment
+copyRefs:
+- media.copy.caption.draft
+- media.copy.caption.conflict
+- media.copy.caption.saved
+fixtureRefs:
+- media.scenario.caption-corrected
+- media.scenario.caption-conflict
+componentRefs:
+- media.component.source-player
+- media.component.caption-track-editor
+journeyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: selected-lane-view-proposal
+- channelRef: media.channel.cli
+  disposition: selected-lane-command-counterpart-pending
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+actionBindingState: bound-to-existing-P2-actions
+actionIntents: []

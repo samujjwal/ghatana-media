@@ -1,0 +1,63 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.resolve-job-outcome
+status: proposal; reconciliation-owner-binding-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+- media.operator
+- media.automation-client
+intentRef: media.intent.resolve-job
+purpose: inspect or reconcile a job whose external outcome may be uncertain
+contextGoalNowNext:
+  context: Stable job identity, source version, prior dispatch state, and available provider evidence.
+  goal: determine what happened before deciding whether more work is safe.
+  now: Preserve OUTCOME_UNKNOWN until owner evidence classifies the result.
+  next: Record reconciliation or request the assigned operator; do not blind-retry.
+anatomy:
+- job-identity
+- current-state
+- evidence-timeline
+- reconciliation-result
+- safe-next-action
+states:
+- outcome-unknown
+- reconciling
+- completed
+- failed
+- cancelled
+- evidence-unavailable
+actions:
+- media.action.inspect-job
+- media.action.reconcile-job
+validation: A timeout or lost browser session does not prove remote work failed or stopped.
+recovery: Keep the existing request identity and prevent duplicate submission until reconciliation permits a safe
+  successor.
+responsive: uncertainty-and-next-safe-action-remain-visible
+accessibility: announce-finality-and-disable-resubmission-with-reason
+copyRefs:
+- media.copy.job.unknown
+- media.copy.job.reconciled
+fixtureRefs:
+- media.scenario.job-outcome-unknown
+- media.scenario.job-reconciled
+componentRefs:
+- media.component.job-status-card
+- media.component.activity-recovery-feed
+journeyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: selected-lane-view-proposal
+- channelRef: media.channel.cli
+  disposition: selected-lane-command-counterpart-pending
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+actionBindingState: bound-to-existing-P2-actions
+actionIntents: []

@@ -1,0 +1,103 @@
+schemaVersion: media.content-copy-catalog.v1
+productId: media
+status: draft-copy; localization-and-human-content-review-pending
+messages:
+  - id: media.copy.artifact.library-empty
+    text: No verified artifacts are available in this workspace yet. Import a source to begin.
+    context: current-authorized-artifact-query-returned-no-available-results
+  - id: media.copy.artifact.access-denied
+    text: You do not have access to view this artifact in the selected workspace.
+    context: current-artifact-read-authority-is-not-confirmed
+  - id: media.copy.artifact.transfer-paused
+    text: The upload is paused. Reconnect to resume the same upload after we confirm its identity and current access.
+    context: an-existing-upload-is-interrupted-and-current-access-must-be-rechecked
+  - id: media.copy.artifact.integrity-failed
+    text: We could not verify this upload. It is not available for use.
+    context: expected-length-part-integrity-or-full-digest-was-not-confirmed
+  - id: media.copy.artifact.quarantined
+    text: This file needs an authorized review before it can be used.
+    context: artifact-is-quarantined-and-new-reads-or-processing-are-held
+  - id: media.copy.artifact.unsupported
+    text: This file type is not available here. Your source remains unchanged.
+    context: source-format-is-not-admitted-by-the-current-public-contract
+  - id: media.copy.artifact.outcome-unknown
+    text: We could not confirm whether this upload completed. Check the same upload before starting another.
+    context: upload-effect-may-have-committed-without-a-confirmed-response
+  - id: media.copy.artifact.verified
+    text: This file is verified and available as an immutable artifact version.
+    context: artifact-has-an-available-version-after-required-integrity-and-policy-checks
+  - id: media.copy.artifact.metadata-incomplete
+    text: Some technical details are unavailable. This does not change the artifact's recorded integrity state.
+    context: one-or-more-technical-descriptors-are-unknown-or-unavailable
+  - id: media.copy.identity.reauthentication-required
+    text: Your session ended. Sign in again to continue where you left off.
+    context: current-identity-expired-before-protected-project-access
+  - id: media.copy.context.access-denied
+    text: You do not have access to this workspace. Ask its administrator for access.
+    context: tenant-or-workspace-access-not-authorized
+  - id: media.copy.project.workspace-empty
+    text: This workspace has no projects yet. Create a project to start your work.
+    context: authorized-project-query-returned-no-projects
+  - id: media.copy.project.empty
+    text: This project is ready. Choose an outcome to see a safe next step.
+    context: authorized-project-has-no-media-or-processing-work
+  - id: media.copy.project.create-outcome-unknown
+    text: We could not confirm whether the project was created. Check your project list before creating another.
+    context: project-create-effect-finality-is-unknown
+  - id: media.copy.intent.unavailable
+    text: This outcome is not available in this workspace yet. Your project is unchanged. Choose another outcome or return later.
+    context: one-or-more-required-capability-or-policy-dispositions-are-unavailable
+  - id: media.copy.source.empty
+    text: Choose a recording to review its speech and captions.
+    context: no-eligible-source-selected
+  - id: media.copy.source.quarantined
+    text: This recording needs review before it can be used.
+    context: source-artifact-quarantined
+  - id: media.copy.source.denied
+    text: You do not have access to use this recording here.
+    context: current-read-or-processing-authority-denied
+  - id: media.copy.job.queued
+    text: Your transcription request is recorded and waiting to start.
+    context: media-job.QUEUED
+  - id: media.copy.job.running
+    text: Your recording is being transcribed. You can leave and check its status later.
+    context: media-job.RUNNING
+  - id: media.copy.job.cancellation-pending
+    text: Cancellation is requested. The job may still be running until its owner confirms it stopped.
+    context: cancellation-request-recorded-without-owner-confirmed-finality
+  - id: media.copy.job.observation-stopped
+    text: You stopped watching this job. The job continues until its owner reports a final state.
+    context: view-detached-without-requesting-job-cancellation
+  - id: media.copy.job.unknown
+    text: The request may have started, but its outcome is not confirmed. Check its status before starting another transcription.
+    context: media-job.OUTCOME_UNKNOWN
+  - id: media.copy.activity.empty
+    text: No job activity is available in this workspace.
+    context: the-authorized-job-activity-query-returned-no-visible-results
+  - id: media.copy.transcript.recognized
+    text: This transcript was recognized from the selected recording. Review names and timing before you use it.
+    context: recognition-result-needs-human-review
+  - id: media.copy.transcript.uncertain
+    text: Some words or the language are uncertain. The recording and transcript draft are safe; review the marked sections before saving captions.
+    context: language-or-recognition-uncertainty
+  - id: media.copy.transcript.alignment-required
+    text: Caption timing is incomplete. Match each caption to the recording or keep this version as a draft.
+    context: missing-or-incomplete-time-alignment
+  - id: media.copy.caption.draft
+    text: Your edits are a draft. The original recording and earlier versions are unchanged.
+    context: unsaved-or-uncommitted-caption-edit
+  - id: media.copy.caption.conflict
+    text: This caption changed in another version. Compare the versions, then choose whether to keep your edits or use the latest version before saving.
+    context: concurrent-revision-conflict
+  - id: media.copy.caption.saved
+    text: A new caption version was saved. This does not publish or deliver it.
+    context: artifact-version-registration-completed
+  - id: media.copy.compare.same-source
+    text: Both versions use the same recording version.
+    context: valid-source-version-comparison
+  - id: media.copy.compare.mismatch
+    text: These versions use different recording versions, so their differences may not be comparable.
+    context: source-version-mismatch
+  - id: media.copy.job.reconciled
+    text: We checked the existing request. Its recorded outcome is shown below.
+    context: reconciliation-completed-with-classified-result

@@ -1,0 +1,107 @@
+schemaVersion: media.explorer-interaction-dispositions.v1
+productId: media
+status: J-01-J-02-metadata-J-20-job-observation-and-selected-J-03-slice-local-browser-rendered; independent-host-and-human-review-pending
+executionMeaning: WORKING means the deterministic fixture transition works; it does not mean a production runtime action is available
+classifications:
+  - element: first-use-empty-project-creation-fixture
+    behavior: WORKING
+    actionRef: media.action.create-project
+  - element: inspect-uncertain-project-create-request
+    behavior: WORKING
+    actionRef: media.action.inspect-project-creation
+  - element: Shared-identity-provider-handoff
+    behavior: INTENTIONALLY_DISABLED_WITH_REASON
+    reason: The published Shared identity consumer contract is not bound; the preview does not authenticate or resolve real principals.
+  - element: workspace-access-request
+    behavior: INTENTIONALLY_DISABLED_WITH_REASON
+    reason: No admitted workspace access request route is connected to this synthetic fixture.
+  - element: artifact-transfer-inspection
+    behavior: WORKING
+    actionRef: media.action.inspect-artifact
+  - element: resume-interrupted-upload-fixture
+    behavior: WORKING
+    actionRef: media.action.resume-artifact-upload
+  - element: inspect-and-resume-upload-through-cli
+    behavior: WORKING
+    channelRef: media.channel.cli
+    commandRefs: [media.cli.upload.inspect, media.cli.upload.resume]
+    actionRefs: [media.action.inspect-artifact, media.action.resume-artifact-upload]
+    reason: The fixture preserves the upload identity and acknowledged parts; this CLI contract does not submit bytes or create an upload.
+  - element: inspect-and-reconcile-verification-job-through-cli
+    behavior: WORKING
+    channelRef: media.channel.cli
+    commandRefs: [media.cli.job.inspect, media.cli.job.reconcile]
+    actionRefs: [media.action.inspect-job, media.action.reconcile-job]
+    reason: Inspect and reconcile the existing owner-issued job identity; unknown finality stays unknown without owner evidence.
+  - element: inspect-cancel-and-reconcile-transcription-job-through-cli
+    behavior: WORKING
+    channelRef: media.channel.cli
+    commandRefs: [media.cli.job.inspect, media.cli.job.cancel, media.cli.job.reconcile]
+    actionRefs: [media.action.inspect-job, media.action.request-cancellation, media.action.reconcile-job]
+    reason: Commands target the existing transcription job identity and share the reducer; cancellation remains pending until owner confirmation, and retry or live-watch transport is not implemented.
+  - element: open-verification-job-from-activity
+    behavior: WORKING
+    actionRef: media.action.inspect-job
+    reason: The synthetic activity view contains one owner-issued verification-job fixture; the complete activity query is not implemented.
+  - element: check-uncertain-verification-job-from-activity
+    behavior: WORKING
+    actionRef: media.action.reconcile-job
+    reason: Available only for the same synthetic job when its outcome is unknown; no new job is submitted.
+  - element: local-file-upload
+    behavior: INTENTIONALLY_DISABLED_WITH_REASON
+    actionRef: media.action.begin-artifact-upload
+    reason: The J-02 payloads contain metadata only; no source bytes, admitted transfer bounds, or upload service are available in this simulator.
+  - element: artifact-integrity-summary
+    behavior: WORKING
+    actionRef: media.action.inspect-artifact
+  - element: source-selection-row
+    behavior: WORKING
+    actionRef: media.action.choose-source
+  - element: source-inspection
+    behavior: WORKING
+    actionRef: media.action.inspect-source
+  - element: transcription-submit
+    behavior: WORKING
+    actionRef: media.action.request-transcription
+  - element: transcription-status
+    behavior: WORKING
+    actionRef: media.action.inspect-job
+  - element: inspect-existing-transcription-job
+    behavior: WORKING
+    actionRef: media.action.inspect-job
+    reason: Opens the shared job-status view for the current transcription identity without submitting another request.
+  - element: stop-watching-transcription-job
+    behavior: WORKING
+    reason: Returns to transcript work without dispatching an action or changing job state; the fixture announces that processing continues.
+  - element: transcript-review
+    behavior: WORKING
+    actionRef: media.action.review-transcript
+  - element: source-playback
+    behavior: INTENTIONALLY_DISABLED_WITH_REASON
+    actionRef: media.action.play-source
+    reason: Selected fixtures carry synthetic text and metadata but no media bytes for playback.
+  - element: source-time-seek
+    behavior: WORKING
+    actionRef: media.action.seek-source
+  - element: caption-text-and-timing-edit
+    behavior: WORKING
+    actionRefs: [media.action.correct-caption, media.action.align-caption-timing]
+  - element: resolve-caption-version-conflict
+    behavior: WORKING
+    actionRef: media.action.resolve-caption-conflict
+  - element: compare-caption-versions
+    behavior: WORKING
+    actionRef: media.action.compare-caption-versions
+  - element: save-caption-version
+    behavior: WORKING
+    actionRef: media.action.save-caption-version
+  - element: cancel-job
+    behavior: WORKING
+    actionRef: media.action.request-cancellation
+    reason: A running job remains RUNNING with pending finality until a separate owner confirmation arrives; repeated cancellation is unavailable while pending.
+  - element: check-uncertain-job
+    behavior: WORKING
+    actionRef: media.action.reconcile-job
+  - element: export-or-publish
+    behavior: INTENTIONALLY_DISABLED_WITH_REASON
+    reason: Delivery is outside the selected definition and simulation lane.

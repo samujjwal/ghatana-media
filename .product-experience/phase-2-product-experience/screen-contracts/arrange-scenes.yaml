@@ -1,0 +1,72 @@
+schemaVersion: media.screen-contract.v1
+productId: media
+screenId: media.view.arrange-scenes
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.create
+purpose: Scenes, timing, references, versions and transitions
+contextGoalNowNext:
+  context: A storyboard version, ordered scenes, source references, timing, and transition choices.
+  goal: Arrange and review a scene sequence before any generation or render is submitted.
+  now: Show scene order, exact timing, reference availability, version conflicts, and missing rights evidence.
+  next: Edit a scene or reference, save a new storyboard version, or return to the project.
+anatomy:
+- storyboard-version
+- ordered-scene-list
+- scene-timing
+- reference-assets
+- transition-summary
+- continuity-notes
+- rights-and-missing-input-notices
+componentRefs:
+- media.component.storyboard
+- media.component.artifact-browser
+- media.component.provenance-summary
+states:
+- empty
+- editing
+- partial-scenes
+- reference-missing
+- rights-review-required
+- version-conflict
+- read-only
+actions: []
+actionBindingState: intent-bindings-pending
+actionIntents:
+- add, remove, or reorder a scene
+- associate an authorized reference
+- edit scene timing or transition
+- save a storyboard revision
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+validation: Scene order and timebase are explicit; reference presence does not imply rights; manual storyboarding
+  remains available if an optional planner is unavailable.
+recovery: Preserve scene identities and ordering across conflicts; restore the last saved version without submitting
+  generation.
+responsive: Use an ordered scene-card list; keep order, timing, reference, and status visible in every card.
+accessibility: Support keyboard scene insertion and reorder; expose scene count, position, duration, and reference
+  status as text.
+copyRefs: []
+copyDisposition: canonical-copy-IDs-pending
+fixtureRefs: []
+fixtureDisposition: synthetic-fixture-contract-not-authored
+sourceRefs:
+- master-plan:section-20.2
+- phase-0:journey:J-09
+journeyRefs:
+- J-09
+localization: Localize human-readable copy and date/number/unit formatting by admitted locale; keep canonical IDs,
+  stored values, reason codes, and command/API keys stable. Unsupported locale behavior remains explicit.
+requirementsDisposition: P0-010-reviewed-requirement-to-view mapping pending
+dependencyRefs: []
+dependencyDisposition: owner-bound dependency references pending
