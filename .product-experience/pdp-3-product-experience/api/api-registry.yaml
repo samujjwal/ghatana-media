@@ -1,0 +1,252 @@
+schemaVersion: media.api-registry.v1
+productId: media
+source: contracts/openapi/media.yaml
+status: source-inventory; protocol-authority-unselected; operation-bindings-proposal-only; owner-review-pending
+authorityDisposition: OpenAPI-and-runtime-route-manifest-are-implementation-or-projection-observations; no-canonical-wire-authority-selected
+semanticAuthority: PDP-1 operation proposal is intended semantic authority only after phase acceptance
+sourceAlignment: all-27-OpenAPI-operationIds-exactly-match-route-manifest-method-path-operationId
+unresolvedLogicalOperationBindings: 27
+operations:
+  - id: media.http.getMediaHealth
+    contractFile: operations/getMediaHealth.yaml
+    method: GET
+    path: "/health"
+    operationId: getMediaHealth
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 503]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaLiveness
+    contractFile: operations/getMediaLiveness.yaml
+    method: GET
+    path: "/health/live"
+    operationId: getMediaLiveness
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaReadiness
+    contractFile: operations/getMediaReadiness.yaml
+    method: GET
+    path: "/health/ready"
+    operationId: getMediaReadiness
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 503]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaStartup
+    contractFile: operations/getMediaStartup.yaml
+    method: GET
+    path: "/health/startup"
+    operationId: getMediaStartup
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 503]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaReadyAlias
+    contractFile: operations/getMediaReadyAlias.yaml
+    method: GET
+    path: "/ready"
+    operationId: getMediaReadyAlias
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 503]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaMetrics
+    contractFile: operations/getMediaMetrics.yaml
+    method: GET
+    path: "/metrics"
+    operationId: getMediaMetrics
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaInfo
+    contractFile: operations/getMediaInfo.yaml
+    method: GET
+    path: "/info"
+    operationId: getMediaInfo
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaVersionedHealth
+    contractFile: operations/getMediaVersionedHealth.yaml
+    method: GET
+    path: "/api/v1/health"
+    operationId: getMediaVersionedHealth
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 503]
+    experienceBinding: pending-owner-review
+  - id: media.http.grantMediaConsent
+    contractFile: operations/grantMediaConsent.yaml
+    method: POST
+    path: "/api/v1/consents"
+    operationId: grantMediaConsent
+    parameters: []
+    requestSchema: "#/components/schemas/ConsentGrantRequest"
+    responseStatuses: [201, 400, 403]
+    experienceBinding: pending-owner-review
+  - id: media.http.listMediaConsents
+    contractFile: operations/listMediaConsents.yaml
+    method: GET
+    path: "/api/v1/consents"
+    operationId: listMediaConsents
+    parameters: [limit]
+    requestSchema: none
+    responseStatuses: [200]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaConsent
+    contractFile: operations/getMediaConsent.yaml
+    method: GET
+    path: "/api/v1/consents/{consentId}"
+    operationId: getMediaConsent
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 404]
+    experienceBinding: pending-owner-review
+  - id: media.http.revokeMediaConsent
+    contractFile: operations/revokeMediaConsent.yaml
+    method: DELETE
+    path: "/api/v1/consents/{consentId}"
+    operationId: revokeMediaConsent
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 404]
+    experienceBinding: pending-owner-review
+  - id: media.http.beginMediaUpload
+    contractFile: operations/beginMediaUpload.yaml
+    method: POST
+    path: "/api/v1/artifacts/uploads"
+    operationId: beginMediaUpload
+    parameters: []
+    requestSchema: "#/components/schemas/UploadRequest"
+    responseStatuses: [201, 400, 403]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaUpload
+    contractFile: operations/getMediaUpload.yaml
+    method: GET
+    path: "/api/v1/artifacts/uploads/{uploadId}"
+    operationId: getMediaUpload
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 404]
+    experienceBinding: pending-owner-review
+  - id: media.http.appendMediaChunk
+    contractFile: operations/appendMediaChunk.yaml
+    method: PUT
+    path: "/api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}"
+    operationId: appendMediaChunk
+    parameters: [chunkIndex]
+    requestSchema: none
+    responseStatuses: [200, 400, 409]
+    experienceBinding: pending-owner-review
+  - id: media.http.completeMediaUpload
+    contractFile: operations/completeMediaUpload.yaml
+    method: POST
+    path: "/api/v1/artifacts/uploads/{uploadId}/complete"
+    operationId: completeMediaUpload
+    parameters: []
+    requestSchema: none
+    responseStatuses: [201, 409]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaArtifact
+    contractFile: operations/getMediaArtifact.yaml
+    method: GET
+    path: "/api/v1/artifacts/{artifactId}"
+    operationId: getMediaArtifact
+    parameters: [artifactId]
+    requestSchema: none
+    responseStatuses: [200, 404]
+    experienceBinding: pending-owner-review
+  - id: media.http.submitMediaJob
+    contractFile: operations/submitMediaJob.yaml
+    method: POST
+    path: "/api/v1/jobs"
+    operationId: submitMediaJob
+    parameters: []
+    requestSchema: "#/components/schemas/ProcessingJobRequest"
+    responseStatuses: [202, 400, 403, 503]
+    experienceBinding: pending-owner-review
+  - id: media.http.listMediaJobs
+    contractFile: operations/listMediaJobs.yaml
+    method: GET
+    path: "/api/v1/jobs"
+    operationId: listMediaJobs
+    parameters: [limit]
+    requestSchema: none
+    responseStatuses: [200]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaJob
+    contractFile: operations/getMediaJob.yaml
+    method: GET
+    path: "/api/v1/jobs/{jobId}"
+    operationId: getMediaJob
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 404]
+    experienceBinding: pending-owner-review
+  - id: media.http.cancelMediaJob
+    contractFile: operations/cancelMediaJob.yaml
+    method: POST
+    path: "/api/v1/jobs/{jobId}/cancel"
+    operationId: cancelMediaJob
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 404]
+    experienceBinding: pending-owner-review
+  - id: media.http.openMediaStream
+    contractFile: operations/openMediaStream.yaml
+    method: POST
+    path: "/api/v1/streams"
+    operationId: openMediaStream
+    parameters: []
+    requestSchema: "#/components/schemas/StreamSessionRequest"
+    responseStatuses: [201, 400, 403]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaStream
+    contractFile: operations/getMediaStream.yaml
+    method: GET
+    path: "/api/v1/streams/{sessionId}"
+    operationId: getMediaStream
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 404]
+    experienceBinding: pending-owner-review
+  - id: media.http.connectMediaStream
+    contractFile: operations/connectMediaStream.yaml
+    method: POST
+    path: "/api/v1/streams/{sessionId}/connect"
+    operationId: connectMediaStream
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 403, 409]
+    experienceBinding: pending-owner-review
+  - id: media.http.submitMediaStreamFrame
+    contractFile: operations/submitMediaStreamFrame.yaml
+    method: POST
+    path: "/api/v1/streams/{sessionId}/frames/{sequence}"
+    operationId: submitMediaStreamFrame
+    parameters: [sequence, X-End-Of-Stream]
+    requestSchema: none
+    responseStatuses: [202, 403, 409]
+    experienceBinding: pending-owner-review
+  - id: media.http.closeMediaStream
+    contractFile: operations/closeMediaStream.yaml
+    method: POST
+    path: "/api/v1/streams/{sessionId}/close"
+    operationId: closeMediaStream
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 403]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaProviders
+    contractFile: operations/getMediaProviders.yaml
+    method: GET
+    path: "/api/v1/providers"
+    operationId: getMediaProviders
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200]
+    experienceBinding: pending-owner-review

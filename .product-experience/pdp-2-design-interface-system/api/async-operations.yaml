@@ -1,0 +1,8 @@
+schemaVersion: media.api-async-operations.v1
+owner: ghatana-media-product-api
+authority: Proposed Media job semantics; no durable job behavior is established here. Shared transport primitives do not own Media job lifecycle.
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-2-design-interface-system/api/identifiers.yaml, .product-experience/pdp-2-design-interface-system/api/cancellation.yaml, .product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml, .product-experience/pdp-0-product-truth/state-models.yaml]
+scopeStatus: proposal; endpoint and event bindings remain unverified
+acceptance: {criteria: [for operations approved as asynchronous, the accepted request has an operation-scoped job identity, job state and effect finality are separate, result references and terminal reasons are explicit], status: pending-runtime-owner-review}
+verification: {method: Verify request acknowledgment, status-read availability and persistence guarantees only as claimed by the bound runtime contract, terminal result, and response-loss behavior with runtime owner, status: not-run}
+rules: [where an approved operation is asynchronous, transport acceptance means only the documented acknowledgment and not completion, expose authorized status lookup only when implemented and bound, distinguish execution state from effect finality, preserve uploadId separately when linked, a job result does not by itself imply artifact acceptance, this proposal establishes no durable storage or retention guarantee]

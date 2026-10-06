@@ -1,0 +1,604 @@
+schemaVersion: media.pdp-1.transitions.v1
+productId: media
+artifactId: media.pdp-1.state-transitions.v1
+authorityStatus: proposal-only; owner-review-pending; P0-010-independent-acceptance-pending
+sourceAuthority: .product-experience/pdp-0-product-truth/state-models.yaml
+inventory:
+  sourceMachineRecords: 11
+  transitionRecords: 49
+  transitionRelationsPreserved: true
+  sourceTransitionGuardsCopied: false
+  transitionMeaning: pending-owner-review
+  operations: pending-PDP1-002-and-owner-review
+  events: pending-PDP1-004-and-owner-review
+  permissions: pending-owner-contracts
+  executionEffects: pending-runtime-and-platform-owner-contracts
+transitionRecords:
+  - id: media-job/T01
+    sourceMachineId: media-job
+    sourceTransitionIndex: 1
+    from: [QUEUED]
+    to: [RUNNING, CANCELLED, FAILED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: [media.operation.job-lifecycle]
+    operationBinding: proposed-unresolved; PDP1-002 family reference only, not an operation equivalence or accepted link
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-job/T02
+    sourceMachineId: media-job
+    sourceTransitionIndex: 2
+    from: [RUNNING]
+    to: [RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, PARTIALLY_SUCCEEDED, FAILED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-job/T03
+    sourceMachineId: media-job
+    sourceTransitionIndex: 3
+    from: [RETRY_PENDING]
+    to: [RUNNING, CANCELLED, FAILED, OUTCOME_UNKNOWN]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: [media.operation.job-lifecycle]
+    operationBinding: proposed-unresolved; PDP1-002 family reference only, not an operation equivalence or accepted link
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-job/T04
+    sourceMachineId: media-job
+    sourceTransitionIndex: 4
+    from: [OUTCOME_UNKNOWN]
+    to: [RECONCILING]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: [media.operation.job-lifecycle]
+    operationBinding: proposed-unresolved; PDP1-002 family reference only, not an operation equivalence or accepted link
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-job/T05
+    sourceMachineId: media-job
+    sourceTransitionIndex: 5
+    from: [RECONCILING]
+    to: [RUNNING, RETRY_PENDING, COMPLETED, PARTIALLY_SUCCEEDED, FAILED, CANCELLED, OUTCOME_UNKNOWN]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-attempt/T01
+    sourceMachineId: media-attempt
+    sourceTransitionIndex: 1
+    from: [CLAIMED]
+    to: [DISPATCH_INTENT_RECORDED, CANCEL_CONFIRMED, FAILED, SUPERSEDED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-attempt/T02
+    sourceMachineId: media-attempt
+    sourceTransitionIndex: 2
+    from: [DISPATCH_INTENT_RECORDED]
+    to: [DISPATCHED, CANCEL_CONFIRMED, FAILED, OUTCOME_UNKNOWN]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-attempt/T03
+    sourceMachineId: media-attempt
+    sourceTransitionIndex: 3
+    from: [DISPATCHED]
+    to: [RUNNING, CANCEL_REQUESTED, SUCCEEDED, FAILED, OUTCOME_UNKNOWN, SUPERSEDED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-attempt/T04
+    sourceMachineId: media-attempt
+    sourceTransitionIndex: 4
+    from: [RUNNING]
+    to: [CANCEL_REQUESTED, SUCCEEDED, FAILED, OUTCOME_UNKNOWN, SUPERSEDED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-attempt/T05
+    sourceMachineId: media-attempt
+    sourceTransitionIndex: 5
+    from: [CANCEL_REQUESTED]
+    to: [CANCEL_CONFIRMED, SUCCEEDED, FAILED, OUTCOME_UNKNOWN, SUPERSEDED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-upload-and-artifact/T01
+    sourceMachineId: media-upload-and-artifact
+    sourceTransitionIndex: 1
+    from: [RECEIVING]
+    to: [VERIFYING, REJECTED, EXPIRED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-upload-and-artifact/T02
+    sourceMachineId: media-upload-and-artifact
+    sourceTransitionIndex: 2
+    from: [VERIFYING]
+    to: [AVAILABLE, QUARANTINED, REJECTED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-upload-and-artifact/T03
+    sourceMachineId: media-upload-and-artifact
+    sourceTransitionIndex: 3
+    from: [AVAILABLE]
+    to: [QUARANTINED, EXPIRED, ERASURE_REQUESTED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-upload-and-artifact/T04
+    sourceMachineId: media-upload-and-artifact
+    sourceTransitionIndex: 4
+    from: [QUARANTINED]
+    to: [AVAILABLE, REJECTED, ERASURE_REQUESTED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-upload-and-artifact/T05
+    sourceMachineId: media-upload-and-artifact
+    sourceTransitionIndex: 5
+    from: [EXPIRED]
+    to: [PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-upload-and-artifact/T06
+    sourceMachineId: media-upload-and-artifact
+    sourceTransitionIndex: 6
+    from: [ERASURE_REQUESTED]
+    to: [ACCESS_REVOKED, BLOCKED_BY_HOLD]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-upload-and-artifact/T07
+    sourceMachineId: media-upload-and-artifact
+    sourceTransitionIndex: 7
+    from: [ACCESS_REVOKED]
+    to: [PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD, EXTERNAL_ERASURE_UNCONFIRMED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-upload-and-artifact/T08
+    sourceMachineId: media-upload-and-artifact
+    sourceTransitionIndex: 8
+    from: [PHYSICAL_ERASURE_PENDING]
+    to: [ERASURE_CONFIRMED, BLOCKED_BY_HOLD, EXTERNAL_ERASURE_UNCONFIRMED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-upload-and-artifact/T09
+    sourceMachineId: media-upload-and-artifact
+    sourceTransitionIndex: 9
+    from: [BLOCKED_BY_HOLD]
+    to: [PHYSICAL_ERASURE_PENDING, EXTERNAL_ERASURE_UNCONFIRMED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-stream-session/T01
+    sourceMachineId: media-stream-session
+    sourceTransitionIndex: 1
+    from: [OPEN]
+    to: [CONNECTED, DRAINING, FAILED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-stream-session
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-stream-session/T02
+    sourceMachineId: media-stream-session
+    sourceTransitionIndex: 2
+    from: [CONNECTED]
+    to: [DEGRADED, DRAINING, FAILED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-stream-session
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-stream-session/T03
+    sourceMachineId: media-stream-session
+    sourceTransitionIndex: 3
+    from: [DEGRADED]
+    to: [CONNECTED, DRAINING, FAILED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-stream-session
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-stream-session/T04
+    sourceMachineId: media-stream-session
+    sourceTransitionIndex: 4
+    from: [DRAINING]
+    to: [CLOSED, FAILED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-stream-session
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-review/T01
+    sourceMachineId: media-review
+    sourceTransitionIndex: 1
+    from: [DRAFT]
+    to: [REQUESTED, WITHDRAWN, EXPIRED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-review/T02
+    sourceMachineId: media-review
+    sourceTransitionIndex: 2
+    from: [REQUESTED]
+    to: [IN_REVIEW, WITHDRAWN, EXPIRED, SUPERSEDED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-review/T03
+    sourceMachineId: media-review
+    sourceTransitionIndex: 3
+    from: [IN_REVIEW]
+    to: [CHANGES_REQUESTED, APPROVED, REJECTED, WITHDRAWN, EXPIRED, SUPERSEDED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-review/T04
+    sourceMachineId: media-review
+    sourceTransitionIndex: 4
+    from: [CHANGES_REQUESTED]
+    to: [SUPERSEDED, WITHDRAWN, EXPIRED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-review/T05
+    sourceMachineId: media-review
+    sourceTransitionIndex: 5
+    from: [APPROVED]
+    to: [SUPERSEDED, EXPIRED, WITHDRAWN]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-delivery/T01
+    sourceMachineId: media-delivery
+    sourceTransitionIndex: 1
+    from: [NOT_STARTED]
+    to: [PREPARING, REVOKED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-delivery/T02
+    sourceMachineId: media-delivery
+    sourceTransitionIndex: 2
+    from: [PREPARING]
+    to: [READY_FOR_AUTHORIZED_DELIVERY, FAILED, REVOKED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-delivery/T03
+    sourceMachineId: media-delivery
+    sourceTransitionIndex: 3
+    from: [READY_FOR_AUTHORIZED_DELIVERY]
+    to: [SUBMITTED, FAILED, REVOKED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-delivery/T04
+    sourceMachineId: media-delivery
+    sourceTransitionIndex: 4
+    from: [SUBMITTED]
+    to: [ACKNOWLEDGED, PARTIALLY_DELIVERED, OUTCOME_UNKNOWN, FAILED, REVOKED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-delivery/T05
+    sourceMachineId: media-delivery
+    sourceTransitionIndex: 5
+    from: [OUTCOME_UNKNOWN]
+    to: [RECONCILING]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-delivery/T06
+    sourceMachineId: media-delivery
+    sourceTransitionIndex: 6
+    from: [RECONCILING]
+    to: [ACKNOWLEDGED, PARTIALLY_DELIVERED, OUTCOME_UNKNOWN, FAILED, REVOKED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-delivery/T07
+    sourceMachineId: media-delivery
+    sourceTransitionIndex: 7
+    from: [PARTIALLY_DELIVERED]
+    to: [RECONCILING, ACKNOWLEDGED, FAILED, REVOKED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-quality-disposition/T01
+    sourceMachineId: media-quality-disposition
+    sourceTransitionIndex: 1
+    from: [NOT_ASSESSED]
+    to: [ASSESSING, REVIEW_REQUIRED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-quality-disposition
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-quality-disposition/T02
+    sourceMachineId: media-quality-disposition
+    sourceTransitionIndex: 2
+    from: [ASSESSING]
+    to: [PASS, FAIL, ABSTAINED, REVIEW_REQUIRED, SUPERSEDED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-quality-disposition
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-quality-disposition/T03
+    sourceMachineId: media-quality-disposition
+    sourceTransitionIndex: 3
+    from: [PASS, FAIL, ABSTAINED, REVIEW_REQUIRED]
+    to: [SUPERSEDED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-quality-disposition
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-project/T01
+    sourceMachineId: media-project
+    sourceTransitionIndex: 1
+    from: [ACTIVE]
+    to: [ARCHIVED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-project/T02
+    sourceMachineId: media-project
+    sourceTransitionIndex: 2
+    from: [ARCHIVED]
+    to: [ACTIVE]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-project-version/T01
+    sourceMachineId: media-project-version
+    sourceTransitionIndex: 1
+    from: [DRAFT]
+    to: [COMMITTED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-project-version/T02
+    sourceMachineId: media-project-version
+    sourceTransitionIndex: 2
+    from: [DRAFT]
+    to: [CONFLICTED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-project-version/T03
+    sourceMachineId: media-project-version
+    sourceTransitionIndex: 3
+    from: [DRAFT]
+    to: [ABANDONED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-project-version/T04
+    sourceMachineId: media-project-version
+    sourceTransitionIndex: 4
+    from: [COMMITTED]
+    to: [SUPERSEDED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-project-membership/T01
+    sourceMachineId: media-project-membership
+    sourceTransitionIndex: 1
+    from: [INVITED]
+    to: [ACTIVE]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-project-membership/T02
+    sourceMachineId: media-project-membership
+    sourceTransitionIndex: 2
+    from: [INVITED]
+    to: [REVOKED, EXPIRED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-project-membership/T03
+    sourceMachineId: media-project-membership
+    sourceTransitionIndex: 3
+    from: [ACTIVE]
+    to: [SUSPENDED, REVOKED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-project-membership/T04
+    sourceMachineId: media-project-membership
+    sourceTransitionIndex: 4
+    from: [SUSPENDED]
+    to: [ACTIVE]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts
+  - id: media-project-membership/T05
+    sourceMachineId: media-project-membership
+    sourceTransitionIndex: 5
+    from: [SUSPENDED]
+    to: [REVOKED]
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
+    guardDisposition: pending-owner-review; source guard not promoted
+    operationRefs: []
+    operationBinding: unresolved
+    eventTriggers: pending-PDP1-004
+    permissions: pending-owner-contracts
+    executionEffects: pending-runtime-and-platform-owner-contracts

@@ -1,0 +1,486 @@
+schemaVersion: media.grpc-service-registry.v1
+productId: media
+status: active-source-inventory; observed-proto-projections; protocol-authority-unselected; operation-bindings-proposal-only; owner-review-pending
+sourceRule: every-rpc-is-derived-from-a-non-archived-repository-proto-service-declaration
+observedRpcCount: 43
+authorityDisposition: protobuf-declarations-are-implementation-or-projection-observations; no-canonical-wire-authority-selected
+semanticAuthority: PDP-1 operation proposal is intended semantic authority only after phase acceptance
+sourceInventory: four-non-archived-governed-proto-services-STT-TTS-Vision-Multimodal
+explicitProposedLogicalOperationBindings: 24
+unresolvedLogicalOperationBindings: 19
+requestedRpcCount: 43
+unresolvedRpcCount: 0
+rpcs:
+  - id: media.grpc.MultimodalService.ProcessMultimodal
+    contractFile: operations/MultimodalService.ProcessMultimodal.yaml
+    service: MultimodalService
+    method: ProcessMultimodal
+    package: com.ghatana.audio.video.multimodal.grpc
+    source: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    request: MultimodalRequest
+    response: MultimodalResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.MultimodalService.AnalyzeVideoWithAudio
+    contractFile: operations/MultimodalService.AnalyzeVideoWithAudio.yaml
+    service: MultimodalService
+    method: AnalyzeVideoWithAudio
+    package: com.ghatana.audio.video.multimodal.grpc
+    source: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    request: VideoAudioRequest
+    response: VideoAudioResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.MultimodalService.GenerateDescription
+    contractFile: operations/MultimodalService.GenerateDescription.yaml
+    service: MultimodalService
+    method: GenerateDescription
+    package: com.ghatana.audio.video.multimodal.grpc
+    source: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    request: DescriptionRequest
+    response: DescriptionResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.MultimodalService.AnalyzeCrossModal
+    contractFile: operations/MultimodalService.AnalyzeCrossModal.yaml
+    service: MultimodalService
+    method: AnalyzeCrossModal
+    package: com.ghatana.audio.video.multimodal.grpc
+    source: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    request: CrossModalRequest
+    response: CrossModalResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.MultimodalService.GetInsights
+    contractFile: operations/MultimodalService.GetInsights.yaml
+    service: MultimodalService
+    method: GetInsights
+    package: com.ghatana.audio.video.multimodal.grpc
+    source: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    request: InsightsRequest
+    response: InsightsResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.MultimodalService.LoadModel
+    contractFile: operations/MultimodalService.LoadModel.yaml
+    service: MultimodalService
+    method: LoadModel
+    package: com.ghatana.audio.video.multimodal.grpc
+    source: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    request: LoadModelRequest
+    response: LoadModelResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.MultimodalService.UnloadModel
+    contractFile: operations/MultimodalService.UnloadModel.yaml
+    service: MultimodalService
+    method: UnloadModel
+    package: com.ghatana.audio.video.multimodal.grpc
+    source: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    request: UnloadModelRequest
+    response: UnloadModelResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.MultimodalService.ListModels
+    contractFile: operations/MultimodalService.ListModels.yaml
+    service: MultimodalService
+    method: ListModels
+    package: com.ghatana.audio.video.multimodal.grpc
+    source: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    request: ListModelsRequest
+    response: ListModelsResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.MultimodalService.GetStatus
+    contractFile: operations/MultimodalService.GetStatus.yaml
+    service: MultimodalService
+    method: GetStatus
+    package: com.ghatana.audio.video.multimodal.grpc
+    source: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    request: StatusRequest
+    response: StatusResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.MultimodalService.HealthCheck
+    contractFile: operations/MultimodalService.HealthCheck.yaml
+    service: MultimodalService
+    method: HealthCheck
+    package: com.ghatana.audio.video.multimodal.grpc
+    source: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    request: HealthCheckRequest
+    response: HealthCheckResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.STTService.Transcribe
+    contractFile: operations/STTService.Transcribe.yaml
+    service: STTService
+    method: Transcribe
+    package: com.ghatana.audio.video.stt.grpc
+    source: modules/speech/stt-service/src/main/proto/stt_service.proto
+    request: TranscribeRequest
+    response: TranscribeResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.STTService.StreamTranscribe
+    contractFile: operations/STTService.StreamTranscribe.yaml
+    service: STTService
+    method: StreamTranscribe
+    package: com.ghatana.audio.video.stt.grpc
+    source: modules/speech/stt-service/src/main/proto/stt_service.proto
+    request: AudioChunk
+    response: Transcription
+    clientStreaming: true
+    serverStreaming: true
+    experienceBinding: pending-owner-review
+  - id: media.grpc.STTService.LoadModel
+    contractFile: operations/STTService.LoadModel.yaml
+    service: STTService
+    method: LoadModel
+    package: com.ghatana.audio.video.stt.grpc
+    source: modules/speech/stt-service/src/main/proto/stt_service.proto
+    request: LoadModelRequest
+    response: LoadModelResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.STTService.UnloadModel
+    contractFile: operations/STTService.UnloadModel.yaml
+    service: STTService
+    method: UnloadModel
+    package: com.ghatana.audio.video.stt.grpc
+    source: modules/speech/stt-service/src/main/proto/stt_service.proto
+    request: UnloadModelRequest
+    response: UnloadModelResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.STTService.ListModels
+    contractFile: operations/STTService.ListModels.yaml
+    service: STTService
+    method: ListModels
+    package: com.ghatana.audio.video.stt.grpc
+    source: modules/speech/stt-service/src/main/proto/stt_service.proto
+    request: ListModelsRequest
+    response: ListModelsResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.STTService.AdaptModel
+    contractFile: operations/STTService.AdaptModel.yaml
+    service: STTService
+    method: AdaptModel
+    package: com.ghatana.audio.video.stt.grpc
+    source: modules/speech/stt-service/src/main/proto/stt_service.proto
+    request: AdaptRequest
+    response: AdaptResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.STTService.GetStatus
+    contractFile: operations/STTService.GetStatus.yaml
+    service: STTService
+    method: GetStatus
+    package: com.ghatana.audio.video.stt.grpc
+    source: modules/speech/stt-service/src/main/proto/stt_service.proto
+    request: StatusRequest
+    response: StatusResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.STTService.HealthCheck
+    contractFile: operations/STTService.HealthCheck.yaml
+    service: STTService
+    method: HealthCheck
+    package: com.ghatana.audio.video.stt.grpc
+    source: modules/speech/stt-service/src/main/proto/stt_service.proto
+    request: HealthCheckRequest
+    response: HealthCheckResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.STTService.CreateProfile
+    contractFile: operations/STTService.CreateProfile.yaml
+    service: STTService
+    method: CreateProfile
+    package: com.ghatana.audio.video.stt.grpc
+    source: modules/speech/stt-service/src/main/proto/stt_service.proto
+    request: CreateProfileRequest
+    response: ProfileResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.STTService.GetProfile
+    contractFile: operations/STTService.GetProfile.yaml
+    service: STTService
+    method: GetProfile
+    package: com.ghatana.audio.video.stt.grpc
+    source: modules/speech/stt-service/src/main/proto/stt_service.proto
+    request: GetProfileRequest
+    response: ProfileResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.STTService.UpdateProfile
+    contractFile: operations/STTService.UpdateProfile.yaml
+    service: STTService
+    method: UpdateProfile
+    package: com.ghatana.audio.video.stt.grpc
+    source: modules/speech/stt-service/src/main/proto/stt_service.proto
+    request: UpdateProfileRequest
+    response: ProfileResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.STTService.SubmitCorrection
+    contractFile: operations/STTService.SubmitCorrection.yaml
+    service: STTService
+    method: SubmitCorrection
+    package: com.ghatana.audio.video.stt.grpc
+    source: modules/speech/stt-service/src/main/proto/stt_service.proto
+    request: CorrectionRequest
+    response: CorrectionResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.TTSService.Synthesize
+    contractFile: operations/TTSService.Synthesize.yaml
+    service: TTSService
+    method: Synthesize
+    package: com.ghatana.audio.video.tts.grpc
+    source: modules/speech/tts-service/src/main/proto/tts_service.proto
+    request: SynthesizeRequest
+    response: SynthesizeResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.TTSService.StreamSynthesize
+    contractFile: operations/TTSService.StreamSynthesize.yaml
+    service: TTSService
+    method: StreamSynthesize
+    package: com.ghatana.audio.video.tts.grpc
+    source: modules/speech/tts-service/src/main/proto/tts_service.proto
+    request: SynthesizeRequest
+    response: AudioChunk
+    clientStreaming: false
+    serverStreaming: true
+    experienceBinding: pending-owner-review
+  - id: media.grpc.TTSService.GetStatus
+    contractFile: operations/TTSService.GetStatus.yaml
+    service: TTSService
+    method: GetStatus
+    package: com.ghatana.audio.video.tts.grpc
+    source: modules/speech/tts-service/src/main/proto/tts_service.proto
+    request: StatusRequest
+    response: StatusResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.TTSService.GetMetrics
+    contractFile: operations/TTSService.GetMetrics.yaml
+    service: TTSService
+    method: GetMetrics
+    package: com.ghatana.audio.video.tts.grpc
+    source: modules/speech/tts-service/src/main/proto/tts_service.proto
+    request: MetricsRequest
+    response: MetricsResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.TTSService.GetVoices
+    contractFile: operations/TTSService.GetVoices.yaml
+    service: TTSService
+    method: GetVoices
+    package: com.ghatana.audio.video.tts.grpc
+    source: modules/speech/tts-service/src/main/proto/tts_service.proto
+    request: GetVoicesRequest
+    response: GetVoicesResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.TTSService.LoadVoice
+    contractFile: operations/TTSService.LoadVoice.yaml
+    service: TTSService
+    method: LoadVoice
+    package: com.ghatana.audio.video.tts.grpc
+    source: modules/speech/tts-service/src/main/proto/tts_service.proto
+    request: LoadVoiceRequest
+    response: LoadVoiceResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.TTSService.CreateProfile
+    contractFile: operations/TTSService.CreateProfile.yaml
+    service: TTSService
+    method: CreateProfile
+    package: com.ghatana.audio.video.tts.grpc
+    source: modules/speech/tts-service/src/main/proto/tts_service.proto
+    request: CreateProfileRequest
+    response: ProfileResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.TTSService.GetProfile
+    contractFile: operations/TTSService.GetProfile.yaml
+    service: TTSService
+    method: GetProfile
+    package: com.ghatana.audio.video.tts.grpc
+    source: modules/speech/tts-service/src/main/proto/tts_service.proto
+    request: GetProfileRequest
+    response: ProfileResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.TTSService.UpdateProfile
+    contractFile: operations/TTSService.UpdateProfile.yaml
+    service: TTSService
+    method: UpdateProfile
+    package: com.ghatana.audio.video.tts.grpc
+    source: modules/speech/tts-service/src/main/proto/tts_service.proto
+    request: UpdateProfileRequest
+    response: ProfileResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.TTSService.CloneVoice
+    contractFile: operations/TTSService.CloneVoice.yaml
+    service: TTSService
+    method: CloneVoice
+    package: com.ghatana.audio.video.tts.grpc
+    source: modules/speech/tts-service/src/main/proto/tts_service.proto
+    request: CloneVoiceRequest
+    response: CloneVoiceResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.TTSService.SubmitFeedback
+    contractFile: operations/TTSService.SubmitFeedback.yaml
+    service: TTSService
+    method: SubmitFeedback
+    package: com.ghatana.audio.video.tts.grpc
+    source: modules/speech/tts-service/src/main/proto/tts_service.proto
+    request: FeedbackRequest
+    response: FeedbackResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.VisionService.DetectObjects
+    contractFile: operations/VisionService.DetectObjects.yaml
+    service: VisionService
+    method: DetectObjects
+    package: com.ghatana.audio.video.vision.grpc
+    source: modules/vision/vision-service/src/main/proto/vision_service.proto
+    request: DetectRequest
+    response: DetectResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.VisionService.AnalyzeImage
+    contractFile: operations/VisionService.AnalyzeImage.yaml
+    service: VisionService
+    method: AnalyzeImage
+    package: com.ghatana.audio.video.vision.grpc
+    source: modules/vision/vision-service/src/main/proto/vision_service.proto
+    request: AnalyzeRequest
+    response: AnalyzeResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.VisionService.ClassifyImage
+    contractFile: operations/VisionService.ClassifyImage.yaml
+    service: VisionService
+    method: ClassifyImage
+    package: com.ghatana.audio.video.vision.grpc
+    source: modules/vision/vision-service/src/main/proto/vision_service.proto
+    request: ClassifyRequest
+    response: ClassifyResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.VisionService.AnalyzeVideoFile
+    contractFile: operations/VisionService.AnalyzeVideoFile.yaml
+    service: VisionService
+    method: AnalyzeVideoFile
+    package: com.ghatana.audio.video.vision.grpc
+    source: modules/vision/vision-service/src/main/proto/vision_service.proto
+    request: VideoFileRequest
+    response: VideoFileResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.VisionService.ProcessVideo
+    contractFile: operations/VisionService.ProcessVideo.yaml
+    service: VisionService
+    method: ProcessVideo
+    package: com.ghatana.audio.video.vision.grpc
+    source: modules/vision/vision-service/src/main/proto/vision_service.proto
+    request: VideoFrameRequest
+    response: VideoFrameResponse
+    clientStreaming: true
+    serverStreaming: true
+    experienceBinding: pending-owner-review
+  - id: media.grpc.VisionService.LoadModel
+    contractFile: operations/VisionService.LoadModel.yaml
+    service: VisionService
+    method: LoadModel
+    package: com.ghatana.audio.video.vision.grpc
+    source: modules/vision/vision-service/src/main/proto/vision_service.proto
+    request: LoadModelRequest
+    response: LoadModelResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.VisionService.UnloadModel
+    contractFile: operations/VisionService.UnloadModel.yaml
+    service: VisionService
+    method: UnloadModel
+    package: com.ghatana.audio.video.vision.grpc
+    source: modules/vision/vision-service/src/main/proto/vision_service.proto
+    request: UnloadModelRequest
+    response: UnloadModelResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.VisionService.ListModels
+    contractFile: operations/VisionService.ListModels.yaml
+    service: VisionService
+    method: ListModels
+    package: com.ghatana.audio.video.vision.grpc
+    source: modules/vision/vision-service/src/main/proto/vision_service.proto
+    request: ListModelsRequest
+    response: ListModelsResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.VisionService.GetStatus
+    contractFile: operations/VisionService.GetStatus.yaml
+    service: VisionService
+    method: GetStatus
+    package: com.ghatana.audio.video.vision.grpc
+    source: modules/vision/vision-service/src/main/proto/vision_service.proto
+    request: StatusRequest
+    response: StatusResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
+  - id: media.grpc.VisionService.HealthCheck
+    contractFile: operations/VisionService.HealthCheck.yaml
+    service: VisionService
+    method: HealthCheck
+    package: com.ghatana.audio.video.vision.grpc
+    source: modules/vision/vision-service/src/main/proto/vision_service.proto
+    request: HealthCheckRequest
+    response: HealthCheckResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review

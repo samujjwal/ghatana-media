@@ -1,0 +1,46 @@
+schemaVersion: media.protocol-operation-contract.v1
+operationId: media.http.submitMediaStreamFrame
+protocolIdentity:
+  protocol: HTTP
+  method: POST
+  path: /api/v1/streams/{sessionId}/frames/{sequence}
+  operationId: submitMediaStreamFrame
+sourceContract: contracts/openapi/media.yaml
+sourceContractDisposition: implementation-or-projection-observation; not-declared-canonical-wire-authority
+routeManifestObservation:
+  source: config/route-manifest.json
+  routeId: POST /api/v1/streams/{sessionId}/frames/{sequence}
+  identityMatch: exact-method-path-operationId
+parameters:
+  refs:
+  - '#/components/parameters/TenantHeader'
+  - '#/components/parameters/SessionId'
+  - '#/components/parameters/StreamTokenHeader'
+request:
+  schemaRefs: []
+response:
+  responseRefsByStatus:
+    '403': '#/components/responses/Error'
+    '409': '#/components/responses/Error'
+  schemaRefsByStatus:
+    '202':
+    - '#/components/schemas/StreamAck'
+    '403':
+    - '#/components/schemas/ErrorEnvelope'
+    '409':
+    - '#/components/schemas/ErrorEnvelope'
+pdp1SemanticBinding:
+  logicalOperationRef: null
+  bindingStatus: unresolved-no-source-explicit-http-member-crosswalk
+  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
+  ownerReview: pending
+contractStatus: proposal-only; owner-review-pending
+nonClaims:
+- authentication
+- idempotency
+- retry
+- cancellation
+- finality
+- state-effects
+- privacy
+- event-guarantees

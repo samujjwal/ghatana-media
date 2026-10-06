@@ -1,0 +1,150 @@
+schemaVersion: media.screen-contract.v2
+contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+surfaceId: media.surface.web
+templateId: null
+layoutIds: []
+componentIds: [media.component.intent-launcher, media.component.provenance-summary, media.component.rights-retention-review]
+patternIds: [media.gui.pattern.safe-confirmation-and-unknown-outcome]
+tokenDependencies: []
+domainObjectRefs: []
+operationRefs: []
+stateRefs: []
+entry: []
+exit: []
+actionConsequences:
+  - actionId: media.action.search-product-guidance
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.open-related-view
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.prepare-redacted-diagnostics
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.share-diagnostics-after-explicit-choice
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+responsiveBehavior:
+  ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
+  status: proposal-unverified
+  screenOverrides: []
+fixtures:
+  refs: []
+  status: missing
+verification:
+  status: not-run
+  evidenceRefs: []
+  checks:
+    structural: not-proven
+    rendering: not-proven
+    behavior: not-proven
+    responsive: not-proven
+    keyboard: not-proven
+    accessibility: not-proven
+fieldBindingStatus:
+  surfaceId: candidate-binding-pending-owner-review
+  templateId: unresolved; no existing catalog template ID matches the declared templateRef
+  layoutIds: none-registered
+  componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
+  patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
+  tokenDependencies: no-canonical-references-declared
+  domainObjectRefs: no-canonical-references-declared
+  operationRefs: no-canonical-references-declared
+  stateRefs: no-PDP1-state-references-declared
+  entry: no-canonical-entry-contract-declared
+  exit: no-canonical-exit-contract-declared
+  actionConsequences: unresolved; owner-effect-binding-pending
+  responsiveBehavior: proposal-only; unverified
+  fixtures: missing
+  verification: not-run
+productId: media
+screenId: media.view.find-task-guidance
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+- media.operator
+- media.developer-integrator
+intentRef: media.intent.find-task-guidance
+purpose: Product-specific assistance and safe diagnostic sharing
+contextGoalNowNext:
+  context: The current user goal and non-sensitive product context, selected guidance language, and safe diagnostic-sharing
+    choice.
+  goal: Find product guidance that helps complete the current task without exposing protected information.
+  now: Show relevant steps, supported limitations, and optional diagnostic fields before any sharing action.
+  next: Follow the guidance, open a related view, or choose exactly which safe diagnostics to share.
+anatomy:
+- guidance-query-or-context
+- relevant-instructions
+- support-limitations
+- related-view-links
+- diagnostic-preview-and-redaction
+- sharing-choice
+componentRefs:
+- media.component.intent-launcher
+- media.component.provenance-summary
+- media.component.rights-retention-review
+states:
+- loading
+- results-ready
+- no-guidance
+- stale-guidance
+- diagnostic-redaction-required
+- share-confirmation
+actions:
+- media.action.search-product-guidance
+- media.action.open-related-view
+- media.action.prepare-redacted-diagnostics
+- media.action.share-diagnostics-after-explicit-choice
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+actionIntents:
+- search product guidance
+- open a related view
+- preview and redact diagnostics
+- share diagnostics only after explicit choice
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+surfaceContract:
+  surfaceRef: media.channel.web
+  status: channel-and-host-rendering-owner-review-pending
+templateContract:
+  templateRef: media.template.find-task-guidance
+  kind: owner-defined-template-pending-review
+layoutContract:
+  primaryRegion: intent-and-context
+  supportingRegions: anatomy-list-order
+  responsiveRuleRef: existing-responsive-description
+patternRefs:
+  - media.gui.pattern.safe-confirmation-and-unknown-outcome
+validation:
+  status: proposal-validation-pending-owner-review
+  rule: validate-inputs-authority-and-finality-before-dispatch
+recovery:
+  status: explicit-recovery-proposal-pending-owner-review
+  rule: preserve-context-and-unknown-outcomes-before-retry-or-resubmit
+accessibility:
+  status: accessibility-intent-proposal-pending-owner-review
+  rule: preserve-focus-reading-order-names-and-recovery-announcements
+localization:
+  status: Shared-localization-binding-pending-owner-review
+  rule: use-Shared-locale-formatting-and-accessibility-contracts
+sourceRefs:
+- master-plan:section-20.2
+- .product-experience/pdp-0-product-truth
+journeyRefs: []

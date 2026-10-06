@@ -1,0 +1,27 @@
+schemaVersion: media.gui-layout.v1
+owner: ghatana-media-product-experience
+authority: Media owns information hierarchy and responsive composition; Shared owns layout primitives and design tokens
+sourceRefs:
+  - .product-experience/pdp-2-design-interface-system/typography-layout.yaml
+  - .product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml
+  - .product-experience/pdp-2-design-interface-system/accessibility.yaml
+  - primitives.yaml
+scopeStatus: proposal; viewport values and Shared layout bindings require validation
+acceptance:
+  criteria:
+    - Reading order preserves source, derived output, state, finality, and next action relationships at every width.
+    - Narrow layouts retain critical identity, consent, provenance, and recovery information.
+    - No product-local token values or generic layout implementation are introduced.
+  status: pending-review
+verification:
+  method: Review representative project, upload, job, transcript, and review layouts at narrow, standard, and wide viewports with keyboard and zoom.
+  status: not-run
+layoutRules:
+  shell: Use Shared product-shell and layout exports after package binding verification.
+  hierarchy: [workspace-and-project-context, task-outcome, primary-work-region, state-and-finality, next-safe-action, supporting-provenance]
+  responsive: Reflow columns into a single reading order; preserve exact selection and object identity; never remove critical actions or state.
+  mediaWork: Keep source playback and time-aligned transcript context linked; allow independent scroll regions only when keyboard and assistive navigation remain clear.
+  collections: Keep search, result count, selection, and pagination context associated.
+  dialogs: Use Shared dialog primitives; expose purpose, effect, dismissal, and focus return.
+  density: Derive density from task and content complexity; do not encode density as copied token values.
+  forbidden: [horizontal-only access to essential content, color-only state, layout implying authorization, hidden unknown-finality warning]

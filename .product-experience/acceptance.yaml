@@ -1,7 +1,9 @@
-schemaVersion: media.product-acceptance-inputs.v1
+schemaVersion: media.product-acceptance-inputs.v2
 productId: media
 mode: authored-human-review-inputs-only
 artifactPathBase: repository-root-relative
+canonicalPdpPhases: [PDP-0, PDP-1, PDP-2, PDP-3]
+explorerOutsidePdpPhases: true
 sourceRefs:
 - master-plan:section-18.3
 - master-plan:task-P0-010
@@ -12,12 +14,13 @@ acceptanceAuthority:
     Acceptance results and currentness must come from an owner-approved validation workflow after its schema binding
     is established.
   editableDecisionState: human-review-inputs-only
-  independentReviewRequiredForFullPhase0: P0-010
+  independentReviewRequiredForFullPDP0: P0-010
   schemaAndValidatorBinding: pending
   blockerRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
   currentnessGenerationGapRef: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
 recordedHumanDecisionInputs:
 - id: ACCEPT-INPUT-P0-001
+  phase: PDP-0
   phaseTask: P0-001
   decisionInput: accepted
   acceptedScope:
@@ -26,26 +29,481 @@ recordedHumanDecisionInputs:
   - Named consumer and compatibility commitments in the boundary record
   - Authority-transfer conditions and the rule that migration preparation is not cutover
   evidenceRefs:
-  - .product-experience/phase-0-product-truth/PRODUCT-TRUTH.md
+  - .product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md
   - BOUNDARY.md
   - docs/migration/decisions/MDI-001-document-intelligence-ownership.md
   - docs/migration/decisions/document-intelligence-ownership-instruction.md
   sourceOfDecision: explicit-user-approval-of-the-minimal-P0-001-boundary-slice
   decisionDate: '2026-10-04'
   exclusions:
-  - Full Phase 0 Product Truth acceptance
+  - Full PDP-0 Product Truth acceptance
   - Runtime implementation, qualification, licensing, or availability
   - Source cutover, runtime/data handover, production deployment, or release readiness
   - Acceptance of P0-002 through P0-010 or any later phase
+- id: ACCEPT-INPUT-CROSS-001
+  phaseTask: CROSS-001
+  decisionInput: accepted
+  acceptedScope:
+  - Canonical sequence PDP-0 Product Truth, PDP-1 Canonical Domain and Data Model, PDP-2 Design Language and Interface System, and PDP-3 Complete Product Experience.
+  - Experience Explorer is a projection outside the four PDP phases.
+  - The definitions remain proposals until their own semantic, specialist, and independent acceptance gates are met.
+  evidenceRefs:
+  - .product-experience/README.md
+  - .product-experience/source-manifest.yaml
+  - .product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md
+  - .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md
+  - .product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md
+  - .product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md
+  - codex-attachment:10664bd3-994e-4c79-b28c-97a01a9b0937/Pasted text.txt
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  exclusions:
+  - Full semantic acceptance of PDP-0, PDP-1, PDP-2, or PDP-3
+  - Acceptance of missing bounds, unresolved references, interface mappings, or unreviewed specialist semantics
+  - Tools or Shared owner acceptance, native receipts/currentness, publication, qualification, or release readiness
+  - Production Web/CLI implementation or any other derived implementation gated on accepted PDP-3 definitions
+- id: ACCEPT-INPUT-HARDENING-PDP0-004
+  phaseTask: HARDENING-PDP0-004
+  decisionInput: accepted
+  acceptedScope:
+  - Use the plan's seven-value scopeStatus vocabulary as a product-scope axis, independent of implementation, qualification, runtime availability, and license admission.
+  - The 38 requirements, 38 capability families, 462 capability leaves, and 30 journeys are classified TARGET because they are included in the supplied target product scope; TARGET does not assert current implementation or availability.
+  - Compatibility wording in an operation does not by itself make that operation COMPATIBILITY_ONLY.
+  evidenceRefs:
+  - docs/migration/expert-reviewed-master-plan.md
+  - .product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md
+  - .product-experience/pdp-0-product-truth/constitution.yaml
+  - .product-experience/pdp-0-product-truth/requirements.yaml
+  - .product-experience/pdp-0-product-truth/capabilities.yaml
+  - .product-experience/pdp-0-product-truth/journey-catalog.yaml
+  - .product-experience/gaps.yaml#GAP-MEDIA-NODE-YAML-PARSER
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - Local PyYAML parsing confirms the current source structure and counts; portable Node parser-backed CI proof remains blocked by the recorded private registry resolution failure.
+  - The decision approves scope classification only and does not approve capability semantics, operation bounds, journey coverage, implementation, qualification, or full PDP-0.
+  exclusions:
+  - Full semantic acceptance of PDP-0 or independent P0-010 review
+  - Owner-approved bounds for the 445 leaves, resolution of 385 leaf-level journey references, or reachability of 123 proposal actions
+  - Runtime, license, qualification, availability, publication, Tools/Shared owner decisions, or release readiness
+- id: ACCEPT-INPUT-HARDENING-PDP1-001
+  phaseTask: HARDENING-PDP1-001
+  decisionInput: accepted
+  acceptedScope:
+  - The source-reconciliation proposal inventory contains 37 proposed/observed-only domain-object records, 13 value-object records, and 11 proposed relationship records.
+  - Seven observed-only candidates have a source-family crosswalk; each relationship carries source/proposal provenance and an explicit non-storage-cardinality caveat; sample-position context is labeled proposed and unaccepted.
+  - The five composite PDP-0 fragments found in owner review were corrected to exact record IDs, and the documented local check validates PDP-0 YAML fragments against actual mapping keys and record IDs.
+  evidenceRefs:
+  - .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md
+  - .product-experience/pdp-1-domain-data/domain-objects.yaml
+  - .product-experience/pdp-1-domain-data/value-objects.yaml
+  - .product-experience/pdp-1-domain-data/relationships.yaml
+  - .product-experience/decision-log.md#pxd-005
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - The approval is limited to source-reconciliation and proposal-labeling structure. It does not accept domain-object boundaries, value semantics, relationship cardinalities, or implementation as canonical truth.
+  - Local structural evidence used PyYAML 6.0.3 and is not portable CI parser coverage. Runtime/API/protobuf/storage projections remain observations; absent or not-applicable source families do not establish product-level nonexistence.
+  exclusions:
+  - Semantic acceptance of PDP-1 or PDP-0, including operation/state/event/privacy/version/offline/interoperability semantics
+  - Specialist or independent P0-010 review and all relevant external owner decisions
+  - Tools-native currentness or receipts, publication, qualification, source cutover, or release readiness
+- id: ACCEPT-INPUT-HARDENING-LEDGER-PHASE-NORMALIZATION
+  phaseTask: HARDENING-ACCEPTANCE-LEDGER-006
+  decisionInput: accepted
+  acceptedScope:
+  - Acceptance phase inputs use the canonical PDP-0, PDP-1, PDP-2, and PDP-3 sequence; P0 task inputs are explicitly labeled PDP-0.
+  - The former P1 design and P2 experience records map to PDP-2 and PDP-3 with their prior IDs preserved as legacyId metadata.
+  - Explorer acceptance is recorded separately as a projection input outside the PDP phase ledger, and PDP-1 now has an explicit pending gate requiring PDP-0/P0-010 first.
+  evidenceRefs:
+  - .product-experience/acceptance.yaml
+  - .product-experience/decision-log.md#pxd-006
+  - tests/product-definition-authority.test.mjs
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves input-ledger structure and prerequisite labels only. All PDP-0 through PDP-3 phase decisions remain pending, as does Explorer projection acceptance.
+  - The schema is v2; Tools-native schema/validator compatibility is unverified because the owner-approved Tools binding remains unavailable.
+  exclusions:
+  - Semantic acceptance of any PDP phase or the Explorer projection
+  - Changes to P0-010, specialist appointments, owner-review results, or evidence/currentness status
+  - Tools-native receipts, publication, qualification, source cutover, release readiness, or production implementation
+- id: ACCEPT-INPUT-HARDENING-PDP1-002
+  phaseTask: HARDENING-PDP1-002
+  decisionInput: accepted
+  acceptedScope:
+  - PDP1 operations.yaml records nine distinct logical-operation proposals with all 22 plan-required contract fields.
+  - Source inventories and proposal mappings remain distinct, with exact source denominators recorded for UI actions, HTTP, gRPC, fixture CLI, broader CLI proposals, SDK, Agent Tools, and lifecycle event names.
+  - Unresolved and ambiguous mappings remain explicitly pending rather than inferred or treated as production support.
+  evidenceRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml
+  - .product-experience/decision-log.md#pxd-007
+  - tests/product-definition-authority.test.mjs
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves proposal structure and source-denominator inventory only. It does not approve operation boundaries, field semantics, actor/authority decisions, mappings, runtime reachability, or wire behavior.
+  - HTTP/SDK/Tool/event bindings remain unresolved; gRPC family links remain proposals; 134 UI actions remain unresolved and one is ambiguous. Local structural tests are not portable YAML CI proof or phase acceptance.
+  exclusions:
+  - Semantic acceptance of any PDP-1 operation or projection, or full PDP-1 phase acceptance
+  - API/protobuf/SDK/CLI/Agent Tool/event/platform/consumer owner decisions or runtime qualification
+  - Tools-native receipts/currentness, publication, source cutover, or release readiness
+- id: ACCEPT-INPUT-HARDENING-PDP1-003
+  phaseTask: HARDENING-PDP1-003
+  decisionInput: accepted
+  acceptedScope:
+  - states.yaml preserves 11 source machine IDs and dimensions and all 75 source state spellings as proposal-only inventory.
+  - transitions.yaml preserves 49 ordered source transition relations by machine and source index without promoting source guards.
+  - Rights/consent remains empty because PDP-0 enumerates no states or transitions; projection conflicts and lossy mappings remain explicit and unresolved.
+  evidenceRefs:
+  - .product-experience/pdp-1-domain-data/states.yaml
+  - .product-experience/pdp-1-domain-data/transitions.yaml
+  - .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md
+  - .product-experience/decision-log.md#pxd-008
+  - tests/product-definition-authority.test.mjs
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves only source-exact extraction structure and provenance. It does not accept state meanings, guards, transition legality, terminality, safe actions, or projection mappings.
+  - RETRY_PENDING/RETRYING, CANCEL_REQUESTED/CANCELLING, OUTCOME_UNKNOWN, RECONCILING, and PARTIALLY_SUCCEEDED remain unresolved by source machine and projection; no implementation mapping is canonicalized.
+  - Duplicate-key-safe local source comparison and focused tests are not portable YAML parser CI, runtime parity, independent P0-010 review, or PDP-1 phase acceptance.
+  exclusions:
+  - Semantic acceptance of PDP-1/PDP-0 or any state/transition
+  - Runtime, API, UI, TypeScript, protobuf, Java, event, permission, and effect owner decisions
+  - Specialist or independent P0-010 review, Tools-native evidence/currentness, publication, qualification, source cutover, or release readiness
+- id: ACCEPT-INPUT-HARDENING-PDP1-004
+  phaseTask: HARDENING-PDP1-004
+  decisionInput: accepted
+  acceptedScope:
+  - events.yaml records seven source-observed runtime publisher call sites and nine concrete event types separately from the 15 local TypeScript client notifications.
+  - Evidence and provenance registries link the source inventories and explicitly preserve unresolved event-specific bindings, taxonomy, ordering, replay, compatibility, privacy, and recovery guarantees.
+  - Proto message examples and fixture event strings are not counted as runtime lifecycle publication.
+  evidenceRefs:
+  - .product-experience/pdp-1-domain-data/events.yaml
+  - .product-experience/pdp-1-domain-data/evidence.yaml
+  - .product-experience/pdp-1-domain-data/provenance.yaml
+  - .product-experience/pdp-1-domain-data/operations.yaml
+  - .product-experience/decision-log.md#pxd-010
+  - tests/product-definition-authority.test.mjs
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves source inventory and proposal structure only. The runtime idempotency header, event version, HTTP status, metadata sanitizer, and publication logs do not prove durable delivery, event-specific evidence, semantic redaction, replay, ordering, compatibility, or recovery.
+  - Dynamic media.job.<status> is bounded to the current COMPLETED and FAILED source assignments; canonical taxonomy, producer authority, object/version mapping, and Event Plane consumer semantics remain owner-unresolved.
+  - Focused local checks do not constitute portable YAML CI, runtime parity, native Tools evidence, or PDP-1 semantic/phase acceptance.
+  exclusions:
+  - Canonical event semantics or event-specific evidence/provenance acceptance
+  - Event Plane, platform, privacy, or consumer owner decisions; runtime qualification
+  - Full PDP-1/PDP-0 acceptance, P0-010, Tools-native receipts/currentness, publication, or release readiness
+- id: ACCEPT-INPUT-HARDENING-PDP1-004-F16
+  phaseTask: HARDENING-PDP1-004
+  decisionInput: accepted
+  acceptedScope:
+  - Each of seven runtime publisher call sites and nine concrete runtime event types has a source-observation/evidence/provenance proposal linked to its source location and candidate aggregate identity/version.
+  - Literal upload/artifact version values are explicitly not represented as record versions; cancel-request remains distinct from cancellation finality; source-observation candidates are not committed evidence or delivery receipts.
+  evidenceRefs:
+  - .product-experience/pdp-1-domain-data/events.yaml
+  - .product-experience/pdp-1-domain-data/evidence.yaml
+  - .product-experience/pdp-1-domain-data/provenance.yaml
+  - tests/product-definition-authority.test.mjs
+  - .product-experience/decision-log.md#pxd-012
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - Approves proposed source mappings only; actual event records, durable receipts, authoritative finality, canonical identity/version bindings, delivery guarantees, privacy policy, and Event Plane consumer contracts remain unresolved.
+  exclusions:
+  - Event semantic/policy acceptance, Event Plane/runtime delivery guarantees, native Tools evidence/currentness, and full PDP-1/PDP-0 acceptance
+- id: ACCEPT-INPUT-HARDENING-PDP1-005
+  phaseTask: HARDENING-PDP1-005
+  decisionInput: accepted
+  acceptedScope:
+  - privacy.yaml, versioning.yaml, offline-sync.yaml, interoperability.yaml, authority.yaml, and decisions.yaml cover the plan's required dimensions while distinguishing source observations, proposals, and unresolved owner contracts.
+  - The domain-model lifecycle separation is explicitly an unaccepted PDP-0 proposal; job version/fencing, checksums, idempotency fields, and sourceArtifactIds are not promoted to durable attempt history, immutable bytes/version identity, safe replay, or complete ancestry.
+  evidenceRefs:
+  - .product-experience/pdp-1-domain-data/privacy.yaml
+  - .product-experience/pdp-1-domain-data/versioning.yaml
+  - .product-experience/pdp-1-domain-data/offline-sync.yaml
+  - .product-experience/pdp-1-domain-data/interoperability.yaml
+  - .product-experience/pdp-1-domain-data/authority.yaml
+  - .product-experience/pdp-1-domain-data/decisions.yaml
+  - .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md
+  - .product-experience/decision-log.md#pxd-011
+  - tests/product-definition-authority.test.mjs
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves registry/proposal structure only. Privacy/consent meaning, retention periods, all-store erasure, artifact-version keys, attempt history, cancellation finality, offline queue/replay/conflict behavior, cross-product compatibility, and external owner bindings remain pending.
+  exclusions:
+  - Full semantic acceptance of PDP-1 or PDP-0/P0-010; implementation or qualification; Tools-native receipts/currentness; publication; release readiness
+- id: ACCEPT-INPUT-PDP2-001
+  phase: PDP-2
+  phaseTask: PDP2-001
+  decisionInput: accepted
+  acceptedScope:
+  - media-token-aliases.yaml records the inspected clean Shared source revision, exact paths and source versions for the ten plan-named packages, and Media's three declared 0.1.2 dependencies.
+  - Local sibling source availability is distinguished from immutable package publication and verified Media consumption; the registry does not copy Shared tokens or claim consumer compatibility.
+  evidenceRefs:
+  - .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
+  - libs/audio-video-ui/package.json
+  - .product-experience/decision-log.md#pxd-013
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves source inventory and provenance structure only. PDP2-001 binding remains blocked until the intended immutable Shared package versions are authorized, published, and verified by the Media consumer; the inspected 0.1.0-SNAPSHOT source is not a substitute for the declared 0.1.2 dependency.
+  exclusions:
+  - Shared owner acceptance, compatibility, package publication or installation, verified consumer binding, full PDP-2 acceptance, Tools-native receipts/currentness, qualification, or release readiness
+- id: ACCEPT-INPUT-PDP2-002
+  phase: PDP-2
+  phaseTask: PDP2-002
+  decisionInput: accepted
+  acceptedScope:
+  - The GUI pattern catalog represents all thirteen plan-required pattern categories; the four previously missing dedicated categories now have standalone proposal files.
+  - The new patterns are indexed and referenced by templates; review-outputs, prepare-render, and review-activity now reference their respective patterns and resolvable PDP-2 GUI template IDs.
+  - Generic primitives remain Shared-owned, while Media records semantic composition and preserves unresolved Shared package, state/action, behavior, and accessibility bindings.
+  evidenceRefs:
+  - .product-experience/pdp-2-design-interface-system/gui/primitives.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/patterns/review-approval.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/patterns/rendering.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/patterns/activity-attention.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/patterns/destructive-lifecycle-action.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/layout.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml
+  - tests/product-definition-authority.test.mjs
+  - .product-experience/decision-log.md#pxd-014
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves registry and proposal coverage structure only. Pattern state labels and action refs remain proposals; canonical state/action/operation semantics, Shared export and package binding, accessibility, responsive behavior, and owner acceptance are not established.
+  - No artifact-delete operation is established. The consent-revocation action remains a proposed reference without an owner-approved capability mapping; scene removal is not artifact deletion or revocation.
+  - The independent audit found legacy template IDs on the three linked screens; those refs now resolve to catalogued media.gui.template IDs and are covered by the focused regression. This structural repair does not establish screen behavior.
+  exclusions:
+  - Full PDP-2 acceptance; PDP2-003 visual-authority migration; Shared owner acceptance or immutable package binding; canonical PDP-1 semantics; accessibility or visual qualification; Tools-native receipts/currentness; publication, production readiness, or release readiness
+- id: ACCEPT-INPUT-PDP2-004
+  phase: PDP-2
+  phaseTask: PDP2-004
+  decisionInput: accepted
+  acceptedScope:
+  - All fourteen plan-prescribed API convention files are present and internally cross-referenced.
+  - The API authority record states that OpenAPI projects approved rules and operation bindings and is not an independent source of product semantics.
+  - High-risk rules qualify durability, immutability, idempotency, retry, cancellation, unknown outcome, authentication, pagination, compatibility, and versioning as proposals pending owning reviewers.
+  evidenceRefs:
+  - .product-experience/pdp-2-design-interface-system/api/conventions.yaml
+  - .product-experience/pdp-2-design-interface-system/api/errors.yaml
+  - .product-experience/pdp-2-design-interface-system/api/auth.yaml
+  - .product-experience/pdp-2-design-interface-system/api/identifiers.yaml
+  - .product-experience/pdp-2-design-interface-system/api/pagination.yaml
+  - .product-experience/pdp-2-design-interface-system/api/filtering-sorting.yaml
+  - .product-experience/pdp-2-design-interface-system/api/idempotency.yaml
+  - .product-experience/pdp-2-design-interface-system/api/concurrency.yaml
+  - .product-experience/pdp-2-design-interface-system/api/async-operations.yaml
+  - .product-experience/pdp-2-design-interface-system/api/cancellation.yaml
+  - .product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml
+  - .product-experience/pdp-2-design-interface-system/api/correlation.yaml
+  - .product-experience/pdp-2-design-interface-system/api/compatibility.yaml
+  - .product-experience/pdp-2-design-interface-system/api/versioning.yaml
+  - tests/product-definition-authority.test.mjs
+  - .product-experience/decision-log.md#pxd-015
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves convention-file structure only. Per-operation API/domain bindings, OpenAPI projection parity, wire schemas, identity and platform decisions, runtime behavior, and API-owner acceptance remain pending.
+  exclusions:
+  - API semantic or runtime acceptance; OpenAPI conformance; API/platform/identity owner decisions; full PDP-2 acceptance; Tools-native receipts/currentness, qualification, publication, or release readiness
+- id: ACCEPT-INPUT-PDP2-005
+  phase: PDP-2
+  phaseTask: PDP2-005
+  decisionInput: accepted
+  acceptedScope:
+  - CLI, SDK, Events, and Agent Tool convention files explicitly separate Media meaning from Shared runtime/transport ownership and remain proposal-only.
+  - Agent Tool conventions declare all ten plan-required per-tool fields and repeat them across four observed handler IDs without admitting those handlers or asserting complete schemas.
+  - Event conventions distinguish nine source-observed runtime lifecycle event types from fifteen client-local notifications and do not claim canonical taxonomy or delivery guarantees.
+  - CLI fixture inventory remains separate from production CLI; the SDK/API terminal-state mismatch remains visible and unresolved.
+  evidenceRefs:
+  - .product-experience/pdp-2-design-interface-system/cli/conventions.yaml
+  - .product-experience/pdp-2-design-interface-system/sdk/conventions.yaml
+  - .product-experience/pdp-2-design-interface-system/events/conventions.yaml
+  - .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml
+  - tests/product-definition-authority.test.mjs
+  - .product-experience/decision-log.md#pxd-016
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves convention proposal structure and observed inventories only. Production CLI/SDK consumers, SDK status mapping, event owners/transport/delivery/finality, Agent Tool schemas/capabilities/runtime bindings, adversarial verification, and relevant owner decisions remain pending.
+  - A post-dispatch timeout or cancellation race is outcome-unknown; it does not establish that an effect did or did not occur.
+  exclusions:
+  - Production CLI/SDK or Agent Tool admission; canonical event semantics or delivery guarantees; runtime qualification; API/CLI/SDK/Event/Shared owner decisions; full PDP-2 acceptance; Tools-native receipts/currentness, publication, or release readiness
+- id: ACCEPT-INPUT-PDP3-001
+  phase: PDP-3
+  phaseTask: PDP3-001
+  decisionInput: accepted
+  acceptedScope:
+  - The 47 canonical screen contracts use media.screen-contract.v2 and declare the plan-required fields under a proposal schema.
+  - Existing component and pattern references are copied as proposals; only exact existing template IDs are included, and missing layout/token/domain/operation/state/entry/exit bindings remain explicitly unresolved.
+  - Action consequences are listed against existing action IDs without inferred effects, and verification remains not-run with no fabricated evidence.
+  evidenceRefs:
+  - .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+  - .product-experience/pdp-3-product-experience/screen-registry.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/
+  - tests/product-definition-authority.test.mjs
+  - .product-experience/decision-log.md#pxd-017
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves v2 contract shape and source-grounded proposal references only. Three exact template IDs resolve in the PDP-2 catalog; other template IDs remain null, and no canonical layout IDs are registered.
+  - surfaceId is a candidate based on the proposed Web channel/surface inventory, not an accepted channel-to-surface binding. Shared token/package binding, PDP-1 objects/operations/states/transitions, step-level behavior, fixtures, accessibility, responsive rendering, and behavioral verification remain open.
+  - Existing anatomy, templateContract, and layoutContract content remains proposal provenance and has not been centralized into owner-accepted template/layout authority; the no-screen-local-design-rule target is therefore not fully achieved.
+  exclusions:
+  - Semantic acceptance of PDP-1, PDP-2, PDP-3, or Web surface availability
+  - Full screen behavior, operation/state/effect/finality, visual/accessibility, localization, or production acceptance
+  - Shared owner acceptance/package publication, Tools-native receipts/currentness, qualification, or release readiness
+- id: ACCEPT-INPUT-PDP3-002
+  phase: PDP-3
+  phaseTask: PDP3-002
+  decisionInput: accepted
+  acceptedScope:
+  - The HTTP registry covers 27 operationIds matching the runtime route manifest, and the gRPC registry covers all 43 RPCs across the four active proto services.
+  - Per-operation HTTP and gRPC records preserve directly observed protocol identity and request/response schema or message references, including streaming shape.
+  - OpenAPI and protobuf remain implementation/projection observations; PDP-1 operation mappings remain proposals or unresolved.
+  evidenceRefs:
+  - .product-experience/pdp-3-product-experience/api/api-registry.yaml
+  - .product-experience/pdp-3-product-experience/api/operations/
+  - .product-experience/pdp-3-product-experience/grpc/service-registry.yaml
+  - .product-experience/pdp-3-product-experience/grpc/operations/
+  - .product-experience/pdp-1-domain-data/operations.yaml
+  - scripts/check-media-contract-parity.mjs
+  - .product-experience/decision-log.md#pxd-018
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves exact source-inventory and protocol-record structure only. All 27 HTTP logical-operation mappings and 19 gRPC logical-operation mappings remain unresolved; 24 gRPC source-explicit crosswalks remain unaccepted proposals.
+  - Route/proto membership does not establish product meaning, auth, idempotency, cancellation, retry, finality, state effects, privacy, event guarantees, runtime qualification, or OpenAPI/protobuf canonical-wire authority.
+  exclusions:
+  - Semantic acceptance of PDP-1 or PDP-3 operations; canonical wire authority; API/provider owner decisions; protocol/runtime parity beyond the observed route/proto identity checks; production admission or release readiness
+- id: ACCEPT-INPUT-PDP3-003
+  phase: PDP-3
+  phaseTask: PDP3-003
+  decisionInput: accepted
+  acceptedScope:
+  - The preferred target architecture is PDP-1 logical operation, then PDP-3 protocol contract, then generated or implementation OpenAPI/protobuf wire projections, then one generated or thin typed SDK façade.
+  - Both existing TypeScript client implementations and their nonconforming HTTP route families are explicitly tagged LEGACY_COMPATIBILITY pending accepted semantics, wire parity, and consumer migration.
+  - Existing routes, exports, and runtime behavior are preserved; active protobuf sources remain observed protocols and are not mislabeled as legacy.
+  evidenceRefs:
+  - .product-experience/pdp-3-product-experience/sdk/client-architecture.yaml
+  - .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
+  - libs/audio-video-client/src/canonical-routes.ts
+  - libs/audio-video-client/src/operations.ts
+  - libs/audio-video-client/src/index.ts
+  - contracts/openapi/media.yaml
+  - config/route-manifest.json
+  - .product-experience/decision-log.md#pxd-019
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This accepts architecture direction and compatibility classification only; it does not accept any current client as canonical, prove request/response parity, or establish an SDK generator or consumer migration.
+  - The current clients use route families absent from the active OpenAPI/runtime manifest, including operation retry/result paths. Keep all APIs and routes until the listed semantic, protocol, parity, owner, and consumer-removal gates pass.
+  exclusions:
+  - Changes to wire behavior, generated code, types, OpenAPI, protobuf, tests, or consumers; PDP-1/PDP-3 semantic acceptance; dependency installation; migration or compatibility removal; production qualification
+- id: ACCEPT-INPUT-PDP3-004
+  phase: PDP-3
+  phaseTask: PDP3-004
+  decisionInput: accepted
+  acceptedScope:
+  - The CLI registry distinguishes 11 Explorer fixture commands from a production CLI; the SDK registry retains its 27 source-observation entries pending the chosen architecture.
+  - Event inventory distinguishes nine observed runtime lifecycle publisher types from fifteen client-local notifications without claiming delivery or finality guarantees.
+  - Four observed Agent Tool handlers declare the required contract fields, and 25 service entries remain an implementation inventory rather than admitted integrations.
+  evidenceRefs:
+  - .product-experience/pdp-3-product-experience/cli/command-registry.yaml
+  - .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
+  - .product-experience/pdp-3-product-experience/events/event-registry.yaml
+  - .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
+  - .product-experience/pdp-3-product-experience/services/service-registry.yaml
+  - .product-experience/pdp-2-design-interface-system/cli/conventions.yaml
+  - .product-experience/pdp-2-design-interface-system/events/conventions.yaml
+  - .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml
+  - .product-experience/decision-log.md#pxd-020
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves registry and source-observation structure only. CLI, SDK, Agent Tools, events, and product-to-product services are not admitted production surfaces; schema/authority/idempotency/finality/delivery/consumer bindings remain pending.
+  - Null/pending Agent Tool fields are deliberate gaps, not complete schemas. Runtime event names do not establish canonical taxonomy, ordering, replay, or delivery behavior.
+  exclusions:
+  - Production CLI/SDK/Agent Tool admission; canonical event semantics or guarantees; service owner decisions; runtime qualification; full PDP-3 acceptance or release readiness
+- id: ACCEPT-INPUT-PDP3-005-CHANNEL-SURFACE-CROSSWALK
+  phase: PDP-3
+  phaseTask: PDP3-005
+  decisionInput: accepted
+  acceptedScope:
+  - surface-registry.yaml records candidate mappings from the nine PDP-0 channel identities to explicit surface IDs or explicitly no direct surface for the abstract protocol-neutral API.
+  - The mapping is permitted for proposal-reference normalization only and does not admit channels, operations, deployments, or runtime support.
+  evidenceRefs:
+  - .product-experience/surface-registry.yaml#channelSurfaceProposals
+  - .product-experience/pdp-0-product-truth/applications-channels.yaml
+  - .product-experience/decision-log.md#pxd-021
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - The crosswalk is a source-grounded candidate relation only. Web, CLI, API, gRPC, SDK, embedded, integration, and archive channel admission and owner/runtime support remain pending; protocol-neutral media.channel.api intentionally has no direct surface.
+  exclusions:
+  - Channel or surface semantic acceptance, per-operation support, runtime availability, qualification, publication, production admission, or full PDP-3 acceptance
+- id: ACCEPT-INPUT-PDP3-005
+  phase: PDP-3
+  phaseTask: PDP3-005
+  decisionInput: accepted
+  acceptedScope:
+  - All 30 active journey contracts contain 130 structured ordered steps with explicit per-step fields for surface, object/state, canonical operation, authority, decision, transition, handoff, success/failure/degraded/recovery, postconditions, requirements, verification, and binding status.
+  - J-29 and J-30 retain their four source step IDs each; journey-level outcomes/exceptions/recovery are labeled as candidate proposals and are not accepted step semantics.
+  - The candidate channel-to-surface crosswalk normalized 148 per-step references; seven exact PDP-1 logical-operation crosswalk references remain proposals and other unresolved bindings stay null/empty with reasons.
+  evidenceRefs:
+  - .product-experience/pdp-3-product-experience/journey-registry.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/
+  - .product-experience/surface-registry.yaml#channelSurfaceProposals
+  - tests/product-definition-authority.test.mjs
+  - .product-experience/decision-log.md#pxd-022
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves step-contract structure and proposal-reference normalization only. At least 123 canonical operation bindings remain unresolved; object/state/authority/decision/transition/handoff/requirements, step allocation of outcomes/recovery, degraded behavior, and postconditions remain incomplete or proposal-only. All step verification remains not-run with no evidence.
+  - The structure regression does not establish journey behavior, wire parity, owner acceptance, capability bounds, accessibility, localization, scenario execution, runtime support, or complete PDP-3 coverage.
+  exclusions:
+  - Full journey semantics or PDP-3 acceptance; production channel/interface admission; runtime, visual/accessibility, or behavior qualification; Tools-native receipts/currentness or release readiness
+- id: ACCEPT-INPUT-HARDENING-PHASE-TAXONOMY-009
+  phaseTask: HARDENING-PHASE-TAXONOMY-009
+  decisionInput: accepted
+  acceptedScope:
+  - Active phase meanings and owned metadata fields use PDP-0 for former P0, PDP-2 for former P1 Design Language, and PDP-3 for former P2 Product Experience; Explorer is a projection outside PDP phases.
+  - In-repository metadata-field references are aligned, while stable ART-*, task/work-item, GAP-*, and phase0-critical-exception identities remain unchanged.
+  evidenceRefs:
+  - .product-experience/authority-map.yaml
+  - .product-experience/traceability.yaml
+  - .product-experience/explorer/EXPERIENCE-EXPLORER.md
+  - .product-experience/explorer/verification-matrix.yaml
+  - .product-experience/pdp-2-design-interface-system/
+  - .product-experience/pdp-3-product-experience/
+  - .product-experience/decision-log.md#pxd-009
+  - tests/product-definition-authority.test.mjs
+  sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This approves terminology and owned metadata alignment only. It does not accept any PDP phase or Explorer semantic contract.
+  - The browser sweep passed on the local normalized projection, but does not establish visual/accessibility owner review, Tools currentness/receipts, publication, qualification, or release readiness.
+  exclusions:
+  - Renaming stable task, ART-*, GAP-*, or requirement IDs; accepting PDP-0 through PDP-3 or Explorer
+  - Shared/Tools owner decisions, native evidence/currentness, package publication, cutover, runtime qualification, or release readiness
 phaseAcceptanceInputs:
 - id: ACCEPT-INPUT-P0-002
+  phase: PDP-0
   phaseTask: P0-002
   decisionInput: pending-no-acceptance-recorded
   artifactRefs:
-  - .product-experience/phase-0-product-truth/constitution.yaml
-  - .product-experience/phase-0-product-truth/actors-responsibilities.yaml
-  - .product-experience/phase-0-product-truth/goals-jtbd.yaml
-  - .product-experience/phase-0-product-truth/glossary.yaml
+  - .product-experience/pdp-0-product-truth/constitution.yaml
+  - .product-experience/pdp-0-product-truth/actors-responsibilities.yaml
+  - .product-experience/pdp-0-product-truth/goals-jtbd.yaml
+  - .product-experience/pdp-0-product-truth/glossary.yaml
   requiredReviewRoles:
   - media-product-manager
   - media-UX-architect
@@ -59,13 +517,14 @@ phaseAcceptanceInputs:
   - Record appointments and review decisions for privacy/rights, fidelity, and publication roles.
   decisionOwnerAppointments: pending
 - id: ACCEPT-INPUT-P0-003
+  phase: PDP-0
   phaseTask: P0-003
   decisionInput: pending-no-acceptance-recorded
   artifactRefs:
-  - .product-experience/phase-0-product-truth/capabilities.yaml
-  - .product-experience/phase-0-product-truth/requirements.yaml
-  - .product-experience/phase-0-product-truth/qualification-policy.yaml
-  - .product-experience/phase-0-product-truth/capability-preservation-crosswalk.yaml
+  - .product-experience/pdp-0-product-truth/capabilities.yaml
+  - .product-experience/pdp-0-product-truth/requirements.yaml
+  - .product-experience/pdp-0-product-truth/qualification-policy.yaml
+  - .product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml
   requiredReviewRoles:
   - media-domain-lead
   - capability-specialists
@@ -78,11 +537,12 @@ phaseAcceptanceInputs:
   - Keep implementation, license, qualification, and runtime availability separate.
   decisionOwnerAppointments: pending
 - id: ACCEPT-INPUT-P0-004
+  phase: PDP-0
   phaseTask: P0-004
   decisionInput: pending-no-acceptance-recorded
   artifactRefs:
-  - .product-experience/phase-0-product-truth/domain-model.yaml
-  - .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+  - .product-experience/pdp-0-product-truth/domain-model.yaml
+  - .product-experience/pdp-0-product-truth/time-units-fidelity.yaml
   - conformance/domain-contracts/p0-004-golden-fixtures.yaml
   requiredReviewRoles:
   - media-architect
@@ -97,11 +557,12 @@ phaseAcceptanceInputs:
   - Review the task's golden temporal/coordinate/color examples and dimensional negative cases when authored.
   decisionOwnerAppointments: pending
 - id: ACCEPT-INPUT-P0-005
+  phase: PDP-0
   phaseTask: P0-005
   decisionInput: pending-no-acceptance-recorded
   artifactRefs:
-  - .product-experience/phase-0-product-truth/state-models.yaml
-  - .product-experience/phase-0-product-truth/policy-authority-model.yaml
+  - .product-experience/pdp-0-product-truth/state-models.yaml
+  - .product-experience/pdp-0-product-truth/policy-authority-model.yaml
   - conformance/domain-contracts/p0-005-state-transition-fixtures.yaml
   requiredReviewRoles:
   - distributed-systems-lead
@@ -113,12 +574,13 @@ phaseAcceptanceInputs:
   - Review duplicate-command and commit-boundary verification evidence before acceptance.
   decisionOwnerAppointments: pending
 - id: ACCEPT-INPUT-P0-006
+  phase: PDP-0
   phaseTask: P0-006
   decisionInput: pending-no-acceptance-recorded
   artifactRefs:
-  - .product-experience/phase-0-product-truth/policy-authority-model.yaml
-  - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
-  - .product-experience/phase-0-product-truth/content-intent.yaml
+  - .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+  - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml
+  - .product-experience/pdp-0-product-truth/content-intent.yaml
   - conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
   requiredReviewRoles:
   - security-privacy-engineer
@@ -131,12 +593,13 @@ phaseAcceptanceInputs:
   - Review adversarial cases for isolation, SSRF, untrusted content/tools, revoked consent, restore, and audit failure.
   decisionOwnerAppointments: pending
 - id: ACCEPT-INPUT-P0-007
+  phase: PDP-0
   phaseTask: P0-007
   decisionInput: pending-no-acceptance-recorded
   artifactRefs:
-  - .product-experience/phase-0-product-truth/profile-semantics.yaml
-  - .product-experience/phase-0-product-truth/quality-policy.yaml
-  - .product-experience/phase-0-product-truth/qualification-policy.yaml
+  - .product-experience/pdp-0-product-truth/profile-semantics.yaml
+  - .product-experience/pdp-0-product-truth/quality-policy.yaml
+  - .product-experience/pdp-0-product-truth/qualification-policy.yaml
   requiredReviewRoles:
   - media-quality-lead
   - AI-ML-lead
@@ -151,11 +614,12 @@ phaseAcceptanceInputs:
     improvement, and exhausted budget.
   decisionOwnerAppointments: pending
 - id: ACCEPT-INPUT-P0-008
+  phase: PDP-0
   phaseTask: P0-008
   decisionInput: pending-no-acceptance-recorded
   artifactRefs:
-  - .product-experience/phase-0-product-truth/dependency-contracts.yaml
-  - .product-experience/phase-0-product-truth/reuse-decisions.yaml
+  - .product-experience/pdp-0-product-truth/dependency-contracts.yaml
+  - .product-experience/pdp-0-product-truth/reuse-decisions.yaml
   - .product-experience/gaps.yaml
   requiredReviewRoles:
   - ecosystem-architect
@@ -168,14 +632,15 @@ phaseAcceptanceInputs:
   - Confirm there are no product-source imports or fabricated external interfaces.
   decisionOwnerAppointments: pending
 - id: ACCEPT-INPUT-P0-009
+  phase: PDP-0
   phaseTask: P0-009
   decisionInput: pending-no-acceptance-recorded
   artifactRefs:
-  - .product-experience/phase-0-product-truth/information-architecture.yaml
-  - .product-experience/phase-0-product-truth/applications-channels.yaml
-  - .product-experience/phase-0-product-truth/journey-catalog.yaml
-  - .product-experience/phase-0-product-truth/handoff-contracts.yaml
-  - .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+  - .product-experience/pdp-0-product-truth/information-architecture.yaml
+  - .product-experience/pdp-0-product-truth/applications-channels.yaml
+  - .product-experience/pdp-0-product-truth/journey-catalog.yaml
+  - .product-experience/pdp-0-product-truth/handoff-contracts.yaml
+  - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml
   requiredReviewRoles:
   - UX-accessibility-lead
   - SRE
@@ -187,6 +652,7 @@ phaseAcceptanceInputs:
     unavailable-capability, and recovery behavior.
   decisionOwnerAppointments: pending
 - id: ACCEPT-INPUT-P0-010
+  phase: PDP-0
   phaseTask: P0-010
   decisionInput: pending-independent-review-not-executed
   artifactRefs:
@@ -197,33 +663,68 @@ phaseAcceptanceInputs:
   requiredReviewRoles:
   - independent-product-definition-reviewer
   requiredEvidenceInputs:
-  - Independently walk all Phase 0 outcomes, capabilities, actors, states, authorities, failures, and dependencies.
+  - Independently walk all PDP-0 outcomes, capabilities, actors, states, authorities, failures, and dependencies.
   - Validate owner-bound schemas, IDs, aliases, references, source roles, and semantic invariants.
   - Reconcile competing documentation at the owning layer and record accepted material fingerprints.
-  - Obtain generated Phase 0 coverage/currentness observations from the owner-approved Tools workflow.
+  - Obtain generated PDP-0 coverage/currentness observations from the owner-approved Tools workflow.
   - Record unresolved runtime and external-owner gaps without treating them as product-definition acceptance blockers
     unless meaning is unresolved.
   decisionOwnerAppointments: pending
-laterPhaseAcceptanceInputs:
-- id: ACCEPT-INPUT-P1
-  phase: P1
-  decisionInput: pending-prerequisite-P0-010-and-human-review
-  prerequisite: independent-Phase-0-acceptance
+
+- id: ACCEPT-INPUT-PDP-1
+  phase: PDP-1
+  decisionInput: pending-prerequisite-PDP-0-independent-P0-010-acceptance-and-human-review
+  prerequisite: independent-PDP-0-acceptance-including-P0-010
   artifactRefs:
-  - .product-experience/phase-1-design-language/DESIGN-LANGUAGE.md
-  - .product-experience/phase-1-design-language/accessibility.yaml
-  - .product-experience/phase-1-design-language/action-finality-grammar.yaml
-  - .product-experience/phase-1-design-language/animation-simulation-grammar.yaml
-  - .product-experience/phase-1-design-language/cli-language.yaml
-  - .product-experience/phase-1-design-language/component-contracts.yaml
-  - .product-experience/phase-1-design-language/localization-content.yaml
-  - .product-experience/phase-1-design-language/media-editing-grammar.yaml
-  - .product-experience/phase-1-design-language/media-token-aliases.yaml
-  - .product-experience/phase-1-design-language/motion.yaml
-  - .product-experience/phase-1-design-language/responsive-adaptive.yaml
-  - .product-experience/phase-1-design-language/semantic-state-grammar.yaml
-  - .product-experience/phase-1-design-language/trust-provenance-grammar.yaml
-  - .product-experience/phase-1-design-language/typography-layout.yaml
+  - .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md
+  - .product-experience/pdp-1-domain-data/authority.yaml
+  - .product-experience/pdp-1-domain-data/decisions.yaml
+  - .product-experience/pdp-1-domain-data/domain-objects.yaml
+  - .product-experience/pdp-1-domain-data/events.yaml
+  - .product-experience/pdp-1-domain-data/evidence.yaml
+  - .product-experience/pdp-1-domain-data/interoperability.yaml
+  - .product-experience/pdp-1-domain-data/offline-sync.yaml
+  - .product-experience/pdp-1-domain-data/operations.yaml
+  - .product-experience/pdp-1-domain-data/privacy.yaml
+  - .product-experience/pdp-1-domain-data/provenance.yaml
+  - .product-experience/pdp-1-domain-data/relationships.yaml
+  - .product-experience/pdp-1-domain-data/states.yaml
+  - .product-experience/pdp-1-domain-data/transitions.yaml
+  - .product-experience/pdp-1-domain-data/value-objects.yaml
+  - .product-experience/pdp-1-domain-data/versioning.yaml
+  requiredReviewRoles:
+  - media-domain-lead
+  - distributed-systems-lead
+  - privacy-and-rights-owner
+  - relevant-domain-and-platform-contract-owners
+  - independent-product-definition-reviewer
+  requiredEvidenceInputs:
+  - Independently confirm PDP-0 and P0-010 acceptance before beginning PDP-1 semantic acceptance.
+  - Review canonical domain objects, value objects, relationships, operations, states, events, and their owner-approved identities.
+  - Review authority, privacy, evidence, provenance, interoperability, offline-sync, and versioning semantics with their accountable owners.
+  - Resolve source provenance and cross-registry references; retain unresolved owner decisions as explicit gaps.
+  - Record specialist and external-owner decisions without treating proposal inventories or local structural checks as semantic acceptance.
+  decisionOwnerAppointments: pending
+- id: ACCEPT-INPUT-PDP-2
+  legacyId: ACCEPT-INPUT-P1
+  phase: PDP-2
+  decisionInput: pending-prerequisite-PDP-1-and-human-review
+  prerequisite: accepted-PDP-1-canonical-domain-and-data-model
+  artifactRefs:
+  - .product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md
+  - .product-experience/pdp-2-design-interface-system/accessibility.yaml
+  - .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml
+  - .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml
+  - .product-experience/pdp-2-design-interface-system/cli-language.yaml
+  - .product-experience/pdp-2-design-interface-system/component-contracts.yaml
+  - .product-experience/pdp-2-design-interface-system/localization-content.yaml
+  - .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml
+  - .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
+  - .product-experience/pdp-2-design-interface-system/motion.yaml
+  - .product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml
+  - .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml
+  - .product-experience/pdp-2-design-interface-system/trust-provenance-grammar.yaml
+  - .product-experience/pdp-2-design-interface-system/typography-layout.yaml
   requiredReviewRoles:
   - design-system-consumer-lead
   - media-interaction-and-animation-designers
@@ -235,113 +736,116 @@ laterPhaseAcceptanceInputs:
   - Resolve each semantic alias to a published Shared design-system token or record the owner-approved gap; do not
     create a parallel token/component authority.
   - Walk every state, trust, action-finality, editing, responsive, accessibility, localization, motion, and CLI
-    rule against accepted Phase 0 meaning.
+    rule against accepted PDP-0 meaning.
   - Review task-complete component anatomy, keyboard alternatives, screen-reader language, localization and viewport
     behavior with the named human reviewers.
   - Produce the plan-required generated design-coverage observation after the public Tools schema and validator
     binding is available.
   - The current artifacts include first-use and artifact-intake components plus the selected transcription and caption-correction
-    lane; full Phase 1 scope and human approvals remain required.
+    lane; full PDP-2 scope and human approvals remain required.
   decisionOwnerAppointments: pending
-- id: ACCEPT-INPUT-P2
-  phase: P2
-  decisionInput: pending-prerequisite-P1-006-and-full-experience-review
-  prerequisite: accepted-Phase-1-design-language
+- id: ACCEPT-INPUT-PDP-3
+  legacyId: ACCEPT-INPUT-P2
+  phase: PDP-3
+  decisionInput: pending-prerequisite-PDP-2-and-full-experience-review
+  prerequisite: accepted-PDP-2-design-language-and-interface-system
   artifactRefs:
   - .product-experience/lanes/transcribe-and-correct-captions.yaml
-  - .product-experience/phase-2-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md
-  - .product-experience/phase-2-product-experience/action-registry.yaml
-  - .product-experience/phase-2-product-experience/api-experience-mapping.yaml
-  - .product-experience/phase-2-product-experience/application-channel-registry.yaml
-  - .product-experience/phase-2-product-experience/cli-command-registry.yaml
-  - .product-experience/phase-2-product-experience/content-copy-catalog.yaml
-  - .product-experience/phase-2-product-experience/data-view-contracts.yaml
-  - .product-experience/phase-2-product-experience/handoff-bindings.yaml
-  - .product-experience/phase-2-product-experience/interaction-registry.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/first-use-and-project-creation.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/clean-noisy-interview-audio.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/repair-video-with-measured-quality.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/translate-and-dub-existing-video.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml
-  - .product-experience/phase-2-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml
-  - .product-experience/phase-2-product-experience/journey-registry.yaml
-  - .product-experience/phase-2-product-experience/navigation-contracts.yaml
-  - .product-experience/phase-2-product-experience/recovery-finality-contracts.yaml
-  - .product-experience/phase-2-product-experience/responsive-variants.yaml
-  - .product-experience/phase-2-product-experience/scenario-fixture-registry.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/compare-caption-versions.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/correct-captions.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/authenticate-and-select-context.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/browse-media.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/create-media.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/find-projects.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/import-media.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/artifact-verification-job-family.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/job-status.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/inspect-media.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/check-job-outcome.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/resume-work.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/review-transcript.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/select-source.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/transcription-progress.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/work-in-project.yaml
-  - .product-experience/phase-2-product-experience/screen-registry.yaml
-  - .product-experience/phase-2-product-experience/simulation-semantics.yaml
-  - .product-experience/phase-2-product-experience/state-transition-bindings.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/review-creation-plan.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/arrange-scenes.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/create-image.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/create-video.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/create-audio.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/work-with-speech.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/use-authorized-voice.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/edit-captions.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/review-dubbing.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/improve-media.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/compare-results.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/edit-media.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/edit-media-region.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/animate-media.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/compose-scene.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/explore-simulation.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/compose-media.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/adjust-color.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/review-quality.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/prepare-render.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/review-outputs.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/inspect-output.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/deliver-output.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/review-exact-version.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/review-rights-and-consent.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/inspect-provenance.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/choose-eligible-processing-option.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/check-processing-options.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/check-processing-readiness.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/review-workspace-settings.yaml
-  - .product-experience/phase-2-product-experience/screen-contracts/find-task-guidance.yaml
+  - .product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md
+  - .product-experience/pdp-3-product-experience/action-registry.yaml
+  - .product-experience/pdp-3-product-experience/api-experience-mapping.yaml
+  - .product-experience/pdp-3-product-experience/application-channel-registry.yaml
+  - .product-experience/pdp-3-product-experience/cli-command-registry.yaml
+  - .product-experience/pdp-3-product-experience/content-copy-catalog.yaml
+  - .product-experience/pdp-3-product-experience/data-view-contracts.yaml
+  - .product-experience/pdp-3-product-experience/handoff-bindings.yaml
+  - .product-experience/pdp-3-product-experience/interaction-registry.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml
+  - .product-experience/pdp-3-product-experience/journey-registry.yaml
+  - .product-experience/pdp-3-product-experience/navigation-contracts.yaml
+  - .product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml
+  - .product-experience/pdp-3-product-experience/responsive-variants.yaml
+  - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/artifact-verification-job-family.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml
+  - .product-experience/pdp-3-product-experience/screen-registry.yaml
+  - .product-experience/pdp-3-product-experience/simulation-semantics.yaml
+  - .product-experience/pdp-3-product-experience/state-transition-bindings.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml
   requiredReviewRoles:
   - UX-information-architect
   - product-UX-and-distributed-systems-analyst
@@ -352,28 +856,30 @@ laterPhaseAcceptanceInputs:
   - experience-simulation-and-content-lead
   - independent-experience-reviewer
   requiredEvidenceInputs:
-  - Walk every Phase 0 outcome and capability in both directions through all required views, routes, actions, journeys,
+  - Walk every PDP-0 outcome and capability in both directions through all required views, routes, actions, journeys,
     state paths, channel dispositions, and handoffs.
   - Complete the full view inventory and all non-happy-path, responsive, accessibility, localization, recovery,
-    and contextual-permission contracts; current authored detail includes partial J-01/J-02/J-03/J-20 slices and Phase 0-grounded ordered-view proposals for all 28 required journeys; complete action/state/scenario/channel and owner bindings remain open.
+    and contextual-permission contracts; current authored detail includes partial J-01/J-02/J-03/J-20 slices and PDP-0-grounded ordered-view proposals for all 28 plan-baseline journeys plus active J-29/J-30 extensions (30 total); complete action/state/scenario/channel and owner bindings remain open. PDP3-005 requires its full per-step checklist for all 30.
   - Bind API and SDK operations to actual owner-approved wire contracts; GAP-05 remains open and the proposal invents
     no route.
   - Reconcile every visible action with one action/effect, current authority, finality, recovery path, and deterministic
     scenario; keep review approval separate from caption-version registration.
-  - Obtain required human review and generated Phase 2 coverage evidence; no P2-008 completion or full-experience
+  - Obtain required human review and generated PDP-3 coverage evidence; no P2-008 completion or full PDP-3
     acceptance is recorded.
   decisionOwnerAppointments: pending
-- id: ACCEPT-INPUT-P3
-  phase: P3
-  decisionInput: pending-prerequisite-P2-008-tools-binding-browser-evidence-and-human-review
-  prerequisite: accepted-Phase-2-product-experience
+projectionAcceptanceInputs:
+- id: ACCEPT-INPUT-PROJECTION-EXPLORER
+  legacyId: ACCEPT-INPUT-P3
+  projection: EXPERIENCE-EXPLORER
+  decisionInput: pending-prerequisite-PDP-3-tools-binding-browser-evidence-and-human-review
+  prerequisite: accepted-PDP-3-product-experience
   artifactRefs:
-  - .product-experience/phase-3-experience-explorer/EXPERIENCE-EXPLORER.md
-  - .product-experience/phase-3-experience-explorer/interaction-dispositions.yaml
-  - .product-experience/phase-3-experience-explorer/media-experience-package.yaml
-  - .product-experience/phase-3-experience-explorer/scenario-fixtures.yaml
-  - .product-experience/phase-3-experience-explorer/verification-matrix.yaml
-  - .product-experience/phase-3-experience-explorer/view-projections.yaml
+  - .product-experience/explorer/EXPERIENCE-EXPLORER.md
+  - .product-experience/explorer/interaction-dispositions.yaml
+  - .product-experience/explorer/media-experience-package.yaml
+  - .product-experience/explorer/scenario-fixtures.yaml
+  - .product-experience/explorer/verification-matrix.yaml
+  - .product-experience/explorer/view-projections.yaml
   - libs/media-experience-simulation
   requiredReviewRoles:
   - Explorer-adapter-engineer
@@ -389,12 +895,12 @@ laterPhaseAcceptanceInputs:
     incompatible bindings.
   - Prove deterministic reset, replay, state transition, action preconditions, conflict resolution, finality, and
     cross-view projection with owner-approved reducer verification.
-  - Render every accepted Phase 2 view and channel in the actual Explorer host. A Media-owned local Vite client
+  - Render every accepted PDP-3 view and channel in the actual Explorer host. A Media-owned local Vite client
     renders three synthetic J-01 first-use routes, three J-02 artifact-intake views plus activity and verification-job
     views, selected J-02 CLI inspection/recovery commands, J-20 transcription-job observation/cancellation and CLI
     commands, and four J-03 transcript/caption Product views in Product, Explore, Specification, and Verify modes.
     It also exposes all 47 screen contracts as source-derived Product proposal routes with disabled actions; these
-    routes do not implement the Phase 2 views or journeys. The client is not the generic Tools Explorer host and has
+    routes do not implement the PDP-3 views or journeys. The client is not the generic Tools Explorer host and has
     no published isolated package binding.
   - Verify built browser assets, base path, CSP, offline mode, deep links, cache/currentness, keyboard, screen reader,
     zoom, forced colors, reduced motion, responsive variants, and supported localization.

@@ -1,0 +1,34 @@
+schemaVersion: media.protocol-operation-contract.v1
+operationId: media.grpc.STTService.SubmitCorrection
+protocolIdentity:
+  protocol: gRPC
+  package: com.ghatana.audio.video.stt.grpc
+  service: STTService
+  fullyQualifiedService: com.ghatana.audio.video.stt.grpc.STTService
+  method: SubmitCorrection
+  clientStreaming: false
+  serverStreaming: false
+sourceContract: modules/speech/stt-service/src/main/proto/stt_service.proto
+sourceContractDisposition: implementation-or-projection-observation; not-declared-canonical-wire-authority
+request:
+  protobufMessage: CorrectionRequest
+  schemaRef: modules/speech/stt-service/src/main/proto/stt_service.proto#com.ghatana.audio.video.stt.grpc.CorrectionRequest
+response:
+  protobufMessage: CorrectionResponse
+  schemaRef: modules/speech/stt-service/src/main/proto/stt_service.proto#com.ghatana.audio.video.stt.grpc.CorrectionResponse
+pdp1SemanticBinding:
+  logicalOperationRef: media.operation.transcription
+  bindingStatus: proposed-exact-source-member-map; owner-review-pending
+  mappingSource: .product-experience/pdp-1-domain-data/operations.yaml#/sourceDenominators/grpcRpcs/explicitMemberOperationIds
+  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
+  ownerReview: pending
+contractStatus: proposal-only; owner-review-pending
+nonClaims:
+- authentication
+- idempotency
+- retry
+- cancellation
+- finality
+- state-effects
+- privacy
+- event-guarantees

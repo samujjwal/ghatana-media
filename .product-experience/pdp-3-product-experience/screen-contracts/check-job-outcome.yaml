@@ -1,0 +1,124 @@
+schemaVersion: media.screen-contract.v2
+contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+surfaceId: media.surface.web
+surfaceBindingStatus: candidate; derived-from-web-channel-and-surface-inventory; owner-binding-pending
+templateId: null
+templateBindingStatus: unresolved; no-exact-catalogued-template-reference
+layoutIds: []
+componentIds: []
+patternIds:
+  - media.gui.pattern.job-status-and-recovery
+tokenDependencies: []
+domainObjectRefs: []
+operationRefs: []
+stateRefs: []
+entry: []
+exit: []
+actionConsequences:
+  - actionId: media.action.view-job-status
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.check-job-outcome
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+responsiveBehavior:
+  reference: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
+  status: proposal-unverified
+  screenSpecificOverrides: []
+fixtures:
+  refs: []
+  status: missing
+verification:
+  status: not-run
+  evidenceRefs: []
+  checks:
+    structural: not-yet-proven
+    rendering: not-yet-proven
+    behavior: not-yet-proven
+    responsive: not-yet-proven
+    keyboard: not-yet-proven
+    accessibility: not-yet-proven
+fieldBindingStatus:
+  surfaceId: candidate-pending-owner-binding
+  templateId: unresolved-no-exact-catalogued-reference
+  layoutIds: unresolved-no-canonical-layout-ids-registered
+  componentIds: unresolved-no-existing-componentRefs
+  patternIds: proposal-copied-from-existing-patternRefs; PDP-2-acceptance-pending
+  tokenDependencies: unresolved-no-direct-canonical-reference
+  domainObjectRefs: unresolved-no-direct-canonical-reference
+  operationRefs: unresolved-no-direct-canonical-reference
+  stateRefs: unresolved-no-PDP-1-canonical-reference; local-UI-states-not-promoted
+  entry: unresolved-no-direct-canonical-reference
+  exit: unresolved-no-direct-canonical-reference
+  actionConsequences: pending-owner-operation-and-effect-binding
+  responsiveBehavior: proposal-unverified; PDP-2-acceptance-pending
+  fixtures: missing-no-existing-fixtureRefs
+  verification: not-run; no-evidence-refs
+productId: media
+screenId: media.view.check-job-outcome
+status: proposal; outcome-evidence-owner-binding-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+- media.operator
+- media.automation-client
+intentRef: media.intent.resolve-job
+purpose: check what happened to a job whose external outcome may be uncertain
+contextGoalNowNext:
+  context: Stable job identity, source version, prior dispatch state, and available provider evidence.
+  goal: determine what happened before deciding whether more work is safe.
+  now: Preserve OUTCOME_UNKNOWN until owner evidence classifies the result.
+  next: Record the confirmed outcome or request the assigned operator; do not submit another request blindly.
+anatomy:
+- job-identity
+- current-state
+- evidence-timeline
+- outcome-check-result
+- safe-next-action
+states:
+- outcome-unknown
+- reconciling
+- completed
+- failed
+- cancelled
+- evidence-unavailable
+actions:
+- media.action.view-job-status
+- media.action.check-job-outcome
+surfaceContract:
+  surfaceRef: media.channel.web
+  status: channel-and-host-rendering-owner-review-pending
+templateContract:
+  templateRef: media.template.check-job-outcome
+  kind: owner-defined-template-pending-review
+layoutContract:
+  primaryRegion: intent-and-context
+  supportingRegions: anatomy-list-order
+  responsiveRuleRef: existing-responsive-description
+patternRefs:
+  - media.gui.pattern.job-status-and-recovery
+validation:
+  status: proposal-validation-pending-owner-review
+  rule: validate-inputs-authority-and-finality-before-dispatch
+recovery:
+  status: explicit-recovery-proposal-pending-owner-review
+  rule: preserve-context-and-unknown-outcomes-before-retry-or-resubmit
+accessibility:
+  status: accessibility-intent-proposal-pending-owner-review
+  rule: preserve-focus-reading-order-names-and-recovery-announcements
+localization:
+  status: Shared-localization-binding-pending-owner-review
+  rule: use-Shared-locale-formatting-and-accessibility-contracts
+actionBindingState: proposal-intent-action-refs-owner-effect-and-finality-review-pending
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+sourceRefs:
+- master-plan:section-20.2
+- .product-experience/pdp-0-product-truth
+journeyRefs: []

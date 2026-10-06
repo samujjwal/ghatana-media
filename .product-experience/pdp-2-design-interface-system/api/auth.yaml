@@ -1,0 +1,8 @@
+schemaVersion: media.api-auth.v1
+owner: ghatana-media-product-api
+authority: Shared identity and authentication authorities issue identity; Media evaluates product authorization at each operation
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-0-product-truth/policy-authority-model.yaml, .product-experience/pdp-0-product-truth/dependency-contracts.yaml]
+scopeStatus: proposal; deployment and credential mechanisms are not specified here
+acceptance: {criteria: [authenticate through admitted Shared identity boundary, authorize tenant/workspace/project/resource and action independently, deny by default], status: pending-identity-and-product-owner-review}
+verification: {method: Review authorization matrix and negative cross-tenant/resource tests at API integration, status: not-run}
+rules: [never accept credentials in query strings, never treat possession of an identifier as permission, re-check authorization for reads and mutations, propagate least-privilege context, redact credentials from diagnostics, consent and rights are separate policy inputs]

@@ -1,0 +1,12 @@
+schemaVersion: media.api-identifiers.v1
+owner: ghatana-media-product-api
+authority: Media Product Truth glossary owns domain identity and naming
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-0-product-truth/glossary.yaml, .product-experience/pdp-0-product-truth/domain-model.yaml]
+scopeStatus: proposal; serialized formats await API contract binding
+acceptance: {criteria: [identifiers remain opaque and stable, distinct entity identities are never conflated, canonical naming follows glossary], status: pending-review}
+verification: {method: Check schemas and examples against glossary and domain entity ownership, status: not-run}
+rules:
+  - Proposed rule: treat identifiers as opaque strings; clients must not parse structure or infer authorization.
+  - Proposed rule: keep uploadId, jobId, artifactId, projectId, and projectRevisionId distinct wherever an approved operation uses them.
+  - Proposed rule: machine identifiers and display labels are separate; identifier stability and serialization remain subject to API-owner approval.
+  - A projectRevisionId may identify a project snapshot under the proposed domain model; it is not artifact bytes or an artifact version. Immutability and wire representation are not established by this proposal.

@@ -1,0 +1,339 @@
+schemaVersion: media.journey-contract.v1
+productId: media
+journeyId: J-01
+title: First use, authentication, context, and project creation
+status: proposal; upstream-acceptance-and-role-review-pending
+scope: create-an-empty-versioned-project-in-an-authorized-workspace; media-processing-and-output-delivery-remain-outside-this-journey
+outcomes: [media.goal.finished-asset, media.goal.resolve-safely, media.goal.preserve-source]
+actors: [media.creator, media.administrator, media.editor, media.operator]
+intent: media.intent.restore-project
+channels: [media.channel.web]
+preconditions:
+  - Resolve an authenticated principal and authorized tenant/workspace through the admitted Shared identity contract before showing protected project data.
+  - Project creation requires current project-scoped authority; actor and responsibility-role labels do not grant permission.
+  - No source media, provider, model, engine, or processing request is required to create an empty project.
+steps:
+- view: media.view.authenticate-and-select-context
+  handoff: media.handoff.identity
+  result: current-principal-and-authorized-workspace-are-resolved-or-a-recoverable-access-state-is-shown
+  surfaceRefs:
+  - media.surface.web
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: media.handoff.identity
+  success:
+    status: candidate-proposal
+    scope: existing-step-result
+    sourceRef: journey.steps[1].result
+    proposal: current-principal-and-authorized-workspace-are-resolved-or-a-recoverable-access-state-is-shown
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: identity-not-established
+      response: preserve-the-return-destination; do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
+    - id: workspace-access-denied
+      response: keep-project-data-hidden; explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
+    - id: project-create-not-authorized
+      response: keep-the-project-list-and-workspace-context; explain-the-required-access-without-claiming-creation
+    - id: project-create-outcome-unknown
+      response: keep-the-same-create-request-identity; inspect-or-reconcile-its-result-before-offering-another-create-action
+    - id: requested-intent-unavailable
+      response: keep-the-empty-project; explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Preserve the return destination, selected workspace, and any non-sensitive intent draft across re-authentication;
+      never infer successful project creation from a lost response or retry an unknown effect blindly.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - return-destination
+    - selected-workspace
+    - selected-project-identity-and-version
+    - selected-intent-when-present
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: candidate-reference-present; handoff-condition-and-owner-contract-pending
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- view: media.view.resume-work
+  result: authorized-projects-or-a-purposeful-first-use-state-are-shown; no-cross-tenant-project-data-is-visible
+  surfaceRefs:
+  - media.surface.web
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: existing-step-result
+    sourceRef: journey.steps[2].result
+    proposal: authorized-projects-or-a-purposeful-first-use-state-are-shown; no-cross-tenant-project-data-is-visible
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: identity-not-established
+      response: preserve-the-return-destination; do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
+    - id: workspace-access-denied
+      response: keep-project-data-hidden; explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
+    - id: project-create-not-authorized
+      response: keep-the-project-list-and-workspace-context; explain-the-required-access-without-claiming-creation
+    - id: project-create-outcome-unknown
+      response: keep-the-same-create-request-identity; inspect-or-reconcile-its-result-before-offering-another-create-action
+    - id: requested-intent-unavailable
+      response: keep-the-empty-project; explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Preserve the return destination, selected workspace, and any non-sensitive intent draft across re-authentication;
+      never infer successful project creation from a lost response or retry an unknown effect blindly.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - return-destination
+    - selected-workspace
+    - selected-project-identity-and-version
+    - selected-intent-when-present
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- view: media.view.find-projects
+  action: media.action.create-project
+  result: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
+  surfaceRefs:
+  - media.surface.web
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: existing-step-result
+    sourceRef: journey.steps[3].result
+    proposal: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: identity-not-established
+      response: preserve-the-return-destination; do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
+    - id: workspace-access-denied
+      response: keep-project-data-hidden; explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
+    - id: project-create-not-authorized
+      response: keep-the-project-list-and-workspace-context; explain-the-required-access-without-claiming-creation
+    - id: project-create-outcome-unknown
+      response: keep-the-same-create-request-identity; inspect-or-reconcile-its-result-before-offering-another-create-action
+    - id: requested-intent-unavailable
+      response: keep-the-empty-project; explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Preserve the return destination, selected workspace, and any non-sensitive intent draft across re-authentication;
+      never infer successful project creation from a lost response or retry an unknown effect blindly.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - return-destination
+    - selected-workspace
+    - selected-project-identity-and-version
+    - selected-intent-when-present
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- view: media.view.work-in-project
+  result: the-exact-project-identity-and-version-are-visible-with-a-safe-next-action
+  surfaceRefs:
+  - media.surface.web
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: existing-step-result
+    sourceRef: journey.steps[4].result
+    proposal: the-exact-project-identity-and-version-are-visible-with-a-safe-next-action
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: identity-not-established
+      response: preserve-the-return-destination; do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
+    - id: workspace-access-denied
+      response: keep-project-data-hidden; explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
+    - id: project-create-not-authorized
+      response: keep-the-project-list-and-workspace-context; explain-the-required-access-without-claiming-creation
+    - id: project-create-outcome-unknown
+      response: keep-the-same-create-request-identity; inspect-or-reconcile-its-result-before-offering-another-create-action
+    - id: requested-intent-unavailable
+      response: keep-the-empty-project; explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Preserve the return destination, selected workspace, and any non-sensitive intent draft across re-authentication;
+      never infer successful project creation from a lost response or retry an unknown effect blindly.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - return-destination
+    - selected-workspace
+    - selected-project-identity-and-version
+    - selected-intent-when-present
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+optionalContinuation:
+  view: media.view.create-media
+  intentSelectionAction: media.action.choose-intent
+  planReviewView: media.view.review-creation-plan
+  boundary: J-01-completes-after-project-creation; selecting-a-processing-intent-or-submitting-work-belongs-to-its-own-journey-and-action
+terminalSuccess: An authorized creator has a versioned empty project in the selected workspace and can see a safe next action without selecting a provider, model, queue, or engine.
+criticalNonhappyPaths:
+  - id: identity-not-established
+    response: preserve-the-return-destination; do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
+  - id: workspace-access-denied
+    response: keep-project-data-hidden; explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
+  - id: project-create-not-authorized
+    response: keep-the-project-list-and-workspace-context; explain-the-required-access-without-claiming-creation
+  - id: project-create-outcome-unknown
+    response: keep-the-same-create-request-identity; inspect-or-reconcile-its-result-before-offering-another-create-action
+  - id: requested-intent-unavailable
+    response: keep-the-empty-project; explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
+recovery: Preserve the return destination, selected workspace, and any non-sensitive intent draft across re-authentication; never infer successful project creation from a lost response or retry an unknown effect blindly.
+contextPreserved: [return-destination, selected-workspace, selected-project-identity-and-version, selected-intent-when-present]
+channelEquivalents: [web]
+accessibilityRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml
+requiredScenarioBehaviors:
+  status: six-synthetic-PDP-3-fixtures-authored; Shared-identity-and-project-service-bindings-pending
+  scenarios:
+    - media.scenario.first-use-empty
+    - media.scenario.identity-required
+    - media.scenario.workspace-access-denied
+    - media.scenario.project-create-outcome-unknown
+    - media.scenario.project-created-empty
+    - media.scenario.intent-unavailable
+scenarioRefs: [media.scenario.first-use-empty, media.scenario.identity-required, media.scenario.workspace-access-denied, media.scenario.project-create-outcome-unknown, media.scenario.project-created-empty, media.scenario.intent-unavailable]
+unresolvedProductDecisions:
+  - project-creation-input-shape-and-name-generation-policy-remain-pending-the-media.project.create-leaf-owner-review
+  - exact-authentication-return-and-access-request-bindings-remain-pending-the-published-Shared-identity-consumer-contract

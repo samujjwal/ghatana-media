@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /workspace
 
-COPY products/audio-video/modules/intelligence/ai-voice/requirements.txt ./requirements.txt
+COPY modules/intelligence/ai-voice/requirements.txt ./requirements.txt
 
 RUN python -m venv /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip && \
@@ -36,7 +36,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Application source
 COPY --chown=aivoice:aivoice \
-    products/audio-video/modules/intelligence/ai-voice/ ./
+    modules/intelligence/ai-voice/ ./
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:${AI_VOICE_HEALTH_PORT:-8095}/health || exit 1

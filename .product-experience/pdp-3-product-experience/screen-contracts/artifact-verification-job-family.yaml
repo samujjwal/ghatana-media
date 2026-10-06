@@ -1,0 +1,50 @@
+schemaVersion: media.job-view-specialization.v1
+productId: media
+screenRef: media.view.job-status
+specializationId: media.job-family.artifact-verification
+status: proposal; job-family-specialization-of-canonical-job-status-view; verification-owner-contract-pending
+purpose: Project the artifact-verification job family in the canonical job-status view while keeping transfer identity
+  and job finality distinct.
+jobFamily: artifact-verification
+context: One owner-issued verification job associated with an uploadId when the owner contract returns it.
+anatomy:
+- job-identity
+- related-upload-identity
+- verification-state
+- evidence-and-finality
+- safe-next-action
+states:
+- job-running
+- job-completed
+- job-failed
+- outcome-unknown
+- reconciling
+- evidence-unavailable
+actions:
+- media.action.view-job-status
+- media.action.check-job-outcome
+identityRules:
+- jobId-is-the-job-identity
+- uploadId-is-related-transfer-identity-not-a-jobId
+- verification-stage-is-not-artifact-availability
+- verification-result-does-not-imply-project-attachment
+sourceRefs:
+- master-plan:section-20.2
+- pdp-0:journey:J-02
+validation:
+  status: proposal-validation-pending-owner-review
+  rule: validate-inputs-authority-and-finality-before-dispatch
+recovery:
+  status: explicit-recovery-proposal-pending-owner-review
+  rule: preserve-context-and-unknown-outcomes-before-retry-or-resubmit
+localization:
+  status: Shared-localization-binding-pending-owner-review
+  rule: use-Shared-locale-formatting-and-accessibility-contracts
+actionBindingState: proposal-intent-action-refs-owner-effect-and-finality-review-pending
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+journeyRefs: []
+accessibility:
+  status: accessibility-intent-proposal-pending-owner-review
+  rule: preserve-focus-reading-order-names-and-recovery-announcements

@@ -1,0 +1,681 @@
+artifactVersion: media.phase-0.journey-catalog.v1
+phaseTask: P0-009
+scopeStatus: TARGET
+status:
+  maturity: proposed-for-phase-0-review
+  acceptance: not-submitted
+  implementation: selected-journey-contract-proposals-authored-in-phase-2; full-contract-inventory-pending
+  runtimeSupport: not-claimed
+dependencies:
+  p0-001: accepted-boundary-slice
+  p0-002: goals-and-actors-proposed-not-accepted
+  p0-003: pending-capability-denominator
+  p0-005: pending-state-finality-and-recovery-models
+  p0-006: pending-authority-rights-and-privacy-model
+  p0-007: pending-quality-profile-and-fallback-policy
+  p0-008: pending-owner-approved-handoff-bindings
+  nonfunctionalRequirements:
+    status: authored-proposal-pending-p0-010-integration-and-independent-acceptance
+    artifact: nonfunctional-requirements.yaml
+    editedHere: false
+
+sourceReferences:
+  requiredJourneyFamilies:
+    document: docs/migration/expert-reviewed-master-plan.md
+    section: '20.4 Required end-to-end journeys'
+  viewReferences:
+    document: docs/migration/expert-reviewed-master-plan.md
+    section: '20.2 Initial screen/view inventory'
+  goals: goals-jtbd.yaml
+  actors: actors-responsibilities.yaml
+  channelStatuses: applications-channels.yaml
+  handoffs: handoff-contracts.yaml
+
+journeyRecordRequirements:
+  phase0CatalogIncludes:
+  - outcome and actor references
+  - proposed ordered view/step references
+  - preconditions and terminal success meaning
+  - at least one material failure/degradation case and safe recovery
+  - preserved context, return path, channel disposition, and accessibility disposition
+  phase2DetailStillRequired:
+  - exact view/state/action ordering and state transitions
+  - automation versus human decisions and authority checks
+  - loading/empty/partial/stale/offline/permission/policy/conflict/unknown-finality states
+  - responsive variants, exact copy, accessibility/localization contracts, and executable fixtures
+  currentness: >-
+    Entries below are planning references from the reviewed master plan and
+    proposed Goal/Actor records. P0-003 and P0-007 must be reconciled before
+    Phase-0 acceptance; this list is not a proof that every leaf operation is
+    covered or available.
+
+accessibilityDisposition:
+  id: media.a11y.baseline
+  status: required-by-plan; acceptance-review-pending
+  proposedBaseline:
+  - Semantic DOM or structured view of canvas, timeline, waveform, graph, and simulation meaning.
+  - Keyboard operation and non-drag alternatives for selection, trim, reorder, masks, and controls.
+  - Predictable focus, programmatic errors/status, captions/transcripts, visible audio controls, reduced motion, forced colors,
+    zoom/reflow, and touch-target review.
+  - Exact supported locale set and per-language testing remain unadmitted; generated language output is a reviewable draft.
+  evidence: No WCAG or human-usability acceptance is claimed.
+
+outcomeCoverage:
+- outcomeRef: media.goal.finished-asset
+  proposedJourneyRefs: [J-01, J-04, J-07, J-08, J-09, J-10, J-11, J-12, J-13, J-14, J-16, J-17, J-18, J-24, J-28]
+  proposedChannels: [media.channel.web, media.channel.http-api, media.channel.cli]
+  criticalNonhappyJourneyRefs: [J-01, J-09, J-20, J-27]
+  accessibility: media.a11y.baseline
+- outcomeRef: media.goal.preserve-source
+  proposedJourneyRefs: [J-02, J-07, J-08, J-11, J-18, J-26]
+  proposedChannels: [media.channel.web, media.channel.sdk, media.channel.http-api]
+  criticalNonhappyJourneyRefs: [J-02, J-11, J-18, J-26]
+  accessibility: media.a11y.baseline
+- outcomeRef: media.goal.understand-media
+  proposedJourneyRefs: [J-02, J-03, J-05, J-06]
+  proposedChannels: [media.channel.web, media.channel.grpc-api, media.channel.sdk, media.channel.product-integration]
+  criticalNonhappyJourneyRefs: [J-02, J-03, J-05, J-06]
+  accessibility: media.a11y.baseline
+- outcomeRef: media.goal.explain-or-demonstrate
+  proposedJourneyRefs: [J-09, J-10, J-12, J-13, J-14, J-15, J-28]
+  proposedChannels: [media.channel.web, media.channel.product-integration]
+  criticalNonhappyJourneyRefs: [J-14, J-15, J-28]
+  accessibility: media.a11y.baseline
+- outcomeRef: media.goal.improve-with-disclosure
+  proposedJourneyRefs: [J-07, J-08, J-11, J-15, J-19]
+  proposedChannels: [media.channel.web, media.channel.http-api]
+  criticalNonhappyJourneyRefs: [J-07, J-08, J-11, J-19]
+  accessibility: media.a11y.baseline
+- outcomeRef: media.goal.review-trustworthy-output
+  proposedJourneyRefs: [J-03, J-05, J-09, J-16, J-18, J-21, J-22]
+  proposedChannels: [media.channel.web, media.channel.product-integration]
+  criticalNonhappyJourneyRefs: [J-09, J-21, J-22, J-27]
+  accessibility: media.a11y.baseline
+- outcomeRef: media.goal.deliver-approved-output
+  proposedJourneyRefs: [J-09, J-16, J-17, J-18, J-22]
+  proposedChannels: [media.channel.web, media.channel.http-api, media.channel.cli, media.channel.product-integration]
+  criticalNonhappyJourneyRefs: [J-09, J-22, J-27]
+  accessibility: media.a11y.baseline
+- outcomeRef: media.goal.integrate-repeatably
+  proposedJourneyRefs: [J-24, J-25, J-30]
+  proposedChannels: [media.channel.http-api, media.channel.grpc-api, media.channel.sdk, media.channel.cli, media.channel.product-integration]
+  criticalNonhappyJourneyRefs: [J-24, J-25, J-27, J-30]
+  accessibility: media.a11y.baseline
+- outcomeRef: media.goal.resolve-safely
+  proposedJourneyRefs: [J-01, J-02, J-20, J-23, J-26, J-27, J-29, J-30]
+  proposedChannels: [media.channel.web, media.channel.cli, media.channel.http-api]
+  criticalNonhappyJourneyRefs: [J-01, J-02, J-20, J-23, J-26, J-27, J-29, J-30]
+  accessibility: media.a11y.baseline
+- outcomeRef: media.goal.apply-permitted-settings
+  supportingViewRefs: [M-SETTINGS]
+  coverageDisposition: supporting-settings-view; no-independent-master-plan-journey
+  proposedChannels: [media.channel.web]
+  criticalNonhappyJourneyRefs: [J-01, J-30]
+  accessibility: media.a11y.baseline
+
+journeys:
+- id: J-01
+  scopeStatus: TARGET
+  title: First use, authentication, context, and project creation
+  outcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.resolve-safely
+  - media.goal.preserve-source
+  actors:
+  - media.creator
+  - media.administrator
+  - media.editor
+  - media.operator
+  proposedChannels: [media.channel.web]
+  viewRefs: [M-AUTH, M-HOME, M-PROJECTS, M-PROJECT, M-CREATE]
+  handoffRefs: [shared-auth-identity]
+  preconditions: Authenticate through the admitted identity contract and select an authorized tenant/workspace.
+  completion: A versioned empty project exists and the creator sees a safe next action without selecting a provider/model/engine.
+  criticalNonhappy: Missing/expired identity, denied tenant, no admitted capability, or rights/policy prerequisite blocks
+    the intended action.
+  recovery: Preserve the empty project/context; explain re-authentication, access request, or an admitted alternate intent.
+  contextAndReturn: Return to the selected workspace and project; do not lose intent when authentication redirects.
+  accessibility: media.a11y.baseline
+  intentRefs:
+  - media.intent.restore-project
+- id: J-02
+  scopeStatus: TARGET
+  title: Upload/import, inspect, and produce a usable artifact
+  outcomeRefs: [media.goal.understand-media, media.goal.preserve-source, media.goal.resolve-safely]
+  actors: [media.creator, media.editor]
+  proposedChannels: [media.channel.web, media.channel.http-api, media.channel.sdk]
+  viewRefs: [M-ASSETS, M-UPLOAD, M-ASSET, M-JOB]
+  preconditions: Source selection and upload are authorized; current consent/retention rules are checked.
+  completion: Original bytes remain identifiable and an artifact version has integrity and available technical metadata recorded.
+  criticalNonhappy: Interrupted parts, checksum mismatch, unsupported format, quarantine, permission denial, or no network.
+  recovery: Resume only a matching authorized upload; otherwise keep/quarantine partial data according to policy and explain
+    a safe restart.
+  contextAndReturn: Keep source name, project target, upload progress, integrity status, and next inspection action.
+  accessibility: media.a11y.baseline
+- id: J-03
+  scopeStatus: TARGET
+  title: Audio/video transcription through corrected captions
+  outcomeRefs: [media.goal.understand-media, media.goal.review-trustworthy-output]
+  actors: [media.creator, media.editor, media.reviewer]
+  proposedChannels: [media.channel.web, media.channel.cli, media.channel.grpc-api, media.channel.sdk]
+  viewRefs: [M-AUDIO, M-VIDEO, M-SPEECH, M-CAPTIONS, M-COMPARE]
+  preconditions: Audio/video access, language intent, and required consent/processing policy are available.
+  completion: Timestamped transcript/caption draft is reviewable with language, timing, provenance, uncertainty, and exact
+    source version.
+  criticalNonhappy: Language/speaker uncertainty, missing alignment, model unavailable, revoked consent, or transcript timing
+    loss.
+  recovery: Preserve source and draft; correct manually or leave captions unavailable; do not claim model certainty.
+  contextAndReturn: Preserve source PTS/time-region links, chosen language dimension, caption edits, and review state.
+  accessibility: media.a11y.baseline
+- id: J-04
+  scopeStatus: TARGET
+  title: Authorized text-to-speech to approved audio
+  outcomeRefs: [media.goal.finished-asset]
+  actors: [media.creator, media.reviewer]
+  proposedChannels: [media.channel.web, media.channel.grpc-api, media.channel.sdk]
+  viewRefs: [M-SPEECH, M-VOICE, M-COMPARE, M-OUTPUT]
+  conditionalHandoffRefs: [ai-inference-execution]
+  handoffCondition: Only when the admitted TTS operation is routed through the AI Inference public boundary.
+  preconditions: Text, voice rights/consent, language and output intent are admitted.
+  completion: A reviewable audio artifact records selected voice/version, format/rate, provenance, and approval status where
+    required.
+  criticalNonhappy: Unsupported voice/language, pronunciation mismatch, consent denial, provider outage, or sample-format
+    incompatibility.
+  recovery: Keep text and plan, offer only an admitted permitted voice or non-speech route, and require explicit choice for
+    material changes.
+  contextAndReturn: Preserve source text revision, voice/language choice, timing, and preview position.
+  accessibility: media.a11y.baseline
+- id: J-05
+  scopeStatus: TARGET
+  title: Image/video analysis, geometry, and tracks
+  outcomeRefs: [media.goal.understand-media, media.goal.review-trustworthy-output]
+  actors: [media.creator, media.editor, media.reviewer]
+  proposedChannels: [media.channel.web, media.channel.grpc-api, media.channel.sdk]
+  viewRefs: [M-IMAGE, M-VIDEO, M-QUALITY, M-COMPARE]
+  conditionalHandoffRefs: [ai-inference-execution]
+  handoffCondition: Only for a capability whose admitted provider contract uses AI Inference.
+  preconditions: Source and analysis purpose are authorized; technical input limits are explicit.
+  completion: Observations retain source artifact, timestamp/frame/region, model provenance, and confidence/uncertainty.
+  criticalNonhappy: Uncertain detections, unsupported dimensions, VFR sampling loss, model unavailable, or no valid geometry.
+  recovery: Mark observations unavailable or partial; preserve source; allow bounded manual inspection where admitted.
+  contextAndReturn: Keep frame/time mapping, selected track/region, and observation provenance.
+  accessibility: media.a11y.baseline
+- id: J-06
+  scopeStatus: TARGET
+  title: Multimodal or document consumer request to grounded typed result
+  outcomeRefs: [media.goal.understand-media, media.goal.integrate-repeatably]
+  intentRefs: [media.intent.find-task-guidance]
+  actors: [media.developer-integrator, media.automation-client]
+  proposedChannels: [media.channel.http-api, media.channel.grpc-api, media.channel.product-integration]
+  viewRefs: [M-HELP, M-OUTPUT, M-PROVENANCE]
+  viewReferenceDisposition: >-
+    Proposed optional human documentation/result-inspection references only;
+    API and product-integration consumers do not require a Web route, and no
+    such route or runtime support is admitted here.
+  conditionalHandoffRefs: [document-intelligence-scene-text, ai-inference-execution]
+  handoffCondition: >-
+    Call Document Intelligence only for Media temporal/scene-text use through
+    its future public contract; generic document requests go directly to
+    Document Intelligence. Call AI Inference only for an admitted operation
+    bound to that public service.
+  preconditions: Consumer purpose and artifact access are authorized; Media-specific scene-text intent is distinguished from
+    document extraction.
+  completion: A typed result returns source/time/region/provenance and explicit uncertainty; generic document parsing remains
+    with Document Intelligence.
+  criticalNonhappy: Privacy denial, unqualified fallback, cancellation boundary, missing public API, or generic document request
+    routed as video OCR by MIME alone.
+  recovery: Fail closed at the correct owner boundary; preserve request identity and reconcile asynchronous work before retry.
+  contextAndReturn: Return owner, operation/version, opaque request/job reference, status, and accepted artifact refs.
+  accessibility: media.a11y.baseline
+- id: J-07
+  scopeStatus: TARGET
+  title: Noisy/clipped interview cleanup with preservation and comparison
+  outcomeRefs: [media.goal.improve-with-disclosure, media.goal.preserve-source, media.goal.finished-asset]
+  actors: [media.creator, media.editor, media.reviewer]
+  proposedChannels: [media.channel.web]
+  viewRefs: [M-AUDIO, M-ENHANCE, M-COMPARE, M-OUTPUT]
+  preconditions: Source and requested preservation profile are admitted.
+  completion: A derived output and before/after comparison disclose processing and reconstruction limits.
+  criticalNonhappy: A generative restoration is mistaken for recovered detail, or quality metric is inapplicable/no improvement.
+  recovery: Retain source and prior revision; abstain, accept original, or choose a bounded admitted operation.
+  contextAndReturn: Preserve source version, edit history, comparison region, and selected preservation intent.
+  accessibility: media.a11y.baseline
+- id: J-08
+  scopeStatus: TARGET
+  title: Low-quality video repair with measured comparison
+  outcomeRefs: [media.goal.improve-with-disclosure, media.goal.preserve-source, media.goal.finished-asset]
+  actors: [media.creator, media.editor, media.reviewer]
+  proposedChannels: [media.channel.web]
+  viewRefs: [M-VIDEO, M-ENHANCE, M-COMPARE, M-QUALITY]
+  preconditions: Repair operation, input envelope, and budget are admitted by P0-003/P0-007.
+  completion: Eligible stabilized/upscaled/repaired output is compared under applicable metrics with limitations visible.
+  criticalNonhappy: Insufficient recoverable detail, failed metric, temporal artifacts, or exhausted budget.
+  recovery: Stop bounded work, keep completed safe outputs and source, and report metric abstention/failure.
+  contextAndReturn: Retain source, candidate, time ranges, metrics, quality profile, and bounded-work status.
+  accessibility: media.a11y.baseline
+- id: J-09
+  scopeStatus: TARGET
+  title: Prompt/brief to storyboard, composition, render, review, and delivery
+  outcomeRefs: [media.goal.finished-asset, media.goal.explain-or-demonstrate, media.goal.review-trustworthy-output, media.goal.deliver-approved-output]
+  actors: [media.creator, media.editor, media.reviewer]
+  proposedChannels: [media.channel.web, media.channel.product-integration]
+  viewRefs: [M-CREATE, M-PLAN, M-STORYBOARD, M-VIDEO, M-AUDIO, M-COMPOSER, M-RENDER, M-REVIEW, M-DELIVERY]
+  conditionalHandoffRefs: [digital-marketing-creative-brief, action-plane-publication]
+  handoffCondition: Marketing handoff applies only to an approved campaign brief; Action Plane applies only to an external
+    publication effect.
+  preconditions: Intent, source/reference rights, budget, quality/preservation choices, and required reviewers are explicit.
+  completion: Exact output version is reviewed, approved as required, and delivered with an accurate external-effect status.
+  criticalNonhappy: Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or unknown delivery
+    outcome.
+  recovery: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted bounded successor
+    plan.
+  contextAndReturn: Keep brief, references, scene order, edits, review scope, output version, and delivery destination.
+  accessibility: media.a11y.baseline
+- id: J-10
+  scopeStatus: TARGET
+  title: Controlled generation with references and continuity review
+  outcomeRefs: [media.goal.finished-asset, media.goal.explain-or-demonstrate]
+  actors: [media.creator, media.reviewer]
+  proposedChannels: [media.channel.web]
+  viewRefs: [M-PLAN, M-VIDEO, M-ANIMATION, M-QUALITY, M-COMPARE]
+  conditionalHandoffRefs: [ai-inference-execution]
+  handoffCondition: Only when the admitted controlled-generation capability calls the generic inference service.
+  preconditions: Reference/control uses are rights-checked; protected identity and geometry constraints are explicit.
+  completion: Candidate sequence is reviewed for continuity with uncertainty/provenance exposed.
+  criticalNonhappy: Identity/geometry drift, unsupported control, AI unavailable, or inferred identity treated as proof.
+  recovery: Preserve valid source frames/controls; revise or stop under budget and disclose unsupported fidelity.
+  contextAndReturn: Retain reference versions, controls, candidate ordering, review notes, and selected continuity regions.
+  accessibility: media.a11y.baseline
+- id: J-11
+  scopeStatus: TARGET
+  title: Region mask/tracking edit with comparison and undo
+  outcomeRefs: [media.goal.finished-asset, media.goal.preserve-source, media.goal.improve-with-disclosure]
+  actors: [media.editor, media.reviewer]
+  proposedChannels: [media.channel.web]
+  viewRefs: [M-EDIT, M-MASK, M-COMPARE]
+  preconditions: Edit is bound to an exact artifact version, frame/time range, and authorized operation.
+  completion: Region edit is versioned and reviewable; source and prior edit remain recoverable.
+  criticalNonhappy: Propagation uncertainty, drift, conflicting revision, or undo confused with reversal of an external effect.
+  recovery: Pause propagation for correction, preserve prior revision, and undo only within its declared scope.
+  contextAndReturn: Preserve mask, tracked region, source frame/time-map, active selection, and edit revision.
+  accessibility: media.a11y.baseline
+- id: J-12
+  scopeStatus: TARGET
+  title: Deterministic 2D/vector/procedural animation
+  outcomeRefs: [media.goal.finished-asset, media.goal.explain-or-demonstrate]
+  actors: [media.creator, media.editor]
+  proposedChannels: [media.channel.web]
+  viewRefs: [M-ANIMATION, M-COMPARE, M-OUTPUT]
+  preconditions: Animation controls and exact timing/export subset are declared.
+  completion: Accessible preview and export preserve declared curve/time semantics.
+  criticalNonhappy: Unsupported interchange feature or different timing after export.
+  recovery: Keep source graph, expose unsupported feature/loss, and allow a qualified preview/export alternative only by explicit
+    choice.
+  contextAndReturn: Retain timeline position, keyframe/curve edits, reduced-motion choice, and export settings.
+  accessibility: media.a11y.baseline
+- id: J-13
+  scopeStatus: TARGET
+  title: 3D character, rig, path, or control animation
+  outcomeRefs: [media.goal.finished-asset, media.goal.explain-or-demonstrate]
+  actors: [media.creator, media.editor, media.reviewer]
+  proposedChannels: [media.channel.web]
+  viewRefs: [M-SCENE, M-ANIMATION, M-RENDER, M-OUTPUT]
+  conditionalHandoffRefs: [tutorputor-domain-scene]
+  handoffCondition: Only when an owner-approved TutorPutor domain/scene integration is selected.
+  preconditions: Scene/rig assets, coordinate convention, rights, and supported interchange subset are identified.
+  completion: Render/export binds animation to a declared rig/scene version and reports conversion loss.
+  criticalNonhappy: Skeleton mapping failure, coordinate mismatch, rights failure, or unsupported scene feature.
+  recovery: Preserve source rig/scene and reject or isolate unsupported mappings; do not silently retarget.
+  contextAndReturn: Keep rig, scene version, coordinate conventions, control edits, and export disposition.
+  accessibility: media.a11y.baseline
+- id: J-14
+  scopeStatus: TARGET
+  title: Explore a domain simulation and its measurements
+  outcomeRefs: [media.goal.explain-or-demonstrate, media.goal.finished-asset]
+  actors: [media.creator, media.reviewer]
+  responsibilityRoleRefs: [media.role.fidelity-reviewer]
+  proposedChannels: [media.channel.web, media.channel.product-integration]
+  viewRefs: [M-SCENE, M-SIMULATION, M-QUALITY, M-RENDER]
+  conditionalHandoffRefs: [tutorputor-domain-scene]
+  handoffCondition: Only when the model/experience is TutorPutor-owned; other domain owners require their own admitted references.
+  preconditions: Domain owner/model, equations, unit-bearing conditions, validity range, solver envelope, and fidelity tier
+    are referenced.
+  completion: Measurements/passes and any animation/render remain traceable to domain model and declared fidelity.
+  criticalNonhappy: Invalid units, outside-validity input, unstable solver, missing domain owner approval, or visual output
+    mistaken for validated science.
+  recovery: Reject or abstain from quantitative claim; preserve inputs and report required expert/domain-owner review.
+  contextAndReturn: Preserve model reference, parameters, solver/version, t_sim, checkpoints, observables, and scene binding.
+  accessibility: media.a11y.baseline
+- id: J-15
+  scopeStatus: TARGET
+  title: Simulation/procedural passes with protected semantic validation
+  outcomeRefs: [media.goal.explain-or-demonstrate, media.goal.improve-with-disclosure]
+  actors: [media.creator, media.reviewer]
+  responsibilityRoleRefs: [media.role.fidelity-reviewer]
+  proposedChannels: [media.channel.web, media.channel.product-integration]
+  viewRefs: [M-SIMULATION, M-PLAN, M-QUALITY, M-COMPARE]
+  conditionalHandoffRefs: [tutorputor-domain-scene, ai-inference-execution]
+  handoffCondition: TutorPutor applies only for TutorPutor-owned truth; AI Inference only for an admitted generative refinement
+    operation.
+  preconditions: Domain truth and protected semantic properties are identified before any generative refinement.
+  completion: Refinement preserves accepted domain measurements or reports the exact failed validation and fidelity consequence.
+  criticalNonhappy: A visually plausible result violates model truth, validation abstains, or generation changes a protected
+    property.
+  recovery: Reject the changed candidate, retain prior validated pass, and require domain-owner disposition for semantic change.
+  contextAndReturn: Preserve model/scene versions, protected properties, validation results, and candidate lineage.
+  accessibility: media.a11y.baseline
+- id: J-16
+  scopeStatus: TARGET
+  title: Existing-video translation/dubbing and voice/timing review
+  outcomeRefs: [media.goal.finished-asset, media.goal.review-trustworthy-output, media.goal.deliver-approved-output]
+  actors: [media.creator, media.editor, media.reviewer]
+  proposedChannels: [media.channel.web, media.channel.grpc-api]
+  viewRefs: [M-DUB, M-SPEECH, M-CAPTIONS, M-AUDIO, M-COMPARE]
+  conditionalHandoffRefs: [ai-inference-execution, action-plane-publication]
+  handoffCondition: AI Inference applies only to a bound translation/dubbing operation; Action Plane only for external publication.
+  preconditions: Source, translation intent, voice authority, subtitle/voice locales, and destination are independently specified.
+  completion: Mastered version is synchronized, reviewed for meaning and timing, and delivered only with required approval.
+  criticalNonhappy: Meaning or duration conflict, unsupported locale/voice, consent denial, or lip/speech timing mismatch.
+  recovery: Preserve original tracks; surface differences and unsupported language; permit review/correction before delivery.
+  contextAndReturn: Keep source audio/video PTS, transcript/translation versions, voices, caption tracks, and review notes.
+  accessibility: media.a11y.baseline
+- id: J-17
+  scopeStatus: TARGET
+  title: Music, effects, Foley, stems, mix, and mastering
+  outcomeRefs: [media.goal.finished-asset, media.goal.deliver-approved-output]
+  actors: [media.creator, media.editor, media.reviewer]
+  proposedChannels: [media.channel.web]
+  viewRefs: [M-AUDIO, M-COMPOSER, M-QUALITY, M-OUTPUT]
+  preconditions: Source/license scope, target profile, channel layout, and mastering intent are explicit.
+  completion: Mix/master output records profile, loudness/peak measurements where applicable, and source lineage.
+  criticalNonhappy: Rights issue, clipping, separation leakage, missing channel layout, or unavailable mastering profile.
+  recovery: Keep original stems/source and disclose unavailable/inapplicable measurements; do not silently deliver a degraded
+    master.
+  contextAndReturn: Preserve stems, gain/automation, sample clock, mix decisions, profile, and output version.
+  accessibility: media.a11y.baseline
+- id: J-18
+  scopeStatus: TARGET
+  title: Compose clips, captions, exact graphics, color, and audio master
+  outcomeRefs: [media.goal.finished-asset, media.goal.preserve-source, media.goal.review-trustworthy-output, media.goal.deliver-approved-output]
+  actors: [media.editor, media.reviewer]
+  proposedChannels: [media.channel.web]
+  viewRefs: [M-COMPOSER, M-EDIT, M-COLOR, M-CAPTIONS, M-RENDER, M-OUTPUT]
+  conditionalHandoffRefs: [digital-marketing-creative-brief, action-plane-publication]
+  handoffCondition: Marketing applies only when using its approved brand/campaign references; Action Plane only for external
+    publication.
+  preconditions: Exact assets/fonts/brand claims, timeline mapping, color profile, and output destination are authorized.
+  completion: Versioned composition renders with deterministic exact graphics and declared audiovisual/color profile.
+  criticalNonhappy: Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or rights approval expired.
+  recovery: Preserve composition and source versions; replace/review only affected assets and regenerate approval where material
+    output changed.
+  contextAndReturn: Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and output revision.
+  accessibility: media.a11y.baseline
+- id: J-19
+  scopeStatus: TARGET
+  title: Review media quality and improve it within declared limits
+  outcomeRefs: [media.goal.improve-with-disclosure, media.goal.preserve-source]
+  actors: [media.creator, media.editor, media.reviewer]
+  proposedChannels: [media.channel.web]
+  viewRefs: [M-QUALITY, M-PLAN, M-COMPARE, M-RENDER]
+  preconditions: Applicable metrics, thresholds, budget, stop conditions, and protected properties are defined.
+  completion: User selects or declines a measurable successor candidate with estimated/reconstructed properties disclosed.
+  criticalNonhappy: Metric abstention, no improvement, incorrect metric domain, exhausted budget, or attempted fidelity downgrade.
+  recovery: Stop at declared bound, preserve best valid candidate and source, and expose next permitted action.
+  contextAndReturn: Retain metric version/scope, candidate fingerprint, budget consumed, and previous accepted quality.
+  accessibility: media.a11y.baseline
+- id: J-20
+  scopeStatus: TARGET
+  title: Observe a long-running job and check its outcome safely
+  outcomeRefs:
+  - media.goal.resolve-safely
+  actors:
+  - media.creator
+  - media.editor
+  - media.operator
+  - media.automation-client
+  - media.worker
+  proposedChannels: [media.channel.web, media.channel.http-api, media.channel.cli]
+  viewRefs: [M-ACTIVITY, M-JOB, M-PROJECT, M-OUTPUTS]
+  preconditions: Job has stable request/attempt identity and durable status contract.
+  completion: User observes completion or known uncertainty; cancellation/retry/reconciliation preserves completed work.
+  criticalNonhappy: Browser/CLI disconnect, uncertain remote effect, stale attempt, or cancel request not confirmed.
+  recovery: Reattach by stable job ref, observe existing request, reconcile remote state, and never blind-resubmit an ambiguous
+    operation.
+  contextAndReturn: Keep request key, plan fingerprint, last acknowledged status, output refs, and cancellation certainty.
+  accessibility: media.a11y.baseline
+  intentRefs:
+  - media.intent.resolve-job
+- id: J-21
+  scopeStatus: TARGET
+  title: Review/comment/approve exact version and re-review changed material
+  outcomeRefs:
+  - media.goal.review-trustworthy-output
+  - media.goal.deliver-approved-output
+  - media.goal.resolve-safely
+  - media.goal.preserve-source
+  actors:
+  - media.reviewer
+  - media.privacy-rights-reviewer
+  - media.administrator
+  - media.creator
+  - media.editor
+  proposedChannels: [media.channel.web, media.channel.product-integration]
+  viewRefs: [M-REVIEW, M-OUTPUT, M-PROVENANCE]
+  preconditions: Review purpose, exact artifact version, reviewer authority, and scope/expiry are explicit.
+  completion: Decision attaches to the reviewed version and required approval state.
+  criticalNonhappy: Stale version, changed material, expired delegation, or reviewer role confused with rights/publication
+    authority.
+  recovery: Invalidate only approvals whose reviewed material changed; reopen review for that exact scope.
+  contextAndReturn: Retain comments bound to artifact version and time/region and return to the project/output.
+  accessibility: media.a11y.baseline
+  intentRefs:
+  - media.intent.review-rights-and-consent
+  - media.intent.inspect-provenance
+- id: J-22
+  scopeStatus: TARGET
+  title: Export/download/publish with destination acknowledgement
+  outcomeRefs: [media.goal.deliver-approved-output, media.goal.review-trustworthy-output]
+  actors: [media.creator, media.reviewer, media.operator]
+  proposedChannels: [media.channel.web, media.channel.http-api, media.channel.cli, media.channel.product-integration]
+  viewRefs: [M-OUTPUT, M-DELIVERY, M-JOB]
+  conditionalHandoffRefs: [action-plane-publication]
+  handoffCondition: Use Action Plane only for privileged external publication; export/download is a separate Media delivery
+    operation.
+  preconditions: Exact output, destination, rights, approval, and external-effect authority are current.
+  completion: Package validity, transport, and external publication are reported as distinct finality outcomes.
+  criticalNonhappy: Partial package, destination rejection, timeout after effect may have occurred, or approval scope mismatch.
+  recovery: Reconcile by effect/idempotency identity before retry; never represent unknown publication as success or failure.
+  contextAndReturn: Retain output/version, destination, authorization/approval refs, effect status, and receipt if returned.
+  accessibility: media.a11y.baseline
+- id: J-23
+  scopeStatus: TARGET
+  title: Private/local workflow while disconnected and reconnect
+  outcomeRefs: [media.goal.resolve-safely]
+  actors: [media.creator, media.editor, media.administrator]
+  proposedChannels: [media.channel.web, media.channel.cli]
+  viewRefs: [M-PROJECT, M-ASSET, M-JOB, M-ACTIVITY]
+  preconditions: An admitted local capability, offline mode, cached asset permission, and storage policy are explicitly established.
+  completion: Only work allowed in the admitted disconnected mode is completed; reconnect reconciles versions and jobs without
+    remote fallback.
+  criticalNonhappy: Entitlement expires offline, local capability is unavailable, or reconnection would require unauthorized
+    egress.
+  recovery: Keep eligible local work, block unavailable operations, reauthenticate/revalidate at reconnect, and reconcile
+    before submission.
+  contextAndReturn: Preserve offline edits, pending sync state, source refs, and the identity of remote work requiring reconciliation.
+  accessibility: media.a11y.baseline
+- id: J-24
+  scopeStatus: TARGET
+  title: CLI batch/JSON plan through verified outputs
+  outcomeRefs: [media.goal.integrate-repeatably, media.goal.deliver-approved-output, media.goal.resolve-safely]
+  actors: [media.developer-integrator, media.automation-client]
+  proposedChannels: [media.channel.cli, media.channel.http-api]
+  viewRefs: [M-CREATE, M-PLAN, M-JOB, M-OUTPUTS]
+  preconditions: Public command/request schema, explicit approval/policy input, client keys, and per-item budgets are accepted.
+  completion: Each item reports its terminal/partial/unknown outcome and output refs using the same semantics as other channels.
+  criticalNonhappy: SIGINT, duplicate key, same key with changed content, per-item partial failure, malformed JSON, or uncertain
+    effect.
+  recovery: Stop watching separately from cancellation; reconcile accepted work and continue only unambiguous eligible items.
+  contextAndReturn: Preserve batch/group ID, per-item semantic key, plan fingerprint, output refs, and exit/result disposition.
+  accessibility: media.a11y.baseline
+- id: J-25
+  scopeStatus: TARGET
+  title: Agent or product integration with bounded delegated Media action
+  outcomeRefs: [media.goal.integrate-repeatably]
+  actors: [media.automation-client, media.developer-integrator, media.operator]
+  proposedChannels: [media.channel.product-integration, media.channel.http-api]
+  viewRefs: [M-PLAN, M-JOB, M-OUTPUT]
+  handoffRefs: [agent-runtime-media-action]
+  conditionalHandoffRefs: [action-plane-publication]
+  handoffCondition: Use Action Plane only if the bounded agent request includes a privileged external effect.
+  preconditions: Public Media action, bounded authority/delegation, recursion/cost limits, and return contract are admitted.
+  completion: Caller receives an opaque job/result reference and truthful status; any consequential effect has separate authority.
+  criticalNonhappy: Delegation expired, recursive budget reset, self-authorizing action, or result returned without Media
+    finality.
+  recovery: Stop at declared budget, preserve request identity, return safe reason code, and reconcile before any repeated
+    effect.
+  contextAndReturn: Restrict context to purpose, source refs, policy refs, deadline/budget, correlation refs, and accepted
+    output refs.
+  accessibility: media.a11y.baseline
+- id: J-26
+  scopeStatus: TARGET
+  title: Delete/revoke/retention/hold and visible lifecycle
+  outcomeRefs:
+  - media.goal.resolve-safely
+  - media.goal.preserve-source
+  - media.goal.review-trustworthy-output
+  actors:
+  - media.administrator
+  - media.privacy-rights-reviewer
+  - media.operator
+  - media.creator
+  - media.editor
+  - media.reviewer
+  proposedChannels: [media.channel.web, media.channel.http-api, media.channel.product-integration]
+  viewRefs: [M-RIGHTS, M-ASSET, M-ACTIVITY]
+  conditionalHandoffRefs: [document-intelligence-scene-text]
+  handoffCondition: Only if affected derivatives were produced through an admitted Document Intelligence boundary and its
+    public deletion/retention contract applies.
+  preconditions: Identity, deletion/revocation authority, retention/hold state, and affected artifact/derivative scope are
+    resolved.
+  completion: Product lifecycle reflects completion/partial/blocked status without claiming remote copies were recalled.
+  criticalNonhappy: Retention hold, backup/cache/external copy, provider deletion uncertainty, or partial erasure.
+  recovery: Preserve required minimal audit, continue owner-authorized erasure, and show the remaining scope/finality honestly.
+  contextAndReturn: Keep affected versions/derivatives, authority refs, lifecycle state, and consumer/provider follow-up refs.
+  accessibility: media.a11y.baseline
+  intentRefs:
+  - media.intent.restore-project
+  - media.intent.manage-artifact-lifecycle
+  - media.intent.review-rights-and-consent
+  - media.intent.inspect-provenance
+- id: J-27
+  scopeStatus: TARGET
+  title: Continue safely when processing is unavailable
+  outcomeRefs:
+  - media.goal.resolve-safely
+  - media.goal.finished-asset
+  - media.goal.review-trustworthy-output
+  - media.goal.integrate-repeatably
+  actors:
+  - media.creator
+  - media.operator
+  - media.worker
+  - media.editor
+  - media.automation-client
+  - media.administrator
+  proposedChannels: [media.channel.web, media.channel.http-api, media.channel.cli]
+  viewRefs: [M-ACTIVITY, M-JOB, M-PLAN, M-QUALITY]
+  conditionalHandoffRefs: [ai-inference-execution]
+  handoffCondition: Only for an outage of a capability whose admitted provider is AI Inference.
+  preconditions: Capability qualification, license, runtime availability, and fallback policy are checked independently.
+  completion: User receives an admitted equivalent fallback with material differences disclosed or a clear blocked result.
+  criticalNonhappy: Provider/license/capacity outage, no eligible alternative, or fallback would reduce fidelity/privacy/rights
+    guarantees.
+  recovery: Preserve completed work, mark unknown outcome, reconcile before retry, and never silently downgrade or fabricate
+    success.
+  contextAndReturn: Preserve original plan, capability/reason status, fallback decision, budget, and completed outputs.
+  accessibility: media.a11y.baseline
+  intentRefs:
+  - media.intent.resolve-job
+  - media.intent.check-processing-readiness
+- id: J-28
+  scopeStatus: TARGET
+  title: Spatial/360/interactive/synthetic-data export to declared consumer
+  outcomeRefs: [media.goal.finished-asset, media.goal.explain-or-demonstrate, media.goal.deliver-approved-output]
+  actors: [media.creator, media.developer-integrator, media.reviewer]
+  proposedChannels: [media.channel.web, media.channel.product-integration]
+  viewRefs: [M-SCENE, M-ANIMATION, M-RENDER, M-DELIVERY]
+  conditionalHandoffRefs: [tutorputor-domain-scene]
+  handoffCondition: Only when an owner-approved TutorPutor domain model is the export source; Marketing is not a default spatial-export
+    dependency.
+  preconditions: Destination subset, coordinate/time conventions, synthetic-data labeling, and licensing are declared.
+  completion: Consumer receives an identified package and conversion report with unsupported/lossy features disclosed.
+  criticalNonhappy: Coordinate/time/format mismatch, unsupported feature, data provenance gap, or destination cannot accept
+    the package.
+  recovery: Keep source specification and produce only a user-approved supported subset; otherwise block export.
+  contextAndReturn: Retain source/model/scene versions, subset, loss report, destination, and package refs.
+  accessibility: media.a11y.baseline
+- id: J-29
+  scopeStatus: TARGET
+  title: Live session loss, consent change, and bounded recovery
+  intentRefs:
+  - media.intent.recover-live-session
+  outcomeRefs:
+  - media.goal.resolve-safely
+  actors:
+  - media.creator
+  - media.editor
+  - media.operator
+  - media.automation-client
+  proposedChannels:
+  - media.channel.web
+  - media.channel.grpc-api
+  viewRefs:
+  - M-ACTIVITY
+  - M-JOB
+  - M-VIDEO
+  preconditions: A live session has stable session/frame identity, bounded buffers, a current lease, and authoritative consent
+    scope.
+  completion: The session is confirmed closed/drained or its in-flight external effects remain explicitly unknown; no new
+    frame crosses the boundary after revocation or fencing.
+  criticalNonhappy: Client disconnect, lease loss, consent revocation/expiry, out-of-order acknowledgement, or uncertain provider
+    frame outcome.
+  recovery: Fence new frames; use prior consent only for permitted termination; reconcile already-dispatched frame effects
+    before any new session.
+  contextAndReturn: Preserve session ID, last acknowledged frame sequence, current lease/consent version, and per-frame finality.
+  accessibility: media.a11y.baseline
+- id: J-30
+  scopeStatus: TARGET
+  title: Check which processing options are eligible
+  intentRefs:
+  - media.intent.choose-eligible-processing-option
+  - media.intent.check-processing-options
+  - media.intent.check-processing-readiness
+  outcomeRefs:
+  - media.goal.integrate-repeatably
+  - media.goal.resolve-safely
+  actors:
+  - media.creator
+  - media.editor
+  - media.developer-integrator
+  - media.operator
+  - media.administrator
+  - media.automation-client
+  proposedChannels:
+  - media.channel.web
+  - media.channel.http-api
+  - media.channel.cli
+  viewRefs:
+  - M-PROFILES
+  - M-PROVIDERS
+  - M-OPERATIONS
+  - M-ACTIVITY
+  preconditions: Identity, tenant/workspace scope, and diagnostic permissions are verified; profile, capability, provider,
+    license, qualification, and runtime dimensions are represented separately.
+  completion: The caller receives a bounded, current observation with provenance and explicit unknown/unsupported dimensions;
+    an observation does not promise future availability.
+  criticalNonhappy: Stale capability data, unavailable provider, unknown license/qualification, expired authority, or diagnostics
+    that could reveal another tenant or private content.
+  recovery: Report unknown or unavailable dimensions honestly; permit fallback only after current policy, rights, cost, quality,
+    and locality checks.
+  contextAndReturn: Keep the requested profile/capability version, observation time, deployment scope, and safe reason codes.
+  accessibility: media.a11y.baseline

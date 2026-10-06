@@ -1,0 +1,104 @@
+schemaVersion: media.design-token-aliases.v1
+productId: media
+authority: media-semantic-aliases; Shared owns token values and primitive tokens
+status: source-inventory-current; consumer-binding-blocked; design-review-pending
+dependencies:
+  pdp0: .product-experience/pdp-0-product-truth/glossary.yaml
+  sharedOwner: ghatana-shared
+  bindingGap: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+
+sharedPublicContract:
+  package: "@ghatana/tokens"
+  sourcePackageVersion: 0.1.0-SNAPSHOT
+  publicExport: ./semantic-roles
+  publicTypeApiSnapshot: platform/typescript/tokens/scripts/public-type-api.snapshot.json
+  publicExportSource: platform/typescript/tokens/src/semantic-roles.ts
+  sourceRepository: samujjwal/ghatana-shared
+  sourceRevision: 495663b2d6b61c270367048cec54db8a06f22d69
+  sourceObservation: clean-at-inspected-head
+  resolvedRoleApi: semanticColorRoles.light-and-dark
+  mediaDeclaredDependency: 0.1.2
+  mediaDependencyManifest: libs/audio-video-ui/package.json
+  mediaDeclaredPackages:
+    - "@ghatana/tokens"
+    - "@ghatana/theme"
+    - "@ghatana/design-system"
+  sourceAvailability: local-sibling-source-only; all-inventoried-packages-0.1.0-SNAPSHOT
+  verifiedConsumption: not-established
+  consumerBinding: blocked-pending-authorized-immutable-package-publication-and-consumer-verification
+
+sharedPackageInventory:
+  observation: package-manifest-source-versions-at-inspected-head; not-publication-or-consumption-evidence
+  packages:
+    - name: "@ghatana/tokens"
+      manifest: platform/typescript/tokens/package.json
+      sourceVersion: 0.1.0-SNAPSHOT
+    - name: "@ghatana/theme"
+      manifest: platform/typescript/theme/package.json
+      sourceVersion: 0.1.0-SNAPSHOT
+    - name: "@ghatana/ds-schema"
+      manifest: platform/typescript/ds-schema/package.json
+      sourceVersion: 0.1.0-SNAPSHOT
+    - name: "@ghatana/ds-registry"
+      manifest: platform/typescript/ds-registry/package.json
+      sourceVersion: 0.1.0-SNAPSHOT
+    - name: "@ghatana/ds-headless"
+      manifest: platform/typescript/ds-headless/package.json
+      sourceVersion: 0.1.0-SNAPSHOT
+    - name: "@ghatana/design-system"
+      manifest: platform/typescript/design-system/package.json
+      sourceVersion: 0.1.0-SNAPSHOT
+    - name: "@ghatana/ui-styles"
+      manifest: platform/typescript/ui-styles/package.json
+      sourceVersion: 0.1.0-SNAPSHOT
+    - name: "@ghatana/accessibility"
+      manifest: platform/typescript/accessibility/package.json
+      sourceVersion: 0.1.0-SNAPSHOT
+    - name: "@ghatana/i18n"
+      manifest: platform/typescript/i18n/package.json
+      sourceVersion: 0.1.0-SNAPSHOT
+    - name: "@ghatana/product-shell"
+      manifest: platform/typescript/product-shell/package.json
+      sourceVersion: 0.1.0-SNAPSHOT
+rules:
+  - A Media alias may name semantic intent but may not assign a hex color, font file, spacing scale, or shadow value.
+  - The role paths are present in the inspected Shared source export; this does not establish that Media consumes a compatible published package.
+  - Every alias must resolve through an authorized immutable Shared package and pass consumer verification before visual acceptance.
+  - Text, icon, shape, and accessible name carry state; color is never the only signal.
+aliases:
+  - id: media.token.state.completed
+    purpose: communicate a verified completed product outcome
+    sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.success"
+    darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.success"
+  - id: media.token.state.in-progress
+    purpose: communicate current bounded work without implying completion
+    sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.info"
+    darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.info"
+  - id: media.token.state.needs-review
+    purpose: communicate a human decision or uncertainty that blocks acceptance
+    sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.warning"
+    darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.warning"
+  - id: media.token.state.blocked
+    purpose: communicate a missing precondition and the next safe action
+    sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.warning"
+    darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.warning"
+  - id: media.token.trust.measured
+    purpose: identify a measured value with method and scope
+    sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.contentSecondary"
+    darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.contentSecondary"
+  - id: media.token.trust.recognized
+    purpose: identify machine-recognized content with uncertainty and provenance
+    sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.contentSecondary"
+    darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.contentSecondary"
+  - id: media.token.trust.generated
+    purpose: identify generated or reconstructed content
+    sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.contentSecondary"
+    darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.contentSecondary"
+  - id: media.token.surface.source
+    purpose: distinguish original source material from derived results
+    sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.surface"
+    darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.surface"
+  - id: media.token.surface.derived
+    purpose: distinguish derived, editable, or reviewable output from source material
+    sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.surfaceElevated"
+    darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.surfaceElevated"

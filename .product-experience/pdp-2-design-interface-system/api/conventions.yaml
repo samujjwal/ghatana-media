@@ -1,0 +1,23 @@
+schemaVersion: media.api-conventions.v1
+owner: ghatana-media-product-api
+authority: Proposed Media product API semantics; Shared owns generic transport and language-neutral contracts. This directory is not an accepted API contract.
+sourceRefs: [.product-experience/pdp-0-product-truth/glossary.yaml, .product-experience/pdp-0-product-truth/dependency-contracts.yaml, .product-experience/pdp-3-product-experience/api-experience-mapping.yaml]
+scopeStatus: proposal-only; wire routes, schemas, operation bindings, and runtime behavior remain owner-unbound
+acceptance: {criteria: [API operations map to canonical Media intents and domain contracts, no API shape asserts an unqualified capability, errors and finality remain explicit], status: pending-API-owner-review}
+verification: {method: Trace each operation to Product Truth and validate wire examples against the eventual OpenAPI contract, status: not-run}
+principles:
+  - Proposed product semantics should remain independent of transport, provider, and deployment; transport-specific projections must preserve them.
+  - Reads are intended to be side-effect free except for explicitly documented audit/usage effects; mutations declare applicable idempotency, concurrency, and effect-finality behavior.
+  - When an operation is explicitly bound to an asynchronous job contract, expose its job identity and distinguish request acceptance from completion; this proposal does not establish durable job storage or status availability.
+  - Validation errors are actionable and safe; never echo secrets or protected content.
+  - Proposed canonical IDs and reason codes are machine fields; stability and compatibility require API-owner approval. Human messages may localize.
+authorityAndProjection:
+  status: proposal; pending Media API owner and relevant platform-owner review
+  semanticAuthority: Approved Product Truth, accepted PDP-1 domain/data semantics, and explicitly approved Media API rules govern meaning; no record in this directory currently establishes that approval.
+  openapi: OpenAPI is a transport/schema projection of approved rules and operation bindings, not an independent source of product semantics. Until those inputs are accepted, OpenAPI observations are implementation evidence only and must not silently resolve proposal gaps.
+  projectionConstraints:
+    - Do not add an OpenAPI schema, route, status, header, or example as a product rule unless its owning rule and operation binding are approved.
+    - Preserve unknown outcome, authorization, idempotency, concurrency, and finality distinctions when projecting to HTTP.
+    - Generated or hand-maintained OpenAPI parity does not itself constitute semantic, runtime, or owner acceptance.
+  nonGoals: [select-current-route-family, bind-unaccepted-PDP1-operations, claim-runtime-conformance, grant-API-owner-acceptance]
+relatedConventions: [errors.yaml, auth.yaml, identifiers.yaml, pagination.yaml, filtering-sorting.yaml, idempotency.yaml, concurrency.yaml, async-operations.yaml, cancellation.yaml, retry-timeout-unknown-outcome.yaml, correlation.yaml, compatibility.yaml, versioning.yaml]

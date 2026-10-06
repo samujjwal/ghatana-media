@@ -1,0 +1,142 @@
+schemaVersion: media.agent-tools-conventions.v1
+owner: ghatana-media-product-agent-interface
+authority:
+  media: Owns tool purpose, domain meaning, domain effects, and the policy decision required for each effect.
+  shared: Owns generic agent-runtime interfaces, execution mechanics, transport, handler lifecycle, and runtime enforcement.
+  boundary: A Media declaration does not implement or grant a Shared runtime capability; Shared runtime availability does not define Media domain permission.
+sourceRefs:
+  - .product-experience/pdp-2-design-interface-system/api/auth.yaml
+  - .product-experience/pdp-2-design-interface-system/api/idempotency.yaml
+  - .product-experience/pdp-2-design-interface-system/api/async-operations.yaml
+  - .product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml
+  - .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+  - .product-experience/pdp-0-product-truth/quality-policy.yaml
+scopeStatus: proposal; no tool is admitted, callable, or authorized by this convention
+acceptance:
+  status: pending-agent-and-runtime-owner-review
+  criteria:
+    - Every admitted tool has one stable canonical ID and an explicitly versioned, bounded input and result schema.
+    - Every tool declares authority, delegation, effect class, idempotency, timeout, cancellation, unknown-outcome, evidence, and safe-failure behavior.
+    - Authorization and current-resource preconditions are enforced by the owning runtime at invocation; consequential effects require explicit policy and provenance.
+    - The exact handler, capability, transport, runtime, and consumer bindings are verified before admission.
+verification:
+  method: Adversarially test schema bounds, authorization and delegation, prompt/tool-description injection, duplicate invocation, timeout, cancellation races, unknown outcomes, evidence provenance, and safe failure.
+  status: not-run
+
+# Normative shape. A concrete tool record must resolve every field below; an
+# unresolved value blocks admission rather than inheriting a permissive default.
+perToolContract:
+  requiredFields:
+    canonicalToolId:
+      rule: Stable, globally unambiguous, namespaced ID. Never derive identity from display name, prompt text, handler class name, or transport route.
+    inputSchema:
+      rule: Versioned, machine-validated closed schema; declare required/optional fields, types, bounds, formats, resource scope, and rejection behavior. Reject unknown fields unless an explicitly versioned extension is defined.
+    resultSchema:
+      rule: Versioned closed schema; distinguish success, safe failure, pending, cancelled, and outcome-unknown. Include operation identity, finality, and evidence references only when actually available; never represent missing evidence as success.
+    authorityAndDelegation:
+      rule: Declare effect class, principal/tenant/resource scope, required policy and consent evidence, delegation chain, and invocation-time checks. The least-privilege runtime must reject absent, expired, mismatched, or unverifiable authority.
+    idempotency:
+      rule: Declare whether the operation is read-only or effectful, its idempotency-key scope and retention, duplicate behavior, and whether the same key returns the original operation/result. If safe deduplication cannot be established, do not retry an effect automatically.
+    timeout:
+      rule: Declare a finite invocation deadline, including whether it covers queueing and downstream work; timeout is not proof that the effect did not happen.
+    cancellation:
+      rule: Declare when cancellation is accepted, what work can be stopped, and how races are reported. Cancellation requested or acknowledged is not proof of rollback or non-execution.
+    unknownOutcome:
+      rule: Return an explicit non-final unknown state with the original operation ID and a safe status-resolution path. Do not convert uncertainty to failure or success and do not blindly resubmit an effect.
+    evidence:
+      rule: Declare provenance, issuer, subject/resource and version scope, timestamps, correlation/operation IDs, and integrity/currentness checks for every authority or effect claim. Emit only evidence actually observed; distinguish request, decision, execution, and verified outcome.
+    safeFailure:
+      rule: Before dispatch, fail closed on invalid input, unresolved authority, stale resource state, unavailable runtime/provider, or unverifiable evidence. After dispatch, a timeout or cancellation race returns outcome-unknown with original operation identity; it must not imply that the effect did or did not occur. Return a bounded non-sensitive error and safe recovery/status guidance; do not leak secrets.
+  defaultSafeBehavior:
+    - No authority is inferred from tool availability, a description, prompt, model-generated argument, or agent intent.
+    - No user consent, authorization, delegation, or policy approval is inferred from a tool call or from wording that claims it exists.
+    - Missing or ambiguous contract fields deny invocation; there is no permissive fallback.
+    - Read and mutation effects are separate contracts; a read capability cannot be upgraded into a mutation.
+    - Validate caller, tenant, exact resource/version, current state, schema, and policy at invocation time; deny cross-tenant or out-of-scope access.
+    - Expose no unrestricted filesystem, network, credential, or arbitrary-code capability; allowlist any required resource access in the runtime contract.
+    - Unknown outcome blocks automatic retry of a consequential effect until the original operation is resolved or an authorized recovery decision is recorded.
+    - Logs and results exclude secrets and sensitive payloads; evidence references are scoped and access-controlled.
+
+# Observed handler IDs below are an inventory seed only. The source handlers
+# currently validate only subsets of their inputs and delegate execution; this
+# file does not promote those observations into canonical admitted contracts.
+observedHandlerInventory:
+  status: observed-source-identifiers-only; schemas-and-runtime-bindings-pending
+  sourceRefs:
+    - libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java
+    - libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java
+    - libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java
+    - libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java
+  tools:
+    - canonicalToolId: av.speech-to-text
+      idStatus: observed-in-handler; canonical registry admission pending
+      inputSchema:
+        status: observed-subset-not-authoritative
+        fields:
+          audioSource: "Observed: object containing mediaArtifactId or audioBytes; a flat mediaArtifactId fallback also exists. Full types, limits, source authorization, and closed-schema behavior are unresolved."
+      resultSchema: unresolved; define versioned success, failure, pending, cancellation, unknown-outcome, operation identity, and evidence fields before admission
+      authorityAndDelegation: unresolved; require invocation-time tenant/resource authorization and any required consent/policy; handler identity or model request grants none
+      idempotency: unresolved; transcription/provider side effects and duplicate semantics are not established; default no automatic retry
+      timeout: unresolved finite bound; runtime binding pending; timeout must not imply non-execution
+      cancellation: unresolved; runtime/provider cancellation and race semantics pending
+      unknownOutcome: unresolved result binding; require original operation resolution before retry
+      evidence: unresolved provenance/currentness contract; do not claim transcript/source lineage from handler invocation alone
+      safeFailure: observed handler returns failure for invalid/missing source or unavailable delegate; canonical sanitized error/result semantics and runtime fail-closed enforcement pending
+    - canonicalToolId: av.text-to-speech
+      idStatus: observed-in-handler; canonical registry admission pending
+      inputSchema:
+        status: observed-subset-not-authoritative
+        fields:
+          text: "Observed required nonblank string."
+          voiceId: "Observed optional value, default en-US-default; allowed values and schema bounds unresolved."
+          speakingRate: "Observed optional numeric conversion, default 1.0; valid range unresolved."
+          audioEncoding: "Observed optional value, default MP3; supported enum unresolved."
+          storeAsArtifact: "Observed boolean controlling requested artifact storage; storage effect, authorization, and defaults require canonical definition."
+      resultSchema: unresolved; define versioned output/artifact identity, finality, operation identity, failure, and evidence before admission
+      authorityAndDelegation: unresolved; artifact creation/storage requires explicit invocation-time authority, scope, and consent/policy where applicable
+      idempotency: unresolved; artifact creation and provider duplicate behavior are not established; default no automatic retry
+      timeout: unresolved finite bound; runtime/provider binding pending; timeout must not imply no artifact was created
+      cancellation: unresolved; runtime/provider cancellation and possible artifact side effects pending
+      unknownOutcome: unresolved result binding; resolve original operation and artifact state before any retry
+      evidence: unresolved; generated audio, storage, provenance, and artifact-version evidence must be specified and observed
+      safeFailure: observed handler rejects blank text and reports unavailable delegate; canonical sanitized errors and partial-effect handling remain pending
+    - canonicalToolId: av.vision-analysis
+      idStatus: observed-in-handler; canonical registry admission pending
+      inputSchema:
+        status: observed-subset-not-authoritative
+        fields:
+          mediaSource: "Observed: object containing mediaArtifactId or imageBytes; a flat mediaArtifactId fallback also exists. Full types, limits, source authorization, and closed-schema behavior are unresolved."
+          analysisTypes: "Observed optional list, default [OBJECT_DETECTION]; supported values and bounds unresolved."
+          maxResults: "Observed optional integer conversion, default 10; valid range unresolved."
+      resultSchema: unresolved; define versioned findings, uncertainty, finality, operation identity, and evidence before admission
+      authorityAndDelegation: unresolved; require invocation-time tenant/resource authorization and any required consent/policy; analysis output is not authorization
+      idempotency: unresolved provider and duplicate semantics; default no automatic retry until side-effect and billing behavior are bounded
+      timeout: unresolved finite bound; runtime/provider binding pending; timeout must not imply analysis did not run
+      cancellation: unresolved; runtime/provider cancellation and race semantics pending
+      unknownOutcome: unresolved result binding; require original operation resolution before retry
+      evidence: unresolved model/provider provenance, source/version scope, and integrity/currentness contract
+      safeFailure: observed handler rejects missing source and reports unavailable delegate; canonical sanitized errors and partial-result rules pending
+    - canonicalToolId: av.multimodal-inference
+      idStatus: observed-in-handler; canonical registry admission pending
+      inputSchema:
+        status: observed-subset-not-authoritative
+        fields:
+          mediaArtifactId: "Observed required nonblank string."
+          inferenceMode: "Observed optional value, default SUMMARY; allowed values and bounds unresolved."
+          enableTranscription: "Observed optional boolean-like value, default enabled unless explicitly false."
+          enableVisionAnalysis: "Observed optional boolean-like value, default enabled unless explicitly false."
+      resultSchema: unresolved; define versioned component outputs, partial/failure semantics, finality, operation identity, and evidence before admission
+      authorityAndDelegation: unresolved; require authorization for exact artifact/version and each enabled analysis; one permission must not imply another
+      idempotency: unresolved across component calls and provider effects; default no automatic retry
+      timeout: unresolved finite end-to-end and component bounds; runtime binding pending; timeout must not imply no component ran
+      cancellation: unresolved across component calls; partial completion and cancellation races pending
+      unknownOutcome: unresolved result binding; resolve original operation and component states before retry
+      evidence: unresolved per-component source/version, provider/model, provenance, and partial-result evidence
+      safeFailure: observed handler rejects missing artifact ID and reports unavailable delegate; canonical sanitized errors and partial-effect/result rules pending
+
+admissionGates:
+  handlerCapabilityTransportRuntimeBindings: pending; resolve exact registered capability, handler, transport, schema, identity, and runtime enforcement without inferring from class names or source observations
+  mediaDomainMeaningAndPolicy: pending Media owner approval for each tool's purpose, data scope, effects, and required policy/consent evidence
+  sharedRuntimeOwnership: pending Shared owner verification of generic runtime authorization, delegation, idempotency, timeout, cancellation, outcome resolution, evidence, and safe-failure mechanisms
+  adversarialVerification: pending schema, authority, injection, duplicate, timeout, cancellation-race, unknown-outcome, evidence, and secret-leakage tests
+  acceptance: pending; no Agent Tool contract, handler capability, or PDP phase is accepted by this proposal

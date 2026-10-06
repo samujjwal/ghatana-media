@@ -112,6 +112,34 @@ export const MediaOperationKindSchema = z.enum([
 ]);
 export type MediaOperationKind = z.infer<typeof MediaOperationKindSchema>;
 
+/**
+ * Canonical job lifecycle states owned by PDP-1. Cancellation requests and
+ * retry attempts are represented by explicit operation/attempt fields rather
+ * than by new product states; unknown outcomes are never silently retried.
+ */
+export const MediaJobStateSchema = z.enum([
+  "QUEUED",
+  "RUNNING",
+  "RETRY_PENDING",
+  "OUTCOME_UNKNOWN",
+  "RECONCILING",
+  "COMPLETED",
+  "PARTIALLY_SUCCEEDED",
+  "FAILED",
+  "CANCELLED",
+]);
+export type MediaJobState = z.infer<typeof MediaJobStateSchema>;
+
+/** Legacy wire spellings retained only at an explicit compatibility boundary. */
+export const LegacyMediaJobStateSchema = z.enum(["CANCELLING", "RETRYING"]);
+export type LegacyMediaJobState = z.infer<typeof LegacyMediaJobStateSchema>;
+
+export function normalizeLegacyMediaJobState(state: MediaJobState | LegacyMediaJobState): MediaJobState {
+  if (state === "CANCELLING") return "RUNNING";
+  if (state === "RETRYING") return "RETRY_PENDING";
+  return state;
+}
+
 const JobBaseSchema = z.object({
   id: IdentifierSchema,
   tenantId: IdentifierSchema,
@@ -135,11 +163,33 @@ const QueuedJobSchema = JobBaseSchema.extend({
 }).strict();
 
 const RunningJobSchema = JobBaseSchema.extend({
-  state: z.enum(["RUNNING", "CANCELLING", "RETRYING"]),
+  state: z.literal("RUNNING"),
   progress: PercentageSchema,
   message: z.string().optional(),
   startedAt: IsoTimestampSchema,
   estimatedCompletionAt: IsoTimestampSchema.optional(),
+}).strict();
+
+const RetryPendingJobSchema = JobBaseSchema.extend({
+  state: z.literal("RETRY_PENDING"),
+  progress: PercentageSchema,
+  message: z.string().optional(),
+  retryAfter: IsoTimestampSchema.optional(),
+  retryReason: z.string().min(1),
+}).strict();
+
+const OutcomeUnknownJobSchema = JobBaseSchema.extend({
+  state: z.literal("OUTCOME_UNKNOWN"),
+  progress: PercentageSchema,
+  message: z.string().optional(),
+  outcomeUnknownSince: IsoTimestampSchema,
+}).strict();
+
+const ReconcilingJobSchema = JobBaseSchema.extend({
+  state: z.literal("RECONCILING"),
+  progress: PercentageSchema,
+  message: z.string().optional(),
+  reconciliationStartedAt: IsoTimestampSchema,
 }).strict();
 
 const CompletedJobSchema = JobBaseSchema.extend({
@@ -170,6 +220,9 @@ const CancelledJobSchema = JobBaseSchema.extend({
 export const MediaProcessingJobSchema = z.discriminatedUnion("state", [
   QueuedJobSchema,
   RunningJobSchema,
+  RetryPendingJobSchema,
+  OutcomeUnknownJobSchema,
+  ReconcilingJobSchema,
   CompletedJobSchema,
   FailedJobSchema,
   CancelledJobSchema,

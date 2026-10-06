@@ -1,3 +1,8 @@
+/*
+ * Local deterministic Explorer projection only. Semantic token names and
+ * composition are recorded in PDP-2; Shared remains the value/primitive
+ * authority. This stylesheet cannot establish visual acceptance or publication.
+ */
 :root {
   color-scheme: light;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -52,8 +57,8 @@ a { color: inherit; }
 .brand-copy { display: grid; gap: 1px; }
 .brand-copy strong { color: var(--ink); font-size: 13px; line-height: 1.2; }
 .brand-copy small { color: var(--ink-muted); font-size: 10px; line-height: 1.2; }
-.mode-tabs { display: inline-flex; height: 40px; align-items: center; gap: 3px; padding: 3px; border: 1px solid #eaecf0; border-radius: 11px; background: #f7f8fa; }
-.mode-tab { display: inline-flex; height: 32px; min-width: 106px; align-items: center; justify-content: center; gap: 12px; padding: 0 12px; border: 0; border-radius: 8px; color: #5a6472; background: transparent; cursor: pointer; font-size: 12px; font-weight: 600; transition: background-color .15s ease, color .15s ease, box-shadow .15s ease; }
+.mode-tabs { display: flex; width: min(65vw, 800px); min-width: 0; height: 40px; align-items: center; gap: 3px; padding: 3px; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; border: 1px solid #eaecf0; border-radius: 11px; background: #f7f8fa; }
+.mode-tab { display: inline-flex; flex: 0 0 auto; height: 32px; min-width: 106px; align-items: center; justify-content: center; gap: 12px; padding: 0 12px; border: 0; border-radius: 8px; color: #5a6472; background: transparent; cursor: pointer; font-size: 12px; font-weight: 600; transition: background-color .15s ease, color .15s ease, box-shadow .15s ease; }
 .mode-tab:hover { color: var(--ink); background: #eceff3; }
 .mode-tab.is-selected { color: #183c6c; background: #fff; box-shadow: 0 1px 3px rgb(16 24 40 / 13%); }
 .mode-tab kbd { display: inline-grid; min-width: 17px; height: 17px; place-items: center; border: 1px solid #e7e9ed; border-radius: 4px; color: #9aa2ad; background: #fafbfc; font-family: inherit; font-size: 9px; font-weight: 600; }
@@ -638,13 +643,13 @@ a { color: inherit; }
 
 @media (max-width: 760px) {
   body { font-size: 13px; }
-  .explorer-header { position: sticky; grid-template-columns: 1fr; height: auto; gap: 7px; padding: 9px 10px 8px; }
+  .explorer-header { position: sticky; grid-template-columns: minmax(0, 1fr); height: auto; gap: 7px; padding: 9px 10px 8px; }
   .brand { gap: 8px; }
   .brand-mark { width: 29px; height: 29px; }
   .brand-copy strong { font-size: 11px; }
   .brand-copy small { font-size: 8px; }
-  .mode-tabs { width: 100%; height: 35px; justify-content: stretch; }
-  .mode-tab { min-width: 0; height: 27px; flex: 1; gap: 5px; padding: 0 6px; font-size: 9px; }
+  .mode-tabs { width: 100%; max-width: 100%; height: 35px; justify-content: flex-start; }
+  .mode-tab { min-width: 82px; height: 27px; flex: 0 0 auto; gap: 5px; padding: 0 8px; font-size: 9px; }
   .mode-tab kbd { display: none; }
   .product-app { min-height: calc(100vh - 82px); }
   .product-topbar { height: 47px; padding: 0 10px; }

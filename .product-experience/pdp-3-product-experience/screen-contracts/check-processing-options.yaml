@@ -1,0 +1,150 @@
+schemaVersion: media.screen-contract.v2
+contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+surfaceId: media.surface.web
+surfaceBindingStatus: candidate; derived-from-web-channel-and-surface-inventory; owner-binding-pending
+templateId: null
+templateBindingStatus: unresolved; no-exact-catalogued-template-reference
+layoutIds: []
+componentIds:
+  - media.component.intent-launcher
+  - media.component.creation-plan-summary
+  - media.component.quality-inspector
+patternIds:
+  - media.gui.pattern.safe-confirmation-and-unknown-outcome
+tokenDependencies: []
+domainObjectRefs: []
+operationRefs: []
+stateRefs: []
+entry: []
+exit: []
+actionConsequences:
+  - actionId: media.action.search-by-user-outcome
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.inspect-operation-contract
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.open-qualification-evidence
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+responsiveBehavior:
+  reference: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
+  status: proposal-unverified
+  screenSpecificOverrides: []
+fixtures:
+  refs: []
+  status: missing
+verification:
+  status: not-run
+  evidenceRefs: []
+  checks:
+    structural: not-yet-proven
+    rendering: not-yet-proven
+    behavior: not-yet-proven
+    responsive: not-yet-proven
+    keyboard: not-yet-proven
+    accessibility: not-yet-proven
+fieldBindingStatus:
+  surfaceId: candidate-pending-owner-binding
+  templateId: unresolved-no-exact-catalogued-reference
+  layoutIds: unresolved-no-canonical-layout-ids-registered
+  componentIds: proposal-copied-from-existing-componentRefs; Shared-binding-pending
+  patternIds: proposal-copied-from-existing-patternRefs; PDP-2-acceptance-pending
+  tokenDependencies: unresolved-no-direct-canonical-reference
+  domainObjectRefs: unresolved-no-direct-canonical-reference
+  operationRefs: unresolved-no-direct-canonical-reference
+  stateRefs: unresolved-no-PDP-1-canonical-reference; local-UI-states-not-promoted
+  entry: unresolved-no-direct-canonical-reference
+  exit: unresolved-no-direct-canonical-reference
+  actionConsequences: pending-owner-operation-and-effect-binding
+  responsiveBehavior: proposal-unverified; PDP-2-acceptance-pending
+  fixtures: missing-no-existing-fixtureRefs
+  verification: not-run; no-evidence-refs
+productId: media
+screenId: media.view.check-processing-options
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.developer-integrator
+- media.operator
+intentRef: media.intent.check-processing-options
+purpose: Declared/qualified/live limits; no ordinary model-selection burden
+contextGoalNowNext:
+  context: A Media operation intent, declared capability contract, provider-independent support state, and qualification
+    evidence.
+  goal: Determine what Media declares and what evidence exists before planning an operation.
+  now: Separate declared, implemented, qualified, currently available, and unavailable states; show material limits
+    and owner evidence.
+  next: Return to the matching outcome, inspect readiness, or stop when no admitted operation applies.
+anatomy:
+- operation-intent
+- capability-contract
+- support-and-qualification-disposition
+- parameter-and-channel-scope
+- availability-evidence
+- limitations-and-owner
+componentRefs:
+- media.component.intent-launcher
+- media.component.creation-plan-summary
+- media.component.quality-inspector
+states:
+- declared
+- proposal-only
+- implemented-unqualified
+- qualified
+- unavailable
+- owner-review-required
+- evidence-stale
+actions:
+- media.action.search-by-user-outcome
+- media.action.inspect-operation-contract
+- media.action.open-qualification-evidence
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+actionIntents:
+- search by user outcome
+- inspect a declared operation contract
+- open scoped qualification evidence
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+surfaceContract:
+  surfaceRef: media.channel.web
+  status: channel-and-host-rendering-owner-review-pending
+templateContract:
+  templateRef: media.template.check-processing-options
+  kind: owner-defined-template-pending-review
+layoutContract:
+  primaryRegion: intent-and-context
+  supportingRegions: anatomy-list-order
+  responsiveRuleRef: existing-responsive-description
+patternRefs:
+  - media.gui.pattern.safe-confirmation-and-unknown-outcome
+validation:
+  status: proposal-validation-pending-owner-review
+  rule: validate-inputs-authority-and-finality-before-dispatch
+recovery:
+  status: explicit-recovery-proposal-pending-owner-review
+  rule: preserve-context-and-unknown-outcomes-before-retry-or-resubmit
+accessibility:
+  status: accessibility-intent-proposal-pending-owner-review
+  rule: preserve-focus-reading-order-names-and-recovery-announcements
+localization:
+  status: Shared-localization-binding-pending-owner-review
+  rule: use-Shared-locale-formatting-and-accessibility-contracts
+sourceRefs:
+- master-plan:section-20.2
+- .product-experience/pdp-0-product-truth
+journeyRefs: []

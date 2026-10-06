@@ -1,0 +1,8 @@
+schemaVersion: media.api-concurrency.v1
+owner: ghatana-media-product-api
+authority: Media resource owners define update and revision conflict semantics
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-2-design-interface-system/api/identifiers.yaml, .product-experience/pdp-0-product-truth/state-models.yaml]
+scopeStatus: proposal; validators and revision wire fields await API design
+acceptance: {criteria: [where an operation has an approved concurrency contract, concurrent writes do not silently overwrite accepted changes, conflict responses disclose only authorized current-version information, revision immutability is asserted only when established by the accepted domain contract], status: pending-review}
+verification: {method: Exercise stale-write, parallel-write, and duplicate-commit scenarios against owner implementation, status: not-run}
+rules: [proposed use of explicit version preconditions for mutable resources, define conflict behavior per operation for stale preconditions, create a new revision for accepted edits only where the accepted resource contract requires it, do not equate a job attempt with a resource revision, this proposal does not establish compare-and-set support or immutable storage]

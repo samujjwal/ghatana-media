@@ -1,0 +1,34 @@
+schemaVersion: media.protocol-operation-contract.v1
+operationId: media.grpc.VisionService.GetStatus
+protocolIdentity:
+  protocol: gRPC
+  package: com.ghatana.audio.video.vision.grpc
+  service: VisionService
+  fullyQualifiedService: com.ghatana.audio.video.vision.grpc.VisionService
+  method: GetStatus
+  clientStreaming: false
+  serverStreaming: false
+sourceContract: modules/vision/vision-service/src/main/proto/vision_service.proto
+sourceContractDisposition: implementation-or-projection-observation; not-declared-canonical-wire-authority
+request:
+  protobufMessage: StatusRequest
+  schemaRef: modules/vision/vision-service/src/main/proto/vision_service.proto#com.ghatana.audio.video.vision.grpc.StatusRequest
+response:
+  protobufMessage: StatusResponse
+  schemaRef: modules/vision/vision-service/src/main/proto/vision_service.proto#com.ghatana.audio.video.vision.grpc.StatusResponse
+pdp1SemanticBinding:
+  logicalOperationRef: media.operation.health-capability
+  bindingStatus: proposed-exact-source-member-map; owner-review-pending
+  mappingSource: .product-experience/pdp-1-domain-data/operations.yaml#/sourceDenominators/grpcRpcs/explicitMemberOperationIds
+  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
+  ownerReview: pending
+contractStatus: proposal-only; owner-review-pending
+nonClaims:
+- authentication
+- idempotency
+- retry
+- cancellation
+- finality
+- state-effects
+- privacy
+- event-guarantees

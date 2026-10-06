@@ -10,527 +10,527 @@ subjects:
     displayName: Ghatana Media
     authorityRoots:
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml
         schemaVersion: media.actors-responsibilities.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/applications-channels.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/applications-channels.yaml
         schemaVersion: media.phase-0.applications-channels.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/capabilities.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/capabilities.yaml
         schemaVersion: media.capabilities.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/constitution.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/constitution.yaml
         schemaVersion: media.product-constitution.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/content-intent.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/content-intent.yaml
         schemaVersion: media.content-intent.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/dependency-contracts.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/dependency-contracts.yaml
         schemaVersion: media.migration-boundary-dependencies.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/domain-model.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/domain-model.yaml
         schemaVersion: media.phase-0.domain-model.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/glossary.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/glossary.yaml
         schemaVersion: media.product-glossary.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/goals-jtbd.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/goals-jtbd.yaml
         schemaVersion: media.goals-jtbd.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/handoff-contracts.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/handoff-contracts.yaml
         schemaVersion: media.phase-0.handoff-contracts.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/information-architecture.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/information-architecture.yaml
         schemaVersion: media.phase-0.information-architecture.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/journey-catalog.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/journey-catalog.yaml
         schemaVersion: media.phase-0.journey-catalog.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml
         schemaVersion: media.nonfunctional-requirements.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/policy-authority-model.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
         schemaVersion: media.migration-boundary-authority.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/profile-semantics.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/profile-semantics.yaml
         schemaVersion: media.profile-semantics.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/qualification-policy.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/qualification-policy.yaml
         schemaVersion: media.qualification-policy.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/quality-policy.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/quality-policy.yaml
         schemaVersion: media.quality-policy.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/requirements.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/requirements.yaml
         schemaVersion: media.requirements.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/reuse-decisions.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/reuse-decisions.yaml
         schemaVersion: media.reuse-decisions.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/state-models.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/state-models.yaml
         schemaVersion: media.state-models.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-product-definition
-        sourcePath: .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+        sourcePath: .product-experience/pdp-0-product-truth/time-units-fidelity.yaml
         schemaVersion: media.phase-0.time-units-fidelity.v1
         classification: PRODUCT_SEMANTIC_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/accessibility.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/accessibility.yaml
         schemaVersion: media.accessibility-language.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/action-finality-grammar.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml
         schemaVersion: media.action-finality-grammar.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/animation-simulation-grammar.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml
         schemaVersion: media.animation-simulation-grammar.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/cli-language.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/cli-language.yaml
         schemaVersion: media.cli-language.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/component-contracts.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/component-contracts.yaml
         schemaVersion: media.component-contracts.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/localization-content.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/localization-content.yaml
         schemaVersion: media.localization-content.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/media-editing-grammar.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml
         schemaVersion: media.editing-grammar.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/media-token-aliases.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
         schemaVersion: media.design-token-aliases.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/motion.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/motion.yaml
         schemaVersion: media.motion-language.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/responsive-adaptive.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml
         schemaVersion: media.responsive-adaptive.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/semantic-state-grammar.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml
         schemaVersion: media.semantic-state-grammar.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/trust-provenance-grammar.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/trust-provenance-grammar.yaml
         schemaVersion: media.trust-provenance-grammar.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: establish-experience-language
-        sourcePath: .product-experience/phase-1-design-language/typography-layout.yaml
+        sourcePath: .product-experience/pdp-2-design-interface-system/typography-layout.yaml
         schemaVersion: media.typography-layout.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/action-registry.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/action-registry.yaml
         schemaVersion: media.action-registry.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/api-experience-mapping.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/api-experience-mapping.yaml
         schemaVersion: media.api-experience-mapping.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/application-channel-registry.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/application-channel-registry.yaml
         schemaVersion: media.application-channel-registry.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/cli-command-registry.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/cli-command-registry.yaml
         schemaVersion: media.cli-command-registry.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/content-copy-catalog.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/content-copy-catalog.yaml
         schemaVersion: media.content-copy-catalog.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/data-view-contracts.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/data-view-contracts.yaml
         schemaVersion: media.data-view-contracts.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/handoff-bindings.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/handoff-bindings.yaml
         schemaVersion: media.handoff-bindings.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/interaction-registry.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/interaction-registry.yaml
         schemaVersion: media.interaction-registry.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/clean-noisy-interview-audio.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/first-use-and-project-creation.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/repair-video-with-measured-quality.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/translate-and-dub-existing-video.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
         schemaVersion: media.journey-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/journey-registry.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/journey-registry.yaml
         schemaVersion: media.journey-registry.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/navigation-contracts.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/navigation-contracts.yaml
         schemaVersion: media.navigation-contracts.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/recovery-finality-contracts.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml
         schemaVersion: media.recovery-finality-contracts.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/responsive-variants.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/responsive-variants.yaml
         schemaVersion: media.experience-responsive-variants.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/scenario-fixture-registry.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
         schemaVersion: media.scenario-fixture-registry.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/adjust-color.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/animate-media.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/arrange-scenes.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/artifact-verification-job-family.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/artifact-verification-job-family.yaml
         schemaVersion: media.job-view-specialization.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/authenticate-and-select-context.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/browse-media.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/check-job-outcome.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/check-processing-options.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/check-processing-readiness.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/compare-caption-versions.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/compare-results.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/compose-media.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/compose-scene.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/correct-captions.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/create-audio.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/create-image.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/create-media.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/create-video.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/deliver-output.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/edit-captions.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/edit-media-region.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/edit-media.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/explore-simulation.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/find-projects.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/find-task-guidance.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/import-media.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/improve-media.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/inspect-media.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/inspect-output.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/inspect-provenance.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/job-status.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/prepare-render.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/resume-work.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-creation-plan.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-dubbing.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-exact-version.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-outputs.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-quality.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-rights-and-consent.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-transcript.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-workspace-settings.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/select-source.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/transcription-progress.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/use-authorized-voice.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/work-in-project.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-contracts/work-with-speech.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml
         schemaVersion: media.screen-contract.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/screen-registry.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/screen-registry.yaml
         schemaVersion: media.screen-registry.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/simulation-semantics.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/simulation-semantics.yaml
         schemaVersion: media.product-simulation-semantics.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: specify-executable-experience
-        sourcePath: .product-experience/phase-2-product-experience/state-transition-bindings.yaml
+        sourcePath: .product-experience/pdp-3-product-experience/state-transition-bindings.yaml
         schemaVersion: media.state-transition-bindings.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: materialize-implementation
-        sourcePath: .product-experience/phase-3-experience-explorer/interaction-dispositions.yaml
+        sourcePath: .product-experience/explorer/interaction-dispositions.yaml
         schemaVersion: media.explorer-interaction-dispositions.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: materialize-implementation
-        sourcePath: .product-experience/phase-3-experience-explorer/media-experience-package.yaml
+        sourcePath: .product-experience/explorer/media-experience-package.yaml
         schemaVersion: media.experience-package-binding.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: materialize-implementation
-        sourcePath: .product-experience/phase-3-experience-explorer/scenario-fixtures.yaml
+        sourcePath: .product-experience/explorer/scenario-fixtures.yaml
         schemaVersion: media.experience-fixture-index.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: materialize-implementation
-        sourcePath: .product-experience/phase-3-experience-explorer/verification-matrix.yaml
+        sourcePath: .product-experience/explorer/verification-matrix.yaml
         schemaVersion: media.explorer-verification-matrix.v1
         classification: EXPERIENCE_AUTHORITY
       - stageId: materialize-implementation
-        sourcePath: .product-experience/phase-3-experience-explorer/view-projections.yaml
+        sourcePath: .product-experience/explorer/view-projections.yaml
         schemaVersion: media.experience-view-projections.v1
         classification: EXPERIENCE_AUTHORITY
 projection:
@@ -539,266 +539,266 @@ projection:
   sourceAuthorityFingerprint: sha256:e3a26c2fc614b6fab3e5080ab2f192be7998ae9d247a80b84ef910094b97b380
   currentnessFingerprint: sha256:6702e9ab86ce5d17063647c2d71891e53df31a082b03b42c4aa37a1d6d40c2b9
   materialFingerprints:
-    - sourcePath: .product-experience/phase-0-product-truth/actors-responsibilities.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml
       fingerprint: sha256:76f66242b91c1401baaf85f70d1ff87dc2a06ed1728d8832f30d8c58e5ae5056
-    - sourcePath: .product-experience/phase-0-product-truth/applications-channels.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/applications-channels.yaml
       fingerprint: sha256:e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d
-    - sourcePath: .product-experience/phase-0-product-truth/capabilities.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/capabilities.yaml
       fingerprint: sha256:d4ee0a93aab1320c1b18b36524cc99dadc8dc1a9d57460c9fb6eaa718aaa1ae3
-    - sourcePath: .product-experience/phase-0-product-truth/constitution.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/constitution.yaml
       fingerprint: sha256:3f4a053d4c49f54790ca206552fafcca3c021c8dd59bebff1602ff42c2dcd022
-    - sourcePath: .product-experience/phase-0-product-truth/content-intent.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/content-intent.yaml
       fingerprint: sha256:0b938d7fa32ea2a4e8ae8748c91783ce6293739f7e3cfa8b51ec4cdf90f34994
-    - sourcePath: .product-experience/phase-0-product-truth/dependency-contracts.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/dependency-contracts.yaml
       fingerprint: sha256:2b0314580d1ff9e68ac88bb4671b77dd4e6bb8d158d3a2b971dbf056987b7af1
-    - sourcePath: .product-experience/phase-0-product-truth/domain-model.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/domain-model.yaml
       fingerprint: sha256:3d379f7839487820a9af38dae86e6b5fd2b0fc822761cf2f4d7bb1b2b06507a4
-    - sourcePath: .product-experience/phase-0-product-truth/glossary.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/glossary.yaml
       fingerprint: sha256:45c870308e86794b5fa86b0c05d18d3c9341fc2a72161dd81b5fb3c3e975f77b
-    - sourcePath: .product-experience/phase-0-product-truth/goals-jtbd.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/goals-jtbd.yaml
       fingerprint: sha256:f5d2cc3112fded0c46f811fdc4604ffb85d0d780f22883771f7181ac1faedc40
-    - sourcePath: .product-experience/phase-0-product-truth/handoff-contracts.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/handoff-contracts.yaml
       fingerprint: sha256:ce116156d1ea0571ea932b2e4df4f1a3c9e0c10338fc37385db78f1f5ced3111
-    - sourcePath: .product-experience/phase-0-product-truth/information-architecture.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/information-architecture.yaml
       fingerprint: sha256:e9ee678851f4aa0bec53a4709e7da3f8a363515181094e5fafaa968b5ac09a26
-    - sourcePath: .product-experience/phase-0-product-truth/journey-catalog.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/journey-catalog.yaml
       fingerprint: sha256:f83c7bbd52099997b5201733caa3f6a2f23dabb71018bea69beb3db43c2606b4
-    - sourcePath: .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml
       fingerprint: sha256:f25323bf326a639105afd393452cf691c4b34def874cdcc04339d21042ee5d92
-    - sourcePath: .product-experience/phase-0-product-truth/policy-authority-model.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
       fingerprint: sha256:b11dd59871423a9d1e4eaae0af3f46bceac251e1f19624ace7a374558d26ecca
-    - sourcePath: .product-experience/phase-0-product-truth/profile-semantics.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/profile-semantics.yaml
       fingerprint: sha256:99fcc3f5ca415c7889724f00660bd40b7214f40297f375041b728b1c86f7172c
-    - sourcePath: .product-experience/phase-0-product-truth/qualification-policy.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/qualification-policy.yaml
       fingerprint: sha256:caacc481ab3afc4dc6228e88e462b712bcb5e8c71feca15908ea655e21e602db
-    - sourcePath: .product-experience/phase-0-product-truth/quality-policy.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/quality-policy.yaml
       fingerprint: sha256:e13c6b622e47feb0fb8195cc05a9cc19c8a3761606a5208dcaa810a0c4a4f427
-    - sourcePath: .product-experience/phase-0-product-truth/requirements.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/requirements.yaml
       fingerprint: sha256:27e46092f75d5938fdc42a809b6bdd405f0686f9b45b98067f52892a8b723013
-    - sourcePath: .product-experience/phase-0-product-truth/reuse-decisions.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/reuse-decisions.yaml
       fingerprint: sha256:794f2ebd4fcefe4c74f4f82d545798515235cf270bbad321d701ddfddfc63ca5
-    - sourcePath: .product-experience/phase-0-product-truth/state-models.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/state-models.yaml
       fingerprint: sha256:aac81aed5a2910ca3a5fbdfeae2f3872ea2298768b5dcf19e8621df582a46719
-    - sourcePath: .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+    - sourcePath: .product-experience/pdp-0-product-truth/time-units-fidelity.yaml
       fingerprint: sha256:c1c46ee8eb086145d6f24e4919df09b2b3e125d22facdb912d851e1db776473e
-    - sourcePath: .product-experience/phase-1-design-language/accessibility.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/accessibility.yaml
       fingerprint: sha256:a83d97b3be398ca99c9477413b3194208094880b4e6853cc072271068976754e
-    - sourcePath: .product-experience/phase-1-design-language/action-finality-grammar.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml
       fingerprint: sha256:5191cba074aa49ed1acb499a5dc160d0db7f2c4d516eec0895a4ec23e994e26c
-    - sourcePath: .product-experience/phase-1-design-language/animation-simulation-grammar.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml
       fingerprint: sha256:7182e683d28cf81795d674ce67d185b6f5c7f91142a9948141d7735043a7a6b9
-    - sourcePath: .product-experience/phase-1-design-language/cli-language.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/cli-language.yaml
       fingerprint: sha256:bb74896f8c521fb69e69d3b686302410c35a9fd497eb418c3c15d11f472488d1
-    - sourcePath: .product-experience/phase-1-design-language/component-contracts.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/component-contracts.yaml
       fingerprint: sha256:1b05515968ed4e7895ceb2166d2d000a99502ba818a1c966890f8f22a7eaabc6
-    - sourcePath: .product-experience/phase-1-design-language/localization-content.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/localization-content.yaml
       fingerprint: sha256:2bec5d808e6b5f2cfba4bc3378623a6e61da6229cb460c08d863cbcd670f42c1
-    - sourcePath: .product-experience/phase-1-design-language/media-editing-grammar.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml
       fingerprint: sha256:4564a8d19c4639cb0db5847810d02410c247d6830b23502471f288d70f13c08e
-    - sourcePath: .product-experience/phase-1-design-language/media-token-aliases.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
       fingerprint: sha256:16c4f9e93b35081379df30890f84103f70b81779320b4a6623c1174054d19039
-    - sourcePath: .product-experience/phase-1-design-language/motion.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/motion.yaml
       fingerprint: sha256:8c75c10fb48194b90937163c7da1cd50f7670b4311ea9b4a2d7c3bcfaec12df6
-    - sourcePath: .product-experience/phase-1-design-language/responsive-adaptive.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml
       fingerprint: sha256:052b499e6fb83cb02b9ec57cba8e1e21510e60674767bf1702657a11992919b1
-    - sourcePath: .product-experience/phase-1-design-language/semantic-state-grammar.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml
       fingerprint: sha256:9ce402098dedbb847eb1a5b078e39953f474b7da23dc1e48b7fa2119368aa2b3
-    - sourcePath: .product-experience/phase-1-design-language/trust-provenance-grammar.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/trust-provenance-grammar.yaml
       fingerprint: sha256:8b130c0cde1ca355144bfd94959139ac7a58370f8ec823d23248be0ea5a51e82
-    - sourcePath: .product-experience/phase-1-design-language/typography-layout.yaml
+    - sourcePath: .product-experience/pdp-2-design-interface-system/typography-layout.yaml
       fingerprint: sha256:ab07ecb3949cf0dcd250a5575a089d1859ba87dc34062ca063877d927453f98d
-    - sourcePath: .product-experience/phase-2-product-experience/action-registry.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/action-registry.yaml
       fingerprint: sha256:74db6943417476328513aa5f258372907c9e2472219ee37d56f4ce6d7cd14d3d
-    - sourcePath: .product-experience/phase-2-product-experience/api-experience-mapping.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/api-experience-mapping.yaml
       fingerprint: sha256:7cafcc10aee5c734146fa96a69689e6ce344a77c5247e23fa619879318b3d656
-    - sourcePath: .product-experience/phase-2-product-experience/application-channel-registry.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/application-channel-registry.yaml
       fingerprint: sha256:3f2c17333155892cfbd71678bf2fd8559720b70578ad6f1bcd391cb7f7d1d85b
-    - sourcePath: .product-experience/phase-2-product-experience/cli-command-registry.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/cli-command-registry.yaml
       fingerprint: sha256:d7dc799263c0f3540513967ae4e5eb3b13009a56de72dcec401a8f29b403b264
-    - sourcePath: .product-experience/phase-2-product-experience/content-copy-catalog.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/content-copy-catalog.yaml
       fingerprint: sha256:9eb4afc07a1bdc01b67716810164bf71377dc622c1bb9225f624baf14529e6be
-    - sourcePath: .product-experience/phase-2-product-experience/data-view-contracts.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/data-view-contracts.yaml
       fingerprint: sha256:531ce509aea6bd6e2fb3451b38d7c4ac077df1cd9b9396e727c2e78bcb7100c5
-    - sourcePath: .product-experience/phase-2-product-experience/handoff-bindings.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/handoff-bindings.yaml
       fingerprint: sha256:b210b274a21739f3619c6d9f517fe55cd17a4017cf965ac592f0a97136c68cd2
-    - sourcePath: .product-experience/phase-2-product-experience/interaction-registry.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/interaction-registry.yaml
       fingerprint: sha256:ba07d3855d3e30ce2cabb166f119df50452f3c73fa092e7001b23a37d6219e9c
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml
       fingerprint: sha256:5a3976806ed86a091ffd19383bfb4416aee12c24314227590c84c18a40e8c6c4
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml
       fingerprint: sha256:be323a24814866ed8bd20c0d7c95d57c1f210d2019a0438b8b268d26697e17da
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml
       fingerprint: sha256:26c66cdef135b47ef652cdb43d73f295540c3f78b125dca64890cc71a99d34c4
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml
       fingerprint: sha256:8bff12effddd735b4441efb909c06de1155b4d3e402d09068a6c83b6287206da
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/clean-noisy-interview-audio.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml
       fingerprint: sha256:be8168bae6be473ae7a71c664af2ef28c7ce7cb45de9dafdf708c4f25dc5dca8
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml
       fingerprint: sha256:28f1a435bff3e8770804a3e76ae63ee67748d7cae3c850fefea4e9ecd375f3a1
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml
       fingerprint: sha256:85c8484a49dd9f8d5d6306ae26c96523909b0aa95a36c6613bbf56656245241c
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml
       fingerprint: sha256:3d814feb4f58b29c75f19a146dacc33f778417c50382b7af4ea6bcad7cd191e8
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml
       fingerprint: sha256:bee02d2bde19740d72860e2df5b1c1579b6f394084f9b9ed1961a198a36949dd
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml
       fingerprint: sha256:5508aecc9468f79e4dfea0ea621ec916c3eeeac61ceddab72e23b3950c34e052
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml
       fingerprint: sha256:c3dfe117c6f3786342c46cccc09c66834c1948283673f5e19c8ac1c956d5582c
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml
       fingerprint: sha256:4dbd827a9f43773af876b859552e348e673ec14ab9868471624bda48ebd30736
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml
       fingerprint: sha256:d25bb929efa7cb7d5c6cf66381b9fb60cd52b2380f395b43418024acfbf1054b
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/first-use-and-project-creation.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml
       fingerprint: sha256:b993f787e85fdfd43af4bfeb25c0336d5630c9a26f5579dbb03fcafe8f2fe81c
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml
       fingerprint: sha256:58e5ec0c33c511d229720afcf2d114592b17f8e4df9560842d9a2a76a33a09a6
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml
       fingerprint: sha256:eac5217b00f714479ab5dff280c3754f1fbb0f19d005e9967e0e2ac8730845e1
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
       fingerprint: sha256:dd0a8221934af5779c786b5d8762044431edc61872448fd94aa7c2e26f3da330
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml
       fingerprint: sha256:ac0756c3a5da05f85b5ba0222cf9154f7cece78194840d7a0928a2b3ba1f0fd1
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml
       fingerprint: sha256:3d49f8ed3042bfcd5460f63ea910dde4b8bfbe9f14bb4d5ca26c192a3d637207
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/repair-video-with-measured-quality.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml
       fingerprint: sha256:e2fc38bcc862cc4d1ed110ca247f4f1d7ba71a1fe29818a80516150262cbe771
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml
       fingerprint: sha256:d6df138c33c253650c22c1180cf65e6602c23ecbc36d68e64b77ca404de8085c
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml
       fingerprint: sha256:7ae5992af94a5c39f01eae3792a9e6faae00430f1b68bc473f9c581b3b218078
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml
       fingerprint: sha256:6a360323bf3b4a157d25300a52f20f6df983432c2e1641d22b6c828a6338a18a
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml
       fingerprint: sha256:509ccc0c91be568ddb95cadb637ac41143a2e08aa4542a98490d7e378c48b916
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
       fingerprint: sha256:5016ca7880291b7cfe126170042577d9736018ee6099f318e9be7cda11706dc8
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/translate-and-dub-existing-video.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml
       fingerprint: sha256:185095ef0f0930a005b8978e91cec2261498282f0f513124ed811b455e0a02d8
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
       fingerprint: sha256:abc9dfca7cd0758b1e9d48a5ccaaa68d1acf6c28dca2e38e65e45b94d84e58f1
-    - sourcePath: .product-experience/phase-2-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
       fingerprint: sha256:7cac7ca47cfa9e65d6fd63ad47d5c2ba4a5a0a1ae690c253965a349f0dd7c7b0
-    - sourcePath: .product-experience/phase-2-product-experience/journey-registry.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/journey-registry.yaml
       fingerprint: sha256:6746a38c98b6e0dec834ee7c84d7ef0fe1563922045ad297a7fb092d1e1a177e
-    - sourcePath: .product-experience/phase-2-product-experience/navigation-contracts.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/navigation-contracts.yaml
       fingerprint: sha256:bc0c5865486f4a2e1ce3090b4177a04be7a07bf8345ca12dfc82bfe438d0e09b
-    - sourcePath: .product-experience/phase-2-product-experience/recovery-finality-contracts.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml
       fingerprint: sha256:68933ff43a115210b8e448663ec286ec571243910effd811bdefd96ec4a08549
-    - sourcePath: .product-experience/phase-2-product-experience/responsive-variants.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/responsive-variants.yaml
       fingerprint: sha256:c400f513d43170790db6a5064a8ddab6abfbf8f5c46c25f81f6e6273aba8b82f
-    - sourcePath: .product-experience/phase-2-product-experience/scenario-fixture-registry.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
       fingerprint: sha256:56b45b4180fb0535892c1f106e4cd423f2dc21d0f99deea39e817f96cc39eedd
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/adjust-color.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml
       fingerprint: sha256:a2da1a05f45fa9fc7fa2cbc399461bf3e52d97147ec62de3c8c360257c4e88e1
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/animate-media.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml
       fingerprint: sha256:bba0dec92b9731779eca28c2f88b68b669386d4d0e6b9c33d7b6fe823a63aa04
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/arrange-scenes.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml
       fingerprint: sha256:aeb4e1dcd21cd8cf013defe2a8450861bf501bd16fb375a5365f0fbd83d4b00c
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/artifact-verification-job-family.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/artifact-verification-job-family.yaml
       fingerprint: sha256:8dcfcfe87a0307da956bd5dfd79220cad257c4da7ed15f9e8ca3e9149fe233de
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/authenticate-and-select-context.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml
       fingerprint: sha256:c0a2f8bff8d0b1c16021cd7aab4f33478280d799eec2f3208c89acab75149a06
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/browse-media.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
       fingerprint: sha256:084ac10322a086c9a29d0e8f27dfc14837595585502d5109a842ca04281e58a5
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/check-job-outcome.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
       fingerprint: sha256:afa09d5aff527cac2aa62f108dd947bb68474d40aa2a1d60428a4ab65c3eb6d4
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/check-processing-options.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml
       fingerprint: sha256:dedf9ba62016d770acd946b09428a98adc1c41fb5035d350bb4617432e25514d
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/check-processing-readiness.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml
       fingerprint: sha256:b367c175fa5d30fe2a866c6601616c9331f8ae1084c98a47d87784874adab3ba
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml
       fingerprint: sha256:2a62cd54050bd753f1adad4f2846da616bb13a84dca10d686c2336155da908e8
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/compare-caption-versions.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml
       fingerprint: sha256:f6b97610b06ae66ddc1f3ddf2a38818c204f2f37dcbc33eb8e05e9fd5c9189b7
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/compare-results.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml
       fingerprint: sha256:ea10e0ff3ba493e011a50c2a8874b6e07e0fcbf2f421164ce855e80cd8a10d59
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/compose-media.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml
       fingerprint: sha256:2ae54d5eb28e57a79ea29651ce600c8a1723b6c11e00127620cb3b58cbaa5277
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/compose-scene.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml
       fingerprint: sha256:feb81723f74a426ea58d231bcfee9c0c4c14bd82861110d89fc8aa21776d858a
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/correct-captions.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml
       fingerprint: sha256:a043fe8bcc9dcff1f4f069053a398bde9da2487d3a2daa9cf38613b88396d6b4
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/create-audio.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml
       fingerprint: sha256:cfab5bd68b6d777554883c640866284a8bef1d8bb356539740c363bcca8592c2
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/create-image.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml
       fingerprint: sha256:05b0f0fe130fa6934576bb533c848f1c1edea2f9b8fe908d363267114a6d5211
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/create-media.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml
       fingerprint: sha256:ca60ebc0ac1d45de9669d57b3dfd445dbd193af6ce3744628de2d665d01ea718
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/create-video.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
       fingerprint: sha256:ebb2c67c84a2d34933d23242c16fbac6b1610137f51330d8b36e7d0876273dc6
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/deliver-output.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml
       fingerprint: sha256:6f589cb8c0cf8a73f645e0cd32afc612c9caf401dc9ca80745db50d74e1a2c3b
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/edit-captions.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml
       fingerprint: sha256:93d2b2ca221f5a97899f49fe144271d3bd358ccc1abbcb5759fdd8dd18edbdaf
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/edit-media-region.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml
       fingerprint: sha256:a6929afae6f5ca7485e6d346f92d70f79b976a9fa00156a8907e7184c43b00d6
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/edit-media.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml
       fingerprint: sha256:3caa8e4c434ec0eb793a386122da2ab1126e9d6ad6a8c9bd30e7064f792d4aa3
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/explore-simulation.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml
       fingerprint: sha256:92cf3edd239de3ce639b439b293484644a3242c1f984545efedcddecec7eed70
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/find-projects.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml
       fingerprint: sha256:335c44143a2a24d308b984b71b77a392d64ed041f7ef901fb776b8186eaa99b3
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/find-task-guidance.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml
       fingerprint: sha256:5fe6539edc0592373cf6b800e0431f06367f3468a4f3924016f54c97cd03c785
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/import-media.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
       fingerprint: sha256:b5ea8ff4290583e401021c8954b36113c2b293f714efa31e61d659f9dd246059
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/improve-media.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml
       fingerprint: sha256:9235a9c89b4b020b61a38d5684758cee45bcd48a701a5359855cf29c36a89027
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/inspect-media.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml
       fingerprint: sha256:7d7d467fd68435ec9c49624cf787683eb5cb158f484ab738fbd32c571abcc105
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/inspect-output.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
       fingerprint: sha256:09c51aeeadfc4dd9e041fcca91be950887d6aeb02be0872e1dff9527c98be673
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/inspect-provenance.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml
       fingerprint: sha256:0d5f569d2d889ef1d46e49794dd91d8ff68111183b7235a2215dc88f5f8f9676
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/job-status.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
       fingerprint: sha256:9b0d8c2a8f566b56a316c00e3c08f0fe5e3f7ee6faaa8e2f070826064a123922
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/prepare-render.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml
       fingerprint: sha256:da39513e18a95aefdcac00692510bee79fa434410a2e0105053c0d6c6ced61e6
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/resume-work.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml
       fingerprint: sha256:6c891277a2a6ca89e0e4ebe99992ff93bf1490e7d3c3c6432e589c425f7c74fc
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-activity.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml
       fingerprint: sha256:ce3b2415dce80cdee33066be6033c3fd08fff233205e4c131c65ba96823cae3b
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-creation-plan.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml
       fingerprint: sha256:e90cc9fbc0acceae3164214484e986b3ca1e898335ec51f00a122fcf9c7349ee
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-dubbing.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml
       fingerprint: sha256:3373ecf9a026e4eb951c96dd409d0682c3f3a95d3d26a3ec8921f8590df167d4
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-exact-version.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml
       fingerprint: sha256:3a55934cde12ce85d817c46a86878f59dbb150a561cf7a8e9e05893c42c16e60
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-outputs.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
       fingerprint: sha256:b8ddb5491032bb31f7abc2da3242a8bc7b52cded7ae237954b22c6eb0cf73494
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-quality.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
       fingerprint: sha256:50b5a41e1d38bb0dc27028218694aa4717ee17929672587672657883ac8defac
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-rights-and-consent.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml
       fingerprint: sha256:f5f611bc8378c67c8eb4ce054a377cd771ba6393d75c352f950fffd7a79208f9
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-transcript.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml
       fingerprint: sha256:151bd8fbbf027d226b7a8ad07f6146ed1f1a04463510305b62cfd43f008b07be
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/review-workspace-settings.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml
       fingerprint: sha256:916b5180acdc497808cd4f24737d712a483de34db8615b940abfad29651c3e84
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/select-source.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml
       fingerprint: sha256:4d8d0fb8e8d514219074bd3fc9deee845d249dbf99dca7ea671fd6800389ea03
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/transcription-progress.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml
       fingerprint: sha256:09ad844f1a8f201b8a4f05247f4b64df87b38883282a88699140ceab60cdb760
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/use-authorized-voice.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml
       fingerprint: sha256:a90494c172fa351afdde2a2ad27660c847099d94b22bf45ac181d1b795f49a13
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/work-in-project.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml
       fingerprint: sha256:b5f5e4e810f19e184962a4b318c18418187b4cb83e191f1def4f8f0902cdf644
-    - sourcePath: .product-experience/phase-2-product-experience/screen-contracts/work-with-speech.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml
       fingerprint: sha256:de9e7094b5339eeb6e6a3046f777856af3ea0a4a3228b53c99fb85399a1d262a
-    - sourcePath: .product-experience/phase-2-product-experience/screen-registry.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/screen-registry.yaml
       fingerprint: sha256:4738e19dfd2a3e9aa92907866cd24fa821140c581049c43eb882cb3528a34f04
-    - sourcePath: .product-experience/phase-2-product-experience/simulation-semantics.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/simulation-semantics.yaml
       fingerprint: sha256:2d8ec033ccce6f908e614e1ce809bbe732203d4b504f2916abb210bf320e05e0
-    - sourcePath: .product-experience/phase-2-product-experience/state-transition-bindings.yaml
+    - sourcePath: .product-experience/pdp-3-product-experience/state-transition-bindings.yaml
       fingerprint: sha256:3445583dfa960a8585ff54f312bbacf2e886e5ea699ef8bb9cd49b62c18aa76d
-    - sourcePath: .product-experience/phase-3-experience-explorer/interaction-dispositions.yaml
+    - sourcePath: .product-experience/explorer/interaction-dispositions.yaml
       fingerprint: sha256:33f76ba08e6580b6d81492448e58797c429caf44e3f19d46135a13620f9af997
-    - sourcePath: .product-experience/phase-3-experience-explorer/media-experience-package.yaml
+    - sourcePath: .product-experience/explorer/media-experience-package.yaml
       fingerprint: sha256:47034842b9d785f40d50c323e46f49cc3d3d53802cfb26c4d7afb6e966d31cb0
-    - sourcePath: .product-experience/phase-3-experience-explorer/scenario-fixtures.yaml
+    - sourcePath: .product-experience/explorer/scenario-fixtures.yaml
       fingerprint: sha256:cd9a9048f6d32430afc7eae364ca717fa926d926bf57313b2633740e6a6f6650
-    - sourcePath: .product-experience/phase-3-experience-explorer/verification-matrix.yaml
+    - sourcePath: .product-experience/explorer/verification-matrix.yaml
       fingerprint: sha256:9f41b024b481ef81d3662258b8a89617dae2f9f409b7830846751658b71f5df5
-    - sourcePath: .product-experience/phase-3-experience-explorer/view-projections.yaml
+    - sourcePath: .product-experience/explorer/view-projections.yaml
       fingerprint: sha256:b0f48b89a7228e8a28863436162779972246fb60a4db672d660ccd2bde71d8c6
   catalogFingerprint: sha256:4a81545db4bcf6fa410b019301d4d9b6ba127b3facefda67d761c460d0fd98b9

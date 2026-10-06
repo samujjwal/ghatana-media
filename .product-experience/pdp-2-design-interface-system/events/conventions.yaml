@@ -1,0 +1,135 @@
+schemaVersion: media.events-conventions.v1
+artifactId: media.pdp-2.events-conventions
+productId: media
+owner: ghatana-media-product-events
+authority:
+  domainMeaning: Media; event-specific producer authority and owner acceptance are unresolved
+  genericEnvelopeAndTransport: Shared; exact accepted package/platform binding is unresolved
+scopeStatus: proposal; conventions below are design constraints, not an accepted event contract
+sourceRefs:
+  - .product-experience/pdp-1-domain-data/events.yaml#/observedEnvelope
+  - .product-experience/pdp-1-domain-data/evidence.yaml#/eventEvidenceBindings
+  - .product-experience/pdp-1-domain-data/provenance.yaml#/eventProvenanceObservations
+  - .product-experience/pdp-3-product-experience/events/event-registry.yaml
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEventPublisher.java
+  - launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java
+  - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java
+  - libs/audio-video-client/src/index.ts
+observedPopulations:
+  runtimeLifecyclePublishers:
+    count: 9
+    sourceInventory: .product-experience/pdp-1-domain-data/events.yaml#/observedEnvelope/lifecyclePublisherInventory
+    scope: server-side MediaLifecycleEvent publication call sites and their observed concrete event-type strings
+    classification: implementation inventory; not canonical taxonomy or complete domain lifecycle coverage
+    observedTypes:
+      - media.upload.started
+      - media.artifact.completed
+      - media.job.accepted
+      - media.job.cancelled
+      - media.job.cancel_requested
+      - media.stream.opened
+      - media.stream.closed
+      - media.job.completed
+      - media.job.failed
+  clientLocalNotifications:
+    count: 15
+    source: libs/audio-video-client/src/index.ts#AudioVideoClient
+    registry: .product-experience/pdp-3-product-experience/events/event-registry.yaml
+    scope: five client-local listener families (start, complete, error)
+    behaviorObserved: in-process listener callbacks; listener exceptions are caught and logged
+    classification: separate local notification population; not Event Plane publication or runtime lifecycle event taxonomy
+    semanticEquivalenceToRuntimeLifecycleTypes: not-established
+identityAndSchema:
+  runtimeEnvelopeObserved:
+    fields: [eventId, eventType, tenantId, principalId, correlationId, causationId, aggregateType, aggregateId, aggregateVersion, classification, occurredAt, attributes]
+    source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java
+    constraintsObserved: [required-bounded-identifiers, positive-aggregateVersion, optional-causationId, occurredAt-defaults-to-Instant.now, attributes-pass-through-structural-sanitizer]
+  eventIdentity:
+    observedFormula: "media:<eventType>:<aggregateId>:<aggregateVersion>"
+    source: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#publishLifecycle
+    conventionProposal: carry a stable event identity suitable for detecting repeated observations, with its scope and derivation documented per producer
+    limitations: [formula-is-implementation-observation-not-accepted-contract, uniqueness-across-replay-unverified, durable-deduplication-unverified, same-event-type-and-aggregate-version-can-reproduce-the-same-id]
+  schemaIdentity:
+    observedWireVersion: "1.0"
+    wireSource: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java
+    proposal: every accepted event contract should identify its schema/version independently of eventType and payload shape
+    limitations: [MediaLifecycleEvent-record-has-no-schema-version-field, wire-version-does-not-establish-schema-registration-or-compatibility-policy, no-registry-binding-established]
+  aggregateIdentity:
+    observedFields: [aggregateType, aggregateId, aggregateVersion]
+    proposal: identify exact aggregate scope and distinguish aggregate revision from event identity and request identity
+    limitations: [canonical-object-crosswalk-unresolved, upload-and-artifact-publishers-use-literal-version-1-not-observed-record-version, aggregate-version-is-not-a-global-order]
+  timeAndCausality:
+    observedFields: [occurredAt, correlationId, causationId]
+    proposal: preserve observed time and correlation/causation references when available; represent missing causation explicitly as unknown/absent
+    limitations: [occurredAt-defaults-to-local-Instant.now, clock-authority-and-ordering-unresolved, correlation-values-are-callsite-specific, causation-completeness-unverified]
+committedFactsAndRequests:
+  proposalRules:
+    - distinguish a request/command from an observed state transition or effect
+    - publish a fact only after the source boundary identified for that fact has been observed; name that boundary and its evidence
+    - a request, accepted job, provider response, or publication attempt is not by itself downstream completion, product acceptance, or committed event evidence
+    - unknown provider or external-effect outcomes remain unknown; do not relabel request, timeout, or missing acknowledgement as success or failure
+  sourceGroundedExamples:
+    - {eventType: media.job.accepted, observation: jobStore.create returned an accepted ProcessingJob, doesNotEstablish: processing-completion-or-finality}
+    - {eventType: media.job.cancel_requested, observation: cancellation outcome remained unconfirmed and requested state was stored, doesNotEstablish: cancellation-finality}
+    - {eventType: media.job.cancelled, observation: provider-confirmed cancellation and updated job were stored, doesNotEstablish: independent delivery receipt}
+    - {eventType: media.job.completed, observation: terminal ProcessingJob with COMPLETED status was persisted, doesNotEstablish: independent quality-assessment-or-delivery-evidence}
+    - {eventType: media.artifact.completed, observation: artifact was returned by artifactStore.complete, doesNotEstablish: immutable-version-identity-or-independent-content-verification}
+  authority: per-event semantic owner, producer authority, transition boundary, and authoritative finality evidence remain pending; observed call sites do not confer owner approval
+privacyAndProvenance:
+  proposalRules:
+    - include only fields necessary for the declared consumer purpose and permitted by the applicable classification and disclosure policy
+    - prefer exact opaque identifiers and references over media bytes, transcript text, captions, prompts, credentials, or unnecessary personal data
+    - preserve classification and provenance references where authorized; do not treat structural sanitization as semantic redaction approval
+    - disclose provider, model, or user/principal attributes only when observed and authorized for that event purpose
+    - missing, inferred, redacted, or unavailable values must not be represented as observed facts
+  implementationObservations:
+    - {observation: attributes are structurally sanitized by MediaLifecycleEvent construction, source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, limitation: semantic-PII-redaction-and-event-specific-minimization-policy-unresolved}
+    - {observation: classification is a required field, source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, limitation: classification-vocabulary-and-disclosure-policy-unresolved}
+    - {observation: PDP1 evidence and provenance registries map source candidates, status: proposal-only, limitation: candidates-are-not-committed-event-evidence-or-authoritative-finality}
+orderingDuplicatesAndConsumers:
+  proposalRules:
+    - consumers must tolerate duplicate, delayed, missing, and out-of-order observations unless a selected platform contract proves narrower behavior
+    - use event identity only as a candidate deduplication key until its stability, scope, retention, and replay semantics are accepted and verified
+    - use aggregate identity/version for scoped stale/conflict detection only after the aggregate-version contract is established; do not infer total order from occurredAt or event arrival order
+    - make consumer effects idempotent or guarded by consumer-owned durable processing state before retrying side effects
+    - keep request idempotency identity, event identity, aggregate identity, and delivery receipt identity distinct
+    - handle unknown or conflicting outcomes by querying an authoritative source or surfacing unresolved state; never blind-resubmit a non-idempotent effect
+  observedLimits: [Idempotency-Key-header-equals-eventId, durable-deduplication-unverified, replay-retention-ordering-unresolved, no-consumer-acknowledgement-contract-established]
+deliveryAndFailure:
+  observedBehavior:
+    publisherReadyFalse: MediaRuntime skips publication
+    acceptedHttpStatuses: [200, 201]
+    otherStatus: publisher-throws
+    failurePath: MediaRuntime logs publication as unconfirmed and continues
+    source: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java
+  convention: distinguish attempted, transport-accepted, consumer-processed, and product-effect-final states; report only the state supported by evidence
+  notEstablished: [durable-outbox, retry-policy, replay, retention, ordering, exactly-once-or-at-least-once-delivery, consumer-acknowledgement, durable-delivery-receipt, recovery-and-reconciliation-contract]
+  prohibition: HTTP acceptance or local publication return is not proof of consumer processing, committed evidence, or product acceptance
+producerAndOwnerAuthority:
+  wireSourceObserved: media
+  eventSpecificProducerAuthority: unresolved
+  semanticOwner: Media proposal; no event owner acceptance recorded by this convention
+  transportOwner: Shared generic transport/envelope ownership is a proposal boundary; exact package and compatibility binding remain unresolved
+  canonicalTaxonomy: not-established
+  schemaRegistryBinding: not-established
+  clientLocalEventOwnerAndSemanticCrosswalk: pending-review
+verification:
+  requiredBeforeAcceptance:
+    - validate each event schema and compatibility policy against its accepted owner and selected platform
+    - test identity stability, duplicates, replay, ordering, missing delivery, consumer idempotency, and unknown outcomes
+    - verify privacy/classification behavior with authorized representative data and prohibited-data cases
+    - bind producer authority, transition boundary, finality evidence, and consumer contract per event
+  status: not-run; selected platform contract and owner-approved taxonomy unavailable
+acceptance:
+  criteria:
+    - runtime lifecycle publishers and client-local notifications remain distinct populations
+    - event identity, schema identity, committed-fact boundary, privacy, ordering, duplicate handling, delivery state, consumer behavior, producer authority, and finality are explicitly scoped
+    - every asserted guarantee is source-backed and qualified; unresolved claims remain unresolved
+  status: pending-event-owner-review
+rules:
+  - commands-and-requests-are-not-events-describing-occurred-facts
+  - never-infer-canonical-taxonomy-schema-compatibility-owner-acceptance-or-delivery-guarantee-from-source-shape
+  - never-present-source-observation-or-publication-attempt-as-committed-event-evidence
+  - cancellation-request-and-unknown-outcome-are-not-confirmed-finality
+  - keep-the-15-client-local-notifications-separate-from-the-nine-runtime-lifecycle-publisher-types

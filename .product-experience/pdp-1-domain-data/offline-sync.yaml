@@ -1,0 +1,88 @@
+schemaVersion: media.pdp-1.offline-sync.v1
+artifactId: media.pdp-1.offline-sync
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-0-product-truth/state-models.yaml
+scopeStatus: source-observations-and-proposal-boundaries; protocol-unbound; pending-owner-review
+sourceRefs:
+  - .product-experience/pdp-0-product-truth/state-models.yaml
+  - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
+  - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+  - libs/audio-video-client/src/operations.ts
+  - contracts/openapi/media.yaml
+semantics:
+  status: proposed-not-accepted
+  proposals:
+    - local-draft-is-not-server-accepted-state
+    - reconnect-does-not-imply-upload-or-command-acceptance
+    - uncertain-submission-requires-authoritative-reconciliation-before-retry
+    - access-consent-retention-and-policy-must-be-rechecked-before-a-sync-effect
+    - source-and-derived-version-identity-must-not-be-inferred-from-a-job-version
+sourceObservations:
+  journey:
+    source: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
+    status: pdp0-grounded-proposal; not-accepted
+    observations:
+      - proposed-precondition-names-admitted-local-capability-offline-mode-cached-asset-permission-and-storage-policy
+      - proposed-recovery-calls-for-reauthentication-revalidation-and-reconciliation-before-submission
+      - scenario-fixtures-and-owner-approved-expected-results-are-pending
+  uploadClient:
+    source: libs/audio-video-client/src/operations.ts
+    observations:
+      - client-exposes-begin-upload-upload-part-and-complete-upload-session-operations
+      - upload-part-sends-a-request-for-a-specified-session-and-part-and-reports-invocation-progress
+      - inspected-methods-do-not-establish-persistent-local-queue-encryption-background-sync-or-offline-admission
+      - upload-resume-authority-and-reconciliation-of-ambiguous-part-results-are-not-established-by-these-methods
+  submissionIdentity:
+    sources:
+      - libs/audio-video-client/src/operations.ts
+      - contracts/openapi/media.yaml
+    observations:
+      - some-mutations-carry-an-idempotency-key-header-or-field
+      - openapi-explicitly-marks-some-mutations-as-lacking-replay-safe-idempotency
+      - key-presence-does-not-establish-server-retention-scope-deduplication-atomicity-or-safe-replay
+  runtimeRestart:
+    source: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java
+    observations:
+      - startup-reconciliation-selects-recoverable-jobs-and-transitions-them-to-failed-with-outcome-unknown
+      - this-runtime-path-is-not-a-client-offline-command-queue-or-provider-outcome-reconciliation-proof
+unboundProtocol:
+  commandQueue:
+    durability: not-established
+    encryptionAndKeyManagement: not-established
+    capacityEvictionAndRetention: not-established
+    backgroundExecutionAndPlatformLimits: not-established
+  upload:
+    resumableSessionAndPartAcknowledgementSemantics: not-established
+    clientResumeSupportAndAuthority: not-established
+    duplicateOrAmbiguousPartResolution: not-established
+  reconciliation:
+    requestIdentityScopeAndRetention: not-established
+    serverLookupBeforeResubmission: not-established
+    conflictAndConcurrentEditPolicy: pending-owner-definition
+    orderingCausalityAndAtomicity: not-established
+    providerOutcomeReconciliation: not-established
+  authorization:
+    reconnectIdentityConsentAndPolicyRevalidation: proposed-in-journey; runtime-binding-unverified
+    revocationPropagationTo-queued-and-in-flight-work: unresolved
+    remote-effects-after-local-entitlement-expiry: unresolved
+  outputIdentity:
+    sourceImmutabilityAndDerivedVersionKey: unresolved-in-runtime-contracts-inspected
+    transcriptCaptionParentVersionAndAncestry: not-established-by-client-or-runtime-contracts-inspected
+    jobVersionIsNotArtifactVersionOrAttemptHistory: true
+sourceObservation:
+  offlineCapability: proposed-in-inspected-journey-only
+  durableLocalQueue: not-established-by-inspected-client-and-runtime-contracts
+  safeReplay: not-established
+  runtimeJobRecovery: restart-path-marks-recoverable-job-outcome-unknown; does-not-prove-provider-reconciliation
+unresolved:
+  - owner-approved-disconnected-capability-and-platform-matrix
+  - durable-queue-and-local-data-protection-contract
+  - upload-session-resume-and-part-reconciliation-contract
+  - replay-idempotency-and-uncertain-submission-reconciliation-contract
+  - conflict-ordering-causality-and-cross-device-merge-policy
+  - consent-revocation-retention-and-erasure-effects-on-pending-local-work
+  - canonical-artifact-version-and-transcript-caption-lineage-contract
+  - deterministic-owner-approved-offline-and-reconnect-scenarios

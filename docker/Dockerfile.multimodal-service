@@ -14,14 +14,10 @@ COPY settings.gradle.kts gradle.properties ./
 COPY buildSrc/ buildSrc/
 COPY build.gradle.kts ./
 
-COPY platform/java/ platform/java/
-COPY products/audio-video/libs/common/ products/audio-video/libs/common/
-COPY products/audio-video/modules/intelligence/multimodal-service/ \
-     products/audio-video/modules/intelligence/multimodal-service/
-COPY platform/contracts/ platform/contracts/
+COPY . .
 
 RUN chmod +x gradlew && \
-    ./gradlew :products:audio-video:modules:intelligence:multimodal-service:shadowJar \
+    ./gradlew :services:media:modules:intelligence:multimodal-service:shadowJar \
       --no-daemon \
       -x test \
       -x checkstyleMain
@@ -34,7 +30,7 @@ RUN groupadd -r multimodal && useradd -r -g multimodal multimodal
 WORKDIR /app
 
 COPY --from=builder \
-    /workspace/products/audio-video/modules/intelligence/multimodal-service/build/libs/*-all.jar \
+    /workspace/modules/intelligence/multimodal-service/build/libs/*-all.jar \
     app.jar
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \

@@ -27,7 +27,7 @@ const viewports = [
 
 const artifacts = (await import("../apps/media-experience-explorer/specification-artifacts.json", { with: { type: "json" } })).default;
 const productRoutes = artifacts
-  .filter(({ path }) => path.includes("/phase-2-product-experience/screen-contracts/") && !path.endsWith("/artifact-verification-job-family.yaml"))
+  .filter(({ path }) => path.includes("/pdp-3-product-experience/screen-contracts/") && !path.endsWith("/artifact-verification-job-family.yaml"))
   .map(({ path }) => path);
 const artifactVerificationSpecialization = artifacts.find(({ path }) => path.endsWith("/artifact-verification-job-family.yaml"))?.path;
 
@@ -144,9 +144,9 @@ try {
   await page.locator("#mode-specification").focus();
   await page.keyboard.press("Enter");
   await inspectPage(page, "keyboard/specification");
-  await page.locator("#phase-tab-p0").focus();
+  await page.locator("#phase-tab-pdp-0").focus();
   await page.keyboard.press("ArrowDown");
-  if (await page.locator("#phase-tab-p1").getAttribute("aria-checked") !== "true") fail("keyboard/phase-tabs", "ArrowDown did not select P1");
+  if (await page.locator("#phase-tab-pdp-1").getAttribute("aria-checked") !== "true") fail("keyboard/phase-tabs", "ArrowDown did not select PDP-1");
   observations.push("keyboard mode-tab and phase-radio navigation: pass");
 
   for (const viewport of viewports) {
@@ -185,7 +185,7 @@ try {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await gotoHash(page, "#verify");
     const verifyResult = await inspectPage(page, `verify/${viewport.name}`);
-    if (await page.locator(".phase-status-card").count() !== 4) fail(`verify/${viewport.name}`, "expected four phase status cards");
+    if (await page.locator(".phase-status-card").count() !== 5) fail(`verify/${viewport.name}`, "expected four PDP phase cards plus the Explorer projection card");
     if (verifyResult.h1[0] !== "Verify experience") fail(`verify/${viewport.name}`, "unexpected Verify heading");
   }
 

@@ -1,30 +1,61 @@
 # Ghatana Media product experience authority
 
-This directory is the authoring root for Media Product Truth and the later
-design, experience, and Explorer phases. The reviewed master plan is the
-planning baseline. A plan statement becomes accepted product meaning only
-through the appropriate owner review and acceptance record; source presence,
-repository migration, or a generated view does not confer acceptance.
+This directory is the authoring root for the four canonical Media Product
+Definition Phases and the separate Explorer projection. The Expert-Reviewed
+Master Plan is retained as migration/execution reference; the user's Four-Phase
+Product Definition Hardening Plan governs this reconciliation's phase structure
+and task ledger. A plan statement becomes accepted product meaning only through
+the appropriate owner review and acceptance record; source presence, repository
+migration, or a generated view does not confer acceptance.
 
 ## Current scope
 
-Only the **P0-001 migration boundary slice** is accepted. Its readable record is
-[`phase-0-product-truth/PRODUCT-TRUTH.md`](./phase-0-product-truth/PRODUCT-TRUTH.md),
+Within PDP-0, only the **P0-001 migration boundary slice** is accepted. Its readable record is
+[`pdp-0-product-truth/PRODUCT-TRUTH.md`](./pdp-0-product-truth/PRODUCT-TRUTH.md),
 with the accepted document-intelligence ownership overlay in
 [`MDI-001`](../docs/migration/decisions/MDI-001-document-intelligence-ownership.md).
 This acceptance covers the bounded product identity, ownership, consumer,
 compatibility, and authority-transfer decisions described there. It does not
-accept full Phase 0, cut over source authority, or claim implementation,
-qualification, licensing, production readiness, or runtime availability.
+accept full PDP-0, cut over source authority, or claim implementation,
+qualification, licensing, production readiness, or runtime availability. The
+canonical four-phase authority model itself received a bounded delegated-owner
+approval under [PXD-003](./decision-log.md#pxd-003--approve-the-canonical-four-phase-authority-model-with-comments);
+that does not accept any PDP phase's full semantic content. The deterministic
+`scopeStatus` vocabulary and current target-scope labels received a separate,
+bounded approval under
+[PXD-004](./decision-log.md#pxd-004--approve-pdp0-004-scope-status-normalization-with-comments).
+That decision does not accept capability semantics, bounds, implementation,
+qualification, or full PDP-0.
+The PDP1-001 source-reconciliation inventory and proposal-provenance structure
+received a similarly bounded approval under
+[PXD-005](./decision-log.md#pxd-005--approve-pdp1-001-proposal-structure-and-provenance-with-comments);
+domain meanings, object/value identities, and relationship cardinalities remain
+proposals pending their semantic owners.
+The human acceptance-input ledger now uses the canonical four PDP phase gates
+and keeps Explorer separate under
+[PXD-006](./decision-log.md#pxd-006--normalize-acceptance-inputs-to-canonical-pdp-phases).
+PDP1-002's 22-field operation proposal schema and exact source inventory have
+received a structure-only review under
+[PXD-007](./decision-log.md#pxd-007--approve-pdp1-002-operation-registry-structure-with-comments);
+its operation and cross-interface semantics remain pending.
+PDP1-003's 11-machine, 75-state-spelling, 49-transition source extraction is
+approved as proposal structure only under
+[PXD-008](./decision-log.md#pxd-008--approve-pdp1-003-state-transition-extraction-structure-with-comments);
+state meanings, guards, legal transitions, and projection mappings remain
+unresolved.
+The active metadata migration to canonical PDP labels is approved under
+[PXD-009](./decision-log.md#pxd-009--approve-active-phase-taxonomy-normalization-with-comments);
+stable artifact, task, gap, and requirement identifiers remain unchanged, and
+Explorer remains outside the PDP phase ledger.
 
 P0-002 through P0-009 have authored material in this tree, but that material is
 proposal or work in progress pending the relevant human and external-owner
 reviews. P0-010 independent semantic acceptance is pending. In response to the
-current request, Phase 1 through Phase 3 contain proposals for the first-use,
+current request, PDP-1 through PDP-3 contain proposals for the first-use,
 artifact-intake, and long-running transcription-job recovery journeys plus a
-bounded audio transcript and caption-correction lane. Phase 3 includes metadata-only upload fixtures, a
+bounded audio transcript and caption-correction lane. PDP-3 includes metadata-only upload fixtures, a
 local browser review client, and the canonical `ghatana-media` fixture-command
-simulator. Phase 2 indexes the full 41-view and 30-journey denominators. All 28 required journeys now have Phase 0-grounded proposal files; complete action/state/scenario/channel bindings and full-phase coverage remain pending. These proposals do
+simulator. PDP-3 indexes the full 47-screen and 30-journey denominators. All 28 baseline journeys now have PDP-0-grounded proposal files, with J-29/J-30 represented as explicit extension contracts; complete action/state/scenario/channel bindings and full-phase coverage remain pending. These proposals do
 not pass their upstream gates or claim production behavior. See
 [`acceptance.yaml`](./acceptance.yaml) for acceptance inputs and
 [`traceability.yaml`](./traceability.yaml) for the authored, partial relation
@@ -36,19 +67,25 @@ map.
   each authored, derived, or external authority.
 - [`decision-log.md`](./decision-log.md) records the accepted boundary overlay
   and unresolved governance choices.
-- [`source-manifest.yaml`](./source-manifest.yaml) records migration source
-  observations and indexes product artifact roles, relationships, validation
-  contracts, acceptance state, and fingerprint state. It records no semantic
-  fingerprints until the owner-approved Tools generation binding is available.
+- [`source-manifest.yaml`](./source-manifest.yaml) is generated by
+  `pnpm generate:product-definition-manifest` together with the Explorer source
+  index. It records artifact paths, phase/authority classification, proposal and
+  acceptance labels, and content hashes for provenance. Its dependency lists
+  are currently empty; path-derived artifact IDs are not semantic stable IDs,
+  and content hashes are not Tools currentness or semantic fingerprints. Edit
+  the authored records, then rerun the generator; do not hand-edit either
+  generated output.
 - Media is registered with all four Tools lifecycle stages in
   [`../config/development-subject-authorities.v1.json`](../config/development-subject-authorities.v1.json).
   [`../.ghatana/development-subject-catalog.yaml`](../.ghatana/development-subject-catalog.yaml)
-  is a generated, currentness-tracked index of those authority files; it is not
-  a phase validator or acceptance result. The current Tools workspace discovers
-  the subject and reports no structural catalog gaps, but all four phase
-  verification runs remain `CANDIDATE_PLAN` because the planner has no
-  owner-bound plan.
+  is a generated index of those authority files; it is not a phase validator or
+  acceptance result. Tools-owned plan binding, currentness, receipts, and phase
+  verification remain pending. Historical catalog or candidate-plan
+  observations do not establish current owner acceptance.
 - [`gaps.yaml`](./gaps.yaml) is the single editable cross-phase gap register.
+- [`surface-registry.yaml`](./surface-registry.yaml) is the canonical consumer
+  surface inventory and preserves fixed GUI, API, CLI, SDK, event, and Agent
+  Tool denominators.
 - [`mandatory-surface-closure-matrix.yaml`](./mandatory-surface-closure-matrix.yaml)
   is the current 33-area local convergence audit. It records exact local
   repairs and external/native blockers; it is not a phase acceptance result.
@@ -58,13 +95,13 @@ map.
   requirements, capabilities, journeys/views, channels, and Explorer records;
   it is an authored coverage record, not a semantic acceptance result.
 - [`PRODUCT-CONSTITUTION.md`](./PRODUCT-CONSTITUTION.md) points to the
-  structured constitutional register; `phase-0-product-truth/constitution.yaml`
+  structured constitutional register; `pdp-0-product-truth/constitution.yaml`
   is the sole editable authority for those requirements.
-- `phase-0-product-truth/` contains the proposed Phase 0 meaning and boundary
-  records. `lanes/` names the selected implementation-definition slice. The
-  `phase-1-design-language/`, `phase-2-product-experience/`, and
-  `phase-3-experience-explorer/` directories contain selected-lane proposals;
-  Phase 1–3 acceptance still requires the upstream acceptance gates listed in
+- `pdp-0-product-truth/` through `pdp-3-product-experience/` contain the
+  canonical phase authorities. `lanes/` names the selected implementation-
+  definition slice. `explorer/` is outside the PDP phases and contains only a
+  source-linked local projection; PDP acceptance still requires the upstream
+  acceptance gates listed in
   [`acceptance.yaml`](./acceptance.yaml).
 
 Media owns its product semantics. Shared, Ghatana platform services, Tools,
@@ -94,9 +131,9 @@ claims. The Tools-owned schema/validator binding and generation path are still
 open under `GAP-MEDIA-TOOLS-SCHEMA-BINDING`; no local closure engine is defined
 here. The distinct generated coverage/currentness output remains open under
 `GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION`, which depends on that published
-validator binding. Phase 0 through Phase 2 projection targets and the Phase 3
-package path are recorded in `phase-0-product-truth/schema-bindings.yaml`; those
-paths identify planned outputs, not generated artifacts or owner validation.
+validator binding. PDP-0 through PDP-2 projection targets and the PDP-3 package
+path are recorded in `pdp-0-product-truth/schema-bindings.yaml`; those paths
+identify planned outputs, not generated artifacts or owner validation.
 
 The repeatable local source-of-truth check is `pnpm check:product-experience-local`.
 It validates the bundled Explorer index, source-linked cross-phase coverage,

@@ -1,0 +1,291 @@
+schemaVersion: media.journey-contract.v1
+productId: media
+journeyId: J-13
+pdp0JourneyRef: J-13
+pdp0Authority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
+title: 3D character, rig, path, or control animation
+status: pdp0-grounded-proposal; pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
+scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen registry; exact action/state transitions,
+  per-channel behavior, scenarios, wire bindings, and runtime commitments remain unresolved.
+outcomes:
+- media.goal.finished-asset
+- media.goal.explain-or-demonstrate
+actors:
+- media.creator
+- media.editor
+- media.reviewer
+channels:
+- media.channel.web
+channelBindingState: PDP-0 proposed channels only; per-channel operation, state, transport, and accessibility
+  equivalence remain unbound.
+preconditions:
+- Scene/rig assets, coordinate convention, rights, and supported interchange subset are identified.
+steps:
+- view: media.view.compose-scene
+  legacyViewRef: M-SCENE
+  screenContractRef: screen-contracts/compose-scene.yaml
+  viewIntent: Scene entities/material/camera/light and model bindings
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs: []
+  surfaceRefs:
+  - media.surface.web
+  objectRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    sourceRef: journey.terminalSuccess
+    summary: Render/export binds animation to a declared rig/scene version and reports conversion loss.
+  failure:
+    status: candidate-proposal
+    sourceRef: journey.criticalNonhappyPaths
+    summary:
+    - Skeleton mapping failure, coordinate mismatch, rights failure, or unsupported scene feature.
+  degradedBehavior:
+    status: not-specified
+    sourceRef: null
+    reason: No distinct degraded-behavior contract is explicitly declared for this step.
+  recovery:
+    status: candidate-proposal
+    sourceRef: journey.recovery
+    summary: Preserve source rig/scene and reject or isolate unsupported mappings; do not silently retarget.
+  postconditions:
+    status: candidate-proposal
+    sourceRef: journey.contextPreserved
+    summary:
+    - Keep rig, scene version, coordinate conventions, control edits, and export disposition.
+  requirementRefs: []
+  verification:
+    requiredChecks: []
+    evidenceRefs: []
+    status: not-run
+    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+  bindingStatus:
+    status: pending-owner-binding
+    candidateFields:
+      - surfaceRefs
+    pendingFields:
+      - objectRefs
+      - stateRefs
+      - canonicalOperationRef
+      - authorityRef
+      - decisionRef
+      - transitionRef
+      - handoffRef
+      - requirementRefs
+    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
+- view: media.view.animate-media
+  legacyViewRef: M-ANIMATION
+  screenContractRef: screen-contracts/animate-media.yaml
+  viewIntent: Timeline/keyframes/curves/rig/path/control actions
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs: []
+  surfaceRefs:
+  - media.surface.web
+  objectRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    sourceRef: journey.terminalSuccess
+    summary: Render/export binds animation to a declared rig/scene version and reports conversion loss.
+  failure:
+    status: candidate-proposal
+    sourceRef: journey.criticalNonhappyPaths
+    summary:
+    - Skeleton mapping failure, coordinate mismatch, rights failure, or unsupported scene feature.
+  degradedBehavior:
+    status: not-specified
+    sourceRef: null
+    reason: No distinct degraded-behavior contract is explicitly declared for this step.
+  recovery:
+    status: candidate-proposal
+    sourceRef: journey.recovery
+    summary: Preserve source rig/scene and reject or isolate unsupported mappings; do not silently retarget.
+  postconditions:
+    status: candidate-proposal
+    sourceRef: journey.contextPreserved
+    summary:
+    - Keep rig, scene version, coordinate conventions, control edits, and export disposition.
+  requirementRefs: []
+  verification:
+    requiredChecks: []
+    evidenceRefs: []
+    status: not-run
+    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+  bindingStatus:
+    status: pending-owner-binding
+    candidateFields:
+      - surfaceRefs
+    pendingFields:
+      - objectRefs
+      - stateRefs
+      - canonicalOperationRef
+      - authorityRef
+      - decisionRef
+      - transitionRef
+      - handoffRef
+      - requirementRefs
+    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
+- view: media.view.prepare-render
+  legacyViewRef: M-RENDER
+  screenContractRef: screen-contracts/prepare-render.yaml
+  viewIntent: Snapshot/profile, validation, cost and submission
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs: []
+  surfaceRefs:
+  - media.surface.web
+  objectRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    sourceRef: journey.terminalSuccess
+    summary: Render/export binds animation to a declared rig/scene version and reports conversion loss.
+  failure:
+    status: candidate-proposal
+    sourceRef: journey.criticalNonhappyPaths
+    summary:
+    - Skeleton mapping failure, coordinate mismatch, rights failure, or unsupported scene feature.
+  degradedBehavior:
+    status: not-specified
+    sourceRef: null
+    reason: No distinct degraded-behavior contract is explicitly declared for this step.
+  recovery:
+    status: candidate-proposal
+    sourceRef: journey.recovery
+    summary: Preserve source rig/scene and reject or isolate unsupported mappings; do not silently retarget.
+  postconditions:
+    status: candidate-proposal
+    sourceRef: journey.contextPreserved
+    summary:
+    - Keep rig, scene version, coordinate conventions, control edits, and export disposition.
+  requirementRefs: []
+  verification:
+    requiredChecks: []
+    evidenceRefs: []
+    status: not-run
+    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+  bindingStatus:
+    status: pending-owner-binding
+    candidateFields:
+      - surfaceRefs
+    pendingFields:
+      - objectRefs
+      - stateRefs
+      - canonicalOperationRef
+      - authorityRef
+      - decisionRef
+      - transitionRef
+      - handoffRef
+      - requirementRefs
+    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
+- view: media.view.inspect-output
+  legacyViewRef: M-OUTPUT
+  screenContractRef: screen-contracts/inspect-output.yaml
+  viewIntent: Playback/download/review/provenance and delivery action
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs:
+  - media.action.inspect-artifact
+  - media.action.inspect-provenance
+  surfaceRefs:
+  - media.surface.web
+  objectRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    sourceRef: journey.terminalSuccess
+    summary: Render/export binds animation to a declared rig/scene version and reports conversion loss.
+  failure:
+    status: candidate-proposal
+    sourceRef: journey.criticalNonhappyPaths
+    summary:
+    - Skeleton mapping failure, coordinate mismatch, rights failure, or unsupported scene feature.
+  degradedBehavior:
+    status: not-specified
+    sourceRef: null
+    reason: No distinct degraded-behavior contract is explicitly declared for this step.
+  recovery:
+    status: candidate-proposal
+    sourceRef: journey.recovery
+    summary: Preserve source rig/scene and reject or isolate unsupported mappings; do not silently retarget.
+  postconditions:
+    status: candidate-proposal
+    sourceRef: journey.contextPreserved
+    summary:
+    - Keep rig, scene version, coordinate conventions, control edits, and export disposition.
+  requirementRefs: []
+  verification:
+    requiredChecks: []
+    evidenceRefs: []
+    status: not-run
+    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+  bindingStatus:
+    status: pending-owner-binding
+    candidateFields:
+      - surfaceRefs
+    pendingFields:
+      - objectRefs
+      - stateRefs
+      - canonicalOperationRef
+      - authorityRef
+      - decisionRef
+      - transitionRef
+      - handoffRef
+      - requirementRefs
+    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
+stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy view maps to one registered intent-based
+  screen. Null actionRef and empty stateRefs are deliberate open bindings, not no-op actions or completed transitions.
+terminalSuccess: Render/export binds animation to a declared rig/scene version and reports conversion loss.
+criticalNonhappyPaths:
+- id: phase0-critical-exception
+  condition: Skeleton mapping failure, coordinate mismatch, rights failure, or unsupported scene feature.
+  responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
+    pending.
+recovery: Preserve source rig/scene and reject or isolate unsupported mappings; do not silently retarget.
+contextPreserved:
+- Keep rig, scene version, coordinate conventions, control edits, and export disposition.
+channelEquivalents:
+- web
+accessibilityIntentRef: media.a11y.baseline
+requiredScenarioBehaviors:
+  status: scenario-fixtures-and-owner-approved-expected-results-pending
+  successIntent: Render/export binds animation to a declared rig/scene version and reports conversion loss.
+  criticalNonhappyIntent: Skeleton mapping failure, coordinate mismatch, rights failure, or unsupported scene feature.
+scenarioRefs: []
+unresolvedProductDecisions:
+- Bind each view transition to an owner-approved action, state, and finality contract; no action identifier or state
+  transition is inferred by this proposal.
+- Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed channel.
+- Author deterministic fixtures with owner-approved expected results for success, critical exceptions, recovery,
+  and preserved context.
+- Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner and independent
+  review before PDP-3 acceptance.
+conditionalHandoffRefs:
+- tutorputor-domain-scene
+handoffCondition: Only when an owner-approved TutorPutor domain/scene integration is selected.

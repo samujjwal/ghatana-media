@@ -28,6 +28,9 @@
     "ghatana/services/action-plane",
     "ghatana-shared/shared-services"
   ],
+  "excludesAfterCutover": [
+    "Generic Document Intelligence/OCR/parser execution, providers, extraction semantics, evaluation, and qualification; consume only an admitted public service client for Media-specific scene-text semantics."
+  ],
   "mustNotImportImplementationFrom": [
     "ghatana",
     "ghatana-products",

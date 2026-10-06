@@ -1,0 +1,135 @@
+schemaVersion: media.service-registry.v1
+productId: media
+status: 25-entry-implementation-inventory; ownership-and-qualification-pending-review
+serviceRule: implementation-presence-does-not-imply-public-contract-or-qualification
+sourcePopulation:
+  count: 25
+  classification: observed service implementation entries; non-admitted inventory, not product-to-product contracts
+  contractAdmission: none
+  productExperienceBinding: pending-owner-review
+services:
+  - id: media.service.TranscriptionCacheService
+    implementation: com.ghatana.audio.video.infrastructure.cache.TranscriptionCacheService
+    source: modules/infrastructure/cache/src/main/java/com/ghatana/audio/video/infrastructure/cache/TranscriptionCacheService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.AudioFileService
+    implementation: com.ghatana.audio.video.infrastructure.persistence.service.AudioFileService
+    source: modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/service/AudioFileService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.TranscriptionService
+    implementation: com.ghatana.audio.video.infrastructure.persistence.service.TranscriptionService
+    source: modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/service/TranscriptionService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.MultimodalGrpcService
+    implementation: com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcService
+    source: modules/intelligence/multimodal-service/src/main/java/com/ghatana/audio/video/multimodal/grpc/MultimodalGrpcService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.PersistentMultimodalService
+    implementation: com.ghatana.audio.video.multimodal.service.PersistentMultimodalService
+    source: modules/intelligence/multimodal-service/src/main/java/com/ghatana/audio/video/multimodal/service/PersistentMultimodalService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.LanguageDetectionService
+    implementation: com.ghatana.stt.detection.LanguageDetectionService
+    source: modules/speech/stt-service/src/main/java/com/ghatana/stt/detection/LanguageDetectionService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.SpeakerDiarizationService
+    implementation: com.ghatana.stt.diarization.SpeakerDiarizationService
+    source: modules/speech/stt-service/src/main/java/com/ghatana/stt/diarization/SpeakerDiarizationService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.PersistentSttGrpcService
+    implementation: com.ghatana.stt.grpc.PersistentSttGrpcService
+    source: modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/PersistentSttGrpcService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.ProductionSttGrpcService
+    implementation: com.ghatana.stt.grpc.ProductionSttGrpcService
+    source: modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/ProductionSttGrpcService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.SttGrpcService
+    implementation: com.ghatana.stt.grpc.SttGrpcService
+    source: modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/SttGrpcService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.PersistentSttService
+    implementation: com.ghatana.stt.service.PersistentSttService
+    source: modules/speech/stt-service/src/main/java/com/ghatana/stt/service/PersistentSttService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.EmotionControlService
+    implementation: com.ghatana.tts.emotion.EmotionControlService
+    source: modules/speech/tts-service/src/main/java/com/ghatana/tts/emotion/EmotionControlService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.PersistentTtsGrpcService
+    implementation: com.ghatana.tts.grpc.PersistentTtsGrpcService
+    source: modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/PersistentTtsGrpcService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.ProductionTtsGrpcService
+    implementation: com.ghatana.tts.grpc.ProductionTtsGrpcService
+    source: modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/ProductionTtsGrpcService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.TtsGrpcService
+    implementation: com.ghatana.tts.grpc.TtsGrpcService
+    source: modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.VoiceMixingService
+    implementation: com.ghatana.tts.mixing.VoiceMixingService
+    source: modules/speech/tts-service/src/main/java/com/ghatana/tts/mixing/VoiceMixingService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.EmbeddingEncryptionService
+    implementation: com.ghatana.tts.security.EmbeddingEncryptionService
+    source: modules/speech/tts-service/src/main/java/com/ghatana/tts/security/EmbeddingEncryptionService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.PersistentTtsService
+    implementation: com.ghatana.tts.service.PersistentTtsService
+    source: modules/speech/tts-service/src/main/java/com/ghatana/tts/service/PersistentTtsService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.VideoAnalysisService
+    implementation: com.ghatana.audio.video.vision.analysis.VideoAnalysisService
+    source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/analysis/VideoAnalysisService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.ProductionVisionGrpcService
+    implementation: com.ghatana.audio.video.vision.grpc.ProductionVisionGrpcService
+    source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/grpc/ProductionVisionGrpcService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.VisionGrpcService
+    implementation: com.ghatana.audio.video.vision.grpc.VisionGrpcService
+    source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/grpc/VisionGrpcService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.OcrService
+    implementation: com.ghatana.audio.video.vision.ocr.OcrService
+    source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/OcrService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.FacialRecognitionService
+    implementation: com.ghatana.audio.video.vision.recognition.FacialRecognitionService
+    source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/recognition/FacialRecognitionService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.SceneUnderstandingService
+    implementation: com.ghatana.audio.video.vision.scene.SceneUnderstandingService
+    source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/scene/SceneUnderstandingService.java
+    owner: pending-owner-review
+    qualification: not-inferred
+  - id: media.service.PersistentVisionService
+    implementation: com.ghatana.audio.video.vision.service.PersistentVisionService
+    source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/service/PersistentVisionService.java
+    owner: pending-owner-review
+    qualification: not-inferred

@@ -12,6 +12,19 @@ gaps:
   status: open
   scope: public-versions-publication-and-isolated-consumption-for-selected-Ghatana-dependencies
   owner: ecosystem-architect-and-platform-package-owners
+  evidence: >-
+    PDP2-001 source preflight found libs/audio-video-ui directly declares
+    @ghatana/tokens, @ghatana/theme, and @ghatana/design-system at 0.1.2, but
+    pnpm-lock.yaml has no package resolutions. Public npm registry lookups for
+    these versions returned E404; private-registry existence/authorization is
+    unverified. The Explorer manifest consumes no listed Shared design-system
+    package. media-token-aliases.yaml still records @ghatana/tokens as
+    0.1.0-SNAPSHOT; 0.1.2 is only a declared dependency, not a verified current
+    Shared contract version.
+  remaining: >-
+    Resolve the authorized package source, publish or select immutable current
+    versions, then verify actual package exports and isolated UI/Explorer
+    consumers before updating PDP-2 version observations or claiming binding.
   impact: blocks-artifact-only-standalone-build-bindings
 - id: GAP-03
   status: open
@@ -28,6 +41,39 @@ gaps:
   status: open
   scope: exact-route-DTO-protobuf-and-client-parity
   owner: Media-and-consumer-contract-owners
+  evidence: >-
+    PXD-007's PDP1-002 proposal records nine logical families and the plan's 22
+    required fields per operation, with source identities separated from
+    proposed mappings. The 146 UI actions partition as 11 single proposed
+    links, one ambiguous request-transcription link, and 134 unresolved; the
+    stale review-rights-and-consent reference is explicitly identified as not
+    present in the action registry. PDP3-002 found all 27 HTTP operation IDs
+    match OpenAPI/runtime route inventories, but all 27 logical-operation
+    links remain unresolved, all 15 API/action experience mappings are
+    unresolved, and no per-operation HTTP contract records exist. All 43 gRPC
+    entries match four active proto files; PDP1 proposes family links for 24
+    and leaves 19 unresolved, while PDP3 experience bindings remain pending
+    and per-operation gRPC contract records are absent. SDK's 27 registry IDs
+    are inventoried but all remain unbound; `for`, `if`, and `clearTimeout` are
+    unresolved parser candidates, and the legacy client methods are a separate
+    source surface. The 11 synthetic fixture CLI commands differ from the
+    12-entry broader proposal registry, which adds media.cli.job.retry. Four
+    Agent Tool handlers and 15 event names are inventoried without complete
+    canonical bindings. These are source-scoped definition/registry
+    observations, not support or runtime reachability claims.
+  remaining: >-
+    Resolve the 134 unmatched and one ambiguous UI action links; bind the 27
+    HTTP IDs and 19 gRPC identities still unresolved to owner-approved
+    operations, and review the 24 proposed gRPC family links without treating
+    them as canonical. Reconcile the 27 SDK entries and separate legacy methods
+    against actual public methods; preserve the 11 fixture versus 12 proposal
+    CLI distinction; define per-tool formal input/result schemas,
+    authority/delegation, idempotency, timeout, cancellation, unknown outcome,
+    evidence, and safe-failure contracts; and bind event names to operations
+    only after PDP1 event/state authority and platform delivery guarantees are
+    reviewed. Obtain consumer/wire owner decisions and behavioral evidence
+    without inventing production reachability or treating local proposals as
+    admitted interfaces.
   impact: blocks-breaking-relocation-and-SDK-publication
 - id: GAP-06
   status: open
@@ -65,8 +111,8 @@ gaps:
     views, activity, and verification-job views, plus a shared job-status view for J-20 transcription jobs. It provides
     J-02 upload inspection/resume and job-status/outcome-check commands, J-20 transcription-job status viewing/cancellation/outcome checking,
     and the selected transcript/caption lane in Product, Explore, Specification, and Verify modes. J-01, J-02, J-03,
-    and J-20 use synthetic fixtures. Specification mode indexes 147 records and renders read-only previews for all
-    41 baseline screen contracts and six selected-lane specializations. All 47 screen contracts also open as
+    and J-20 use synthetic fixtures. The current local source index is generated independently; the prior native observation
+    indexed 147 records and rendered read-only previews for the then-current screen inventory. All 47 canonical screen contracts also open as
     route-addressable Product projections of their declared purpose, structure, states, and disabled actions; these
     are not executable view implementations. A five-viewport DOM geometry sweep of all 47 Product routes found no
     horizontal overflow, missing context cards, duplicate titles, or enabled proposal actions. The inspected Tools Explorer remains headless and declares
@@ -89,11 +135,11 @@ gaps:
     visual review, keyboard/screen-reader/zoom/forced-colors coverage, and all-view/channel variant evidence are
     not recorded.
   localProgress: Source-linked Specification trace metadata, phase coverage controls, focused phase-radio keyboard evidence, and a
-    Playwright browser audit now cover all 29 scenarios, 147 source artifacts, 47 valid Product proposal routes, Verify, accessible
+    Playwright browser audit now cover all 29 scenarios, the generated source index, 47 valid Product proposal routes, Verify, accessible
     control names, six viewports, and horizontal-overflow/console-error checks. This does not close independent visual,
     screen-reader, zoom, forced-colors, locale, pixel-reference, or human review.
   remaining: complete-the-required-responsive-accessibility-and-independent-human-review-matrix
-  impact: blocks-Phase-3-acceptance
+  impact: blocks-PDP-3-acceptance
 - id: GAP-MEDIA-EXPLORER-CONTENT-COVERAGE
   status: open
   scope: structured-Explorer-Truth-Domain-Overview-Traceability-and-Dependency-inspection
@@ -103,7 +149,7 @@ gaps:
     through Specification rather than dedicated structured Truth, Domain, Overview, Traceability, and Dependency modes.
   remaining: add-structured-source-linked-inspection-for-vision-requirements-domain-state-design-system-surfaces-and-cross-phase-relationships;
     preserve-Product-mode-separation-and-never-promote-Explorer-projections-to-semantic-authority
-  impact: blocks-complete-Experience-Explorer-content-coverage-and-P3-acceptance
+  impact: blocks-complete-Experience-Explorer-content-coverage-and-PDP-3-acceptance
 - id: GAP-13
   status: open
   scope: storage-audit-outbox-worker-crash-restore-erasure-soak-and-SLO-evidence
@@ -121,24 +167,18 @@ gaps:
   impact: blocks-MIG-006-and-MIG-007
 - id: GAP-MEDIA-PHASE2-COVERAGE
   status: open
-  scope: complete-view-journey-action-state-and-channel-contracts-for-the-phase-2-baseline
+  scope: complete-view-journey-action-state-and-channel-contracts-for-the-pdp-3-baseline
   owner: ghatana-media-product-design-and-experience-owners
-  evidence: 41 baseline screens each have a Phase 2 proposal contract; six selected-lane view specializations remain indexed.
-    All 47 screen contracts now open as source-derived Product routes, with actions explicitly disabled until bound.
-    All 28 required journeys now have proposal files. The 24 new files carry Phase 0 outcomes, actors, preconditions, critical
-    exceptions, recovery/context intent, proposed channels, and ordered legacy views mapped to intent-based screens. J-01/J-02/J-03/J-20
-    retain scoped proposals. Action/state transitions, per-channel behavior, scenarios, wire contracts, capability bindings, and owner
-    review remain pending; no journey proposal is owner-accepted as complete.
-  localProgress: The repeatable local invariant check now proves all 47 indexed screen contracts and all 28 required journey proposal
-    files expose their required shape; 43 journey view references and 16 journey action references resolve. This closes only local
-    source integrity and does not close owner-reviewed behavior, channel, scenario, capability, accessibility, or runtime bindings.
-  remaining: complete-action-state-scenario-copy-capability-and-owner-bindings-for-all-28-required-journeys; close-action-state-copy-scenario-and-capability-bindings-for-all-41-views;
-    define-full-Web-CLI-API-embedded-and-wire-behavior; complete-independent-accessibility-localization-and-owner-review
-  impact: blocks-P2-008-full-Phase-2-acceptance-and-Phase-3-coverage
+  evidence: 47 canonical screens each have a v2 PDP-3 proposal contract; the separate artifact-verification-job-family specialization remains outside the 47-screen denominator. Three template IDs resolve in the PDP-2 catalog, 44 remain null, no canonical layout IDs are registered, and the Web surface/component/pattern/action-consequence refs remain candidates. Token/domain-object/operation/state/entry/exit bindings are unresolved; one screen carries source fixture refs; inline anatomy/template/layout proposals have not been centralized. All 30 journeys now have 130 structured ordered steps with the plan-required per-step fields; J-29/J-30 each preserve their four source step IDs. A candidate crosswalk normalized 148 step surface refs. Seven source-crosswalk PDP-1 logical-operation refs remain proposals and 123 canonical operation refs are null. Journey-level success/failure/recovery/context remain proposal-only and are not consistently allocated to individual steps; degraded behavior, postconditions, object/state/authority/decision/transition/handoff/requirements, scenarios, and step verification remain incomplete.
+  localProgress: The focused product-definition regression passes for 47 v2 screen structures and all 30 journey contracts/130 structured steps, including route-ID nonpromotion and J-29/J-30 ordering. Duplicate-key-safe YAML checks passed for the expanded journey contracts and protocol registries. The generic local checker still reports 0 required screen shapes because its VER-001 validation rule has not yet been upgraded; its 43 view and 16 action-reference counts remain local structural evidence only. No behavior, owner acceptance, qualification, native currentness, or release evidence is claimed.
+  remaining: bind-all-screen-and-step-semantics-to-accepted-PDP-1-and-PDP-2-authorities; resolve-123-null-canonical-operation-bindings-and-step-object-state-authority-decision-transition-handoff-requirement-contracts; allocate-success-failure-degraded-recovery-and-postconditions-per-step; centralize-inline-screen-design-proposals-into-accepted-layouts-and-templates; add-owner-reviewed-scenarios-and-behavior/accessibility/localization-evidence; upgrade-local-checker-under-VER-001; define-and-accept-full-Web-CLI-API-embedded-and-wire-behavior
+  impact: blocks-P2-008-full-PDP-3-acceptance-and-PDP-3-coverage
 - id: GAP-MEDIA-DI-PUBLIC-CLIENT
   status: open
   scope: public-Document-Intelligence-client-publication-and-consumer-rebinding
   owner: Document-Intelligence-and-consumer-owners
+  evidence: MDI-001 ownership boundary is accepted; no published, consumer-verified public client is present in this Media checkout.
+  remaining: Publish the owner-controlled DI client and contract, verify Media consumer compatibility, then migrate and qualify the adapter without changing the Media-owned scene-text semantics.
   impact: blocks-standalone-artifact-only-consumer-build-and-Media-text-recognition-adapter
 - id: GAP-MEDIA-TOOLS-SCHEMA-BINDING
   status: open
@@ -146,7 +186,7 @@ gaps:
   owner: ghatana-tools-product-definition-owner
   evidence: Media is registered in all four Tools lifecycle stages and appears in the generated currentness-tracked
     catalog. The current installed verifier accepts both repository roots and resolves the Media subject, but its
-    representative P0, P1, P2, and P3 checks return CANDIDATE_PLAN with structuralFallback=true, no selected operations,
+    representative PDP-0, PDP-1, PDP-2, and PDP-3 checks return CANDIDATE_PLAN with structuralFallback=true, no selected operations,
     evidenceAuthorityId=unavailable, and PLANNER_BINDING_OWNER_AMBIGUOUS. The recorded --build-unit option is rejected by
     this installed CLI, so no native phase evidence or certification is claimed.
   observedPackages:
@@ -157,16 +197,16 @@ gaps:
   - experience-explorer-contracts
   - product-dev-explorer
   remaining: immutable-public-versions-isolated-consumer-validation-owner-resolved-phase-planning-bindings-and-recorded-owner-acceptance-for-phase-validator-bindings
-  impact: blocks-full-GOV-003-and-Phase-0-through-Phase-3-certification-not-the-migration-boundary-slice
+  impact: blocks-full-GOV-003-and-PDP-0-through-PDP-3-certification-not-the-migration-boundary-slice
 - id: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
   status: open
-  scope: owner-approved-generated-Phase-0-coverage-and-currentness-observation
+  scope: owner-approved-generated-PDP-0-coverage-and-currentness-observation
   owner: ghatana-tools-product-definition-owner
   dependencies:
   - GAP-MEDIA-TOOLS-SCHEMA-BINDING
-  requiredEvidence: reproducible-owner-approved-coverage-currentness-output-bound-to-published-Phase-0-schema-and-validator-versions
+  requiredEvidence: reproducible-owner-approved-coverage-currentness-output-bound-to-published-PDP-0-schema-and-validator-versions
   remaining: Tools-generation-contract-and-output-not-bound-or-produced; currentness.yaml-must-remain-absent-until-owner-approved-generation-is-available
-  impact: blocks-P0-010-independent-acceptance-and-the-P1-prerequisite-gate-not-the-P0-001-migration-boundary-slice
+  impact: blocks-P0-010-independent-acceptance-and-the-PDP-2-prerequisite-gate-not-the-P0-001-migration-boundary-slice
 - id: GAP-MEDIA-DOMAIN-REVIEWER-APPOINTMENT
   status: open
   scope: relevant-domain-owner appointment and evidence basis for simulation, spatial, simulation-output, and recipe-template
@@ -178,31 +218,93 @@ gaps:
   impact: blocks-affected-domain-capability-acceptance-and-must-be-reconciled-at-P0-010
 - id: GAP-MEDIA-CAPABILITY-LEAF-DETAIL
   status: open
-  scope: per-leaf-supported-parameters-and-units-ranges-defaults-channels-priority-implementation-lane-and-availability-for-the-462-capability-leaves
+  scope: per-leaf-source-reconciled-meaning-references-and-operation-specific-parameters-units-ranges-defaults-channels-priority-implementation-lane-and-availability-for-the-462-capability-leaves
   owner: Media-capability-specialists-and-relevant-domain-owners
-  evidence: .product-experience/phase-0-product-truth/capabilities.yaml; master-plan-section-6.1; nine-job-operation-proposals
+  evidence: .product-experience/pdp-0-product-truth/capabilities.yaml; master-plan-section-6.1; nine-job-operation-proposals
     plus eight operation-specific artifact-intake/speech/profile proposals now define selected parameter shapes,
     preconditions, effects, recovery, explicit unsupported cases, and acceptance cases.
-  localProgress: The repeatable local invariant check proves all 462 capability leaves expose the common definition shape and resolve
-    to 38 families and 38 requirement IDs. It identifies 17 operation-specific parameter proposals and keeps the remaining 445
-    leaves explicitly open rather than inferring bounds.
-  remaining: Detail the other 445 capability leaves with operation-specific parameter ranges/defaults, priority,
-    implementation lane, explicit per-operation channel dispositions, availability, and owner review. The 17 expanded
-    proposals also require contract-owner review and exact bounds.
+  localProgress: A standard YAML parse confirms 462 capability leaves in 38 families; the source crosswalk contains all 462 IDs exactly once.
+    Existing source-backed requirement, actor, intent, input/output, channel, scope, implementation, and qualification references are
+    retained and checked where present. Seventeen operation-specific parameter proposals exist; no unapproved bounds are inferred.
+  remaining: Obtain owner-approved operation-specific bounds for 445 leaves; reconcile 385 unresolved leaf-level journey references;
+    complete proposal-action capability reachability review for 123 actions; obtain specialist/owner decisions and per-leaf channel,
+    availability, implementation-lane, and qualification dispositions. Existing proposals remain unaccepted until their owners review them.
   impact: blocks-full-P0-003-capability-definition-P0-009-channel-disposition-and-P0-010-closure
+- id: GAP-MEDIA-NODE-YAML-PARSER
+  status: open
+  scope: repeatable-Node-native-YAML-parse-regression-for-product-definition-authorities
+  owner: media-build-and-test-owners
+  evidence: >-
+    The narrow lockfile-only command 'pnpm --filter . add --save-dev --save-exact yaml@2.9.1 --lockfile-only --ignore-scripts'
+    failed with ERR_PNPM_FETCH_404 while resolving the libs/audio-video-ui importer dependency @ghatana/tokens from
+    https://registry.npmjs.org/; no authorization header was set. package.json and pnpm-lock.yaml were not changed by
+    the failed command. The parser-backed test was removed; the remaining Node regression is explicitly text-level and
+    does not claim YAML parsing.
+  localEvidence: Python 3 with PyYAML 6.0.3 parsed the corrected capability, requirement, crosswalk, and OCR YAML locally; this is environment-only evidence and is not a repeatable CI parser test.
+  remaining: Resolve authenticated/public availability of private @ghatana/tokens or provide a supported root-only pnpm lockfile resolution path; then add a pinned Node-native yaml dependency and restore parser-backed regression coverage without editing lock data by hand.
+  impact: blocks-portable-parser-backed-YAML-regression-and-CI-parse-proof; does-not-reverse-the-local-YAML-correction
 - id: GAP-MEDIA-QUALITY-CAPABILITY-MAPPING
   status: open
   scope: owner-reviewed-applicability-mapping-from-quality-dimensions-and-metrics-to-capability-leaves
   owner: Media-quality-lead-and-capability-specialists
-  evidence: .product-experience/phase-0-product-truth/quality-policy.yaml; TRACE-REL-QUALITY-CAPABILITIES
+  evidence: .product-experience/pdp-0-product-truth/quality-policy.yaml; TRACE-REL-QUALITY-CAPABILITIES
   remaining: Map each metric only to justified capability leaves or an explicit non-applicability disposition; define
     specialist-approved applicability and evidence scope before any qualification claim.
   impact: blocks-P0-007-quality-policy-integration-and-P0-010-closure
 - id: GAP-MEDIA-PHASE1-COMPONENT-COVERAGE
   status: open
-  scope: P1-component-contract-owner-binding-action-state-and-human-review
+  scope: PDP-2-GUI-pattern-coverage-Shared-binding-screen-provenance-action-state-and-human-review
   owner: Media-design-system-accessibility-and-capability-owners
-  evidence: .product-experience/phase-1-design-language/component-contracts.yaml; master-plan-section-19.2
-  remaining: Bind the source-resolved semantic token roles and Shared component primitives to a released package and Media consumer; bind-component-actions-to-admitted-P2-actions-and-exact-channel-states;
-    review-keyboard-focus-responsive-accessibility-localization-and-prohibited-use-for-each-family
-  impact: blocks-P1-006-acceptance-and-any-claim-that-proposed-component-families-are-implemented-or-accessible
+  evidence: >-
+    PDP2-002 owner review now finds all thirteen required pattern categories in
+    the catalog, including dedicated review/approval, rendering,
+    activity/attention, and destructive-lifecycle proposals. The four new
+    standalone proposals are connected to templates, and review-outputs,
+    prepare-render, and review-activity reference catalogued patterns and GUI
+    template IDs. PXD-014 approves this structure only; state/action/operation
+    semantics, Shared package binding, screen behavior, accessibility, and
+    visual review remain unaccepted. The Explorer stylesheet still contains
+    645 hex-color and 1,713 px occurrences without complete material screen
+    provenance. MediaTaskFlow retains local utility color roles and a local
+    state-tone mapping. Package binding remains blocked under GAP-02.
+  remaining: >-
+    Resolve semantic state/action/operation bindings after PDP1-002/003 and
+    applicable owner acceptance; bind every material screen decision to
+    published Shared semantic roles/primitives and Media-specific composition,
+    with explicit documented exceptions; review keyboard, focus, responsive
+    behavior, accessibility, localization, and prohibited uses with the
+    relevant owners; then eliminate local Explorer and MediaTaskFlow visual
+    authority under PDP2-003.
+  impact: blocks-PDP2-002-through-PDP2-003-acceptance-and-any-claim-that-proposed-component-families-are-implemented-or-accessible
+- id: GAP-MEDIA-MIGRATION-SEMANTICS
+  status: open
+  scope: extract-and-reconcile-unique-product-semantic-proposals-from-the-migration-execution-plan-into-owning-PDP-authorities
+  owner: media-product-owners-and-relevant-domain-interface-design-and-experience-owners
+  evidence: docs/migration/expert-reviewed-master-plan.md is now explicitly classified as a migration/execution reference;
+    the PDP records remain the semantic authorities, but the full unique-content extraction has not been completed in this Wave 0 slice
+  remaining: Inventory plan-only semantic decisions, reconcile each with its owning PDP record, preserve task/provenance references,
+    and obtain the applicable owner review before treating any proposal as accepted.
+  impact: blocks-full-CROSS-004-acceptance-and-affected-PDP-semantic-acceptance; does-not-change-bounded-CROSS-001-approval
+- id: GAP-MEDIA-CLEAN-5-STALE-DOCKER-GRADLE-PATHS
+  taskRef: CLEAN-5
+  status: gated
+  scope: migrate-service-Dockerfile-Gradle-project-coordinates-and-build-contexts-after-source-cutover
+  owner: media-build-and-release-owners
+  observedFiles:
+  - docker/Dockerfile.stt-service
+  - docker/Dockerfile.tts-service
+  - docker/Dockerfile.vision-service
+  - docker/Dockerfile.multimodal-service
+  moduleLocalPaths: not-separately-found-in-the-reviewed-inventory
+  evidence: Each of the four observed Dockerfiles still references the old :products:audio-video Gradle project coordinates.
+  rootCause: The current Media source layout is migration-only and the downstream target paths have not been cut over; the old project coordinates remain until that migration boundary changes.
+  gate: Do-not-edit-these-Dockerfiles-before-the-migration-and-cutover-precondition-in-IMP-04-is-satisfied.
+  dependencies:
+  - IMP-04
+  requiredFix: After authorized migration/cutover, update each observed Dockerfile to the canonical post-cutover module path and build context; reconcile any additional module-local Dockerfiles only if a later inventory finds them.
+  acceptanceCriteria:
+  - Every referenced post-cutover Gradle project path resolves in the migrated standalone repository.
+  - Isolated Gradle build checks pass for each affected service from the intended build context.
+  - Isolated image build checks pass for all four Dockerfiles without sibling-workspace or legacy-project-path assumptions.
+  remaining: Await IMP-04 migration/cutover authorization and completion; do not modify Dockerfiles or Gradle settings/catalog before that gate.
+  impact: blocks-CLEAN-5-closure-and-post-cutover-isolated-service-image-build-acceptance

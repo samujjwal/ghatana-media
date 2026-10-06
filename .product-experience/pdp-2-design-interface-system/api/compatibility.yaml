@@ -1,0 +1,8 @@
+schemaVersion: media.api-compatibility.v1
+owner: ghatana-media-product-api
+authority: Media API owners govern compatibility of product semantics and wire contracts
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-2-design-interface-system/api/versioning.yaml, .product-experience/pdp-0-product-truth/glossary.yaml]
+scopeStatus: proposal; compatibility policy requires API owner approval
+acceptance: {criteria: [changes are classified for request and response compatibility, clients tolerate documented additive fields, semantic changes are not disguised as additive], status: pending-review}
+verification: {method: Compare published contract revisions with compatibility tooling and representative generated clients, status: not-run}
+rules: [do not change identifier meaning or state semantics in place without an approved compatibility migration, classify additive response fields against supported client behavior, document enum expansion as potentially breaking for exhaustive clients, define removal migration/deprecation periods through owner-approved policy, breaking changes follow a major-version policy only after that policy is approved]

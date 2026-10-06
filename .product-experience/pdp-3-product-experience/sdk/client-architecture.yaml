@@ -1,0 +1,238 @@
+schemaVersion: media.sdk-client-architecture.v1
+taskId: PDP3-003
+status: proposal-only
+authorityStatus: pending-owner-acceptance
+summary: >-
+  Reconcile current TypeScript client and observed wire interfaces without
+  changing either client, its exported API, or any route behavior. This file
+  records source observations and a preferred future architecture; it does not
+  establish accepted PDP-1 semantics, accepted PDP-3 protocol contracts, or an
+  existing SDK generator.
+
+ownerSelectedTargetArchitecture:
+  status: preferred-direction-proposal
+  sequence:
+    - step: 1
+      layer: PDP-1 logical operation
+      gate: semantic-acceptance
+      authority: pending
+    - step: 2
+      layer: PDP-3 protocol contract
+      gate: protocol-owner-acceptance
+      authority: pending
+    - step: 3
+      layer: OpenAPI and protobuf
+      role: generated-or-implementation-wire-projections
+      gate: projection-parity-verification
+      authority: observed-wire-contracts-only
+    - step: 4
+      layer: TypeScript SDK
+      role: one generated-or-thin-typed-façade
+      gate: consumer-migration-and-compatibility-verification
+      authority: target-not-yet-implemented
+  semanticAuthorityClaimed: false
+  generatorExistsClaimed: false
+
+sourceObservations:
+  observationsAreNotAuthority: true
+  types:
+    path: libs/audio-video-types/src/contracts.ts
+    observed: Zod request/response schemas and TypeScript types for artifacts, uploads, jobs, operations, and modality operations.
+    semanticAcceptance: pending
+  openapi:
+    path: contracts/openapi/media.yaml
+    observedFamilies:
+      - /api/v1/health
+      - /api/v1/consents
+      - /api/v1/artifacts/uploads
+      - /api/v1/artifacts/{artifactId}
+      - /api/v1/jobs
+      - /api/v1/streams
+      - /api/v1/providers
+    role: observed-http-wire-projection
+    semanticAuthority: false
+  runtimeRouteManifest:
+    path: config/route-manifest.json
+    implementationSource: launcher/src/main/java/com/ghatana/media/launcher/MediaRouteManifest.java
+    observedFamilies:
+      - /api/v1/health
+      - /api/v1/consents
+      - /api/v1/artifacts/uploads
+      - /api/v1/artifacts/{artifactId}
+      - /api/v1/jobs
+      - /api/v1/streams
+      - /api/v1/providers
+    role: observed-registered-runtime-wire-routes
+    semanticAuthority: false
+  protobuf:
+    role: observed-service-wire-contracts
+    files:
+      - modules/speech/stt-service/src/main/proto/stt_service.proto
+      - modules/speech/tts-service/src/main/proto/tts_service.proto
+      - modules/vision/vision-service/src/main/proto/vision_service.proto
+      - modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    observedRpcExamples:
+      - STTService.Transcribe
+      - STTService.StreamTranscribe
+      - TTSService.Synthesize
+      - TTSService.StreamSynthesize
+      - VisionService.AnalyzeImage
+      - VisionService.ProcessVideo
+      - MultimodalService.ProcessMultimodal
+      - MultimodalService.AnalyzeVideoWithAudio
+    semanticMappingToPdp1: pending
+    projectionParity: unverified
+
+currentClients:
+  - id: media-operation-client
+    symbol: MediaOperationClient
+    source: libs/audio-video-client/src/operations.ts
+    status: LEGACY_COMPATIBILITY
+    publicBehavior: preserve
+    routeFamily: versioned-media-operation-facade
+    mappingStatus: unresolved
+    observedRoutes:
+      upload:
+        current: POST /api/v1/media/uploads
+        activeWireObservation: POST /api/v1/artifacts/uploads
+        mismatch: path-family-differs
+      upload-part:
+        current: PUT /api/v1/media/uploads/{sessionId}/parts/{partNumber}
+        activeWireObservation: PUT /api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}
+        mismatch: path-and-resource-parameter-names-differ
+      upload-completion:
+        current: POST /api/v1/media/uploads/{sessionId}:complete
+        activeWireObservation: POST /api/v1/artifacts/uploads/{uploadId}/complete
+        mismatch: path-shape-differs
+      artifact-read:
+        current: GET /api/v1/media/artifacts/{artifactId}
+        activeWireObservation: GET /api/v1/artifacts/{artifactId}
+        mismatch: path-prefix-differs
+      provider-capabilities:
+        current: GET /api/v1/media/providers/capabilities
+        activeWireObservation: GET /api/v1/providers
+        mismatch: path-shape-differs
+      operation-submit:
+        current:
+          - POST /api/v1/media/transcriptions
+          - POST /api/v1/media/syntheses
+          - POST /api/v1/media/voice-models:train
+          - POST /api/v1/media/voice-conversions
+          - POST /api/v1/media/multimodal-analyses
+        activeWireObservation: POST /api/v1/jobs
+        mismatch: no-approved-per-operation-mapping-or-wire-parity
+      operation-read:
+        current: GET /api/v1/media/operations/{operationId}
+        activeWireObservation: GET /api/v1/jobs/{jobId}
+        mismatch: resource-and-path-family-differ
+      operation-cancel:
+        current: POST /api/v1/media/operations/{operationId}:cancel
+        activeWireObservation: POST /api/v1/jobs/{jobId}/cancel
+        mismatch: path-shape-differs
+      operation-retry:
+        current: POST /api/v1/media/operations/{operationId}:retry
+        activeWireObservation: no-matching-route-observed
+        mismatch: absent-from-openapi-and-runtime-route-manifest
+      operation-result:
+        current: GET /api/v1/media/operations/{operationId}/result
+        activeWireObservation: no-matching-route-observed
+        mismatch: absent-from-openapi-and-runtime-route-manifest
+    unresolvedAdditionalMediaRoutes:
+      - POST /api/v1/media/voice-models:train
+      - POST /api/v1/media/voice-conversions
+      - POST /api/v1/media/multimodal-analyses
+      - POST /api/v1/media/transcriptions
+      - POST /api/v1/media/syntheses
+
+  - id: audio-video-client
+    symbol: AudioVideoClient
+    source: libs/audio-video-client/src/index.ts
+    status: LEGACY_COMPATIBILITY
+    publicBehavior: preserve
+    routeFamily: unversioned-modality-rest-facade
+    mappingStatus: unresolved
+    observedRoutes:
+      - POST /api/stt/transcribe
+      - POST /api/tts/synthesize
+      - POST /api/ai-voice/process
+      - POST /api/vision/analyze
+      - POST /api/multimodal/process
+    mismatch: no-exact-paths-observed-in-openapi-or-runtime-route-manifest
+    migrationStatus: not-started
+
+observedWireRouteInventory:
+  activeOpenapiAndRuntimeRouteFamilies:
+    - /api/v1/health
+    - /api/v1/consents
+    - /api/v1/artifacts/uploads
+    - /api/v1/artifacts/{artifactId}
+    - /api/v1/jobs
+    - /api/v1/streams
+    - /api/v1/providers
+  nonconformingFamilies:
+    - id: operations-versioned-media-prefix
+      status: LEGACY_COMPATIBILITY
+      routes:
+        - /api/v1/media/uploads (+ /parts/{partNumber}, :complete)
+        - /api/v1/media/artifacts/{artifactId}
+        - /api/v1/media/providers/capabilities
+        - /api/v1/media/transcriptions
+        - /api/v1/media/syntheses
+        - /api/v1/media/voice-models:train
+        - /api/v1/media/voice-conversions
+        - /api/v1/media/multimodal-analyses
+        - /api/v1/media/operations/{operationId} (+ :cancel, :retry, /result)
+    - id: modality-client-unversioned-prefix
+      status: LEGACY_COMPATIBILITY
+      routes:
+        - /api/stt/transcribe
+        - /api/tts/synthesize
+        - /api/ai-voice/process
+        - /api/vision/analyze
+        - /api/multimodal/process
+    - id: service-protobuf-rpcs
+      status: observed-active-protocol; semantic-and-client-binding-unresolved
+      detail: Service-specific RPC names/shapes remain separately observed; mapping to logical operations and HTTP routes is unresolved. They are not classified as legacy merely because client parity is unverified.
+
+consumerObservations:
+  activeRepositoryReferences:
+    - libs/audio-video-client/src/operations.test.ts
+    - libs/audio-video-client/src/__tests__/AudioVideoClient.test.ts
+    - libs/audio-video-client/src/__tests__/AudioVideoClient.integration.test.ts
+    - libs/audio-video-client/README.md
+  archiveConsumers:
+    - archive/media-desktop-apps/desktop/src/components/STTPanel.tsx
+    - archive/media-desktop-apps/desktop/src/components/TTSPanel.tsx
+    - archive/media-desktop-apps/desktop/package.json
+  broadRepositorySearchAlsoFound:
+    - docs/REQUIREMENTS.md
+    - docs/README.md
+    - docs/CIRCUIT_BREAKER_DIFFERENCES.md
+    - modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/MultimodalContractTest.java
+    - scripts/check-product-definition-authority.mjs
+  consumerInventoryStatus: repository-search-observation-not-external-consumer-certification
+
+mappingAndMigration:
+  perInterfaceAndVersionMapping: unresolved
+  requestResponseParity: unverified
+  authIdempotencyRetryFinalityAndStateTransitions: pending-pdp1-and-protocol-owner-acceptance
+  consumers: migration-not-started
+  removalGates:
+    - PDP-1 logical operation semantics accepted by the designated owner.
+    - PDP-3 protocol contracts accepted by the protocol owner.
+    - Per-interface and per-version request/response/error mapping is reviewed and recorded.
+    - OpenAPI, runtime route manifest, protobuf, and implementation wire parity is verified for the mapped operations.
+    - Auth, idempotency, retry, finality, and state-transition rules are explicitly accepted; none are inferred by this proposal.
+    - Every active and archive consumer is inventoried, a migration plan is accepted, and consumer migration is verified.
+    - Compatibility behavior and removal criteria are explicitly approved; only then may a separate change propose removal.
+  compatibilityPolicy:
+    retainExistingExportedApis: true
+    retainExistingRoutesAndBehavior: true
+    deprecationBehaviorChange: prohibited-by-this-proposal
+    automaticOrPromisedMigration: false
+
+nonGoals:
+  - Claiming current PDP-1 semantics or PDP-3 protocol contracts are accepted.
+  - Declaring any existing route family semantically canonical.
+  - Rewriting routes, response shapes, types, tests, OpenAPI, protobuf, or consumers.
+  - Claiming generated SDK code or a generator already exists.

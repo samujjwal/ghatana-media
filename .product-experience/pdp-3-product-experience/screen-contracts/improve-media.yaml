@@ -1,0 +1,148 @@
+schemaVersion: media.screen-contract.v2
+contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+surfaceId: media.surface.web
+templateId: null
+layoutIds: []
+componentIds: [media.component.quality-inspector, media.component.creation-plan-summary, media.component.result-comparison, media.component.provenance-summary]
+patternIds: [media.gui.pattern.safe-confirmation-and-unknown-outcome]
+tokenDependencies: []
+domainObjectRefs: []
+operationRefs: []
+stateRefs: []
+entry: []
+exit: []
+actionConsequences:
+  - actionId: media.action.inspect-quality-evidence
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.choose-media-improvement-intent
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.review-repair-bounds
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.update-repair-bounds
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.submit-admitted-plan
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+responsiveBehavior: {ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive, status: proposal-unverified, screenOverrides: []}
+fixtures: {refs: [], status: missing}
+verification:
+  status: not-run
+  evidenceRefs: []
+  checks: {structural: not-proven, rendering: not-proven, behavior: not-proven, responsive: not-proven, keyboard: not-proven, accessibility: not-proven}
+fieldBindingStatus:
+  surfaceId: candidate-binding-pending-owner-review
+  templateId: unresolved; no existing catalog template ID matches the declared templateRef
+  layoutIds: none-registered
+  componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
+  patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
+  tokenDependencies: no-canonical-references-declared
+  domainObjectRefs: no-canonical-references-declared
+  operationRefs: no-canonical-references-declared
+  stateRefs: no-PDP1-state-references-declared
+  entry: no-canonical-entry-contract-declared
+  exit: no-canonical-exit-contract-declared
+  actionConsequences: unresolved; owner-effect-binding-pending
+  responsiveBehavior: proposal-only; unverified
+  fixtures: missing
+  verification: not-run
+productId: media
+screenId: media.view.improve-media
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.improve
+purpose: Preserve/enhance/creative choice, measured defects, safe plan
+contextGoalNowNext:
+  context: One source version, selected improvement intent, available defect measurements, bounded repair plan,
+    and candidate version.
+  goal: Choose a preservation, enhancement, or creative change with an evidence-based scope.
+  now: Show measured defects and their basis, unassessed dimensions, proposed change bounds, rights effects, and
+    reversible comparison path.
+  next: Inspect evidence, edit the bounds, or submit a validated repair plan explicitly.
+anatomy:
+- source-version
+- improvement-intent
+- measured-defects
+- unassessed-dimensions
+- bounded-repair-plan
+- candidate-and-provenance
+- safe-action
+componentRefs:
+- media.component.quality-inspector
+- media.component.creation-plan-summary
+- media.component.result-comparison
+- media.component.provenance-summary
+states:
+- source-required
+- measurement-pending
+- defect-observed
+- partial-evidence
+- plan-ready
+- bounds-invalid
+- policy-blocked
+- candidate-ready
+actions:
+- media.action.inspect-quality-evidence
+- media.action.choose-media-improvement-intent
+- media.action.review-repair-bounds
+- media.action.update-repair-bounds
+- media.action.submit-admitted-plan
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+actionIntents:
+- inspect a measured defect and its evidence
+- choose preservation, enhancement, or creative intent
+- review or change repair bounds
+- submit an admitted plan
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+surfaceContract:
+  surfaceRef: media.channel.web
+  status: channel-and-host-rendering-owner-review-pending
+templateContract:
+  templateRef: media.template.improve-media
+  kind: owner-defined-template-pending-review
+layoutContract:
+  primaryRegion: intent-and-context
+  supportingRegions: anatomy-list-order
+  responsiveRuleRef: existing-responsive-description
+patternRefs:
+  - media.gui.pattern.safe-confirmation-and-unknown-outcome
+validation:
+  status: proposal-validation-pending-owner-review
+  rule: validate-inputs-authority-and-finality-before-dispatch
+recovery:
+  status: explicit-recovery-proposal-pending-owner-review
+  rule: preserve-context-and-unknown-outcomes-before-retry-or-resubmit
+accessibility:
+  status: accessibility-intent-proposal-pending-owner-review
+  rule: preserve-focus-reading-order-names-and-recovery-announcements
+localization:
+  status: Shared-localization-binding-pending-owner-review
+  rule: use-Shared-locale-formatting-and-accessibility-contracts
+sourceRefs:
+- master-plan:section-20.2
+- .product-experience/pdp-0-product-truth
+journeyRefs: []

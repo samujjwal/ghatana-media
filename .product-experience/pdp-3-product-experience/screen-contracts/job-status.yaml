@@ -1,0 +1,188 @@
+schemaVersion: media.screen-contract.v2
+contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+surfaceId: media.surface.web
+templateId: null
+layoutIds: []
+componentIds: [media.component.job-status-card, media.component.activity-recovery-feed]
+patternIds: [media.gui.pattern.job-status-and-recovery]
+tokenDependencies: []
+domainObjectRefs: []
+operationRefs: []
+stateRefs: []
+entry: []
+exit: []
+actionConsequences:
+  - actionId: media.action.view-job-status
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.request-cancellation
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.check-job-outcome
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.retry-job
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+responsiveBehavior: {ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive, status: proposal-unverified, screenOverrides: []}
+fixtures:
+  refs: [media.scenario.job-running, media.scenario.job-outcome-unknown, media.scenario.job-retry-eligible, media.scenario.job-retry-ineligible]
+  status: source-proposal-not-verified-behavior
+verification:
+  status: not-run
+  evidenceRefs: []
+  checks: {structural: not-proven, rendering: not-proven, behavior: not-proven, responsive: not-proven, keyboard: not-proven, accessibility: not-proven}
+fieldBindingStatus:
+  surfaceId: candidate-binding-pending-owner-review
+  templateId: unresolved; no existing catalog template ID matches the declared templateRef
+  layoutIds: none-registered
+  componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
+  patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
+  tokenDependencies: no-canonical-references-declared
+  domainObjectRefs: no-canonical-references-declared
+  operationRefs: no-canonical-references-declared
+  stateRefs: no-PDP1-state-references-declared
+  entry: no-canonical-entry-contract-declared
+  exit: no-canonical-exit-contract-declared
+  actionConsequences: unresolved; owner-effect-binding-pending
+  responsiveBehavior: proposal-only; unverified
+  fixtures: source-proposal; behavior-unverified
+  verification: not-run
+productId: media
+screenId: media.view.job-status
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+- media.operator
+intentRef: media.intent.resolve-job
+purpose: view-one-existing-job-status-and-choose-a-safe-next-action
+contextGoalNowNext:
+  context: Stable job identity, exact source version when applicable, current authority, attempt state, and observed
+    finality.
+  goal: Reattach to existing long-running work and understand its current evidence.
+  now: Show the job and source identities separately, preserve attempt state and finality, and expose only measured
+    progress.
+  next: Continue observing, request cancellation, or check the same job outcome when it is unknown.
+anatomy:
+- job-identity
+- source-version-when-applicable
+- job-state
+- attempt-state-when-authorized
+- measured-progress-when-reported
+- finality
+- safe-next-action
+states:
+- queued
+- running
+- cancellation-pending
+- completed
+- partially-succeeded
+- failed
+- retry-pending
+- outcome-unknown
+- reconciling
+- cancelled
+actions:
+- media.action.view-job-status
+- media.action.request-cancellation
+- media.action.check-job-outcome
+- media.action.retry-job
+observation:
+  detaching: stop-watching-only-changes-the-current-view; it-does-not-cancel-or-delete-the-job
+  reattachment: use-the-same-stable-job-identity-and-read-current-owner-evidence
+  progress: omit-when-not-measured; never-infer-progress-from-elapsed-time-or-state
+  cancellation: report-a-request-as-pending-until-owner-confirmation-or-a-racing-result
+  uncertainOutcome: view-status-or-check-the-existing-job-outcome; do-not-blindly-resubmit
+  retry: offer only when the prior attempt is classified as retryable and current authority, policy, and budget checks pass; outcome-unknown must be checked before retry; this local fixture slice does not execute retry
+responsive: identity-state-and-finality-precede-secondary-details; actions-wrap-without-horizontal-overflow
+accessibility: announce-state-change-once; label-cancellation-pending; stop-watching-is-distinct-from-cancellation
+copyRefs:
+- media.copy.job.running
+- media.copy.job.unknown
+- media.copy.job.cancellation-pending
+- media.copy.job.observation-stopped
+fixtureRefs:
+- media.scenario.job-running
+- media.scenario.job-outcome-unknown
+- media.scenario.job-retry-eligible
+- media.scenario.job-retry-ineligible
+componentRefs:
+- media.component.job-status-card
+- media.component.activity-recovery-feed
+actionBindingState: bound-to-existing-PDP-3-actions
+actionIntents:
+- view status for one exact job
+- request cancellation for the existing job when current authority allows
+- check the outcome of the same job when finality is unknown
+- retry the same logical job after a classified retryable attempt and current policy checks
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+copyDisposition: canonical-copy-IDs-pending
+fixtureDisposition: synthetic-fixture-contract-not-authored
+journeyRefs:
+- J-02
+- J-20
+- J-22
+- J-23
+- J-24
+- J-25
+- J-27
+- J-29
+sourceRefs:
+- master-plan:section-20.2
+- pdp-0:journey:J-02
+- pdp-0:journey:J-20
+- pdp-0:journey:J-22
+- pdp-0:journey:J-23
+- pdp-0:journey:J-24
+- pdp-0:journey:J-25
+- pdp-0:journey:J-27
+- pdp-0:journey:J-29
+jobFamilies:
+- artifact-verification
+- transcription
+- media-processing
+identityRules:
+- jobId-identifies-one-owner-issued-job
+- uploadId-is-separate-and-present-only-when-returned
+- cancellation-request-is-not-cancelled-finality
+- detaching-observation-does-not-change-job-state
+- unknown-outcome-retains-the-same-job-identity-until-owner-evidence-is-recorded
+surfaceContract:
+  surfaceRef: media.channel.web
+  status: channel-and-host-rendering-owner-review-pending
+templateContract:
+  templateRef: media.template.job-status
+  kind: owner-defined-template-pending-review
+layoutContract:
+  primaryRegion: intent-and-context
+  supportingRegions: anatomy-list-order
+  responsiveRuleRef: existing-responsive-description
+patternRefs:
+  - media.gui.pattern.job-status-and-recovery
+validation:
+  status: proposal-validation-pending-owner-review
+  rule: validate-inputs-authority-and-finality-before-dispatch
+recovery:
+  status: explicit-recovery-proposal-pending-owner-review
+  rule: preserve-context-and-unknown-outcomes-before-retry-or-resubmit
+localization:
+  status: Shared-localization-binding-pending-owner-review
+  rule: use-Shared-locale-formatting-and-accessibility-contracts

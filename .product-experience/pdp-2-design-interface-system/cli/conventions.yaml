@@ -1,0 +1,67 @@
+schemaVersion: media.cli-conventions.v1
+productId: media
+owner: ghatana-media-product-cli
+authority: Media owns product command meaning; Shared owns generic terminal and process primitives
+scopeStatus: proposal-only; production CLI owner, executable surface, and runtime bindings are not accepted
+sourceRefs:
+  - .product-experience/pdp-2-design-interface-system/cli-language.yaml
+  - .product-experience/pdp-3-product-experience/cli-command-registry.yaml
+  - .product-experience/pdp-3-product-experience/cli/command-registry.yaml
+  - .product-experience/pdp-0-product-truth/glossary.yaml
+  - libs/media-experience-simulation/src/cli.ts
+  - contracts/openapi/media.yaml
+proposalRules:
+  commandAndModelSemantics:
+    rules:
+      - Use product-intent verbs and concrete objects; provider/model/queue details are diagnostics, not default command language.
+      - A command ID identifies one semantic action; aliases, if later approved, resolve to that same ID and may not create distinct effects.
+      - Keep workflow, job, operation, upload, artifact, and exact-version identities distinct; do not infer one identity from another.
+      - Treat the PDP3 canonical command registry as proposed product vocabulary and the fixture registry as a synthetic simulator inventory; do not promote fixture commands or outputs to production behavior.
+    evidence:
+      canonicalRegistry: .product-experience/pdp-3-product-experience/cli-command-registry.yaml
+      fixtureRegistry: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
+      simulatorSource: libs/media-experience-simulation/src/cli.ts
+      registryStatus: implemented-local-fixture-command-simulator; production-runtime-cli-not-connected
+  terminalAndMachineOutput:
+    tty:
+      proposal: concise human progress and localized human-readable labels may be used only when a terminal is detected; progress is not completion.
+      neverImply: [durable_receipt, provider_execution, artifact_availability, authoritative_finality]
+    nonTty:
+      proposal: deterministic line-oriented output; no spinners, cursor control, or progress text mixed into machine records.
+    machineFormats:
+      formats: [json, jsonl]
+      stdout: exactly the selected machine representation; diagnostics go to stderr
+      stableAcrossLocales: [schemaVersion, commandId, actionId, requestId, correlationId, jobId, operationId, uploadId, artifactVersionId, state, finality, reasonCode]
+      reasonCode: stable machine-readable taxonomy value; message text is caller-safe and may be localized; taxonomy and code-to-exit mapping require owner approval.
+    evidence:
+      cliLanguage: .product-experience/pdp-2-design-interface-system/cli-language.yaml#machineOutput
+      fixtureOutput: .product-experience/pdp-3-product-experience/cli-command-registry.yaml#output
+  exitAndStatus:
+    distinction: process exit status reports the CLI invocation/observation result; domain state and effect finality are separate fields and must never be inferred from exit status.
+    fixtureOnly:
+      source: .product-experience/pdp-3-product-experience/cli-command-registry.yaml#output.localSimulationExitCodes
+      mapping: {success: 0, parse-or-blocked-action: 2}
+      restriction: simulator-only; not a production exit-code contract
+    production: pending-CLI-owner-and-runtime-contract-decision
+    proposal: stable nonzero classes may distinguish invalid invocation, confirmed domain failure, and unresolved outcome only after canonical error/reason-code mapping is accepted; exact numeric values remain unbound.
+  interruptionCancellationAndUnknownOutcome:
+    observationInterrupt: SIGINT while waiting/stopping observation stops local waiting only unless an explicit cancel command/action was separately requested.
+    cancellation: a cancellation command records a request; it is not proof of cancellation. Show pending/unknown until the owning job or operation reports an authoritative terminal result.
+    unknownMutation: preserve original request/job/operation identity; direct the caller to inspect or check that same outcome; never blindly resubmit.
+    evidence:
+      cliLanguage: .product-experience/pdp-2-design-interface-system/cli-language.yaml#identityAndFinality
+      actions: [media.action.request-cancellation, media.action.check-job-outcome, media.action.retry-job]
+      commands: [media.cli.job.cancel, media.cli.job.check-outcome, media.cli.job.retry]
+      api: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs~1{jobId}~1cancel
+      apiConstraint: cancellation has no declared replay-safe idempotency guarantee; automatic retry is not authorized
+decisionGates:
+  - production command IDs, aliases, model semantics, and command-to-action bindings require CLI/API owners
+  - production TTY policy, machine schema/versioning, reason-code taxonomy, and process exit-code mapping require CLI owner acceptance
+  - SIGINT, cancellation request, terminal cancellation, and unknown-outcome behavior require runtime/operation owner confirmation
+  - fixture-only evidence does not establish an installed production CLI or provider/runtime connectivity
+acceptance:
+  criteria: [command meaning and identity are explicit, TTY and machine streams are distinguished, exit status is separate from domain state/finality, cancellation and interruption are distinct, unknown mutations are checked using original identity]
+  status: pending-CLI-owner-review
+verification:
+  method: TTY/non-TTY and JSON/JSONL contract checks; stable-ID/reason-code and exit/status matrix; narrow-terminal and SIGINT/cancel/unknown-outcome behavior against an admitted production CLI
+  status: not-run; no admitted production CLI consumer

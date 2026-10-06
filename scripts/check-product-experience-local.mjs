@@ -49,10 +49,10 @@ for (const path of [
   ".product-experience/gaps.yaml",
   ".product-experience/traceability.yaml",
   ".product-experience/vision-requirements-coverage.yaml",
-  ".product-experience/phase-0-product-truth/applications-channels.yaml",
-  ".product-experience/phase-1-design-language/DESIGN-LANGUAGE.md",
-  ".product-experience/phase-2-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md",
-  ".product-experience/phase-3-experience-explorer/EXPERIENCE-EXPLORER.md",
+  ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+  ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
+  ".product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md",
+  ".product-experience/explorer/EXPERIENCE-EXPLORER.md",
   "docs/README.md",
   "docs/VISION.md",
   "docs/REQUIREMENTS.md",
@@ -78,7 +78,7 @@ catch (error) { fail(`Explorer artifact index is not valid JSON: ${error.message
 if (!Array.isArray(artifacts) || artifacts.length === 0) fail("Explorer artifact index is empty");
 else {
   unique(artifacts.map((artifact) => artifact.path), "Explorer artifact path");
-  const phases = new Set(["P0", "P1", "P2", "P3", "Cross-phase"]);
+  const phases = new Set(["PDP-0", "PDP-1", "PDP-2", "PDP-3", "EXPLORER", "CROSS_PHASE", "IMPLEMENTATION", "EVIDENCE", "REFERENCE", "OBSOLETE"]);
   for (const artifact of artifacts) {
     if (!phases.has(artifact.phase)) fail(`Unknown Explorer artifact phase for ${artifact.path}: ${artifact.phase}`);
     if (!artifact.title?.trim()) fail(`Explorer artifact has no human label: ${artifact.path}`);
@@ -104,18 +104,18 @@ unique(matrixIds, "closure matrix row");
 for (const id of requiredMatrixIds) if (!matrixIds.includes(id)) fail(`Closure matrix is missing area: ${id}`);
 if (matrixIds.length !== requiredMatrixIds.length) fail(`Closure matrix has ${matrixIds.length} rows; expected ${requiredMatrixIds.length}`);
 
-const screenDir = join(productRoot, "phase-2-product-experience/screen-contracts");
+const screenDir = join(productRoot, "pdp-3-product-experience/screen-contracts");
 const screenFiles = readdirSync(screenDir).filter((file) => file.endsWith(".yaml"));
 const indexedScreenPaths = new Set(artifacts.filter((artifact) => artifact.path.includes("/screen-contracts/")).map((artifact) => artifact.path));
 for (const file of screenFiles) {
-  const path = `.product-experience/phase-2-product-experience/screen-contracts/${file}`;
+  const path = `.product-experience/pdp-3-product-experience/screen-contracts/${file}`;
   if (!indexedScreenPaths.has(path)) fail(`Screen contract is not exposed in Explorer index: ${path}`);
 }
 note(`${screenFiles.length} screen-contract directory records are present (47 canonical screen contracts plus one job-family specialization); ${indexedScreenPaths.size} are indexed for read-only projection`);
 
-const actionSource = read(join(productRoot, "phase-2-product-experience/action-registry.yaml"));
+const actionSource = read(join(productRoot, "pdp-3-product-experience/action-registry.yaml"));
 const actionIds = new Set(idsFrom(actionSource, /^\s*- id: (media\.action\.[A-Za-z0-9._-]+)$/gmu));
-if (actionIds.size === 0) fail("Phase 2 action registry produced no action IDs");
+if (actionIds.size === 0) fail("PDP-3 action registry produced no action IDs");
 const referencedActions = new Set();
 for (const file of screenFiles) {
   const source = read(join(screenDir, file));
@@ -160,21 +160,21 @@ function assertBlocksHaveFields(blocks, fields, label) {
   return complete;
 }
 
-const capabilitySource = read(join(productRoot, "phase-0-product-truth/capabilities.yaml"));
+const capabilitySource = read(join(productRoot, "pdp-0-product-truth/capabilities.yaml"));
 const familySection = capabilitySource.split(/^families:\s*$/mu)[1]?.split(/^capabilities:\s*$/mu)[0] ?? "";
 const capabilitySection = capabilitySource.split(/^capabilities:\s*$/mu)[1] ?? "";
 const capabilityIds = new Set(idsFrom(capabilitySection, /^\s*- id: (media\.[A-Za-z0-9._-]+)$/gmu));
 const familyIds = new Set(idsFrom(familySection, /^\s*- id: (media\.[A-Za-z0-9._-]+)$/gmu));
 const capabilityFamilyRefs = collectMatches([capabilitySection], /^\s*familyId: (media\.[A-Za-z0-9._-]+)$/gmu);
-const requirementSource = read(join(productRoot, "phase-0-product-truth/requirements.yaml"));
-const goalsSource = read(join(productRoot, "phase-0-product-truth/goals-jtbd.yaml"));
-const journeyCatalogSource = read(join(productRoot, "phase-0-product-truth/journey-catalog.yaml"));
+const requirementSource = read(join(productRoot, "pdp-0-product-truth/requirements.yaml"));
+const goalsSource = read(join(productRoot, "pdp-0-product-truth/goals-jtbd.yaml"));
+const journeyCatalogSource = read(join(productRoot, "pdp-0-product-truth/journey-catalog.yaml"));
 const coverageSource = read(join(productRoot, "vision-requirements-coverage.yaml"));
 const requirementIds = new Set(idsFrom(requirementSource, /^- id: (MEDIA-REQ-[A-Z0-9-]+)[ \t]*$/gmu));
 const capabilityRequirementRefs = collectMatches([capabilitySection], /^\s*- (MEDIA-REQ-[A-Z0-9-]+)$/gmu);
-if (capabilityIds.size !== 462) fail(`Phase 0 capability leaf denominator is ${capabilityIds.size}; expected 462`);
-unique([...capabilityIds], "Phase 0 capability ID");
-unique([...familyIds], "Phase 0 capability family ID");
+if (capabilityIds.size !== 462) fail(`PDP-0 capability leaf denominator is ${capabilityIds.size}; expected 462`);
+unique([...capabilityIds], "PDP-0 capability ID");
+unique([...familyIds], "PDP-0 capability family ID");
 assertKnown(capabilityFamilyRefs, familyIds, "Capability family reference");
 assertKnown(capabilityRequirementRefs, requirementIds, "Capability requirement reference");
 const capabilityCoreFields = [
@@ -187,7 +187,7 @@ const capabilityBlocks = topLevelBlocks(capabilitySection);
 const capabilityCoreComplete = assertBlocksHaveFields(capabilityBlocks, capabilityCoreFields, "Capability");
 const operationSpecificParameterProposals = capabilityBlocks.filter((block) => !/supportedParameters:\s*Not yet enumerated/u.test(block)).length;
 const capabilityJourneyGaps = capabilityBlocks.filter((block) => /journeyRefs:\s*\[\s*\]/u.test(block)).length;
-note(capabilityIds.size + " Phase 0 capability leaves have " + capabilityJourneyGaps + " unresolved explicit leaf-level journey references; inherited family intent/outcome coverage remains pending P0-010 review");
+note(capabilityIds.size + " PDP-0 capability leaves have " + capabilityJourneyGaps + " unresolved explicit leaf-level journey references; inherited family intent/outcome coverage remains pending owner review");
 
 const outcomeIds = new Set(idsFrom(goalsSource, /^\s*- id: (media\.goal\.[A-Za-z0-9._-]+)$/gmu));
 const outcomeCoverageBlocks = journeyCatalogSource
@@ -218,10 +218,10 @@ if (!coverageSource.includes("outcomeDenominator: 10") ||
     !coverageSource.includes("id: MP-73-79")) {
   fail("Vision/requirements coverage ledger does not record the current denominators and full master-prompt section coverage");
 }
-note(outcomeIds.size + " P0 vision outcomes have journey/supporting-view coverage; " + requirementOutcomeTraceCount + " requirement groups have outcome traces");
-note(`${capabilityIds.size} Phase 0 capability leaves resolve to ${familyIds.size} families and ${requirementIds.size} requirement IDs; ${capabilityCoreComplete} expose the required definition shape; ${operationSpecificParameterProposals} have operation-specific parameter proposals and ${capabilityIds.size - operationSpecificParameterProposals} still require owner-approved bounds`);
+note(outcomeIds.size + " PDP-0 vision outcomes have journey/supporting-view coverage; " + requirementOutcomeTraceCount + " requirement groups have outcome traces");
+note(`${capabilityIds.size} PDP-0 capability leaves resolve to ${familyIds.size} families and ${requirementIds.size} requirement IDs; ${capabilityCoreComplete} expose the required definition shape; ${operationSpecificParameterProposals} have operation-specific parameter proposals and ${capabilityIds.size - operationSpecificParameterProposals} still require owner-approved bounds`);
 
-const componentSource = read(join(productRoot, "phase-1-design-language/component-contracts.yaml"));
+const componentSource = read(join(productRoot, "pdp-2-design-interface-system/component-contracts.yaml"));
 const componentIds = new Set(idsFrom(componentSource, /^\s*- id: (media\.component\.[A-Za-z0-9._-]+)$/gmu));
 const componentSection = componentSource.split(/^components:\s*$/mu)[1]?.split(/^masterPlanCoverage:\s*$/mu)[0] ?? "";
 const componentCoreFields = ["purpose", "anatomy", "variants", "states", "actions", "keyboard", "accessibility", "localization", "prohibitedUse", "semanticRole", "capabilityRefs", "actionBindingState", "sourceRef"];
@@ -229,11 +229,11 @@ const componentCoreComplete = assertBlocksHaveFields(topLevelBlocks(componentSec
 const componentCapabilityGaps = topLevelBlocks(componentSection).filter((block) => /capabilityRefs:\s*\[\s*\]/u.test(block)).length;
 const screenSources = screenFiles.map((file) => read(join(screenDir, file)));
 const screenIds = new Set(collectMatches(screenSources, /^screenId: (media\.view\.[A-Za-z0-9._-]+)$/gmu));
-const journeyDir = join(productRoot, "phase-2-product-experience/journey-contracts");
+const journeyDir = join(productRoot, "pdp-3-product-experience/journey-contracts");
 const journeyFiles = readdirSync(journeyDir).filter((file) => file.endsWith(".yaml"));
-const journeyRegistry = read(join(productRoot, "phase-2-product-experience/journey-registry.yaml"));
+const journeyRegistry = read(join(productRoot, "pdp-3-product-experience/journey-registry.yaml"));
 const journeyIds = new Set(idsFrom(journeyRegistry, /^\s*- id: (J-[0-9]+)$/gmu));
-const screenRegistrySource = read(join(productRoot, "phase-2-product-experience/screen-registry.yaml"));
+const screenRegistrySource = read(join(productRoot, "pdp-3-product-experience/screen-registry.yaml"));
 const screenRegistryIds = new Set(idsFrom(screenRegistrySource, /^\s*- id: (media\.view\.[A-Za-z0-9._-]+)$/gmu));
 const screenComponentRefs = collectMatches(screenSources, /\b(media\.component\.[A-Za-z0-9._-]+)/gu);
 const screenJourneyRefs = collectMatches(screenSources, /\b(J-[0-9]+)\b/gu);
@@ -267,19 +267,19 @@ const actionCapabilityGaps = topLevelBlocks(actionSection).filter((block) => {
   return !capabilityRefs || capabilityRefs[1].trim().length === 0;
 }).length;
 note(componentCapabilityGaps + " component family gap(s) and " + actionCapabilityGaps + " proposal action(s) still need explicit capability reachability review");
-const apiSource = read(join(productRoot, "phase-2-product-experience/api-experience-mapping.yaml"));
-const cliSource = read(join(productRoot, "phase-2-product-experience/cli-command-registry.yaml"));
+const apiSource = read(join(productRoot, "pdp-3-product-experience/api-experience-mapping.yaml"));
+const cliSource = read(join(productRoot, "pdp-3-product-experience/cli-command-registry.yaml"));
 const componentActionRefs = collectMatches([componentSource], /\b(media\.action\.[A-Za-z0-9._-]+)\b/gu);
 const apiActionRefs = collectMatches([apiSource], /^\s*-?\s*actionRef: (media\.action\.[A-Za-z0-9._-]+)$/gmu);
 const cliActionRefs = collectMatches([cliSource], /^\s*actionRef: (media\.action\.[A-Za-z0-9._-]+)$/gmu);
 assertKnown(componentActionRefs, actionIds, "Component action reference");
 assertKnown(apiActionRefs, actionIds, "API action reference");
 assertKnown(cliActionRefs, actionIds, "CLI action reference");
-note(`${componentIds.size} Phase 1 components (${componentCoreComplete} required shapes), ${screenIds.size} Phase 2 screen contracts (${screenCoreComplete} required shapes), ${journeyViewRefs.size} journey view references, and ${journeyActionRefs.size} journey action references resolve (${journeyCoreComplete} journey shapes)`);
+note(`${componentIds.size} PDP-2 components (${componentCoreComplete} required shapes), ${screenIds.size} PDP-3 screen contracts (${screenCoreComplete} required shapes), ${journeyViewRefs.size} journey view references, and ${journeyActionRefs.size} journey action references resolve (${journeyCoreComplete} journey shapes)`);
 
 if (journeyIds.size !== 30) fail(`Journey registry exposes ${journeyIds.size} journeys; expected the authored denominator of 30`);
-if (journeyFiles.length !== 28) fail(`Journey contract directory contains ${journeyFiles.length} files; expected the required denominator of 28`);
-note(`${journeyIds.size} journeys are indexed and ${journeyFiles.length} required journey proposals have source files`);
+if (journeyFiles.length !== 30) fail(`Journey contract directory contains ${journeyFiles.length} files; expected 28 baseline contracts plus the explicit J-29/J-30 contracts`);
+note(`${journeyIds.size} journeys are indexed and ${journeyFiles.length} journey contracts have source files (28 baseline plus J-29/J-30 extensions)`);
 
 const mainSource = read(join(root, "apps/media-experience-explorer/src/main.ts"));
 const specificationSource = read(join(root, "apps/media-experience-explorer/src/specification.ts"));

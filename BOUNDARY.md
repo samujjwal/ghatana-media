@@ -9,8 +9,11 @@ Ghatana Media is a standalone product boundary for the Media bounded context.
 The planned transfer includes the existing media runtime, packages and clients,
 authored service contract sources, tests, fixtures, benchmarks, configuration,
 deployment and monitoring material, subject to the file-by-file dispositions
-in `migration/`. The generic document-intelligence worker is explicitly
-excluded and will be rehomed to `ghatana/services/document-intelligence`.
+in `migration/`. Under accepted decision MDI-001, generic Document Intelligence
+execution, OCR/parser providers, extraction semantics, evaluation, and
+qualification are platform-owned and excluded from Media Product Truth. The
+source rehome, public client publication, and Media consumer rebinding remain
+separate execution gates; no runtime cutover is implied here.
 See `docs/migration/decisions/MDI-001-document-intelligence-ownership.md` for
 the supplemental ownership decision that narrows the master-plan transfer scope.
 

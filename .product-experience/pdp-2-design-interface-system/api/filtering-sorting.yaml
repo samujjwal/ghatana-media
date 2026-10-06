@@ -1,0 +1,8 @@
+schemaVersion: media.api-filtering-sorting.v1
+owner: ghatana-media-product-api
+authority: Media owns resource fields and query meaning
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-2-design-interface-system/api/identifiers.yaml, .product-experience/pdp-2-design-interface-system/api/pagination.yaml, .product-experience/pdp-0-product-truth/domain-model.yaml]
+scopeStatus: proposal; allowed fields and operators require per-operation schema
+acceptance: {criteria: [allowlisted fields and operators only, stable tie-break order, filter semantics are documented and authorization-safe], status: pending-review}
+verification: {method: Validate each operation schema and exercise boundary, injection, and pagination-stability cases, status: not-run}
+rules: [never interpolate query text into storage expressions, reject unknown fields/operators, define null and case behavior, append stable unique tie-breaker to requested sort, do not expose inaccessible records through counts or facets]

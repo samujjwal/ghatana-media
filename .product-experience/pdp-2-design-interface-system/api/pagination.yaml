@@ -1,0 +1,8 @@
+schemaVersion: media.api-pagination.v1
+owner: ghatana-media-product-api
+authority: Media defines collection semantics; Shared owns any reused pagination primitives
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-0-product-truth/domain-model.yaml]
+scopeStatus: proposal; cursor and page-size wire representation await API owner
+acceptance: {criteria: [ordering is deterministic, continuation is bound to the original query and authorization context, limits are bounded], status: pending-review}
+verification: {method: Verify no missing or duplicate records across stable fixtures and reject malformed or expired cursors safely, status: not-run}
+rules: [proposed preference for opaque cursors on mutable collections, expose next-page availability without implying a total count, bind a cursor to the original filter/sort and authorization context, bind to a snapshot only where the operation actually provides snapshot semantics, otherwise document live-collection behavior, reject incompatible query changes, document default and maximum page size when wire-bound]

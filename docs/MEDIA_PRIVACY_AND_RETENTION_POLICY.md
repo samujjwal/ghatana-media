@@ -44,7 +44,7 @@ The current canonical implementation uses these authorities:
 | Stream consent restart/termination evidence | durable `StreamSession.metadata` + `MediaRuntime` |
 | Governed consent product API | `MediaHttpHandler` + `MediaConsentAdministrationRuntime` |
 | Semantic de-identification contract/runtime | `MediaSemanticRedactionProvider` + `MediaSemanticRedactionRuntime` |
-| Cross-service governance schema | `config/runtime-governance-context.schema.json` |
+| Cross-service governance schema | No schema is checked into this repository; resolve the public owner binding before documenting a local schema path. |
 
 Production promotion must fail if required external processing is configured without a ready,
 production-eligible consent authority or without a ready, production-eligible privacy-maintenance

@@ -1,0 +1,45 @@
+schemaVersion: media.protocol-operation-contract.v1
+operationId: media.http.appendMediaChunk
+protocolIdentity:
+  protocol: HTTP
+  method: PUT
+  path: /api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}
+  operationId: appendMediaChunk
+sourceContract: contracts/openapi/media.yaml
+sourceContractDisposition: implementation-or-projection-observation; not-declared-canonical-wire-authority
+routeManifestObservation:
+  source: config/route-manifest.json
+  routeId: PUT /api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}
+  identityMatch: exact-method-path-operationId
+parameters:
+  refs:
+  - '#/components/parameters/TenantHeader'
+  - '#/components/parameters/UploadId'
+request:
+  schemaRefs: []
+response:
+  responseRefsByStatus:
+    '400': '#/components/responses/Error'
+    '409': '#/components/responses/Error'
+  schemaRefsByStatus:
+    '200':
+    - '#/components/schemas/UploadSession'
+    '400':
+    - '#/components/schemas/ErrorEnvelope'
+    '409':
+    - '#/components/schemas/ErrorEnvelope'
+pdp1SemanticBinding:
+  logicalOperationRef: null
+  bindingStatus: unresolved-no-source-explicit-http-member-crosswalk
+  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
+  ownerReview: pending
+contractStatus: proposal-only; owner-review-pending
+nonClaims:
+- authentication
+- idempotency
+- retry
+- cancellation
+- finality
+- state-effects
+- privacy
+- event-guarantees

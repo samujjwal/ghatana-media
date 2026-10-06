@@ -8,10 +8,10 @@ status:
   scope: These scenarios specify policy decisions and safe behavior; they do not define implementation APIs, security qualification,
     or runtime conformance.
 references:
-  policyAuthority: .product-experience/phase-0-product-truth/policy-authority-model.yaml
-  nonfunctionalRequirements: .product-experience/phase-0-product-truth/nonfunctional-requirements.yaml
-  contentIntent: .product-experience/phase-0-product-truth/content-intent.yaml
-  stateModels: .product-experience/phase-0-product-truth/state-models.yaml
+  policyAuthority: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+  nonfunctionalRequirements: .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml
+  contentIntent: .product-experience/pdp-0-product-truth/content-intent.yaml
+  stateModels: .product-experience/pdp-0-product-truth/state-models.yaml
   specification: docs/migration/expert-reviewed-master-plan.md#p0-006-phase-0
 fixtureRequirements:
   everyCaseMustSpecify:

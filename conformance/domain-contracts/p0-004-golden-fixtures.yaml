@@ -10,8 +10,8 @@ status:
     glTF, protobuf, or any other owner contract.
 
 references:
-  domainModel: .product-experience/phase-0-product-truth/domain-model.yaml
-  timeUnitsFidelity: .product-experience/phase-0-product-truth/time-units-fidelity.yaml
+  domainModel: .product-experience/pdp-0-product-truth/domain-model.yaml
+  timeUnitsFidelity: .product-experience/pdp-0-product-truth/time-units-fidelity.yaml
   specification: docs/migration/expert-reviewed-master-plan.md#p0-004-phase-0
 
 fixtures:

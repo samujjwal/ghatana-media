@@ -1,0 +1,86 @@
+schemaVersion: media.pdp-1.decisions.v1
+artifactId: media.pdp-1.decisions
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-0-product-truth/domain-model.yaml
+scopeStatus: extracted-rules-and-open-decisions; pending-owner-review
+sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml, .product-experience/pdp-0-product-truth/state-models.yaml, .product-experience/pdp-0-product-truth/time-units-fidelity.yaml, .product-experience/pdp-0-product-truth/policy-authority-model.yaml, .product-experience/pdp-0-product-truth/quality-policy.yaml, docs/migration/decisions/MDI-001-document-intelligence-ownership.md]
+decisions:
+  - id: media.pdp1.fact.runtime-version-and-fencing
+    state: observed-source-fact
+    decision: ProcessingJob-has-a-version-field-and-JobLease-has-expiry-and-fencingToken; neither-establishes-durable-attempt-history
+    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java]
+    pending: none-for-this-bounded-source-observation; persistence-and-product-meaning-remain-unverified
+    scopeStatus: observation-only; not-product-acceptance
+  - id: media.pdp1.decision.artifact-version-and-lineage
+    state: proposed
+    decision: require-explicit-source-immutability-derived-artifact-identity-and-transcript-caption-ancestry
+    sourceRefs: [.product-experience/pdp-1-domain-data/versioning.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java]
+    pending: Media-domain-owner-definition-of-version-key-lineage-and-cross-product-reference
+    scopeStatus: proposed; pending-owner-review
+  - id: media.pdp1.decision.attempt-history-and-finality
+    state: unresolved
+    decision: job-version-and-lease-fencing-are-observed; durable-attempt-history-append-only-finality-and-reconciliation-are-not-established
+    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, .product-experience/pdp-0-product-truth/state-models.yaml#authorityRules]
+    pending: Media-runtime-and-domain-owner-contract-and-independent-P0-010-acceptance-for-PDP-0-authored-rule
+    scopeStatus: unresolved; no-semantic-acceptance
+  - id: media.pdp1.decision.retention-erasure-and-revocation
+    state: unresolved
+    decision: retention-and-consent-controls-are-observed-contract-surfaces; complete-erasure-and-revocation-propagation-are-not-proven
+    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaConsentAdministration.java, .product-experience/pdp-1-domain-data/privacy.yaml]
+    pending: storage-provider-and-consent-owners-define-scope-evidence-and-effect-on-existing-derived-or-dispatched-work
+    scopeStatus: unresolved; pending-owner-and-external-evidence
+  - id: media.pdp1.decision.disconnected-operation-and-reconciliation
+    state: unresolved
+    decision: preserve-local-and-server-observations-without-inferring-conflict-winner-replay-authority-or-reconciliation-guarantee
+    sourceRefs: [.product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java]
+    pending: offline-sync-and-runtime-owners-define-conflict-authority-durable-recovery-and-reconciliation
+    scopeStatus: unresolved; pending-owner-review
+  - id: media.pdp1.decision.specification-plan-run-artifact
+    state: proposed
+    decision: separate-immutable-specification-immutable-resolved-plan-mutable-run-and-immutable-artifact-identity
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#recordLifecycleRules]
+    pending: Media-owner-review
+    scopeStatus: proposed; pending-owner-review
+  - id: media.pdp1.decision.unknown-finality
+    state: PDP-0-authored-rule; not-independently-accepted
+    decision: uncertain-dispatch-remains-unknown-until-reconciled; no-blind-replay
+    sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml#authorityRules]
+    pending: independent-P0-010-acceptance-and-runtime-evidence-for-any-implementation-claim
+    scopeStatus: PDP-0-authored-rule; acceptance-pending
+  - id: media.pdp1.decision.clock-separation
+    state: proposed
+    decision: source-media-time-simulation-time-story-time-and-wall-clock-remain-distinct
+    sourceRefs: [.product-experience/pdp-0-product-truth/time-units-fidelity.yaml]
+    pending: owner-validation-of-time-base-and-unit-vocabularies
+    scopeStatus: proposed; pending-owner-review
+  - id: media.pdp1.decision.physical-coordinate-conventions
+    state: proposed
+    decision: native-unit-and-scene-coordinate-conventions-are-proposals-only
+    sourceRefs: [.product-experience/pdp-0-product-truth/time-units-fidelity.yaml]
+    pending: scene-model-domain-owner-validation-and-unit-registry-selection
+    scopeStatus: proposed; pending-owner-review
+  - id: media.pdp1.decision.event-taxonomy
+    state: unresolved
+    decision: publisher-envelope-observed; event-names-delivery-order-replay-and-retention-unbound
+    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEventPublisher.java]
+    pending: event-plane-and-Media-owner-contract
+    scopeStatus: unresolved; pending-owner-review
+  - id: media.pdp1.decision.offline-conflicts
+    state: unresolved
+    decision: preserve-local-draft-and-server-version; do-not-infer-conflict-winner-or-replay-authority
+    sourceRefs: [.product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml]
+    pending: offline-sync-owner-contract
+    scopeStatus: unresolved; pending-owner-review
+  - id: media.pdp1.decision.wire-crosswalk
+    state: unresolved
+    decision: preserve-observed-identities-and-represent-unmapped-semantics-as-unknown
+    sourceRefs: [contracts/openapi/media.yaml, libs/audio-video-types/src/contracts.ts, libs/audio-video-client/src/operations.ts, modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java]
+    pending: consumer-inventory-and-owner-approved-compatibility-crosswalk
+    scopeStatus: unresolved; pending-owner-review
+  - id: media.pdp1.decision.document-intelligence
+    state: recorded-in-MDI-001
+    decision: Media-owns-temporal-and-scene-text-semantics; generic-OCR-and-document-workflow-remain-Document-Intelligence-owned
+    sourceRefs: [docs/migration/decisions/MDI-001-document-intelligence-ownership.md]
+    pending: follow-canonical-authority-and-cutover-state
+    scopeStatus: recorded-decision; applicability-review-pending

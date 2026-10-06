@@ -1,0 +1,277 @@
+schemaVersion: media.journey-contract.v1
+productId: media
+journeyId: J-22
+pdp0JourneyRef: J-22
+pdp0Authority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
+title: Export/download/publish with destination acknowledgement
+status: pdp0-grounded-proposal; pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
+scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen registry; exact action/state transitions,
+  per-channel behavior, scenarios, wire bindings, and runtime commitments remain unresolved.
+outcomes:
+- media.goal.deliver-approved-output
+- media.goal.review-trustworthy-output
+actors:
+- media.creator
+- media.reviewer
+- media.operator
+channels:
+- media.channel.web
+- media.channel.http-api
+- media.channel.cli
+- media.channel.product-integration
+channelBindingState: PDP-0 proposed channels only; per-channel operation, state, transport, and accessibility
+  equivalence remain unbound.
+preconditions:
+- Exact output, destination, rights, approval, and external-effect authority are current.
+steps:
+- view: media.view.inspect-output
+  legacyViewRef: M-OUTPUT
+  screenContractRef: screen-contracts/inspect-output.yaml
+  viewIntent: Playback/download/review/provenance and delivery action
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs:
+  - media.action.inspect-artifact
+  - media.action.inspect-provenance
+  surfaceRefs:
+  - media.surface.web
+  - media.surface.public-http
+  - media.surface.cli
+  - media.surface.integrations
+  objectRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.terminalSuccess
+    proposal: Package validity, transport, and external publication are reported as distinct finality outcomes.
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: phase0-critical-exception
+      condition: Partial package, destination rejection, timeout after effect may have occurred, or approval scope mismatch.
+      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain pending.
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Reconcile by effect/idempotency identity before retry; never represent unknown publication as success or failure.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - Retain output/version, destination, authorization/approval refs, effect status, and receipt if returned.
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- view: media.view.deliver-output
+  legacyViewRef: M-DELIVERY
+  screenContractRef: screen-contracts/deliver-output.yaml
+  viewIntent: Destination/format/rights/approval and publication finality
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs: []
+  surfaceRefs:
+  - media.surface.web
+  - media.surface.public-http
+  - media.surface.cli
+  - media.surface.integrations
+  objectRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.terminalSuccess
+    proposal: Package validity, transport, and external publication are reported as distinct finality outcomes.
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: phase0-critical-exception
+      condition: Partial package, destination rejection, timeout after effect may have occurred, or approval scope mismatch.
+      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain pending.
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Reconcile by effect/idempotency identity before retry; never represent unknown publication as success or failure.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - Retain output/version, destination, authorization/approval refs, effect status, and receipt if returned.
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- view: media.view.job-status
+  legacyViewRef: M-JOB
+  screenContractRef: screen-contracts/job-status.yaml
+  viewIntent: Progress, outputs, cancel, retry/reconcile and uncertainty
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs:
+  - media.action.view-job-status
+  - media.action.check-job-outcome
+  - media.action.request-cancellation
+  surfaceRefs:
+  - media.surface.web
+  - media.surface.public-http
+  - media.surface.cli
+  - media.surface.integrations
+  objectRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.terminalSuccess
+    proposal: Package validity, transport, and external publication are reported as distinct finality outcomes.
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: phase0-critical-exception
+      condition: Partial package, destination rejection, timeout after effect may have occurred, or approval scope mismatch.
+      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain pending.
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Reconcile by effect/idempotency identity before retry; never represent unknown publication as success or failure.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - Retain output/version, destination, authorization/approval refs, effect status, and receipt if returned.
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy view maps to one registered intent-based
+  screen. Null actionRef and empty stateRefs are deliberate open bindings, not no-op actions or completed transitions.
+terminalSuccess: Package validity, transport, and external publication are reported as distinct finality outcomes.
+criticalNonhappyPaths:
+- id: phase0-critical-exception
+  condition: Partial package, destination rejection, timeout after effect may have occurred, or approval scope mismatch.
+  responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
+    pending.
+recovery: Reconcile by effect/idempotency identity before retry; never represent unknown publication as success
+  or failure.
+contextPreserved:
+- Retain output/version, destination, authorization/approval refs, effect status, and receipt if returned.
+channelEquivalents:
+- web
+- http-api
+- cli
+- product-integration
+accessibilityIntentRef: media.a11y.baseline
+requiredScenarioBehaviors:
+  status: scenario-fixtures-and-owner-approved-expected-results-pending
+  successIntent: Package validity, transport, and external publication are reported as distinct finality outcomes.
+  criticalNonhappyIntent: Partial package, destination rejection, timeout after effect may have occurred, or approval
+    scope mismatch.
+scenarioRefs: []
+unresolvedProductDecisions:
+- Bind each view transition to an owner-approved action, state, and finality contract; no action identifier or state
+  transition is inferred by this proposal.
+- Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed channel.
+- Author deterministic fixtures with owner-approved expected results for success, critical exceptions, recovery,
+  and preserved context.
+- Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner and independent
+  review before PDP-3 acceptance.
+conditionalHandoffRefs:
+- action-plane-publication
+handoffCondition: Use Action Plane only for privileged external publication; export/download is a separate Media
+  delivery operation.

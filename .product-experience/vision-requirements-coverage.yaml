@@ -4,39 +4,39 @@ authority: authored-cross-phase-alignment-ledger; not-semantic-acceptance-or-cur
 sourceInputs:
   masterPrompt: user-provided-generic-four-phase-product-definition-and-complete-experience-explorer-prompt
   vision: docs/VISION.md
-  goals: phase-0-product-truth/goals-jtbd.yaml
-  requirements: phase-0-product-truth/requirements.yaml
-  nonfunctionalRequirements: phase-0-product-truth/nonfunctional-requirements.yaml
-  domain: phase-0-product-truth/domain-model.yaml
-  states: phase-0-product-truth/state-models.yaml
-  design: phase-1-design-language/
-  experience: phase-2-product-experience/
-  explorer: phase-3-experience-explorer/ and ../apps/media-experience-explorer/
+  goals: pdp-0-product-truth/goals-jtbd.yaml
+  requirements: pdp-0-product-truth/requirements.yaml
+  nonfunctionalRequirements: pdp-0-product-truth/nonfunctional-requirements.yaml
+  domain: pdp-0-product-truth/domain-model.yaml
+  states: pdp-0-product-truth/state-models.yaml
+  design: pdp-2-design-interface-system/
+  experience: pdp-3-product-experience/
+  explorer: explorer/ and ../apps/media-experience-explorer/
 phaseCrosswalk:
   - masterPromptPhase: PDP-0
     localProjection: P0
-    sources: [phase-0-product-truth/]
+    sources: [pdp-0-product-truth/]
     status: captured-proposal; P0-001-boundary-slice-accepted; P0-010-pending
   - masterPromptPhase: PDP-1
     localProjection: P0-domain-and-state-records
     sources:
-      - phase-0-product-truth/domain-model.yaml
-      - phase-0-product-truth/state-models.yaml
-      - phase-0-product-truth/time-units-fidelity.yaml
-      - phase-0-product-truth/schema-bindings.yaml
+      - pdp-0-product-truth/domain-model.yaml
+      - pdp-0-product-truth/state-models.yaml
+      - pdp-0-product-truth/time-units-fidelity.yaml
+      - pdp-0-product-truth/schema-bindings.yaml
     status: captured-proposal; independent-semantic-review-pending
   - masterPromptPhase: PDP-2
     localProjection: P1
-    sources: [phase-1-design-language/]
+    sources: [pdp-2-design-interface-system/]
     status: captured-proposal; P1-006-pending
   - masterPromptPhase: PDP-3
     localProjection: P2
-    sources: [phase-2-product-experience/]
+    sources: [pdp-3-product-experience/]
     status: captured-proposal; P2-008-pending
   - masterPromptPhase: Experience-Explorer-projection
     localProjection: P3
     sources:
-      - phase-3-experience-explorer/
+      - explorer/
       - ../apps/media-experience-explorer/
       - ../libs/media-experience-simulation/
     status: deterministic-local-projection; Tools-binding-and-human-review-pending
@@ -49,27 +49,27 @@ masterPromptCoverage:
   - id: MP-5-11
     sections: 5-11
     theme: Explorer-completeness-source-links-information-architecture-and-product-truth-domain-modes
-    sources: [apps/media-experience-explorer/specification-artifacts.json, phase-3-experience-explorer/EXPERIENCE-EXPLORER.md, phase-3-experience-explorer/verification-matrix.yaml]
+    sources: [apps/media-experience-explorer/specification-artifacts.json, explorer/EXPERIENCE-EXPLORER.md, explorer/verification-matrix.yaml]
     status: source-index-and-trace-metadata-captured; structured-mode-and-native-rendering-gap-open
   - id: MP-12-16
     sections: 12-16
     theme: PDP-0-product-truth-and-PDP-1-domain-data-contracts
-    sources: [phase-0-product-truth/]
+    sources: [pdp-0-product-truth/]
     status: captured-proposal; P0-010-independent-review-pending
   - id: MP-17-32
     sections: 17-32
     theme: PDP-2-design-language-GUI-foundations-components-patterns-layouts-and-machine-interface-conventions
-    sources: [phase-1-design-language/]
+    sources: [pdp-2-design-interface-system/]
     status: captured-proposal; P1-006-review-and-Shared-binding-pending
   - id: MP-33-54
     sections: 33-54
     theme: PDP-3-surfaces-screens-interfaces-journeys-states-actions-traceability-fixtures-and-simulation
-    sources: [phase-2-product-experience/, phase-3-experience-explorer/, libs/media-experience-simulation/]
+    sources: [pdp-3-product-experience/, explorer/, libs/media-experience-simulation/]
     status: captured-proposal; P2-008-and-runtime-binding-pending
   - id: MP-55-64
     sections: 55-64
     theme: pixel-perfect-responsive-accessibility-localization-conformance-source-code-and-brownfield-rules
-    sources: [phase-1-design-language/accessibility.yaml, phase-1-design-language/localization-content.yaml, phase-1-design-language/responsive-adaptive.yaml, phase-3-experience-explorer/verification-matrix.yaml, docs/PRODUCT-DEFINITION-COVERAGE.md]
+    sources: [pdp-2-design-interface-system/accessibility.yaml, pdp-2-design-interface-system/localization-content.yaml, pdp-2-design-interface-system/responsive-adaptive.yaml, explorer/verification-matrix.yaml, docs/PRODUCT-DEFINITION-COVERAGE.md]
     status: deterministic-local-browser-proof-partial; independent-review-and-reference-baseline-gap-open
   - id: MP-65-72
     sections: 65-72
@@ -139,18 +139,18 @@ coverageChecks:
 knownCoverageGaps:
   - id: capability-leaf-journey-reachability
     count: 385
-    location: phase-0-product-truth/capabilities.yaml
+    location: pdp-0-product-truth/capabilities.yaml
     status: pending-P0-010-per-leaf-fit-review
   - id: action-capability-reachability
     count: 123
-    location: phase-2-product-experience/action-registry.yaml
+    location: pdp-3-product-experience/action-registry.yaml
     status: pending-P2-action-binding-review
   - id: component-capability-reachability
     count: 1
-    location: phase-1-design-language/component-contracts.yaml#media.component.identity-context-boundary
+    location: pdp-2-design-interface-system/component-contracts.yaml#media.component.identity-context-boundary
     status: pending-P1-component-binding-review
   - id: explorer-structured-truth-domain-overview
-    location: phase-3-experience-explorer/ and apps/media-experience-explorer/
+    location: explorer/ and apps/media-experience-explorer/
     gapRef: GAP-MEDIA-EXPLORER-CONTENT-COVERAGE
     status: source-records-are-indexed-and-traceable; dedicated-structured-modes-and-native-Tools-rendering-pending
   - id: native-currentness-and-acceptance

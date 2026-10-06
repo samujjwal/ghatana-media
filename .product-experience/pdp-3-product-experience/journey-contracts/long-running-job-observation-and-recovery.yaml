@@ -1,0 +1,532 @@
+schemaVersion: media.journey-contract.v1
+productId: media
+journeyId: J-20
+title: Observe a long-running job and check its outcome safely
+status: proposal; transcription-fixture-slice-only; runtime-and-owner-acceptance-pending
+scope: existing-transcription-job-observation-and-cancellation-in-local-fixtures; retry-is-specified-from-the-PDP-0-capability-but-runtime-and-owner-acceptance-remain-pending
+outcomes: [media.goal.resolve-safely]
+actors: [media.creator, media.editor, media.operator]
+intent: media.intent.resolve-job
+preconditions:
+  - The job has one stable owner-issued identity and the current actor may view its status.
+  - The exact source version remains distinct from the job identity.
+  - Cancellation and outcome-check availability follow the current authority and job state.
+steps:
+- view: media.view.monitor-transcription
+  action: media.action.view-job-status
+  result: the-current-job-reference-is-used-without-submitting-another-request
+  surfaceRefs: []
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: existing-step-result
+    sourceRef: journey.steps[1].result
+    proposal: the-current-job-reference-is-used-without-submitting-another-request
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: browser-or-cli-detaches
+      response: preserve-job-identity-and-status; stopping-observation-is-not-cancellation
+    - id: cancellation-unconfirmed
+      response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
+    - id: remote-outcome-unknown
+      response: disable-resubmission-and-check-the-existing-job-outcome
+    - id: progress-unavailable
+      response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Reattach by the existing job identity, view its current status, and check an uncertain outcome before considering
+      a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
+      The fixture slice does not execute retry.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - job-identity
+    - source-artifact-version
+    - attempt-state-when-authorized
+    - last-observed-finality
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- view: media.view.job-status
+  action: media.action.view-job-status
+  result: state-attempt-state-finality-and-only-measured-progress-are-shown
+  surfaceRefs: []
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: existing-step-result
+    sourceRef: journey.steps[2].result
+    proposal: state-attempt-state-finality-and-only-measured-progress-are-shown
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: browser-or-cli-detaches
+      response: preserve-job-identity-and-status; stopping-observation-is-not-cancellation
+    - id: cancellation-unconfirmed
+      response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
+    - id: remote-outcome-unknown
+      response: disable-resubmission-and-check-the-existing-job-outcome
+    - id: progress-unavailable
+      response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Reattach by the existing job identity, view its current status, and check an uncertain outcome before considering
+      a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
+      The fixture slice does not execute retry.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - job-identity
+    - source-artifact-version
+    - attempt-state-when-authorized
+    - last-observed-finality
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- view: media.view.job-status
+  navigation: stop-watching
+  result: observation-ends-for-this-view; the-existing-job-state-and-finality-are-unchanged
+  surfaceRefs: []
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: existing-step-result
+    sourceRef: journey.steps[3].result
+    proposal: observation-ends-for-this-view; the-existing-job-state-and-finality-are-unchanged
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: browser-or-cli-detaches
+      response: preserve-job-identity-and-status; stopping-observation-is-not-cancellation
+    - id: cancellation-unconfirmed
+      response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
+    - id: remote-outcome-unknown
+      response: disable-resubmission-and-check-the-existing-job-outcome
+    - id: progress-unavailable
+      response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Reattach by the existing job identity, view its current status, and check an uncertain outcome before considering
+      a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
+      The fixture slice does not execute retry.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - job-identity
+    - source-artifact-version
+    - attempt-state-when-authorized
+    - last-observed-finality
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- view: media.view.job-status
+  navigation: reattach-by-stable-job-reference
+  action: media.action.view-job-status
+  result: the-same-job-identity-is-refreshed-from-current-owner-evidence
+  surfaceRefs: []
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: existing-step-result
+    sourceRef: journey.steps[4].result
+    proposal: the-same-job-identity-is-refreshed-from-current-owner-evidence
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: browser-or-cli-detaches
+      response: preserve-job-identity-and-status; stopping-observation-is-not-cancellation
+    - id: cancellation-unconfirmed
+      response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
+    - id: remote-outcome-unknown
+      response: disable-resubmission-and-check-the-existing-job-outcome
+    - id: progress-unavailable
+      response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Reattach by the existing job identity, view its current status, and check an uncertain outcome before considering
+      a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
+      The fixture slice does not execute retry.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - job-identity
+    - source-artifact-version
+    - attempt-state-when-authorized
+    - last-observed-finality
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- view: media.view.job-status
+  action: media.action.request-cancellation
+  when: queued-or-running-and-current-cancellation-authority-allows
+  result: cancellation-is-pending-until-the-job-owner-confirms-stop-or-reports-a-racing-result
+  surfaceRefs: []
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: existing-step-result
+    sourceRef: journey.steps[5].result
+    proposal: cancellation-is-pending-until-the-job-owner-confirms-stop-or-reports-a-racing-result
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: browser-or-cli-detaches
+      response: preserve-job-identity-and-status; stopping-observation-is-not-cancellation
+    - id: cancellation-unconfirmed
+      response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
+    - id: remote-outcome-unknown
+      response: disable-resubmission-and-check-the-existing-job-outcome
+    - id: progress-unavailable
+      response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Reattach by the existing job identity, view its current status, and check an uncertain outcome before considering
+      a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
+      The fixture slice does not execute retry.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - job-identity
+    - source-artifact-version
+    - attempt-state-when-authorized
+    - last-observed-finality
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- view: media.view.job-status
+  action: media.action.retry-job
+  when: prior-attempt-is-classified-retryable-and-current-retry-authority-policy-and-budget-allow-one-new-attempt
+  result: one-new-fenced-attempt-is-created-under-the-same-logical-job-identity; the-prior-attempt-and-its-finality-remain-visible
+  surfaceRefs: []
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: existing-step-result
+    sourceRef: journey.steps[6].result
+    proposal: one-new-fenced-attempt-is-created-under-the-same-logical-job-identity; the-prior-attempt-and-its-finality-remain-visible
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: browser-or-cli-detaches
+      response: preserve-job-identity-and-status; stopping-observation-is-not-cancellation
+    - id: cancellation-unconfirmed
+      response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
+    - id: remote-outcome-unknown
+      response: disable-resubmission-and-check-the-existing-job-outcome
+    - id: progress-unavailable
+      response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Reattach by the existing job identity, view its current status, and check an uncertain outcome before considering
+      a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
+      The fixture slice does not execute retry.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - job-identity
+    - source-artifact-version
+    - attempt-state-when-authorized
+    - last-observed-finality
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- view: media.view.check-job-outcome
+  action: media.action.check-job-outcome
+  when: outcome-is-unknown-and-current-outcome-check-authority-allows
+  result: evidence-is-collected-for-the-same-job-without-a-new-dispatch
+  surfaceRefs: []
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: existing-step-result
+    sourceRef: journey.steps[7].result
+    proposal: evidence-is-collected-for-the-same-job-without-a-new-dispatch
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - id: browser-or-cli-detaches
+      response: preserve-job-identity-and-status; stopping-observation-is-not-cancellation
+    - id: cancellation-unconfirmed
+      response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
+    - id: remote-outcome-unknown
+      response: disable-resubmission-and-check-the-existing-job-outcome
+    - id: progress-unavailable
+      response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal: Reattach by the existing job identity, view its current status, and check an uncertain outcome before considering
+      a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
+      The fixture slice does not execute retry.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - job-identity
+    - source-artifact-version
+    - attempt-state-when-authorized
+    - last-observed-finality
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+terminalSuccess: The actor observes owner-confirmed completion or cancellation, or leaves the same job visibly uncertain with a safe outcome-check path; already completed work remains available.
+criticalNonhappyPaths:
+  - id: browser-or-cli-detaches
+    response: preserve-job-identity-and-status; stopping-observation-is-not-cancellation
+  - id: cancellation-unconfirmed
+    response: retain-running-or-pending-state-until-owner-evidence-confirms-a-final-outcome
+  - id: remote-outcome-unknown
+    response: disable-resubmission-and-check-the-existing-job-outcome
+  - id: progress-unavailable
+    response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
+recovery: Reattach by the existing job identity, view its current status, and check an uncertain outcome before considering a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it. The fixture slice does not execute retry.
+contextPreserved: [job-identity, source-artifact-version, attempt-state-when-authorized, last-observed-finality]
+channelEquivalents: [web, cli]
+channelLimits:
+  web: the-local-view-has-no-live-subscription; leaving-the-view-does-not-change-job-state
+  cli: status-cancel-and-check-outcome-commands-share-the-fixture-reducer; long-poll-watch-and-sigint-transport-are-not-implemented
+accessibilityRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml

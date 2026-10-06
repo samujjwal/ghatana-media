@@ -6,14 +6,26 @@ acceptance evidence.
 
 ## Validate the Product Definition source tree
 
+After editing authored Product Definition records, regenerate the source
+manifest and Explorer index from their source:
+
+```sh
+pnpm generate:product-definition-manifest
+```
+
+The generator owns `.product-experience/source-manifest.yaml` and
+`apps/media-experience-explorer/specification-artifacts.json`; do not edit those
+generated files manually.
+
 ```sh
 pnpm check:product-experience-local
 ```
 
-The check validates the 147-record Explorer index, 462 capability leaves,
-component/screen/journey/action cross-references, proposal-only action guards,
+The check validates the generated Explorer index, capability and component
+records, screen/journey/action references, proposal-only action guards,
 closure-matrix coverage, and the intentional absence of hand-authored
-`currentness.yaml`.
+`currentness.yaml`. It is structural local validation, not semantic acceptance
+or generated currentness.
 
 ## Run the deterministic command simulator
 

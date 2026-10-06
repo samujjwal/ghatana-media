@@ -1,0 +1,8 @@
+schemaVersion: media.api-retry-timeout-unknown-outcome.v1
+owner: ghatana-media-product-api
+authority: Media operation contract owns retry safety, deadlines, and effect finality
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-2-design-interface-system/api/errors.yaml, .product-experience/pdp-2-design-interface-system/api/idempotency.yaml, .product-experience/pdp-2-design-interface-system/api/async-operations.yaml, .product-experience/pdp-0-product-truth/state-models.yaml]
+scopeStatus: proposal; per-operation policy and budgets await runtime binding
+acceptance: {criteria: [timeouts do not imply failure, unknown outcomes have a read-only resolution path, retry requires explicit safe classification and fresh policy checks], status: pending-runtime-owner-review}
+verification: {method: Simulate lost acknowledgments, deadline expiry, and retry at each effect boundary; verify no duplicate effects, status: not-run}
+rules: [a client wait deadline is distinct from a server-side processing deadline and cancellation, do not blindly retry a mutation after timeout, resolve the original operation by an operation identity or idempotency key only where the accepted operation contract provides one, retry only when the specific operation is classified safe and authority/policy/budget are re-evaluated, unknown is neither failure nor success, this proposal establishes no automatic retry, persistence, or reconciliation mechanism]

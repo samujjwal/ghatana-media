@@ -1,0 +1,32 @@
+schemaVersion: media.gui-style-authority.v1
+artifactId: media.pdp-2.gui-style-authority
+owner: ghatana-media-product-experience
+authority: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
+scopeStatus: PROPOSED
+semanticRule: >-
+  Media owns semantic names and composition. Shared owns primitive values,
+  tokens, themes, accessibility primitives, and generic component behavior.
+currentProjection:
+  source: apps/media-experience-explorer/src/styles.css
+  status: LOCAL_ONLY
+  purpose: deterministic Explorer fixture rendering
+  semanticAuthority: false
+  rawTokenAndGeometryExceptions: true
+  exceptionPolicy: >-
+    Raw values in the local stylesheet are explicit projection exceptions, not
+    product truth. They must be replaced or bound to a released Shared package
+    before visual conformance or publication is claimed.
+sharedBinding:
+  required: true
+  references:
+    - sibling-repository:ghatana-shared/config/design-system-public-api.json
+    - .product-experience/pdp-2-design-interface-system/gui/primitives.yaml
+    - .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
+  status: EXTERNAL_PACKAGE_AND_OWNER_REVIEW_PENDING
+conformance:
+  requiredChecks:
+    - every-semantic-token-resolves-to-Shared-public-export
+    - no-product-local-primitive-component-implementation
+    - keyboard-focus-for-all-actions
+    - forced-colors-zoom-reflow-and-screen-reader-review
+  status: NOT_RUN

@@ -1,0 +1,169 @@
+schemaVersion: media.screen-contract.v2
+productId: media
+screenId: media.view.review-quality
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+surfaceId: media.surface.web
+surfaceBindingStatus: candidate-from-web-channel-and-surface-inventory; owner-binding-pending
+templateId: null
+templateBindingStatus: unresolved-legacy-template-reference; no-canonical-template-id-match
+layoutIds: []
+layoutBindingStatus: unresolved-no-canonical-layout-ids-registered
+componentIds:
+  - media.component.quality-inspector
+  - media.component.result-comparison
+  - media.component.provenance-summary
+componentBindingStatus: proposal-copy-of-existing-componentRefs; Shared-binding-and-acceptance-pending
+patternIds:
+  - media.gui.pattern.quality-and-uncertainty
+patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
+tokenDependencies: []
+tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
+domainObjectRefs: []
+domainObjectRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
+operationRefs: []
+operationRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
+stateRefs: []
+stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
+entry: []
+entryBindingStatus: unresolved-no-exact-canonical-reference-declared
+exit: []
+exitBindingStatus: unresolved-no-exact-canonical-reference-declared
+actionConsequences:
+  - actionId: media.action.inspect-provenance
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.inspect-quality-evidence
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.compare-candidate-on-metric
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.review-bounded-repair-proposal
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+actionConsequencesBindingStatus: pending-owner-effect-and-operation-binding
+responsiveBehavior:
+  sourceRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
+  status: proposal-unverified
+responsiveBehaviorBindingStatus: proposal-only-no-screen-specific-overrides
+fixtures:
+  refs:
+    []
+  status: missing-no-existing-fixtureRefs-declared
+fixturesBindingStatus: missing-owner-reviewed-fixture-binding
+verification:
+  status: not-run
+  evidenceRefs: []
+  checks:
+    structural: not-yet-proven
+    rendering: not-yet-proven
+    behavior: not-yet-proven
+    responsive: not-yet-proven
+    keyboard: not-yet-proven
+    accessibility: not-yet-proven
+verificationBindingStatus: not-run-no-behavior-or-accessibility-claim
+fieldBindingStatus:
+  surfaceId: candidate; owner-binding-pending
+  templateId: unresolved; no-exact-template-catalog-match
+  layoutIds: unresolved; no-canonical-layout-ids-registered
+  componentIds: proposal-copy; Shared-binding-pending
+  patternIds: proposal-copy; PDP-2-acceptance-pending
+  tokenDependencies: unresolved; no-canonical-reference-declared
+  domainObjectRefs: unresolved; no-canonical-reference-declared
+  operationRefs: unresolved; no-canonical-reference-declared
+  stateRefs: unresolved; local-UI-state-labels-not-promoted
+  entry: unresolved; no-canonical-reference-declared
+  exit: unresolved; no-canonical-reference-declared
+  actionConsequences: pending; owner-operation-and-effect-binding-required
+  responsiveBehavior: proposal-unverified; central-rule-reference-only
+  fixtures: missing; no-existing-fixtureRefs-declared
+  verification: not-run; no-evidence-refs
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.improve
+purpose: Applicable dimensions, abstentions, defects and repair plan
+contextGoalNowNext:
+  context: An exact candidate version, applicable quality dimensions, methods and evidence, abstentions, and bounded
+    repair options.
+  goal: Decide what the evidence supports about this version and whether further review or repair is needed.
+  now: Show assessed and unassessed dimensions, metric basis and units, evidence, defect scope, and recommendation
+    limits.
+  next: Inspect supporting evidence, compare an exact candidate, or review a bounded repair plan.
+anatomy:
+- target-version
+- applicable-dimensions
+- metric-values-and-units
+- evidence-and-method
+- abstentions-and-limitations
+- defect-and-repair-plan
+- candidate-provenance
+componentRefs:
+- media.component.quality-inspector
+- media.component.result-comparison
+- media.component.provenance-summary
+states:
+- not-assessed
+- partial
+- measured
+- conflicting-evidence
+- recommendation-only
+- repair-plan-ready
+- unavailable
+actions:
+- media.action.inspect-provenance
+- media.action.inspect-quality-evidence
+- media.action.compare-candidate-on-metric
+- media.action.review-bounded-repair-proposal
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+actionIntents:
+- inspect evidence for a quality dimension
+- compare a candidate on an explicit metric
+- review a bounded repair proposal
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+surfaceContract:
+  surfaceRef: media.channel.web
+  status: channel-and-host-rendering-owner-review-pending
+templateContract:
+  templateRef: media.template.review-quality
+  kind: owner-defined-template-pending-review
+layoutContract:
+  primaryRegion: intent-and-context
+  supportingRegions: anatomy-list-order
+  responsiveRuleRef: existing-responsive-description
+patternRefs:
+  - media.gui.pattern.quality-and-uncertainty
+validation:
+  status: proposal-validation-pending-owner-review
+  rule: validate-inputs-authority-and-finality-before-dispatch
+recovery:
+  status: explicit-recovery-proposal-pending-owner-review
+  rule: preserve-context-and-unknown-outcomes-before-retry-or-resubmit
+accessibility:
+  status: accessibility-intent-proposal-pending-owner-review
+  rule: preserve-focus-reading-order-names-and-recovery-announcements
+localization:
+  status: Shared-localization-binding-pending-owner-review
+  rule: use-Shared-locale-formatting-and-accessibility-contracts
+sourceRefs:
+- master-plan:section-20.2
+- .product-experience/pdp-0-product-truth
+journeyRefs: []

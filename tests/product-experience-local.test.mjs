@@ -13,9 +13,9 @@ test("Product Definition local invariant check covers all phase denominators", (
   });
 
   assert.match(output, /Media Product Definition local check passed/u);
-  assert.match(output, /462 Phase 0 capability leaves/u);
-  assert.match(output, /28 Phase 1 components/u);
-  assert.match(output, /47 Phase 2 screen contracts/u);
-  assert.match(output, /28 required journey proposals/u);
+  assert.match(output, /462 PDP-0 capability leaves/u);
+  assert.match(output, /28 PDP-2 components/u);
+  assert.match(output, /47 PDP-3 screen contracts/u);
+  assert.match(output, /28 baseline plus J-29\/J-30 extensions/u);
   assert.match(output, /currentness\.yaml is absent/u);
 });

@@ -1,0 +1,90 @@
+schemaVersion: media.event-registry.v1
+productId: media
+status: two-observed-source-populations; event-taxonomy-and-domain-lifecycle-coverage-pending-owner-review
+sources:
+  - .product-experience/pdp-2-design-interface-system/events/conventions.yaml
+  - libs/audio-video-client/src/index.ts
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java
+populations:
+  runtimeLifecyclePublisherTypes:
+    count: 9
+    sourceInventory: .product-experience/pdp-1-domain-data/events.yaml#/observedEnvelope/lifecyclePublisherInventory
+    classification: observed server-side publisher implementation types; not an accepted canonical taxonomy
+    observedTypes:
+      - media.upload.started
+      - media.artifact.completed
+      - media.job.accepted
+      - media.job.cancelled
+      - media.job.cancel_requested
+      - media.stream.opened
+      - media.stream.closed
+      - media.job.completed
+      - media.job.failed
+    deliveryFinalityOrderingReplayGuarantees: not-established
+  clientLocalTypeScriptNotifications:
+    count: 15
+    source: libs/audio-video-client/src/index.ts#AudioVideoClient
+    classification: five in-process listener families (start, complete, error); separate from server lifecycle publishers
+    deliveryFinalityOrderingReplayGuarantees: not-established
+  semanticCrosswalk: not-established
+events:
+  - id: media.event.ai-voice:process:complete
+    eventName: "ai-voice:process:complete"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.ai-voice:process:error
+    eventName: "ai-voice:process:error"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.ai-voice:process:start
+    eventName: "ai-voice:process:start"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.multimodal:process:complete
+    eventName: "multimodal:process:complete"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.multimodal:process:error
+    eventName: "multimodal:process:error"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.multimodal:process:start
+    eventName: "multimodal:process:start"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.stt:transcription:complete
+    eventName: "stt:transcription:complete"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.stt:transcription:error
+    eventName: "stt:transcription:error"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.stt:transcription:start
+    eventName: "stt:transcription:start"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.tts:synthesis:complete
+    eventName: "tts:synthesis:complete"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.tts:synthesis:error
+    eventName: "tts:synthesis:error"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.tts:synthesis:start
+    eventName: "tts:synthesis:start"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.vision:process:complete
+    eventName: "vision:process:complete"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.vision:process:error
+    eventName: "vision:process:error"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review
+  - id: media.event.vision:process:start
+    eventName: "vision:process:start"
+    lifecycleMeaning: pending-owner-review
+    finalityAndOrdering: pending-owner-review

@@ -1,0 +1,361 @@
+schemaVersion: media.journey-contract.v1
+productId: media
+journeyId: J-29
+title: Live session loss, consent change, and bounded recovery
+status: pdp-0-grounded-contract; transport-and-owner-semantics-pending-review
+intentRefs:
+  - media.intent.recover-live-session
+outcomeRefs:
+  - media.goal.resolve-safely
+outcomes:
+  - media.goal.resolve-safely
+actors:
+  - media.creator
+  - media.editor
+  - media.operator
+  - media.automation-client
+channelRefs:
+  - media.channel.web
+  - media.channel.grpc-api
+orderedViews:
+  - media.view.work-in-project
+  - media.view.job-status
+  - media.view.review-activity
+preconditions:
+  known: A live session has stable session and frame identity, bounded buffers, a current lease, and authoritative consent scope.
+  ownerReview: Exact lease issuance, consent authority, and frame-admission rules require the owning runtime and privacy reviewers.
+completion:
+  known: Session closure or drain is confirmed, or in-flight external effects remain explicitly unknown; no new frame crosses after revocation or fencing.
+  ownerReview: Confirmation source, drain guarantees, and finality vocabulary require owner approval.
+terminalSuccess: session-closed-or-drained-with-unknown-effects-explicit
+steps:
+- stepId: detect-loss-or-consent-change
+  surfaceRefs:
+  - media.surface.web
+  - media.surface.service-grpc
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.terminalSuccess
+    proposal: session-closed-or-drained-with-unknown-effects-explicit
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - client-disconnect
+    - lease-loss
+    - consent-revocation-or-expiry
+    - out-of-order-acknowledgement
+    - uncertain-provider-frame-outcome
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal:
+      steps:
+      - fence-new-frame-submission
+      - use-prior-consent-only-for-permitted-termination
+      - reconcile-dispatched-frame-effects-before-opening-any-new-session
+      ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner review.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - session-id
+    - last-acknowledged-frame-sequence
+    - current-lease-version
+    - current-consent-version
+    - per-frame-finality
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- stepId: fence-new-frame-submission
+  surfaceRefs:
+  - media.surface.web
+  - media.surface.service-grpc
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.terminalSuccess
+    proposal: session-closed-or-drained-with-unknown-effects-explicit
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - client-disconnect
+    - lease-loss
+    - consent-revocation-or-expiry
+    - out-of-order-acknowledgement
+    - uncertain-provider-frame-outcome
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal:
+      steps:
+      - fence-new-frame-submission
+      - use-prior-consent-only-for-permitted-termination
+      - reconcile-dispatched-frame-effects-before-opening-any-new-session
+      ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner review.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - session-id
+    - last-acknowledged-frame-sequence
+    - current-lease-version
+    - current-consent-version
+    - per-frame-finality
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- stepId: reconcile-dispatched-frame-effects
+  surfaceRefs:
+  - media.surface.web
+  - media.surface.service-grpc
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.terminalSuccess
+    proposal: session-closed-or-drained-with-unknown-effects-explicit
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - client-disconnect
+    - lease-loss
+    - consent-revocation-or-expiry
+    - out-of-order-acknowledgement
+    - uncertain-provider-frame-outcome
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal:
+      steps:
+      - fence-new-frame-submission
+      - use-prior-consent-only-for-permitted-termination
+      - reconcile-dispatched-frame-effects-before-opening-any-new-session
+      ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner review.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - session-id
+    - last-acknowledged-frame-sequence
+    - current-lease-version
+    - current-consent-version
+    - per-frame-finality
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+- stepId: present-bounded-return-state
+  surfaceRefs:
+  - media.surface.web
+  - media.surface.service-grpc
+  objectRefs: []
+  stateRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.terminalSuccess
+    proposal: session-closed-or-drained-with-unknown-effects-explicit
+  failure:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.criticalNonhappyPaths
+    proposal:
+    - client-disconnect
+    - lease-loss
+    - consent-revocation-or-expiry
+    - out-of-order-acknowledgement
+    - uncertain-provider-frame-outcome
+  degradedBehavior: null
+  recovery:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.recovery
+    proposal:
+      steps:
+      - fence-new-frame-submission
+      - use-prior-consent-only-for-permitted-termination
+      - reconcile-dispatched-frame-effects-before-opening-any-new-session
+      ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner review.
+  postconditions: []
+  requirementRefs: []
+  verification:
+    status: not-run
+    requiredChecks:
+    - duplicate-key-safe YAML parse
+    - focused PDP3-005 ten-contract structural/reference check
+    actualEvidence: []
+  contextPreservation:
+    status: candidate-proposal
+    scope: journey-level-not-allocated-to-this-step
+    sourceRef: journey.contextPreserved
+    proposal:
+    - session-id
+    - last-acknowledged-frame-sequence
+    - current-lease-version
+    - current-consent-version
+    - per-frame-finality
+  bindingStatus:
+    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
+    objectRefs: pending-explicit-domain-object-reference
+    stateRefs: pending-owner-bound-state-reference
+    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
+    authorityRef: pending-explicit-step-authority-binding
+    decisionRef: pending-explicit-owner-decision-binding
+    transitionRef: pending-legal-transition-binding
+    handoffRef: pending-explicit-step-handoff-binding
+    success: candidate-proposal-only; not accepted step behavior
+    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+    degradedBehavior: pending-explicit-step-degraded-behavior
+    recovery: candidate-proposal-only; not accepted step recovery
+    postconditions: pending-explicit-step-postconditions
+    requirementRefs: pending-explicit-requirement-crosswalk
+    verification: not-run; no evidence refs recorded
+    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+criticalNonhappy:
+  - client-disconnect
+  - lease-loss
+  - consent-revocation-or-expiry
+  - out-of-order-acknowledgement
+  - uncertain-provider-frame-outcome
+criticalNonhappyPaths:
+  - client-disconnect
+  - lease-loss
+  - consent-revocation-or-expiry
+  - out-of-order-acknowledgement
+  - uncertain-provider-frame-outcome
+recovery:
+  steps:
+    - fence-new-frame-submission
+    - use-prior-consent-only-for-permitted-termination
+    - reconcile-dispatched-frame-effects-before-opening-any-new-session
+  ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner review.
+contextAndReturn:
+  preserve:
+    - session-id
+    - last-acknowledged-frame-sequence
+    - current-lease-version
+    - current-consent-version
+    - per-frame-finality
+  additionalFields: pending-owner-review
+contextPreserved: [session-id, last-acknowledged-frame-sequence, current-lease-version, current-consent-version, per-frame-finality]
+channelEquivalents: [media.channel.web, media.channel.grpc-api]
+operationRefs:
+  - media.http.openMediaStream
+  - media.http.getMediaStream
+  - media.http.connectMediaStream
+  - media.http.submitMediaStreamFrame
+  - media.http.closeMediaStream
+  - media.grpc.MultimodalService.ProcessMultimodal
+  - media.grpc.VisionService.ProcessVideo
+fixtureRefs: []
+fixtures: pending-owner-fixture-review
+verification:
+  required: [disconnect, lease-expiry, consent-revocation, out-of-order-ack, unknown-frame-outcome, bounded-recovery]
+  ownerReview: runtime-and-consent-owner-review-pending
+accessibilityRef: media.a11y.baseline

@@ -70,7 +70,18 @@ public record AvTranscriptionJob(
 
     /** Job lifecycle statuses for AV transcription. */
     public enum JobStatus {
-        CREATED, QUEUED, PROCESSING, COMPLETED, FAILED, CANCELLED, RETRYING
+        CREATED,
+        QUEUED,
+        PROCESSING,
+        RETRY_PENDING,
+        OUTCOME_UNKNOWN,
+        RECONCILING,
+        COMPLETED,
+        FAILED,
+        CANCELLED,
+        /** @deprecated Use {@link #RETRY_PENDING}; retained for wire compatibility. */
+        @Deprecated
+        RETRYING
     }
 
     /** Factory for a new transcription job. */

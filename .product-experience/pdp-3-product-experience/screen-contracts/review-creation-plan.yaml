@@ -1,0 +1,134 @@
+schemaVersion: media.screen-contract.v2
+contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+surfaceId: media.surface.web
+templateId: null
+layoutIds: []
+componentIds: [media.component.creation-plan-summary, media.component.delivery-profile-picker, media.component.rights-retention-review]
+patternIds: [media.gui.pattern.creation-plan-review]
+tokenDependencies: []
+domainObjectRefs: []
+operationRefs: []
+stateRefs: []
+entry: []
+exit: []
+actionConsequences:
+  - actionId: media.action.edit-unresolved-plan-decision
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.request-plan-validation
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.submit-admitted-plan
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+responsiveBehavior: {ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive, status: proposal-unverified, screenOverrides: []}
+fixtures: {refs: [], status: missing}
+verification:
+  status: not-run
+  evidenceRefs: []
+  checks: {structural: not-proven, rendering: not-proven, behavior: not-proven, responsive: not-proven, keyboard: not-proven, accessibility: not-proven}
+fieldBindingStatus:
+  surfaceId: candidate-binding-pending-owner-review
+  templateId: unresolved; no existing catalog template ID matches the declared templateRef
+  layoutIds: none-registered
+  componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
+  patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
+  tokenDependencies: no-canonical-references-declared
+  domainObjectRefs: no-canonical-references-declared
+  operationRefs: no-canonical-references-declared
+  stateRefs: no-PDP1-state-references-declared
+  entry: no-canonical-entry-contract-declared
+  exit: no-canonical-exit-contract-declared
+  actionConsequences: unresolved; owner-effect-binding-pending
+  responsiveBehavior: proposal-only; unverified
+  fixtures: missing
+  verification: not-run
+productId: media
+screenId: media.view.review-creation-plan
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.create
+purpose: Proposed graph, estimates, material decisions and validation
+contextGoalNowNext:
+  context: The current proposed plan, selected inputs, settings, estimates, policy decisions, and plan revision.
+  goal: Decide whether the plan is complete, permitted, and suitable for an explicit submission.
+  now: Show the operation graph, unresolved requirements, measured versus estimated costs, supported alternatives,
+    and exact approval effects.
+  next: Edit a decision, return to its owner, or submit only through a separately admitted action after validation.
+anatomy:
+- plan-summary
+- operation-graph
+- input-and-output-versions
+- capability-dispositions
+- estimates-and-cost-basis
+- rights-and-policy-effects
+- validation-findings
+- explicit-next-actions
+componentRefs:
+- media.component.creation-plan-summary
+- media.component.delivery-profile-picker
+- media.component.rights-retention-review
+states:
+- loading
+- ready-for-review
+- missing-input
+- unsupported-operation
+- policy-blocked
+- estimate-incomplete
+- stale-plan
+- submission-pending
+actions:
+- media.action.edit-unresolved-plan-decision
+- media.action.request-plan-validation
+- media.action.submit-admitted-plan
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+actionIntents:
+- edit an unresolved plan decision
+- request an explicit plan validation
+- submit a validated plan when the operation is admitted
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+surfaceContract:
+  surfaceRef: media.channel.web
+  status: channel-and-host-rendering-owner-review-pending
+templateContract:
+  templateRef: media.template.review-creation-plan
+  kind: owner-defined-template-pending-review
+layoutContract:
+  primaryRegion: intent-and-context
+  supportingRegions: anatomy-list-order
+  responsiveRuleRef: existing-responsive-description
+patternRefs:
+  - media.gui.pattern.creation-plan-review
+validation:
+  status: proposal-validation-pending-owner-review
+  rule: validate-inputs-authority-and-finality-before-dispatch
+recovery:
+  status: explicit-recovery-proposal-pending-owner-review
+  rule: preserve-context-and-unknown-outcomes-before-retry-or-resubmit
+accessibility:
+  status: accessibility-intent-proposal-pending-owner-review
+  rule: preserve-focus-reading-order-names-and-recovery-announcements
+localization:
+  status: Shared-localization-binding-pending-owner-review
+  rule: use-Shared-locale-formatting-and-accessibility-contracts
+sourceRefs:
+- master-plan:section-20.2
+- .product-experience/pdp-0-product-truth
+journeyRefs: []

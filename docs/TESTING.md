@@ -10,9 +10,12 @@ fast tests use in-memory fakes; durable tests use H2 or Testcontainers; the
 full integration surface requires Docker. None of these focused commands
 requires real customer media or a remote provider.
 
-The service contract is
-[../service-contract.yaml](../service-contract.yaml), and the HTTP contract
-is [../contracts/openapi/media.yaml](../contracts/openapi/media.yaml).
+There is no active aggregate `service-contract.yaml`. Contract validation uses
+the source-specific authorities: OpenAPI plus the route manifest for HTTP,
+protobuf descriptors for gRPC, provider manifest entries for provider
+availability, and the canonical PDP-1/PDP-3 registries for semantic and
+experience parity. Do not recreate an aggregate file as a second source of
+truth.
 
 ## Test layers
 
@@ -80,15 +83,28 @@ It runs integration-tagged workflows and requires Docker/Testcontainers. Use
 it when durable infrastructure and external test dependencies are available,
 not as the fast local closure command.
 
+Current isolated-build note: the focused STT compile is still blocked during
+external sibling composite configuration by
+`ghatana/integration-tests/service-contract-test-utils/build.gradle.kts:16`;
+the shared version catalog does not expose `libs.jackson.dataformat.yaml` in
+that checkout. This is recorded as a build-environment/sibling-repository
+blocker, not converted into a Media build pass.
+
 The browser experience audit starts from a running Explorer preview at
-`http://127.0.0.1:4179/` and exercises all 29 synthetic scenarios, all 147
-source artifacts, all 47 valid Product proposal routes, the inline
+`http://127.0.0.1:4179/` and exercises all 29 synthetic scenarios, the generated
+source index, all 47 valid Product proposal routes, the inline
 artifact-verification specialization, Verify, keyboard mode/phase navigation,
 accessible names, console/page errors, and horizontal overflow at six recorded
 viewports. It writes screenshots and a JSON report to
 `/tmp/media-experience-browser-audit` by default. This is deterministic browser
 evidence and visual-review input; it is not independent human approval,
 pixel-reference conformance, or Tools-native acceptance.
+
+The prior browser report predates the canonical phase-path and generated-index
+normalization. Rerun the audit against the current generated index and current
+dependency set before using any browser observations as current evidence. The
+workspace install is currently blocked by unavailable private package
+`@ghatana/design-system@0.1.2`; an unavailable audit run is not a pass.
 
 ## Failure, recovery, and concurrency coverage
 

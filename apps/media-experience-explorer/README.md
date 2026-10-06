@@ -47,12 +47,17 @@ identity or workspace authority is unavailable and keep uncertain project
 creation bound to the same request. They do not authenticate users or create
 production projects. The J-02 fixtures contain upload and verification-job
 metadata only; they do not transfer files, contact an artifact service, or
-define production format limits. The Phase 2 registries index 41 baseline views and 30 journeys (28
-required by the master plan, plus two supplementary Phase 0 journeys). All 41 baseline
-views have proposal contracts, and six selected-lane specializations are indexed. All 28 required journeys have proposal files: four retain scoped J-01/J-02/J-03/J-20 slices, and 24 add Phase 0-grounded outcomes and ordered screen paths. All authored screen action intents now resolve to intent-based proposal action references, including intent-derived registry entries. Complete action semantics, capability authority, component interactions, state transitions, copy, fixtures, wire/channel bindings, and owner review remain open.
+define production format limits. The PDP-3 registries index 47 canonical screens,
+one job-family specialization file, and 30 journeys (28 baseline proposals plus
+J-29/J-30 extension contracts). All 47 canonical screens have source-derived
+proposal contracts and all 28 baseline journeys have proposal files. All
+authored screen action intents now resolve to intent-based proposal action
+references, including intent-derived registry entries. Complete action
+semantics, capability authority, component interactions, state transitions,
+copy, fixtures, wire/channel bindings, and owner review remain open.
 
-Specification mode indexes all 147 source records, including all 41 baseline view
-contracts and six selected-lane view specializations. It renders the declared
+Specification mode indexes the generated source manifest and all 47 canonical
+screen contracts plus the job-family specialization. It renders the declared
 purpose, context, anatomy, states, actions, channel dispositions, and responsive
 and accessibility guidance as read-only proposal previews; actions are labeled
 as not executable, and the source YAML remains available below each preview.
@@ -62,10 +67,10 @@ class, canonical location, semantic-fingerprint/currentness status, declared
 relation authority, and verification status. Tools-generated fingerprints and
 currentness remain explicitly pending until their owner binding is available.
 These previews make the source contracts inspectable without implementing their
-views or closing Phase 2 or 3 acceptance.
+views or closing PDP-2 or PDP-3 acceptance.
 The browser client does not constitute
 full Phase 3 acceptance or a `ghatana-tools` host binding. See the
-[verification matrix](../../.product-experience/phase-3-experience-explorer/verification-matrix.yaml)
+[verification matrix](../../.product-experience/explorer/verification-matrix.yaml)
 and [open gaps](../../.product-experience/gaps.yaml) for current evidence and
 remaining owner reviews.
 
@@ -73,7 +78,7 @@ Run `pnpm check:product-experience-local` from the repository root for the
 read-only local invariant check that backs the closure matrix.
 
 Run `pnpm test:experience-browser` with the Vite preview active on port 4179 to
-exercise all 29 scenarios, 147 source artifacts, 47 valid Product proposal
+exercise all 29 scenarios, the generated source index, 47 valid Product proposal
 routes, Verify, the inline artifact-verification specialization, keyboard
 navigation, accessible names, and six responsive viewports. The audit writes
 fixed-viewport screenshots and `report.json` to

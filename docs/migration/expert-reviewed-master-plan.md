@@ -3,25 +3,25 @@
 
 **Document ID:** MEDIA-MASTER-PLAN  
 **Review date:** October 4, 2026  
-**Status:** Reviewed planning baseline; proposed requirements and execution instructions, not a claim of implemented or accepted product capability  
+**Status:** Migration/execution reference; its proposed product semantics are non-authoritative and remain subject to extraction and review in the owning PDP records
 **Product:** Ghatana Media (`media`)  
 **Target repository:** `samujjwal/ghatana-media`  
 **Existing source:** `samujjwal/ghatana`, `services/media/`  
 **Creation subsystem:** MediaSynth  
 **Product CLI:** `ghatana-media`  
-**Authority phases:** Phase 0, Phase 1, Phase 2, Phase 3 only
+**Authority phases:** PDP-0, PDP-1, PDP-2, PDP-3 only; the Experience Explorer is outside the PDP phases
 
 > Reuse the appropriate Ghatana owner first. Define Media meaning once. Keep every channel consistent. Make protection and quality native, and complexity optional. Verify the resulting behavior rather than inferring it from source presence.
 
 ## How to use this document
 
-This is the replacement planning baseline for the supplied consolidated Media plan. It contains the intended product scope, reviewed architectural decisions, dependency selection rules, migration procedure, phase deliverables, task-level instructions, verification strategy, and downstream engineering handoff. It does not require the earlier conversation to be understood.
+This document is retained as a migration/execution sequence and historical provenance for the supplied consolidated Media plan. The canonical product meaning is owned by the applicable PDP authority and its explicitly accepted decisions. Material in this plan that has not been extracted into those authorities remains a proposal, not a parallel semantic authority; extraction and review are tracked in `GAP-MEDIA-MIGRATION-SEMANTICS`. Task order, migration procedure, phase deliverables, verification strategy, and downstream handoff guidance remain useful execution references.
 
 The product scope includes existing media processing and streaming, speech recognition and synthesis, image/video/audio/music generation, enhancement and restoration, editing, animation, simulation, synchronization, composition, professional color and mastering, quality assessment, delivery, and spatial-media extension points. None of these disappears because an initial provider is missing.
 
 **Execution modes are separate permissions.** `PLAN_ONLY` produces/reviews this plan. `DEFINE_PRODUCT` authors Phase 0–2 artifacts and builds the Phase 3 Explorer, fixtures, adapters, and verification. `EXECUTE_MIGRATION` moves existing source and its ownership after its prerequisites. `IMPLEMENT_RUNTIME` builds production capabilities from accepted authority. A request for a plan or Explorer does not authorize production deployment, database mutation, model downloads, paid inference, publication, deletion, or repository cutover.
 
-Migration is a cross-repository workstream, not a numbered product-definition phase. Production implementation and qualification are downstream workstreams, not Phase 4. Existing service contracts remain with their legitimate owners until an explicit transfer. This document is a planning authority; once its records are materialized into accepted phase artifacts, it becomes their execution guide and cannot compete with them.
+Migration is a cross-repository workstream, not a numbered product-definition phase. Production implementation and qualification are downstream workstreams, not a fifth PDP phase. Existing service contracts remain with their legitimate owners until an explicit transfer. This document does not authorize source transfer, runtime mutation, publication, qualification, or release.
 
 **Reading order:** Sections 1–5 establish decisions and boundaries. Sections 6–17 define the product and runtime contracts. Sections 18–22 specify the four phases and their handoff. Sections 23–25 provide executable task cards, sequencing, and verification. The appendices preserve source coverage, evidence provenance, and unresolved prerequisites.
 

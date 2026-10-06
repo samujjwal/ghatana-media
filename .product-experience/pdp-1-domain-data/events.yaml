@@ -1,0 +1,156 @@
+schemaVersion: media.pdp-1.events.v1
+artifactId: media.pdp-1.events
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-0-product-truth/state-models.yaml
+scopeStatus: envelope-observed; canonical-taxonomy-pending-owner-review
+sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEventPublisher.java, launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, libs/audio-video-client/src/index.ts, .product-experience/pdp-3-product-experience/events/event-registry.yaml, modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto]
+observedEnvelope:
+  id: media.event-envelope.observed-v1
+  fields: [eventId, eventType, tenantId, principalId, correlationId, causationId, aggregateType, aggregateId, aggregateVersion, classification, occurredAt, attributes]
+  constraints: [positive-aggregateVersion, occurredAt-Instant-defaulted-by-record, sanitized-attributes]
+  publisherMethods: [publisherId, ready, productionEligible, publish]
+  scopeStatus: observed-implementation-contract; not-canonical-event-catalog
+  fieldObservations:
+    eventId: {status: runtime-formula-observed, formula: "media:<eventType>:<aggregateId>:<aggregateVersion>", sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#publishLifecycle}
+    eventType: {status: "source-spelling-observed; canonical-taxonomy: not-established"}
+    correlationId: {status: "required-by-runtime-record; lifecycle-source-value-is-callsite-specific"}
+    causationId: {status: "optional-by-runtime-record; absent-value-is-empty; causality-contract: unresolved"}
+    producer: {status: wire-source-observed, value: media, eventSpecificProducerAuthority: unresolved}
+    objectAndVersion: {status: aggregate-type-id-version-fields-observed, canonicalDomainObjectAndVersionCrosswalk: unresolved}
+    occurredAt: {status: null-defaulted-to-Instant.now, orderingGuarantee: unresolved}
+    classification: {status: required-field-observed, semanticRedactionPolicy: unresolved}
+    attributes: {status: MediaMetadataSanitizer-applied, semanticPiiRedactionAndEventSpecificMinimization: unresolved}
+  wireObservations:
+    eventVersion: {value: "1.0", status: "publisher-implementation-observed; compatibility-schema-and-evolution-policy: unresolved"}
+    idempotencyHeader: {name: Idempotency-Key, value: eventId, status: "request-header-observed; durable-deduplication-guarantee: unresolved"}
+    acceptedHttpStatuses: [200, 201]
+    otherHttpStatus: {behavior: publisher-throws}
+    publicationFailure: {behavior: "runtime-logs-unconfirmed-and-continues; outbox-retry-replay-and-recovery-contract: not-established"}
+    replayRetentionOrdering: unresolved
+  lifecyclePublisherInventory:
+    source: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java
+    publisherCallSites: 7
+    concreteEventTypes: 9
+    classification: source-observed-implementation-inventory; not-canonical-taxonomy
+    records:
+      - {eventType: media.upload.started, callSite: "MediaRuntime#beginUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L262-L265", trigger: upload-session-created, aggregateType: upload, aggregateId: session.uploadId, aggregateVersion: 1}
+      - {eventType: media.artifact.completed, callSite: "MediaRuntime#completeUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L287-L291", trigger: upload-completes-and-artifact-is-returned, aggregateType: artifact, aggregateId: artifact.artifactId, aggregateVersion: 1}
+      - {eventType: media.job.accepted, callSite: "MediaRuntime#submitJob", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L351-L357", trigger: job-persisted-as-accepted, aggregateType: job, aggregateId: accepted.jobId, aggregateVersion: accepted.version}
+      - {eventType: media.job.cancelled, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L402-L409", trigger: provider-confirms-cancellation-and-cancelled-job-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
+      - {eventType: media.job.cancel_requested, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L411-L424", trigger: cancellation-remains-unconfirmed-and-requested-state-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
+      - {eventType: media.stream.opened, callSite: "MediaRuntime#openStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L456-L461", trigger: stream-session-created, aggregateType: stream, aggregateId: sessionId, aggregateVersion: session.version}
+      - {eventType: media.stream.closed, callSite: "MediaRuntime#closeStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L596-L602", trigger: stream-transitions-to-closed, aggregateType: stream, aggregateId: sessionId, aggregateVersion: closed.version}
+      - {eventType: media.job.completed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1135-L1142", trigger: terminal-job-record-persisted-and-current-status-is-COMPLETED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
+      - {eventType: media.job.failed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1135-L1142", trigger: terminal-job-record-persisted-and-current-status-is-FAILED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
+    sharedPublisher: "MediaRuntime#publishLifecycle constructs dynamic media.job.<status>; current startJob assignments establish only completed and failed concrete outcomes in this inventory"
+    perEventProducerAuthority: unresolved
+    canonicalTaxonomy: unresolved
+    eventSpecificEvidenceBindings: proposal-bindings-present; semantic-and-owner-review-pending
+    evidenceProvenanceProposals:
+      status: source-observation-candidates-only; not-committed-event-evidence
+      unavailable: [authoritative-finality-evidence, durable-delivery-receipt, committed-event-evidence, replay-or-deduplication-receipt]
+      records:
+        - eventType: media.upload.started
+          callSite: MediaRuntime#beginUpload
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L262-L265, candidate: upload-session-returned-by-artifactStore.begin}
+          aggregateProposal: {type: upload, identity: session.uploadId, version: literal-1; no-upload-version-record-observed}
+          provenanceCandidates: [tenantId, principalId, classification, contentType, expectedSizeBytes]
+          evidenceStatus: source-observation-candidate-only; committed-or-delivery-evidence-unavailable
+          policySemantics: pending-owner-review
+        - eventType: media.artifact.completed
+          callSite: MediaRuntime#completeUpload
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L287-L291, candidate: artifact-returned-by-artifactStore.complete}
+          aggregateProposal: {type: artifact, identity: artifact.artifactId, version: literal-1; no-artifact-version-record-observed}
+          provenanceCandidates: [tenantId, principalId, classification, contentType, sizeBytes, sourceUploadId, sha256]
+          evidenceStatus: source-observation-candidate-only; completion-is-not-independent-verification-or-committed-event-evidence
+          policySemantics: pending-owner-review
+        - eventType: media.job.accepted
+          callSite: MediaRuntime#submitJob
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L351-L357, candidate: accepted-ProcessingJob-after-jobStore.create}
+          aggregateProposal: {type: job, identity: accepted.jobId, version: accepted.version}
+          provenanceCandidates: [tenantId, principalId, request.correlationId, request.requestId, request.artifactId, accepted.jobType, accepted.providerId, accepted.status, artifact.classification]
+          evidenceStatus: source-observation-candidate-only; accepted-record-does-not-prove-processing-finality
+          policySemantics: pending-owner-review
+        - eventType: media.job.cancelled
+          callSite: MediaRuntime#cancel
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L402-L409, candidate: provider-confirmed-cancellation-and-stored-job}
+          aggregateProposal: {type: job, identity: current.jobId, version: stored.version}
+          provenanceCandidates: [tenantId, principalId, current.requestId, current.artifactId, current.jobType, current.providerId, stored.status, providerOutcome]
+          evidenceStatus: source-observation-candidate-only; provider-confirmation-is-not-an-independent-delivery-receipt
+          policySemantics: pending-owner-review
+        - eventType: media.job.cancel_requested
+          callSite: MediaRuntime#cancel
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L411-L424, candidate: unconfirmed-provider-outcome-and-stored-requested-state}
+          aggregateProposal: {type: job, identity: current.jobId, version: stored.version}
+          provenanceCandidates: [tenantId, principalId, current.requestId, current.artifactId, current.jobType, current.providerId, stored.status, providerOutcome]
+          evidenceStatus: source-observation-candidate-only; explicitly-not-cancellation-finality
+          policySemantics: pending-owner-review
+        - eventType: media.stream.opened
+          callSite: MediaRuntime#openStream
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L456-L461, candidate: created-StreamSession}
+          aggregateProposal: {type: stream, identity: sessionId, version: session.version}
+          provenanceCandidates: [tenantId, principalId, request.correlationId, session.streamKind, session.providerId, session.version, governanceContext.classification]
+          evidenceStatus: source-observation-candidate-only; session-creation-is-not-provider-delivery-or-stream-success-evidence
+          policySemantics: pending-owner-review
+        - eventType: media.stream.closed
+          callSite: MediaRuntime#closeStream
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L596-L602, candidate: transitioned-StreamSession}
+          aggregateProposal: {type: stream, identity: sessionId, version: closed.version}
+          provenanceCandidates: [tenantId, principalId, sessionId, closed.streamKind, closed.providerId, closed.lastSequence, closed.state, closed.version]
+          evidenceStatus: source-observation-candidate-only; closed-state-observation-is-not-independent-consumer-or-delivery-acknowledgement
+          policySemantics: pending-owner-review
+        - eventType: media.job.completed
+          callSite: MediaRuntime#startJob-terminal-publication
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1135-L1142, candidate: terminal-ProcessingJob-persisted-with-COMPLETED-status}
+          aggregateProposal: {type: job, identity: value.jobId, version: terminal.version}
+          provenanceCandidates: [tenantId, principalId, request.correlationId, request.requestId, value.artifactId, value.jobType, terminal.providerId, terminal.status, terminal.failureCode, artifact.classification]
+          evidenceStatus: source-observation-candidate-only; terminal-record-is-not-independent-quality-or-delivery-evidence
+          policySemantics: pending-owner-review
+        - eventType: media.job.failed
+          callSite: MediaRuntime#startJob-terminal-publication
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1135-L1142, candidate: terminal-ProcessingJob-persisted-with-FAILED-status}
+          aggregateProposal: {type: job, identity: value.jobId, version: terminal.version}
+          provenanceCandidates: [tenantId, principalId, request.correlationId, request.requestId, value.artifactId, value.jobType, terminal.providerId, terminal.status, terminal.failureCode, artifact.classification]
+          evidenceStatus: source-observation-candidate-only; failure-record-is-not-independent-delivery-or-recovery-evidence
+          policySemantics: pending-owner-review
+  clientNotificationInventory:
+    source: libs/audio-video-client/src/index.ts#AudioVideoClient
+    registrySource: .product-experience/pdp-3-product-experience/events/event-registry.yaml
+    count: 15
+    delivery: local-client-listener-bus; durable-Event-Plane-publication-not-established
+    relationToLifecyclePublisher: separate-population; not-equivalent
+    families:
+      - {family: stt:transcription, eventNames: ["stt:transcription:start", "stt:transcription:complete", "stt:transcription:error"]}
+      - {family: tts:synthesis, eventNames: ["tts:synthesis:start", "tts:synthesis:complete", "tts:synthesis:error"]}
+      - {family: ai-voice:process, eventNames: ["ai-voice:process:start", "ai-voice:process:complete", "ai-voice:process:error"]}
+      - {family: vision:process, eventNames: ["vision:process:start", "vision:process:complete", "vision:process:error"]}
+      - {family: multimodal:process, eventNames: ["multimodal:process:start", "multimodal:process:complete", "multimodal:process:error"]}
+    semanticEquivalenceToLifecycleTypes: not-established
+  excludedEventShapedSources:
+    - {sourceRef: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto#CrossModalEvent.event_type, examples: [sync, mismatch, emphasis], classification: message-content-examples-not-lifecycle-publication}
+    - {sourceRef: functional-test-fixtures, classification: test-payload-strings-not-production-publication}
+eventFamilies:
+  - id: media.event-family.job
+    scope: job-attempt-status-and-finality-facts
+    canonicalEventTypes: not-established
+    requiredSemantics: [aggregate-version, causation-correlation, effect-boundary, finality-evidence, classification]
+    scopeStatus: proposed-family-only; pending-owner-review
+  - id: media.event-family.artifact
+    scope: upload-verification-availability-quarantine-retention-erasure-facts
+    canonicalEventTypes: not-established
+    scopeStatus: proposed-family-only; pending-owner-review
+  - id: media.event-family.consent
+    scope: consent-grant-change-expiry-revocation-facts
+    canonicalEventTypes: not-established
+    scopeStatus: proposed-family-only; pending-owner-review
+  - id: media.event-family.stream
+    scope: stream-session-and-sequence-lifecycle-facts
+    canonicalEventTypes: not-established
+    scopeStatus: proposed-family-only; pending-owner-review
+rules:
+  - publication-does-not-authorize-or-commit-underlying-domain-transition
+  - delivery-order-replay-and-retention-guarantees-unverified
+  - unknown-outcome-and-cancellation-request-are-not-confirmed-finality
+  - attributes-obey-data-minimization-classification-and-sanitization
+  - consumer-contract-and-schema-evolution-require-owner-review

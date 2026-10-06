@@ -1,0 +1,41 @@
+schemaVersion: media.experience-view-projections.v1
+productId: media
+status: J-01-J-02-metadata-and-J-20-transcription-job-projections-plus-selected-lane-proposal; local-browser-renderer-covers-these-slices; Tools-host-binding-pending
+scope: three-first-use-routes-three-J-02-artifact-intake-routes-one-J-02-activity-view-shared-job-status-view-for-J-02-and-J-20-and-six-contextual-transcription-caption-views; not-the-41-view-baseline
+stateActionAuthority: libs/media-experience-simulation/src/index.ts
+views:
+  - viewRef: media.view.authenticate-and-select-context
+    projection: identity-handoff-required-or-authorized-workspace-context-with-protected-data-boundary
+  - viewRef: media.view.resume-work
+    projection: authorized-project-list-or-purposeful-first-use-state-without-cross-tenant-data
+  - viewRef: media.view.find-projects
+    projection: empty-project-list-and-current-project-create-authority
+  - viewRef: media.view.work-in-project
+    projection: exact-project-identity-version-and-safe-next-action
+  - viewRef: media.view.browse-media
+    projection: currently-authorized-available-artifact-versions-and-empty-library-state
+  - viewRef: media.view.import-media
+    projection: stable-upload-identity-fixture-status-and-same-upload-recovery
+  - viewRef: media.view.inspect-media
+    projection: exact-artifact-version-integrity-and-policy-dispositions
+  - viewRef: media.view.job-status
+    projection: selected-workflow-job-state-finality-and-safe-next-actions; retain-related-upload-identity-when-present; show-only-measured-progress
+  - viewRef: media.view.review-activity
+    projection: one-synthetic-verification-job-summary-with-state-finality-and-exact-view-status-action; production-list-query-not-bound
+  - viewRef: media.view.select-source
+    projection: source-summary-plus-available-source-actions
+  - viewRef: media.view.monitor-transcription
+    projection: job-state-finality-and-safe-next-actions
+  - viewRef: media.view.review-transcript
+    projection: source-version-time-linked-recognized-segments-and-uncertainty
+  - viewRef: media.view.correct-captions
+    projection: caption-draft-segments-timing-and-revision-state
+  - viewRef: media.view.compare-caption-versions
+    projection: parent-and-candidate-version-differences
+  - viewRef: media.view.check-job-outcome
+    projection: existing-job-evidence-and-outcome-check-actions
+chromeRules:
+  product: no-workspace-picker-requirement-id-or-verification-panel
+  explore: host-selects-only-PDP-3-declared-context-dimensions
+  specification: derive-inspection-from-registered-PDP-0-to-PDP-3-references
+  verify: host-displays-observations-with-fingerprints-and-currentness

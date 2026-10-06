@@ -1,0 +1,143 @@
+schemaVersion: media.screen-contract.v2
+contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+surfaceId: media.surface.web
+templateId: media.gui.template.render-preparation-and-review
+layoutIds: []
+componentIds: [media.component.creation-plan-summary, media.component.delivery-profile-picker, media.component.rights-retention-review, media.component.job-status-card]
+patternIds: [media.gui.pattern.creation-plan-review, media.gui.pattern.rendering]
+tokenDependencies: []
+domainObjectRefs: []
+operationRefs: []
+stateRefs: []
+entry: []
+exit: []
+actionConsequences:
+  - actionId: media.action.validate-exact-snapshot
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.select-eligible-processing-profile
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.review-estimates-and-rights-effects
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.submit-render
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+responsiveBehavior: {ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive, status: proposal-unverified, screenOverrides: []}
+fixtures: {refs: [], status: missing}
+verification:
+  status: not-run
+  evidenceRefs: []
+  checks: {structural: not-proven, rendering: not-proven, behavior: not-proven, responsive: not-proven, keyboard: not-proven, accessibility: not-proven}
+fieldBindingStatus:
+  surfaceId: candidate-binding-pending-owner-review
+  templateId: catalog-id-copied-exactly; template-binding-acceptance-pending
+  layoutIds: none-registered
+  componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
+  patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
+  tokenDependencies: no-canonical-references-declared
+  domainObjectRefs: no-canonical-references-declared
+  operationRefs: no-canonical-references-declared
+  stateRefs: no-PDP1-state-references-declared
+  entry: no-canonical-entry-contract-declared
+  exit: no-canonical-exit-contract-declared
+  actionConsequences: unresolved; owner-effect-binding-pending
+  responsiveBehavior: proposal-only; unverified
+  fixtures: missing
+  verification: not-run
+productId: media
+screenId: media.view.prepare-render
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.create
+purpose: Snapshot/profile, validation, cost and submission
+contextGoalNowNext:
+  context: A frozen composition revision, named output profile, validation findings, cost/quality estimates, and
+    submission identity.
+  goal: Validate and explicitly submit a render with an exact snapshot and disclosed delivery consequences.
+  now: Show immutable input revision, profile, material overrides, compatibility checks, estimated resources, rights
+    state, and finality semantics.
+  next: Resolve validation, select a compatible profile, or submit the exact validated snapshot through an admitted
+    action.
+anatomy:
+- composition-snapshot
+- profile-and-overrides
+- compatibility-and-validation
+- resource-and-quality-estimates
+- rights-and-delivery-effects
+- job-submission-and-finality
+componentRefs:
+- media.component.creation-plan-summary
+- media.component.delivery-profile-picker
+- media.component.rights-retention-review
+- media.component.job-status-card
+states:
+- draft
+- validation-required
+- profile-incompatible
+- estimate-incomplete
+- rights-review-required
+- ready-to-submit
+- submission-pending
+- outcome-unknown
+actions:
+- media.action.validate-exact-snapshot
+- media.action.select-eligible-processing-profile
+- media.action.review-estimates-and-rights-effects
+- media.action.submit-render
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+actionIntents:
+- validate an exact snapshot
+- choose a named compatible profile
+- review estimates and rights effects
+- submit the render explicitly
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+surfaceContract:
+  surfaceRef: media.channel.web
+  status: channel-and-host-rendering-owner-review-pending
+templateContract:
+  templateRef: media.gui.template.render-preparation-and-review
+  kind: owner-defined-template-pending-review
+layoutContract:
+  primaryRegion: intent-and-context
+  supportingRegions: anatomy-list-order
+  responsiveRuleRef: existing-responsive-description
+patternRefs:
+  - media.gui.pattern.creation-plan-review
+  - media.gui.pattern.rendering
+validation:
+  status: proposal-validation-pending-owner-review
+  rule: validate-inputs-authority-and-finality-before-dispatch
+recovery:
+  status: explicit-recovery-proposal-pending-owner-review
+  rule: preserve-context-and-unknown-outcomes-before-retry-or-resubmit
+accessibility:
+  status: accessibility-intent-proposal-pending-owner-review
+  rule: preserve-focus-reading-order-names-and-recovery-announcements
+localization:
+  status: Shared-localization-binding-pending-owner-review
+  rule: use-Shared-locale-formatting-and-accessibility-contracts
+sourceRefs:
+- master-plan:section-20.2
+- .product-experience/pdp-0-product-truth
+journeyRefs: []

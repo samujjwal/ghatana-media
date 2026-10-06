@@ -1,0 +1,42 @@
+schemaVersion: media.protocol-operation-contract.v1
+operationId: media.http.completeMediaUpload
+protocolIdentity:
+  protocol: HTTP
+  method: POST
+  path: /api/v1/artifacts/uploads/{uploadId}/complete
+  operationId: completeMediaUpload
+sourceContract: contracts/openapi/media.yaml
+sourceContractDisposition: implementation-or-projection-observation; not-declared-canonical-wire-authority
+routeManifestObservation:
+  source: config/route-manifest.json
+  routeId: POST /api/v1/artifacts/uploads/{uploadId}/complete
+  identityMatch: exact-method-path-operationId
+parameters:
+  refs:
+  - '#/components/parameters/TenantHeader'
+  - '#/components/parameters/UploadId'
+request:
+  schemaRefs: []
+response:
+  responseRefsByStatus:
+    '409': '#/components/responses/Error'
+  schemaRefsByStatus:
+    '201':
+    - '#/components/schemas/MediaArtifact'
+    '409':
+    - '#/components/schemas/ErrorEnvelope'
+pdp1SemanticBinding:
+  logicalOperationRef: null
+  bindingStatus: unresolved-no-source-explicit-http-member-crosswalk
+  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
+  ownerReview: pending
+contractStatus: proposal-only; owner-review-pending
+nonClaims:
+- authentication
+- idempotency
+- retry
+- cancellation
+- finality
+- state-effects
+- privacy
+- event-guarantees

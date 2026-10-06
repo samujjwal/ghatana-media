@@ -1,9 +1,26 @@
 schemaVersion: media.product-experience-authority-map.v1
 productId: media
 mode: authored-concept-ownership-map
-status: migration-boundary-accepted; full-Phase-0-and-later-phase-acceptance-pending
+status: migration-boundary-accepted; full-PDP-0-and-later-PDP-acceptance-pending
 artifactPathBase: .product-experience/
 externalOwnerPathBase: owner-repository-root-relative
+canonicalPdpPhases:
+- id: PDP-0
+  path: .product-experience/pdp-0-product-truth/
+  semanticOwner: media-product
+- id: PDP-1
+  path: .product-experience/pdp-1-domain-data/
+  semanticOwner: media-product
+- id: PDP-2
+  path: .product-experience/pdp-2-design-interface-system/
+  semanticOwner: media-product; Shared owns generic primitives and tokens
+- id: PDP-3
+  path: .product-experience/pdp-3-product-experience/
+  semanticOwner: media-product
+- id: EXPLORER
+  path: .product-experience/explorer/
+  semanticOwner: media-product; projection owner does not own PDP meaning
+  outsidePdpPhases: true
 sourceRefs:
 - master-plan:section-5.1
 - master-plan:section-5.2
@@ -21,10 +38,10 @@ authorityRules:
   rule: External owner contracts remain canonical; Media records public references, adapters, compatibility needs,
     and unresolved bindings.
 - id: AUTH-RULE-ACCEPTANCE
-  rule: Only the P0-001 boundary slice is currently accepted; all other Phase 0 records are proposals pending owner
+  rule: Only the P0-001 boundary slice is currently accepted; all other PDP-0 records are proposals pending owner
     review and P0-010.
 phaseAuthorities:
-- phase: P0
+- phase: PDP-0
   name: Product Truth
   owner: ghatana-media-product-owners
   scope: product meaning, outcomes, actors, requirements, capabilities, domain/time/units, authority, states, quality,
@@ -32,7 +49,7 @@ phaseAuthorities:
   acceptance: P0-001-boundary-slice-only
   artifacts:
   - id: ART-P0-PRODUCT-TRUTH-BOUNDARY
-    path: phase-0-product-truth/PRODUCT-TRUTH.md
+    path: pdp-0-product-truth/PRODUCT-TRUTH.md
     role: accepted-boundary-slice
     authority: canonical-for-the-accepted-P0-001-boundary-scope-only
     acceptanceState: accepted
@@ -42,47 +59,47 @@ phaseAuthorities:
     authority: points-to-structured-register-and-is-not-an-editable-requirement-source
     acceptanceState: pending-P0-002-human-review
   - id: ART-P0-CONSTITUTION
-    path: phase-0-product-truth/constitution.yaml
+    path: pdp-0-product-truth/constitution.yaml
     role: authored-proposal
     authority: canonical-if-and-when-constitutional-requirements-are-accepted
     acceptanceState: pending-human-review
   - id: ART-P0-GLOSSARY
-    path: phase-0-product-truth/glossary.yaml
+    path: pdp-0-product-truth/glossary.yaml
     role: authored-proposal
     authority: canonical-if-and-when-product-terms-are-accepted
     acceptanceState: pending-human-review
   - id: ART-P0-ACTORS
-    path: phase-0-product-truth/actors-responsibilities.yaml
+    path: pdp-0-product-truth/actors-responsibilities.yaml
     role: authored-proposal
     authority: canonical-if-and-when-actors-and-responsibilities-are-accepted
     acceptanceState: pending-human-and-role-appointment-review
   - id: ART-P0-GOALS
-    path: phase-0-product-truth/goals-jtbd.yaml
+    path: pdp-0-product-truth/goals-jtbd.yaml
     role: authored-proposal
     authority: canonical-if-and-when-outcomes-and-intents-are-accepted
     acceptanceState: pending-human-review
   - id: ART-P0-REQUIREMENTS
-    path: phase-0-product-truth/requirements.yaml
+    path: pdp-0-product-truth/requirements.yaml
     role: authored-proposal
     authority: canonical-if-and-when-requirements-are-accepted
     acceptanceState: pending-P0-003-and-P0-010
   - id: ART-P0-CAPABILITIES
-    path: phase-0-product-truth/capabilities.yaml
+    path: pdp-0-product-truth/capabilities.yaml
     role: authored-proposal
     authority: canonical-if-and-when-capability-leaves-are-accepted
     acceptanceState: pending-P0-003-and-P0-010
   - id: ART-P0-CAPABILITY-CROSSWALK
-    path: phase-0-product-truth/capability-preservation-crosswalk.yaml
+    path: pdp-0-product-truth/capability-preservation-crosswalk.yaml
     role: reconciliation-evidence-input
     authority: source-preservation-crosswalk-not-independent-capability-authority
     acceptanceState: pending-P0-003-and-P0-010
   - id: ART-P0-DOMAIN-MODEL
-    path: phase-0-product-truth/domain-model.yaml
+    path: pdp-0-product-truth/domain-model.yaml
     role: authored-proposal
     authority: canonical-if-and-when-domain-model-is-accepted
     acceptanceState: pending-owner-review-and-P0-010
   - id: ART-P0-TIME-UNITS-FIDELITY
-    path: phase-0-product-truth/time-units-fidelity.yaml
+    path: pdp-0-product-truth/time-units-fidelity.yaml
     role: authored-proposal-with-source-observations
     authority: proposed-conventions-and-observations-not-an-accepted-wire-schema
     acceptanceState: pending-specialist-and-owner-review
@@ -92,7 +109,7 @@ phaseAuthorities:
     authority: specifies-proposed-time-coordinate-color-and-dimension-cases; not-runtime-evidence
     acceptanceState: pending-graphics-audio-simulation-and-owner-review; execution-not-run
   - id: ART-P0-STATE-MODELS
-    path: phase-0-product-truth/state-models.yaml
+    path: pdp-0-product-truth/state-models.yaml
     role: authored-proposal
     authority: canonical-if-and-when-state-models-are-accepted
     acceptanceState: pending-distributed-systems-and-owner-review
@@ -107,67 +124,67 @@ phaseAuthorities:
     authority: specifies-policy-attack-cases-against-P0-006-proposals; not-runtime-evidence-or-a-security-qualification
     acceptanceState: pending-security-privacy-rights-owner-review; execution-not-run
   - id: ART-P0-POLICY-AUTHORITY
-    path: phase-0-product-truth/policy-authority-model.yaml
-    role: accepted-boundary-input-and-proposed-phase-0-policy
+    path: pdp-0-product-truth/policy-authority-model.yaml
+    role: accepted-boundary-input-and-proposed-PDP-0-policy
     authority: P0-001-boundary-rules-accepted; full-P0-006-policy-not-accepted
     acceptanceState: boundary-scope-only; full-policy-pending
   - id: ART-P0-DEPENDENCY-CONTRACTS
-    path: phase-0-product-truth/dependency-contracts.yaml
+    path: pdp-0-product-truth/dependency-contracts.yaml
     role: accepted-boundary-input-and-proposed-capability-bindings
     authority: owner-boundary-decisions-accepted-as-recorded; capability-level-public-bindings-pending
     acceptanceState: mixed-boundary-accepted; full-P0-008-pending
   - id: ART-P0-REUSE-DECISIONS
-    path: phase-0-product-truth/reuse-decisions.yaml
+    path: pdp-0-product-truth/reuse-decisions.yaml
     role: authored-owner-boundary-and-candidate-disposition-proposal
     authority: decision-register-not-a-runtime-dependency-projection
     acceptanceState: pending-publication-isolation-and-owner-review
   - id: ART-P0-NFR
-    path: phase-0-product-truth/nonfunctional-requirements.yaml
+    path: pdp-0-product-truth/nonfunctional-requirements.yaml
     role: authored-proposal
     authority: canonical-if-and-when-nonfunctional-requirements-are-accepted
     acceptanceState: pending-human-review
   - id: ART-P0-PROFILE-SEMANTICS
-    path: phase-0-product-truth/profile-semantics.yaml
+    path: pdp-0-product-truth/profile-semantics.yaml
     role: authored-proposal
     authority: canonical-if-and-when-profile-semantics-are-accepted
     acceptanceState: pending-quality-AI-ML-and-owner-review
   - id: ART-P0-QUALITY-POLICY
-    path: phase-0-product-truth/quality-policy.yaml
+    path: pdp-0-product-truth/quality-policy.yaml
     role: authored-proposal
     authority: canonical-if-and-when-quality-policy-is-accepted
     acceptanceState: pending-quality-AI-ML-and-domain-owner-review
   - id: ART-P0-QUALIFICATION-POLICY
-    path: phase-0-product-truth/qualification-policy.yaml
+    path: pdp-0-product-truth/qualification-policy.yaml
     role: authored-proposal
     authority: qualification-dimension-semantics-not-qualification-evidence
     acceptanceState: pending-P0-003-and-P0-010
   - id: ART-P0-CONTENT-INTENT
-    path: phase-0-product-truth/content-intent.yaml
+    path: pdp-0-product-truth/content-intent.yaml
     role: authored-proposal
     authority: canonical-if-and-when-content-intent-is-accepted
     acceptanceState: pending-security-rights-and-P0-010-review
   - id: ART-P0-INFORMATION-ARCHITECTURE
-    path: phase-0-product-truth/information-architecture.yaml
+    path: pdp-0-product-truth/information-architecture.yaml
     role: authored-proposal
     authority: canonical-if-and-when-channel-information-architecture-is-accepted
     acceptanceState: pending-UX-accessibility-SRE-and-P0-010-review
   - id: ART-P0-APPLICATIONS-CHANNELS
-    path: phase-0-product-truth/applications-channels.yaml
+    path: pdp-0-product-truth/applications-channels.yaml
     role: authored-proposal
     authority: canonical-if-and-when-channel-scope-is-accepted
     acceptanceState: pending-UX-accessibility-SRE-and-P0-010-review
   - id: ART-P0-JOURNEYS
-    path: phase-0-product-truth/journey-catalog.yaml
+    path: pdp-0-product-truth/journey-catalog.yaml
     role: authored-proposal
     authority: canonical-if-and-when-journey-contracts-are-accepted
     acceptanceState: pending-UX-accessibility-SRE-and-P0-010-review
   - id: ART-P0-HANDOFF-CONTRACTS
-    path: phase-0-product-truth/handoff-contracts.yaml
+    path: pdp-0-product-truth/handoff-contracts.yaml
     role: authored-proposal-handoff-boundary-register
     authority: proposed-handoffs-and-owner-bindings-not-executable-client-contracts
     acceptanceState: pending-external-owner-and-P0-010-review
   - id: ART-P0-SCHEMA-BINDINGS
-    path: phase-0-product-truth/schema-bindings.yaml
+    path: pdp-0-product-truth/schema-bindings.yaml
     role: external-schema-owner-binding-record
     authority: records-observed-Tools-contract-scope-and-open-binding-gap
     acceptanceState: owner-validation-pending
@@ -188,749 +205,749 @@ phaseAuthorities:
     role: generated-observation
     authority: generated-coverage-currentness-only; no-manual-readiness-claim
     acceptanceState: not-created; owner-approved-Tools-generation-pending
-- phase: P1
+- phase: PDP-2
   name: Design Language
   owner: ghatana-media-design-owners
-  scope: visual, interaction, content, accessibility, responsive, and terminal grammar over accepted P0 meaning
+  scope: visual, interaction, content, accessibility, responsive, and terminal grammar over accepted PDP-0 meaning
   acceptance: not-accepted; prerequisite-P0-010-pending
   artifacts:
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-DESIGN-LANGUAGE-MD
     title: Design language overview
-    path: phase-1-design-language/DESIGN-LANGUAGE.md
+    path: pdp-2-design-interface-system/DESIGN-LANGUAGE.md
     role: human-readable-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-ACCESSIBILITY-YAML
     title: Accessibility
-    path: phase-1-design-language/accessibility.yaml
+    path: pdp-2-design-interface-system/accessibility.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-ACTION-FINALITY-GRAMMAR-YAML
     title: Action Finality Grammar
-    path: phase-1-design-language/action-finality-grammar.yaml
+    path: pdp-2-design-interface-system/action-finality-grammar.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-ANIMATION-SIMULATION-GRAMMAR-YAML
     title: Animation Simulation Grammar
-    path: phase-1-design-language/animation-simulation-grammar.yaml
+    path: pdp-2-design-interface-system/animation-simulation-grammar.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-CLI-LANGUAGE-YAML
     title: Cli Language
-    path: phase-1-design-language/cli-language.yaml
+    path: pdp-2-design-interface-system/cli-language.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-COMPONENT-CONTRACTS-YAML
     title: Component Contracts
-    path: phase-1-design-language/component-contracts.yaml
+    path: pdp-2-design-interface-system/component-contracts.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-LOCALIZATION-CONTENT-YAML
     title: Localization Content
-    path: phase-1-design-language/localization-content.yaml
+    path: pdp-2-design-interface-system/localization-content.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-MEDIA-EDITING-GRAMMAR-YAML
     title: Media Editing Grammar
-    path: phase-1-design-language/media-editing-grammar.yaml
+    path: pdp-2-design-interface-system/media-editing-grammar.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-MEDIA-TOKEN-ALIASES-YAML
     title: Media Token Aliases
-    path: phase-1-design-language/media-token-aliases.yaml
+    path: pdp-2-design-interface-system/media-token-aliases.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-MOTION-YAML
     title: Motion
-    path: phase-1-design-language/motion.yaml
+    path: pdp-2-design-interface-system/motion.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-RESPONSIVE-ADAPTIVE-YAML
     title: Responsive Adaptive
-    path: phase-1-design-language/responsive-adaptive.yaml
+    path: pdp-2-design-interface-system/responsive-adaptive.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-SEMANTIC-STATE-GRAMMAR-YAML
     title: Semantic State Grammar
-    path: phase-1-design-language/semantic-state-grammar.yaml
+    path: pdp-2-design-interface-system/semantic-state-grammar.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-TRUST-PROVENANCE-GRAMMAR-YAML
     title: Trust Provenance Grammar
-    path: phase-1-design-language/trust-provenance-grammar.yaml
+    path: pdp-2-design-interface-system/trust-provenance-grammar.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
   - id: ART-P1-PHASE-1-DESIGN-LANGUAGE-TYPOGRAPHY-LAYOUT-YAML
     title: Typography Layout
-    path: phase-1-design-language/typography-layout.yaml
+    path: pdp-2-design-interface-system/typography-layout.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P1-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: pending-P0-010-and-human-design-owner-review; no-Phase-1-acceptance
-- phase: P2
+    authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
+- phase: PDP-3
   name: Complete Product Experience
   owner: ghatana-media-product-and-UX-owners
   scope: exact Web/CLI/API/embedded views, actions, content, journeys, scenarios, and product simulation semantics
-  acceptance: not-accepted; prerequisite-P1-pending
+  acceptance: not-accepted; prerequisite-PDP-2-pending
   artifacts:
   - id: ART-P2-LANES-TRANSCRIBE-AND-CORRECT-CAPTIONS-YAML
     title: Transcribe And Correct Captions
     path: lanes/transcribe-and-correct-captions.yaml
     role: selected-lane-scope-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-COMPLETE-PRODUCT-EXPERIENCE-MD
     title: Complete product experience overview
-    path: phase-2-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md
+    path: pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md
     role: human-readable-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-ACTION-REGISTRY-YAML
     title: Action Registry
-    path: phase-2-product-experience/action-registry.yaml
+    path: pdp-3-product-experience/action-registry.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-API-EXPERIENCE-MAPPING-YAML
     title: Api Experience Mapping
-    path: phase-2-product-experience/api-experience-mapping.yaml
+    path: pdp-3-product-experience/api-experience-mapping.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-APPLICATION-CHANNEL-REGISTRY-YAML
     title: Application Channel Registry
-    path: phase-2-product-experience/application-channel-registry.yaml
+    path: pdp-3-product-experience/application-channel-registry.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-CLI-COMMAND-REGISTRY-YAML
     title: Cli Command Registry
-    path: phase-2-product-experience/cli-command-registry.yaml
+    path: pdp-3-product-experience/cli-command-registry.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-CONTENT-COPY-CATALOG-YAML
     title: Content Copy Catalog
-    path: phase-2-product-experience/content-copy-catalog.yaml
+    path: pdp-3-product-experience/content-copy-catalog.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-DATA-VIEW-CONTRACTS-YAML
     title: Data View Contracts
-    path: phase-2-product-experience/data-view-contracts.yaml
+    path: pdp-3-product-experience/data-view-contracts.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-HANDOFF-BINDINGS-YAML
     title: Handoff Bindings
-    path: phase-2-product-experience/handoff-bindings.yaml
+    path: pdp-3-product-experience/handoff-bindings.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-INTERACTION-REGISTRY-YAML
     title: Interaction Registry
-    path: phase-2-product-experience/interaction-registry.yaml
+    path: pdp-3-product-experience/interaction-registry.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-FIRST-USE-AND-PROJECT-CREATION-YAML
     title: First Use And Project Creation
-    path: phase-2-product-experience/journey-contracts/first-use-and-project-creation.yaml
+    path: pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: first-use-proposal-only; pending-P0-003-Shared-identity-binding-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: first-use-proposal-only; pending-P0-003-Shared-identity-binding-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-UPLOAD-IMPORT-AND-VERIFY-ARTIFACT-YAML
     title: Upload Import And Verify Artifact
-    path: phase-2-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    path: pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: artifact-intake-proposal-only; pending-P0-003-public-upload-contract-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: artifact-intake-proposal-only; pending-P0-003-public-upload-contract-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-TRANSCRIBE-AND-CORRECT-CAPTIONS-YAML
     title: Transcribe And Correct Captions
-    path: phase-2-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    path: pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-LONG-RUNNING-JOB-OBSERVATION-AND-RECOVERY-YAML
     title: Long Running Job Observation And Recovery
-    path: phase-2-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
+    path: pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: J-20-transcription-job-fixture-slice-only; generic-job-and-runtime-contract-pending-P0-010-and-P1-006
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-AUTHORIZED-TEXT-TO-SPEECH-TO-APPROVED-AUDIO-YAML
     title: Authorized text-to-speech to approved audio
-    path: phase-2-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml
+    path: pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-ANALYZE-IMAGE-VIDEO-GEOMETRY-AND-TRACKS-YAML
     title: Image/video analysis, geometry, and tracks
-    path: phase-2-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml
+    path: pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-RETURN-GROUNDED-TYPED-CONSUMER-RESULTS-YAML
     title: Multimodal or document consumer request to grounded typed result
-    path: phase-2-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml
+    path: pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-CLEAN-NOISY-INTERVIEW-AUDIO-YAML
     title: Noisy/clipped interview cleanup with preservation and comparison
-    path: phase-2-product-experience/journey-contracts/clean-noisy-interview-audio.yaml
+    path: pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-REPAIR-VIDEO-WITH-MEASURED-QUALITY-YAML
     title: Low-quality video repair with measured comparison
-    path: phase-2-product-experience/journey-contracts/repair-video-with-measured-quality.yaml
+    path: pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-CREATE-REVIEW-AND-DELIVER-FROM-A-BRIEF-YAML
     title: Prompt/brief to storyboard, composition, render, review, and delivery
-    path: phase-2-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml
+    path: pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-GENERATE-FROM-REFERENCES-AND-REVIEW-CONTINUITY-YAML
     title: Controlled generation with references and continuity review
-    path: phase-2-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml
+    path: pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-EDIT-TRACKED-MEDIA-REGION-WITH-UNDO-YAML
     title: Region mask/tracking edit with comparison and undo
-    path: phase-2-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml
+    path: pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-ANIMATE-VECTOR-OR-PROCEDURAL-SCENES-YAML
     title: Deterministic 2D/vector/procedural animation
-    path: phase-2-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml
+    path: pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-ANIMATE-3D-SCENES-AND-CHARACTERS-YAML
     title: 3D character, rig, path, or control animation
-    path: phase-2-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml
+    path: pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-EXPLORE-DOMAIN-SIMULATION-AND-REVIEW-MEASUREMENTS-YAML
     title: Explore a domain simulation and its measurements
-    path: phase-2-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml
+    path: pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-REFINE-SIMULATION-PASSES-WITH-SEMANTIC-VALIDATION-YAML
     title: Simulation/procedural passes with protected semantic validation
-    path: phase-2-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml
+    path: pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-TRANSLATE-AND-DUB-EXISTING-VIDEO-YAML
     title: Existing-video translation/dubbing and voice/timing review
-    path: phase-2-product-experience/journey-contracts/translate-and-dub-existing-video.yaml
+    path: pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-MIX-AND-MASTER-MUSIC-AND-EFFECTS-YAML
     title: Music, effects, Foley, stems, mix, and mastering
-    path: phase-2-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml
+    path: pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-COMPOSE-AND-RENDER-REVIEWED-MEDIA-YAML
     title: Compose clips, captions, exact graphics, color, and audio master
-    path: phase-2-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml
+    path: pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-INSPECT-QUALITY-AND-OPTIMIZE-WITHIN-BOUNDS-YAML
     title: Review media quality and improve it within declared limits
-    path: phase-2-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml
+    path: pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-REVIEW-EXACT-VERSION-AND-RECHECK-CHANGES-YAML
     title: Review/comment/approve exact version and re-review changed material
-    path: phase-2-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml
+    path: pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-DELIVER-EXPORT-WITH-DESTINATION-ACKNOWLEDGEMENT-YAML
     title: Export/download/publish with destination acknowledgement
-    path: phase-2-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml
+    path: pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-WORK-LOCALLY-AND-RECONCILE-AFTER-RECONNECT-YAML
     title: Private/local workflow while disconnected and reconnect
-    path: phase-2-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
+    path: pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-RUN-CLI-BATCH-AND-REVIEW-VERIFIED-OUTPUTS-YAML
     title: CLI batch/JSON plan through verified outputs
-    path: phase-2-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml
+    path: pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-RETURN-BOUNDED-RESULTS-TO-INTEGRATING-PRODUCTS-YAML
     title: Agent or product integration with bounded delegated Media action
-    path: phase-2-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml
+    path: pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-DELETE-OR-REVOKE-MEDIA-WITH-VISIBLE-LIFECYCLE-YAML
     title: Delete/revoke/retention/hold and visible lifecycle
-    path: phase-2-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml
+    path: pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-CONTINUE-SAFELY-WHEN-PROCESSING-IS-UNAVAILABLE-YAML
     title: Continue safely when processing is unavailable
-    path: phase-2-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml
+    path: pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-EXPORT-SPATIAL-MEDIA-WITH-FORMAT-LOSS-REPORTING-YAML
     title: Spatial/360/interactive/synthetic-data export to declared consumer
-    path: phase-2-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml
+    path: pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; authored proposal is not acceptance
-    acceptanceState: phase0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; authored proposal is not acceptance
+    acceptanceState: pdp0-grounded-proposal; action-state-scenario-channel-and-owner-review-pending; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-REGISTRY-YAML
     title: Journey Registry
-    path: phase-2-product-experience/journey-registry.yaml
+    path: pdp-3-product-experience/journey-registry.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-NAVIGATION-CONTRACTS-YAML
     title: Navigation Contracts
-    path: phase-2-product-experience/navigation-contracts.yaml
+    path: pdp-3-product-experience/navigation-contracts.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-RECOVERY-FINALITY-CONTRACTS-YAML
     title: Recovery Finality Contracts
-    path: phase-2-product-experience/recovery-finality-contracts.yaml
+    path: pdp-3-product-experience/recovery-finality-contracts.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-RESPONSIVE-VARIANTS-YAML
     title: Responsive Variants
-    path: phase-2-product-experience/responsive-variants.yaml
+    path: pdp-3-product-experience/responsive-variants.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCENARIO-FIXTURE-REGISTRY-YAML
     title: Scenario Fixture Registry
-    path: phase-2-product-experience/scenario-fixture-registry.yaml
+    path: pdp-3-product-experience/scenario-fixture-registry.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-AUTHENTICATE-AND-SELECT-CONTEXT-YAML
     title: Authenticate And Select Context
-    path: phase-2-product-experience/screen-contracts/authenticate-and-select-context.yaml
+    path: pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-BROWSE-MEDIA-YAML
     title: Browse Media
-    path: phase-2-product-experience/screen-contracts/browse-media.yaml
+    path: pdp-3-product-experience/screen-contracts/browse-media.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-MEDIA-YAML
     title: Create Media
-    path: phase-2-product-experience/screen-contracts/create-media.yaml
+    path: pdp-3-product-experience/screen-contracts/create-media.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-IMPORT-MEDIA-YAML
     title: Import Media
-    path: phase-2-product-experience/screen-contracts/import-media.yaml
+    path: pdp-3-product-experience/screen-contracts/import-media.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOB-FAMILY-ARTIFACT-VERIFICATION-YAML
     title: Artifact verification job family
-    path: phase-2-product-experience/screen-contracts/artifact-verification-job-family.yaml
+    path: pdp-3-product-experience/screen-contracts/artifact-verification-job-family.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: job-family-specialization-proposal; verification-owner-contract-pending; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: job-family-specialization-proposal; verification-owner-contract-pending; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-JOB-STATUS-YAML
     title: View job status
-    path: phase-2-product-experience/screen-contracts/job-status.yaml
+    path: pdp-3-product-experience/screen-contracts/job-status.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-ACTIVITY-YAML
     title: Review Activity
-    path: phase-2-product-experience/screen-contracts/review-activity.yaml
+    path: pdp-3-product-experience/screen-contracts/review-activity.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-MEDIA-YAML
     title: Inspect Media
-    path: phase-2-product-experience/screen-contracts/inspect-media.yaml
+    path: pdp-3-product-experience/screen-contracts/inspect-media.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-FIND-PROJECTS-YAML
     title: Find Projects
-    path: phase-2-product-experience/screen-contracts/find-projects.yaml
+    path: pdp-3-product-experience/screen-contracts/find-projects.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-RESUME-WORK-YAML
     title: Resume Work
-    path: phase-2-product-experience/screen-contracts/resume-work.yaml
+    path: pdp-3-product-experience/screen-contracts/resume-work.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-WORK-IN-PROJECT-YAML
     title: Work In Project
-    path: phase-2-product-experience/screen-contracts/work-in-project.yaml
+    path: pdp-3-product-experience/screen-contracts/work-in-project.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPARE-CAPTION-VERSIONS-YAML
     title: Compare Caption Versions
-    path: phase-2-product-experience/screen-contracts/compare-caption-versions.yaml
+    path: pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CORRECT-CAPTIONS-YAML
     title: Correct Captions
-    path: phase-2-product-experience/screen-contracts/correct-captions.yaml
+    path: pdp-3-product-experience/screen-contracts/correct-captions.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-JOB-OUTCOME-YAML
     title: Check Job Outcome
-    path: phase-2-product-experience/screen-contracts/check-job-outcome.yaml
+    path: pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-TRANSCRIPT-YAML
     title: Review Transcript
-    path: phase-2-product-experience/screen-contracts/review-transcript.yaml
+    path: pdp-3-product-experience/screen-contracts/review-transcript.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-SELECT-SOURCE-YAML
     title: Select Source
-    path: phase-2-product-experience/screen-contracts/select-source.yaml
+    path: pdp-3-product-experience/screen-contracts/select-source.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-TRANSCRIPTION-PROGRESS-YAML
     title: Transcription Progress
-    path: phase-2-product-experience/screen-contracts/transcription-progress.yaml
+    path: pdp-3-product-experience/screen-contracts/transcription-progress.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-REGISTRY-YAML
     title: Screen Registry
-    path: phase-2-product-experience/screen-registry.yaml
+    path: pdp-3-product-experience/screen-registry.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SIMULATION-SEMANTICS-YAML
     title: Simulation Semantics
-    path: phase-2-product-experience/simulation-semantics.yaml
+    path: pdp-3-product-experience/simulation-semantics.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-STATE-TRANSITION-BINDINGS-YAML
     title: State Transition Bindings
-    path: phase-2-product-experience/state-transition-bindings.yaml
+    path: pdp-3-product-experience/state-transition-bindings.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-Phase-2-acceptance
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: selected-lane-proposal-only; pending-P0-010-and-P1-006; no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-CREATION-PLAN-YAML
     title: Review a creation plan
-    path: phase-2-product-experience/screen-contracts/review-creation-plan.yaml
+    path: pdp-3-product-experience/screen-contracts/review-creation-plan.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-ARRANGE-SCENES-YAML
     title: Arrange scenes
-    path: phase-2-product-experience/screen-contracts/arrange-scenes.yaml
+    path: pdp-3-product-experience/screen-contracts/arrange-scenes.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-IMAGE-YAML
     title: Create an image
-    path: phase-2-product-experience/screen-contracts/create-image.yaml
+    path: pdp-3-product-experience/screen-contracts/create-image.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-VIDEO-YAML
     title: Create a video
-    path: phase-2-product-experience/screen-contracts/create-video.yaml
+    path: pdp-3-product-experience/screen-contracts/create-video.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-AUDIO-YAML
     title: Create audio
-    path: phase-2-product-experience/screen-contracts/create-audio.yaml
+    path: pdp-3-product-experience/screen-contracts/create-audio.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-WORK-WITH-SPEECH-YAML
     title: Work with speech
-    path: phase-2-product-experience/screen-contracts/work-with-speech.yaml
+    path: pdp-3-product-experience/screen-contracts/work-with-speech.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-USE-AUTHORIZED-VOICE-YAML
     title: Use an authorized voice
-    path: phase-2-product-experience/screen-contracts/use-authorized-voice.yaml
+    path: pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-CAPTIONS-YAML
     title: Correct captions
-    path: phase-2-product-experience/screen-contracts/edit-captions.yaml
+    path: pdp-3-product-experience/screen-contracts/edit-captions.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-DUBBING-YAML
     title: Review dubbing
-    path: phase-2-product-experience/screen-contracts/review-dubbing.yaml
+    path: pdp-3-product-experience/screen-contracts/review-dubbing.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-IMPROVE-MEDIA-YAML
     title: Improve media
-    path: phase-2-product-experience/screen-contracts/improve-media.yaml
+    path: pdp-3-product-experience/screen-contracts/improve-media.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPARE-RESULTS-YAML
     title: Compare results
-    path: phase-2-product-experience/screen-contracts/compare-results.yaml
+    path: pdp-3-product-experience/screen-contracts/compare-results.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-MEDIA-YAML
     title: Edit media
-    path: phase-2-product-experience/screen-contracts/edit-media.yaml
+    path: pdp-3-product-experience/screen-contracts/edit-media.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-MEDIA-REGION-YAML
     title: Edit a media region
-    path: phase-2-product-experience/screen-contracts/edit-media-region.yaml
+    path: pdp-3-product-experience/screen-contracts/edit-media-region.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-ANIMATE-MEDIA-YAML
     title: Animate media
-    path: phase-2-product-experience/screen-contracts/animate-media.yaml
+    path: pdp-3-product-experience/screen-contracts/animate-media.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPOSE-SCENE-YAML
     title: Compose a scene
-    path: phase-2-product-experience/screen-contracts/compose-scene.yaml
+    path: pdp-3-product-experience/screen-contracts/compose-scene.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EXPLORE-SIMULATION-YAML
     title: Explore a simulation and inspect its results
-    path: phase-2-product-experience/screen-contracts/explore-simulation.yaml
+    path: pdp-3-product-experience/screen-contracts/explore-simulation.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPOSE-MEDIA-YAML
     title: Compose media
-    path: phase-2-product-experience/screen-contracts/compose-media.yaml
+    path: pdp-3-product-experience/screen-contracts/compose-media.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-ADJUST-COLOR-YAML
     title: Adjust color
-    path: phase-2-product-experience/screen-contracts/adjust-color.yaml
+    path: pdp-3-product-experience/screen-contracts/adjust-color.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-QUALITY-YAML
     title: Review quality
-    path: phase-2-product-experience/screen-contracts/review-quality.yaml
+    path: pdp-3-product-experience/screen-contracts/review-quality.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-PREPARE-RENDER-YAML
     title: Prepare a render
-    path: phase-2-product-experience/screen-contracts/prepare-render.yaml
+    path: pdp-3-product-experience/screen-contracts/prepare-render.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-OUTPUTS-YAML
     title: Review outputs
-    path: phase-2-product-experience/screen-contracts/review-outputs.yaml
+    path: pdp-3-product-experience/screen-contracts/review-outputs.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-OUTPUT-YAML
     title: Inspect an output
-    path: phase-2-product-experience/screen-contracts/inspect-output.yaml
+    path: pdp-3-product-experience/screen-contracts/inspect-output.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-DELIVER-OUTPUT-YAML
     title: Deliver an output
-    path: phase-2-product-experience/screen-contracts/deliver-output.yaml
+    path: pdp-3-product-experience/screen-contracts/deliver-output.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-EXACT-VERSION-YAML
     title: Review an exact version
-    path: phase-2-product-experience/screen-contracts/review-exact-version.yaml
+    path: pdp-3-product-experience/screen-contracts/review-exact-version.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-RIGHTS-AND-CONSENT-YAML
     title: Review rights and consent for media use
-    path: phase-2-product-experience/screen-contracts/review-rights-and-consent.yaml
+    path: pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-PROVENANCE-YAML
     title: Inspect provenance
-    path: phase-2-product-experience/screen-contracts/inspect-provenance.yaml
+    path: pdp-3-product-experience/screen-contracts/inspect-provenance.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHOOSE-ELIGIBLE-PROCESSING-OPTION-YAML
     title: Discover profiles
-    path: phase-2-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+    path: pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-PROCESSING-OPTIONS-YAML
     title: Inspect capabilities
-    path: phase-2-product-experience/screen-contracts/check-processing-options.yaml
+    path: pdp-3-product-experience/screen-contracts/check-processing-options.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-PROCESSING-READINESS-YAML
     title: Inspect readiness
-    path: phase-2-product-experience/screen-contracts/check-processing-readiness.yaml
+    path: pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-WORKSPACE-SETTINGS-YAML
     title: Review and change workspace settings
-    path: phase-2-product-experience/screen-contracts/review-workspace-settings.yaml
+    path: pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
+      no-PDP-3-acceptance
   - id: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-FIND-TASK-GUIDANCE-YAML
     title: Find guidance
-    path: phase-2-product-experience/screen-contracts/find-task-guidance.yaml
+    path: pdp-3-product-experience/screen-contracts/find-task-guidance.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
+    authority: canonical-if-and-when-the-PDP-3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: baseline-view-contract-authored; action-state-channel-bindings-copy-fixtures-and-owner-review-pending;
-      no-Phase-2-acceptance
-- phase: P3
+      no-PDP-3-acceptance
+- phase: EXPLORER
   name: Experience Explorer
   owner: ghatana-media-experience-explorer-owners
-  scope: deterministic projection of accepted P0-P2 definitions for exploration and verification
-  acceptance: not-accepted; prerequisite-P2-pending
+  scope: deterministic projection of accepted PDP definitions outside the PDP phases for exploration and verification
+  acceptance: not-accepted; prerequisite-PDP-3-pending
   artifacts:
   - id: ART-P3-PHASE-3-EXPERIENCE-EXPLORER-EXPERIENCE-EXPLORER-MD
     title: Experience Explorer overview
-    path: phase-3-experience-explorer/EXPERIENCE-EXPLORER.md
+    path: explorer/EXPERIENCE-EXPLORER.md
     role: human-readable-proposal
-    authority: canonical-if-and-when-the-P3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: simulation-authored; pending-P2-008-Tools-binding-browser-evidence-and-human-review; no-Phase-3-acceptance
+    authority: canonical-Explorer-projection-scope; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: simulation-authored; pending-P2-008-Tools-binding-browser-evidence-and-human-review; no-Explorer-projection-acceptance
   - id: ART-P3-PHASE-3-EXPERIENCE-EXPLORER-INTERACTION-DISPOSITIONS-YAML
     title: Interaction Dispositions
-    path: phase-3-experience-explorer/interaction-dispositions.yaml
+    path: explorer/interaction-dispositions.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: simulation-authored; pending-P2-008-Tools-binding-browser-evidence-and-human-review; no-Phase-3-acceptance
+    authority: canonical-Explorer-projection-scope; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: simulation-authored; pending-P2-008-Tools-binding-browser-evidence-and-human-review; no-Explorer-projection-acceptance
   - id: ART-P3-PHASE-3-EXPERIENCE-EXPLORER-MEDIA-EXPERIENCE-PACKAGE-YAML
     title: Media Experience Package
-    path: phase-3-experience-explorer/media-experience-package.yaml
+    path: explorer/media-experience-package.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: simulation-authored; pending-P2-008-Tools-binding-browser-evidence-and-human-review; no-Phase-3-acceptance
+    authority: canonical-Explorer-projection-scope; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: simulation-authored; pending-P2-008-Tools-binding-browser-evidence-and-human-review; no-Explorer-projection-acceptance
   - id: ART-P3-PHASE-3-EXPERIENCE-EXPLORER-SCENARIO-FIXTURES-YAML
     title: Scenario Fixtures
-    path: phase-3-experience-explorer/scenario-fixtures.yaml
+    path: explorer/scenario-fixtures.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: simulation-authored; pending-P2-008-Tools-binding-browser-evidence-and-human-review; no-Phase-3-acceptance
+    authority: canonical-Explorer-projection-scope; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: simulation-authored; pending-P2-008-Tools-binding-browser-evidence-and-human-review; no-Explorer-projection-acceptance
   - id: ART-P3-PHASE-3-EXPERIENCE-EXPLORER-VERIFICATION-MATRIX-YAML
     title: Verification Matrix
-    path: phase-3-experience-explorer/verification-matrix.yaml
+    path: explorer/verification-matrix.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: simulation-authored; pending-P2-008-Tools-binding-browser-evidence-and-human-review; no-Phase-3-acceptance
+    authority: canonical-Explorer-projection-scope; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: simulation-authored; pending-P2-008-Tools-binding-browser-evidence-and-human-review; no-Explorer-projection-acceptance
   - id: ART-P3-PHASE-3-EXPERIENCE-EXPLORER-VIEW-PROJECTIONS-YAML
     title: View Projections
-    path: phase-3-experience-explorer/view-projections.yaml
+    path: explorer/view-projections.yaml
     role: authored-proposal
-    authority: canonical-if-and-when-the-P3-scope-is-accepted; selected-lane-material-does-not-accept-the-full-phase
-    acceptanceState: simulation-authored; pending-P2-008-Tools-binding-browser-evidence-and-human-review; no-Phase-3-acceptance
+    authority: canonical-Explorer-projection-scope; selected-lane-material-does-not-accept-the-full-PDP-scope
+    acceptanceState: simulation-authored; pending-P2-008-Tools-binding-browser-evidence-and-human-review; no-Explorer-projection-acceptance
   - id: ART-P3-SIMULATION-IMPLEMENTATION
     title: Deterministic Media simulation package
     path: ../libs/media-experience-simulation
@@ -967,11 +984,17 @@ governanceArtifacts:
     authority: canonical-local-gap-register
     acceptanceState: maintained-governance-record; no-phase-acceptance-claimed
   - id: ART-GOV-SOURCE-MANIFEST
-    title: Migration snapshot and product artifact manifest
+    title: Generated product artifact manifest
     path: source-manifest.yaml
-    role: authored-migration-snapshot-and-artifact-index
-    authority: migration-observations-and-artifact-index; not-a-semantic-acceptance-result
-    acceptanceState: P0-001-boundary-slice-only; all-other-phase-acceptance-pending
+    role: generated-portable-product-artifact-index
+    authority: phase-and-location-projection-only; Tools-owns-semantic-fingerprints-and-currentness; not-a-semantic-acceptance-result
+    acceptanceState: generated-index; phase-acceptance-remains-explicit-per-artifact
+  - id: ART-GOV-MIGRATION-EXECUTION-PLAN
+    title: Expert-reviewed master plan
+    path: ../docs/migration/expert-reviewed-master-plan.md
+    role: migration-execution-plan-and-historical-provenance
+    authority: execution-order-and-migration-procedure-only; product-semantics-belong-to-their-PDP-authorities
+    acceptanceState: reference-only; unique-semantic-content-extraction-remains-open-under-GAP-MEDIA-MIGRATION-SEMANTICS
   - id: ART-GOV-VISION-REQUIREMENTS-COVERAGE
     title: Vision and requirements coverage ledger
     path: vision-requirements-coverage.yaml
@@ -1018,7 +1041,7 @@ externalAuthorities:
   owner: samujjwal/ghatana-tools
   owns:
   - generic-product-development-schemas-validators-and-experience-definition-mechanics
-  MediaRule: Bind to published owner contracts; current Phase 0-3 schema/validator acceptance binding remains open
+  MediaRule: Bind to published owner contracts; current PDP-0-3 schema/validator acceptance binding remains open
     under GAP-MEDIA-TOOLS-SCHEMA-BINDING.
 - id: EXT-KERNEL
   owner: samujjwal/ghatana-kernel

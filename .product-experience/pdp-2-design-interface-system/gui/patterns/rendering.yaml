@@ -1,0 +1,45 @@
+schemaVersion: media.gui-pattern.v1
+id: media.gui.pattern.rendering
+productId: media
+authority: Media owns render composition and review boundaries; Shared owns reusable primitive implementation
+intent: >-
+  Proposal only: keep render preparation, explicit submission, asynchronous execution, output availability,
+  integrity verification, quality evidence, human review, destination selection, delivery, and acknowledgment
+  distinct for one exact composition snapshot and output version. Preparation is not execution; pending or unknown
+  submission is neither execution nor failure. Do not imply runtime support, quality, completion, finality,
+  verification, or delivery without authoritative evidence. Product semantics, canonical operation/action/state
+  bindings, runtime and quality/finality authority, Shared implementation, accessibility review, and owner review
+  remain pending.
+anatomy:
+  - exact-composition-snapshot-and-revision
+  - named-output-profile-and-overrides
+  - validation-findings-resource-estimates-and-rights-effects
+  - explicit-render-submission-and-request-finality
+  - asynchronous-job-identity-and-observed-state
+  - output-version-identity-integrity-and-verification-evidence
+  - accessible-preview-provenance-and-review-limitations
+  - separate-admitted-destination-delivery-and-acknowledgment
+states:
+  - preparation-draft
+  - validation-required
+  - profile-incompatible
+  - estimate-incomplete
+  - rights-review-required
+  - ready-to-submit
+  - submission-pending
+  - submission-outcome-unknown
+  - execution-queued-or-running
+  - execution-outcome-unknown
+  - output-awaiting-verification
+  - output-available-for-review
+  - output-quarantined-or-rejected
+  - delivery-not-started
+  - delivery-pending
+  - delivery-outcome-unknown
+  - delivery-acknowledged
+sourceRefs:
+  - .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml#media.view.prepare-render
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
+  - .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#J-18
+  - .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml#media.view.inspect-output
+  - .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml#media.view.deliver-output

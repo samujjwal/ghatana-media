@@ -1,0 +1,4321 @@
+schemaVersion: media.capability-preservation-crosswalk.v1
+productId: media
+status: P0-003-source-crosswalk-reconciled-to-462-capability-leaves; semantic-detail-and-Product-Truth-acceptance-pending
+masterPlanSource: docs/migration/expert-reviewed-master-plan.md §§6, 9, 11, 18
+supplementalOwnershipDecision: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+productDefinitionContract:
+  package: '@ghatana/product-definition@0.1.0-SNAPSHOT'
+  schemaExport: '@ghatana/product-definition/schema'
+  publicValidator: validateProductDefinition
+  owner: ghatana-tools
+  sourceObservation: package manifest/schema/source exist in local Tools checkout; this establishes local source availability
+    only
+  consumerVerification: not performed for this Media repository; packed artifact/publication and consumer import remain unverified
+  projectionPolicy: The productDefinition core instance is generated read-only from canonical Product Truth authorities once
+    they are complete; do not create or edit a second projection authority. Media-specific leaves/qualification remain in
+    capabilities.yaml and requirements.yaml as their distinct plan-defined artifacts.
+  specializationBoundary: Tools owns neutral ProductDefinition, Capability and Requirement shape plus closed structural/local-reference
+    validation. Media owns product meaning and the richer per-leaf inputs/outputs, actors, state coverage, authority, rights/privacy,
+    fidelity, cancellation/recovery, dependencies, acceptance and qualification details. The generic schema is not extended
+    with those fields.
+rules:
+- Every §6 family/operation is represented by one leaf or an explicit semantic alias; the current family crosswalk maps all
+  462 canonical capability leaf IDs exactly once, without reducing the denominator.
+- Source observations remain attributed to their source scope and evidence class; they never promote implementation/license/qualification/runtime
+  axes.
+- General document intelligence is platform-owned; only Media scene/time/region semantics are retained as Media capabilities.
+familyCrosswalk:
+- masterPlanSection: §6.2
+  sourcePhrase: Create, inspect, update, search, organize, archive, version, duplicate/branch, collaborate/review and restore
+    projects; source/derived assets, composition and project settings
+  familyId: media.project
+  requirementId: MEDIA-REQ-CAP-PROJECT
+  capabilityIds:
+  - media.project.create
+  - media.project.inspect
+  - media.project.update
+  - media.project.search
+  - media.project.organize
+  - media.project.archive
+  - media.project.version
+  - media.project.duplicate
+  - media.project.branch
+  - media.project.collaborate
+  - media.project.review
+  - media.project.restore
+  - media.project.source-asset.attach
+  - media.project.derived-asset.attach
+  - media.project.composition.update
+  - media.project.settings.update
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.2
+  sourcePhrase: Ingest, upload, resume, import, inspect, search/list, download, derive, register outputs, share/revoke, delete,
+    retain, export provenance and resolve source references
+  familyId: media.artifact
+  requirementId: MEDIA-REQ-CAP-ARTIFACT
+  capabilityIds:
+  - media.artifact.ingest
+  - media.artifact.upload
+  - media.artifact.upload.resume
+  - media.artifact.import
+  - media.artifact.inspect
+  - media.artifact.search
+  - media.artifact.list
+  - media.artifact.download
+  - media.artifact.derive
+  - media.artifact.output.register
+  - media.artifact.share
+  - media.artifact.share.revoke
+  - media.artifact.delete
+  - media.artifact.retain
+  - media.artifact.provenance.export
+  - media.artifact.source-reference.resolve
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.2
+  sourcePhrase: Submit, inspect, list, watch, cancel, retry, reconcile, inspect outputs and bounded execution history
+  familyId: media.job
+  requirementId: MEDIA-REQ-CAP-JOB
+  capabilityIds:
+  - media.job.submit
+  - media.job.view-status
+  - media.job.list
+  - media.job.watch
+  - media.job.cancel
+  - media.job.retry
+  - media.job.check-outcome
+  - media.job.outputs.inspect
+  - media.job.history.inspect
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.2
+  sourcePhrase: Audio/video/multimodal session open/connect/frame/ack/close, reconnect, ordering, leases, bounded buffers
+    and backpressure; recording and live-processing integration; WebRTC, adaptive HTTP streaming, HLS/DASH and live captioning
+  familyId: media.stream
+  requirementId: MEDIA-REQ-CAP-STREAM
+  capabilityIds:
+  - media.stream.session.open
+  - media.stream.session.connect
+  - media.stream.frame.submit
+  - media.stream.frame.acknowledge
+  - media.stream.session.close
+  - media.stream.session.reconnect
+  - media.stream.ordering.enforce
+  - media.stream.lease.renew
+  - media.stream.buffer.bound
+  - media.stream.backpressure.apply
+  - media.stream.recording.integrate
+  - media.stream.live-processing.integrate
+  - media.stream.transport.webrtc
+  - media.stream.transport.adaptive-http
+  - media.stream.transport.hls
+  - media.stream.transport.dash
+  - media.stream.caption.live
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.2
+  sourcePhrase: Profile discovery/validation
+  familyId: media.profile
+  requirementId: MEDIA-REQ-CAP-PROFILE
+  capabilityIds:
+  - media.profile.discover
+  - media.profile.validate
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.2
+  sourcePhrase: Capability/provider diagnostics, execution compatibility
+  familyId: media.capability
+  requirementId: MEDIA-REQ-CAP-CAPABILITY
+  capabilityIds:
+  - media.capability.discover
+  - media.capability.check-declared-options
+  - media.capability.execution.compatibility
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.2
+  sourcePhrase: Readiness
+  familyId: media.health
+  requirementId: MEDIA-REQ-CAP-HEALTH
+  capabilityIds:
+  - media.health.readiness.inspect
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.2
+  sourcePhrase: Consent references, permitted uses, rights attestations
+  familyId: media.rights
+  requirementId: MEDIA-REQ-CAP-RIGHTS
+  capabilityIds:
+  - media.rights.consent.reference
+  - media.rights.permitted-use.evaluate
+  - media.rights.attestation.record
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.2
+  sourcePhrase: Source lineage, execution lineage, origin disclosure and retention/erasure effects
+  familyId: media.provenance
+  requirementId: MEDIA-REQ-CAP-PROVENANCE
+  capabilityIds:
+  - media.provenance.source-lineage.inspect
+  - media.provenance.execution-lineage.inspect
+  - media.provenance.origin.disclose
+  - media.provenance.retention.effect.record
+  - media.provenance.erasure.effect.record
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.2
+  sourcePhrase: Consume public Document Intelligence text results only for Media-specific temporal/scene-text semantics; generic
+    OCR/document parsing is platform-owned
+  familyId: media.vision.scene-text
+  requirementId: MEDIA-REQ-CAP-VISION-SCENE-TEXT
+  capabilityIds:
+  - media.vision.scene-text.region.track
+  - media.vision.scene-text.observation.create
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.3
+  sourcePhrase: File and streaming STT; language detection; voice-activity detection; speaker diarization, segmentation and
+    separation; authorized speaker identification; word and phoneme timestamps; forced alignment; punctuation/capitalization;
+    alternatives and confidence; speech translation; subtitle generation
+  familyId: media.speech.transcription
+  requirementId: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION
+  capabilityIds:
+  - media.speech.transcription.file
+  - media.speech.transcription.stream
+  - media.speech.transcription.language.detect
+  - media.speech.transcription.voice-activity.detect
+  - media.speech.transcription.speaker.diarize
+  - media.speech.transcription.speaker.segment
+  - media.speech.transcription.speaker.separate
+  - media.speech.transcription.speaker.identify-authorized
+  - media.speech.transcription.word-timestamp.create
+  - media.speech.transcription.phoneme-timestamp.create
+  - media.speech.transcription.forced-align
+  - media.speech.transcription.punctuate-capitalize
+  - media.speech.transcription.alternatives.provide
+  - media.speech.transcription.confidence.provide
+  - media.speech.transcription.translate
+  - media.speech.transcription.subtitle.generate
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.3
+  sourcePhrase: Detection, classification, image/video segmentation, object and point tracking, optical flow, depth, surface
+    normals, human/hand pose, face landmarks, expression and gaze analysis, foreground/background matting, motion segmentation,
+    saliency, scene classification, shot-boundary detection and camera-motion estimation
+  familyId: media.vision
+  requirementId: MEDIA-REQ-CAP-VISION
+  capabilityIds:
+  - media.vision.detect
+  - media.vision.classify
+  - media.vision.segment.image
+  - media.vision.segment.video
+  - media.vision.track.object
+  - media.vision.track.point
+  - media.vision.estimate.optical-flow
+  - media.vision.estimate.depth
+  - media.vision.estimate.surface-normals
+  - media.vision.estimate.human-pose
+  - media.vision.estimate.hand-pose
+  - media.vision.estimate.face-landmarks
+  - media.vision.analyze.expression
+  - media.vision.analyze.gaze
+  - media.vision.matte.foreground-background
+  - media.vision.segment.motion
+  - media.vision.estimate.saliency
+  - media.vision.classify.scene
+  - media.vision.detect.shot-boundary
+  - media.vision.estimate.camera-motion
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.3
+  sourcePhrase: Cross-modal analysis, description, summarization, structured extraction, speaker-to-face association, scene/audio
+    relationships and source-grounded media observations
+  familyId: media.multimodal
+  requirementId: MEDIA-REQ-CAP-MULTIMODAL
+  capabilityIds:
+  - media.multimodal.analyze.cross-modal
+  - media.multimodal.describe
+  - media.multimodal.summarize
+  - media.multimodal.extract.structured
+  - media.multimodal.associate.speaker-face
+  - media.multimodal.relate.scene-audio
+  - media.multimodal.observe.source-grounded
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.3
+  sourcePhrase: Speech/music/non-speech segmentation; loudness, peaks, clipping, noise, spectral/phase/channel analysis; beat/onset
+    and silence detection; source-separation diagnostics; timing and intelligibility assessments
+  familyId: media.audio.analysis
+  requirementId: MEDIA-REQ-CAP-AUDIO-ANALYSIS
+  capabilityIds:
+  - media.audio.analysis.segment.content-kind
+  - media.audio.analysis.measure.loudness
+  - media.audio.analysis.measure.peaks
+  - media.audio.analysis.detect.clipping
+  - media.audio.analysis.measure.noise
+  - media.audio.analysis.analyze.spectral
+  - media.audio.analysis.analyze.phase
+  - media.audio.analysis.analyze.channels
+  - media.audio.analysis.detect.beat-onset
+  - media.audio.analysis.detect.silence
+  - media.audio.analysis.diagnose.source-separation
+  - media.audio.analysis.assess.timing
+  - media.audio.analysis.assess.intelligibility
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.4
+  sourcePhrase: Text-to-image (T2I), image-to-image (I2I), reference and multi-reference generation, sketch/layout-to-image,
+    pose/depth/edge/segmentation-conditioned creation, palettes and style/reference controls
+  familyId: media.generate.image
+  requirementId: MEDIA-REQ-CAP-GENERATE-IMAGE
+  capabilityIds:
+  - media.generate.image.text-to-image
+  - media.generate.image.image-to-image
+  - media.generate.image.reference
+  - media.generate.image.multi-reference
+  - media.generate.image.sketch-to-image
+  - media.generate.image.layout-to-image
+  - media.generate.image.condition.pose
+  - media.generate.image.condition.depth
+  - media.generate.image.condition.edge
+  - media.generate.image.condition.segmentation
+  - media.generate.image.control.palette
+  - media.generate.image.control.style
+  - media.generate.image.control.reference
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.4
+  sourcePhrase: Text-to-video (T2V), image-to-video (I2V), video-to-video (V2V), T2I→I2V, start/end/intermediate-keyframe
+    generation, reference-video generation, audio/speech-driven video and animation
+  familyId: media.generate.video
+  requirementId: MEDIA-REQ-CAP-GENERATE-VIDEO
+  capabilityIds:
+  - media.generate.video.text-to-video
+  - media.generate.video.image-to-video
+  - media.generate.video.video-to-video
+  - media.generate.video.text-image-to-video
+  - media.generate.video.keyframe.start
+  - media.generate.video.keyframe.end
+  - media.generate.video.keyframe.intermediate
+  - media.generate.video.reference-video
+  - media.generate.video.drive.audio
+  - media.generate.video.drive.speech
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.4
+  sourcePhrase: Text-to-audio, sound effects, music, video-to-audio/Foley/ambience, audio-to-audio transformation, music continuation/variation
+    and stem generation
+  familyId: media.generate.audio
+  requirementId: MEDIA-REQ-CAP-GENERATE-AUDIO
+  capabilityIds:
+  - media.generate.audio.text-to-audio
+  - media.generate.audio.sound-effect
+  - media.generate.audio.music
+  - media.generate.audio.video-to-audio
+  - media.generate.audio.foley
+  - media.generate.audio.ambience
+  - media.generate.audio.audio-to-audio
+  - media.generate.audio.music.continue
+  - media.generate.audio.music.vary
+  - media.generate.audio.stem.generate
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.4
+  sourcePhrase: TTS, streaming/multilingual/cross-lingual/expressive TTS; prosody, rate, pitch, emotion/style intent, pronunciation
+    and phoneme controls; speaker conditioning; authorized cloning; voice conversion; speech-to-speech; translation and dubbing
+  familyId: media.speech.synthesis
+  requirementId: MEDIA-REQ-CAP-SPEECH-SYNTHESIS
+  capabilityIds:
+  - media.speech.synthesis.text-to-speech
+  - media.speech.synthesis.streaming
+  - media.speech.synthesis.multilingual
+  - media.speech.synthesis.cross-lingual
+  - media.speech.synthesis.expressive
+  - media.speech.synthesis.control.prosody
+  - media.speech.synthesis.control.rate
+  - media.speech.synthesis.control.pitch
+  - media.speech.synthesis.control.emotion-style
+  - media.speech.synthesis.control.pronunciation
+  - media.speech.synthesis.control.phoneme
+  - media.speech.synthesis.speaker.condition
+  - media.speech.synthesis.speaker.clone-authorized
+  - media.speech.synthesis.voice.convert
+  - media.speech.synthesis.speech-to-speech
+  - media.speech.synthesis.speech.translate
+  - media.speech.synthesis.dub
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.4
+  sourcePhrase: Text/image-to-3D, multiview reconstruction, depth/camera reconstruction, novel views, 3D assets, 3D-aware
+    relighting/composition, NeRF-like and Gaussian-splatting-like representations through declared adapters, 360-degree media
+    and spatial audio
+  familyId: media.generate.spatial
+  requirementId: MEDIA-REQ-CAP-GENERATE-SPATIAL
+  capabilityIds:
+  - media.generate.spatial.text-to-3d
+  - media.generate.spatial.image-to-3d
+  - media.generate.spatial.reconstruct.multiview
+  - media.generate.spatial.reconstruct.depth
+  - media.generate.spatial.reconstruct.camera
+  - media.generate.spatial.generate.novel-view
+  - media.generate.spatial.asset.create-3d
+  - media.generate.spatial.relight-3d
+  - media.generate.spatial.compose-3d
+  - media.generate.spatial.representation.nerf-adapter
+  - media.generate.spatial.representation.gaussian-splatting-adapter
+  - media.generate.spatial.create.360-media
+  - media.generate.spatial.create.spatial-audio
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.5
+  sourcePhrase: 2D, vector and 3D animation; keyframes; interpolation/easing curves; procedural animation; paths; skeletal
+    animation; inverse kinematics; constraints; morph targets; camera, material and light animation; particles; physics/audio/pose-driven
+    animation; facial expression, gaze, lip animation; motion-capture extraction; motion retargeting; and character animation
+  familyId: media.animation
+  requirementId: MEDIA-REQ-CAP-ANIMATION
+  capabilityIds:
+  - media.animation.2d
+  - media.animation.vector
+  - media.animation.3d
+  - media.animation.keyframe
+  - media.animation.interpolation-easing
+  - media.animation.procedural
+  - media.animation.path
+  - media.animation.skeletal
+  - media.animation.inverse-kinematics
+  - media.animation.constraint
+  - media.animation.morph-target
+  - media.animation.camera
+  - media.animation.material
+  - media.animation.light
+  - media.animation.particle
+  - media.animation.drive.physics
+  - media.animation.drive.audio
+  - media.animation.drive.speech
+  - media.animation.drive.pose
+  - media.animation.facial-expression
+  - media.animation.gaze
+  - media.animation.lip
+  - media.animation.motion-capture.extract
+  - media.animation.motion.retarget
+  - media.animation.character
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.5
+  sourcePhrase: Selection, keyframe insertion/removal, curve editing, temporal snapping, playback/scrubbing, track muting/soloing,
+    layered animation, explicit blending rules, and undo/redo through versioned changes
+  familyId: media.animation.editing
+  requirementId: MEDIA-REQ-CAP-ANIMATION-EDITING
+  capabilityIds:
+  - media.animation.editing.select
+  - media.animation.editing.keyframe.insert
+  - media.animation.editing.keyframe.remove
+  - media.animation.editing.curve.edit
+  - media.animation.editing.temporal-snap
+  - media.animation.editing.playback-scrub
+  - media.animation.editing.track.mute
+  - media.animation.editing.track.solo
+  - media.animation.editing.layer
+  - media.animation.editing.blend
+  - media.animation.editing.undo-redo.versioned
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.5
+  sourcePhrase: Interactive scenes, vector/raster frames, composited video, reusable animation clips and appropriate exchange
+    packages; accessible timeline and semantic controls
+  familyId: media.animation.output
+  requirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+  capabilityIds:
+  - media.animation.output.output.interactive-scene
+  - media.animation.output.output.vector-raster-frames
+  - media.animation.output.output.composited-video
+  - media.animation.output.output.reusable-clip
+  - media.animation.output.output.exchange-package
+  - media.animation.output.accessibility.semantic-timeline
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.6
+  sourcePhrase: Rigid/soft bodies; cloth/rope; particles; fluids, smoke and fire; collisions/constraints; vehicles; crowds/agents;
+    human motion; procedural worlds; camera and lighting experiments; educational/scientific demonstrations; robotics/kinematics;
+    and synthetic-data generation
+  familyId: media.simulation
+  requirementId: MEDIA-REQ-CAP-SIMULATION
+  capabilityIds:
+  - media.simulation.rigid-body
+  - media.simulation.soft-body
+  - media.simulation.cloth
+  - media.simulation.rope
+  - media.simulation.particle
+  - media.simulation.fluid
+  - media.simulation.smoke
+  - media.simulation.fire
+  - media.simulation.collision
+  - media.simulation.constraint
+  - media.simulation.vehicle
+  - media.simulation.crowd
+  - media.simulation.agent
+  - media.simulation.human-motion
+  - media.simulation.procedural-world
+  - media.simulation.camera-experiment
+  - media.simulation.lighting-experiment
+  - media.simulation.educational-demo
+  - media.simulation.scientific-demo
+  - media.simulation.robotics
+  - media.simulation.kinematics
+  - media.simulation.synthetic-data
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.6
+  sourcePhrase: RGB, depth, normals, segmentation, optical flow, motion vectors, object IDs, contacts/physical events, measurements
+    and timestamped state outputs
+  familyId: media.simulation.output
+  requirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+  capabilityIds:
+  - media.simulation.output.rgb
+  - media.simulation.output.depth
+  - media.simulation.output.normals
+  - media.simulation.output.segmentation
+  - media.simulation.output.optical-flow
+  - media.simulation.output.motion-vectors
+  - media.simulation.output.object-ids
+  - media.simulation.output.contacts
+  - media.simulation.output.physical-events
+  - media.simulation.output.measurements
+  - media.simulation.output.timestamped-state
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.6
+  sourcePhrase: Physics/math explainers, infographics, product demonstrations, scientific visualization, interactive lessons,
+    training scenarios, architectural scenes, character/gesture animation and synthetic datasets as versioned MediaRecipe
+    plus content/schema bindings
+  familyId: media.recipe.template
+  requirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+  capabilityIds:
+  - media.recipe.template.physics-math-explainer
+  - media.recipe.template.infographic
+  - media.recipe.template.product-demonstration
+  - media.recipe.template.scientific-visualization
+  - media.recipe.template.interactive-lesson
+  - media.recipe.template.training-scenario
+  - media.recipe.template.architectural-scene
+  - media.recipe.template.character-gesture-animation
+  - media.recipe.template.synthetic-dataset
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.7
+  sourcePhrase: Denoise; deblur; dehaze; deblock/deband/dering; compression/JPEG repair; super-resolution; face/detail/texture
+    restoration; scratches/damage restoration; color recovery; white balance/exposure; lens distortion; chromatic aberration/vignette
+    correction; HDR recovery, tone/gamut conversion and sharpening
+  familyId: media.enhance.image
+  requirementId: MEDIA-REQ-CAP-ENHANCE-IMAGE
+  capabilityIds:
+  - media.enhance.image.denoise
+  - media.enhance.image.deblur
+  - media.enhance.image.dehaze
+  - media.enhance.image.deblock
+  - media.enhance.image.deband
+  - media.enhance.image.dering
+  - media.enhance.image.compression-repair
+  - media.enhance.image.jpeg-repair
+  - media.enhance.image.super-resolution
+  - media.enhance.image.face-restoration
+  - media.enhance.image.detail-restoration
+  - media.enhance.image.texture-restoration
+  - media.enhance.image.scratch-restoration
+  - media.enhance.image.damage-restoration
+  - media.enhance.image.color-recovery
+  - media.enhance.image.white-balance
+  - media.enhance.image.exposure
+  - media.enhance.image.lens-distortion
+  - media.enhance.image.chromatic-aberration
+  - media.enhance.image.vignette-correction
+  - media.enhance.image.hdr-recovery
+  - media.enhance.image.tone-conversion
+  - media.enhance.image.gamut-conversion
+  - media.enhance.image.sharpen
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.7
+  sourcePhrase: Video/space-time super-resolution; interpolation; temporal denoise/deblur; compression repair; deflicker;
+    temporal-consistency correction; stabilization; rolling-shutter correction; frame repair; frame-rate conversion; motion-blur
+    synthesis; grain management; deinterlacing; inverse telecine/cadence repair
+  familyId: media.enhance.video
+  requirementId: MEDIA-REQ-CAP-ENHANCE-VIDEO
+  capabilityIds:
+  - media.enhance.video.spatiotemporal-super-resolution
+  - media.enhance.video.interpolation
+  - media.enhance.video.temporal-denoise
+  - media.enhance.video.temporal-deblur
+  - media.enhance.video.compression-repair
+  - media.enhance.video.deflicker
+  - media.enhance.video.temporal-consistency
+  - media.enhance.video.stabilize
+  - media.enhance.video.rolling-shutter
+  - media.enhance.video.frame-repair
+  - media.enhance.video.frame-rate-conversion
+  - media.enhance.video.motion-blur-synthesis
+  - media.enhance.video.grain.adjust
+  - media.enhance.video.deinterlace
+  - media.enhance.video.inverse-telecine-cadence
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.7
+  sourcePhrase: Noise suppression/speech enhancement; dereverberation/de-echo/acoustic echo cancellation; dehum/declick/decrackle/declip;
+    wind/plosive reduction/de-essing; source/speaker/music-vocal/stem separation; background removal; speech separation; audio
+    super-resolution/bandwidth extension; sample-rate conversion; phase/channel repair
+  familyId: media.enhance.audio
+  requirementId: MEDIA-REQ-CAP-ENHANCE-AUDIO
+  capabilityIds:
+  - media.enhance.audio.noise-suppression
+  - media.enhance.audio.speech-enhancement
+  - media.enhance.audio.dereverberation
+  - media.enhance.audio.deecho
+  - media.enhance.audio.acoustic-echo-cancellation
+  - media.enhance.audio.dehum
+  - media.enhance.audio.declick
+  - media.enhance.audio.decrackle
+  - media.enhance.audio.declip
+  - media.enhance.audio.wind-reduction
+  - media.enhance.audio.plosive-reduction
+  - media.enhance.audio.deessing
+  - media.enhance.audio.source-separation
+  - media.enhance.audio.speaker-separation
+  - media.enhance.audio.music-vocal-separation
+  - media.enhance.audio.stem-separation
+  - media.enhance.audio.background-removal
+  - media.enhance.audio.speech-separation
+  - media.enhance.audio.audio-super-resolution
+  - media.enhance.audio.bandwidth-extension
+  - media.enhance.audio.sample-rate-conversion
+  - media.enhance.audio.phase-repair
+  - media.enhance.audio.channel-repair
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.8
+  sourcePhrase: Image/video inpainting/outpainting; object removal/replacement; background removal/replacement; matting; relighting/recoloring/colorization/style
+    transfer; retiming/slow motion/speed ramps; smart crop/auto reframe; shot/color matching; region/face/hand correction;
+    keyframe/mask/effect propagation
+  familyId: media.edit
+  requirementId: MEDIA-REQ-CAP-EDIT
+  capabilityIds:
+  - media.edit.inpaint
+  - media.edit.outpaint
+  - media.edit.object-remove
+  - media.edit.object-replace
+  - media.edit.background-remove
+  - media.edit.background-replace
+  - media.edit.matte
+  - media.edit.relight
+  - media.edit.recolor
+  - media.edit.colorize
+  - media.edit.style-transfer
+  - media.edit.retime-slow-motion-speed-ramp
+  - media.edit.smart-crop-auto-reframe
+  - media.edit.shot-color-match
+  - media.edit.region-correction
+  - media.edit.face-correction
+  - media.edit.hand-correction
+  - media.edit.propagate-keyframe-mask-effect
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.8
+  sourcePhrase: Sample-accurate A/V mapping; lip synchronization; phoneme/viseme alignment; dubbing/subtitle/voiceover timing;
+    scene/beat/music-edit alignment; speaker-face association; drift detection/correction
+  familyId: media.sync
+  requirementId: MEDIA-REQ-CAP-SYNC
+  capabilityIds:
+  - media.sync.sample-accurate-av-map
+  - media.sync.lip-synchronize
+  - media.sync.phoneme-viseme-align
+  - media.sync.dub-subtitle-voiceover-time
+  - media.sync.scene-beat-music-align
+  - media.sync.speaker-face-associate
+  - media.sync.drift-detect-correct
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.8
+  sourcePhrase: Multitrack timelines; scene/storyboard assembly; video/audio/caption/overlay tracks; transitions; titles/credits/lower
+    thirds; exact typography/logos/brand assets; safe areas; reusable compositions and render manifests
+  familyId: media.compose
+  requirementId: MEDIA-REQ-CAP-COMPOSE
+  capabilityIds:
+  - media.compose.multitrack-timeline
+  - media.compose.scene-storyboard-assemble
+  - media.compose.track.video-audio-caption-overlay
+  - media.compose.transition
+  - media.compose.titles-credits-lower-thirds
+  - media.compose.exact-typography-logo-brand
+  - media.compose.safe-area
+  - media.compose.reusable-composition
+  - media.compose.render-manifest
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.8
+  sourcePhrase: White balance/exposure/contrast/curves; temperature/tint/selective color; skin-tone preservation; shot matching;
+    LUTs; color-space/gamut conversion; HDR grading; SDR/HDR conversion; tone mapping and highlight/shadow recovery
+  familyId: media.color
+  requirementId: MEDIA-REQ-CAP-COLOR
+  capabilityIds:
+  - media.color.white-balance
+  - media.color.exposure
+  - media.color.contrast
+  - media.color.curves
+  - media.color.temperature
+  - media.color.tint
+  - media.color.selective-color
+  - media.color.skin-tone-preserve
+  - media.color.shot-match
+  - media.color.lut
+  - media.color.colorspace-gamut-convert
+  - media.color.hdr-grade
+  - media.color.sdr-hdr-convert
+  - media.color.tone-map
+  - media.color.highlight-shadow-recover
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.8
+  sourcePhrase: EQ; dynamic/multiband compression; limiting; true-peak/loudness control; stereo width; phase/noise-floor analysis;
+    fades/crossfades; ducking/sidechain; room matching
+  familyId: media.master.audio
+  requirementId: MEDIA-REQ-CAP-MASTER-AUDIO
+  capabilityIds:
+  - media.master.audio.equalize
+  - media.master.audio.dynamic-compression
+  - media.master.audio.multiband-compression
+  - media.master.audio.limit
+  - media.master.audio.true-peak-loudness-control
+  - media.master.audio.stereo-width
+  - media.master.audio.phase-noise-floor-analyze
+  - media.master.audio.fade-crossfade
+  - media.master.audio.duck-sidechain
+  - media.master.audio.room-match
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.9
+  sourcePhrase: Inspect, compare, diagnose, rank, recommend, repair-plan and bounded optimize
+  familyId: media.quality
+  requirementId: MEDIA-REQ-CAP-QUALITY
+  capabilityIds:
+  - media.quality.inspect
+  - media.quality.compare
+  - media.quality.diagnose
+  - media.quality.rank
+  - media.quality.recommend
+  - media.quality.repair-plan
+  - media.quality.bounded-optimize
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.9
+  sourcePhrase: 'Image assessment: noise/blur/compression/exposure/color, structural fidelity/reference similarity, identity
+    consistency and perceptual quality'
+  familyId: media.quality.image
+  requirementId: MEDIA-REQ-CAP-QUALITY-IMAGE
+  capabilityIds:
+  - media.quality.image.image.assess-noise
+  - media.quality.image.image.assess-blur
+  - media.quality.image.image.assess-compression
+  - media.quality.image.image.assess-exposure
+  - media.quality.image.image.assess-color
+  - media.quality.image.image.assess-structural-reference-fidelity
+  - media.quality.image.image.assess-identity-consistency
+  - media.quality.image.image.assess-perceptual-quality
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.9
+  sourcePhrase: 'Video assessment: temporal consistency, flicker, frame artifacts, motion, identity/object/geometry/camera
+    continuity, qualified physical plausibility, lip/A/V sync and encoding quality'
+  familyId: media.quality.video
+  requirementId: MEDIA-REQ-CAP-QUALITY-VIDEO
+  capabilityIds:
+  - media.quality.video.video.assess-temporal-consistency
+  - media.quality.video.video.assess-flicker
+  - media.quality.video.video.assess-frame-artifacts
+  - media.quality.video.video.assess-motion
+  - media.quality.video.video.assess-identity-consistency
+  - media.quality.video.video.assess-object-continuity
+  - media.quality.video.video.assess-geometry-continuity
+  - media.quality.video.video.assess-camera-continuity
+  - media.quality.video.video.assess-qualified-physical-plausibility
+  - media.quality.video.video.assess-lip-sync
+  - media.quality.video.video.assess-av-sync
+  - media.quality.video.video.assess-encoding
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.9
+  sourcePhrase: 'Audio assessment: noise/clipping/distortion/intelligibility, separation leakage, spectral/phase quality,
+    loudness/true peak, naturalness and speaker similarity where authorized'
+  familyId: media.quality.audio
+  requirementId: MEDIA-REQ-CAP-QUALITY-AUDIO
+  capabilityIds:
+  - media.quality.audio.audio.assess-noise
+  - media.quality.audio.audio.assess-clipping
+  - media.quality.audio.audio.assess-distortion
+  - media.quality.audio.audio.assess-intelligibility
+  - media.quality.audio.audio.assess-separation-leakage
+  - media.quality.audio.audio.assess-spectral
+  - media.quality.audio.audio.assess-phase
+  - media.quality.audio.audio.assess-loudness
+  - media.quality.audio.audio.assess-true-peak
+  - media.quality.audio.audio.assess-naturalness
+  - media.quality.audio.audio.assess-authorized-speaker-similarity
+  disposition: retained-as-Media-semantic-leaves
+- masterPlanSection: §6.9
+  sourcePhrase: Encoding/transcoding, mastering, packaging, streaming, downloading, exporting and governed publishing; multiple
+    aspect ratios/resolutions; adaptive-bitrate renditions; Web/social/broadcast/cinematic/archival/interactive or explicit
+    named profiles; subtitles/transcripts; thumbnails/posters; interactive scene bundles and provenance manifests; codec/container/player
+    compatibility and fallback per profile
+  familyId: media.deliver
+  requirementId: MEDIA-REQ-CAP-DELIVER
+  capabilityIds:
+  - media.deliver.encode
+  - media.deliver.transcode
+  - media.deliver.master
+  - media.deliver.package
+  - media.deliver.stream
+  - media.deliver.download
+  - media.deliver.export
+  - media.deliver.publish-governed
+  - media.deliver.renditions.aspect-ratio
+  - media.deliver.renditions.resolution
+  - media.deliver.renditions.adaptive-bitrate
+  - media.deliver.profile.web
+  - media.deliver.profile.social
+  - media.deliver.profile.podcast
+  - media.deliver.profile.broadcast
+  - media.deliver.profile.cinematic
+  - media.deliver.profile.archival
+  - media.deliver.profile.interactive
+  - media.deliver.profile.named
+  - media.deliver.subtitles
+  - media.deliver.transcripts
+  - media.deliver.thumbnails
+  - media.deliver.posters
+  - media.deliver.interactive-scene-bundle
+  - media.deliver.provenance-manifest
+  - media.deliver.compatibility-fallback
+  disposition: retained-as-Media-semantic-leaves
+legacyDocumentIntelligenceDisposition:
+  masterPlanScope: §6.2 mentions PDF/Office/image parsing, OCR, schema-guided extraction, applicable embeddings, and region/fallback
+    behavior as the former Media worker boundary.
+  currentOwner: Ghatana services/document-intelligence; Shared owns frozen @ghatana/document-extraction contracts.
+  mediaRetainedCapabilityIds:
+  - media.vision.scene-text.region.track
+  - media.vision.scene-text.observation.create
+  platformOwnedScope:
+  - PDF/Office/image document parsing
+  - generic OCR and text extraction
+  - schema-guided document extraction
+  - document embeddings
+  - document-region and fallback semantics
+  - generic document workflow and worker execution
+  mediaOwnedScope:
+  - video/frame time ranges
+  - scene and temporal text-region semantics
+  - cross-frame text-region tracking
+  - media-specific editing, overlays, and timestamped observations
+  boundary: Media may call the public Document Intelligence API through a thin adapter; it does not implement or duplicate
+    the generic service.
+  qualificationAndActivation: Preserve frozen Shared contract identities, operation-generation cancellation, current dimensional
+    qualification restrictions, and non-activation state; rehome and consumer parity remain open under GAP-14 and GAP-MEDIA-DI-PUBLIC-CLIENT.
+sourceObservations:
+- id: OBS-SOURCE-RUNTIME-STATE
+  source: service-contract-supplements/source-overlay.json
+  observation: The source overlay reports Media implementationStatus=implemented and runtimeStatus=active at the service-contract
+    scope, with readiness=internal-preview and named durability/provider/privacy/recovery/production-profile gaps.
+  evidenceClass: owner-authored-contract-overlay-and-listed-focused-test-paths
+  relevantFamilies:
+  - media.artifact
+  - media.job
+  - media.stream
+  - media.rights
+  - media.provenance
+  mappingLimit: Aggregate runtime lifecycle observation only; does not establish each catalog leaf, external model, durable
+    production profile, or qualification. Preserve internal-preview and non-production status.
+- id: OBS-SOURCE-CAPABILITY-MAP-AV
+  source: docs/capability-map.md
+  observation: The source map documents provider-level STT, TTS, vision, and multimodal implementations and enumerates focused
+    modules, routes, tests, gates, and evidence; its statement is a source-document claim with bounded scope.
+  evidenceClass: owner-authored-capability-map; not independent qualification evidence
+  relevantFamilies:
+  - media.speech.transcription
+  - media.speech.synthesis
+  - media.vision
+  - media.multimodal
+  mappingLimit: Preserve the documented observation and source paths. No all-language, all-profile, external provider, licensing,
+    or production qualification is inferred; generic OCR claims do not establish Media scene-text support.
+- id: OBS-SOURCE-DATACLOUD-PROJECTION
+  source: docs/capability-map.md#data-cloud-media-artifact-operations
+  observation: Source map documents Data Cloud-owned metadata registration, processing request, durable job lifecycle, result
+    retrieval, event emission, and privacy/retention behavior with focused code/test references.
+  evidenceClass: owner-authored-consumer/read-model observation
+  relevantFamilies:
+  - media.artifact
+  - media.job
+  - media.rights
+  - media.provenance
+  mappingLimit: These are retained as Data Cloud consumer/read-model observations. Media remains semantic owner of artifact/job/stream
+    lifecycle; Data Cloud does not become Media capability authority.
+- id: OBS-SOURCE-JAVA-CAPABILITY-INVENTORY
+  source: libs/java/common/src/main/java/com/ghatana/media/capability/MediaCapabilityInventory.java
+  observation: The source Java inventory defines coarse STT/TTS/object detection/classification/caption/segmentation/tracking/audio/video/transcoding/multimodal
+    statuses; absent entries default to NOT_IMPLEMENTED and only RUNTIME_SUPPORTED passes available().
+  evidenceClass: tracked-source-code-contract
+  relevantFamilies:
+  - media.speech.transcription
+  - media.speech.synthesis
+  - media.vision
+  - media.audio.analysis
+  - media.deliver
+  - media.multimodal
+  mappingLimit: Preserve the source state vocabulary and conservative absent-value behavior; this coarse enum does not map
+    individual P0-003 leaves or establish their states.
+- id: OBS-SOURCE-ACTION-PLANE-TOOLS
+  source: libs/common/src/main/resources/capabilities/audio-video-common.yaml
+  observation: The source tool registry declares speech-to-text, text-to-speech, vision-analysis, multimodal-inference, and
+    a Data Cloud media-artifacts tool with enabled=true and surface mappings.
+  evidenceClass: tracked-source-tool-registry
+  relevantFamilies:
+  - media.speech.transcription
+  - media.speech.synthesis
+  - media.vision
+  - media.multimodal
+  - media.artifact
+  mappingLimit: Registry declaration/enabled flag is not evidence of a live provider, product availability, license admission,
+    or qualification.
+- id: OBS-SOURCE-DI-BOUNDARY
+  source: docs/migration/decisions/MDI-001-document-intelligence-ownership.md; migration/contract-compatibility.yaml; .product-experience/gaps.yaml#GAP-14,GAP-MEDIA-DI-PUBLIC-CLIENT
+  observation: The worker and generic OCR/document-intelligence behavior is rehomed to the Ghatana platform service; Shared
+    owns @ghatana/document-extraction. Media retains only time/scene/region semantics and consumption over the public DI API.
+    The DI client/public API and consumer parity remain blocked.
+  evidenceClass: accepted-user-ownership-decision-plus-open-owner-gaps
+  relevantFamilies:
+  - media.vision.scene-text
+  mappingLimit: No generic PDF/Office/image parser, OCR engine, extraction schema, embedding service, or document workflow
+    is defined as a Media capability. The public DI boundary is a dependency, not an implementation claim.
+sourceRequirementCrosswalk:
+- sourceRequirementId: MEDIA-RUNTIME-001
+  sourcePath: service-contract-supplements/source-overlay.json#/patch/requirements
+  sourceStatus: implemented
+  sourceStatement: Media exposes a standalone tenant-scoped consent, artifact, asynchronous processing-job, reconnectable
+    streaming, and privacy-maintenance runtime over typed stores and providers.
+  sourceScope: Media runtime contracts, launcher, consent lifecycle, artifact lifecycle, jobs, stream sessions, privacy maintenance,
+    providers, transport, and shutdown.
+  sourceEvidenceRefs:
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+  - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java
+  - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactStore.java
+  - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java
+  - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java
+  mediaCapabilityFamilies:
+  - media.artifact
+  - media.job
+  - media.stream
+  - media.rights
+  - media.provenance
+  mediaRequirementRefs:
+  - MEDIA-REQ-CAP-ARTIFACT
+  - MEDIA-REQ-CAP-JOB
+  - MEDIA-REQ-CAP-STREAM
+  - MEDIA-REQ-CAP-RIGHTS
+  - MEDIA-REQ-CAP-PROVENANCE
+  interpretation: Preserve as an owner-authored source-scope implementation claim. Source overlay readiness is internal-preview
+    and production profile is prohibited until the listed lifecycle/privacy/recovery evidence closes; this does not qualify
+    every mapped leaf.
+- sourceRequirementId: MEDIA-UPLOAD-001
+  sourcePath: service-contract-supplements/source-overlay.json#/patch/requirements
+  sourceStatus: implemented
+  sourceStatement: Artifact ingestion is resumable, sequential, size-bound, checksum-verified, classified, retention-bound,
+    governed-deduplicated, metadata-minimized, and finalized through a durable claim into encrypted object storage.
+  sourceScope: Upload request/session/chunks/completion, multipart finalization, governed byte deduplication, metadata minimization,
+    and artifact metadata.
+  sourceEvidenceRefs:
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+  - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactStore.java
+  - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql
+  - providers/aws-postgresql/src/main/resources/db/media-runtime/V002__media_upload_finalization_claim.sql
+  mediaCapabilityFamilies:
+  - media.artifact
+  mediaCapabilityIds:
+  - media.artifact.ingest
+  - media.artifact.upload
+  - media.artifact.upload.resume
+  mediaRequirementRefs:
+  - MEDIA-REQ-CAP-ARTIFACT
+  interpretation: Retain the exact source claim and its bounded upload scope; it does not certify all artifact lifecycle leaves
+    or current production availability.
+- sourceRequirementId: MEDIA-STREAM-001
+  sourcePath: service-contract-supplements/source-overlay.json#/patch/requirements
+  sourceStatus: implemented
+  sourceStatement: Media stream sessions are durable, tenant-scoped, consent-governed, token-protected, lease-bound, reconnectable,
+    sequence-ordered, backpressure-aware, and explicitly terminal.
+  sourceScope: Stream session contracts, PostgreSQL store, consent verification, remote streaming provider, and HTTP lifecycle.
+  sourceEvidenceRefs:
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+  - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java
+  - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/HttpMediaStreamingProvider.java
+  - launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java
+  mediaCapabilityFamilies:
+  - media.stream
+  mediaRequirementRefs:
+  - MEDIA-REQ-CAP-STREAM
+  interpretation: Preserve current HTTP/session observations and terminal/finality constraints. WebRTC, adaptive HTTP, HLS,
+    DASH and live captioning remain separately declared profiles with UNKNOWN runtime availability.
+- sourceRequirementId: MEDIA-PRIVACY-001
+  sourcePath: service-contract-supplements/source-overlay.json#/patch/requirements
+  sourceStatus: implemented
+  sourceStatement: Media privacy is enforced through durable consent administration/verification, authority-owned purpose/residency/egress/biometric
+    grants, physical retention and erasure, structural metadata/result minimization, and fail-closed semantic de-identification
+    promotion.
+  sourceScope: Consent grant/revoke/verification, privacy maintenance, metadata/result sanitization, external provider governance,
+    semantic transcript promotion, health, routes, and shutdown.
+  sourceEvidenceRefs:
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaConsentAdministration.java
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaMetadataSanitizer.java
+  - launcher/src/main/java/com/ghatana/media/launcher/MediaSemanticRedactionRuntime.java
+  - providers/aws-postgresql/src/main/resources/db/media-runtime/V003__media_consent_authority.sql
+  mediaCapabilityFamilies:
+  - media.rights
+  - media.provenance
+  - media.artifact
+  - media.job
+  - media.stream
+  mediaRequirementRefs:
+  - MEDIA-REQ-CAP-RIGHTS
+  - MEDIA-REQ-CAP-PROVENANCE
+  - MEDIA-REQ-CAP-ARTIFACT
+  - MEDIA-REQ-CAP-JOB
+  - MEDIA-REQ-CAP-STREAM
+  interpretation: Retain the source owner claim and focused evidence references; the separate P0-003 support dimensions stay
+    UNKNOWN until exact leaf/profile observation and qualification.
+- sourceRequirementId: MEDIA-MODALITY-001
+  sourcePath: service-contract-supplements/source-overlay.json#/patch/requirements
+  sourceStatus: implemented
+  sourceStatement: Media exposes canonical, modality-grounded STT, TTS, vision, and multimodal provider contracts with explicit
+    provider identity, health/degradation truth, bounded execution, and consent/privacy enforcement.
+  sourceScope: Media modality capability discovery, provider health, degradation policy, execution bounds, typed result shape,
+    provenance, consent, privacy, and multimodal context.
+  sourceEvidenceRefs:
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaModalityContracts.java
+  - runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaModalityContractsTest.java
+  - runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaProcessingProviderFallbackContractTest.java
+  mediaCapabilityFamilies:
+  - media.speech.transcription
+  - media.speech.synthesis
+  - media.vision
+  - media.multimodal
+  mediaRequirementRefs:
+  - MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION
+  - MEDIA-REQ-CAP-SPEECH-SYNTHESIS
+  - MEDIA-REQ-CAP-VISION
+  - MEDIA-REQ-CAP-MULTIMODAL
+  interpretation: The source claim describes typed provider contracts and bounded scope; it does not establish all model/provider
+    implementation leaves or their language/profile/license qualification.
+- sourceRequirementId: MEDIA-CONTRACT-001
+  sourcePath: service-contract-supplements/source-overlay.json#/patch/requirements
+  sourceStatus: implemented
+  sourceStatement:
+  sourceScope: No statement or scope is authored on this source record.
+  sourceEvidenceRefs:
+  - contracts/openapi/media.yaml
+  - service-contract-supplements/source-overlay.json
+  mediaCapabilityFamilies:
+  - media.artifact
+  - media.job
+  - media.stream
+  mediaRequirementRefs:
+  - MEDIA-REQ-CAP-ARTIFACT
+  - MEDIA-REQ-CAP-JOB
+  - MEDIA-REQ-CAP-STREAM
+  interpretation: Preserve this incomplete source record verbatim as an observation; it is not evidence of any individual
+    operation or capability being implemented.
+unresolvedOwnerInputs:
+- gapId: GAP-02
+  scope: Public versions/publication and isolated artifact consumption for selected Ghatana dependencies.
+- gapId: GAP-03
+  scope: Owner-approved isolation/reuse for animation, renderer, physics, and AEF mechanics.
+- gapId: GAP-05
+  scope: Exact route/DTO/protobuf/client parity.
+- gapId: GAP-06
+  scope: Authored service-contract source, overlay, generator, and registry ownership; do not regenerate or reclassify source
+    capability requirements by inference.
+- gapId: GAP-08
+  scope: AI Inference public generation and local execution contracts.
+- gapId: GAP-09
+  scope: Exact component/model/font/asset license and security admission.
+- gapId: GAP-10
+  scope: Selected engine/GPU/model/quality/reproducibility measurements.
+- gapId: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+  scope: Verify accepted Tools-owned schema/model bindings and packed-publication/consumer use of @ghatana/product-definition@0.1.0-SNAPSHOT;
+    local source inspection is not Media consumer proof.
+- gapId: GAP-14
+  scope: Document Intelligence worker consumer relocation parity and preserved qualification.
+- gapId: GAP-15
+  scope: Named cross-repository owners and recorded source-cutover authorizations remain migration/cutover gates.
+- gapId: GAP-MEDIA-DI-PUBLIC-CLIENT
+  scope: Public Document Intelligence client publication and consumer rebinding; blocks Media scene-text adapter.
+requirementBindings:
+- requirementId: MEDIA-REQ-CAP-PROJECT
+  familyId: media.project
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.create
+  - media.intent.edit
+  - media.intent.restore-project
+  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.preserve-source
+  - media.goal.resolve-safely
+  stateModelRefs:
+  - media-project
+  - media-project-version
+  - media-project-membership
+  unresolvedStateModelBindings: []
+  stateModelBindingState: bound-to-proposed-project-lifecycle-version-and-membership-models; P0-005 semantic-owner-review-pending
+  stateModelBindings:
+  - modelId: media-project
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - ACTIVE
+      - ARCHIVED
+  - modelId: media-project-version
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - DRAFT
+      - COMMITTED
+      - SUPERSEDED
+      - CONFLICTED
+      - ABANDONED
+  - modelId: media-project-membership
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - INVITED
+      - ACTIVE
+      - SUSPENDED
+      - REVOKED
+      - EXPIRED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-ARTIFACT
+  familyId: media.artifact
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.operator
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  - media.role.operator
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.create
+  - media.intent.understand
+  - media.intent.edit
+  - media.intent.improve
+  - media.intent.deliver
+  - media.intent.manage-artifact-lifecycle
+  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.understand-media
+  - media.goal.preserve-source
+  - media.goal.improve-with-disclosure
+  - media.goal.deliver-approved-output
+  - media.goal.resolve-safely
+  stateModelRefs:
+  - media-upload-and-artifact
+  - media-job
+  - media-attempt
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: operator
+    status: resolved
+    actorRef: media.operator
+    responsibilityRoleRef: media.role.operator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-JOB
+  familyId: media.job
+  actorRefs:
+  - media.creator
+  - media.operator
+  - media.automation-client
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.operator
+  - media.role.automation-client
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.create
+  - media.intent.understand
+  - media.intent.improve
+  - media.intent.edit
+  - media.intent.animate
+  - media.intent.simulate
+  - media.intent.deliver
+  - media.intent.resolve-job
+  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.understand-media
+  - media.goal.improve-with-disclosure
+  - media.goal.preserve-source
+  - media.goal.explain-or-demonstrate
+  - media.goal.deliver-approved-output
+  - media.goal.resolve-safely
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: operator
+    status: resolved
+    actorRef: media.operator
+    responsibilityRoleRef: media.role.operator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: automation-agent
+    status: resolved
+    actorRef: media.automation-client
+    responsibilityRoleRef: media.role.automation-client
+    resolution: canonical-role-alias
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-STREAM
+  familyId: media.stream
+  actorRefs:
+  - media.creator
+  - media.operator
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.operator
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.create
+  - media.intent.understand
+  - media.intent.recover-live-session
+  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.understand-media
+  - media.goal.resolve-safely
+  stateModelRefs:
+  - media-stream-session
+  - media-job
+  - media-attempt
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-stream-session
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - OPEN
+      - CONNECTED
+      - DEGRADED
+      - DRAINING
+      - CLOSED
+      - FAILED
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: operator
+    status: resolved
+    actorRef: media.operator
+    responsibilityRoleRef: media.role.operator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-PROFILE
+  familyId: media.profile
+  actorRefs:
+  - media.developer-integrator
+  - media.operator
+  responsibilityRoleRefs:
+  - media.role.developer-integrator
+  - media.role.operator
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.choose-eligible-processing-option
+  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.integrate-repeatably
+  stateModelRefs: []
+  unresolvedStateModelBindings: []
+  stateModelBindingState: no-persistent-lifecycle-model-applies; verify-readiness-or-profile-observations-remain-separate
+  stateModelBindings: []
+  actorRoleBindings:
+  - sourceRoleLabel: developer-integrator
+    status: resolved
+    actorRef: media.developer-integrator
+    responsibilityRoleRef: media.role.developer-integrator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: operator
+    status: resolved
+    actorRef: media.operator
+    responsibilityRoleRef: media.role.operator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-CAPABILITY
+  familyId: media.capability
+  actorRefs:
+  - media.developer-integrator
+  - media.operator
+  responsibilityRoleRefs:
+  - media.role.developer-integrator
+  - media.role.operator
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.check-processing-options
+  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.integrate-repeatably
+  - media.goal.resolve-safely
+  stateModelRefs: []
+  unresolvedStateModelBindings: []
+  stateModelBindingState: no-persistent-lifecycle-model-applies; verify-readiness-or-profile-observations-remain-separate
+  stateModelBindings: []
+  actorRoleBindings:
+  - sourceRoleLabel: developer-integrator
+    status: resolved
+    actorRef: media.developer-integrator
+    responsibilityRoleRef: media.role.developer-integrator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: operator
+    status: resolved
+    actorRef: media.operator
+    responsibilityRoleRef: media.role.operator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-HEALTH
+  familyId: media.health
+  actorRefs:
+  - media.operator
+  responsibilityRoleRefs:
+  - media.role.operator
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.check-processing-readiness
+  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.resolve-safely
+  - media.goal.integrate-repeatably
+  stateModelRefs: []
+  unresolvedStateModelBindings: []
+  stateModelBindingState: no-persistent-lifecycle-model-applies; verify-readiness-or-profile-observations-remain-separate
+  stateModelBindings: []
+  actorRoleBindings:
+  - sourceRoleLabel: operator
+    status: resolved
+    actorRef: media.operator
+    responsibilityRoleRef: media.role.operator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-RIGHTS
+  familyId: media.rights
+  actorRefs:
+  - media.creator
+  - media.privacy-rights-reviewer
+  - media.operator
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.privacy-rights-reviewer
+  - media.role.operator
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.deliver
+  - media.intent.review-rights-and-consent
+  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.deliver-approved-output
+  - media.goal.review-trustworthy-output
+  - media.goal.resolve-safely
+  stateModelRefs:
+  - media-rights-and-consent
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-rights-and-consent
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      rightsAssertionStates:
+      - ASSERTED
+      - UNDER_REVIEW
+      - VERIFIED_FOR_DECLARED_SCOPE
+      - RESTRICTED
+      - REJECTED
+      - REVOKED
+      - EXPIRED
+      consentStates:
+      - PENDING_VERIFICATION
+      - ACTIVE
+      - REVOKED
+      - EXPIRED
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: privacy-rights-reviewer
+    status: resolved
+    actorRef: media.privacy-rights-reviewer
+    responsibilityRoleRef: media.role.privacy-rights-reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: operator
+    status: resolved
+    actorRef: media.operator
+    responsibilityRoleRef: media.role.operator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-PROVENANCE
+  familyId: media.provenance
+  actorRefs:
+  - media.creator
+  - media.reviewer
+  - media.privacy-rights-reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.reviewer
+  - media.role.privacy-rights-reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.understand
+  - media.intent.improve
+  - media.intent.deliver
+  - media.intent.inspect-provenance
+  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.understand-media
+  - media.goal.improve-with-disclosure
+  - media.goal.preserve-source
+  - media.goal.deliver-approved-output
+  - media.goal.review-trustworthy-output
+  stateModelRefs:
+  - media-rights-and-consent
+  - media-upload-and-artifact
+  - media-job
+  - media-attempt
+  - media-delivery
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-rights-and-consent
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      rightsAssertionStates:
+      - ASSERTED
+      - UNDER_REVIEW
+      - VERIFIED_FOR_DECLARED_SCOPE
+      - RESTRICTED
+      - REJECTED
+      - REVOKED
+      - EXPIRED
+      consentStates:
+      - PENDING_VERIFICATION
+      - ACTIVE
+      - REVOKED
+      - EXPIRED
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-delivery
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_STARTED
+      - PREPARING
+      - READY_FOR_AUTHORIZED_DELIVERY
+      - SUBMITTED
+      - ACKNOWLEDGED
+      - PARTIALLY_DELIVERED
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - FAILED
+      - REVOKED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: privacy-rights-reviewer
+    status: resolved
+    actorRef: media.privacy-rights-reviewer
+    responsibilityRoleRef: media.role.privacy-rights-reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-VISION-SCENE-TEXT
+  familyId: media.vision.scene-text
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.understand
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.understand-media
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION
+  familyId: media.speech.transcription
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.understand
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.understand-media
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-VISION
+  familyId: media.vision
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.understand
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.understand-media
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-MULTIMODAL
+  familyId: media.multimodal
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.understand
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.understand-media
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-AUDIO-ANALYSIS
+  familyId: media.audio.analysis
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.understand
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.understand-media
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-GENERATE-IMAGE
+  familyId: media.generate.image
+  actorRefs:
+  - media.creator
+  - media.editor
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.create
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-GENERATE-VIDEO
+  familyId: media.generate.video
+  actorRefs:
+  - media.creator
+  - media.editor
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.create
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-GENERATE-AUDIO
+  familyId: media.generate.audio
+  actorRefs:
+  - media.creator
+  - media.editor
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.create
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-SPEECH-SYNTHESIS
+  familyId: media.speech.synthesis
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.privacy-rights-reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  - media.role.privacy-rights-reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.create
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: privacy-rights-reviewer
+    status: resolved
+    actorRef: media.privacy-rights-reviewer
+    responsibilityRoleRef: media.role.privacy-rights-reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-GENERATE-SPATIAL
+  familyId: media.generate.spatial
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.domain-reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  - media.role.domain-reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.create
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  pendingActorRoleAppointments:
+  - responsibilityRoleRef: media.role.domain-reviewer
+    status: owner-appointment-pending
+    scope: domain-specific validation and fidelity review
+    decisionOwner: relevant-domain-owner
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: domain-reviewer
+    status: resolved-as-bounded-proposal; appointment-pending
+    actorRef: media.domain-reviewer
+    responsibilityRoleRef: media.role.domain-reviewer
+    resolution: explicit-source-role-materialized-without-granting-permission
+    note: Relevant domain owner must appoint the reviewer and define the review evidence/scope before affected acceptance.
+- requirementId: MEDIA-REQ-CAP-ANIMATION
+  familyId: media.animation
+  actorRefs:
+  - media.creator
+  - media.editor
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.animate
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  - media-quality-disposition
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  - modelId: media-quality-disposition
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_ASSESSED
+      - ASSESSING
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-ANIMATION-EDITING
+  familyId: media.animation.editing
+  actorRefs:
+  - media.editor
+  responsibilityRoleRefs:
+  - media.role.editor
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.animate
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-project-version
+  unresolvedStateModelBindings: []
+  stateModelBindingState: bound-to-proposed-project-version-models; P0-005 semantic-owner-review-pending
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-project-version
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - DRAFT
+      - COMMITTED
+      - SUPERSEDED
+      - CONFLICTED
+      - ABANDONED
+  actorRoleBindings:
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-ANIMATION-OUTPUT
+  familyId: media.animation.output
+  actorRefs:
+  - media.creator
+  - media.editor
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.animate
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-SIMULATION
+  familyId: media.simulation
+  actorRefs:
+  - media.creator
+  - media.operator
+  - media.domain-reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.operator
+  - media.role.domain-reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.simulate
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.explain-or-demonstrate
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-quality-disposition
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  pendingActorRoleAppointments:
+  - responsibilityRoleRef: media.role.domain-reviewer
+    status: owner-appointment-pending
+    scope: domain-specific validation and fidelity review
+    decisionOwner: relevant-domain-owner
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-quality-disposition
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_ASSESSED
+      - ASSESSING
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: operator
+    status: resolved
+    actorRef: media.operator
+    responsibilityRoleRef: media.role.operator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: domain-reviewer
+    status: resolved-as-bounded-proposal; appointment-pending
+    actorRef: media.domain-reviewer
+    responsibilityRoleRef: media.role.domain-reviewer
+    resolution: explicit-source-role-materialized-without-granting-permission
+    note: Relevant domain owner must appoint the reviewer and define the review evidence/scope before affected acceptance.
+- requirementId: MEDIA-REQ-CAP-SIMULATION-OUTPUT
+  familyId: media.simulation.output
+  actorRefs:
+  - media.creator
+  - media.reviewer
+  - media.domain-reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.reviewer
+  - media.role.domain-reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.simulate
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.explain-or-demonstrate
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  - media-quality-disposition
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  pendingActorRoleAppointments:
+  - responsibilityRoleRef: media.role.domain-reviewer
+    status: owner-appointment-pending
+    scope: domain-specific validation and fidelity review
+    decisionOwner: relevant-domain-owner
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  - modelId: media-quality-disposition
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_ASSESSED
+      - ASSESSING
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: domain-reviewer
+    status: resolved-as-bounded-proposal; appointment-pending
+    actorRef: media.domain-reviewer
+    responsibilityRoleRef: media.role.domain-reviewer
+    resolution: explicit-source-role-materialized-without-granting-permission
+    note: Relevant domain owner must appoint the reviewer and define the review evidence/scope before affected acceptance.
+- requirementId: MEDIA-REQ-CAP-RECIPE-TEMPLATE
+  familyId: media.recipe.template
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.domain-reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  - media.role.domain-reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.create
+  - media.intent.animate
+  - media.intent.simulate
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.explain-or-demonstrate
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  pendingActorRoleAppointments:
+  - responsibilityRoleRef: media.role.domain-reviewer
+    status: owner-appointment-pending
+    scope: domain-specific validation and fidelity review
+    decisionOwner: relevant-domain-owner
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: domain-reviewer
+    status: resolved-as-bounded-proposal; appointment-pending
+    actorRef: media.domain-reviewer
+    responsibilityRoleRef: media.role.domain-reviewer
+    resolution: explicit-source-role-materialized-without-granting-permission
+    note: Relevant domain owner must appoint the reviewer and define the review evidence/scope before affected acceptance.
+- requirementId: MEDIA-REQ-CAP-ENHANCE-IMAGE
+  familyId: media.enhance.image
+  actorRefs:
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.improve
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.improve-with-disclosure
+  - media.goal.preserve-source
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  - media-quality-disposition
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  - modelId: media-quality-disposition
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_ASSESSED
+      - ASSESSING
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-ENHANCE-VIDEO
+  familyId: media.enhance.video
+  actorRefs:
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.improve
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.improve-with-disclosure
+  - media.goal.preserve-source
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  - media-quality-disposition
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  - modelId: media-quality-disposition
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_ASSESSED
+      - ASSESSING
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-ENHANCE-AUDIO
+  familyId: media.enhance.audio
+  actorRefs:
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.improve
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.improve-with-disclosure
+  - media.goal.preserve-source
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  - media-quality-disposition
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  - modelId: media-quality-disposition
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_ASSESSED
+      - ASSESSING
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-EDIT
+  familyId: media.edit
+  actorRefs:
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.edit
+  - media.intent.improve
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.preserve-source
+  - media.goal.improve-with-disclosure
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  - media-project-version
+  unresolvedStateModelBindings: []
+  stateModelBindingState: bound-to-proposed-project-version-models; P0-005 semantic-owner-review-pending
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  - modelId: media-project-version
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - DRAFT
+      - COMMITTED
+      - SUPERSEDED
+      - CONFLICTED
+      - ABANDONED
+  actorRoleBindings:
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-SYNC
+  familyId: media.sync
+  actorRefs:
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.edit
+  - media.intent.create
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.preserve-source
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  - media-project-version
+  unresolvedStateModelBindings: []
+  stateModelBindingState: bound-to-proposed-project-version-models; P0-005 semantic-owner-review-pending
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  - modelId: media-project-version
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - DRAFT
+      - COMMITTED
+      - SUPERSEDED
+      - CONFLICTED
+      - ABANDONED
+  actorRoleBindings:
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-COMPOSE
+  familyId: media.compose
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.create
+  - media.intent.edit
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.preserve-source
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  - media-project-version
+  unresolvedStateModelBindings: []
+  stateModelBindingState: bound-to-proposed-project-version-models; P0-005 semantic-owner-review-pending
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  - modelId: media-project-version
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - DRAFT
+      - COMMITTED
+      - SUPERSEDED
+      - CONFLICTED
+      - ABANDONED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-COLOR
+  familyId: media.color
+  actorRefs:
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.edit
+  - media.intent.improve
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.preserve-source
+  - media.goal.improve-with-disclosure
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  - media-project-version
+  unresolvedStateModelBindings: []
+  stateModelBindingState: bound-to-proposed-project-version-models; P0-005 semantic-owner-review-pending
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  - modelId: media-project-version
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - DRAFT
+      - COMMITTED
+      - SUPERSEDED
+      - CONFLICTED
+      - ABANDONED
+  actorRoleBindings:
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-MASTER-AUDIO
+  familyId: media.master.audio
+  actorRefs:
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.edit
+  - media.intent.improve
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.preserve-source
+  - media.goal.improve-with-disclosure
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  - media-quality-disposition
+  - media-project-version
+  unresolvedStateModelBindings: []
+  stateModelBindingState: bound-to-proposed-project-version-models; P0-005 semantic-owner-review-pending
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  - modelId: media-quality-disposition
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_ASSESSED
+      - ASSESSING
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
+  - modelId: media-project-version
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - DRAFT
+      - COMMITTED
+      - SUPERSEDED
+      - CONFLICTED
+      - ABANDONED
+  actorRoleBindings:
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-QUALITY
+  familyId: media.quality
+  actorRefs:
+  - media.editor
+  - media.reviewer
+  - media.operator
+  responsibilityRoleRefs:
+  - media.role.editor
+  - media.role.reviewer
+  - media.role.operator
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.understand
+  - media.intent.improve
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.understand-media
+  - media.goal.improve-with-disclosure
+  - media.goal.preserve-source
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-quality-disposition
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-quality-disposition
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_ASSESSED
+      - ASSESSING
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: operator
+    status: resolved
+    actorRef: media.operator
+    responsibilityRoleRef: media.role.operator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-QUALITY-IMAGE
+  familyId: media.quality.image
+  actorRefs:
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.improve
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.improve-with-disclosure
+  - media.goal.preserve-source
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-quality-disposition
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-quality-disposition
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_ASSESSED
+      - ASSESSING
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-QUALITY-VIDEO
+  familyId: media.quality.video
+  actorRefs:
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.improve
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.improve-with-disclosure
+  - media.goal.preserve-source
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-quality-disposition
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-quality-disposition
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_ASSESSED
+      - ASSESSING
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-QUALITY-AUDIO
+  familyId: media.quality.audio
+  actorRefs:
+  - media.editor
+  - media.reviewer
+  responsibilityRoleRefs:
+  - media.role.editor
+  - media.role.reviewer
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.improve
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.improve-with-disclosure
+  - media.goal.preserve-source
+  stateModelRefs:
+  - media-job
+  - media-attempt
+  - media-quality-disposition
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-quality-disposition
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_ASSESSED
+      - ASSESSING
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
+  actorRoleBindings:
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+- requirementId: MEDIA-REQ-CAP-DELIVER
+  familyId: media.deliver
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.reviewer
+  - media.operator
+  responsibilityRoleRefs:
+  - media.role.creator
+  - media.role.editor
+  - media.role.reviewer
+  - media.role.operator
+  unresolvedActorRoleMappings: []
+  traceToIntentIds:
+  - media.intent.deliver
+  intentTraceState: traced-to-canonical-P0-002-intents
+  unresolvedIntentTraceDispositions: []
+  relatedOutcomeRefs:
+  - media.goal.deliver-approved-output
+  stateModelRefs:
+  - media-delivery
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  unresolvedStateModelBindings: []
+  stateModelBindingState: authored-P0-005-proposal-reference; pending-P0-010-independent-acceptance
+  stateModelBindings:
+  - modelId: media-delivery
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - NOT_STARTED
+      - PREPARING
+      - READY_FOR_AUTHORIZED_DELIVERY
+      - SUBMITTED
+      - ACKNOWLEDGED
+      - PARTIALLY_DELIVERED
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - FAILED
+      - REVOKED
+  - modelId: media-job
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+  - modelId: media-attempt
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
+  - modelId: media-upload-and-artifact
+    sourceFile: state-models.yaml
+    modeledStateSets:
+      states:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
+  actorRoleBindings:
+  - sourceRoleLabel: creator
+    status: resolved
+    actorRef: media.creator
+    responsibilityRoleRef: media.role.creator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: editor
+    status: resolved
+    actorRef: media.editor
+    responsibilityRoleRef: media.role.editor
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: reviewer
+    status: resolved
+    actorRef: media.reviewer
+    responsibilityRoleRef: media.role.reviewer
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+  - sourceRoleLabel: operator
+    status: resolved
+    actorRef: media.operator
+    responsibilityRoleRef: media.role.operator
+    resolution: exact
+    note: Canonical actor/role assignment does not grant permission.
+requirementBindingAuthority:
+  sourceFile: requirements.yaml
+  disposition: generated-read-only-crosswalk-view; requirements.yaml remains the single editable Media-specific requirement
+    mapping authority
+actorRoleResolution:
+  sourceFile: actors-responsibilities.yaml
+  rules:
+  - An actorRef and responsibilityRoleRef are separate descriptive references.
+  - A responsibility role never grants access, permission, or approval authority.
+  resolvedSourceLabels:
+  - administrator
+  - automation-agent
+  - creator
+  - developer-integrator
+  - editor
+  - external-provider
+  - operator
+  - privacy-rights-reviewer
+  - reviewer
+  - worker
+  canonicalRoleAlias:
+  - sourceRoleLabel: automation-agent
+    actorRef: media.automation-client
+    responsibilityRoleRef: media.role.automation-client
+    basis: P0-002 names the canonical machine actor/role automation-client; preserve source label only as a mapped role alias.
+  openSourceLabels:
+  - sourceRoleLabel: domain-reviewer
+    candidateActorRefs:
+    - media.reviewer
+    candidateResponsibilityRoleRefs:
+    - media.role.fidelity-reviewer
+    - media.role.media-domain-lead
+    status: open
+    reason: No exact domain-qualified reviewer actor/role exists in the current P0-002 actor artifact; these candidates are
+      not treated as equivalent.
+intentTraceResolution:
+  sourceFile: goals-jtbd.yaml#intents
+  rule: Only canonical intent IDs are emitted in traceToIntentIds. Outcomes are separately listed in relatedOutcomeRefs and
+    are never substituted for intent references.
+  openDispositionSummary:
+  - requirementId: MEDIA-REQ-CAP-PROJECT
+    familyId: media.project
+    unresolvedIntentTraceDispositions:
+    - scope: archive, restore, review and project recovery
+      relatedOutcomeRefs:
+      - media.goal.preserve-source
+      - media.goal.resolve-safely
+      reason: P0-002 has create/edit intents but no explicit project recovery or archival intent.
+  - requirementId: MEDIA-REQ-CAP-ARTIFACT
+    familyId: media.artifact
+    unresolvedIntentTraceDispositions:
+    - scope: retention, revocation, erasure, and recovery operations
+      relatedOutcomeRefs:
+      - media.goal.preserve-source
+      - media.goal.resolve-safely
+      reason: The authored intents cover create, understand, edit, improve, and deliver, but do not state an explicit artifact
+        lifecycle/erasure intent.
+  - requirementId: MEDIA-REQ-CAP-JOB
+    familyId: media.job
+    unresolvedIntentTraceDispositions:
+    - scope: watch, cancel, retry, reconcile, and recover unknown job outcomes
+      relatedOutcomeRefs:
+      - media.goal.resolve-safely
+      reason: The canonical safe-resolution outcome exists, but goals-jtbd.yaml has no matching user/system intent record.
+  - requirementId: MEDIA-REQ-CAP-STREAM
+    familyId: media.stream
+    unresolvedIntentTraceDispositions:
+    - scope: disconnect, reconnect, cancellation, and uncertain live-session recovery
+      relatedOutcomeRefs:
+      - media.goal.resolve-safely
+      reason: The canonical safe-resolution outcome exists, but no streaming recovery intent is authored.
+  - requirementId: MEDIA-REQ-CAP-PROFILE
+    familyId: media.profile
+    unresolvedIntentTraceDispositions:
+    - scope: profile discovery and validation
+      relatedOutcomeRefs:
+      - media.goal.integrate-repeatably
+      reason: No canonical intent currently states how an integrator or creator discovers/validates a profile; the goal is
+        not itself an intent.
+  - requirementId: MEDIA-REQ-CAP-CAPABILITY
+    familyId: media.capability
+    unresolvedIntentTraceDispositions:
+    - scope: capability/provider diagnostics and execution compatibility
+      relatedOutcomeRefs:
+      - media.goal.integrate-repeatably
+      reason: No canonical intent currently states capability discovery/compatibility inspection; do not substitute a goal
+        for an intent.
+  - requirementId: MEDIA-REQ-CAP-HEALTH
+    familyId: media.health
+    unresolvedIntentTraceDispositions:
+    - scope: capability-scoped readiness inspection
+      relatedOutcomeRefs:
+      - media.goal.resolve-safely
+      reason: No canonical operator intent for readiness/degraded-capability inspection is authored.
+  - requirementId: MEDIA-REQ-CAP-RIGHTS
+    familyId: media.rights
+    unresolvedIntentTraceDispositions:
+    - scope: consent grants/revocation, rights assertion, and privacy/lifecycle review outside delivery
+      relatedOutcomeRefs:
+      - media.goal.review-trustworthy-output
+      - media.goal.resolve-safely
+      reason: The delivery intent covers permitted-use checks at delivery, but no canonical intent explicitly covers rights/consent
+        administration and revocation.
+  - requirementId: MEDIA-REQ-CAP-PROVENANCE
+    familyId: media.provenance
+    unresolvedIntentTraceDispositions:
+    - scope: retention/erasure lineage and source-origin disclosure beyond understand/improve/deliver
+      relatedOutcomeRefs:
+      - media.goal.preserve-source
+      - media.goal.review-trustworthy-output
+      reason: The current intents cover relevant understand/improve/deliver flows but do not explicitly state provenance,
+        retention, or erasure inspection.
+  emptyTraceRequirements:
+  - MEDIA-REQ-CAP-PROFILE
+  - MEDIA-REQ-CAP-CAPABILITY
+  - MEDIA-REQ-CAP-HEALTH
+stateModelBindingResolution:
+  sourceFile: state-models.yaml
+  authorityStatus: authored-proposal; pending-P0-010-independent-acceptance
+  implementationClaim: false
+  modelIds:
+  - media-job
+  - media-attempt
+  - media-upload-and-artifact
+  - media-stream-session
+  - media-rights-and-consent
+  - media-review
+  - media-delivery
+  - media-quality-disposition
+  openDispositionSummary:
+  - requirementId: MEDIA-REQ-CAP-PROJECT
+    familyId: media.project
+    unresolvedStateModelBindings:
+    - mappingId: OPEN-STATE-MEDIA-PROJECT-VERSION
+      scope: Project creation/update, collaboration, optimistic concurrency, branch/restore, and versioned membership/composition/settings.
+      reason: P0-005 state-models.yaml has no media-project/version model; avoid reusing job state as project state.
+  - requirementId: MEDIA-REQ-CAP-ANIMATION-EDITING
+    familyId: media.animation.editing
+    unresolvedStateModelBindings:
+    - mappingId: OPEN-STATE-MEDIA-PROJECT-VERSION
+      scope: Interactive animation-scene edits and versioned undo/redo.
+      reason: The proposal has job/attempt models but no project/scene editing revision state machine.
+  - requirementId: MEDIA-REQ-CAP-EDIT
+    familyId: media.edit
+    unresolvedStateModelBindings:
+    - mappingId: OPEN-STATE-MEDIA-PROJECT-VERSION
+      scope: Versioned edit operations, propagation, undo/redo, and optimistic concurrency.
+      reason: The proposal has job/attempt/artifact models but no project/edit revision state machine.
+  - requirementId: MEDIA-REQ-CAP-SYNC
+    familyId: media.sync
+    unresolvedStateModelBindings:
+    - mappingId: OPEN-STATE-MEDIA-PROJECT-VERSION
+      scope: Alignment edits and versioned synchronization maps attached to project revisions.
+      reason: The proposal has job/attempt/artifact models but no project/edit revision state machine.
+  - requirementId: MEDIA-REQ-CAP-COMPOSE
+    familyId: media.compose
+    unresolvedStateModelBindings:
+    - mappingId: OPEN-STATE-MEDIA-PROJECT-VERSION
+      scope: Multitrack timeline, project composition revision, collaboration, and stale-edit conflict handling.
+      reason: The proposal has job/attempt/artifact models but no project/composition version state machine.
+  - requirementId: MEDIA-REQ-CAP-COLOR
+    familyId: media.color
+    unresolvedStateModelBindings:
+    - mappingId: OPEN-STATE-MEDIA-PROJECT-VERSION
+      scope: Color-grade and shot-matching edits attached to versioned compositions.
+      reason: The proposal has job/attempt/artifact models but no project/edit revision state machine.
+  - requirementId: MEDIA-REQ-CAP-MASTER-AUDIO
+    familyId: media.master.audio
+    unresolvedStateModelBindings:
+    - mappingId: OPEN-STATE-MEDIA-PROJECT-VERSION
+      scope: Mix/mastering changes attached to versioned compositions.
+      reason: The proposal has job/attempt/artifact models but no project/edit revision state machine.
+profileSemanticsArtifactBinding:
+  sourceFile: profile-semantics.yaml
+  planSection: §9.5
+  owner: P0-007
+  binding: Profile axis definitions, values, fallback rules, and profile aliases are owned by profile-semantics.yaml and are
+    referenced there; they are not duplicated as capability aliases or catalog leaves.
+  capabilityFamilyRetained: media.profile
+  capabilityIds:
+  - media.profile.discover
+  - media.profile.validate

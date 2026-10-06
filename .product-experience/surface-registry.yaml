@@ -1,0 +1,360 @@
+schemaVersion: media.surface-registry.v1
+productId: media
+authority: .product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md
+purpose: >-
+  Canonical inventory of every intended Media consumer surface. A surface record
+  describes ownership and contract dependencies; it does not imply implementation,
+  qualification, publication, or currentness.
+denominators:
+  guiScreens: 47
+  guiScreenFilesIncludingJobFamilySpecialization: 48
+  httpOperations: 27
+  grpcRpcs: 43
+  agentToolHandlers: 4
+  planCliCommands: 11
+  fixtureCliCommandsObserved: 12
+  explorerRecordsHistorical: 147
+statusVocabulary: [SOURCE_ONLY, PROPOSED, LOCAL_ONLY, COMPATIBILITY_ONLY, PENDING, OBSOLETE]
+surfaces:
+  - surfaceId: media.surface.web
+    surfaceType: GUI_WEB
+    purpose: Browser Media product experience for project, artifact, processing, review, and delivery work.
+    consumers: [media-users, media-operators, integrating-products]
+    owners: [media-product, ghatana-shared-design-system]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth]
+    canonicalDomainConcepts: [media.domain.project, media.domain.artifact, media.domain.media-job, media.domain.transcript]
+    interactionModel: .product-experience/pdp-3-product-experience/screen-registry.yaml
+    contractAuthority: .product-experience/pdp-3-product-experience/screen-contracts/
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: interactive; explicit loading, unavailable, unknown-outcome, and recovery states
+    versioningExpectations: screen-contract and operation identifiers are stable within a published compatibility window
+    compatibilityExpectations: preserve source provenance, finality, consent, and recoverability across revisions
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#product'
+    semanticStatus: PROPOSED
+    implementationStatus: LOCAL_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.embedded
+    surfaceType: GUI_EMBEDDED
+    purpose: Embedded Media views consumed by integrating Ghatana products.
+    consumers: [integrating-products]
+    owners: [media-product, ghatana-shared-design-system, integrating-product-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth]
+    canonicalDomainConcepts: [media.domain.project, media.domain.media-job, media.domain.media-output]
+    interactionModel: .product-experience/pdp-3-product-experience/screen-registry.yaml
+    contractAuthority: .product-experience/pdp-3-product-experience/screen-contracts/
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: host-controlled; preserve explicit unavailable and authorization states
+    versioningExpectations: host integration version is explicit and independently compatible
+    compatibilityExpectations: no hidden mutation, no authority invention, and stable return destinations
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#experience'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.public-http
+    surfaceType: PUBLIC_API
+    purpose: Public HTTP operations for health and governed Media workflows.
+    consumers: [media-web, integrating-products, media-cli, media-sdk]
+    owners: [media-runtime, media-api-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth]
+    canonicalDomainConcepts: [media.domain.media-job, media.domain.media-output, media.domain.artifact]
+    interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
+    contractAuthority: contracts/openapi/media.yaml
+    securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
+    availabilityExpectations: request timeout, retry, idempotency, and unknown outcome are explicit
+    versioningExpectations: OpenAPI operation IDs and media API version are compatibility authorities
+    compatibilityExpectations: errors, pagination, correlation, and cancellation follow PDP-2 API registries
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#interfaces'
+    semanticStatus: SOURCE_ONLY
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.service-grpc
+    surfaceType: SERVICE_API
+    purpose: Provider/service protocol surfaces for speech, vision, multimodal, and voice capabilities.
+    consumers: [media-runtime, provider-adapters, internal-integrators]
+    owners: [media-runtime, provider-owners]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/capabilities.yaml]
+    canonicalDomainConcepts: [media.domain.media-job, media.domain.artifact, media.domain.media-output]
+    interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
+    contractAuthority: modules/*/src/main/proto/*.proto
+    securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
+    availabilityExpectations: deadlines, retries, cancellation, and provider failure semantics are explicit
+    versioningExpectations: protobuf package/service/method and compatibility policy govern evolution
+    compatibilityExpectations: generated clients must reconcile with the 43-plan-RPC denominator before publication
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#interfaces'
+    semanticStatus: SOURCE_ONLY
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.grpc.stt
+    surfaceType: SERVICE_API
+    purpose: Speech-to-text gRPC service contract and its 12 observed RPCs.
+    consumers: [media-runtime, provider-adapters, internal-integrators]
+    owners: [media-runtime, speech-service-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/capabilities.yaml]
+    canonicalDomainConcepts: [media.domain.media-job, media.domain.transcript, media.domain.artifact]
+    interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
+    contractAuthority: modules/speech/stt-service/src/main/proto/stt_service.proto
+    securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
+    availabilityExpectations: deadlines, retries, cancellation, and provider failure semantics remain contract work
+    versioningExpectations: protobuf package/service/method and compatibility policy govern evolution
+    compatibilityExpectations: 12 observed RPCs are a fixed reconciliation denominator, not semantic acceptance
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#interfaces'
+    semanticStatus: SOURCE_ONLY
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.grpc.tts
+    surfaceType: SERVICE_API
+    purpose: Text-to-speech gRPC service contract and its 11 observed RPCs.
+    consumers: [media-runtime, provider-adapters, internal-integrators]
+    owners: [media-runtime, speech-service-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/capabilities.yaml]
+    canonicalDomainConcepts: [media.domain.media-job, media.domain.media-output, media.domain.artifact]
+    interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
+    contractAuthority: modules/speech/tts-service/src/main/proto/tts_service.proto
+    securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
+    availabilityExpectations: deadlines, retries, cancellation, and provider failure semantics remain contract work
+    versioningExpectations: protobuf package/service/method and compatibility policy govern evolution
+    compatibilityExpectations: 11 observed RPCs are a fixed reconciliation denominator, not semantic acceptance
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#interfaces'
+    semanticStatus: SOURCE_ONLY
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.grpc.vision
+    surfaceType: SERVICE_API
+    purpose: Vision gRPC service contract and its 10 observed RPCs.
+    consumers: [media-runtime, provider-adapters, internal-integrators]
+    owners: [media-runtime, vision-service-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/capabilities.yaml]
+    canonicalDomainConcepts: [media.domain.media-job, media.domain.artifact, media.domain.media-output]
+    interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
+    contractAuthority: modules/vision/vision-service/src/main/proto/vision_service.proto
+    securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
+    availabilityExpectations: deadlines, retries, cancellation, and provider failure semantics remain contract work
+    versioningExpectations: protobuf package/service/method and compatibility policy govern evolution
+    compatibilityExpectations: 10 observed RPCs are a fixed reconciliation denominator, not semantic acceptance
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#interfaces'
+    semanticStatus: SOURCE_ONLY
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.grpc.multimodal
+    surfaceType: SERVICE_API
+    purpose: Multimodal inference gRPC service contract and its 10 observed RPCs.
+    consumers: [media-runtime, provider-adapters, internal-integrators]
+    owners: [media-runtime, multimodal-service-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/capabilities.yaml]
+    canonicalDomainConcepts: [media.domain.media-job, media.domain.artifact, media.domain.media-output]
+    interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
+    contractAuthority: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
+    availabilityExpectations: deadlines, retries, cancellation, and provider failure semantics remain contract work
+    versioningExpectations: protobuf package/service/method and compatibility policy govern evolution
+    compatibilityExpectations: 10 observed RPCs are a fixed reconciliation denominator, not semantic acceptance
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#interfaces'
+    semanticStatus: SOURCE_ONLY
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.sdk
+    surfaceType: SDK
+    purpose: Typed client operations for integrating products and automation.
+    consumers: [integrating-products, media-cli, agent-tools]
+    owners: [media-client-owner, media-runtime]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth]
+    canonicalDomainConcepts: [media.domain.media-job, media.domain.artifact, media.domain.transcript]
+    interactionModel: .product-experience/pdp-2-design-interface-system/sdk/conventions.yaml
+    contractAuthority: libs/audio-video-client/src/operations.ts
+    securityAuthorityModel: .product-experience/pdp-2-design-interface-system/api/auth.yaml
+    availabilityExpectations: typed errors, retries, cancellation, and outcome reconciliation are surfaced
+    versioningExpectations: public method IDs and wire operation IDs evolve under compatibility policy
+    compatibilityExpectations: legacy facades remain explicitly marked until their callers migrate
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#interfaces'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.cli
+    surfaceType: CLI
+    purpose: Scriptable command surface for batch and operator workflows.
+    consumers: [media-operators, ci-automation, integrating-products]
+    owners: [media-cli-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/capabilities.yaml]
+    canonicalDomainConcepts: [media.domain.artifact, media.domain.media-job, media.domain.transcript]
+    interactionModel: .product-experience/pdp-2-design-interface-system/cli/conventions.yaml
+    contractAuthority: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: deterministic exit status, stable reason codes, JSON/JSONL output, and retry guidance
+    versioningExpectations: plan denominator is 11 commands; 12 fixture commands remain an explicit discrepancy
+    compatibilityExpectations: command names and machine output remain stable through one deprecation window
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#interfaces'
+    semanticStatus: PROPOSED
+    implementationStatus: LOCAL_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.agent-tools
+    surfaceType: AGENT_TOOL
+    purpose: Narrow machine tools for grounded Media operations and inspection.
+    consumers: [agent-runtimes, ghatana-tools]
+    owners: [media-agent-tool-owner, ghatana-tools-owner]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml]
+    canonicalDomainConcepts: [media.domain.media-job, media.domain.artifact, media.domain.evidence]
+    interactionModel: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml
+    contractAuthority: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: authorization, bounded input, provenance, and typed refusal are mandatory
+    versioningExpectations: tool names and schemas change only with explicit compatibility and evidence review
+    compatibilityExpectations: no tool may mutate state outside a canonical operation or hide unknown outcomes
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#interfaces'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.events
+    surfaceType: EVENT_STREAM
+    purpose: Lifecycle and evidence events for observation and downstream projections.
+    consumers: [media-runtime, media-web, integrating-products, audit-systems]
+    owners: [media-runtime]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/state-models.yaml]
+    canonicalDomainConcepts: [media.domain.media-job, media.domain.evidence, media.domain.provenance]
+    interactionModel: .product-experience/pdp-2-design-interface-system/events/conventions.yaml
+    contractAuthority: .product-experience/pdp-3-product-experience/events/event-registry.yaml
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: ordering, correlation, replay, and loss handling are declared per event family
+    versioningExpectations: event type and schema versions are additive unless a migration is admitted
+    compatibilityExpectations: event consumers tolerate redelivery and preserve provenance
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#states-data'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.integrations
+    surfaceType: SYSTEM_TO_SYSTEM_SERVICE
+    purpose: Product-to-product, storage, identity, provider, and downstream delivery integrations.
+    consumers: [media-runtime, providers, storage, identity, delivery]
+    owners: [media-runtime, integration-owners]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth/dependency-contracts.yaml]
+    canonicalDomainConcepts: [media.domain.artifact, media.domain.media-job, media.domain.provenance]
+    interactionModel: .product-experience/pdp-2-design-interface-system/api/conventions.yaml
+    contractAuthority: .product-experience/pdp-3-product-experience/services/service-registry.yaml
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: degraded modes, provider failures, and compensation/reconciliation are explicit
+    versioningExpectations: integration adapters are compatibility boundaries, never semantic authorities
+    compatibilityExpectations: preserve source, consent, retention, and failure provenance at every handoff
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2]
+    explorerProjection: '#dependencies'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.types-library
+    surfaceType: LIBRARY
+    purpose: Public TypeScript domain and wire-facing types consumed by Media clients and integrating products.
+    consumers: [media-sdk, media-ui, integrating-products]
+    owners: [media-types-owner, media-product]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth]
+    canonicalDomainConcepts: [media.domain.artifact, media.domain.media-job, media.domain.transcript]
+    interactionModel: .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md
+    contractAuthority: libs/audio-video-types/
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: library imports expose typed outcomes without implying runtime availability
+    versioningExpectations: exported type changes follow package compatibility and consumer migration policy
+    compatibilityExpectations: wire and product semantics project canonical PDP definitions; local aliases remain explicit
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#domain'
+    semanticStatus: SOURCE_ONLY
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.ui-library
+    surfaceType: LIBRARY
+    purpose: Reusable Media-specific UI composition and embedded experience components.
+    consumers: [media-web, media-embedded, integrating-products]
+    owners: [media-ui-owner, ghatana-shared-design-system]
+    upstreamProductTruth: [.product-experience/pdp-0-product-truth]
+    canonicalDomainConcepts: [media.domain.artifact, media.domain.media-job, media.domain.transcript]
+    interactionModel: .product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md
+    contractAuthority: libs/audio-video-ui/
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: UI library components represent unavailable, denied, degraded, and unknown outcomes explicitly
+    versioningExpectations: component exports follow package compatibility and Shared design-system bindings
+    compatibilityExpectations: generic primitives remain Shared-owned; Media exports compose rather than duplicate them
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#design-system'
+    semanticStatus: PROPOSED
+    implementationStatus: SOURCE_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.explorer
+    surfaceType: EXPLORER_TOOLING
+    purpose: Source-linked local projection, simulation, inspection, and verification workspace.
+    consumers: [media-product-engineers, reviewers, ghatana-tools]
+    owners: [media-product, ghatana-tools-owner]
+    upstreamProductTruth: [.product-experience/source-manifest.yaml, .product-experience/pdp-0-product-truth]
+    canonicalDomainConcepts: [media.domain.evidence, media.domain.provenance]
+    interactionModel: .product-experience/explorer/EXPERIENCE-EXPLORER.md
+    contractAuthority: apps/media-experience-explorer/specification-artifacts.json
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: local-only when Tools binding/currentness is unavailable; never imply native acceptance
+    versioningExpectations: generated projection follows source manifest and never owns semantic IDs
+    compatibilityExpectations: historical 147-record index is retained only as migration context
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
+    explorerProjection: '#overview'
+    semanticStatus: PROPOSED
+    implementationStatus: LOCAL_ONLY
+    qualificationStatus: PENDING
+  - surfaceId: media.surface.desktop-archive
+    surfaceType: OBSOLETE
+    purpose: Retained historical desktop application material; not an active canonical consumer surface.
+    consumers: []
+    owners: [media-product]
+    upstreamProductTruth: [.product-experience/authority-map.yaml]
+    canonicalDomainConcepts: []
+    interactionModel: archive/media-desktop-apps/
+    contractAuthority: archive/media-desktop-apps/
+    securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    availabilityExpectations: not supported
+    versioningExpectations: no active compatibility promise
+    compatibilityExpectations: do not infer current behavior from archived source
+    applicablePdpArtifacts: [PDP-0]
+    explorerProjection: '#dependencies'
+    semanticStatus: OBSOLETE
+    implementationStatus: OBSOLETE
+    qualificationStatus: OBSOLETE
+channelSurfaceProposals:
+  schemaVersion: media.channel-surface-proposals.v1
+  status: owner-reviewed-candidate-crosswalk; channel-admission-and-runtime-support-remain-pending
+  source: .product-experience/pdp-0-product-truth/applications-channels.yaml
+  rule: >-
+    Candidate mappings normalize product channel identifiers to surface identifiers for
+    contract references only. They do not admit the channel, establish runtime support,
+    or replace per-operation and per-consumer owner decisions.
+  mappings:
+    - channelRef: media.channel.web
+      candidateSurfaceRefs: [media.surface.web]
+      status: proposal; PDP-0 and PDP-3 acceptance pending
+    - channelRef: media.channel.embedded
+      candidateSurfaceRefs: [media.surface.embedded]
+      status: proposal; host and integrating-product owner review pending
+    - channelRef: media.channel.http-api
+      candidateSurfaceRefs: [media.surface.public-http]
+      status: proposal; API owner and per-operation admission pending
+    - channelRef: media.channel.grpc-api
+      candidateSurfaceRefs: [media.surface.service-grpc]
+      status: aggregate proposal; service-specific owner and RPC mapping pending
+    - channelRef: media.channel.sdk
+      candidateSurfaceRefs: [media.surface.sdk]
+      status: proposal; publication and consumer-compatibility review pending
+    - channelRef: media.channel.cli
+      candidateSurfaceRefs: [media.surface.cli]
+      status: proposal; production CLI admission pending; Explorer fixture commands excluded
+    - channelRef: media.channel.product-integration
+      candidateSurfaceRefs: [media.surface.integrations]
+      status: proposal; each consumer/producer handoff requires owner acceptance
+    - channelRef: media.channel.legacy-desktop
+      candidateSurfaceRefs: [media.surface.desktop-archive]
+      status: historical-only; not an active or supported surface
+    - channelRef: media.channel.api
+      candidateSurfaceRefs: []
+      status: abstract-protocol-neutral-layer; no direct consumer surface; bind only through an admitted concrete transport

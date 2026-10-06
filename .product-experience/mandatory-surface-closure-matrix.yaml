@@ -1,15 +1,16 @@
 schemaVersion: media.mandatory-surface-closure-matrix.v1
 productId: media
-scope: .product-experience plus apps/media-experience-explorer and libs/media-experience-simulation
+scope: Product Definition authorities, Explorer, simulation, SDK/types/UI, HTTP/gRPC contracts, runtime adapters, OCR, Gradle, and deployment configuration
 mode: harden-source-of-truth
 authority: local audit matrix; not Product Definition acceptance, Tools evidence, or release evidence
 promptContext:
-  source: /Users/samujjwal/.codex/attachments/69b84256-9d4b-47fb-a44f-288faf3a2cde/Pasted text.txt
+  source: codex-attachment:10664bd3-994e-4c79-b28c-97a01a9b0937/Pasted text.txt
   governingRequirements:
   - one canonical Product Definition root with explicit authority ownership
   - complete PDP-0 through PDP-3 projections for applicable GUI, CLI, API, SDK, event, and service surfaces
   - deterministic source links, currentness, traceability, simulation, and verification without fabricated acceptance
   - complete GUI design-system and accessibility/localization obligations where applicable
+  - preserve task IDs, wave ordering, gates, exclusions, and evidence boundaries from the supplied plan
 repoGuidance:
   discovered:
   - no AGENTS.md, nested AGENTS.md, .github/copilot-instructions.md, .github/instructions, or .github/prompts files found
@@ -19,10 +20,10 @@ repoGuidance:
   - .product-experience/acceptance.yaml
   - .product-experience/gaps.yaml
   - .product-experience/traceability.yaml
-  - .product-experience/phase-0-product-truth/applications-channels.yaml
-  - .product-experience/phase-1-design-language/DESIGN-LANGUAGE.md
-  - .product-experience/phase-2-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md
-  - .product-experience/phase-3-experience-explorer/EXPERIENCE-EXPLORER.md
+  - .product-experience/pdp-0-product-truth/applications-channels.yaml
+  - .product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md
+  - .product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md
+  - .product-experience/explorer/EXPERIENCE-EXPLORER.md
   - docs/README.md
   - docs/VISION.md
   - docs/REQUIREMENTS.md
@@ -38,26 +39,115 @@ surface:
   - type: GUI_WEB
     id: apps/media-experience-explorer
     purpose: Media-owned local Product Definition review and synthetic projection host
-    authority: .product-experience/phase-3-experience-explorer
+    authority: .product-experience/explorer
   - type: CLI
     id: libs/media-experience-simulation/bin/ghatana-media.mjs
     purpose: deterministic synthetic command projection
-    authority: .product-experience/phase-2-product-experience/cli-command-registry.yaml
+    authority: .product-experience/pdp-3-product-experience/cli-command-registry.yaml
   - type: SERVICE_API
     id: media.api.logical
     purpose: proposed machine-facing logical operations
-    authority: .product-experience/phase-2-product-experience/api-experience-mapping.yaml
+    authority: .product-experience/pdp-3-product-experience/api-experience-mapping.yaml
     status: proposed-wire-unresolved
   - type: SDK
     id: media.sdk.logical
     purpose: proposed consumer binding for admitted operations
-    authority: .product-experience/phase-0-product-truth/applications-channels.yaml
+    authority: .product-experience/pdp-0-product-truth/applications-channels.yaml
     status: proposed-public-binding-unresolved
   - type: EVENT_STREAM
     id: media.events.logical
     purpose: lifecycle and finality observations
-    authority: .product-experience/phase-0-product-truth/state-models.yaml
+    authority: .product-experience/pdp-0-product-truth/state-models.yaml
     status: proposed-runtime-binding-unresolved
+  directlyObservedInterfaces:
+    httpOperations: 27
+    grpcRpcs: 43
+    agentToolHandlers: 4
+    plannedCliSimulationCommands: 11
+    proposedCliCommandRegistryEntries: 12
+    fixtureCliRegistryEntries: 11
+    authority: fixture and broader proposal registries are distinct; source observation only, canonical owner bindings and acceptance remain unresolved
+latestAssessment:
+  date: 2026-10-06
+  disposition: not-converged-actionable
+  findingSet: F01-F16
+  mandatoryAreas: 33
+  specialistReviews: [security-privacy, reliability-operability]
+  implementationGate: definition-and-binding-work-only; derived production implementation remains gated on owner-accepted PDP definitions
+ownerReview:
+  authority: explicit-user-delegation-to-act-as-Media-product-owner-on-2026-10-06
+  status: approved-with-comments
+  approvedScopes:
+  - CROSS-001-canonical-four-phase-authority-model-only
+  - HARDENING-PDP0-004-scope-status-vocabulary-and-reviewed-labels-only
+  - HARDENING-PDP1-001-source-reconciled-proposal-structure-and-provenance-only
+  - ACCEPTANCE-LEDGER-canonical-PDP-phase-label-migration-only
+  - CROSS-001-active-phase-taxonomy-and-metadata-normalization-only
+  - HARDENING-PDP1-002-operation-registry-proposal-structure-and-source-inventory-only
+  - HARDENING-PDP1-003-state-transition-source-extraction-structure-only
+  - HARDENING-PDP1-004-source-reconciled-event-evidence-provenance-inventory-only
+  - HARDENING-PDP1-004-per-event-evidence-provenance-proposals-only
+  - HARDENING-PDP1-005-source-observation-proposal-registry-structure-only
+  - PDP2-001-Shared-source-inventory-and-provenance-structure-only
+  - PDP2-002-GUI-required-pattern-registry-and-reference-structure-only
+  - PDP2-004-API-convention-file-structure-only
+  - PDP2-005-CLI-SDK-Events-Agent-Tool-proposal-structure-only
+  - PDP3-001-screen-contract-v2-structure-and-source-grounded-proposal-refs-only
+  - PDP3-002-27-http-43-grpc-source-inventories-and-protocol-record-structure-only
+  - PDP3-003-target-sdk-architecture-direction-and-legacy-compatibility-classification-only
+  - PDP3-004-cli-sdk-event-agent-tool-and-service-registry-structure-only
+  - PDP3-005-channel-to-surface-candidate-reference-normalization-only
+  - PDP3-005-130-step-journey-contract-structure-only
+  approvedModelTerms: [PDP-0-Product-Truth, PDP-1-Canonical-Domain-and-Data-Model, PDP-2-Design-Language-and-Interface-System, PDP-3-Complete-Product-Experience, Explorer-outside-PDP-phases]
+  notAccepted: [full-PDP-0, full-PDP-1, full-PDP-2, full-PDP-3, Tools-or-Shared-owner-decisions, native-currentness-or-receipts, publication, qualification, release-readiness, IMP-05]
+  comments:
+  - PDP-0 references, capability bounds, and proposal-action reachability require source-grounded reconciliation before semantic acceptance. The malformed capabilities.yaml families sequence and requirements.yaml indentation are repaired and parse locally with PyYAML; portable Node parser-backed CI coverage remains blocked because pnpm cannot resolve private @ghatana/tokens from the configured unauthenticated registry. The 445-bound, 385-reference, and 123-action gaps remain open.
+  - PDP-1 observed interfaces are projections, not canonical meaning. PXD-007 approves nine PDP1 logical-operation proposals with the required 22-field shape and source inventory only. Their 146 UI actions partition into 11 single proposed links, one ambiguous link, and 134 unresolved. PDP3-002 found 27 HTTP operation IDs match OpenAPI and runtime-route inventories, while all 15 API/action mappings remain unresolved and no per-operation contracts exist. All 43 gRPC registry entries match active proto declarations; PDP1 proposes family links for 24 and leaves 19 unresolved, while all PDP3 experience bindings remain pending. The stale “26 active” count label was corrected to the 43-RPC source census with a focused regression; this does not resolve wire authority or semantic mappings. CLI remains 11 fixture commands versus 12 broader proposals (including unbound `media.cli.job.retry`). The 27-entry SDK registry remains unbound, with apparent parser false positives unresolved. Four Agent Tool handlers and 15 event names still lack complete canonical bindings. Do not infer semantic, wire, or runtime parity from inventory matches.
+  - PDP-2 Shared binding remains blocked: the UI declares tokens/theme/design-system 0.1.2 without lockfile resolution or consumer verification, public registry lookups returned 404, and Explorer consumes none of the listed Shared packages. Keep the 0.1.0-SNAPSHOT observation until authorized package publication and verification; do not guess or copy.
+  - PXD-013 approves PDP2-001 source inventory only: all ten plan-named Shared package paths and their inspected 0.1.0-SNAPSHOT manifests are tied to clean revision 495663b2d6b61c270367048cec54db8a06f22d69, separately from Media's declared 0.1.2 dependencies. No compatible publication or consumer binding is established; retain the blocker and do not substitute the sibling snapshot.
+  - PXD-014 approves PDP2-002 pattern coverage and reference structure only: all thirteen required categories are catalogued, four standalone proposals are linked through templates, and three relevant screen contracts now resolve their GUI template and pattern refs. Canonical state/action/operation meaning, Shared package binding, screen behavior, accessibility, responsive/localization review, and visual evidence remain pending; no artifact-delete operation is claimed.
+  - PXD-015 approves all fourteen PDP2-004 API convention files as proposals and confirms OpenAPI is only a projection of approved rules/bindings. API semantics, operation-specific wire bindings, API/identity/platform owner decisions, and runtime verification remain pending.
+  - PXD-016 approves PDP2-005 CLI/SDK/Event/Agent Tool convention structure only. The four Agent Tool records include all required fields but are not admitted; runtime events remain separate from local client notifications; production interfaces, owner bindings, SDK status mapping, transport/finality, and delivery guarantees remain unresolved.
+  - PXD-017 approves PDP3-001's media.screen-contract.v2 shape across all 47 canonical screens. Three template IDs match the PDP-2 catalog and the rest remain null; component/pattern refs remain proposals, the Web surface is a candidate, and layouts/tokens/domain/operation/state/entry/exit, fixtures, design centralization, behavior, accessibility, and verification remain open.
+  - PXD-018 approves PDP3-002's exact 27 HTTP/43 gRPC inventories and 70 protocol records only. All HTTP semantic bindings and 19 gRPC logical-operation bindings remain unresolved; OpenAPI/protobuf have not been selected as canonical wire authorities. Four unquoted JSON Pointer request-schema values were quoted after review so YAML preserves them as scalars.
+  - PXD-019 approves PDP3-003's target direction only: PDP-1 logical operation → PDP-3 protocol → wire projections → one thin/generated SDK. Current clients and nonconforming HTTP routes are tagged LEGACY_COMPATIBILITY; there is no accepted parity, generator, or migration, and active protobufs remain observed protocols.
+  - PXD-020 approves PDP3-004 registry structure only: 11 fixture CLI commands, 27 SDK source entries, nine runtime event types separate from 15 local notifications, four non-admitted Agent Tool handlers, and 25 service implementation observations. No production interface or delivery guarantee is admitted.
+  - PXD-021 approves only a source-grounded candidate channel-to-surface crosswalk for reference normalization. It does not admit any channel or infer deployment/runtime support; media.channel.api remains an abstract layer with no direct surface.
+  - PXD-022 approves PDP3-005's structure only: 30 journey contracts and 130 structured ordered steps, with J-29/J-30 source step IDs preserved and 148 candidate surface refs normalized. Seven PDP-1 operation refs remain proposals; at least 123 operation bindings plus object/state/authority/decision/transition/handoff/requirements and step-specific outcomes remain unresolved; all verification is not-run.
+  - PXD-005 approves PDP1-001 source-reconciliation/proposal structure only: 37 domain-object, 13 value-object, and 11 relationship records; seven observed-only candidate crosswalks; per-relationship source/proposal bases and non-storage caveats; explicit proposed/unaccepted sample-position context; and exact PDP-0 fragments. The five composite fragments were corrected, and the documented PyYAML check plus local authority/local checks pass. Domain meanings, identities, values, cardinalities, and projections remain unaccepted.
+  - PDP3-001 now has a v2 structural regression over all 47 canonical screen proposals plus the separate job-family specialization. Three template IDs resolve to catalog entries, 44 remain null, and canonical layout IDs are absent. Screen refs, component/pattern refs, the candidate Web surface, and action consequence records remain proposals; token/domain/operation/state/entry/exit bindings, design centralization, fixtures, behavior, accessibility, responsive review, and verification remain open.
+  - PDP3-004 inventories 11 fixture commands, 12 broader CLI proposals, 27 SDK method entries (with apparent false positives), 15 event names, four handlers, and 25 service implementation entries. Production CLI wiring, event semantics/delivery, per-tool authority/input/result/finality contracts, and product-to-product consumer contracts remain open.
+  - PDP3-005 now has 30 contract files and 130 structured steps with the full required field shape; the focused regression passes and J-29/J-30 each retain four ordered step IDs. The per-step structure does not complete semantics: 123 canonical operation refs are null, object/state/authority/decision/transition/handoff/requirements remain largely unbound, candidate success/failure/recovery/context are not consistently allocated to steps, degraded behavior/postconditions are incomplete, and no step has verification evidence.
+  - PXD-006 authorizes a structural migration of phase acceptance inputs: canonical PDP-0..PDP-3 only, an explicit pending PDP-1 aggregate gate, prior P1/P2 IDs preserved as legacy crosswalks after remapping to PDP-2/PDP-3, and Explorer moved to projection acceptance outside the phase list. No acceptance state changes are authorized.
+  - PXD-007 approves PDP1-002's nine-operation proposal schema and source-denominator inventory only. All projection semantics and owner bindings remain pending; local duplicate-key-safe parsing and text regression do not constitute portable parser CI or phase acceptance.
+  - PXD-008 approves PDP1-003 source-exact extraction structure only: 11 machine IDs/dimensions, 75 state spellings, and 49 ordered transition relations. Rights/consent remains empty where the PDP-0 source is empty; all semantic conflicts and lossy projection mappings remain unresolved. Duplicate-key-safe local reconciliation is not phase acceptance or runtime parity.
+  - Owner review found active legacy phase-meaning metadata remaining after ledger normalization, including PDP-3 journey/action/view references and Explorer projection metadata. F15 tracks the source-aware label/field migration; stable work-item and ART-* identifiers remain preserved, acceptance states stay pending, and the browser sweep must be rerun after the normalization settles.
+  - PXD-009 approves the active phase-label/metadata normalization only. The local browser rerun now passes after manifest generation and a fresh Vite build; this does not replace human visual/accessibility review or Tools-native evidence.
+  - PXD-010 approves PDP1-004 source-inventory structure; PXD-012 approves per-event source-observation/evidence/provenance candidate links for seven runtime publisher call sites/nine concrete event types, distinct from 15 local client notifications. Actual event records, receipts/finality, canonical taxonomy, producer authority, object/version meaning, ordering, replay/deduplication, compatibility, privacy, and recovery remain unresolved; the F16 source-inventory subfinding is addressed, while the broader architecture/event-contract gap remains.
+  - PXD-011 approves PDP1-005 registry structure only. Job version/fencing, checksums, sourceArtifactIds, purge mechanisms, and restart handling remain observations rather than proof of durable attempts, immutable bytes/version identity, complete ancestry, all-store erasure, or provider outcome reconciliation; privacy, offline/replay, retention, and cross-product owner decisions remain pending.
+  - Independent Luna security/privacy/operability review confirms that consent checks, sanitizer allowlists, purge interfaces, lifecycle HTTP publication, logs, and cancellation states are implementation observations only. Production identity and consent-revocation coverage, provider-purpose disclosure bounds, storage/provider-wide erasure, durable event delivery and telemetry, and restart/reconciliation safety need owner bindings and runtime evidence; retain the existing gap-found/blocked classifications.
+  - Independent specialist source review is complete; P0-010, specialist owner disposition/runtime evidence, Tools currentness/receipts, and external owner acceptance remain pending.
+  decisionRecords:
+  - .product-experience/decision-log.md#pxd-003
+  - .product-experience/decision-log.md#pxd-004--approve-pdp0-004-scope-status-normalization-with-comments
+  - .product-experience/decision-log.md#pxd-005--approve-pdp1-001-proposal-structure-and-provenance-with-comments
+  - .product-experience/decision-log.md#pxd-006--normalize-acceptance-inputs-to-canonical-pdp-phases
+  - .product-experience/decision-log.md#pxd-007--approve-pdp1-002-operation-registry-structure-with-comments
+  - .product-experience/decision-log.md#pxd-008--approve-pdp1-003-state-transition-extraction-structure-with-comments
+  - .product-experience/decision-log.md#pxd-009--approve-active-phase-taxonomy-normalization-with-comments
+  - .product-experience/decision-log.md#pxd-010--approve-pdp1-004-source-inventory-structure-with-comments
+  - .product-experience/decision-log.md#pxd-011--approve-pdp1-005-registry-structure-and-source-boundaries-with-comments
+  - .product-experience/decision-log.md#pxd-012--approve-per-event-evidence-provenance-proposal-mappings-with-comments
+  - .product-experience/decision-log.md#pxd-013--approve-pdp2-001-shared-package-source-inventory-with-comments
+  - .product-experience/decision-log.md#pxd-014--approve-pdp2-002-gui-registry-coverage-structure-with-comments
+  - .product-experience/decision-log.md#pxd-015--approve-pdp2-004-api-convention-structure-with-comments
+  - .product-experience/decision-log.md#pxd-016--approve-pdp2-005-interface-convention-structure-with-comments
+  - .product-experience/decision-log.md#pxd-017--approve-pdp3-001-screen-contract-v2-structure-with-comments
+  - .product-experience/decision-log.md#pxd-018--approve-pdp3-002-machine-interface-source-registries-with-comments
+  - .product-experience/decision-log.md#pxd-019--approve-pdp3-003-sdk-architecture-direction-with-comments
+  - .product-experience/decision-log.md#pxd-020--approve-pdp3-004-interface-registry-structure-with-comments
+  - .product-experience/decision-log.md#pxd-021--approve-candidate-channel-to-surface-crosswalk-for-reference-normalization
+  - .product-experience/decision-log.md#pxd-022--approve-pdp3-005-per-step-journey-structure-with-comments
 evidencePlan:
   localCommands:
   - pnpm dlx --package typescript@6.0.3 tsc --noEmit -p libs/media-experience-simulation/tsconfig.json
@@ -68,43 +158,62 @@ evidencePlan:
   - node --test tests/product-experience-local.test.mjs
   - pnpm test:experience-browser
   intentionallyNotRun:
-  - owner review and phase acceptance because no authorized reviewer decision was supplied
-  - Tools-native admission because the current verifier returns PLANNER_BINDING_OWNER_AMBIGUOUS with structuralFallback=true and no selected operations
+  - aggregate PDP phase acceptance because independent P0-010 review, required specialist appointments/reviews, and the owner-approved Tools schema/currentness binding remain pending despite the bounded delegated-owner review recorded in PXD-003
+  - Tools-native admission because Media-root surface status returns SURFACE_NOT_FOUND and plan returns CLOSURE_CANONICAL_CONSUMER_OR_REGISTRY_MISSING; the recorded phase binding also remains PLANNER_BINDING_OWNER_AMBIGUOUS with structuralFallback=true and no selected operations
   - live API, SDK, event, provider, upload, worker, and runtime qualification because contracts/runtime are unbound
   - independent visual, pixel-reference, and assistive-technology review because browser automation is not human review
+  externalObservations:
+  - blocker: tools-native-currentness-and-receipts
+    result: BLOCKED
+    evidence: surface list discovers 21 physical Media-root units; surface status ts-media-experience-explorer returns SURFACE_NOT_FOUND; surface plan returns CLOSURE_CANONICAL_CONSUMER_OR_REGISTRY_MISSING; no currentness or receipt was created
+  - blocker: standalone-gradle
+    result: BLOCKED_SIBLING_EVENT_PLANE_SOURCE_CONTRACT
+    evidence: Media catalog now resolves libs.jackson.dataformat.yaml and the other explicitly required sibling aliases; the requested STT compile advances to services:event-plane:contracts and fails with 73 unresolved event-store symbols absent from the current Shared source.
+  - blocker: ghatana-design-system-package
+    result: BLOCKED
+    evidence: registry lookup for @ghatana/design-system@0.1.2 returns E404 on the configured public registry; adjacent Shared source manifests report 0.1.0-SNAPSHOT, not 0.1.2
+  - blocker: accepted-pdp3-and-imp05
+    result: OWNER_GATE_PENDING
+    evidence: Web/CLI production implementation remains prohibited until those surfaces are admitted and PDP-3 definitions are owner-accepted
 rows:
   - id: prompt-repo-guidance
-    status: implemented
-    classification: current-state gap
+    status: reviewed-no-gap
+    classification: not-applicable
     evidence: matrix.promptContext and matrix.repoGuidance.discovered record the pasted constitutional contract and repo guidance scan.
     change: retain this matrix as the auditable context record for the current repair slice
     verification: node scripts/check-product-experience-local.mjs
   - id: recursive-inventory
-    status: implemented
+    status: gap-found
     classification: current-state gap
     evidence: .product-experience/source-manifest.yaml and apps/media-experience-explorer/specification-artifacts.json inventory the canonical records and Explorer projection.
-    change: local invariant checker compares the source tree and 147-record Explorer index and validates cross-phase reference closure
+    change: local invariant checker compares the source tree and 201-record Explorer index; full interface/semantic ownership reconciliation remains open
     verification: node scripts/check-product-experience-local.mjs
   - id: surface-kind-build-unit
-    status: implemented
+    status: gap-found
     classification: current-state gap
     evidence: matrix.surface.buildUnits plus package manifests identify the GUI, CLI, logical API, SDK, and event scopes.
     change: preserve explicit surface classification without claiming unbound runtime support
     verification: node scripts/check-product-experience-local.mjs
   - id: ownership-boundary-placement
-    status: reviewed-no-gap
-    classification: not-applicable
-    evidence: .product-experience/authority-map.yaml and phase-3-experience-explorer/EXPERIENCE-EXPLORER.md assign Media semantics to Media and generic host/contracts to Tools/Shared.
+    status: gap-found
+    classification: current-state gap
+    evidence: .product-experience/authority-map.yaml assigns Media semantics to Media and generic host/contracts to Tools/Shared; F04 records retained generic OCR implementation pending the public Document Intelligence binding.
   - id: vision-non-goals-consumers
     status: reviewed-no-gap
     classification: not-applicable
-    evidence: .product-experience/README.md and phase-0-product-truth/PRODUCT-TRUTH.md state the bounded product identity, consumers, non-goals, and accepted boundary slice.
+    evidence: .product-experience/README.md and pdp-0-product-truth/PRODUCT-TRUTH.md state the bounded product identity, consumers, non-goals, and accepted boundary slice.
   - id: architecture-design
-    status: reviewed-no-gap
-    classification: not-applicable
-    evidence: phase-1-design-language/DESIGN-LANGUAGE.md, phase-2-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md, and phase-3-experience-explorer/EXPERIENCE-EXPLORER.md define the downstream projection architecture.
+    status: gap-found
+    classification: current-state gap
+    location: .product-experience/pdp-1-domain-data/events.yaml, evidence.yaml, provenance.yaml, and PDP-3 events/event-registry.yaml
+    rootCause: PDP1-004 now inventories seven source-observed runtime publisher call sites/nine event types and proposes per-event evidence/provenance candidates, but it has no committed event records or authoritative finality/delivery receipts, canonical operation/state bindings, or owner decisions for taxonomy, compatibility, ordering, privacy, and recovery.
+    fix: obtain Media/Event Plane/privacy owner disposition for event meanings and consumer schema; define authoritative operation/state and evidence boundaries; implement/qualify delivery, privacy, and recovery only after those contracts and external owners are available.
+    acceptance: source identities/triggers and per-event candidate links reconcile to the runtime sources; client notifications, proto examples, and test fixtures are not conflated; source observations remain distinct from committed evidence; no canonical taxonomy or unsupported delivery guarantee is asserted.
+    tests: pnpm test:product-definition-authority; pnpm check:product-definition-authority; duplicate-key-safe source census; git diff --check
+    evidence: PXD-010/PXD-012 and the focused regression cover seven call sites/nine runtime types, separate 15 client notifications, and per-event source-observation/evidence/provenance candidates with unavailable committed receipts/finality explicit.
+    impact: blocks canonical event-contract completion and broader PDP-1 acceptance; does not establish Event Plane behavior or runtime delivery guarantees.
   - id: documentation-examples
-    status: implemented
+    status: gap-found
     classification: current-state gap
     evidence: docs/README.md, docs/VISION.md, docs/REQUIREMENTS.md, docs/PRODUCT-DEFINITION-COVERAGE.md, docs/ARCHITECTURE.md, docs/DESIGN.md, docs/EXAMPLES.md, docs/TESTING.md, docs/EVIDENCE.md, root and package READMEs, and phase documents describe usage, boundaries, tests, and evidence limitations.
     change: add the missing vision, requirements, and examples entrypoints and include cross-phase reference validation in the repeatable local invariant command
@@ -113,14 +222,14 @@ rows:
     status: gap-found
     classification: current-state gap
     location: .product-experience/gaps.yaml and .product-experience/traceability.yaml
-    rootCause: authored proposals and implementation observations are intentionally not reconciled by owner acceptance.
+    rootCause: authored proposals and implementation observations are intentionally not reconciled by owner acceptance; 385 explicit leaf-level journey references, 445 operation-specific bounds, and 123 proposal-action capability links remain unresolved.
     fix: keep proposed, implemented, admitted, and accepted states separate; close only with owner-authorized upstream records.
     acceptance: every active requirement has an explicit downstream disposition and no proposal is presented as accepted.
     tests: node scripts/check-product-experience-local.mjs
     evidence: Current Tools verification remains a structural fallback with PLANNER_BINDING_OWNER_AMBIGUOUS and no native operations selected.
     impact: blocks phase acceptance; does not block local source-link and invariant tooling.
   - id: gap-backlog-classification
-    status: implemented
+    status: reviewed-no-gap
     classification: current-state gap
     evidence: .product-experience/gaps.yaml is the single editable gap register and this matrix classifies local repairs versus external blockers.
     change: add exact local evidence and external blocker boundaries here
@@ -129,54 +238,59 @@ rows:
     status: gap-found
     classification: current-state gap
     location: .product-experience/gaps.yaml GAP-MEDIA-PHASE2-COVERAGE and GAP-11
-    rootCause: 41 baseline views and 28 required journeys are proposal-indexed but not fully behavior-bound; the generic Tools browser host is unbound.
+    rootCause: 47 canonical views and 28 baseline journeys are proposal-indexed but not fully behavior-bound; the generic Tools browser host is unbound.
     fix: complete owner-reviewed action/state/scenario/channel bindings and bind the published Tools host before acceptance.
     acceptance: all active surfaces and capabilities resolve to executable or explicitly unsupported-by-design projections with owner evidence.
     tests: node scripts/check-product-experience-local.mjs; local simulation tests
-    evidence: .product-experience/phase-3-experience-explorer/verification-matrix.yaml records local-only route and reducer observations.
-    impact: blocks P2-008 and P3 acceptance.
+    evidence: .product-experience/explorer/verification-matrix.yaml records local-only route and reducer observations.
+    impact: blocks work item P2-008 and PDP-3 acceptance.
   - id: correctness
-    status: implemented
+    status: gap-found
     classification: current-state gap
     evidence: libs/media-experience-simulation/tests and the local checker cover stable IDs, guarded actions, route inventory, proposal-only action disabling, and cross-phase capability/component/screen/journey reference closure.
     change: make invariant checks repeatable and fail closed on missing currentness, enabled proposal actions, missing required shapes, or dangling cross-phase references
     verification: pnpm check:product-experience-local; pnpm test:product-experience-local
   - id: api-contracts-config
-    status: blocked
+    status: gap-found
     classification: current-state gap
-    location: .product-experience/phase-2-product-experience/api-experience-mapping.yaml and phase-0-product-truth/applications-channels.yaml
+    location: .product-experience/pdp-3-product-experience/api-experience-mapping.yaml and pdp-0-product-truth/applications-channels.yaml
     rootCause: exact HTTP/gRPC/SDK routes, schemas, and owner bindings are unresolved under GAP-05.
     fix: reconcile canonical external contracts and record the owner-approved wire mapping; do not invent routes locally.
     acceptance: every logical operation has an admitted route/RPC, request/response/error/finality semantics, auth, idempotency, and compatibility evidence.
     tests: Tools-owned contract validation plus consumer parity checks after publication
     evidence: local mapping records unresolved-under-GAP-05; no local evidence may close this row.
-    impact: blocks non-GUI interface completeness and P2 acceptance.
+    impact: blocks non-GUI interface completeness and PDP-3 acceptance.
   - id: generated-source-of-truth-parity
-    status: implemented
+    status: gap-found
     classification: current-state gap
     evidence: apps/media-experience-explorer/specification-artifacts.json is the bundled projection; source YAML is loaded read-only at runtime and proposal actions are not generated authority.
     change: local checker verifies every indexed artifact exists and no currentness file is fabricated
     verification: node scripts/check-product-experience-local.mjs
   - id: naming
-    status: implemented
+    status: gap-found
     classification: current-state gap
-    evidence: Phase 0 glossary, Phase 2 action registry, and Explorer labels use outcome-oriented names; local checker rejects duplicate projection IDs and empty labels.
-    change: preserve intent-based labels in source-link metadata and coverage summaries
-    verification: node scripts/check-product-experience-local.mjs
+    location: .product-experience/authority-map.yaml, .product-experience/pdp-3-product-experience/action-registry.yaml, .product-experience/pdp-3-product-experience/journey-registry.yaml, .product-experience/pdp-3-product-experience/journey-contracts/, .product-experience/explorer/, .product-experience/pdp-2-design-interface-system/, .product-experience/gaps.yaml
+    rootCause: the acceptance ledger was normalized before all active phase-specific prose and metadata fields were migrated; old meanings still conflate former P1 design with PDP-2, former P2 experience with PDP-3, and Explorer with a numbered PDP phase.
+    evidence: owner reread plus targeted rg audit found active legacy labels in action-registry, journey-registry/contracts, Explorer view/scenario projections, PDP-2 metadata, interaction dispositions, data-view/state-transition metadata, and gap descriptions; stable ART-* and GAP-* identifiers are distinguished from active meanings.
+    fix: source-aware terminology and owned metadata-field migration; preserve stable identifiers, update in-repo consumers, and retain all semantic/phase acceptance statuses.
+    acceptance: active labels map former P0=>PDP-0, former P1=>PDP-2, former P2=>PDP-3, and Explorer=>projection outside PDP; no stable identifiers or semantic claims are silently rewritten.
+    tests: pnpm test:product-definition-authority; pnpm check:product-definition-authority; pnpm check:product-experience-local
+    evidenceRequired: repeatable browser audit after normalization; regenerated source-manifest from settled sources; git diff --check
+    impact: stale phase semantics can misroute ownership and make generated Explorer/currentness fingerprints stale; blocks trustworthy phase-aligned review until normalized.
   - id: duplication
-    status: reviewed-no-gap
-    classification: not-applicable
-    evidence: .product-experience/README.md and phase-3 documentation explicitly distinguish canonical source, generated projection, simulation, and Tools host ownership.
+    status: gap-found
+    classification: current-state gap
+    evidence: .product-experience/README.md separates canonical source, generated projection, simulation, and Tools host ownership; F06/F08/F11 still identify competing visual, transport, and documentation authorities.
   - id: organization-placement
-    status: implemented
+    status: gap-found
     classification: current-state gap
     evidence: canonical records remain under .product-experience; simulation and browser projections remain in their owning packages.
     change: put local audit tooling under scripts and keep it non-authoritative
     verification: node scripts/check-product-experience-local.mjs
   - id: cohesion-coupling
-    status: reviewed-no-gap
-    classification: not-applicable
-    evidence: browser UI consumes the simulation package and source artifacts through explicit adapters; no production runtime dependency is added.
+    status: gap-found
+    classification: current-state gap
+    evidence: browser UI remains a local projection; F06/F08/F12 identify unbound Shared composition, competing client routes, and sibling-source build coupling.
   - id: tests-coverage
     status: gap-found
     classification: current-state gap
@@ -186,11 +300,11 @@ rows:
     acceptance: every active route and channel has repeatable keyboard/focus, responsive, semantic, and failure-state evidence.
     tests: existing TypeScript/build and simulation tests; future browser harness required
     evidence: GAP-12 and verification-matrix.yaml
-    impact: blocks P3 acceptance.
+    impact: blocks PDP-3 acceptance.
   - id: compatibility-migration-deprecation
-    status: blocked
+    status: gap-found
     classification: current-state gap
-    location: migration/contract-compatibility.yaml and phase-0-product-truth/applications-channels.yaml
+    location: migration/contract-compatibility.yaml and pdp-0-product-truth/applications-channels.yaml
     rootCause: source migration and public package parity are not accepted.
     fix: complete consumer inventory, public version publication, parity checks, and cutover authorization.
     acceptance: compatibility commitments and deprecation boundaries are owner-approved and verified against consumers.
@@ -198,23 +312,29 @@ rows:
     evidence: GAP-01, GAP-02, GAP-05, and GAP-15
     impact: blocks source cutover and public package claims.
   - id: affected-scope-verification
-    status: implemented
-    classification: current-state gap
-    evidence: matrix.evidencePlan defines the smallest local typecheck, simulation, build, invariant, and regression-test commands.
-    change: codify commands and intentionally unrun external checks
-    verification: execute matrix.evidencePlan.localCommands
+    status: reviewed-no-gap
+    classification: not-applicable
+    evidence: >-
+      after `pnpm generate:product-definition-manifest` and a fresh Vite 7.3.1 production build/preview,
+      `pnpm test:experience-browser` passed on 2026-10-06: 29 Explore scenarios, 203 indexed artifacts,
+      47 Product routes × six viewports, keyboard mode/phase navigation, zero console/page errors, and no failed
+      assertions or horizontal overflow. Screenshots are in /tmp/media-experience-browser-audit.
+    change: local post-normalization verification is current; keep it separate from human visual/accessibility review and Tools-native evidence.
+    verification: >-
+      `pnpm dlx vite@7.3.1 build --config apps/media-experience-explorer/vite.config.mjs`; run the documented
+      Vite preview on port 4179; `pnpm test:experience-browser`; `pnpm check:product-experience-local`
   - id: evidence-generator-integration
     status: blocked
     classification: current-state gap
-    location: .product-experience/phase-3-experience-explorer/verification-matrix.yaml and GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    location: .product-experience/explorer/verification-matrix.yaml and GAP-MEDIA-TOOLS-SCHEMA-BINDING
     rootCause: the Tools Evidence Generator authority is unavailable and published isolated bindings are not verified.
     fix: obtain owner-resolved package/schema/validator bindings and run the native planner, collector, gate, and receipt workflow.
     acceptance: native artifacts are current, schema-valid, repeatable, and admitted by Tools; local observations remain separate.
     tests: Tools-native verification after binding publication
-    evidence: current matrix status PLANNER_BINDING_OWNER_AMBIGUOUS with structuralFallback=true and no selected operations
+    evidence: Media-root discovery lists physical packages, but status returns SURFACE_NOT_FOUND and plan returns CLOSURE_CANONICAL_CONSUMER_OR_REGISTRY_MISSING; the existing phase binding remains PLANNER_BINDING_OWNER_AMBIGUOUS with structuralFallback=true and no selected operations
     impact: blocks numeric convergence, phase acceptance, and currentness generation.
   - id: missing-evidence-generator-capabilities
-    status: blocked
+    status: gap-found
     classification: current-state gap
     location: GAP-MEDIA-TOOLS-SCHEMA-BINDING and GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
     rootCause: no owner-approved collector/validator/output contract is available to generate currentness and coverage.
@@ -224,15 +344,15 @@ rows:
     evidence: .product-experience/README.md intentionally leaves currentness.yaml absent.
     impact: blocks P0-010 and all phase certification.
   - id: security
-    status: implemented
+    status: gap-found
     classification: current-state gap
-    evidence: simulation reducer guards identity, workspace, consent, source, upload, job, and unknown-finality actions; no remote effects are exposed.
-    change: local checker asserts proposal routes cannot expose enabled actions and source files are read-only projections
-    verification: simulation tests and local checker
+    evidence: simulation reducer guards are local-only; specialist review found production identity, consent revocation, durable audit, and adversarial runtime evidence unbound.
+    change: keep production security claims gated on platform-owner bindings and runtime proof
+    verification: simulation tests plus owner-approved runtime/security evidence
   - id: privacy-data-governance-compliance
     status: blocked
     classification: current-state gap
-    location: phase-0-product-truth/policy-authority-model.yaml and GAP-13
+    location: pdp-0-product-truth/policy-authority-model.yaml and GAP-13
     rootCause: retention, erasure, storage, outbox, and worker qualification evidence is not available.
     fix: complete privacy/operations owner review and runtime evidence; keep synthetic fixtures metadata-only.
     acceptance: no unadmitted bytes, PII, or cross-tenant effects are claimed; runtime retention/erasure evidence is owner-approved.
@@ -240,13 +360,13 @@ rows:
     evidence: local fixtures explicitly contain no file bytes; GAP-13 remains open.
     impact: blocks runtime qualification and activation.
   - id: observability-diagnostics
-    status: reviewed-no-gap
-    classification: not-applicable
-    evidence: local synthetic CLI emits structured result/error records and the browser exposes deterministic event logs; live runtime telemetry is outside this local scope.
+    status: gap-found
+    classification: current-state gap
+    evidence: local synthetic CLI/browser diagnostics exist; specialist review found production telemetry, alert/SLO coverage, and admitted-profile observations unbound.
   - id: reliability-resilience-operability
     status: gap-found
     classification: current-state gap
-    location: phase-2-product-experience/recovery-finality-contracts.yaml and phase-3-experience-explorer
+    location: pdp-3-product-experience/recovery-finality-contracts.yaml and explorer
     rootCause: synthetic recovery semantics exist for selected lanes, but live persistence, retry, watch detach, and worker recovery are unbound.
     fix: bind runtime lifecycle contracts and qualify retry/idempotency/finality behavior before availability claims.
     acceptance: stopping observation is distinct from cancellation, unknown outcomes are non-retryable until reconciled, and recovery is durable.
@@ -256,7 +376,7 @@ rows:
   - id: performance-scalability
     status: blocked
     classification: current-state gap
-    location: GAP-10 and phase-0-product-truth/quality-policy.yaml
+    location: GAP-10 and pdp-0-product-truth/quality-policy.yaml
     rootCause: no owner-approved engine/GPU/model quality or reproducibility measurements.
     fix: define and run bounded qualification profiles with real measurement provenance.
     acceptance: claims include declared dimensions, budgets, repeatability, and abstentions.
@@ -266,17 +386,17 @@ rows:
   - id: accessibility-internationalization
     status: gap-found
     classification: current-state gap
-    location: phase-1-design-language/accessibility.yaml, localization-content.yaml, and GAP-12
+    location: pdp-2-design-interface-system/accessibility.yaml, localization-content.yaml, and GAP-12
     rootCause: proposals and local responsive geometry exist, but keyboard/screen-reader/zoom/forced-colors/localization review is not accepted.
     fix: execute the matrix across active views/channels with independent review and record owner evidence.
     acceptance: keyboard/focus, semantic announcements, zoom, contrast, reduced motion, locale/RTL, and long-label behavior are proven.
     tests: local type/build plus authorized browser accessibility harness
     evidence: verification-matrix.yaml explicitly records missing evidence.
-    impact: blocks P1/P3 acceptance.
+    impact: blocks PDP-2/PDP-3 acceptance.
   - id: ai-ml-applicability
     status: blocked
-    classification: improvement-backlog
-    location: phase-0-product-truth/quality-policy.yaml and GAP-08/GAP-10
+    classification: current-state gap
+    location: pdp-0-product-truth/quality-policy.yaml and GAP-08/GAP-10
     rootCause: AI/model capability and qualification are product-owner/runtime concerns not inferable from synthetic Explorer fixtures.
     fix: record owner-approved model interfaces, safety, provenance, fallback, and qualification evidence when AI surfaces are admitted.
     acceptance: no model or provider availability is implied by a proposal or fixture.
@@ -284,11 +404,12 @@ rows:
     evidence: phase records explicitly separate capability definition from runtime availability.
     impact: blocks AI capability claims; not needed for deterministic local simulation.
   - id: build-dependency-release-readiness
-    status: implemented
+    status: blocked
     classification: current-state gap
-    evidence: package manifests, TypeScript checks, Vite build, and the local checker cover package metadata and bundle inputs.
-    change: keep local packages private and synthetic; do not add release claims
-    verification: typecheck, simulation tests, browser build, local checker
+    rootCause: the Media catalog now defines the aliases used by included sibling builds, but compilation reaches an Event Plane contract/source mismatch (73 unresolved event-store symbols absent from current Shared source); public npm returns E404 for @ghatana/design-system@0.1.2 and the adjacent Shared source is version 0.1.0-SNAPSHOT.
+    fix: obtain sibling Event Plane/Shared source-contract alignment and authorized immutable package publication after the migration/cutover gate; do not silently substitute a snapshot for the pinned package.
+    acceptance: clean isolated Gradle build and lockfile-consistent install of the intended immutable package versions.
+    tests: focused local TypeScript, simulation, browser, and invariant checks; full Gradle and workspace-install blockers remain recorded
   - id: dependency-supply-chain-licensing
     status: blocked
     classification: current-state gap
@@ -300,13 +421,13 @@ rows:
     evidence: no local run claims affected assets are admitted.
     impact: blocks distribution/execution claims.
   - id: repeatability-reproducibility
-    status: implemented
+    status: blocked
     classification: current-state gap
     evidence: deterministic fixture tests and matrix.evidencePlan use fixed scenario IDs, reducer state, and explicit commands.
     change: local checker enforces stable inventory and absence of hand-authored currentness
     verification: repeat each local command and compare output/status
   - id: convergence-stability
-    status: blocked
+    status: gap-found
     classification: current-state gap
     location: .product-experience/acceptance.yaml, gaps.yaml, and verification-matrix.yaml
     rootCause: native evidence authority, owner acceptance, and external bindings remain unavailable.

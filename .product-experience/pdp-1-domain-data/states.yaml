@@ -1,0 +1,183 @@
+schemaVersion: media.pdp-1.states.v1
+productId: media
+artifactId: media.pdp-1.state-machines.v1
+authorityStatus: proposal-only; owner-review-pending; P0-010-independent-acceptance-pending
+semanticOwner: media
+authorityBoundary:
+  productStateAuthority: proposal-only; no canonical state meaning has been accepted
+  projectionRule: React, TypeScript, OpenAPI, protobuf, Java, and runtime projections do not independently define product state
+  sourceAuthority: .product-experience/pdp-0-product-truth/state-models.yaml
+  operations: pending-PDP1-002-and-owner-review
+  events: pending-PDP1-004-and-owner-review
+  permissions: pending-owner-contracts
+  executionEffects: pending-runtime-and-platform-owner-contracts
+inventory:
+  sourceMachineRecords: 11
+  extractedMachineRecords: 11
+  sourceStateRecords: 75
+  extractedStateRecords: 75
+  sourceMachinesWithoutEnumeratedStates: 1
+  sourceMachineIdsAndDimensionsPreserved: true
+  sourceStateSpellingsPreserved: true
+stateMachines:
+  - machineId: media-job
+    sourceMachineId: media-job
+    statusDimension: overall-job-status
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    stateIds: [QUEUED, RUNNING, RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, PARTIALLY_SUCCEEDED, FAILED, CANCELLED]
+    stateCount: 9
+    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+  - machineId: media-attempt
+    sourceMachineId: media-attempt
+    statusDimension: technical-attempt-state
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    stateIds: [CLAIMED, DISPATCH_INTENT_RECORDED, DISPATCHED, RUNNING, CANCEL_REQUESTED, SUCCEEDED, FAILED, CANCEL_CONFIRMED, OUTCOME_UNKNOWN, SUPERSEDED]
+    stateCount: 10
+    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+  - machineId: media-upload-and-artifact
+    sourceMachineId: media-upload-and-artifact
+    statusDimension: artifact-ingestion-and-lifecycle
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    stateIds: [RECEIVING, VERIFYING, AVAILABLE, QUARANTINED, REJECTED, EXPIRED, ERASURE_REQUESTED, ACCESS_REVOKED, PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD, ERASURE_CONFIRMED, EXTERNAL_ERASURE_UNCONFIRMED]
+    stateCount: 12
+    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+  - machineId: media-stream-session
+    sourceMachineId: media-stream-session
+    statusDimension: stream-session-state
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-stream-session
+    stateIds: [OPEN, CONNECTED, DEGRADED, DRAINING, CLOSED, FAILED]
+    stateCount: 6
+    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+  - machineId: media-rights-and-consent
+    sourceMachineId: media-rights-and-consent
+    statusDimension: rights-and-consent-disposition
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-rights-and-consent
+    stateIds: []
+    stateCount: 0
+    meaningDisposition: no source states enumerated; owner decision required before proposals are added
+  - machineId: media-review
+    sourceMachineId: media-review
+    statusDimension: review-disposition
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
+    stateIds: [DRAFT, REQUESTED, IN_REVIEW, CHANGES_REQUESTED, APPROVED, REJECTED, WITHDRAWN, SUPERSEDED, EXPIRED]
+    stateCount: 9
+    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+  - machineId: media-delivery
+    sourceMachineId: media-delivery
+    statusDimension: delivery-finality
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    stateIds: [NOT_STARTED, PREPARING, READY_FOR_AUTHORIZED_DELIVERY, SUBMITTED, ACKNOWLEDGED, PARTIALLY_DELIVERED, OUTCOME_UNKNOWN, RECONCILING, FAILED, REVOKED]
+    stateCount: 10
+    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+  - machineId: media-quality-disposition
+    sourceMachineId: media-quality-disposition
+    statusDimension: quality-disposition
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-quality-disposition
+    stateIds: [NOT_ASSESSED, ASSESSING, PASS, FAIL, ABSTAINED, REVIEW_REQUIRED, SUPERSEDED]
+    stateCount: 7
+    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+  - machineId: media-project
+    sourceMachineId: media-project
+    statusDimension: project-container-lifecycle
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project
+    stateIds: [ACTIVE, ARCHIVED]
+    stateCount: 2
+    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+  - machineId: media-project-version
+    sourceMachineId: media-project-version
+    statusDimension: project-revision-lifecycle
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
+    stateIds: [DRAFT, COMMITTED, SUPERSEDED, CONFLICTED, ABANDONED]
+    stateCount: 5
+    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+  - machineId: media-project-membership
+    sourceMachineId: media-project-membership
+    statusDimension: project-membership-lifecycle
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
+    stateIds: [INVITED, ACTIVE, SUSPENDED, REVOKED, EXPIRED]
+    stateCount: 5
+    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+crossSourceReconciliation:
+  status: unresolved; no source projection is selected as canonical
+  conflicts:
+    - conflictId: state-conflict.retry-pending-vs-retrying
+      sourceSpellings: [RETRY_PENDING, RETRYING]
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+        - modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvTranscriptionJob.java#JobStatus
+        - modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#toCanonicalStatus
+        - libs/audio-video-types/src/contracts.ts#LegacyMediaJobStateSchema
+      observation: PDP-0 job proposal uses RETRY_PENDING; Java exposes RETRY_PENDING and deprecated RETRYING; TypeScript retains RETRYING as legacy and maps it to RETRY_PENDING; adapter projection behavior is not adopted as product meaning
+      mappingDisposition: unresolved; preserve both exact spellings and source-specific roles
+      reason: source generation and compatibility behavior do not establish semantic equivalence
+      owner: media-domain-owner plus Java-and-TypeScript contract owners
+    - conflictId: state-conflict.cancel-requested-vs-cancelling
+      sourceSpellings: [CANCEL_REQUESTED, CANCELLING]
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+        - libs/audio-video-types/src/contracts.ts#LegacyMediaJobStateSchema
+        - libs/audio-video-types/src/contracts.ts#normalizeLegacyMediaJobState
+        - libs/audio-video-ui/src/components/MediaTaskFlow.tsx#LegacyMediaTaskOperationState
+      observation: PDP-0 models CANCEL_REQUESTED on the attempt machine; TypeScript and UI retain CANCELLING as a legacy job/presentation spelling and the TypeScript helper maps it to RUNNING
+      mappingDisposition: unresolved; no job-to-attempt or presentation mapping accepted
+      reason: machine dimension differs and the observed lossy mapping collapses a cancellation-in-progress spelling into RUNNING
+      owner: media-domain-owner plus TypeScript-and-UI contract owners
+    - conflictId: state-conflict.unknown-reconciling-partial-outcomes
+      sourceSpellings: [OUTCOME_UNKNOWN, RECONCILING, PARTIALLY_SUCCEEDED]
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+        - .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+        - libs/audio-video-types/src/contracts.ts#MediaJobStateSchema
+        - contracts/openapi/media.yaml#/components/schemas/PlatformOperation
+      observation: names recur in different machines and projections with distinct source contexts; TypeScript, Java, simulation, and PDP-0 do not supply one shared finality contract
+      mappingDisposition: unresolved per machine and projection; do not collapse unknown, reconciling, or partial outcome into success, failure, or running
+      reason: source-specific finality, machine dimension, and external-effect semantics are not uniform or owner-approved
+      owner: media-domain-owner plus runtime-and-API-contract owners
+  projectionMappings:
+    disposition: proposal-only; every mapping requires source-owner review and must not alter runtime behavior
+    proposals: []
+    unresolvedObservedMappings:
+      - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvTranscriptionJob.java#JobStatus
+        values: [CREATED, QUEUED, PROCESSING, RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, FAILED, CANCELLED, RETRYING]
+        disposition: observed Java enum; no state-machine or product-meaning authority inferred
+        owner: Media runtime and Java contract owners
+      - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#mapStatus
+        observedMapping: {CREATED: PENDING, QUEUED: QUEUED, PROCESSING: RUNNING, COMPLETED: COMPLETED, FAILED: FAILED, CANCELLED: CANCELLED, RETRY_PENDING: RETRYING, RETRYING: RETRYING, OUTCOME_UNKNOWN: RUNNING, RECONCILING: RUNNING}
+        disposition: implementation-observed adapter projection; unknown/reconciling collapse is lossy and no mapping is accepted
+        owner: Media runtime and Java contract owners
+      - source: libs/audio-video-types/src/contracts.ts#MediaJobStateSchema
+        values: [QUEUED, RUNNING, RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, PARTIALLY_SUCCEEDED, FAILED, CANCELLED]
+        disposition: observed TypeScript schema; its source comment asserting canonical PDP-1 ownership is not accepted by this proposal
+        owner: Media TypeScript contract owner
+      - source: libs/audio-video-types/src/contracts.ts#normalizeLegacyMediaJobState
+        from: RETRYING
+        to: RETRY_PENDING
+        kind: implementation-observed; not accepted canonical mapping
+      - source: libs/audio-video-types/src/contracts.ts#normalizeLegacyMediaJobState
+        from: CANCELLING
+        to: RUNNING
+        kind: lossy-implementation-observed; not accepted presentation or semantic mapping
+      - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#toCanonicalStatus
+        from: [RETRY_PENDING, RETRYING]
+        to: RETRYING
+        kind: implementation-observed; not accepted canonical mapping
+      - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#toCanonicalStatus
+        from: [OUTCOME_UNKNOWN, RECONCILING]
+        to: RUNNING
+        kind: lossy-implementation-observed; not accepted presentation or semantic mapping
+      - source: contracts/openapi/media.yaml#/components/schemas/PlatformOperation/properties/state
+        values: [ACCEPTED, QUEUED, RUNNING, SUCCEEDED, FAILED, CANCELLED]
+        disposition: narrower-and-differently-named API projection; per-state mapping unresolved
+        owner: Media API contract owner
+      - source: active Media service protobuf declarations
+        observedOtherDimensions:
+          engineState:
+            sourceRefs: [modules/speech/stt-service/src/main/proto/stt_service.proto#EngineState, modules/speech/tts-service/src/main/proto/tts_service.proto#EngineState]
+            values: [ENGINE_STATE_UNSPECIFIED, ENGINE_STATE_INITIALIZING, ENGINE_STATE_READY, ENGINE_STATE_BUSY, ENGINE_STATE_ERROR]
+            ttsAdditionalValue: ENGINE_STATE_SHUTDOWN
+          healthStatus:
+            sourceRef: modules/speech/stt-service/src/main/proto/stt_service.proto#HealthStatus
+            values: [HEALTH_STATUS_UNSPECIFIED, HEALTH_STATUS_HEALTHY, HEALTH_STATUS_DEGRADED, HEALTH_STATUS_UNHEALTHY]
+        observation: no matching job-lifecycle state enum was found in the four inspected active Media service proto files; the listed enums describe engine/health dimensions
+        disposition: absence is an inventory observation, not an unsupported-state decision
+        owner: protobuf/API owners

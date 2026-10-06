@@ -45,16 +45,22 @@ export interface MediaTaskAction {
   readonly destructive?: boolean;
 }
 
+export type MediaTaskOperationState =
+  | "QUEUED"
+  | "RUNNING"
+  | "RETRY_PENDING"
+  | "OUTCOME_UNKNOWN"
+  | "RECONCILING"
+  | "COMPLETED"
+  | "FAILED"
+  | "PARTIALLY_SUCCEEDED"
+  | "CANCELLED";
+
+/** Compatibility input only; callers must migrate to PDP-1 state names. */
+export type LegacyMediaTaskOperationState = "CANCELLING" | "RETRYING";
+
 export interface MediaTaskOperation {
-  readonly state:
-    | "QUEUED"
-    | "RUNNING"
-    | "CANCELLING"
-    | "RETRYING"
-    | "COMPLETED"
-    | "FAILED"
-    | "PARTIALLY_SUCCEEDED"
-    | "CANCELLED";
+  readonly state: MediaTaskOperationState;
   readonly progress: number;
   readonly message?: string;
   readonly correlationId?: string;
@@ -88,7 +94,7 @@ const stateTone = {
 function operationActive(operation: MediaTaskOperation | undefined): boolean {
   return Boolean(
     operation &&
-      ["QUEUED", "RUNNING", "CANCELLING", "RETRYING"].includes(
+      ["QUEUED", "RUNNING", "RETRY_PENDING", "OUTCOME_UNKNOWN", "RECONCILING"].includes(
         operation.state,
       ),
   );

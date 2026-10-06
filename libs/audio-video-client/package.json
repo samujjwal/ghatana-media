@@ -25,6 +25,10 @@
     "./operations": {
       "types": "./dist/operations.d.ts",
       "import": "./dist/operations.js"
+    },
+    "./canonical-routes": {
+      "types": "./dist/canonical-routes.d.ts",
+      "import": "./dist/canonical-routes.js"
     }
   },
   "dependencies": {

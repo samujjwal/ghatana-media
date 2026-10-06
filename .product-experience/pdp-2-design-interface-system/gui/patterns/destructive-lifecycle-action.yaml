@@ -1,0 +1,98 @@
+schemaVersion: media.gui-pattern.v1
+id: media.gui.pattern.destructive-lifecycle-action
+productId: media
+authority: Media owns domain-specific composition and behavior; Shared owns reusable primitive implementation
+status: proposal; operation semantics, owner bindings, accessibility, and implementation pending
+intent: >-
+  Proposal only: let an authorized user inspect and explicitly confirm a specifically named, consequential
+  lifecycle request for its exact affected object/version scope, then observe and safely reconcile its outcome.
+  Do not infer or imply artifact deletion, remote-copy recall, or completed revocation from a request, local view,
+  or scene-removal action. No artifact-delete operation is established by the cited sources.
+sourceRefs:
+  - .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#J-26
+  - .product-experience/pdp-3-product-experience/screen-registry.yaml#media.view.review-rights-and-consent
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml
+  - .product-experience/pdp-3-product-experience/screen-registry.yaml#media.view.inspect-media
+  - .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.revoke-authorized-consent
+  - .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml
+context:
+  scope: >-
+    Keep the current workspace, actor, explicitly named operation, and exact affected object/version and
+    derivative scope visible. Never silently retarget to a newer version or broaden the affected set.
+  authority: >-
+    Resolve current actor authority, owner-approved capability, policy, rights, retention/hold state, and
+    operation preconditions before enabling confirmation; a proposed action reference is not authorization.
+  effectDisclosure: >-
+    Before confirmation, explain the requested effect, affected objects and versions, known downstream
+    derivatives/copies, impact, retention or hold constraints, and what cannot be recalled or verified.
+  reversibility: >-
+    State whether the exact operation is reversible, irreversible, or unknown, and disclose retention and
+    recovery limits from an authoritative operation contract. If these are unresolved, do not present the
+    request as safe or make confirmation actionable.
+anatomy:
+  - exact-workspace-actor-and-operation
+  - exact-affected-object-version-and-derivative-scope
+  - authority-capability-policy-and-precondition-results
+  - impact-retention-hold-and-known-copy-disclosure
+  - reversibility-and-recovery-limit-disclosure
+  - explicit-separate-confirmation-of-named-effect
+  - stable-request-or-job-identity-when-authoritatively-provided
+  - pending-partial-blocked-and-outcome-unknown-status
+  - safe-read-only-verification-and-owner-approved-recovery
+states:
+  - target-or-version-unresolved
+  - scope-or-derivative-inventory-incomplete
+  - authority-unresolved
+  - capability-or-policy-denied
+  - retention-or-hold-blocked
+  - impact-or-reversibility-unknown
+  - ready-for-explicit-confirmation
+  - request-pending
+  - request-recorded-not-effect-confirmed
+  - partial-lifecycle-effect
+  - outcome-unknown
+  - effect-confirmed-within-reported-scope
+  - access-denied
+  - recovery-requires-owner
+behavior:
+  confirmation: >-
+    Require a separate, explicit confirmation naming the exact operation and affected object/version scope only
+    after fresh authority, capability, policy, retention/hold, and target preconditions pass. Do not infer
+    confirmation from navigation, selection, or opening a review screen.
+  pendingAndUnknown: >-
+    Show pending separately from completion. Preserve the request identity and exact scope. An unknown remote
+    outcome is neither failure nor success; disable resubmission until a safe check of the existing request or
+    job determines an authorized next action.
+  verification: >-
+    Verify only through an authoritative, scope-matched lifecycle status or owner-approved reconciliation
+    source. Distinguish the Media-visible state from provider, backup, cache, and external-copy state; never
+    claim remote recall or global erasure without evidence covering that scope.
+  recovery: >-
+    Preserve the exact target, version, request context, and provenance. Reconcile uncertain effects before
+    any retry; offer only read-only inspection or an owner-approved recovery instruction while action/state
+    bindings remain unresolved.
+  sceneRemovalBoundary: >-
+    media.action.remove-storyboard-scene is a scene-editing action and is not an artifact delete, retention,
+    or consent-revocation operation.
+actions:
+  - media.action.revoke-authorized-consent
+operationBinding: >-
+  The consent-revocation action is a proposed registry reference only; owner-approved capability and operation
+  semantics are pending. No supported artifact-deletion action or operation is established or bound.
+proposalUnknowns:
+  - >-
+    J-26 deliberately leaves actionRef null and stateRefs empty; journey-specific action/state transitions,
+    exact operation contracts, channel behavior, and owner bindings remain unresolved.
+  - >-
+    The registry entry media.action.revoke-authorized-consent is proposal-derived and still lacks an
+    owner-approved capability mapping; it does not establish artifact deletion or provider-side effect.
+  - >-
+    Exact target/version/derivative enumeration, impact, reversibility, retention/hold behavior, and
+    authoritative success/partial/failure/unknown evidence must be defined by approved operation contracts.
+  - >-
+    No supported artifact-delete action, API/CLI operation, or remote-copy recall guarantee was found in the
+    cited sources; leave those unbound rather than deriving them from scene removal or intent text.
+  - >-
+    Keyboard/focus behavior, accessible disclosure and confirmation, responsive layout, localization, and
+    implementation require review; no implementation or accessibility conformance is claimed.

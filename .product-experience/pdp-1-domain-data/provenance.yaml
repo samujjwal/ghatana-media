@@ -1,0 +1,53 @@
+schemaVersion: media.pdp-1.provenance.v1
+artifactId: media.pdp-1.provenance
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-0-product-truth/domain-model.yaml
+scopeStatus: lineage-semantics-proposed; pending-owner-review
+sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml, .product-experience/pdp-0-product-truth/time-units-fidelity.yaml, libs/audio-video-types/src/contracts.ts, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java]
+rules:
+  - source-bytes-and-accepted-versions-remain-immutable
+  - derived-outputs-reference-exact-input-versions-and-operation-or-job-identity-when-known
+  - provider-model-and-version-are-recorded-only-when-observed-and-authorized-to-disclose
+  - unknown-values-and-conversion-loss-remain-explicit; inferred-facts-are-not-observations
+  - lineage-does-not-prove-rights-consent-quality-or-identity
+records:
+  - id: media.provenance.derivation
+    requiredReferences: [outputArtifactVersion, inputArtifactVersions, operationRef, jobRef, observedMethodAndVersion]
+    optionalObservedReferences: [providerRef, modelRef, modelVersion, planFingerprint, conversionReport]
+    absentFieldPolicy: preserve-unknown; do-not-infer
+    scopeStatus: proposed; TypeScript-projection-is-subset; pending-owner-review
+  - id: media.provenance.conversion
+    requiredWhenConversionOccurs: [sourceClockOrUnit, destinationClockOrUnit, origin, roundingOrIntervalPolicy, measuredLossOrUnknown]
+    scopeStatus: PDP-0-time-fidelity-proposal; pending-owner-review
+  - id: media.provenance.observation
+    requiredReferences: [subjectVersion, observationScope, method, evidence, uncertainty, occurredAt]
+    scopeStatus: PDP-0-quality-policy-proposal; pending-owner-review
+observedProjection:
+  source: libs/audio-video-types/src/contracts.ts
+  fields: [sourceArtifactIds, operationId, providerId, modelId, modelVersion]
+  limits: permissive-subset; no-complete-lineage-or-evidence-contract-established
+eventProvenanceObservations:
+  inventoryRef: .product-experience/pdp-1-domain-data/events.yaml#/observedEnvelope/lifecyclePublisherInventory
+  eventIdentity: {observed: "media:<eventType>:<aggregateId>:<aggregateVersion>", guarantees: uniqueness-across-replay-and-durable-deduplication-unverified}
+  correlationAndCausation: {observedFields: [correlationId, causationId], guarantees: "correlation-required-causation-optional; causal-chain-completeness-unverified"}
+  aggregate: {observedFields: [aggregateType, aggregateId, aggregateVersion], canonicalObjectVersionBinding: unresolved}
+  temporalOrder: {observedFields: [occurredAt, aggregateVersion], orderingAndClockAuthority: unresolved}
+  producerAndCompatibility: {observedWireSource: media, observedEventVersion: "1.0", perEventAuthoritySchemaIdentityAndEvolutionPolicy: unresolved}
+  privacy: {observed: classification-and-structural-attribute-sanitizer, semanticRedactionAndDisclosureAuthority: unresolved}
+  failureRecovery: {observed: "HTTP-200-or-201-required; failures-throw-to-runtime-which-logs-unconfirmed-and-continues", outboxRetryReplayRetentionAndRecovery: not-established}
+  eventEvidenceLinks: proposal-only; each candidate below points to source observation, not committed evidence or authoritative finality
+  eventBindings:
+    status: proposal-only; pending-owner-review
+    commonUnknowns: [canonical-domain-identity, immutable-version-identity, causal-chain-completeness, clock-authority, semantic-classification, durable-delivery, replay-deduplication, retention]
+    records:
+      - {eventType: media.upload.started, aggregate: {type: upload, identity: UploadSession.uploadId, version: literal-1-not-record-version}, sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L262-L265, candidateLineage: [tenantId, principalId, classification, contentType, expectedSizeBytes], policyStatus: pending-owner-review}
+      - {eventType: media.artifact.completed, aggregate: {type: artifact, identity: MediaArtifact.artifactId, version: literal-1-not-artifact-version}, sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L287-L291, candidateLineage: [sourceUploadId, contentType, sizeBytes, sha256, classification], policyStatus: pending-owner-review}
+      - {eventType: media.job.accepted, aggregate: {type: job, identity: ProcessingJob.jobId, version: ProcessingJob.version}, sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L351-L357, candidateLineage: [requestId, artifactId, jobType, providerId, status, correlationId], policyStatus: pending-owner-review}
+      - {eventType: media.job.cancelled, aggregate: {type: job, identity: ProcessingJob.jobId, version: updated-ProcessingJob.version}, sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L402-L409, candidateLineage: [requestId, artifactId, jobType, providerId, status, cancellationOutcome], policyStatus: pending-owner-review}
+      - {eventType: media.job.cancel_requested, aggregate: {type: job, identity: ProcessingJob.jobId, version: updated-ProcessingJob.version}, sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L411-L424, candidateLineage: [requestId, artifactId, jobType, providerId, status, cancellationOutcome], policyStatus: pending-owner-review}
+      - {eventType: media.stream.opened, aggregate: {type: stream, identity: StreamSession.sessionId, version: StreamSession.version}, sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L456-L461, candidateLineage: [correlationId, streamKind, providerId, classification], policyStatus: pending-owner-review}
+      - {eventType: media.stream.closed, aggregate: {type: stream, identity: StreamSession.sessionId, version: transitioned-StreamSession.version}, sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L596-L602, candidateLineage: [streamKind, providerId, lastSequence, state], policyStatus: pending-owner-review}
+      - {eventType: media.job.completed, aggregate: {type: job, identity: ProcessingJob.jobId, version: terminal-ProcessingJob.version}, sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1135-L1142, candidateLineage: [requestId, artifactId, jobType, providerId, status, failureCode, classification], policyStatus: pending-owner-review}
+      - {eventType: media.job.failed, aggregate: {type: job, identity: ProcessingJob.jobId, version: terminal-ProcessingJob.version}, sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1135-L1142, candidateLineage: [requestId, artifactId, jobType, providerId, status, failureCode, classification], policyStatus: pending-owner-review}
+  scopeStatus: implementation-observations-only; lineage-and-event-contract-semantics-pending-owner-review

@@ -123,7 +123,11 @@ class CircuitBreaker {
 }
 
 /**
- * Unified audio-video service client.
+ * LEGACY_COMPATIBILITY: preserves the existing unversioned modality-route
+ * client contract. Semantic mapping, wire parity, and consumer migration are
+ * pending; this annotation does not change routes or runtime behavior.
+ *
+ * Historical description: unified audio-video service client.
  *
  * <p>Calls the audio-video REST HTTP gateway at each service's configured endpoint.
  * The default ports (50051-50055) are gRPC ports — configure your endpoint to point
@@ -515,3 +519,5 @@ export const defaultConfigs: Record<ServiceType, ServiceClientConfig> = {
     enableLogging: true
   }
 };
+
+export { canonicalMediaHttpRoutes, legacyCompatibilityRoutes, mediaHttpRouteAuthority } from './canonical-routes';

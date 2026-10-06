@@ -1,0 +1,178 @@
+schemaVersion: media.screen-contract.v2
+contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+surfaceId: media.surface.web
+surfaceBindingStatus: candidate-from-existing-web-channel-surface-inventory; acceptance-pending
+templateId: null
+templateBindingStatus: unresolved; existing-template-ref-does-not-resolve-in-catalog
+layoutIds: []
+layoutBindingStatus: pending-canonical-layout-registry
+componentIds:
+  - media.component.artifact-browser
+  - media.component.waveform-spectrogram
+  - media.component.audio-mixer
+  - media.component.creation-plan-summary
+  - media.component.result-comparison
+componentBindingStatus: proposal-copied-from-componentRefs; Shared-binding-pending
+patternIds:
+  - media.gui.pattern.creation-plan-review
+patternBindingStatus: proposal-copied-from-patternRefs; PDP-2-acceptance-pending
+tokenDependencies: []
+tokenBindingStatus: pending-canonical-token-binding
+domainObjectRefs: []
+domainObjectBindingStatus: pending-canonical-domain-object-binding
+operationRefs: []
+operationBindingStatus: pending-canonical-operation-binding
+stateRefs: []
+stateBindingStatus: pending-PDP-1-state-binding; local-UI-state-labels-not-promoted
+entry: []
+entryBindingStatus: pending-canonical-entry-condition-binding
+exit: []
+exitBindingStatus: pending-canonical-exit-condition-binding
+actionConsequences:
+  - actionId: media.action.choose-admitted-audio-operation
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.inspect-source-measurements
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.edit-audio-mix-controls
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.submit-validated-request
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.compare-media-versions
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+actionConsequencesBindingStatus: pending-owner-capability-effect-finality-binding
+responsiveBehavior:
+  ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
+  status: proposal-unverified
+  screenOverrides: []
+fixtures:
+  refs: []
+  status: missing
+verification:
+  status: not-run
+  evidenceRefs: []
+  checks:
+    structural: not-yet-proven
+    rendering: not-yet-proven
+    behavior: not-yet-proven
+    responsive: not-yet-proven
+    keyboard: not-yet-proven
+    accessibility: not-yet-proven
+fieldBindingStatus:
+  surfaceId: candidate-pending-acceptance
+  templateId: unresolved-no-catalog-match
+  layoutIds: pending-no-canonical-layout-ids
+  componentIds: proposal-copy-shared-binding-pending
+  patternIds: proposal-copy-PDP-2-acceptance-pending
+  tokenDependencies: pending
+  domainObjectRefs: pending
+  operationRefs: pending
+  stateRefs: pending-local-labels-not-canonical
+  entry: pending
+  exit: pending
+  actionConsequences: unresolved-pending-owner-binding
+  responsiveBehavior: proposal-unverified
+  fixtures: missing
+  verification: not-run
+productId: media
+screenId: media.view.create-audio
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.create
+purpose: Sources/stems/cleanup/mix/mastering
+contextGoalNowNext:
+  context: Audio source versions, requested output, stems or processing choices, mix revision, and delivery constraints.
+  goal: Prepare an audio creation or transformation request with explicit source and processing state.
+  now: Show admitted sources, selected operations, measured input properties when available, mix/master parameters,
+    and unresolved rights or profile constraints.
+  next: Edit an admitted operation, inspect a mix/candidate, or explicitly submit a validated plan.
+anatomy:
+- audio-outcome
+- source-and-stem-list
+- operation-and-processing-chain
+- mix-and-master-controls
+- measurement-summary
+- rights-and-profile-disposition
+- job-and-candidate-state
+componentRefs:
+- media.component.artifact-browser
+- media.component.waveform-spectrogram
+- media.component.audio-mixer
+- media.component.creation-plan-summary
+- media.component.result-comparison
+states:
+- draft
+- source-missing
+- operation-unavailable
+- rights-review-required
+- processing
+- partial
+- outcome-unknown
+- candidate-ready
+actions:
+- media.action.choose-admitted-audio-operation
+- media.action.inspect-source-measurements
+- media.action.edit-audio-mix-controls
+- media.action.submit-validated-request
+- media.action.compare-media-versions
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+actionIntents:
+- choose an admitted audio operation
+- inspect source measurements
+- edit mix controls
+- submit a validated request
+- compare output versions
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+surfaceContract:
+  surfaceRef: media.channel.web
+  status: channel-and-host-rendering-owner-review-pending
+templateContract:
+  templateRef: media.template.create-audio
+  kind: owner-defined-template-pending-review
+layoutContract:
+  primaryRegion: intent-and-context
+  supportingRegions: anatomy-list-order
+  responsiveRuleRef: existing-responsive-description
+patternRefs:
+  - media.gui.pattern.creation-plan-review
+validation:
+  status: proposal-validation-pending-owner-review
+  rule: validate-inputs-authority-and-finality-before-dispatch
+recovery:
+  status: explicit-recovery-proposal-pending-owner-review
+  rule: preserve-context-and-unknown-outcomes-before-retry-or-resubmit
+accessibility:
+  status: accessibility-intent-proposal-pending-owner-review
+  rule: preserve-focus-reading-order-names-and-recovery-announcements
+localization:
+  status: Shared-localization-binding-pending-owner-review
+  rule: use-Shared-locale-formatting-and-accessibility-contracts
+sourceRefs:
+- master-plan:section-20.2
+- .product-experience/pdp-0-product-truth
+journeyRefs: []

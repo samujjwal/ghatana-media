@@ -1,0 +1,231 @@
+schemaVersion: media.journey-contract.v1
+productId: media
+journeyId: J-12
+pdp0JourneyRef: J-12
+pdp0Authority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
+title: Deterministic 2D/vector/procedural animation
+status: pdp0-grounded-proposal; pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
+scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen registry; exact action/state transitions,
+  per-channel behavior, scenarios, wire bindings, and runtime commitments remain unresolved.
+outcomes:
+- media.goal.finished-asset
+- media.goal.explain-or-demonstrate
+actors:
+- media.creator
+- media.editor
+channels:
+- media.channel.web
+channelBindingState: PDP-0 proposed channels only; per-channel operation, state, transport, and accessibility
+  equivalence remain unbound.
+preconditions:
+- Animation controls and exact timing/export subset are declared.
+steps:
+- view: media.view.animate-media
+  legacyViewRef: M-ANIMATION
+  screenContractRef: screen-contracts/animate-media.yaml
+  viewIntent: Timeline/keyframes/curves/rig/path/control actions
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs: []
+  surfaceRefs:
+  - media.surface.web
+  objectRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    sourceRef: journey.terminalSuccess
+    summary: Accessible preview and export preserve declared curve/time semantics.
+  failure:
+    status: candidate-proposal
+    sourceRef: journey.criticalNonhappyPaths
+    summary:
+    - Unsupported interchange feature or different timing after export.
+  degradedBehavior:
+    status: not-specified
+    sourceRef: null
+    reason: No distinct degraded-behavior contract is explicitly declared for this step.
+  recovery:
+    status: candidate-proposal
+    sourceRef: journey.recovery
+    summary: Keep source graph, expose unsupported feature/loss, and allow a qualified preview/export alternative only by explicit choice.
+  postconditions:
+    status: candidate-proposal
+    sourceRef: journey.contextPreserved
+    summary:
+    - Retain timeline position, keyframe/curve edits, reduced-motion choice, and export settings.
+  requirementRefs: []
+  verification:
+    requiredChecks: []
+    evidenceRefs: []
+    status: not-run
+    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+  bindingStatus:
+    status: pending-owner-binding
+    candidateFields:
+      - surfaceRefs
+    pendingFields:
+      - objectRefs
+      - stateRefs
+      - canonicalOperationRef
+      - authorityRef
+      - decisionRef
+      - transitionRef
+      - handoffRef
+      - requirementRefs
+    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
+- view: media.view.compare-results
+  legacyViewRef: M-COMPARE
+  screenContractRef: screen-contracts/compare-results.yaml
+  viewIntent: Before/after, candidate ranking and applicable measurements
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs:
+  - media.action.compare-caption-versions
+  - media.action.inspect-provenance
+  surfaceRefs:
+  - media.surface.web
+  objectRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    sourceRef: journey.terminalSuccess
+    summary: Accessible preview and export preserve declared curve/time semantics.
+  failure:
+    status: candidate-proposal
+    sourceRef: journey.criticalNonhappyPaths
+    summary:
+    - Unsupported interchange feature or different timing after export.
+  degradedBehavior:
+    status: not-specified
+    sourceRef: null
+    reason: No distinct degraded-behavior contract is explicitly declared for this step.
+  recovery:
+    status: candidate-proposal
+    sourceRef: journey.recovery
+    summary: Keep source graph, expose unsupported feature/loss, and allow a qualified preview/export alternative only by explicit choice.
+  postconditions:
+    status: candidate-proposal
+    sourceRef: journey.contextPreserved
+    summary:
+    - Retain timeline position, keyframe/curve edits, reduced-motion choice, and export settings.
+  requirementRefs: []
+  verification:
+    requiredChecks: []
+    evidenceRefs: []
+    status: not-run
+    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+  bindingStatus:
+    status: pending-owner-binding
+    candidateFields:
+      - surfaceRefs
+    pendingFields:
+      - objectRefs
+      - stateRefs
+      - canonicalOperationRef
+      - authorityRef
+      - decisionRef
+      - transitionRef
+      - handoffRef
+      - requirementRefs
+    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
+- view: media.view.inspect-output
+  legacyViewRef: M-OUTPUT
+  screenContractRef: screen-contracts/inspect-output.yaml
+  viewIntent: Playback/download/review/provenance and delivery action
+  actionRef: null
+  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+  stateRefs: []
+  stateBindingState: pending-owner-bound-state-reference-and-transition
+  candidateActionRefs:
+  - media.action.inspect-artifact
+  - media.action.inspect-provenance
+  surfaceRefs:
+  - media.surface.web
+  objectRefs: []
+  canonicalOperationRef: null
+  authorityRef: null
+  decisionRef: null
+  transitionRef: null
+  handoffRef: null
+  success:
+    status: candidate-proposal
+    sourceRef: journey.terminalSuccess
+    summary: Accessible preview and export preserve declared curve/time semantics.
+  failure:
+    status: candidate-proposal
+    sourceRef: journey.criticalNonhappyPaths
+    summary:
+    - Unsupported interchange feature or different timing after export.
+  degradedBehavior:
+    status: not-specified
+    sourceRef: null
+    reason: No distinct degraded-behavior contract is explicitly declared for this step.
+  recovery:
+    status: candidate-proposal
+    sourceRef: journey.recovery
+    summary: Keep source graph, expose unsupported feature/loss, and allow a qualified preview/export alternative only by explicit choice.
+  postconditions:
+    status: candidate-proposal
+    sourceRef: journey.contextPreserved
+    summary:
+    - Retain timeline position, keyframe/curve edits, reduced-motion choice, and export settings.
+  requirementRefs: []
+  verification:
+    requiredChecks: []
+    evidenceRefs: []
+    status: not-run
+    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+  bindingStatus:
+    status: pending-owner-binding
+    candidateFields:
+      - surfaceRefs
+    pendingFields:
+      - objectRefs
+      - stateRefs
+      - canonicalOperationRef
+      - authorityRef
+      - decisionRef
+      - transitionRef
+      - handoffRef
+      - requirementRefs
+    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
+stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy view maps to one registered intent-based
+  screen. Null actionRef and empty stateRefs are deliberate open bindings, not no-op actions or completed transitions.
+terminalSuccess: Accessible preview and export preserve declared curve/time semantics.
+criticalNonhappyPaths:
+- id: phase0-critical-exception
+  condition: Unsupported interchange feature or different timing after export.
+  responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
+    pending.
+recovery: Keep source graph, expose unsupported feature/loss, and allow a qualified preview/export alternative only
+  by explicit choice.
+contextPreserved:
+- Retain timeline position, keyframe/curve edits, reduced-motion choice, and export settings.
+channelEquivalents:
+- web
+accessibilityIntentRef: media.a11y.baseline
+requiredScenarioBehaviors:
+  status: scenario-fixtures-and-owner-approved-expected-results-pending
+  successIntent: Accessible preview and export preserve declared curve/time semantics.
+  criticalNonhappyIntent: Unsupported interchange feature or different timing after export.
+scenarioRefs: []
+unresolvedProductDecisions:
+- Bind each view transition to an owner-approved action, state, and finality contract; no action identifier or state
+  transition is inferred by this proposal.
+- Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed channel.
+- Author deterministic fixtures with owner-approved expected results for success, critical exceptions, recovery,
+  and preserved context.
+- Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner and independent
+  review before PDP-3 acceptance.

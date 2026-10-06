@@ -1,0 +1,45 @@
+schemaVersion: media.gui-pattern.v1
+id: media.gui.pattern.review-approval
+productId: media
+authority: Media owns review composition and behavior; authority and decision semantics remain owner-bound
+status: proposal; owner-review-pending
+intent: >-
+  Proposal: review the evidence and approval status for an exact Media output version;
+  distinguish inspection of a render's outputs from review of a creation plan before
+  execution. Do not imply that opening the approval view grants authority or records
+  a decision.
+anatomy:
+  - exact-output-version-and-job-context
+  - output-manifest-and-integrity-status
+  - quality-evidence-and-limitations
+  - rights-and-approval-status
+  - provenance-and-review-scope
+  - authorized-decision-entry-point
+  - decision-pending-or-outcome-unknown-state
+states:
+  - outputs-available
+  - verification-pending
+  - output-quarantined
+  - evidence-incomplete
+  - approval-required
+  - authorized-review-unconfirmed
+  - decision-pending
+  - decision-recorded-unconfirmed
+  - new-version-requires-review
+  - access-denied
+  - outcome-unknown
+sourceRefs:
+  - .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#media.gui.pattern.creation-plan-review
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml#media.view.review-outputs
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml#media.view.review-quality
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml#media.view.review-exact-version
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.review-output-evidence
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.open-approval-view
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.record-version-review-decision
+  - master-plan:section-20.2
+proposalUnknowns:
+  - Approval and review decision semantics, including whether output approval is distinct from exact-version review, remain pending owner review.
+  - Actor, capability, policy, and authority bindings are unresolved; action records are proposed references, not authorization.
+  - Decision effects, acknowledgment, finality, retries, and reconciliation must follow authoritative operation contracts that are not established here.
+  - Output identity, immutable version binding, evidence sufficiency, and re-review triggers require canonical contract confirmation.
+  - Component implementation and accessibility behavior, including keyboard/focus order, announcements, and responsive presentation, remain pending review.

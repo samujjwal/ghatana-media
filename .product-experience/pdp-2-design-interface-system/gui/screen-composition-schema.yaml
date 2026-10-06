@@ -1,0 +1,50 @@
+schemaVersion: media.gui-screen-composition-schema.v1
+owner: ghatana-media-product-experience
+authority: Media owns view composition contracts; PDP-0 owns domain meaning and PDP-3 owns view/action registries
+sourceRefs:
+  - .product-experience/pdp-0-product-truth/glossary.yaml
+  - .product-experience/pdp-0-product-truth/state-models.yaml
+  - .product-experience/pdp-3-product-experience/screen-registry.yaml
+  - .product-experience/pdp-3-product-experience/action-registry.yaml
+scopeStatus: proposed-schema; no downstream screen is claimed validated by this schema alone
+acceptance:
+  criteria:
+    - Composition instances use canonical media.view, media.action, and media.gui identifiers.
+    - Every region declares its data/state source and accessibility reading order.
+    - Async effects represent state and finality separately and include unknown-outcome recovery.
+    - No composition grants authority or invents domain states.
+  status: pending-review
+verification:
+  method: Validate instances structurally, then trace every referenced identifier and state to its owning registry.
+  status: not-run
+requiredFields:
+  - schemaVersion
+  - viewId
+  - templateRef
+  - sourceRefs
+  - scopeStatus
+  - regions
+  - acceptance
+  - verification
+fieldRules:
+  viewId: Must resolve to a canonical media.view identifier in the PDP-3 screen registry.
+  templateRef: Must resolve to a media.gui.template identifier.
+  sourceRefs: Must identify the authoritative contracts for all displayed data and state.
+  regions: Ordered list; every item has id, patternRef, contentRefs, stateRefs, and accessibilityOrder.
+  actions: Each actionRef resolves to media.action; declare preconditions and finalityRef; presentation is not authorization.
+  responsive: Changes arrangement and disclosure only; it cannot change semantics or remove critical state.
+  status: Proposed contracts do not assert implementation, qualification, or acceptance.
+example:
+  schemaVersion: media.gui-screen-composition.v1
+  viewId: media.view.job-status
+  templateRef: media.gui.template.job-observation
+  sourceRefs: [.product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml]
+  scopeStatus: proposal
+  regions:
+    - id: job-summary
+      patternRef: media.gui.pattern.job-status-and-recovery
+      contentRefs: [jobId, state, finality]
+      stateRefs: [media.job-state, media.effect-finality]
+      accessibilityOrder: 1
+  acceptance: {status: pending-owner-review, criteria: [state-and-finality-remain-distinct]}
+  verification: {status: not-run, method: Resolve references and review against the job contract}

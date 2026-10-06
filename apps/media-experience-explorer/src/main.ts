@@ -13,7 +13,7 @@ import {
 import type { MediaAction, MediaExperienceState, ScenarioId, SimulationEvent, TransitionResult } from "@ghatana/media-experience-simulation";
 import { specificationArtifacts, traceMetadataForArtifact, type ExperiencePhase, type SpecificationArtifact } from "./specification.js";
 
-type ExplorerMode = "product" | "explore" | "specification" | "verify";
+type ExplorerMode = "product" | "explore" | "specification" | "verify" | "overview" | "truth" | "domain" | "design-system" | "experience" | "interfaces" | "journeys" | "states-data" | "traceability" | "dependencies";
 type ExplorerChannel = "web" | "cli";
 type ProductView = "setup" | "projects" | "project" | "source" | "transcript" | "captions" | "versions" | "browse" | "import" | "artifact" | "review-activity" | "job-status";
 
@@ -21,47 +21,64 @@ const root = document.querySelector<HTMLDivElement>("#app");
 if (!root) throw new Error("Explorer application root is missing.");
 
 const phaseSummary: Readonly<Record<ExperiencePhase, { readonly label: string; readonly title: string; readonly summary: string }>> = {
-  P0: { label: "Phase 0", title: "Product Truth", summary: "Intent, capabilities, authority, and lifecycle meaning" },
-  P1: { label: "Phase 1", title: "Design Language", summary: "Reusable states, interaction, accessibility, and content rules" },
-  P2: { label: "Phase 2", title: "Product Experience", summary: "Views, journeys, actions, channels, and recovery" },
-  P3: { label: "Phase 3", title: "Experience Explorer", summary: "Deterministic simulation, inspection, and verification" },
-  "Cross-phase": { label: "Cross-phase", title: "Authority and acceptance", summary: "Shared ownership, decisions, gaps, and traceability across all phases" },
+  "PDP-0": { label: "PDP-0", title: "Product Truth", summary: "Intent, capabilities, authority, and lifecycle meaning" },
+  "PDP-1": { label: "PDP-1", title: "Domain & Data", summary: "Objects, states, operations, events, evidence, and provenance" },
+  "PDP-2": { label: "PDP-2", title: "Design & Interfaces", summary: "Reusable visual language and protocol/interface conventions" },
+  "PDP-3": { label: "PDP-3", title: "Product Experience", summary: "Complete surfaces, screens, journeys, and recovery" },
+  EXPLORER: { label: "Explorer", title: "Experience Explorer", summary: "Projection, simulation, inspection, and verification" },
+  CROSS_PHASE: { label: "Cross-phase", title: "Authority and acceptance", summary: "Shared ownership, decisions, gaps, and traceability across PDPs" },
+  IMPLEMENTATION: { label: "Implementation", title: "Implementation", summary: "Runtime and package projections" },
+  EVIDENCE: { label: "Evidence", title: "Evidence", summary: "Verification artifacts and provenance" },
+  REFERENCE: { label: "Reference", title: "Reference", summary: "Non-authoritative planning and historical material" },
+  OBSOLETE: { label: "Obsolete", title: "Obsolete", summary: "Retained only for migration history" },
 };
 
 function reviewStatusForArtifact(artifact: SpecificationArtifact): string {
   if (artifact.path.endsWith("/PRODUCT-TRUTH.md")) return "Boundary slice accepted · full phase pending";
   switch (artifact.phase) {
-    case "P0": return "Proposal · independent P0-010 review pending";
-    case "P1": return "Proposal · P0-010 prerequisite pending";
-    case "P2": {
+    case "PDP-0": return "Proposal · independent Product Truth review pending";
+    case "PDP-1": return "Proposal · domain/data semantic review pending";
+    case "PDP-2": {
       if (artifact.path.includes("/journey-contracts/")) {
         return artifact.path.endsWith("/transcribe-and-correct-captions.yaml")
-          ? "Selected lane proposal · full P2-008 acceptance pending"
+          ? "Selected lane proposal · PDP-3 acceptance pending"
           : "Journey proposal · action/state/channel bindings and owner review pending";
       }
       if (artifact.path.includes("/screen-contracts/")) {
         return "View proposal · action/state bindings and owner review pending";
       }
-      if (artifact.path.includes("/lanes/")) return "Selected lane · full P2-008 acceptance pending";
-      if (artifact.path.endsWith("/journey-registry.yaml")) return "Coverage registry · full P2-008 acceptance pending";
-      return "Phase 2 proposal · P2-008 acceptance pending";
+      if (artifact.path.includes("/lanes/")) return "Selected lane · PDP-3 acceptance pending";
+      if (artifact.path.endsWith("/journey-registry.yaml")) return "Coverage registry · PDP-3 acceptance pending";
+      return "PDP-2 proposal · design/interface review pending";
     }
-    case "P3": return "Local implementation · Tools binding and review pending";
-    case "Cross-phase": return "Governance record · current owner and acceptance status";
+    case "PDP-3": return "PDP-3 proposal · experience acceptance pending";
+    case "EXPLORER": return "Local projection · Tools binding and review pending";
+    case "CROSS_PHASE": return "Governance record · current owner and acceptance status";
+    default: return "Reference/projection record · owner status applies";
   }
 }
 
 const supportedModes: readonly { readonly id: ExplorerMode; readonly label: string; readonly shortcut: string }[] = [
+  { id: "overview", label: "Overview", shortcut: "0" },
   { id: "product", label: "Product", shortcut: "1" },
   { id: "explore", label: "Explore", shortcut: "2" },
   { id: "specification", label: "Specification", shortcut: "3" },
   { id: "verify", label: "Verify", shortcut: "4" },
+  { id: "truth", label: "Truth", shortcut: "5" },
+  { id: "domain", label: "Domain", shortcut: "6" },
+  { id: "design-system", label: "Design System", shortcut: "7" },
+  { id: "experience", label: "Experience", shortcut: "8" },
+  { id: "interfaces", label: "Interfaces", shortcut: "9" },
+  { id: "journeys", label: "Journeys", shortcut: "a" },
+  { id: "states-data", label: "States/Data", shortcut: "b" },
+  { id: "traceability", label: "Traceability", shortcut: "c" },
+  { id: "dependencies", label: "Dependencies", shortcut: "d" },
 ];
 // Artifact verification specializes the shared job-status view, so it is not a separate Product screen route.
 const screenContractArtifacts = specificationArtifacts.filter((artifact) =>
   artifact.path.includes("/screen-contracts/") && !artifact.path.endsWith("/artifact-verification-job-family.yaml"));
 const actionRegistryArtifact = specificationArtifacts.find((artifact) =>
-  artifact.path.endsWith("/phase-2-product-experience/action-registry.yaml"));
+  artifact.path.endsWith("/pdp-3-product-experience/action-registry.yaml"));
 const sourceManifestArtifact = specificationArtifacts.find((artifact) => artifact.path === ".product-experience/source-manifest.yaml");
 function productContractPathFromLocation(): string | undefined {
   const match = location.hash.match(/^#product\/view\/(.+)$/u);
@@ -77,7 +94,7 @@ const modeFromLocation = (): ExplorerMode | undefined => {
   return supportedModes.find(({ id }) => location.hash === `#${id}`)?.id;
 };
 
-const phaseIds: readonly ExperiencePhase[] = ["P0", "P1", "P2", "P3", "Cross-phase"];
+const phaseIds: readonly ExperiencePhase[] = ["PDP-0", "PDP-1", "PDP-2", "PDP-3", "EXPLORER", "CROSS_PHASE"];
 const compactPhaseSelector = window.matchMedia("(max-width: 760px)");
 function phaseTabId(phase: ExperiencePhase): string {
   return `phase-tab-${phase.toLocaleLowerCase().replace(/[^a-z0-9]+/gu, "-")}`;
@@ -138,7 +155,7 @@ let channel: ExplorerChannel = "web";
 let state: MediaExperienceState = createFixtureState("media.scenario.transcript-ready");
 let productView: ProductView = "transcript";
 let selectedProductContract = productContractFromLocation() ?? null;
-let selectedPhase: ExperiencePhase = "P0";
+let selectedPhase: ExperiencePhase = "PDP-0";
 let selectedArtifact = specificationArtifacts[0]!;
 let artifactFilter = "";
 let selectedSegmentId = state.captionDraft.segments[0]?.segmentId ?? null;
@@ -896,7 +913,7 @@ function renderScreenContractPreview(artifact: SpecificationArtifact, source: st
   const channelRows = channels.map(({ channel, disposition }) => `<li><strong>${escapeHtml(channelDisplayName(channel))}</strong><span>${escapeHtml(readableLabel(disposition.replaceAll("-", " ")))}</span></li>`).join("");
   const contextCards = (["context", "goal", "now", "next"] as const).filter((key) => context[key]).map((key) => `<div class="view-context-item"><span>${escapeHtml(readableLabel(key))}</span><p>${escapeHtml(context[key]!)}</p></div>`).join("");
   return `<section class="view-contract-preview" aria-labelledby="view-contract-preview-title" data-screen-id="${escapeHtml(screenId)}">
-    <div class="view-preview-banner"><span class="view-preview-icon" aria-hidden="true">P2</span><div><strong>Read-only view contract preview</strong><p>This proposal preview shows declared content and hierarchy. Its actions are not connected to product behavior.</p></div><span class="view-preview-state">Proposal</span></div>
+    <div class="view-preview-banner"><span class="view-preview-icon" aria-hidden="true">PDP-3</span><div><strong>Read-only view contract preview</strong><p>This proposal preview shows declared content and hierarchy. Its actions are not connected to product behavior.</p></div><span class="view-preview-state">Proposal</span></div>
     <div class="view-preview-open-product"><span>Explore this declared view in the Product shell.</span><button type="button" class="button button-outline button-small" data-open-product-screen="${escapeHtml(artifact.path)}">Open Product projection <span aria-hidden="true">→</span></button></div>
     <header class="view-preview-heading"><div><div class="eyebrow">${escapeHtml(screenId)}</div><h3 id="view-contract-preview-title">${escapeHtml(screenName)}</h3><p>${escapeHtml(readableProposalPurpose(purpose, "The contract does not declare a short purpose statement."))}</p></div><span class="view-intent-ref">${escapeHtml(intentRef || "Intent binding pending")}</span></header>
     ${contextCards ? `<section class="view-context-grid" aria-label="Declared context, goal, now, and next">${contextCards}</section>` : ""}
@@ -1016,33 +1033,34 @@ function specificationSurface(): string {
       ${renderScreenContractPreview(activeArtifact, sourceContent ?? "")}
       <pre class="spec-source"><code>${escapeHtml(content)}</code></pre>
     </main>
-    <aside class="spec-inspector"><div class="eyebrow">TRACE CONTEXT</div><h2>${escapeHtml(activeArtifact.title)}</h2><div class="trace-card"><span>Authority path</span><code>${escapeHtml(activeArtifact.path)}</code></div><div class="trace-card"><span>Product identity</span><code>ghatana.product/media</code></div><div class="trace-card"><span>Tools stage or scope</span><code>${escapeHtml(({ P0: "establish-product-definition", P1: "establish-experience-language", P2: "specify-executable-experience", P3: "materialize-implementation", "Cross-phase": "shared governance; not a phase" } as const)[selectedPhase])}</code></div><div class="trace-card"><span>Record status</span><strong>${escapeHtml(reviewStatusForArtifact(activeArtifact))}</strong></div>${renderTraceMetadata(activeArtifact, sourceManifestContent)}<div class="trace-links"><h3>Related views</h3><button type="button" class="text-button" data-mode="verify">Open verification workspace →</button><button type="button" class="text-button" data-mode="explore">Inspect live scenario →</button></div></aside>
+    <aside class="spec-inspector"><div class="eyebrow">TRACE CONTEXT</div><h2>${escapeHtml(activeArtifact.title)}</h2><div class="trace-card"><span>Authority path</span><code>${escapeHtml(activeArtifact.path)}</code></div><div class="trace-card"><span>Product identity</span><code>ghatana.product/media</code></div><div class="trace-card"><span>Tools stage or scope</span><code>${escapeHtml(({ "PDP-0": "establish-product-truth", "PDP-1": "establish-domain-data", "PDP-2": "establish-design-interface-system", "PDP-3": "specify-complete-product-experience", EXPLORER: "project-and-verify-experience", CROSS_PHASE: "shared governance; not a PDP phase" } as Partial<Record<ExperiencePhase, string>>)[selectedPhase] ?? "projection scope")}</code></div><div class="trace-card"><span>Record status</span><strong>${escapeHtml(reviewStatusForArtifact(activeArtifact))}</strong></div>${renderTraceMetadata(activeArtifact, sourceManifestContent)}<div class="trace-links"><h3>Related views</h3><button type="button" class="text-button" data-mode="verify">Open verification workspace →</button><button type="button" class="text-button" data-mode="explore">Inspect live scenario →</button></div></aside>
   </div>`;
 }
 
 function verificationSurface(): string {
   const phaseStates = [
-    { id: "P0", title: "Product Truth", status: "Boundary accepted · definition review open", detail: "P0-001 boundary is accepted. Operation-specific proposals cover 17 of 462 capability leaves; 445 leaves, remaining product definition, and independent P0-010 review are open." },
-    { id: "P1", title: "Design Language", status: "17 component families · intent refs proposed", detail: "All 17 required component families are indexed across 28 proposals. Component action intents now resolve to shared Phase 2 action references. Capability authority, component interactions, state mappings, Shared token bindings, and accessibility, localization, keyboard, and responsive owner review remain open." },
-    { id: "P2", title: "Product Experience", status: "41 views · action refs proposed · 28 journeys", detail: "All 41 baseline views have proposal contracts, and six selected-lane specializations are indexed. Authored action intents across baseline and lane views now resolve to intent-based proposal references. Detailed action effects, capability authority, component interactions, state transitions, copy/channel bindings, journey completeness, and owner review remain open." },
-    { id: "P3", title: "Experience Explorer", status: "Local slices + 47 proposal routes · host pending", detail: "J-01 synthetic first-use, J-02 metadata-only artifact intake and verification-job commands, J-20 transcription-job status viewing, cancellation, and outcome checking, and the selected J-03 audio lane execute locally. All 47 screen contracts also expose source-derived Product routes with actions disabled. Stateful realization of remaining views, the generic Tools host, and independent review remain open." },
+    { id: "PDP-0", title: "Product Truth", status: "Boundary accepted · definition review open", detail: "PDP0-001 boundary is accepted. Operation-specific proposals cover 17 of 462 capability leaves; 445 leaves, remaining product definition, and independent review are open." },
+    { id: "PDP-1", title: "Domain & Data", status: "Canonical registries added · semantic review open", detail: "Objects, values, relationships, operations, state machines, events, evidence, provenance, privacy, versioning, offline sync, interoperability, authority, and decisions are registered; owner review and projection parity remain open." },
+    { id: "PDP-2", title: "Design & Interfaces", status: "Design/interface registries added · conformance open", detail: "GUI composition and protocol/interface language registries are present and point to Shared authorities; visual provenance, accessibility, and owner review remain open." },
+    { id: "PDP-3", title: "Product Experience", status: "47 screens · machine registries · journey bindings open", detail: "Screen contracts, machine-interface projections, CLI/SDK/event/tool/service registries, and J-29/J-30 records are present; wire parity, scenario completeness, and acceptance remain open." },
+    { id: "EXPLORER", title: "Experience Explorer", status: "Local projection · Tools currentness pending", detail: "The Explorer is outside the PDP phases. Its source-linked projection and deterministic simulation are local-only until Tools-owned currentness, binding, and visual/accessibility evidence are admitted." },
   ];
   const passed = [
     { label: "Reducer and lifecycle", detail: "Deterministic first-use, caption, project-request, artifact-transfer and verification states, and transcription-job finality.", count: "10 simulation checks", icon: "✓" },
     { label: "Fixture runner CLI", detail: "JSON, JSONL, upload status, help, fixture validation, and malformed input behavior.", count: "6 CLI checks", icon: "✓" },
     { label: "Canonical command CLI", detail: "Registered upload, transcription, caption, and job status, outcome-checking, and cancellation commands with stable identities, formats, and exit status.", count: "15 CLI checks", icon: "✓" },
     { label: "TypeScript and browser build", detail: `Strict TypeScript checks pass for the simulation package and browser client; all ${specificationArtifacts.length} specification records are bundled.`, count: "PASS · Vite 7.3.1", icon: "✓" },
-    { label: "Browser experience audit", detail: "Every synthetic scenario, source artifact, valid Product proposal route, inline job-family specialization, Verify surface, keyboard path, and responsive viewport is exercised without console errors or horizontal overflow.", count: "29 scenarios · 147 artifacts · 47 routes · 6 viewports", icon: "✓" },
+    { label: "Browser experience audit", detail: "The browser audit is retained as historical input until the normalized source index and route contracts are rerun with the current dependency set.", count: "RERUN REQUIRED · 47 routes · 6 viewports", icon: "!" },
   ];
   const pending = [
     { label: "Tools phase verification", detail: "The current verifier resolves the Media subject but returns CANDIDATE_PLAN with structuralFallback=true, no selected operations, and PLANNER_BINDING_OWNER_AMBIGUOUS. Native phase evidence remains unavailable.", status: "PLANNER BINDING OPEN", tone: "caution" },
     { label: "Browser host binding", detail: "This browser client renders Media-specific projections. Published Tools host integration remains open.", status: "OPEN", tone: "neutral" },
-    { label: "All baseline views and journeys", detail: "All 41 baseline view proposals and six selected-lane specializations have source-derived Product routes; proposal actions remain disabled. Full action semantics, state/scenario/channel bindings, journey behavior, owner review, and acceptance remain open.", status: "OPEN", tone: "neutral" },
+    { label: "All canonical screens and journeys", detail: "All 47 canonical screen proposals plus the job-family specialization have source-derived Product routes; proposal actions remain disabled. J-29/J-30 are explicit journey extensions. Full action semantics, state/scenario/channel bindings, journey behavior, owner review, and acceptance remain open.", status: "OPEN", tone: "neutral" },
     { label: "Visual and accessibility review", detail: "The deterministic browser audit passes geometry, accessible-name, and responsive checks; pixel-reference conformance, screen-reader, forced-colors, zoom, and independent human review remain unrecorded.", status: "REVIEW REQUIRED", tone: "caution" },
   ];
   return `<main class="verify-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">EVIDENCE & COVERAGE</div><h1>Verify experience</h1><p>Separate model checks from phase acceptance and browser review.</p></div><button type="button" class="button button-outline" data-mode="specification">Review source records</button></header>
-    <div class="verify-summary"><div class="verify-summary-icon">✓</div><div><strong>Local simulation checks pass</strong><span>These checks cover J-01 synthetic first-use, J-02 metadata-only artifact intake and verification-job CLI, J-20 transcription-job recovery, and the selected J-03 audio transcript and caption workflow. They do not accept Phases 0–3.</span></div><button type="button" class="text-button" data-run-local-checks aria-expanded="${showVerificationCommands}">${showVerificationCommands ? "Hide verification commands" : "Show verification commands"} <span aria-hidden="true">→</span></button></div>
-    <section class="verify-section phase-status-section"><div class="verify-section-heading"><div><h2>Phase status</h2><p>Local work, owner review, and acceptance are separate states.</p></div><span class="section-count">4 phases</span></div><div class="phase-status-grid">${phaseStates.map((phase) => `<article class="phase-status-card"><div class="phase-status-heading"><span>${phase.id}</span><strong>${escapeHtml(phase.status)}</strong></div><h3>${escapeHtml(phase.title)}</h3><p>${escapeHtml(phase.detail)}</p></article>`).join("")}</div></section>
+    <div class="verify-summary"><div class="verify-summary-icon">✓</div><div><strong>Local simulation checks pass</strong><span>These checks cover J-01 synthetic first-use, J-02 metadata-only artifact intake and verification-job CLI, J-20 transcription-job recovery, and the selected J-03 audio transcript and caption workflow. They do not accept PDP-0 through PDP-3.</span></div><button type="button" class="text-button" data-run-local-checks aria-expanded="${showVerificationCommands}">${showVerificationCommands ? "Hide verification commands" : "Show verification commands"} <span aria-hidden="true">→</span></button></div>
+    <section class="verify-section phase-status-section"><div class="verify-section-heading"><div><h2>Phase status</h2><p>Local work, owner review, and acceptance are separate states.</p></div><span class="section-count">${phaseStates.length} entries</span></div><div class="phase-status-grid">${phaseStates.map((phase) => `<article class="phase-status-card"><div class="phase-status-heading"><span>${phase.id}</span><strong>${escapeHtml(phase.status)}</strong></div><h3>${escapeHtml(phase.title)}</h3><p>${escapeHtml(phase.detail)}</p></article>`).join("")}</div></section>
     ${showVerificationCommands ? `<pre class="verify-local-commands"><code>pnpm dlx --package typescript@6.0.3 tsc --noEmit -p apps/media-experience-explorer/tsconfig.json
 pnpm dlx --package typescript@6.0.3 tsc --noEmit -p libs/media-experience-simulation/tsconfig.json
 node libs/media-experience-simulation/bin/ghatana-media.mjs --help
@@ -1052,6 +1070,27 @@ pnpm dlx vite@7.3.1 build --config apps/media-experience-explorer/vite.config.mj
     <section class="verify-section"><div class="verify-section-heading"><div><h2>Open phase evidence</h2><p>Structural catalog checks do not prove semantic completeness or acceptance.</p></div><span class="section-count">${pending.length} open</span></div><div class="pending-list">${pending.map((item) => `<article class="pending-card"><span class="pending-status ${item.tone}">${escapeHtml(item.status)}</span><div><h3>${item.label}</h3><p>${item.detail}</p></div></article>`).join("")}</div></section>
     <div class="verify-command"><div><span class="terminal-small-icon">›_</span><span><strong>Verify phase evidence with ghatana-tools</strong><small>Run from the Tools repository with both repository roots; the installed verifier must resolve an owner-bound build unit before native evidence can be admitted.</small></span></div><code>node tools/product-development/cli/dist/bin/product-dev.js workspace verify --root &lt;media-root&gt; --root &lt;tools-root&gt; --subject samujjwal/ghatana-media:media --material &lt;path&gt; --stage &lt;stage&gt; --claim &lt;classification&gt;</code></div>
   </main>`;
+}
+
+function semanticModeSurface(): string {
+  const modeDefinitions: Readonly<Record<Exclude<ExplorerMode, "product" | "explore" | "specification" | "verify">, { title: string; summary: string; phase?: ExperiencePhase; pathHints?: readonly string[] }>> = {
+    overview: { title: "Overview", summary: "One source-linked map of Product Truth, Domain/Data, Design/Interfaces, Product Experience, and the Explorer projection." },
+    truth: { title: "Truth", summary: "Requirements, actors, outcomes, capabilities, laws, policy, and journeys owned by PDP-0.", phase: "PDP-0" },
+    domain: { title: "Domain", summary: "Canonical objects, values, relationships, operations, events, evidence, provenance, and authority owned by PDP-1.", phase: "PDP-1" },
+    "design-system": { title: "Design System", summary: "Live Media composition and interface-language records over Shared primitives and contracts.", phase: "PDP-2" },
+    experience: { title: "Experience", summary: "Complete screen, action, channel, and recovery contracts owned by PDP-3.", phase: "PDP-3" },
+    interfaces: { title: "Interfaces", summary: "HTTP, gRPC, CLI, SDK, events, Agent Tools, and service projections registered by PDP-3.", pathHints: ["/api/", "/grpc/", "/cli/", "/sdk/", "/events/", "/agent-tools/", "/services/"] },
+    journeys: { title: "Journeys", summary: "Journey contracts, step transitions, surfaces, operations, recovery, and postconditions.", pathHints: ["journey"] },
+    "states-data": { title: "States / Data", summary: "State machines, fixture/data views, and semantic state-to-presentation mappings.", pathHints: ["state", "data", "domain"] },
+    traceability: { title: "Traceability", summary: "Bidirectional source-linked relationships from outcomes and requirements through operations, surfaces, implementation, and verification.", pathHints: ["traceability", "registry", "operation"] },
+    dependencies: { title: "Dependencies", summary: "Owners, boundaries, external contracts, compatibility, and evidence dependencies.", pathHints: ["dependency", "authority", "provenance"] },
+  };
+  const definition = modeDefinitions[mode as keyof typeof modeDefinitions];
+  const candidates = definition.phase
+    ? specificationArtifacts.filter((artifact) => artifact.phase === definition.phase)
+    : specificationArtifacts.filter((artifact) => definition.pathHints?.some((hint) => artifact.path.toLocaleLowerCase().includes(hint)) ?? false);
+  const cards = candidates.slice(0, 80).map((artifact) => `<button type="button" class="artifact-link" data-artifact="${escapeHtml(artifact.path)}" data-mode="specification"><span class="file-glyph" aria-hidden="true">${artifact.path.endsWith(".md") ? "M" : "Y"}</span><span><strong>${escapeHtml(artifact.title)}</strong><small>${escapeHtml(artifact.phase)} · ${escapeHtml(artifact.path)}</small></span></button>`).join("");
+  return `<main class="semantic-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">SOURCE-LINKED SEMANTIC VIEW</div><h1>${escapeHtml(definition.title)}</h1><p>${escapeHtml(definition.summary)}</p></div><span class="proposal-chip"><span></span> LOCAL PROJECTION</span></header><section class="semantic-summary"><strong>${candidates.length} source records</strong><span>Every card opens the canonical source in Specification mode. Semantic fingerprints/currentness remain owner-generated and are not fabricated by this client.</span></section><section class="semantic-card-grid" aria-label="Source records">${cards || `<p class="artifact-filter-empty">No matching source records are currently indexed.</p>`}</section></main>`;
 }
 
 function mainContent(): string {
@@ -1079,6 +1118,7 @@ function mainContent(): string {
     case "explore": return exploreSurface();
     case "specification": return specificationSurface();
     case "verify": return verificationSurface();
+    default: return semanticModeSurface();
   }
 }
 

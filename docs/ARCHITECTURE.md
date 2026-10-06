@@ -23,11 +23,15 @@ privileged effects, or Agents execution. It must not mutate another service's
 database or become a general effect authority. Generic model work delegated by
 a selected Media provider crosses the AI Inference contract.
 
-The standalone HTTP composition root is launcher and its main
-class is com.ghatana.media.launcher.MediaLauncher. The service contract is
-[../service-contract.yaml](../service-contract.yaml); this document is limited
-to the current local/runtime architecture and does not claim a production-ready
-deployment.
+The standalone HTTP composition root is launcher and its main class is
+`com.ghatana.media.launcher.MediaLauncher`. The current wire/availability
+projection is split deliberately across [OpenAPI](../contracts/openapi/media.yaml),
+the [route manifest](../config/route-manifest.json), protobuf service contracts,
+and the provider manifest. A generated aggregate `service-contract.yaml` is not
+an active authority. CLEAN-2 selects these source-specific authorities; GAP-06
+remains open for unresolved ownership, consumer parity, and native qualification.
+This document is limited to the current local/runtime architecture and does not
+claim a production-ready deployment.
 
 ## Concepts and contracts
 

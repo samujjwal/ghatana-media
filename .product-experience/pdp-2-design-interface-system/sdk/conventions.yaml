@@ -1,0 +1,103 @@
+schemaVersion: media.sdk-conventions.v1
+productId: media
+owner: ghatana-media-product-sdk
+authority: Media owns domain-client semantics; Shared owns generic transport, serialization, and reusable transport primitives
+scopeStatus: proposal-only; SDK package contract, generated-client policy, and consumer/API-owner bindings are not accepted
+sourceRefs:
+  - .product-experience/pdp-2-design-interface-system/api/conventions.yaml
+  - .product-experience/pdp-2-design-interface-system/api/errors.yaml
+  - .product-experience/pdp-2-design-interface-system/api/identifiers.yaml
+  - .product-experience/pdp-2-design-interface-system/api/async-operations.yaml
+  - .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
+  - libs/audio-video-client/src/operations.ts
+  - libs/audio-video-client/src/index.ts
+  - contracts/openapi/media.yaml
+  - config/route-manifest.json
+proposalRules:
+  domainAndTransport:
+    rules:
+      - Expose domain concepts and state/finality deliberately; keep wire DTOs, HTTP status/headers, serialization, and transport exceptions distinct where their meaning differs.
+      - Validate/map transport payloads at the boundary; do not silently coerce missing, unknown, or conflicting domain state into success or terminality.
+      - Keep canonical route-family projection separate from legacy modality compatibility methods until migration and wire-parity gates pass.
+    evidence:
+      operationRegistry: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml#reconciliation
+      canonicalProjection: libs/audio-video-client/src/canonical-routes.ts
+      legacyProjection: libs/audio-video-client/src/operations.ts
+      legacyRemovalGate: consumer-migration-and-wire-parity-review
+      runtimeParserAndError: libs/audio-video-client/src/operations.ts#MediaClientError
+  authContext:
+    proposal:
+      - Pass caller credentials through an explicit provider/callback or request context; do not persist, log, or expose secret values by default.
+      - Keep tenant, principal/delegation, correlation, causation, and parent-run context distinct; validate/forward only fields authorized by the admitted API contract.
+      - Tenant identity is not itself authentication or authorization; do not infer an authenticated principal or permission from a tenant header/config field.
+    evidence:
+      config: libs/audio-video-client/src/operations.ts#MediaOperationClientConfig
+      apiSecurity: contracts/openapi/media.yaml#security
+      tenantParameter: contracts/openapi/media.yaml#/components/parameters/TenantHeader
+      tenantAndCredentialBinding: pending-API-owner-and-consumer-review
+  pagination:
+    proposal:
+      - Collection APIs expose explicit page-size and opaque continuation semantics only when the canonical API contract declares them.
+      - Preserve server-provided continuation tokens without decoding or synthesizing them; terminate only on the contract-defined absence/exhaustion signal.
+      - Do not add pagination parameters or claim complete enumeration where the endpoint contract does not define pagination.
+    observed: no pagination contract is established by the inspected SDK operation registry; endpoint-specific support and token semantics remain unbound
+    evidence: [contracts/openapi/media.yaml, config/route-manifest.json, .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml]
+  asynchronousHandles:
+    proposal:
+      - Return a handle only when the API reports an accepted asynchronous operation and its canonical identity/status reference.
+      - A handle keeps one operation identity across status, result, cancellation, retry, and outcome checks; wait/progress is observation, not completion evidence.
+      - Preserve server-advertised status/cancel/retry/result references and capability flags; do not invent URLs or treat a client timeout as job failure.
+    observedSource: libs/audio-video-client/src/operations.ts#MediaOperationHandle
+    contract: contracts/openapi/media.yaml#/components/schemas/PlatformOperation
+  cancellationDeadlinesAndInterruption:
+    proposal:
+      - Distinguish caller abort of a local request/wait from an explicit domain cancellation request and from server-confirmed cancellation.
+      - Deadlines bound caller waiting/transport according to the selected API operation; expiration does not establish whether a mutation committed.
+      - Propagate AbortSignal only as local transport/wait cancellation unless an explicit cancel operation is invoked.
+    observed: libs/audio-video-client/src/operations.ts#OperationWaitOptions
+    ownerDecision: cancellation and deadline behavior for each public method requires SDK and operation owners
+  retriesAndIdempotency:
+    proposal:
+      - Retry only when the canonical operation policy permits it and the same request identity/idempotency key is preserved for replay of that exact logical request.
+      - Never automatically retry a mutation without an explicit replay-safe contract; a timeout/network failure after dispatch is an unknown outcome, not a safe retry signal.
+      - A business retry/new attempt is distinct from transport retry and must use the canonical operation/job retry semantics and identity fencing.
+    evidence:
+      clientIdempotencyInput: libs/audio-video-client/src/operations.ts#CreateUploadSessionRequest.idempotencyKey
+      apiExtensions: contracts/openapi/media.yaml#x-ghatana-idempotency
+      explicitNoReplayGuarantee: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs~1{jobId}~1cancel/post
+      operationFlags: contracts/openapi/media.yaml#/components/schemas/PlatformOperation
+      legacyRetryImplementation: libs/audio-video-client/src/index.ts#callService
+  errorsAndFinality:
+    proposal:
+      - Preserve stable error code/reason code, retryability as contract data, request/correlation identity, and caller-safe detail; never expose raw provider exception text as a stable contract.
+      - Keep HTTP/transport failure, SDK validation failure, domain failure, and asynchronous operation state distinguishable.
+      - Model accepted/running, succeeded, failed, cancelled, partial result, and unknown outcome only as supported by the authoritative API/domain contract; do not equate HTTP success, handle creation, or wait timeout with domain success/finality.
+      - On an unknown mutation outcome, query the original operation/request identity before any newly authorized business retry.
+    evidence:
+      errorSchema: contracts/openapi/media.yaml#/components/schemas/PlatformError
+      responseMeta: contracts/openapi/media.yaml#/components/schemas/PlatformResponseMeta
+      operationSchema: contracts/openapi/media.yaml#/components/schemas/PlatformOperation
+      domainTypes: libs/audio-video-types/src/contracts.ts
+      clientError: libs/audio-video-client/src/operations.ts#MediaClientError
+      observedStateMismatch: API PlatformOperation enum is ACCEPTED/QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELLED; SDK domain terminal helper uses COMPLETED/FAILED/PARTIALLY_SUCCEEDED/CANCELLED; canonical mapping is unresolved
+  compatibility:
+    proposal:
+      - Treat public method names, argument/result shapes, errors, defaults, and retry behavior as compatibility surface; changes require versioning and consumer impact review.
+      - Keep legacy modality routes/methods explicitly compatibility-only until consumer migration, canonical-route parity, and deprecation decisions are accepted.
+      - Generated code must derive from an admitted API/schema revision; generated output does not itself establish API or SDK owner acceptance.
+    evidence:
+      sdkRegistry: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml#reconciliation
+      registryGate: consumer-migration-and-wire-parity-review
+      routeAuthority: [contracts/openapi/media.yaml, config/route-manifest.json]
+decisionGates:
+  - SDK product/API owners must resolve public package and method inventory, domain-to-transport mappings, and canonical status/finality compatibility.
+  - API owner must decide authentication scheme and tenant/principal/delegation bindings; SDK credentials/config do not grant authority.
+  - API owner must define pagination per collection endpoint before SDK parameter or completeness guarantees are bound.
+  - Method-level cancellation, deadlines, idempotency/retry classes, unknown-outcome reconciliation, and compatibility/deprecation policy require explicit owner decisions.
+  - Existing implementation observations and tests are evidence of current code only, not normative guarantees or consumer acceptance.
+acceptance:
+  criteria: [domain and transport semantics are separated, auth context and tenant are not conflated, pagination is endpoint-contract-defined, async handles preserve operation identity, cancellation/deadline/retry/unknown outcomes are safe, error/finality mapping is canonical, compatibility gates are explicit]
+  status: pending-SDK-and-API-owner-review
+verification:
+  method: consumer contract tests for auth/context propagation, DTO/domain mapping, pagination, handles/status/finality, cancellation/deadlines, idempotency/retry, compatibility and unknown outcomes
+  status: not-run; no accepted SDK consumer contract

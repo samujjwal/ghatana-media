@@ -6,19 +6,23 @@ Product Definition records. The YAML registries under
 authorities; this document does not create a second requirements or phase
 ledger.
 
-## Master-prompt phase crosswalk
+## Canonical phase coverage
 
 The pasted Generic Four-Phase Product Definition and Complete Experience
-Explorer prompt is the governing completeness contract. Media's local folders
-predate that prompt's exact phase labels, so the mapping is explicit:
+Explorer prompt is the completeness checklist. Product semantics are owned by
+the applicable PDP records; the migration plan is an execution reference. The
+canonical folders use these phase labels:
 
 | Master-prompt authority | Media local source | Coverage status |
 | --- | --- | --- |
-| PDP-0 Product Truth | phase-0-product-truth/ truth, goals, actors, requirements, policies, quality, channels, and journeys | Authored proposal; P0-001 boundary slice accepted, P0-010 pending |
-| PDP-1 Canonical Domain and Data Model | phase-0-product-truth/domain-model.yaml, state-models.yaml, time-units-fidelity.yaml, schema-bindings.yaml, and related authority/policy records | Captured inside local P0 domain/state records; semantic review pending |
-| PDP-2 Design Language and Interface System | phase-1-design-language/ | Authored component, token, interaction, state, accessibility, localization, responsive, CLI, and provenance proposals; P1 acceptance pending |
-| PDP-3 Complete Product Experience | phase-2-product-experience/ | View, journey, action, channel, API, CLI, data, handoff, recovery, fixture, and simulation proposals; P2 acceptance pending |
-| Experience Explorer projection | phase-3-experience-explorer/, apps/media-experience-explorer/, and libs/media-experience-simulation/ | Deterministic local projection and verification client; not a fifth semantic phase |
+| PDP-0 Product Truth | pdp-0-product-truth/ truth, goals, actors, requirements, policies, quality, channels, and journeys | Authored proposal; P0-001 boundary slice accepted, P0-010 pending |
+| PDP-1 Canonical Domain and Data Model | pdp-1-domain-data/ plus PDP-0 source references | Canonical object, value, relationship, operation, state, event, evidence, provenance, privacy, versioning, offline, interoperability, authority, and decision registries; semantic review pending |
+| PDP-2 Design Language and Interface System | pdp-2-design-interface-system/ | Authored Shared bindings, GUI primitive/pattern/layout/template/composition registries, token/state/accessibility/localization, responsive, and CLI/API/event/SDK/tool conventions; owner conformance pending |
+| PDP-3 Complete Product Experience | pdp-3-product-experience/ | 47 canonical screens, 30 journeys including J-29/J-30, action/state/channel contracts, 27 HTTP, 43 gRPC, 11 CLI, SDK, event, tool, and service registries; owner acceptance pending |
+| Experience Explorer projection | explorer/, apps/media-experience-explorer/, and libs/media-experience-simulation/ | Deterministic local projection and verification client; not a fifth semantic phase |
+
+The complete intended surface denominator and per-surface ownership/contract
+references are in [surface-registry.yaml](../.product-experience/surface-registry.yaml).
 
 ## Vision outcome coverage
 
@@ -80,13 +84,13 @@ relationships:
   and component references remain proposal-level until P2 action closure.
 - One component family (identity-context-boundary) still lacks a capability
   reference and requires owner review.
-- All 28 journey proposal files and all 47 screen-contract projections remain
-  source-linked but are not complete behavior, channel, runtime, or owner
-  acceptance evidence.
-- Explorer Specification indexes the source records and exposes trace
-  metadata; dedicated structured Truth/Domain/Overview modes, independent
-  accessibility review, Tools-native rendering, and generated currentness
-  remain open under the existing P3/Tools gaps.
+- The 28 baseline journey proposals plus explicit J-29/J-30 contracts and all
+  47 canonical screen contracts remain source-linked but are not complete
+  runtime or owner acceptance evidence.
+- Explorer implements local Overview/Truth/Domain/Design System/Experience/
+  Interfaces/Journeys/States-Data/Traceability/Dependencies projections and
+  exposes trace metadata; independent accessibility review, Tools-native
+  rendering, and generated currentness remain open.
 
 These are current-state coverage/acceptance gaps, not missing vision ideas.
 They are tracked in the canonical gap register and must close through the

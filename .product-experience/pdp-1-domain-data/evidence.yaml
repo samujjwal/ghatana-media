@@ -1,0 +1,58 @@
+schemaVersion: media.pdp-1.evidence.v1
+artifactId: media.pdp-1.evidence
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-0-product-truth/quality-policy.yaml
+scopeStatus: PDP-0-evidence-semantics-projection; pending-owner-review
+sourceRefs: [.product-experience/pdp-0-product-truth/quality-policy.yaml, .product-experience/pdp-0-product-truth/state-models.yaml, .product-experience/pdp-0-product-truth/qualification-policy.yaml]
+eventEvidenceBindings:
+  lifecyclePublisherInventory: .product-experience/pdp-1-domain-data/events.yaml#/observedEnvelope/lifecyclePublisherInventory
+  clientNotificationInventory: .product-experience/pdp-1-domain-data/events.yaml#/observedEnvelope/clientNotificationInventory
+  eventSpecificBindings: proposal-only; source observations are candidates and do not constitute committed evidence
+  eventBindings:
+    status: proposal-only; pending-owner-review
+    commonUnavailableEvidence: [authoritative-finality, durable-delivery-receipt, committed-event-record, replay-or-deduplication-receipt]
+    records:
+      - {eventType: media.upload.started, sourceObservationCandidate: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L262-L265, sourceDomainRecordCandidate: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#UploadSession, evidenceAvailable: source-observation-only, finalityAndDelivery: unavailable}
+      - {eventType: media.artifact.completed, sourceObservationCandidate: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L287-L291, sourceDomainRecordCandidate: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifact, evidenceAvailable: source-observation-only, finalityAndDelivery: unavailable}
+      - {eventType: media.job.accepted, sourceObservationCandidate: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L351-L357, sourceDomainRecordCandidate: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ProcessingJob, evidenceAvailable: source-observation-only, finalityAndDelivery: unavailable}
+      - {eventType: media.job.cancelled, sourceObservationCandidate: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L402-L409, sourceDomainRecordCandidate: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ProcessingJob, evidenceAvailable: source-observation-only, finalityAndDelivery: unavailable}
+      - {eventType: media.job.cancel_requested, sourceObservationCandidate: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L411-L424, sourceDomainRecordCandidate: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ProcessingJob, evidenceAvailable: source-observation-only, finalityAndDelivery: unavailable}
+      - {eventType: media.stream.opened, sourceObservationCandidate: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L456-L461, sourceDomainRecordCandidate: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamSession, evidenceAvailable: source-observation-only, finalityAndDelivery: unavailable}
+      - {eventType: media.stream.closed, sourceObservationCandidate: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L596-L602, sourceDomainRecordCandidate: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamSession, evidenceAvailable: source-observation-only, finalityAndDelivery: unavailable}
+      - {eventType: media.job.completed, sourceObservationCandidate: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1135-L1142, sourceDomainRecordCandidate: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ProcessingJob, evidenceAvailable: source-observation-only, finalityAndDelivery: unavailable}
+      - {eventType: media.job.failed, sourceObservationCandidate: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1135-L1142, sourceDomainRecordCandidate: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ProcessingJob, evidenceAvailable: source-observation-only, finalityAndDelivery: unavailable}
+  publicationAttemptEvidence: "runtime logs publication as unconfirmed on failure; no durable receipt, outbox, replay, or recovery evidence contract established"
+  scopeStatus: source-inventory-only; proposed evidence semantics remain pending-owner-review
+evidenceClasses:
+  - id: media.evidence.source-observation
+    meaning: tracked-source-contract-or-fixture-exists-at-source-reference
+    proves: source-shape-at-inspected-revision
+    doesNotProve: runtime-support-qualification-or-owner-acceptance
+    scopeStatus: PDP-0-observed-contract-label
+  - id: media.evidence.owner-design
+    meaning: named-owner-authored-design-reference
+    proves: attributed-design-claim-only
+    doesNotProve: Media-acceptance-or-runtime-parity
+    scopeStatus: PDP-0-owner-design-label
+  - id: media.evidence.runtime-observation
+    meaning: bounded-observation-bound-to-environment-and-time
+    requiredFields: [subjectRef, scope, method, environment, observedAt, result, uncertainty, evidenceRefs]
+    scopeStatus: proposed-record-requirement; pending-owner-review
+  - id: media.evidence.quality-assessment
+    meaning: scoped-metric-method-and-calibration-observation
+    requiredFields: [metricRef, inputOutputRefs, applicability, disposition, methodVersion, calibrationScope, valueUnitOrAbstention, uncertainty, evidenceRefs]
+    dispositions: [PASS, FAIL, INDETERMINATE]
+    applicability: [APPLICABLE, NOT_APPLICABLE, ABSTAINED, NOT_EVALUATED, BLOCKED]
+    scopeStatus: PDP-0-quality-policy-semantics
+  - id: media.evidence.finality
+    meaning: authoritative-evidence-for-transition-or-external-effect-outcome
+    requiredFields: [initiatingAuthority, durableWriteOrder, effectBoundary, idempotencyIdentity, retryClass, finalityEvidence, safeNextAction]
+    unknownRule: possible-dispatch-without-authoritative-outcome-remains-OUTCOME_UNKNOWN
+    scopeStatus: PDP-0-state-model-semantics
+rules:
+  - NOT_APPLICABLE-is-not-pass-or-fail
+  - ABSTAINED-and-NOT_EVALUATED-are-not-positive-quality-results
+  - provider-success-does-not-establish-product-completion
+  - evidence-is-scoped-to-exact-version-purpose-method-and-environment
+  - implementation-schema-presence-is-not-semantic-acceptance

@@ -217,6 +217,11 @@ export class MediaOperationHandle<T> {
   }
 }
 
+/**
+ * LEGACY_COMPATIBILITY: preserves the existing `/api/v1/media/*` client
+ * contract. Semantic mapping, wire parity, and consumer migration are pending;
+ * this annotation does not change routes or runtime behavior.
+ */
 export class MediaOperationClient {
   private readonly baseUrl: string;
   private readonly tenantId: string;

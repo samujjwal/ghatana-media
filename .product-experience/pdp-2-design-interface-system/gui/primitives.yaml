@@ -1,0 +1,45 @@
+schemaVersion: media.gui-primitives.v1
+owner: ghatana-shared-design-system
+authority: Shared owns generic visual tokens, components, and interaction primitives; Media defines semantic bindings only
+sourceRefs:
+  - .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
+  - .product-experience/pdp-2-design-interface-system/component-contracts.yaml
+  - .product-experience/pdp-2-design-interface-system/accessibility.yaml
+  - sibling-repository:ghatana-shared/config/design-system-public-api.json
+scopeStatus: proposal; Shared export and package-version bindings require consumer verification
+acceptance:
+  criteria:
+    - Every primitive reference resolves to an explicitly public Shared export or semantic role.
+    - Media-specific meaning is expressed as a binding and does not copy token values or component implementation.
+    - Product state, action authority, and finality remain owned by Product Truth and runtime contracts.
+  status: pending-Shared-consumer-review
+verification:
+  method: Resolve each sharedExport against Shared's current public API and verify consumer bindings in the released package.
+  status: not-run
+sharedAuthorities:
+  tokens: ghatana-shared/platform/typescript/tokens; public semantic roles via @ghatana/tokens/semantic-roles
+  components: ghatana-shared/platform/typescript/design-system; public primitives via @ghatana/design-system/primitives
+  headlessBehavior: ghatana-shared/platform/typescript/ds-headless; use only its published public API
+  rule: References are illustrative until verified against the selected released package; no values or implementations are copied here.
+bindings:
+  - id: media.gui.primitive.identity
+    semanticRole: workspace-and-project-identity
+    sharedExport: semantic role and text primitives; resolve exact export at consumer integration
+    mediaContract: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.project-context-summary
+    constraints: [identity-is-not-authorization, keep-project-revision-distinct-from-artifact-version]
+  - id: media.gui.primitive.action
+    semanticRole: safe-next-action
+    sharedExport: button and link primitives; resolve exact export at consumer integration
+    constraints: [native-interaction-semantics, visible-focus, action-authority-is-runtime-owned]
+  - id: media.gui.primitive.status
+    semanticRole: state-and-finality
+    sharedExport: status, alert, and progress primitives; resolve exact export at consumer integration
+    constraints: [never-infer-finality-from-state, never-use-color-as-the-only-signal]
+  - id: media.gui.primitive.collection
+    semanticRole: searchable-media-object-collection
+    sharedExport: input, list, and pagination primitives; resolve exact export at consumer integration
+    constraints: [preserve-object-identity, expose-empty-loading-error-and-no-results]
+  - id: media.gui.primitive.disclosure
+    semanticRole: provenance-and-uncertainty
+    sharedExport: disclosure and tooltip primitives; resolve exact export at consumer integration
+    constraints: [critical-provenance-remains-visible-or-accessibly-reachable, do-not-hide-consent-or-rights-limits]

@@ -1,0 +1,270 @@
+schemaVersion: media.pdp-1.domain-objects.v1
+artifactId: media.pdp-1.domain-objects
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-0-product-truth/domain-model.yaml
+scopeStatus: proposed-domain-catalog; pending-owner-review
+sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml, .product-experience/pdp-0-product-truth/state-models.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, libs/audio-video-types/src/contracts.ts, contracts/openapi/media.yaml, modules/speech/stt-service/src/main/proto/stt_service.proto, modules/speech/tts-service/src/main/proto/tts_service.proto, modules/vision/vision-service/src/main/proto/vision_service.proto, modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql, providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql]
+objects:
+  - id: media.domain.project
+    name: MediaProject
+    kind: entity
+    identity: stable-opaque-project-id
+    lifecycle: versioned-metadata; revisions-reference-artifact-versions
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject]
+  - id: media.domain.project-revision
+    name: ProjectRevision
+    kind: immutable-project-snapshot
+    identity: project-id-and-revision-reference; exact-format-unbound
+    lifecycle: append-only-revision
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject]
+  - id: media.domain.artifact
+    name: MediaArtifact
+    kind: entity
+    identity: stable-artifact-id; bytes-bound-by-digest-and-version
+    lifecycle: immutable-content-identity; policy-and-erasure-state-separate
+    observedProjection: Java MediaArtifact; TypeScript MediaArtifact; OpenAPI MediaArtifact
+    scopeStatus: proposed-semantics-with-observed-projections; pending-owner-review
+    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, libs/audio-video-types/src/contracts.ts, contracts/openapi/media.yaml]
+  - id: media.domain.artifact-version
+    name: ArtifactVersion
+    kind: immutable-versioned-entity
+    identity: artifact-id-plus-version-or-content-digest; canonical-key-unbound
+    lifecycle: immutable
+    scopeStatus: proposed; separate-runtime-record-not-observed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion]
+  - id: media.domain.media-asset
+    name: MediaAsset
+    kind: project-reference
+    identity: stable-opaque-asset-id
+    lifecycle: versioned-reference-to-artifact-version
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaAsset]
+  - id: media.domain.recipe
+    name: MediaRecipe
+    kind: immutable-specification
+    identity: stable-id-and-semantic-version
+    lifecycle: semantic-edits-create-new-version
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaRecipe]
+  - id: media.domain.processing-graph
+    name: MediaProcessingGraph
+    kind: immutable-specification
+    identity: stable-id-and-semantic-version
+    lifecycle: semantic-edits-create-new-version
+    scopeStatus: proposed; universal-runtime-IR-not-observed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProcessingGraph]
+  - id: media.domain.resolved-plan
+    name: ResolvedMediaPlan
+    kind: immutable-admitted-plan
+    identity: plan-id-and-fingerprint
+    lifecycle: immutable-per-run; replanning-creates-successor
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ResolvedMediaPlan]
+  - id: media.domain.processing-job
+    name: ProcessingJob
+    kind: mutable-execution-aggregate
+    identity: stable-logical-job-id
+    lifecycle: PDP-0-media-job-state-model; attempts-distinct-from-logical-job
+    observedProjection: Java ProcessingJob; TypeScript job union; OpenAPI jobs
+    scopeStatus: PDP-0-semantics-with-observed-projections; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml#media-job, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, libs/audio-video-types/src/contracts.ts, contracts/openapi/media.yaml]
+  - id: media.domain.render-job
+    name: RenderJob
+    kind: intent-specific-processing-job
+    identity: distinct-logical-job-id
+    lifecycle: uses-processing-job-finality; output-version-is-immutable
+    scopeStatus: proposed-specialization; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ProcessingJob-and-RenderJob]
+  - id: media.domain.artifact-verification-job
+    name: ArtifactVerificationJob
+    kind: intent-specific-processing-job
+    identity: distinct-stable-job-reference
+    lifecycle: job-finality-does-not-decide-artifact-disposition
+    scopeStatus: proposed; owner-issued-job-contract-unbound; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ArtifactVerificationJob, .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact]
+  - id: media.domain.job-attempt
+    name: JobAttempt
+    kind: mutable-fenced-execution
+    identity: unique-attempt-id-and-increasing-fence
+    lifecycle: PDP-0-media-attempt-state-model
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml#media-attempt]
+  - id: media.domain.job-lease
+    name: JobLease
+    kind: temporary-execution-claim
+    identity: lease-id-and-fencing-token
+    lifecycle: wall-clock-expiry; stale-fence-cannot-commit
+    observedProjection: Java JobLease
+    scopeStatus: PDP-0-semantics-with-observed-projection; pending-owner-review
+    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, .product-experience/pdp-0-product-truth/domain-model.yaml#media-runtime-records]
+  - id: media.domain.media-run
+    name: MediaRun
+    kind: mutable-execution-aggregate
+    identity: stable-run-id
+    lifecycle: progression-with-append-only-observations
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint]
+  - id: media.domain.checkpoint
+    name: Checkpoint
+    kind: immutable-observation-reference
+    identity: stable-checkpoint-id-and-run-sequence
+    lifecycle: append-only; replay-class-required
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint]
+  - id: media.domain.scene-plan
+    name: ScenePlan
+    kind: immutable-authored-intent
+    identity: stable-id-and-version
+    lifecycle: semantic-edits-create-new-version
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ScenePlan-and-SceneBrief]
+  - id: media.domain.scene-brief
+    name: SceneBrief
+    kind: authored-narrative-and-visual-intent
+    identity: stable-id-and-version
+    lifecycle: intent-only; not-permission-or-model-behavior-proof
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ScenePlan-and-SceneBrief]
+  - id: media.domain.scene-graph
+    name: SceneGraph
+    kind: versioned-visual-representation
+    identity: stable-id-and-version
+    lifecycle: engine-objects-adapter-private
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph]
+  - id: media.domain.animation-graph
+    name: AnimationGraph
+    kind: versioned-presentation-specification
+    identity: stable-id-and-version
+    lifecycle: property-driver-ownership-explicit
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#AnimationGraph]
+  - id: media.domain.simulation-world
+    name: SimulationWorld
+    kind: versioned-domain-model-input
+    identity: stable-id-and-version
+    lifecycle: model-state-distinct-from-rendered-scene
+    scopeStatus: proposed; Media-owned-simulation-IR-not-observed-in-scanned-services; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#SimulationWorld, modules]
+  - id: media.domain.timeline
+    name: Timeline
+    kind: versioned-editorial-specification
+    identity: stable-id-and-version
+    lifecycle: rational-time-distinct-from-simulation-and-wall-clock
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#Timeline-and-CompositionConfig, .product-experience/pdp-0-product-truth/time-units-fidelity.yaml]
+  - id: media.domain.composition-config
+    name: CompositionConfig
+    kind: versioned-editorial-specification
+    identity: stable-id-and-version
+    lifecycle: rational-time; distinct-from-simulation-and-wall-clock
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#Timeline-and-CompositionConfig]
+  - id: media.domain.generation-control-bundle
+    name: GenerationControlBundle
+    kind: typed-generation-intent
+    identity: stable-id-and-version
+    lifecycle: immutable-reference-set-per-operation
+    scopeStatus: proposed; does-not-assert-model-or-identity-truth; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#GenerationControlBundle]
+  - id: media.domain.continuity-state
+    name: ContinuityState
+    kind: versioned-reference-and-observation-set
+    identity: stable-id-and-version
+    lifecycle: continuity-observation-is-not-identity-proof
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ContinuityState]
+  - id: media.domain.quality-assessment
+    name: QualityAssessment
+    kind: immutable-assessment-record
+    identity: assessment-id-and-method-version
+    lifecycle: append-only; preserves-abstention-and-scope
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/quality-policy.yaml]
+  - id: media.domain.render-outcome
+    name: RenderOutcome
+    kind: immutable-result-reference
+    identity: output-artifact-version-and-job-reference
+    lifecycle: immutable; source-specification-unchanged
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#RenderOutcome-and-DeliveryOutcome]
+  - id: media.domain.delivery-outcome
+    name: DeliveryOutcome
+    kind: external-effect-result
+    identity: delivery-request-and-destination-reference; exact-key-unbound
+    lifecycle: recipient-acknowledgement-and-remote-finality-separate
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#RenderOutcome-and-DeliveryOutcome]
+  - id: media.domain.consent-reference
+    name: ConsentReference
+    kind: policy-evidence-reference
+    identity: consent-id-and-version-or-revision
+    lifecycle: currentness-and-revocation-checked-at-use
+    scopeStatus: proposed; consent-authority-remains-governed-by-PDP-0; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest, .product-experience/pdp-0-product-truth/policy-authority-model.yaml]
+  - id: media.domain.rights-decision
+    name: RightsDecision
+    kind: scoped-policy-decision
+    identity: decision-id-and-policy-version
+    lifecycle: exact-purpose-and-subject-scope
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest, .product-experience/pdp-0-product-truth/policy-authority-model.yaml]
+  - id: media.domain.provenance-manifest
+    name: ProvenanceManifest
+    kind: immutable-lineage-record
+    identity: manifest-id-and-version
+    lifecycle: append-only-lineage
+    scopeStatus: proposed; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest]
+  - id: media.domain.upload-session
+    name: UploadSession
+    kind: observed-upload-lifecycle-record
+    identity: Java-uploadId; TypeScript-id-and-artifactId; persisted-tenantId-and-uploadId; canonical-identity-unbound
+    lifecycle: runtime-and-storage-state-vocabularies-differ
+    scopeStatus: observed-implementation-projections; domain-boundary-and-owner-review-pending
+    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#UploadSession, libs/audio-video-types/src/contracts.ts#UploadSession, contracts/openapi/media.yaml#/components/schemas/UploadSession, providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_upload_sessions]
+  - id: media.domain.upload-chunk
+    name: UploadChunk
+    kind: observed-storage-record
+    identity: tenantId-uploadId-chunkIndex-storage-key; domain-identity-unbound
+    lifecycle: persistence-row; product-lifecycle-meaning-unreviewed
+    scopeStatus: storage-observation-only; not-established-as-canonical-domain-object
+    sourceRefs: [providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_upload_chunks]
+  - id: media.domain.stream-session
+    name: StreamSession
+    kind: observed-runtime-session
+    identity: Java-sessionId; persistence-tenantId-and-sessionId; canonical-identity-unbound
+    lifecycle: runtime-stream-state; exact-product-boundary-pending-review
+    scopeStatus: observed-implementation-projections; owner-review-pending
+    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamSession, contracts/openapi/media.yaml#/components/schemas/StreamSession, providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_stream_sessions]
+  - id: media.domain.stream-frame
+    name: StreamFrame
+    kind: observed-runtime-message
+    identity: stream-session-and-sequence-in-runtime-contract; durable-record-not-observed-in-listed-migration
+    lifecycle: received-frame-and-ack-projection; retention-and-replay-unbound
+    scopeStatus: observed-implementation-contract-only; owner-review-pending
+    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamFrame, modules/speech/stt-service/src/main/proto/stt_service.proto, modules/vision/vision-service/src/main/proto/vision_service.proto]
+  - id: media.domain.consent-record
+    name: ConsentRecord
+    kind: observed-api-and-storage-record
+    identity: Java-consentId; persistence-tenantId-and-consentId; canonical-version-key-unbound
+    lifecycle: grant-expiry-revocation-fields-observed; authority-meaning-remains-owner-bound
+    scopeStatus: observed-projection; not-a-canonical-policy-decision
+    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ConsentDecision, contracts/openapi/media.yaml#/components/schemas/ConsentRecord, providers/aws-postgresql/src/main/resources/db/media-runtime/V003__media_consent_authority.sql#media_consents]
+  - id: media.domain.persisted-audio-file
+    name: LegacyAudioFileRecord
+    kind: observed-legacy-persistence-entity
+    identity: legacy-UUID-id-with-tenantId; relationship-to-runtime-artifact-unbound
+    lifecycle: legacy-status-soft-delete-and-row-version-fields
+    scopeStatus: storage-observation-only; do-not-equate-with-MediaArtifact-without-owner-mapping
+    sourceRefs: [modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/AudioFileEntity.java, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql#audio_video.audio_files]
+  - id: media.domain.transcription
+    name: LegacyTranscriptionRecord
+    kind: observed-legacy-persistence-and-service-result
+    identity: legacy-UUID-id-and-audio-file-reference; artifact-version-and-ancestry-unbound
+    lifecycle: legacy-status-soft-delete-row-version-and-transcript-fields
+    scopeStatus: storage-and-service-observation-only; canonical-transcript-model-pending-owner-review
+    sourceRefs: [modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/TranscriptionEntity.java, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql#audio_video.transcriptions, libs/audio-video-types/src/contracts.ts#TranscriptionResult, modules/speech/stt-service/src/main/proto/stt_service.proto#Transcription]

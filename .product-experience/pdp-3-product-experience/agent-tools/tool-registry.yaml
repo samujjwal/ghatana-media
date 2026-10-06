@@ -1,0 +1,90 @@
+schemaVersion: media.tool-registry.v1
+productId: media
+status: four-observed-registered-tool-handlers; contracts-and-experience-bindings-pending-owner-review
+source: libs/common/src/main/java/com/ghatana/audio/video/tools
+sourcePopulation:
+  count: 4
+  classification: registered handler inventory only; non-admitted and not evidence of production Agent Tool support
+  contractAuthority: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#/observedHandlerInventory
+tools:
+  - id: av.speech-to-text
+    canonicalId: av.speech-to-text
+    handler: SpeechToTextToolHandler
+    registration: AudioVideoToolHandlerFactory
+    experienceBinding: pending-owner-review
+    inputSchema:
+      status: partial-source-observation; non-authoritative
+      sourceRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#observedHandlerInventory.tools[av.speech-to-text]
+      observedFields:
+        audioSource: object with mediaArtifactId or audioBytes; flat mediaArtifactId fallback observed; full types, bounds, authorization and closed-schema behavior pending
+    resultSchema: {value: null, status: pending, reason: versioned result and evidence contract unavailable}
+    authorityAndDelegation: {value: null, status: pending, reason: invocation-time principal, tenant, resource, policy and delegation contract unavailable}
+    idempotency: {value: null, status: pending, reason: duplicate and provider-effect semantics unavailable; automatic retry not authorized}
+    timeout: {value: null, status: pending, reason: finite runtime/provider deadline unavailable}
+    cancellation: {value: null, status: pending, reason: cancellation and race semantics unavailable}
+    unknownOutcome: {value: null, status: pending, reason: canonical non-final result and original-operation resolution unavailable}
+    evidence: {value: null, status: pending, reason: provenance, issuer, resource/version scope and currentness contract unavailable}
+    safeFailure: observed handler fails for invalid/missing source or missing delegate; canonical bounded error and post-dispatch outcome rules pending
+  - id: av.text-to-speech
+    canonicalId: av.text-to-speech
+    handler: TextToSpeechToolHandler
+    registration: AudioVideoToolHandlerFactory
+    experienceBinding: pending-owner-review
+    inputSchema:
+      status: partial-source-observation; non-authoritative
+      sourceRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#observedHandlerInventory.tools[av.text-to-speech]
+      observedFields:
+        text: required nonblank string observed
+        voiceId: optional; observed default en-US-default; allowed values/bounds pending
+        speakingRate: optional numeric conversion; observed default 1.0; valid range pending
+        audioEncoding: optional; observed default MP3; supported enum pending
+        storeAsArtifact: boolean observed; effect, authorization and default contract pending
+    resultSchema: {value: null, status: pending, reason: versioned result and evidence contract unavailable}
+    authorityAndDelegation: {value: null, status: pending, reason: artifact effect and invocation-time policy/delegation contract unavailable}
+    idempotency: {value: null, status: pending, reason: artifact/provider duplicate semantics unavailable; automatic retry not authorized}
+    timeout: {value: null, status: pending, reason: finite runtime/provider deadline unavailable}
+    cancellation: {value: null, status: pending, reason: cancellation and possible artifact-effect race semantics unavailable}
+    unknownOutcome: {value: null, status: pending, reason: original operation and artifact-state resolution unavailable}
+    evidence: {value: null, status: pending, reason: generated audio, artifact version and provenance evidence contract unavailable}
+    safeFailure: observed handler rejects blank text or missing delegate; canonical bounded error and partial-effect rules pending
+  - id: av.vision-analysis
+    canonicalId: av.vision-analysis
+    handler: VisionAnalysisToolHandler
+    registration: AudioVideoToolHandlerFactory
+    experienceBinding: pending-owner-review
+    inputSchema:
+      status: partial-source-observation; non-authoritative
+      sourceRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#observedHandlerInventory.tools[av.vision-analysis]
+      observedFields:
+        mediaSource: object with mediaArtifactId or imageBytes; flat mediaArtifactId fallback observed; full types, bounds, authorization and closed-schema behavior pending
+        analysisTypes: optional list; observed default [OBJECT_DETECTION]; values/bounds pending
+        maxResults: optional integer conversion; observed default 10; range pending
+    resultSchema: {value: null, status: pending, reason: versioned findings, uncertainty, finality and evidence contract unavailable}
+    authorityAndDelegation: {value: null, status: pending, reason: invocation-time source scope, policy and delegation contract unavailable}
+    idempotency: {value: null, status: pending, reason: provider effects and duplicate semantics unavailable; automatic retry not authorized}
+    timeout: {value: null, status: pending, reason: finite runtime/provider deadline unavailable}
+    cancellation: {value: null, status: pending, reason: cancellation and race semantics unavailable}
+    unknownOutcome: {value: null, status: pending, reason: canonical non-final result and original-operation resolution unavailable}
+    evidence: {value: null, status: pending, reason: model/provider provenance and source/version integrity contract unavailable}
+    safeFailure: observed handler rejects missing source or missing delegate; canonical bounded error and partial-result rules pending
+  - id: av.multimodal-inference
+    canonicalId: av.multimodal-inference
+    handler: MultimodalInferenceToolHandler
+    registration: AudioVideoToolHandlerFactory
+    experienceBinding: pending-owner-review
+    inputSchema:
+      status: partial-source-observation; non-authoritative
+      sourceRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#observedHandlerInventory.tools[av.multimodal-inference]
+      observedFields:
+        mediaArtifactId: required nonblank string observed
+        inferenceMode: optional; observed default SUMMARY; allowed values/bounds pending
+        enableTranscription: optional boolean-like value; observed default enabled unless explicitly false
+        enableVisionAnalysis: optional boolean-like value; observed default enabled unless explicitly false
+    resultSchema: {value: null, status: pending, reason: versioned component outputs, partial-result and evidence contract unavailable}
+    authorityAndDelegation: {value: null, status: pending, reason: per-component invocation-time resource, policy and delegation contract unavailable}
+    idempotency: {value: null, status: pending, reason: component/provider duplicate semantics unavailable; automatic retry not authorized}
+    timeout: {value: null, status: pending, reason: finite end-to-end and component deadlines unavailable}
+    cancellation: {value: null, status: pending, reason: component cancellation and partial-completion race semantics unavailable}
+    unknownOutcome: {value: null, status: pending, reason: component operation resolution unavailable}
+    evidence: {value: null, status: pending, reason: per-component source/version and provider provenance contract unavailable}
+    safeFailure: observed handler rejects missing artifact ID or missing delegate; canonical bounded error and partial-effect/result rules pending

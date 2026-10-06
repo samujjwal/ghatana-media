@@ -1,0 +1,102 @@
+schemaVersion: media.pdp-1.interoperability.v1
+artifactId: media.pdp-1.interoperability
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-0-product-truth/schema-bindings.yaml
+scopeStatus: observed-projection-map; semantic-and-consumer-parity-review-pending
+sourceRefs:
+  - .product-experience/pdp-0-product-truth/schema-bindings.yaml
+  - .product-experience/pdp-0-product-truth/domain-model.yaml
+  - .product-experience/pdp-0-product-truth/time-units-fidelity.yaml
+projections:
+  - id: media.interop.runtime-java
+    source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+    represents: artifact-job-lease-stream-and-governance-records
+    authorityRole: implementation-projection
+    observedFacts:
+      - processing-job-has-a-version-field-and-lifecycle-timestamps
+      - job-lease-exposes-expiry-and-fencing-information
+      - generic-metadata-and-parameter-maps-are-present-in-some-contracts
+    limits:
+      - job-version-does-not-establish-durable-attempt-history-or-artifact-version-identity
+      - generic-maps-do-not-establish-typed-domain-semantics-or-complete-lineage
+      - restart-reconciliation-marks-outcome-unknown-and-is-not-proof-of-provider-reconciliation
+    scopeStatus: observed-projection; pending-owner-review
+  - id: media.interop.typescript
+    source: libs/audio-video-types/src/contracts.ts
+    represents: artifact-upload-job-stream-and-operation-unions
+    observedFacts:
+      - artifact-contract-includes-sourceArtifactIds
+      - upload-and-operation-contracts-include-identifiers-and-selected-idempotency-fields
+    limits:
+      - sourceArtifactIds-do-not-prove-parent-version-identity-or-complete-derivation-ancestry
+      - idempotency-field-does-not-establish-server-side-retention-or-replay-safety
+      - scalar-fps-and-unqualified-time-coordinates; enum-vocabulary-may-drift
+    scopeStatus: observed-projection; pending-owner-review
+  - id: media.interop.openapi
+    source: contracts/openapi/media.yaml
+    represents: HTTP-health-consent-artifact-job-stream-provider-operations
+    authorityRole: wire-contract-projection
+    observedFacts:
+      - route-and-schema-identity-describe-http-boundary-shapes
+      - idempotency-metadata-explicitly-disclaims-replay-safe-guarantees-for-some-mutations
+    limits:
+      - permissive-schema-does-not-establish-canonical-domain-records
+      - an-idempotency-header-does-not-establish-deduplication-window-atomicity-or-safe-retry
+    scopeStatus: observed-projection; pending-owner-review
+  - id: media.interop.protobuf
+    source:
+      - modules/speech/stt-service/src/main/proto/stt_service.proto
+      - modules/speech/tts-service/src/main/proto/tts_service.proto
+      - modules/vision/vision-service/src/main/proto/vision_service.proto
+      - modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    represents: speech-vision-and-multimodal-service-messages-and-RPCs
+    authorityRole: wire-contract-projection
+    limits:
+      - timestamp_ms-is-not-source-PTS-or-sample-exact-mapping
+      - inspected-service-protos-do-not-establish-one-canonical-cross-family-artifact-version-schema
+      - exact-runtime-operation-and-consumer-map-remains-unverified
+    scopeStatus: observed-projection; pending-owner-review
+  - id: media.interop.database
+    source: modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql
+    represents: persisted-schema-at-migration
+    authorityRole: implementation-projection
+    limits:
+      - physical-schema-does-not-own-product-semantics
+      - migration-schema-does-not-prove-all-runtime-stores-or-consumers
+    scopeStatus: observed-projection; pending-owner-review
+  - id: media.interop.lifecycle-publisher
+    source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEventPublisher.java
+    represents: event-publication-boundary-and-neutral-envelope
+    authorityRole: implementation-boundary
+    limits:
+      - transport-delivery-order-replay-and-event-taxonomy-unverified
+      - aggregate-version-is-not-bound-to-canonical-artifact-version
+    scopeStatus: observed-boundary; pending-owner-review
+crossProductReferences:
+  observedLocalFields:
+    source: libs/audio-video-types/src/contracts.ts
+    fields: [sourceArtifactIds, operationId, providerId, modelId, modelVersion]
+    limits:
+      - sourceArtifactIds-is-an-identifier-list-and-not-an-ancestry-proof
+      - operation-provider-and-model-fields-do-not-prove-a-qualified-cross-product-consumer-binding
+  externalConsumerAuthority:
+    status: unresolved
+    requiredEvidence:
+      - owner-defined-reference-identity-and-version-meaning
+      - published-consumer-contract-and-immutable-package-or-schema-identity
+      - compatibility-and-round-trip-fixtures-for-each-named-consumer
+    examplesRequiringOwnerVerification: [TutorPutor, Tools, Shared, downstream-media-clients]
+mappingRules:
+  - preserve-existing-field-and-message-identities-until-consumer-parity-and-owner-gates
+  - use-explicit-adapters-for-unit-clock-coordinate-classification-and-enum-conversion
+  - unknown-source-meaning-and-conversion-loss-remain-explicit-through-round-trip
+  - implementation-validation-proves-structural-conformance-only
+unresolved:
+  - canonical-versioned-domain-wire-schema
+  - artifact-version-key-and-byte-identity-contract
+  - complete-transcript-caption-and-derived-artifact-ancestry
+  - exact-runtime-contract-path-and-operation-map-for-each-protobuf-family
+  - consumer-inventory-and-compatibility-proof
+  - verified-cross-product-artifact-reference-and-version-semantics
+  - tool-protocol-and-SDK-release-support-status

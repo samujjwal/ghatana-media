@@ -1,0 +1,35 @@
+schemaVersion: media.protocol-operation-contract.v1
+operationId: media.http.getMediaMetrics
+protocolIdentity:
+  protocol: HTTP
+  method: GET
+  path: /metrics
+  operationId: getMediaMetrics
+sourceContract: contracts/openapi/media.yaml
+sourceContractDisposition: implementation-or-projection-observation; not-declared-canonical-wire-authority
+routeManifestObservation:
+  source: config/route-manifest.json
+  routeId: GET /metrics
+  identityMatch: exact-method-path-operationId
+parameters:
+  refs: []
+request:
+  schemaRefs: []
+response:
+  responseRefsByStatus: {}
+  schemaRefsByStatus: {}
+pdp1SemanticBinding:
+  logicalOperationRef: null
+  bindingStatus: unresolved-no-source-explicit-http-member-crosswalk
+  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
+  ownerReview: pending
+contractStatus: proposal-only; owner-review-pending
+nonClaims:
+- authentication
+- idempotency
+- retry
+- cancellation
+- finality
+- state-effects
+- privacy
+- event-guarantees

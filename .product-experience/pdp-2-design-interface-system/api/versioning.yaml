@@ -1,0 +1,8 @@
+schemaVersion: media.api-versioning.v1
+owner: ghatana-media-product-api
+authority: Media API owners govern product API version lifecycle
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-2-design-interface-system/api/compatibility.yaml, .product-experience/pdp-0-product-truth/glossary.yaml]
+scopeStatus: proposal; version placement and lifecycle remain undecided
+acceptance: {criteria: [one documented versioning strategy is applied consistently, versions track contract compatibility, deprecation and support windows are explicit], status: pending-API-owner-review}
+verification: {method: Verify generated API descriptions, routing, and client compatibility against the approved version policy, status: not-run}
+rules: [do not invent a version location before owner decision, distinguish product-contract version from implementation/provider version, define deprecation and sunset notices and prior-contract support only through an approved lifecycle policy, this proposal selects no version location, support window, or migration guarantee]

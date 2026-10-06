@@ -23,7 +23,11 @@ import java.util.Objects;
  *   <li>{@code COMPLETED} → {@code COMPLETED}</li>
  *   <li>{@code FAILED} → {@code FAILED}</li>
  *   <li>{@code CANCELLED} → {@code CANCELLED}</li>
- *   <li>{@code RETRYING} → {@code RETRYING}</li>
+ *   <li>{@code RETRY_PENDING} → {@code RETRYING} with the exact Media state
+ *       retained in record metadata for the older shared enum</li>
+ *   <li>{@code OUTCOME_UNKNOWN} and {@code RECONCILING} → {@code RUNNING} with
+ *       the exact Media state retained in record metadata; neither is terminal</li>
+ *   <li>legacy {@code RETRYING} → {@code RETRYING}</li>
  * </ul>
  *
  * @doc.type class
@@ -53,6 +57,7 @@ public final class AvJobLifecycleAdapter {
 
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("processorVersion", job.processorVersion());
+        metadata.put("mediaCanonicalState", canonicalMediaState(job.status()));
 
         return new CanonicalJobRecord(
                 job.jobId(),
@@ -91,7 +96,7 @@ public final class AvJobLifecycleAdapter {
             case COMPLETED -> AvTranscriptionJob.JobStatus.COMPLETED;
             case FAILED -> AvTranscriptionJob.JobStatus.FAILED;
             case CANCELLED -> AvTranscriptionJob.JobStatus.CANCELLED;
-            case RETRYING -> AvTranscriptionJob.JobStatus.RETRYING;
+            case RETRYING -> AvTranscriptionJob.JobStatus.RETRY_PENDING;
             default -> null;
         };
     }
@@ -104,7 +109,14 @@ public final class AvJobLifecycleAdapter {
             case COMPLETED -> CanonicalJobStatus.COMPLETED;
             case FAILED -> CanonicalJobStatus.FAILED;
             case CANCELLED -> CanonicalJobStatus.CANCELLED;
-            case RETRYING -> CanonicalJobStatus.RETRYING;
+            case RETRY_PENDING, RETRYING -> CanonicalJobStatus.RETRYING;
+            case OUTCOME_UNKNOWN, RECONCILING -> CanonicalJobStatus.RUNNING;
         };
+    }
+
+    private static String canonicalMediaState(AvTranscriptionJob.JobStatus status) {
+        return status == AvTranscriptionJob.JobStatus.RETRYING
+                ? AvTranscriptionJob.JobStatus.RETRY_PENDING.name()
+                : status.name();
     }
 }

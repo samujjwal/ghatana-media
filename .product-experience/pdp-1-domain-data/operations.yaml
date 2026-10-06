@@ -1,0 +1,476 @@
+schemaVersion: media.pdp-1.operations.v1
+artifactId: media.pdp-1.operations
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-0-product-truth/state-models.yaml
+scopeStatus: proposal-only; nine-logical-families; exact-operation-bindings-and-owner-review-pending
+sourceRefs:
+  - .product-experience/pdp-0-product-truth/state-models.yaml
+  - .product-experience/pdp-1-domain-data/domain-objects.yaml
+  - .product-experience/pdp-1-domain-data/relationships.yaml
+  - .product-experience/pdp-3-product-experience/action-registry.yaml
+  - .product-experience/pdp-3-product-experience/api-experience-mapping.yaml
+  - .product-experience/pdp-3-product-experience/cli-command-registry.yaml
+  - .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
+  - .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
+  - .product-experience/pdp-3-product-experience/events/event-registry.yaml
+  - contracts/openapi/media.yaml
+  - modules/speech/stt-service/src/main/proto/stt_service.proto
+  - modules/speech/tts-service/src/main/proto/tts_service.proto
+  - modules/vision/vision-service/src/main/proto/vision_service.proto
+  - modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+  - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java
+  - launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java
+  - libs/audio-video-client/src/operations.ts
+  - libs/audio-video-client/src/index.ts
+  - libs/audio-video-types/src/contracts.ts
+sourceDenominators:
+  status: observed-counts; member-to-operation-semantic-bindings-incomplete
+  uiProductActions:
+    count: 146
+    source: .product-experience/pdp-3-product-experience/action-registry.yaml#/actions
+    explicitOperationIds:
+      media.action.begin-artifact-upload: media.operation.artifact-ingest
+      media.action.resume-artifact-upload: media.operation.artifact-ingest
+      media.action.inspect-artifact: media.operation.artifact-ingest
+      media.action.attach-source-asset: media.operation.artifact-ingest
+      media.action.view-job-status: media.operation.job-lifecycle
+      media.action.check-job-outcome: media.operation.job-lifecycle
+      media.action.request-cancellation: media.operation.job-lifecycle
+      media.action.retry-job: media.operation.job-lifecycle
+      media.action.review-transcript: media.operation.transcription
+      media.action.correct-caption: media.operation.transcription
+      media.action.align-caption-timing: media.operation.transcription
+    ambiguousOperationCandidates:
+      media.action.request-transcription: [media.operation.transcription, media.operation.job-lifecycle]
+    unresolvedActionIds: [media.action.select-artifact-source, media.action.choose-intent, media.action.create-project, media.action.inspect-project-creation, media.action.open-project, media.action.choose-source, media.action.inspect-source, media.action.play-source, media.action.seek-source, media.action.save-caption-version, media.action.resolve-caption-conflict, media.action.compare-caption-versions, media.action.inspect-provenance, media.action.add-scene-entity, media.action.add-storyboard-scene, media.action.apply-admitted-edit, media.action.apply-authorized-rights-restriction, media.action.associate-authorized-reference, media.action.change-interpolation-curve, media.action.change-permitted-preference, media.action.choose-admitted-audio-operation, media.action.choose-alignment-basis, media.action.choose-media-improvement-intent, media.action.choose-named-destination, media.action.compare-candidate-on-metric, media.action.compare-media-versions, media.action.continue-within-recorded-scope, media.action.deliver-exact-version, media.action.edit-admitted-adjustment, media.action.edit-audio-mix-controls, media.action.edit-keyframe, media.action.edit-mask-boundary, media.action.edit-requested-outcome-and-admitted-controls, media.action.edit-scene-timing-or-transition, media.action.edit-transition-or-caption-alignment, media.action.edit-unresolved-plan-decision, media.action.edit-video-temporal-plan, media.action.enter-exact-edit-constraints, media.action.export-authorized-provenance, media.action.inspect-consent-and-permitted-use, media.action.inspect-driver-or-constraint, media.action.inspect-effective-processing-constraints, media.action.inspect-generated-candidates, media.action.inspect-governing-evidence, media.action.inspect-input-output-color-interpretation, media.action.inspect-operation-contract, media.action.inspect-operation-readiness, media.action.inspect-output-preview-and-version, media.action.inspect-quality-evidence, media.action.inspect-scene-binding, media.action.inspect-setting-owner, media.action.inspect-simulation-domain-and-fidelity, media.action.inspect-simulation-result, media.action.inspect-source-measurements, media.action.inspect-version-and-review-scope, media.action.inspect-voice-authorization, media.action.limit-tracking-propagation-range, media.action.open-admitted-delivery-action, media.action.open-approval-view, media.action.open-authorized-recovery-instruction, media.action.open-qualification-evidence, media.action.open-related-view, media.action.prepare-redacted-diagnostics, media.action.preview-current-revision, media.action.preview-motion, media.action.reconcile-delivery-acknowledgment, media.action.record-authorized-attestation, media.action.record-candidate-for-review, media.action.record-review-comment, media.action.record-review-follow-up, media.action.record-version-review-decision, media.action.refresh-operation-readiness, media.action.remove-storyboard-scene, media.action.reorder-storyboard-scenes, media.action.reorder-track, media.action.request-admitted-speech-operation, media.action.request-authorized-review, media.action.request-plan-validation, media.action.request-rights-review, media.action.restore-prior-setting-preference, media.action.return-to-requested-destination-after-identity-confirmation, media.action.review-bounded-repair-proposal, media.action.review-estimates-and-rights-effects, media.action.review-output-evidence, media.action.review-recognized-or-synthesized-content, media.action.review-repair-bounds, media.action.review-rights-approval-and-format-effects, media.action.review-translated-segment, media.action.review-uncertain-tracking, media.action.revise-dubbing-segment, media.action.revoke-authorized-consent, media.action.save-dubbing-version, media.action.save-new-revision, media.action.save-setting-preference, media.action.save-storyboard-revision, media.action.save-versioned-edit, media.action.search-by-user-outcome, media.action.search-named-profiles, media.action.search-product-guidance, media.action.select-authorized-reference, media.action.select-eligible-processing-profile, media.action.select-exact-candidates, media.action.select-identity-confirmed-workspace, media.action.select-keyframe, media.action.select-region-or-point, media.action.select-scene-entity, media.action.select-shot-or-region, media.action.select-track-or-region, media.action.set-simulation-initial-condition, media.action.share-diagnostics-after-explicit-choice, media.action.start-upstream-identity-handoff, media.action.stop-authorized-voice-use, media.action.submit-admitted-plan, media.action.submit-render, media.action.submit-simulation, media.action.submit-validated-request, media.action.trim-track, media.action.undo-or-redo-versioned-change, media.action.update-repair-bounds, media.action.update-scene-binding, media.action.validate-composition, media.action.validate-exact-snapshot, media.action.validate-processing-profile, media.action.validate-scene-references, media.action.validate-simulation-plan, media.action.align-source-time-interval, media.action.inspect-source-grounded-observation, media.action.review-processing-parameters, media.action.review-scene-timing-and-transitions, media.action.search-authorized-artifacts, media.action.select-simulation-output-pass, media.action.select-source-time-interval, media.action.set-declared-simulation-input, media.action.switch-measurement-presentation]
+    unresolvedStaleReference: media.action.review-rights-and-consent; this value is absent from the 146-record source action registry and is not a canonical actionRef
+    bindingStatus: all 146 registry actions partitioned as 11 single-proposed, 1 ambiguous, and 134 unresolved; ambiguity is not a canonical mapping
+  httpOperations:
+    count: 27
+    source: contracts/openapi/media.yaml
+    identityField: operationId
+    exactObservedOperationIds: [getMediaHealth, getMediaLiveness, getMediaReadiness, getMediaStartup, getMediaReadyAlias, getMediaMetrics, getMediaInfo, getMediaVersionedHealth, grantMediaConsent, listMediaConsents, getMediaConsent, revokeMediaConsent, beginMediaUpload, getMediaUpload, appendMediaChunk, completeMediaUpload, getMediaArtifact, submitMediaJob, listMediaJobs, getMediaJob, cancelMediaJob, openMediaStream, getMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream, getMediaProviders]
+    unresolvedOperationIds: [getMediaHealth, getMediaLiveness, getMediaReadiness, getMediaStartup, getMediaReadyAlias, getMediaMetrics, getMediaInfo, getMediaVersionedHealth, grantMediaConsent, listMediaConsents, getMediaConsent, revokeMediaConsent, beginMediaUpload, getMediaUpload, appendMediaChunk, completeMediaUpload, getMediaArtifact, submitMediaJob, listMediaJobs, getMediaJob, cancelMediaJob, openMediaStream, getMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream, getMediaProviders]
+    bindingStatus: all 27 exact OpenAPI operationIds accounted for; exact route-to-logical-operation links remain unresolved
+  grpcRpcs:
+    count: 43
+    sourceFiles:
+      - modules/speech/stt-service/src/main/proto/stt_service.proto
+      - modules/speech/tts-service/src/main/proto/tts_service.proto
+      - modules/vision/vision-service/src/main/proto/vision_service.proto
+      - modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    exactObservedIdentities:
+      STTService: [Transcribe, StreamTranscribe, LoadModel, UnloadModel, ListModels, AdaptModel, GetStatus, HealthCheck, CreateProfile, GetProfile, UpdateProfile, SubmitCorrection]
+      TTSService: [Synthesize, StreamSynthesize, GetStatus, GetMetrics, GetVoices, LoadVoice, CreateProfile, GetProfile, UpdateProfile, CloneVoice, SubmitFeedback]
+      VisionService: [DetectObjects, AnalyzeImage, ClassifyImage, AnalyzeVideoFile, ProcessVideo, LoadModel, UnloadModel, ListModels, GetStatus, HealthCheck]
+      MultimodalService: [ProcessMultimodal, AnalyzeVideoWithAudio, GenerateDescription, AnalyzeCrossModal, GetInsights, LoadModel, UnloadModel, ListModels, GetStatus, HealthCheck]
+    explicitMemberOperationIds:
+      STTService.Transcribe: media.operation.transcription
+      STTService.StreamTranscribe: media.operation.transcription
+      STTService.SubmitCorrection: media.operation.transcription
+      STTService.HealthCheck: media.operation.health-capability
+      TTSService.Synthesize: media.operation.synthesis
+      TTSService.StreamSynthesize: media.operation.synthesis
+      TTSService.GetVoices: media.operation.synthesis
+      TTSService.CloneVoice: media.operation.synthesis
+      TTSService.GetStatus: media.operation.health-capability
+      TTSService.GetMetrics: media.operation.health-capability
+      VisionService.DetectObjects: media.operation.vision-analysis
+      VisionService.AnalyzeImage: media.operation.vision-analysis
+      VisionService.ClassifyImage: media.operation.vision-analysis
+      VisionService.AnalyzeVideoFile: media.operation.vision-analysis
+      VisionService.ProcessVideo: media.operation.vision-analysis
+      VisionService.GetStatus: media.operation.health-capability
+      VisionService.HealthCheck: media.operation.health-capability
+      MultimodalService.ProcessMultimodal: media.operation.multimodal-analysis
+      MultimodalService.AnalyzeVideoWithAudio: media.operation.multimodal-analysis
+      MultimodalService.GenerateDescription: media.operation.multimodal-analysis
+      MultimodalService.AnalyzeCrossModal: media.operation.multimodal-analysis
+      MultimodalService.GetInsights: media.operation.multimodal-analysis
+      MultimodalService.GetStatus: media.operation.health-capability
+      MultimodalService.HealthCheck: media.operation.health-capability
+    unresolvedIdentitiesByService:
+      STTService: [LoadModel, UnloadModel, ListModels, AdaptModel, GetStatus, CreateProfile, GetProfile, UpdateProfile]
+      TTSService: [LoadVoice, CreateProfile, GetProfile, UpdateProfile, SubmitFeedback]
+      VisionService: [LoadModel, UnloadModel, ListModels]
+      MultimodalService: [LoadModel, UnloadModel, ListModels]
+    bindingStatus: all 43 identities accounted for; exact observed family refs receive proposal IDs; remaining identities unresolved; no similarly named RPCs are treated as equivalent
+  cliSimulationCommands:
+    planDenominator: 11
+    currentFixtureRegistryRecords: 11
+    source: .product-experience/pdp-3-product-experience/cli/command-registry.yaml#/commands
+    exactObservedCommandIds: [media.fixture-cli.upload-inspect, media.fixture-cli.upload-resume, media.fixture-cli.transcribe, media.fixture-cli.transcript-review, media.fixture-cli.job-status, media.fixture-cli.job-cancel, media.fixture-cli.job-check-outcome, media.fixture-cli.caption-correct-text, media.fixture-cli.caption-align-timing, media.fixture-cli.caption-save-version, media.fixture-cli.caption-compare-versions]
+    unresolvedCommandIds: [media.fixture-cli.upload-inspect, media.fixture-cli.upload-resume, media.fixture-cli.transcribe, media.fixture-cli.transcript-review, media.fixture-cli.job-status, media.fixture-cli.job-cancel, media.fixture-cli.job-check-outcome, media.fixture-cli.caption-correct-text, media.fixture-cli.caption-align-timing, media.fixture-cli.caption-save-version, media.fixture-cli.caption-compare-versions]
+    executionScope: deterministic-synthetic-fixtures-only; production-runtime-cli-not-connected
+    separateRootProposalRegistry:
+      count: 12
+      source: .product-experience/pdp-3-product-experience/cli-command-registry.yaml#/commands
+      ids: [media.cli.upload.inspect, media.cli.upload.resume, media.cli.transcribe, media.cli.transcript.review, media.cli.job.status, media.cli.job.cancel, media.cli.caption.correct-text, media.cli.caption.align-timing, media.cli.caption.save-version, media.cli.caption.compare-versions, media.cli.job.check-outcome, media.cli.job.retry]
+      operationIdsByExistingActionRef: {media.cli.upload.inspect: media.operation.artifact-ingest, media.cli.upload.resume: media.operation.artifact-ingest, media.cli.transcribe: media.operation.transcription, media.cli.transcript.review: media.operation.transcription, media.cli.job.status: media.operation.job-lifecycle, media.cli.job.cancel: media.operation.job-lifecycle, media.cli.caption.correct-text: media.operation.transcription, media.cli.caption.align-timing: media.operation.transcription, media.cli.caption.save-version: unresolved, media.cli.caption.compare-versions: unresolved, media.cli.job.check-outcome: media.operation.job-lifecycle, media.cli.job.retry: media.operation.job-lifecycle}
+    bindingStatus: fixture registry is the exact 11-command plan denominator; separate 12-record root registry discrepancy retained
+  sdkMethods:
+    registryRecords: 27
+    exactObservedRegistryIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.for, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.if, media.sdk.removeEventListener, media.sdk.clearTimeout]
+    legacySourceMethods:
+      source: libs/audio-video-client/src/index.ts
+      exactObservedMethods: [transcribe, synthesize, processAIVoice, processVision, processMultimodal, getServiceStatus, getAllServicesStatus, addEventListener, removeEventListener]
+      unresolvedOperationIds: [transcribe, synthesize, processAIVoice, processVision, processMultimodal, getServiceStatus, getAllServicesStatus, addEventListener, removeEventListener]
+    sources:
+      - .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml#/methods
+      - libs/audio-video-client/src/operations.ts
+      - libs/audio-video-client/src/index.ts
+    operationsTsPublicMethodNames: [getStatus, cancel, retry, getResult, wait, createUploadSession, uploadPart, completeUploadSession, getArtifact, listProviderCapabilities, transcribe, synthesize, trainVoiceModel, convertVoice, analyzeMultimodal, getOperation, cancelOperation, retryOperation, getOperationResult]
+    operationsTsUnresolvedOperationMethods: [getStatus, cancel, retry, getResult, wait, createUploadSession, uploadPart, completeUploadSession, getArtifact, listProviderCapabilities, transcribe, synthesize, trainVoiceModel, convertVoice, analyzeMultimodal, getOperation, cancelOperation, retryOperation, getOperationResult]
+    unresolvedOperationIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.for, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.if, media.sdk.removeEventListener, media.sdk.clearTimeout]
+    parserFalsePositivesUnresolved: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
+    bindingStatus: all 27 registry IDs accounted for; legacy source client remains distinct; apparent parser false positives stay unresolved rather than discarded
+  agentToolHandlers:
+    count: 4
+    source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml#/tools
+    exactObservedIdentities: [av.speech-to-text, av.text-to-speech, av.vision-analysis, av.multimodal-inference]
+    exactObservedHandlerClassNames: [SpeechToTextToolHandler, TextToSpeechToolHandler, VisionAnalysisToolHandler, MultimodalInferenceToolHandler]
+    bindingStatus: handler identities observed; domain operation bindings and admitted tool contracts unresolved
+    unresolvedOperationIds: [av.speech-to-text, av.text-to-speech, av.vision-analysis, av.multimodal-inference]
+    unresolvedHandlerOperationBindings: [SpeechToTextToolHandler, TextToSpeechToolHandler, VisionAnalysisToolHandler, MultimodalInferenceToolHandler]
+  lifecycleEventNames:
+    count: 15
+    source: .product-experience/pdp-3-product-experience/events/event-registry.yaml#/events
+    exactObservedNames: ["ai-voice:process:start", "ai-voice:process:complete", "ai-voice:process:error", "multimodal:process:start", "multimodal:process:complete", "multimodal:process:error", "stt:transcription:start", "stt:transcription:complete", "stt:transcription:error", "tts:synthesis:start", "tts:synthesis:complete", "tts:synthesis:error", "vision:process:start", "vision:process:complete", "vision:process:error"]
+    unresolvedOperationIds: ["ai-voice:process:start", "ai-voice:process:complete", "ai-voice:process:error", "multimodal:process:start", "multimodal:process:complete", "multimodal:process:error", "stt:transcription:start", "stt:transcription:complete", "stt:transcription:error", "tts:synthesis:start", "tts:synthesis:complete", "tts:synthesis:error", "vision:process:start", "vision:process:complete", "vision:process:error"]
+    runtimeCallSiteObservations:
+      source: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java
+      explicitEventTypes: [media.upload.started, media.artifact.completed, media.job.accepted, media.job.cancelled, media.job.cancel_requested, media.stream.opened, media.stream.closed]
+      dynamicEventType: media.job.<terminal.status-lowercase>
+      bindingStatus: implementation call sites observed; semantic trigger/canonical-name and transport bindings unresolved
+    bindingStatus: registry names observed; semantic triggers, operation bindings, and transport behavior unresolved
+mappingRules:
+  observationVsProposal: observedBindings and sourceDenominators describe source records only; domainIntent and operationContract are proposals, not approved behavior
+  noInference: absent, ambiguous, or conflicting references stay explicitly unresolved; no route/schema/identity/owner decision/platform guarantee/evidence is inferred
+  oneToMany: one proposed logical operation may have multiple projections only after an explicit reviewed crosswalk
+  exactIdentity: service and method identities are preserved verbatim; similarly named RPCs are not declared equivalent
+operations:
+  - id: media.operation.artifact-ingest
+    operationId: media.operation.artifact-ingest
+    family: [upload, resume, inspect, verify, attach]
+    domainIntent: accept-bounded-bytes-verify-integrity-and-format-then-reference-exact-available-version
+    consumerActor: {proposal: artifact-contributor-or-authorized-media-workflow, bindingStatus: proposed; actor-and-consumer-identities-pending-review}
+    authority: {semanticOwner: media, executionAndIdentityAuthority: unresolved; Shared/storage/policy bindings not approved here}
+    context: {status: unresolved; tenant, principal, purpose, source-version, and request-context bindings require source/owner reconciliation}
+    preconditions: {status: observed-proposals-only; bounded-upload and policy preconditions require canonical operation binding}
+    inputSemantics: {status: unresolved; exact request/schema semantics remain owned by each observed interface}
+    effect: {proposal: accept-bounded-bytes-verify-integrity-and-format-then-reference-exact-available-version, status: proposed-not-accepted}
+    affectedObjects: {proposalRefs: [media.domain.artifact, media.domain.artifact-version, media.domain.upload-session], exactBindings: unresolved}
+    transition: {status: unresolved; upload, verification, artifact, and job machines remain distinct}
+    events: {status: unresolved; no event trigger bound}
+    risk: {status: unassessed; no risk class inferred}
+    reversibility: {status: unresolved; byte receipt, quarantine, retention, and deletion are not equated}
+    commitFinality: {proposal: "upload-receipt-is-not-artifact-availability; unknown-and-quarantine-dispositions-remain-distinct", status: proposal-pending-owner-review}
+    downstreamEffects: {status: unresolved; no downstream effect inferred}
+    failure: {status: source-specific; canonical failure taxonomy and retry safety unresolved}
+    partialSuccess: {status: unresolved; per-chunk acknowledgement does not establish artifact availability}
+    unknownOutcome: {proposal: preserve-unknown-without-blind-replay, status: pending-state-and-operation-binding}
+    retry: {status: unresolved; interface-specific behavior must not be generalized}
+    idempotency: {status: unresolved; no global guarantee inferred}
+    recovery: {status: unresolved; safe next step requires current upload/artifact evidence}
+    evidenceAudit: {observedRefs: [HTTP, SDK, CLI], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: inspect-existing-upload-and-verification-disposition-before-resubmission, status: proposed-pending-review}
+    actionRefs: [media.action.begin-artifact-upload, media.action.resume-artifact-upload, media.action.inspect-artifact, media.action.attach-source-asset]
+    observedBindings:
+      HTTP: ["/api/v1/artifacts/uploads", "/api/v1/artifacts/uploads/{uploadId}", "/api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}", "/api/v1/artifacts/uploads/{uploadId}/complete", "/api/v1/artifacts/{artifactId}"]
+      SDK: [MediaArtifact, UploadSession in libs/audio-video-types/src/contracts.ts]
+      CLI: [media.cli.upload.inspect, media.cli.upload.resume]
+      gRPC: {status: no-matching-RPC-identity-established}
+      tool: {status: no-domain-operation-binding-located}
+      event: {status: envelope-or-family-only; trigger-unbound}
+    finality: upload-receipt-is-not-artifact-availability; unknown-and-quarantine-dispositions-remain-distinct
+    scopeStatus: proposal-only; observed-interface-families; semantic-and-exact-bindings-pending
+  - id: media.operation.job-lifecycle
+    operationId: media.operation.job-lifecycle
+    family: [submit, status, outcome-check, cancel, retry]
+    domainIntent: one-logical-job-with-distinct-fenced-attempts-and-explicit-finality
+    consumerActor: {proposal: authorized-job-requester-or-status-consumer, bindingStatus: actor-and-consumer-identities-pending-review}
+    authority: {semanticOwner: media, executionAndIdentityAuthority: unresolved; runtime/platform authority not inferred}
+    context: {status: unresolved; tenant, principal, correlation, and delegated authority bindings pending}
+    preconditions: {status: proposal-in-state-models; canonical guards and per-interface bindings unresolved}
+    inputSemantics: {status: unresolved; request identity and immutable request/plan binding pending}
+    effect: {proposal: one-logical-job-with-distinct-fenced-attempts-and-explicit-finality, status: proposed-not-accepted}
+    affectedObjects: {proposalRefs: [media.domain.processing-job, media.domain.job-attempt, media.domain.job-lease], exactBindings: unresolved}
+    transition: {status: pending-PDP1-003; do-not-conflate-job-attempt-delivery-or-service-health}
+    events: {status: unresolved; canonical-job-event-types-and-triggers-unbound}
+    risk: {status: unassessed; effect-specific risk review required}
+    reversibility: {status: unresolved; cancellation-request-is-not-reversal}
+    commitFinality: {proposal: "accepted-is-not-completed; cancellation-request-is-not-confirmation", status: proposal-pending-owner-review}
+    downstreamEffects: {status: unresolved; execution and external effects are not inferred from acceptance}
+    failure: {status: unresolved; canonical errors and transport ambiguity not reconciled}
+    partialSuccess: {proposal: preserve-explicit-partial-success-if-authorized-state-model-confirms, status: unresolved}
+    unknownOutcome: {proposal: "uncertain-dispatch-remains-unknown; no-blind-replay", status: pending-PDP1-003-and-owner-review}
+    retry: {status: unresolved; new-attempt and eligibility semantics pending canonical transition contract}
+    idempotency: {status: route-specific-observations-only; common-key-scope-retention-and-replay-unresolved}
+    recovery: {status: unresolved; inspect-existing-job-and-reconcile-before-any-retry}
+    evidenceAudit: {observedRefs: [HTTP, SDK, CLI, STTService.Transcribe, STTService.GetStatus], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: check-existing-job-outcome-before-retry-or-cancellation-assumption, status: proposed-pending-review}
+    actionRefs: [media.action.request-transcription, media.action.view-job-status, media.action.check-job-outcome, media.action.request-cancellation, media.action.retry-job]
+    observedBindings:
+      HTTP: ["/api/v1/jobs", "/api/v1/jobs/{jobId}", "/api/v1/jobs/{jobId}/cancel"]
+      SDK: [MediaOperationKind, job-discriminated-union in libs/audio-video-types/src/contracts.ts]
+      CLI: [media.cli.job.status, media.cli.job.cancel, media.cli.job.check-outcome, media.cli.job.retry, media.cli.transcribe]
+      gRPC: "[STTService.Transcribe, STTService.GetStatus]; broader job parity unresolved"
+      tool: {status: no-domain-operation-binding-located}
+      event: {status: lifecycle-envelope-observed; canonical-trigger-unbound}
+    finality: accepted-is-not-completed; cancellation-request-is-not-confirmation; uncertain-dispatch-remains-unknown; no-blind-replay
+    scopeStatus: proposal-only; cross-channel-semantics-and-bindings-pending
+  - id: media.operation.transcription
+    operationId: media.operation.transcription
+    family: [file-transcription, streaming-transcription, transcript-correction]
+    domainIntent: derive-source-linked-transcript-with-explicit-time-and-uncertainty
+    consumerActor: {proposal: transcription-requester-and-transcript-reviewer, bindingStatus: actor-and-consumer-identities-pending-review}
+    authority: {semanticOwner: media, executionAndIdentityAuthority: unresolved; provider-and-identity authority not inferred}
+    context: {status: unresolved; source version, consent purpose, locale, and timebase bindings require review}
+    preconditions: {status: unresolved; consent, source availability, and admitted-capability guards are not accepted here}
+    inputSemantics: {status: unresolved; file/stream/correction schemas remain projection-specific}
+    effect: {proposal: derive-source-linked-transcript-with-explicit-time-and-uncertainty, status: proposed-not-accepted}
+    affectedObjects: {proposalRefs: [media.domain.artifact-version, media.domain.processing-job, media.domain.transcription], exactBindings: unresolved}
+    transition: {status: pending-PDP1-003; transcription and review/version states unbound}
+    events: {status: unresolved; event trigger and transcript-version binding unbound}
+    risk: {status: unassessed; consent, privacy, and content-integrity review required}
+    reversibility: {status: unresolved; corrections propose derived versions rather than source mutation, pending owner review}
+    commitFinality: {proposal: provider-transcription-is-not-reviewed-or-approved-caption-version, status: pending-owner-review}
+    downstreamEffects: {status: unresolved; no publication or downstream acceptance inferred}
+    failure: {status: unresolved; provider, timing, and partial-stream failure taxonomy pending}
+    partialSuccess: {status: unresolved; stream/result completeness rules not canonical}
+    unknownOutcome: {proposal: preserve-unknown, status: no-retry-or-result-equivalence-inferred}
+    retry: {status: unresolved; source/operation idempotency and duplicate-effect rules pending}
+    idempotency: {status: unresolved; no common SDK/gRPC guarantee inferred}
+    recovery: {proposal: inspect-existing-job-and-source-linked-result-before-resubmit, status: pending-owner-review}
+    evidenceAudit: {observedRefs: [STTService.Transcribe, STTService.StreamTranscribe, STTService.SubmitCorrection], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: review-source-linked-transcript-and-uncertainty-before-version-approval, status: proposed-pending-review}
+    actionRefs: [media.action.request-transcription, media.action.review-transcript, media.action.correct-caption, media.action.align-caption-timing]
+    observedBindings:
+      HTTP: [/api/v1/jobs; generic request route, operation mapping unresolved]
+      SDK: [transcription and word timestamp types in libs/audio-video-types/src/contracts.ts]
+      CLI: [media.cli.transcribe, media.cli.transcript.review, media.cli.caption.correct-text, media.cli.caption.align-timing]
+      gRPC: [STTService.Transcribe, STTService.StreamTranscribe, STTService.SubmitCorrection]
+      tool: {status: no-domain-operation-binding-located}
+      event: {status: envelope-observed; emitted event family and trigger unbound}
+    finality: provider-transcription-is-not-reviewed-or-approved-caption-version
+    scopeStatus: proposal-only; product-binding-and-owner-review-pending
+  - id: media.operation.synthesis
+    operationId: media.operation.synthesis
+    family: [synthesize, stream-synthesis, voice-list-and-profile]
+    domainIntent: produce-audio-from-text-under-explicit-voice-purpose-and-rights
+    consumerActor: {proposal: authorized-synthesis-requester, bindingStatus: actor-and-consumer-identities-pending-review}
+    authority: {semanticOwner: media, voice-rights-and-execution-authority: unresolved; no external authority inferred}
+    context: {status: unresolved; tenant, principal, purpose, voice identity, and consent bindings pending}
+    preconditions: {status: unresolved; authorization, consent, and input admission guards require owner review}
+    inputSemantics: {status: unresolved; synthesis/profile/stream schemas remain source-specific}
+    effect: {proposal: produce-audio-from-text-under-explicit-voice-purpose-and-rights, status: proposed-not-accepted}
+    affectedObjects: {proposalRefs: [media.domain.processing-job, media.domain.artifact-version], unresolvedObjectConcepts: [voice-profile], exactBindings: unresolved}
+    transition: {status: pending-PDP1-003; job/attempt and voice-profile state bindings unresolved}
+    events: {status: unresolved; event trigger and output-version binding unbound}
+    risk: {status: unassessed; voice authorization and generated-content risks require review}
+    reversibility: {status: unresolved; generated output and voice-profile effects not assumed reversible}
+    commitFinality: {proposal: generated-audio-does-not-establish-voice-authority-or-publication-approval, status: pending-owner-review}
+    downstreamEffects: {status: unresolved; no use or publication effect inferred}
+    failure: {status: unresolved; provider and stream failures not normalized}
+    partialSuccess: {status: unresolved; streamed/generated partial output disposition pending}
+    unknownOutcome: {proposal: preserve-unknown, status: resolution-before-repeat-pending}
+    retry: {status: unresolved; duplicate-generation and cost effects not assessed}
+    idempotency: {status: unresolved; no platform/provider guarantee inferred}
+    recovery: {status: unresolved; inspect prior operation and output before another request}
+    evidenceAudit: {observedRefs: [TTSService.Synthesize, TTSService.StreamSynthesize, TTSService.GetVoices, TTSService.CloneVoice], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: verify-purpose-and-voice-authorization-before-use-or-publication, status: proposed-pending-review}
+    actionRefs: []
+    observedBindings:
+      HTTP: [/api/v1/jobs; generic request route, operation mapping unresolved]
+      SDK: [MediaOperationKind.SYNTHESIZE]
+      CLI: {status: no-matching-command-binding-established}
+      gRPC: [TTSService.Synthesize, TTSService.StreamSynthesize, TTSService.GetVoices, TTSService.CloneVoice]
+      tool: {status: handler-identity-observed-in-sourceDenominators; operation-binding-unresolved}
+      event: {status: family-or-envelope-only; event-trigger-unbound}
+    finality: generated-audio-does-not-establish-voice-authority-or-publication-approval
+    scopeStatus: proposal-only; product-bindings-and-owner-review-pending
+  - id: media.operation.vision-analysis
+    operationId: media.operation.vision-analysis
+    family: [detect, analyze, classify, video-frame-analysis]
+    domainIntent: return-scoped-observations-with-source-region-time-and-method-context-when-available
+    consumerActor: {proposal: authorized-vision-analysis-requester, bindingStatus: actor-and-consumer-identities-pending-review}
+    authority: {semanticOwner: media, executionAndIdentityAuthority: "unresolved; model/provider ownership not inferred"}
+    context: {status: unresolved; artifact version, timebase, region, purpose, and model context pending}
+    preconditions: {status: unresolved; source, consent, and capability guards pending owner review}
+    inputSemantics: {status: unresolved; distinguish exact service RPC identities and request schemas}
+    effect: {proposal: return-scoped-observations-with-source-region-time-and-method-context-when-available, status: proposed-not-accepted}
+    affectedObjects: {proposalRefs: [media.domain.artifact-version, media.domain.processing-job], unresolvedObjectConcepts: [vision-observation], exactBindings: unresolved}
+    transition: {status: pending-PDP1-003; job and observation lifecycle bindings unresolved}
+    events: {status: unresolved; event trigger and observation binding unbound}
+    risk: {status: unassessed; privacy, interpretation, and downstream-use risks require review}
+    reversibility: {status: unresolved; observations are not assumed retractable or authoritative}
+    commitFinality: {proposal: "observation-is-not-ground-truth; confidence-or-empty-result-is-not-proof-of-absence", status: pending-owner-review}
+    downstreamEffects: {status: unresolved; no product decision effect inferred}
+    failure: {status: unresolved; per-RPC failure behavior remains distinct}
+    partialSuccess: {status: unresolved; per-frame/video partial result semantics not canonical}
+    unknownOutcome: {proposal: preserve-unknown, status: not-equivalent-to-no-observation}
+    retry: {status: unresolved; no repeat-safety inference}
+    idempotency: {status: unresolved; no RPC/provider guarantee inferred}
+    recovery: {status: unresolved; inspect operation and source-scoped evidence before repeat}
+    evidenceAudit: {observedRefs: [VisionService.DetectObjects, VisionService.AnalyzeImage, VisionService.ClassifyImage, VisionService.AnalyzeVideoFile, VisionService.ProcessVideo], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: retain-source-region-time-and-method-context-for-review, status: proposed-pending-review}
+    actionRefs: []
+    observedBindings:
+      HTTP: [/api/v1/jobs; generic request route, operation mapping unresolved]
+      SDK: [MediaOperationKind.VISION_ANALYZE]
+      CLI: {status: no-matching-command-binding-established}
+      gRPC: "[VisionService.DetectObjects, VisionService.AnalyzeImage, VisionService.ClassifyImage, VisionService.AnalyzeVideoFile, VisionService.ProcessVideo]; legacy shorthand Detect/Analyze/Classify not observed RPC names"
+      tool: {status: handler-identity-observed-in-sourceDenominators; operation-binding-unresolved}
+      event: {status: family-or-envelope-only; trigger-unbound}
+    finality: observation-is-not-ground-truth; confidence-or-empty-result-is-not-proof-of-absence
+    scopeStatus: proposal-only; exact-RPC-and-semantic-mappings-pending
+  - id: media.operation.multimodal-analysis
+    operationId: media.operation.multimodal-analysis
+    family: [audio-video-analysis, description, cross-modal, insights]
+    domainIntent: return-cross-modal-observations-with-temporal-scope-and-uncertainty
+    consumerActor: {proposal: authorized-multimodal-analysis-requester, bindingStatus: actor-and-consumer-identities-pending-review}
+    authority: {semanticOwner: media, executionAndModelAuthority: "unresolved; provider ownership not inferred"}
+    context: {status: unresolved; input versions, modality/time alignment, purpose, and model context pending}
+    preconditions: {status: unresolved; source, consent, and admitted-capability guards pending}
+    inputSemantics: {status: unresolved; preserve each exact RPC and request schema}
+    effect: {proposal: return-cross-modal-observations-with-temporal-scope-and-uncertainty, status: proposed-not-accepted}
+    affectedObjects: {proposalRefs: [media.domain.artifact-version, media.domain.processing-job], unresolvedObjectConcepts: [cross-modal-observation], exactBindings: unresolved}
+    transition: {status: pending-PDP1-003; job and result finality bindings unresolved}
+    events: {status: unresolved; CrossModalEvent message does not establish publisher linkage or trigger}
+    risk: {status: unassessed; privacy, alignment, and interpretation risks require review}
+    reversibility: {status: unresolved; generated descriptions/insights not assumed retractable or authoritative}
+    commitFinality: {proposal: generated-description-or-insight-is-not-verified-fact, status: pending-owner-review}
+    downstreamEffects: {status: unresolved; no decision or publication effect inferred}
+    failure: {status: unresolved; per-RPC and per-modality failure distinctions pending}
+    partialSuccess: {status: unresolved; modality partial-result rules not canonical}
+    unknownOutcome: {proposal: preserve-unknown, status: no-empty-result-or-success-inference}
+    retry: {status: unresolved; no repeat-safety inference}
+    idempotency: {status: unresolved; no service/provider guarantee inferred}
+    recovery: {status: unresolved; inspect existing request/result and evidence before repeat}
+    evidenceAudit: {observedRefs: [MultimodalService.ProcessMultimodal, MultimodalService.AnalyzeVideoWithAudio, MultimodalService.GenerateDescription, MultimodalService.AnalyzeCrossModal, MultimodalService.GetInsights], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: review-cross-modal-result-with-temporal-scope-and-uncertainty, status: proposed-pending-review}
+    actionRefs: []
+    observedBindings:
+      HTTP: [/api/v1/jobs; generic request route, operation mapping unresolved]
+      SDK: [MediaOperationKind.MULTIMODAL_ANALYZE]
+      CLI: {status: no-matching-command-binding-established}
+      gRPC: "[MultimodalService.ProcessMultimodal, MultimodalService.AnalyzeVideoWithAudio, MultimodalService.GenerateDescription, MultimodalService.AnalyzeCrossModal, MultimodalService.GetInsights]; Analyze/AnalyzeVideoAudio/GenerateInsights are not observed declared identities"
+      tool: {status: handler-identity-observed-in-sourceDenominators; operation-binding-unresolved}
+      event: {status: CrossModalEvent-message-observed; publisher-linkage-and-trigger-unverified}
+    finality: generated-description-or-insight-is-not-verified-fact
+    scopeStatus: proposal-only; exact-RPC-event-and-semantic-mappings-pending
+  - id: media.operation.stream-session
+    operationId: media.operation.stream-session
+    family: [create, inspect, connect, submit-frame, close]
+    domainIntent: manage-bounded-stream-session-with-sequence-and-explicit-close-finality
+    consumerActor: {proposal: authorized-stream-session-initiator, bindingStatus: actor-and-consumer-identities-pending-review}
+    authority: {semanticOwner: media, session-transport-and-identity-authority: unresolved}
+    context: {status: unresolved; tenant, principal, source, sequence, and clock bindings pending}
+    preconditions: {status: unresolved; session creation/connect/frame guards not normalized}
+    inputSemantics: {status: unresolved; HTTP frame and service streaming RPC schemas remain distinct}
+    effect: {proposal: manage-bounded-stream-session-with-sequence-and-explicit-close-finality, status: proposed-not-accepted}
+    affectedObjects: {proposalRefs: [media.domain.stream-session, media.domain.stream-frame, media.domain.processing-job], exactBindings: unresolved}
+    transition: {status: pending-PDP1-003; session, job, and transport states distinct}
+    events: {status: unresolved; stream event names and triggers unbound}
+    risk: {status: unassessed; streaming privacy/resource risks require review}
+    reversibility: {status: unresolved; disconnect, detach, and close are not equated}
+    commitFinality: {proposal: disconnect-or-detach-does-not-imply-session-close-or-job-cancel, status: pending-owner-review}
+    downstreamEffects: {status: unresolved; frame/job effects not inferred}
+    failure: {status: unresolved; connection, frame, and stream RPC failure modes remain distinct}
+    partialSuccess: {status: unresolved; acknowledged sequence and accepted frame semantics pending}
+    unknownOutcome: {proposal: preserve-unknown-sequence-or-close-result, status: unresolved}
+    retry: {status: unresolved; frame resend/reorder behavior not inferred}
+    idempotency: {status: unresolved; sequence identity does not prove replay handling}
+    recovery: {status: unresolved; inspect session and acknowledged sequence before reconnect/retry}
+    evidenceAudit: {observedRefs: [HTTP stream routes, STT/TTS streaming RPC declarations], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: inspect-session-and-last-acknowledged-sequence-before-resume, status: proposed-pending-review}
+    actionRefs: []
+    observedBindings:
+      HTTP: ["/api/v1/streams", "/api/v1/streams/{sessionId}", "/api/v1/streams/{sessionId}/connect", "/api/v1/streams/{sessionId}/frames/{sequence}", "/api/v1/streams/{sessionId}/close"]
+      SDK: [StreamSession types in libs/audio-video-types/src/contracts.ts]
+      CLI: {status: no-matching-command-binding-established}
+      gRPC: "[STTService.StreamTranscribe, TTSService.StreamSynthesize]; session equivalence unresolved"
+      tool: {status: no-domain-operation-binding-located}
+      event: {status: envelope-observed; session-event-triggers-unbound}
+    finality: disconnect-or-detach-does-not-imply-session-close-or-job-cancel
+    scopeStatus: proposal-only; semantic-parity-and-owner-review-pending
+  - id: media.operation.consent
+    operationId: media.operation.consent
+    family: [record, inspect, revoke]
+    domainIntent: record-and-enforce-purpose-scoped-consent-with-currentness
+    consumerActor: {proposal: consent-subject-or-authorized-consent-administrator, bindingStatus: actor-and-consumer-identities-pending-review}
+    authority: {semanticOwner: media, consent-decision-and-identity-authority: unresolved; external authorities retain their own boundaries}
+    context: {status: unresolved; subject, purpose, region, source, and effective-time bindings require review}
+    preconditions: {status: unresolved; authorization and consent-currentness guards not fully cross-bound}
+    inputSemantics: {status: unresolved; REST and Java context/decision representations remain distinct}
+    effect: {proposal: record-and-enforce-purpose-scoped-consent-with-currentness, status: proposed-not-accepted}
+    affectedObjects: {proposalRefs: [media.domain.consent-record, media.domain.rights-decision], exactBindings: unresolved}
+    transition: {status: unresolved; consent and prior-effect disposition transitions pending authority review}
+    events: {status: unresolved; consent event names and triggers unbound}
+    risk: {status: unassessed; legal/privacy and downstream-effect review required}
+    reversibility: {status: unresolved; revocation is prospective policy input, not erasure or reversal}
+    commitFinality: {proposal: "revocation-blocks-future-eligible-effects; prior-effects-need-separate-disposition", status: pending-owner-review}
+    downstreamEffects: {status: unresolved; prior and delegated effects need explicit disposition}
+    failure: {status: unresolved; authority unavailable/denied/unknown distinctions require contract}
+    partialSuccess: {status: unresolved; scope of multi-purpose/region effects not established}
+    unknownOutcome: {proposal: fail-closed-for-new-protected-effects-when-current-authority-unknown, status: pending-authority-contract}
+    retry: {status: unresolved; authority lookup retry policy external/unbound}
+    idempotency: {status: unresolved; no record/revocation replay guarantee inferred}
+    recovery: {status: unresolved; re-read authoritative decision and separately inspect prior effects}
+    evidenceAudit: {observedRefs: [HTTP consent routes, MediaGovernanceContext, ConsentDecision], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: inspect-current-authoritative-consent-and-prior-effects-before-protected-dispatch, status: proposed-pending-review}
+    actionRefs: []
+    observedBindings:
+      HTTP: ["/api/v1/consents", "/api/v1/consents/{consentId}"]
+      SDK: [Java MediaGovernanceContext and ConsentDecision; client-parity-unverified]
+      CLI: {status: no-matching-command-binding-established}
+      gRPC: {status: no-matching-RPC-identity-established}
+      tool: {status: no-domain-operation-binding-located}
+      event: {status: lifecycle-envelope-observed; consent-event-trigger-unbound}
+    finality: revocation-blocks-future-eligible-effects; prior-effects-need-separate-disposition
+    scopeStatus: proposal-only; authority-integration-and-owner-review-pending
+  - id: media.operation.health-capability
+    operationId: media.operation.health-capability
+    family: [health, readiness, metrics, provider-list]
+    domainIntent: time-scoped-operational-observation-without-implying-product-capability-or-qualification
+    consumerActor: {proposal: operational-health-consumer, bindingStatus: consumer-and-actor-identities-pending-review}
+    authority: {semanticOwner: media, platform-probe-and-provider-authority: unresolved}
+    context: {status: unresolved; probe scope, sampling time, and provider context not unified}
+    preconditions: {status: source-specific; readiness/health probes may have distinct prerequisites}
+    inputSemantics: {status: unresolved; method-specific schemas and auth requirements remain separate}
+    effect: {proposal: time-scoped-operational-observation-without-implying-product-capability-or-qualification, status: proposed-not-accepted}
+    affectedObjects: {proposalRefs: [], unresolvedObjectConcepts: [provider-capability], exactBindings: unresolved}
+    transition: {status: not-a-product-transition-unless-owner-defines-one}
+    events: {status: no-event-binding-established}
+    risk: {status: unassessed; operational disclosure and stale-observation risks require review}
+    reversibility: {status: observation-only-proposal; no state mutation presumed}
+    commitFinality: {proposal: "availability-observation-is-time-scoped; not-capability-or-runtime-guarantee", status: pending-owner-review}
+    downstreamEffects: {status: unresolved; no scheduling or admission effect inferred}
+    failure: {status: source-specific; probe failure is not normalized to product unavailability}
+    partialSuccess: {status: unresolved; aggregate service/provider results not normalized}
+    unknownOutcome: {status: unresolved; probe timeout is not proof of down state}
+    retry: {status: unresolved; probe retry/deadline rules remain source-specific}
+    idempotency: {status: read-only-observation-proposed; no shared contract inferred}
+    recovery: {proposal: repeat-time-scoped-observation-or-inspect-source-specific-details, status: pending-review}
+    evidenceAudit: {observedRefs: [OpenAPI health and provider routes, four service status/health RPC families], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: "inspect-time-scoped-operational-evidence; do-not-treat-as-capability-admission", status: proposed-pending-review}
+    actionRefs: []
+    observedBindings:
+      HTTP: [/health, /health/live, /health/ready, /health/startup, /ready, /metrics, /info, /api/v1/health, /api/v1/providers]
+      SDK: {status: not-established-as-domain-operation}
+      CLI: {status: no-matching-command-binding-established}
+      gRPC: [STTService.GetStatus, STTService.HealthCheck, TTSService.GetStatus, TTSService.GetMetrics, VisionService.GetStatus, VisionService.HealthCheck, MultimodalService.GetStatus, MultimodalService.HealthCheck]
+      tool: {status: no-domain-operation-binding-located}
+      event: {status: no-event-binding-established}
+    finality: availability-observation-is-time-scoped; not-capability-or-runtime-guarantee
+    scopeStatus: proposal-only; operational-family-limited; owner-review-pending
+channelFamilies:
+  uiAction: .product-experience/pdp-3-product-experience/action-registry.yaml; 146 proposed action records; not proof of reachable runtime UI; exact operation links unresolved where actionRefs absent
+  http: contracts/openapi/media.yaml; 27 operationIds; wire projection only; exact route-to-operation crosswalk incomplete
+  grpc: four listed service protobufs; 43 exact RPC identities enumerated above; preserve service/method identity; conflict resolution not inferred
+  cli: .product-experience/pdp-3-product-experience/cli/command-registry.yaml has 11 synthetic fixture commands; separate root cli-command-registry.yaml has 12 proposal records; production CLI remains unconnected
+  sdk: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml; 27 registry methods; legacy AudioVideoClient is distinct; consumer parity and operation links unresolved
+  tool: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml; four handler identities; no admitted Media domain-tool schema/binding established
+  event: .product-experience/pdp-3-product-experience/events/event-registry.yaml; 15 separate local client-listener notifications. PDP1-004 events.yaml separately inventories 7 runtime publisher call sites/9 concrete event types; populations are not equivalent. Event triggers are source observations only; canonical taxonomy, producer authority, delivery guarantees, evidence links, and operation links unresolved
+ownerReview: pending-owner-review

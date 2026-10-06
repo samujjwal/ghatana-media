@@ -1,0 +1,8 @@
+schemaVersion: media.api-correlation.v1
+owner: ghatana-media-product-api
+authority: Media defines product trace continuity; Shared owns generic observability primitives
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml]
+scopeStatus: proposal; header names and tracing format await platform binding
+acceptance: {criteria: [where an operation/job boundary and platform trace context are supported, correlation continuity is documented and verified; caller-supplied values are validated; sensitive data is excluded], status: pending-platform-review}
+verification: {method: Trace one authorized request through supported status/audit boundaries without presuming durable jobs or exposing content or credentials, status: not-run}
+rules: [use platform-approved trace context, return correlation reference for support, correlation IDs are not authorization or idempotency keys, bound length/character set, do not place media content or personal data in trace baggage]

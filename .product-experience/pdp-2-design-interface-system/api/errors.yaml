@@ -1,0 +1,11 @@
+schemaVersion: media.api-errors.v1
+owner: ghatana-media-product-api
+authority: Media owns domain error meaning; Shared owns generic error envelope primitives
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-0-product-truth/quality-policy.yaml, .product-experience/pdp-0-product-truth/policy-authority-model.yaml]
+scopeStatus: proposal; wire error schema awaits API owner
+acceptance: {criteria: [errors have stable code and safe message, retryability is explicit, field violations identify input paths without disclosing protected values], status: pending-review}
+verification: {method: Validate examples against the product OpenAPI schema and secret-redaction checks, status: not-run}
+contract:
+  proposedFields: [code, message, category, retryable, correlationId, violations, outcome]
+  proposedCategories: [invalid-request, unauthenticated, forbidden, not-found, conflict, rate-limited, unavailable, internal]
+  rules: [field names and categories are proposals pending wire-schema and API-owner approval, HTTP status alone does not determine retry safety, never expose stack traces/tokens/source media, represent unknown mutation outcome only when the operation can determine that it is unknown, absent detail is not success]

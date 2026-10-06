@@ -1,0 +1,47 @@
+schemaVersion: media.screen-contract-schema.v1
+contractVersion: media.screen-contract.v2
+productId: media
+status: proposal; owner-review-pending
+purpose: >-
+  Structural contract for the 47 canonical GUI screen proposals. It adds explicit
+  references and binding status without accepting PDP-1, PDP-2, or PDP-3 semantics.
+requiredTopLevelFields:
+  - contractSchemaRef
+  - surfaceId
+  - templateId
+  - layoutIds
+  - componentIds
+  - patternIds
+  - tokenDependencies
+  - domainObjectRefs
+  - operationRefs
+  - stateRefs
+  - entry
+  - exit
+  - actionConsequences
+  - responsiveBehavior
+  - fixtures
+  - verification
+  - fieldBindingStatus
+valueRules:
+  nullableOrEmpty:
+    rule: >-
+      A nullable or empty candidate is allowed only when its binding genuinely
+      remains unresolved; fieldBindingStatus must give that field a non-empty
+      reason and identify the pending authority or evidence.
+    appliesTo: [surfaceId, templateId, layoutIds, componentIds, patternIds, tokenDependencies, domainObjectRefs, operationRefs, stateRefs, entry, exit, actionConsequences, responsiveBehavior, fixtures]
+  fieldBindingStatus:
+    required: true
+    rule: Every required field has an explicit binding record with status and a reason; unresolved candidates remain proposals.
+designAuthority:
+  rule: Every design decision references central PDP-2 authorities; screen contracts are consumers and may not define design-rule authority.
+  centralAuthorities:
+    - .product-experience/pdp-2-design-interface-system/gui
+    - .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
+  forbidden: Screen-local design-rule authority or local redefinition of central PDP-2 decisions.
+provenance:
+  preserveExistingV1Fields: true
+  interpretation: Existing v1 fields and meanings are retained as proposal provenance only, not accepted bindings or semantic authority.
+verification:
+  behavioralEvidenceClaim: forbidden-unless-independent-behavioral-evidence-is-explicitly-referenced
+  defaultStatus: not-run

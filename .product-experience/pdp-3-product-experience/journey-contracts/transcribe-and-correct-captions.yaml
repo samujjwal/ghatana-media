@@ -1,0 +1,647 @@
+schemaVersion: media.journey-contract.v1
+productId: media
+journeyId: J-03
+title: Transcribe an audio recording and correct captions
+status: proposal; all-upstream-acceptance-and-role-review-pending
+laneRef: .product-experience/lanes/transcribe-and-correct-captions.yaml
+scope: selected-audio-source-slice-of-J-03; video-transcription-and-video-audio-extraction-remain-out-of-scope
+outcomes: [media.goal.understand-media, media.goal.review-trustworthy-output]
+actors: [media.creator, media.editor, media.reviewer]
+intent: media.intent.understand
+preconditions:
+  - One exact audio source artifact version is available to the actor; video sources are not executable in this lane.
+  - Current authority, rights, consent, and processing-location policy allow the requested operation.
+  - A language intent is provided; locale support is evaluated by an admitted runtime, not inferred from this fixture.
+steps:
+  - view: media.view.select-source
+    action: media.action.choose-source
+    result: exact-source-version-is-bound-to-the-workflow
+    surfaceRefs:
+    - media.surface.web
+    objectRefs: []
+    stateRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
+        and the recorded authority/finality disposition.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+      - id: language-uncertain
+        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
+      - id: timing-missing
+        response: identify missing alignment and permit explicit correction; do not infer exact timing.
+      - id: consent-revoked
+        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
+      - id: provider-outcome-unknown
+        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
+      - id: source-version-changed
+        response: preserve draft and mark its parent stale; require explicit rebase or restart.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
+        a fresh policy check.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+      - duplicate-key-safe YAML parse
+      - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+      - project
+      - source-artifact-version
+      - source-time
+      - language-intent
+      - job-identity
+      - transcript-version
+      - caption-draft-version
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-explicit-step-state-reference-and-transition
+      canonicalOperationRef: pending-no-explicit-canonical-operation-crosswalk-for-step-action
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+  - view: media.view.monitor-transcription
+    action: media.action.request-transcription
+    result: stable-job-identity-and-current-state-are-returned
+    surfaceRefs:
+    - media.surface.web
+    objectRefs: []
+    stateRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
+        and the recorded authority/finality disposition.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+      - id: language-uncertain
+        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
+      - id: timing-missing
+        response: identify missing alignment and permit explicit correction; do not infer exact timing.
+      - id: consent-revoked
+        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
+      - id: provider-outcome-unknown
+        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
+      - id: source-version-changed
+        response: preserve draft and mark its parent stale; require explicit rebase or restart.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
+        a fresh policy check.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+      - duplicate-key-safe YAML parse
+      - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+      - project
+      - source-artifact-version
+      - source-time
+      - language-intent
+      - job-identity
+      - transcript-version
+      - caption-draft-version
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-explicit-step-state-reference-and-transition
+      canonicalOperationRef: pending-ambiguous-PDP1-action-operation-crosswalk
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+  - view: media.view.monitor-transcription
+    action: media.action.view-job-status
+    result: progress-and-finality-reflect-owning-job-state
+    surfaceRefs:
+    - media.surface.web
+    objectRefs: []
+    stateRefs: []
+    canonicalOperationRef: media.operation.job-lifecycle
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
+        and the recorded authority/finality disposition.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+      - id: language-uncertain
+        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
+      - id: timing-missing
+        response: identify missing alignment and permit explicit correction; do not infer exact timing.
+      - id: consent-revoked
+        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
+      - id: provider-outcome-unknown
+        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
+      - id: source-version-changed
+        response: preserve draft and mark its parent stale; require explicit rebase or restart.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
+        a fresh policy check.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+      - duplicate-key-safe YAML parse
+      - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+      - project
+      - source-artifact-version
+      - source-time
+      - language-intent
+      - job-identity
+      - transcript-version
+      - caption-draft-version
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-explicit-step-state-reference-and-transition
+      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+  - view: media.view.review-transcript
+    action: media.action.review-transcript
+    result: recognition-and-alignment-uncertainty-remain-visible
+    surfaceRefs:
+    - media.surface.web
+    objectRefs: []
+    stateRefs: []
+    canonicalOperationRef: media.operation.transcription
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
+        and the recorded authority/finality disposition.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+      - id: language-uncertain
+        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
+      - id: timing-missing
+        response: identify missing alignment and permit explicit correction; do not infer exact timing.
+      - id: consent-revoked
+        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
+      - id: provider-outcome-unknown
+        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
+      - id: source-version-changed
+        response: preserve draft and mark its parent stale; require explicit rebase or restart.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
+        a fresh policy check.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+      - duplicate-key-safe YAML parse
+      - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+      - project
+      - source-artifact-version
+      - source-time
+      - language-intent
+      - job-identity
+      - transcript-version
+      - caption-draft-version
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-explicit-step-state-reference-and-transition
+      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+  - view: media.view.correct-captions
+    action: media.action.correct-caption
+    result: a-draft-caption-version-links-to-the-exact-source-and-parent
+    surfaceRefs:
+    - media.surface.web
+    objectRefs: []
+    stateRefs: []
+    canonicalOperationRef: media.operation.transcription
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
+        and the recorded authority/finality disposition.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+      - id: language-uncertain
+        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
+      - id: timing-missing
+        response: identify missing alignment and permit explicit correction; do not infer exact timing.
+      - id: consent-revoked
+        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
+      - id: provider-outcome-unknown
+        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
+      - id: source-version-changed
+        response: preserve draft and mark its parent stale; require explicit rebase or restart.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
+        a fresh policy check.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+      - duplicate-key-safe YAML parse
+      - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+      - project
+      - source-artifact-version
+      - source-time
+      - language-intent
+      - job-identity
+      - transcript-version
+      - caption-draft-version
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-explicit-step-state-reference-and-transition
+      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+  - view: media.view.correct-captions
+    action: media.action.align-caption-timing
+    result: caption-time-is-corrected-on-the-source-media-clock
+    surfaceRefs:
+    - media.surface.web
+    objectRefs: []
+    stateRefs: []
+    canonicalOperationRef: media.operation.transcription
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
+        and the recorded authority/finality disposition.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+      - id: language-uncertain
+        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
+      - id: timing-missing
+        response: identify missing alignment and permit explicit correction; do not infer exact timing.
+      - id: consent-revoked
+        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
+      - id: provider-outcome-unknown
+        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
+      - id: source-version-changed
+        response: preserve draft and mark its parent stale; require explicit rebase or restart.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
+        a fresh policy check.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+      - duplicate-key-safe YAML parse
+      - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+      - project
+      - source-artifact-version
+      - source-time
+      - language-intent
+      - job-identity
+      - transcript-version
+      - caption-draft-version
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-explicit-step-state-reference-and-transition
+      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+  - view: media.view.correct-captions
+    action: media.action.save-caption-version
+    result: an-authorized-immutable-caption-version-is-created-or-the-action-is-blocked
+    surfaceRefs:
+    - media.surface.web
+    objectRefs: []
+    stateRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
+        and the recorded authority/finality disposition.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+      - id: language-uncertain
+        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
+      - id: timing-missing
+        response: identify missing alignment and permit explicit correction; do not infer exact timing.
+      - id: consent-revoked
+        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
+      - id: provider-outcome-unknown
+        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
+      - id: source-version-changed
+        response: preserve draft and mark its parent stale; require explicit rebase or restart.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
+        a fresh policy check.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+      - duplicate-key-safe YAML parse
+      - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+      - project
+      - source-artifact-version
+      - source-time
+      - language-intent
+      - job-identity
+      - transcript-version
+      - caption-draft-version
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-explicit-step-state-reference-and-transition
+      canonicalOperationRef: pending-no-explicit-canonical-operation-crosswalk-for-step-action
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+  - view: media.view.compare-caption-versions
+    action: media.action.compare-caption-versions
+    result: text-timing-and-source-version-differences-are-shown-without-approving-either-version
+    surfaceRefs:
+    - media.surface.web
+    objectRefs: []
+    stateRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
+        and the recorded authority/finality disposition.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+      - id: language-uncertain
+        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
+      - id: timing-missing
+        response: identify missing alignment and permit explicit correction; do not infer exact timing.
+      - id: consent-revoked
+        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
+      - id: provider-outcome-unknown
+        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
+      - id: source-version-changed
+        response: preserve draft and mark its parent stale; require explicit rebase or restart.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
+        a fresh policy check.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+      - duplicate-key-safe YAML parse
+      - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+      - project
+      - source-artifact-version
+      - source-time
+      - language-intent
+      - job-identity
+      - transcript-version
+      - caption-draft-version
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-explicit-step-state-reference-and-transition
+      canonicalOperationRef: pending-no-explicit-canonical-operation-crosswalk-for-step-action
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+terminalSuccess: A reviewable caption version is linked to the exact source and carries timing, language, provenance, and the recorded authority/finality disposition.
+criticalNonhappyPaths:
+  - id: language-uncertain
+    response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
+  - id: timing-missing
+    response: identify missing alignment and permit explicit correction; do not infer exact timing.
+  - id: consent-revoked
+    response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
+  - id: provider-outcome-unknown
+    response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
+  - id: source-version-changed
+    response: preserve draft and mark its parent stale; require explicit rebase or restart.
+recovery: Every recovery preserves the source and completed output; retry requires a classified safe state and a fresh policy check.
+contextPreserved: [project, source-artifact-version, source-time, language-intent, job-identity, transcript-version, caption-draft-version]
+channelEquivalents: [web, cli, grpc-api, sdk]
+accessibilityRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml

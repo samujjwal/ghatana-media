@@ -1,0 +1,8 @@
+schemaVersion: media.api-idempotency.v1
+owner: ghatana-media-product-api
+authority: Media mutation contracts own effect identity and replay semantics
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-2-design-interface-system/api/async-operations.yaml, .product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml, .product-experience/pdp-0-product-truth/state-models.yaml]
+scopeStatus: proposal; operation-specific retention and persistence await runtime design
+acceptance: {criteria: [each mutation declares whether idempotency is supported; supported mutations define scope and any actual retention, key reuse with different input is rejected or otherwise explicitly resolved, replay behavior is documented], status: pending-runtime-owner-review}
+verification: {method: For operations claiming idempotency, inject duplicate and concurrent submissions including response loss and verify effect identity and the actually implemented persistence/retention boundary, status: not-run}
+rules: [proposed scope includes principal or tenant and operation as authorized by the operation contract, define request-equivalence canonicalization before binding a digest, reject or safely resolve key reuse with different input, state the implemented retention only after runtime binding and do not imply persistence from this proposal, retention must cover only a documented retry window if such support is claimed, explicitly state when idempotency is unsupported or unverified]

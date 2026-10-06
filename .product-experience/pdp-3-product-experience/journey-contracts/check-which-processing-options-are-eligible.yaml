@@ -1,0 +1,361 @@
+schemaVersion: media.journey-contract.v1
+productId: media
+journeyId: J-30
+title: Check which processing options are eligible
+status: pdp-0-grounded-contract; option-eligibility-and-owner-semantics-pending-review
+intentRefs:
+  - media.intent.choose-eligible-processing-option
+  - media.intent.check-processing-options
+  - media.intent.check-processing-readiness
+outcomeRefs:
+  - media.goal.integrate-repeatably
+  - media.goal.resolve-safely
+outcomes:
+  - media.goal.integrate-repeatably
+  - media.goal.resolve-safely
+actors:
+  - media.creator
+  - media.editor
+  - media.developer-integrator
+  - media.operator
+  - media.administrator
+  - media.automation-client
+channelRefs:
+  - media.channel.web
+  - media.channel.http-api
+  - media.channel.cli
+orderedViews:
+  - media.view.check-processing-options
+  - media.view.check-processing-readiness
+  - media.view.choose-eligible-processing-option
+  - media.view.review-activity
+preconditions:
+  known: Identity, tenant/workspace scope, and diagnostic permissions are verified; profile, capability, provider, license, qualification, and runtime dimensions are distinct.
+  ownerReview: Permission names, capability freshness windows, and dimension authorities require owner review.
+completion:
+  known: Return a bounded current observation with provenance and explicit unknown or unsupported dimensions; observation does not promise future availability.
+  ownerReview: Response schema, freshness guarantees, and stable reason codes require API and service owner review.
+terminalSuccess: bounded-current-eligibility-observation-returned
+steps:
+  - stepId: "establish-scope-and-permissions"
+    label: "establish-scope-and-permissions"
+    stateRefs: []
+    surfaceRefs:
+    - media.surface.web
+    - media.surface.public-http
+    - media.surface.cli
+    objectRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: bounded-current-eligibility-observation-returned
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+      - stale-capability-data
+      - unavailable-provider
+      - unknown-license-or-qualification
+      - expired-authority
+      - cross-tenant-or-private-content-disclosure-risk
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary:
+        steps:
+        - report-unknown-or-unavailable-dimensions-without-inference
+        - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+        ownerReview: Fallback decision ownership and exact recheck sequence require policy and service owner review.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+      - requested-profile-and-capability-version
+      - observation-time
+      - deployment-scope
+      - safe-reason-codes
+    requirementRefs: []
+    verification:
+      requiredChecks:
+      - stale-capability
+      - provider-unavailable
+      - unknown-license
+      - unknown-qualification
+      - expired-authority
+      - tenant-isolation
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
+  - stepId: "inspect-profile-and-provider-dimensions"
+    label: "inspect-profile-and-provider-dimensions"
+    stateRefs: []
+    surfaceRefs:
+    - media.surface.web
+    - media.surface.public-http
+    - media.surface.cli
+    objectRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: bounded-current-eligibility-observation-returned
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+      - stale-capability-data
+      - unavailable-provider
+      - unknown-license-or-qualification
+      - expired-authority
+      - cross-tenant-or-private-content-disclosure-risk
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary:
+        steps:
+        - report-unknown-or-unavailable-dimensions-without-inference
+        - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+        ownerReview: Fallback decision ownership and exact recheck sequence require policy and service owner review.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+      - requested-profile-and-capability-version
+      - observation-time
+      - deployment-scope
+      - safe-reason-codes
+    requirementRefs: []
+    verification:
+      requiredChecks:
+      - stale-capability
+      - provider-unavailable
+      - unknown-license
+      - unknown-qualification
+      - expired-authority
+      - tenant-isolation
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
+  - stepId: "preserve-unknown-or-unavailable-reasons"
+    label: "preserve-unknown-or-unavailable-reasons"
+    stateRefs: []
+    surfaceRefs:
+    - media.surface.web
+    - media.surface.public-http
+    - media.surface.cli
+    objectRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: bounded-current-eligibility-observation-returned
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+      - stale-capability-data
+      - unavailable-provider
+      - unknown-license-or-qualification
+      - expired-authority
+      - cross-tenant-or-private-content-disclosure-risk
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary:
+        steps:
+        - report-unknown-or-unavailable-dimensions-without-inference
+        - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+        ownerReview: Fallback decision ownership and exact recheck sequence require policy and service owner review.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+      - requested-profile-and-capability-version
+      - observation-time
+      - deployment-scope
+      - safe-reason-codes
+    requirementRefs: []
+    verification:
+      requiredChecks:
+      - stale-capability
+      - provider-unavailable
+      - unknown-license
+      - unknown-qualification
+      - expired-authority
+      - tenant-isolation
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
+  - stepId: "return-eligible-options-with-provenance"
+    label: "return-eligible-options-with-provenance"
+    stateRefs: []
+    surfaceRefs:
+    - media.surface.web
+    - media.surface.public-http
+    - media.surface.cli
+    objectRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: bounded-current-eligibility-observation-returned
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+      - stale-capability-data
+      - unavailable-provider
+      - unknown-license-or-qualification
+      - expired-authority
+      - cross-tenant-or-private-content-disclosure-risk
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary:
+        steps:
+        - report-unknown-or-unavailable-dimensions-without-inference
+        - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+        ownerReview: Fallback decision ownership and exact recheck sequence require policy and service owner review.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+      - requested-profile-and-capability-version
+      - observation-time
+      - deployment-scope
+      - safe-reason-codes
+    requirementRefs: []
+    verification:
+      requiredChecks:
+      - stale-capability
+      - provider-unavailable
+      - unknown-license
+      - unknown-qualification
+      - expired-authority
+      - tenant-isolation
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
+criticalNonhappy:
+  - stale-capability-data
+  - unavailable-provider
+  - unknown-license-or-qualification
+  - expired-authority
+  - cross-tenant-or-private-content-disclosure-risk
+criticalNonhappyPaths:
+  - stale-capability-data
+  - unavailable-provider
+  - unknown-license-or-qualification
+  - expired-authority
+  - cross-tenant-or-private-content-disclosure-risk
+recovery:
+  steps:
+    - report-unknown-or-unavailable-dimensions-without-inference
+    - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+  ownerReview: Fallback decision ownership and exact recheck sequence require policy and service owner review.
+contextAndReturn:
+  preserve:
+    - requested-profile-and-capability-version
+    - observation-time
+    - deployment-scope
+    - safe-reason-codes
+  additionalFields: pending-owner-review
+contextPreserved: [requested-profile-and-capability-version, observation-time, deployment-scope, safe-reason-codes]
+channelEquivalents: [media.channel.web, media.channel.http-api, media.channel.cli]
+operationRefs: []
+operationDisposition: No current OpenAPI operation declares eligibility evaluation; exact API and CLI bindings require owner review.
+fixtureRefs: []
+fixtures: pending-owner-fixture-review
+verification:
+  required: [stale-capability, provider-unavailable, unknown-license, unknown-qualification, expired-authority, tenant-isolation]
+  ownerReview: capability-policy-and-api-owner-review-pending
+accessibilityRef: media.a11y.baseline

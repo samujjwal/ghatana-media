@@ -10,7 +10,7 @@ the result.
 ## Consumers
 
 - Media product, design, accessibility, quality, privacy, and runtime owners.
-- Web, CLI, API, SDK, embedded, and event consumers after their contracts are
+- Web, CLI, API, SDK, embedded, agent/tool, event, and system integration consumers after their contracts are
   owner-approved and published.
 - Ghatana Tools and Shared as upstream contract owners, not as Media semantic
   authorities.
@@ -20,27 +20,41 @@ the result.
 
 ## Non-goals
 
-Media does not own generic identity, Document Intelligence, Data Cloud read
+Media does not own generic identity, Document Intelligence/OCR execution, Data Cloud read
 models, event delivery mechanics, generic model/provider mechanics, or
-privileged effects. The Product Experience Explorer is a read-only projection
-and is not a fifth product-definition phase, a runtime host, or an acceptance
-authority.
+privileged effects. The Product Experience Explorer projects canonical meaning
+and may change synthetic fixture state for inspection. It sits outside PDP phase
+numbering and is not a production runtime or acceptance authority.
 
 This repository does not claim that a capability, provider, model, asset,
 package, route, or fixture is licensed, qualified, available, or production
 ready merely because it is described or present in the tree.
 
+Per accepted MDI-001, Media owns only scene-text meaning and its temporal,
+region, tracking, scene-association, and editing semantics. Generic OCR and
+document extraction remain platform-owned. Media runtime use remains gated on
+the published, consumer-verified Document Intelligence client; existing OCR
+code is not itself a binding or qualification claim.
+
 ## Phase progression
 
-The generic master prompt names the four Product Definition phases as PDP-0
-Product Truth, PDP-1 Canonical Domain and Data Model, PDP-2 Design Language and
-Interface System, and PDP-3 Complete Product Experience. The Media repository
-keeps its established local P0/P1/P2/P3 workstream names, so the explicit
-crosswalk is: local P0 contains PDP-0 plus the authored domain/state/data
-records; local P1 maps to PDP-2; local P2 maps to PDP-3; and local P3 is the
-Experience Explorer projection/verification adapter, not a fifth semantic
-authority. This prevents the local directory names from silently changing the
-master-prompt authority hierarchy.
+The user's Four-Phase Product Definition Hardening Plan requires exactly PDP-0
+Product Truth, PDP-1 Canonical Domain & Data Model, PDP-2 Design Language &
+Interface System, and PDP-3 Complete Product Experience, followed by an Explorer
+projection outside those phases. The authoring tree now uses
+`pdp-0-product-truth/`, `pdp-1-domain-data/`,
+`pdp-2-design-interface-system/`, `pdp-3-product-experience/`, and `explorer/`
+beneath `.product-experience/`.
+
+Intended consumer surfaces and their proposal, implementation, and
+qualification dispositions are indexed in
+[surface-registry.yaml](../.product-experience/surface-registry.yaml). The
+expert-reviewed migration plan remains an execution and provenance reference;
+it does not override meaning in the owning PDP authority.
+
+This directory normalization establishes the intended structure; it does not
+accept the semantics in those directories. Existing task IDs remain planning
+provenance, and source presence or relocation does not accept product meaning.
 
 The complete vision-to-requirement-to-experience crosswalk is maintained in
 [PRODUCT-DEFINITION-COVERAGE.md](PRODUCT-DEFINITION-COVERAGE.md) and its

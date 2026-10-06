@@ -1,0 +1,662 @@
+schemaVersion: media.screen-registry.v1
+productId: media
+status: 41-baseline-view-contract-proposals-authored; channel-bindings-action-closure-fixture-coverage-and-owner-review-pending
+laneRef: .product-experience/lanes/transcribe-and-correct-captions.yaml
+inventorySource: docs/migration/expert-reviewed-master-plan.md#20-2-initial-screen-view-inventory
+contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+legacyViewIdsAre: master-plan-crosswalk-references-only
+screens:
+- id: media.view.resume-work
+  label: Resume work
+  legacyViewRef: M-HOME
+  route: /
+  purpose: Resume work; launch intent; meaningful first-use/empty state
+  intentRef: media.intent.restore-project
+  journeyRefs:
+  - J-01
+  contractRefs:
+  - screen-contracts/resume-work.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.find-projects
+  label: Find projects
+  legacyViewRef: M-PROJECTS
+  route: /projects
+  purpose: Search/filter/create/open projects
+  intentRef: media.intent.restore-project
+  journeyRefs:
+  - J-01
+  contractRefs:
+  - screen-contracts/find-projects.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.work-in-project
+  label: Work in a project
+  legacyViewRef: M-PROJECT
+  route: /projects/:id
+  purpose: Project context, source/output versions and next action
+  intentRef: media.intent.restore-project
+  journeyRefs:
+  - J-01
+  - J-20
+  - J-23
+  contractRefs:
+  - screen-contracts/work-in-project.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.browse-media
+  label: Browse media
+  legacyViewRef: M-ASSETS
+  route: /assets
+  purpose: Governed library, import/upload/search/filter
+  intentRef: media.intent.understand
+  journeyRefs:
+  - J-02
+  contractRefs:
+  - screen-contracts/browse-media.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.inspect-media
+  label: Inspect media
+  legacyViewRef: M-ASSET
+  route: /assets/:id
+  purpose: Playback/technical metadata, versions, rights and actions
+  intentRef: media.intent.understand
+  journeyRefs:
+  - J-02
+  - J-23
+  - J-26
+  contractRefs:
+  - screen-contracts/inspect-media.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.import-media
+  label: Import media
+  legacyViewRef: M-UPLOAD
+  route: Contextual upload/import view
+  purpose: Progress/resume/integrity/quarantine/permission recovery
+  intentRef: media.intent.understand
+  journeyRefs:
+  - J-02
+  contractRefs:
+  - screen-contracts/import-media.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.create-media
+  label: Create media
+  legacyViewRef: M-CREATE
+  route: /create
+  purpose: Intent/recipe and safe outcome settings
+  intentRef: media.intent.create
+  journeyRefs:
+  - J-01
+  - J-09
+  - J-24
+  contractRefs:
+  - screen-contracts/create-media.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.review-creation-plan
+  label: Review a creation plan
+  legacyViewRef: M-PLAN
+  route: Project plan view
+  purpose: Proposed graph, estimates, material decisions and validation
+  intentRef: media.intent.create
+  journeyRefs:
+  - J-09
+  - J-10
+  - J-15
+  - J-19
+  - J-24
+  - J-25
+  - J-27
+  contractRefs:
+  - screen-contracts/review-creation-plan.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.arrange-scenes
+  label: Arrange scenes
+  legacyViewRef: M-STORYBOARD
+  route: Project storyboard
+  purpose: Scenes, timing, references, versions and transitions
+  intentRef: media.intent.create
+  journeyRefs:
+  - J-09
+  contractRefs:
+  - screen-contracts/arrange-scenes.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.create-image
+  label: Create an image
+  legacyViewRef: M-IMAGE
+  route: Project image workspace
+  purpose: Generation/conditioning/candidate selection
+  intentRef: media.intent.create
+  journeyRefs:
+  - J-05
+  contractRefs:
+  - screen-contracts/create-image.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.create-video
+  label: Create a video
+  legacyViewRef: M-VIDEO
+  route: Project video workspace
+  purpose: Generation strategy, controls, progress and alternatives
+  intentRef: media.intent.create
+  journeyRefs:
+  - J-03
+  - J-05
+  - J-08
+  - J-09
+  - J-10
+  - J-29
+  contractRefs:
+  - screen-contracts/create-video.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.create-audio
+  label: Create audio
+  legacyViewRef: M-AUDIO
+  route: Project audio workspace
+  purpose: Sources/stems/cleanup/mix/mastering
+  intentRef: media.intent.create
+  journeyRefs:
+  - J-03
+  - J-07
+  - J-09
+  - J-16
+  - J-17
+  contractRefs:
+  - screen-contracts/create-audio.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.work-with-speech
+  label: Work with speech
+  legacyViewRef: M-SPEECH
+  route: Project speech workspace
+  purpose: Transcription/TTS/pronunciation/language/voice choices
+  intentRef: media.intent.understand
+  journeyRefs:
+  - J-03
+  - J-04
+  - J-16
+  contractRefs:
+  - screen-contracts/work-with-speech.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.use-authorized-voice
+  label: Use an authorized voice
+  legacyViewRef: M-VOICE
+  route: Project authorized voice workflow
+  purpose: Training/conversion permissions and model references
+  intentRef: media.intent.create
+  journeyRefs:
+  - J-04
+  contractRefs:
+  - screen-contracts/use-authorized-voice.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.edit-captions
+  label: Edit captions
+  legacyViewRef: M-CAPTIONS
+  route: Project caption editor
+  purpose: Edit caption wording, timing, and language for accessibility and review.
+  intentRef: media.intent.edit
+  journeyRefs:
+  - J-03
+  - J-16
+  - J-18
+  contractRefs:
+  - screen-contracts/edit-captions.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.review-dubbing
+  label: Review dubbing
+  legacyViewRef: M-DUB
+  route: Project dubbing workflow
+  purpose: Translation, voice, timing, meaning review and sync
+  intentRef: media.intent.edit
+  journeyRefs:
+  - J-16
+  contractRefs:
+  - screen-contracts/review-dubbing.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.improve-media
+  label: Improve media
+  legacyViewRef: M-ENHANCE
+  route: Project enhancement view
+  purpose: Preserve/enhance/creative choice, measured defects, safe plan
+  intentRef: media.intent.improve
+  journeyRefs:
+  - J-07
+  - J-08
+  contractRefs:
+  - screen-contracts/improve-media.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.compare-results
+  label: Compare results
+  legacyViewRef: M-COMPARE
+  route: Artifact/version comparison
+  purpose: Before/after, candidate ranking and applicable measurements
+  intentRef: media.intent.improve
+  journeyRefs:
+  - J-03
+  - J-04
+  - J-05
+  - J-07
+  - J-08
+  - J-10
+  - J-11
+  - J-12
+  - J-15
+  - J-16
+  - J-19
+  contractRefs:
+  - screen-contracts/compare-results.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.edit-media
+  label: Edit media
+  legacyViewRef: M-EDIT
+  route: Project edit workspace
+  purpose: Region/track operations, exact constraints and undo
+  intentRef: media.intent.edit
+  journeyRefs:
+  - J-11
+  - J-18
+  contractRefs:
+  - screen-contracts/edit-media.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.edit-media-region
+  label: Edit a media region
+  legacyViewRef: M-MASK
+  route: Edit mask/tracking view
+  purpose: Region selection, propagation uncertainty and correction
+  intentRef: media.intent.edit
+  journeyRefs:
+  - J-11
+  contractRefs:
+  - screen-contracts/edit-media-region.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.animate-media
+  label: Animate media
+  legacyViewRef: M-ANIMATION
+  route: Project animation workspace
+  purpose: Timeline/keyframes/curves/rig/path/control actions
+  intentRef: media.intent.animate
+  journeyRefs:
+  - J-10
+  - J-12
+  - J-13
+  - J-28
+  contractRefs:
+  - screen-contracts/animate-media.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.compose-scene
+  label: Compose a scene
+  legacyViewRef: M-SCENE
+  route: Project scene workspace
+  purpose: Scene entities/material/camera/light and model bindings
+  intentRef: media.intent.create
+  journeyRefs:
+  - J-13
+  - J-14
+  - J-28
+  contractRefs:
+  - screen-contracts/compose-scene.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.explore-simulation
+  label: Explore a simulation
+  legacyViewRef: M-SIMULATION
+  route: Project simulation workspace
+  purpose: Initial conditions, domain fidelity, time control and instruments
+  intentRef: media.intent.simulate
+  journeyRefs:
+  - J-14
+  - J-15
+  contractRefs:
+  - screen-contracts/explore-simulation.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.compose-media
+  label: Compose media
+  legacyViewRef: M-COMPOSER
+  route: Project composition workspace
+  purpose: Timeline/graphics/brand/audio/captions/transition assembly
+  intentRef: media.intent.create
+  journeyRefs:
+  - J-09
+  - J-17
+  - J-18
+  contractRefs:
+  - screen-contracts/compose-media.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.adjust-color
+  label: Adjust color
+  legacyViewRef: M-COLOR
+  route: Composition color view
+  purpose: Input/output color interpretation and shot matching
+  intentRef: media.intent.edit
+  journeyRefs:
+  - J-18
+  contractRefs:
+  - screen-contracts/adjust-color.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.review-quality
+  label: Review quality
+  legacyViewRef: M-QUALITY
+  route: Project quality view
+  purpose: Applicable dimensions, abstentions, defects and repair plan
+  intentRef: media.intent.improve
+  journeyRefs:
+  - J-05
+  - J-08
+  - J-10
+  - J-14
+  - J-15
+  - J-17
+  - J-19
+  - J-27
+  contractRefs:
+  - screen-contracts/review-quality.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.prepare-render
+  label: Prepare a render
+  legacyViewRef: M-RENDER
+  route: Project render setup
+  purpose: Snapshot/profile, validation, cost and submission
+  intentRef: media.intent.create
+  journeyRefs:
+  - J-09
+  - J-13
+  - J-14
+  - J-18
+  - J-19
+  - J-28
+  contractRefs:
+  - screen-contracts/prepare-render.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.review-activity
+  label: Review activity
+  legacyViewRef: M-ACTIVITY
+  route: /activity
+  purpose: Jobs/notifications requiring attention; not infrastructure dashboard
+  intentRef: media.intent.resolve-job
+  journeyRefs:
+  - J-02
+  - J-20
+  - J-23
+  - J-26
+  - J-27
+  - J-29
+  - J-30
+  contractRefs:
+  - screen-contracts/review-activity.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.job-status
+  label: View job status
+  legacyViewRef: M-JOB
+  route: /jobs/:id
+  purpose: View progress and outputs, request a stop, retry eligible work, or check an uncertain outcome
+  intentRef: media.intent.resolve-job
+  journeyRefs:
+  - J-02
+  - J-20
+  - J-22
+  - J-23
+  - J-24
+  - J-25
+  - J-27
+  - J-29
+  contractRefs:
+  - screen-contracts/job-status.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.review-outputs
+  label: Review outputs
+  legacyViewRef: M-OUTPUTS
+  route: Project outputs
+  purpose: Master/renditions/version/approval status
+  intentRef: media.intent.deliver
+  journeyRefs:
+  - J-20
+  - J-24
+  contractRefs:
+  - screen-contracts/review-outputs.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.inspect-output
+  label: Inspect an output
+  legacyViewRef: M-OUTPUT
+  route: /outputs/:id
+  purpose: Playback/download/review/provenance and delivery action
+  intentRef: media.intent.deliver
+  journeyRefs:
+  - J-04
+  - J-06
+  - J-07
+  - J-12
+  - J-13
+  - J-17
+  - J-18
+  - J-21
+  - J-22
+  - J-25
+  contractRefs:
+  - screen-contracts/inspect-output.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.deliver-output
+  label: Deliver an output
+  legacyViewRef: M-DELIVERY
+  route: Project delivery view
+  purpose: Destination/format/rights/approval and publication finality
+  intentRef: media.intent.deliver
+  journeyRefs:
+  - J-09
+  - J-22
+  - J-28
+  contractRefs:
+  - screen-contracts/deliver-output.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.review-exact-version
+  label: Review an exact version
+  legacyViewRef: M-REVIEW
+  route: /reviews/:id
+  purpose: Scoped exact-version review/comment/approve/reject
+  intentRef: media.intent.review-exact-version
+  goalRef: media.goal.review-trustworthy-output
+  journeyRefs:
+  - J-09
+  - J-21
+  contractRefs:
+  - screen-contracts/review-exact-version.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.review-rights-and-consent
+  label: Review rights and consent
+  legacyViewRef: M-RIGHTS
+  route: Contextual rights view
+  purpose: Consent/license/likeness/processing restrictions and remediation
+  intentRef: media.intent.review-rights-and-consent
+  journeyRefs:
+  - J-26
+  contractRefs:
+  - screen-contracts/review-rights-and-consent.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.inspect-provenance
+  label: Inspect provenance
+  legacyViewRef: M-PROVENANCE
+  route: Artifact provenance view
+  purpose: Source/edit/model/simulation lineage and disclosure limits
+  intentRef: media.intent.inspect-provenance
+  journeyRefs:
+  - J-06
+  - J-21
+  contractRefs:
+  - screen-contracts/inspect-provenance.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.choose-eligible-processing-option
+  label: Choose an eligible processing option
+  legacyViewRef: M-PROFILES
+  route: Advanced project/admin context
+  purpose: Effective profiles, qualification and allowed overrides
+  intentRef: media.intent.choose-eligible-processing-option
+  journeyRefs:
+  - J-30
+  contractRefs:
+  - screen-contracts/choose-eligible-processing-option.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.check-processing-options
+  label: Check processing options
+  legacyViewRef: M-PROVIDERS
+  route: Operator-only capability context
+  purpose: Declared/qualified/live limits; no ordinary model-selection burden
+  intentRef: media.intent.check-processing-options
+  journeyRefs:
+  - J-30
+  contractRefs:
+  - screen-contracts/check-processing-options.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.check-processing-readiness
+  label: Check processing readiness
+  legacyViewRef: M-OPERATIONS
+  route: Operator console
+  purpose: Safe diagnostics, capacity/recovery/erasure and audit access
+  intentRef: media.intent.check-processing-readiness
+  journeyRefs:
+  - J-30
+  contractRefs:
+  - screen-contracts/check-processing-readiness.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.review-workspace-settings
+  label: Review workspace settings
+  legacyViewRef: M-SETTINGS
+  route: /settings
+  purpose: User/workspace policies, accessibility and integration scope
+  goalRef: media.goal.apply-permitted-settings
+  intentRef: media.intent.review-workspace-settings
+  journeyRefs: []
+  contractRefs:
+  - screen-contracts/review-workspace-settings.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+  journeyDisposition: supporting-settings-view; no-independent-master-plan-journey
+- id: media.view.authenticate-and-select-context
+  label: Authenticate and select context
+  legacyViewRef: M-AUTH
+  route: Authentication/tenant handoff
+  purpose: Ghatana identity, context selection, expiry/re-auth and denial
+  intentRef: media.intent.restore-project
+  journeyRefs:
+  - J-01
+  contractRefs:
+  - screen-contracts/authenticate-and-select-context.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+- id: media.view.find-task-guidance
+  label: Find task guidance
+  legacyViewRef: M-HELP
+  route: Contextual help/command guide
+  purpose: Product-specific assistance and safe diagnostic sharing
+  intentRef: media.intent.find-task-guidance
+  goalRef: media.goal.integrate-repeatably
+  journeyRefs:
+  - J-06
+  contractRefs:
+  - screen-contracts/find-task-guidance.yaml
+  contractState: baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+laneViews:
+- id: media.view.select-source
+  label: Select a source
+  intentRef: media.intent.understand
+  journeyRefs:
+  - J-03
+  contract: screen-contracts/select-source.yaml
+  baselineViewRefs:
+  - media.view.browse-media
+  - media.view.inspect-media
+  purpose: Contextual view for the transcription and caption-correction journey.
+  scope: selected-transcription-and-caption-correction-lane
+  detailState: detailed-in-this-lane
+  contractRefs:
+  - screen-contracts/select-source.yaml
+  contractState: selected-lane-specialization; channel-and-owner-bindings-pending
+- id: media.view.monitor-transcription
+  label: Monitor transcription
+  intentRef: media.intent.understand
+  journeyRefs:
+  - J-03
+  contract: screen-contracts/transcription-progress.yaml
+  baselineViewRefs:
+  - media.view.work-with-speech
+  - media.view.job-status
+  purpose: Contextual view for the transcription and caption-correction journey.
+  scope: selected-transcription-and-caption-correction-lane
+  detailState: detailed-in-this-lane
+  contractRefs:
+  - screen-contracts/transcription-progress.yaml
+  contractState: selected-lane-specialization; channel-and-owner-bindings-pending
+- id: media.view.review-transcript
+  label: Review a transcript
+  intentRef: media.intent.understand
+  journeyRefs:
+  - J-03
+  contract: screen-contracts/review-transcript.yaml
+  baselineViewRefs:
+  - media.view.work-with-speech
+  purpose: Contextual view for the transcription and caption-correction journey.
+  scope: selected-transcription-and-caption-correction-lane
+  detailState: detailed-in-this-lane
+  contractRefs:
+  - screen-contracts/review-transcript.yaml
+  contractState: selected-lane-specialization; channel-and-owner-bindings-pending
+- id: media.view.correct-captions
+  label: Correct captions
+  intentRef: media.intent.edit
+  journeyRefs:
+  - J-03
+  contract: screen-contracts/correct-captions.yaml
+  baselineViewRefs:
+  - media.view.edit-captions
+  purpose: Contextual view for the transcription and caption-correction journey.
+  scope: selected-transcription-and-caption-correction-lane
+  detailState: detailed-in-this-lane
+  contractRefs:
+  - screen-contracts/correct-captions.yaml
+  contractState: selected-lane-specialization; channel-and-owner-bindings-pending
+- id: media.view.compare-caption-versions
+  label: Compare caption versions
+  intentRef: media.intent.edit
+  goalRef: media.goal.review-trustworthy-output
+  journeyRefs:
+  - J-03
+  contract: screen-contracts/compare-caption-versions.yaml
+  baselineViewRefs:
+  - media.view.compare-results
+  purpose: Contextual view for the transcription and caption-correction journey.
+  scope: selected-transcription-and-caption-correction-lane
+  detailState: detailed-in-this-lane
+  contractRefs:
+  - screen-contracts/compare-caption-versions.yaml
+  contractState: selected-lane-specialization; channel-and-owner-bindings-pending
+- id: media.view.check-job-outcome
+  label: Check job outcome
+  intentRef: media.intent.resolve-job
+  journeyRefs:
+  - J-03
+  - J-20
+  - J-27
+  contract: screen-contracts/check-job-outcome.yaml
+  baselineViewRefs:
+  - media.view.job-status
+  purpose: Contextual view for the transcription and caption-correction journey.
+  scope: selected-transcription-and-caption-correction-lane
+  detailState: detailed-in-this-lane
+  contractRefs:
+  - screen-contracts/check-job-outcome.yaml
+  contractState: selected-lane-specialization; channel-and-owner-bindings-pending
+coverage:
+  requiredBaselineViewCount: 41
+  authoredBaselineViewProposalCount: 41
+  acceptedBaselineViewContractCount: 0
+  authoredLaneSpecificViewProposalCount: 6
+  partialBaselineViewFragmentCount: 10
+  rule: Every-baseline-view-requires-a-closed-contract; authored-proposals-do-not-count-as-accepted-contracts; J-01-and-J-02-fragments-and-lane-specific-J-03-contracts-do-not-certify-a-complete-baseline-view.
+contextualSpecializations:
+- viewRef: media.view.select-source
+  contractRef: screen-contracts/select-source.yaml
+  purpose: Selected audio source picker and version context for J-03.
+- viewRef: media.view.monitor-transcription
+  contractRef: screen-contracts/transcription-progress.yaml
+  purpose: Selected J-03 transcription progress projection.
+- viewRef: media.view.review-transcript
+  contractRef: screen-contracts/review-transcript.yaml
+  purpose: Selected J-03 transcript review specialization.
+- viewRef: media.view.correct-captions
+  contractRef: screen-contracts/correct-captions.yaml
+  purpose: Selected J-03 caption editing specialization.
+- viewRef: media.view.compare-caption-versions
+  contractRef: screen-contracts/compare-caption-versions.yaml
+  purpose: Selected J-03 immutable caption-version comparison.
+- viewRef: media.view.check-job-outcome
+  contractRef: screen-contracts/check-job-outcome.yaml
+  purpose: Selected J-20 transcription-job outcome-check path.

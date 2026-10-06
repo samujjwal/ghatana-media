@@ -2,6 +2,12 @@
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "scripts": {
+    "generate:product-definition-manifest": "node scripts/generate-media-product-manifest.mjs",
+    "normalize:product-definition-scope": "node scripts/normalize-media-scope-status.mjs",
+    "check:product-definition-authority": "node scripts/check-product-definition-authority.mjs",
+    "check:contract-parity": "node scripts/check-media-contract-parity.mjs",
+    "check:design-conformance": "node scripts/check-media-design-conformance.mjs",
+    "test:product-definition-authority": "node --test tests/product-definition-authority.test.mjs",
     "check:product-experience-local": "node scripts/check-product-experience-local.mjs",
     "test:product-experience-local": "node --test tests/product-experience-local.test.mjs",
     "test:experience-browser": "node scripts/check-experience-browser.mjs"

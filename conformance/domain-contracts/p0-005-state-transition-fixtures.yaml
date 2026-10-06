@@ -11,7 +11,7 @@ status:
     that any adapter or implementation conforms.
 
 references:
-  stateModels: .product-experience/phase-0-product-truth/state-models.yaml
+  stateModels: .product-experience/pdp-0-product-truth/state-models.yaml
   specification: docs/migration/expert-reviewed-master-plan.md#p0-005-phase-0
 
 fixtureRequirements:

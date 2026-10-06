@@ -1,0 +1,180 @@
+schemaVersion: media.screen-contract.v2
+contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+surfaceId: media.surface.web
+surfaceBindingStatus: candidate-from-existing-web-channel-surface-inventory; acceptance-pending
+templateId: null
+templateBindingStatus: unresolved; existing-template-ref-does-not-resolve-in-catalog
+layoutIds: []
+layoutBindingStatus: pending-canonical-layout-registry
+componentIds:
+  - media.component.scene-inspector
+  - media.component.storyboard
+  - media.component.simulation-instruments
+  - media.component.artifact-browser
+componentBindingStatus: proposal-copied-from-componentRefs; Shared-binding-pending
+patternIds:
+  - media.gui.pattern.creation-plan-review
+patternBindingStatus: proposal-copied-from-patternRefs; PDP-2-acceptance-pending
+tokenDependencies: []
+tokenBindingStatus: pending-canonical-token-binding
+domainObjectRefs: []
+domainObjectBindingStatus: pending-canonical-domain-object-binding
+operationRefs: []
+operationBindingStatus: pending-canonical-operation-binding
+stateRefs: []
+stateBindingStatus: pending-PDP-1-state-binding; local-UI-state-labels-not-promoted
+entry: []
+entryBindingStatus: pending-canonical-entry-condition-binding
+exit: []
+exitBindingStatus: pending-canonical-exit-condition-binding
+actionConsequences:
+  - actionId: media.action.add-scene-entity
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.select-scene-entity
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.inspect-scene-binding
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.update-scene-binding
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.validate-scene-references
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+  - actionId: media.action.preview-current-revision
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    bindingStatus: pending-owner-binding
+actionConsequencesBindingStatus: pending-owner-capability-effect-finality-binding
+responsiveBehavior:
+  ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
+  status: proposal-unverified
+  screenOverrides: []
+fixtures:
+  refs: []
+  status: missing
+verification:
+  status: not-run
+  evidenceRefs: []
+  checks:
+    structural: not-yet-proven
+    rendering: not-yet-proven
+    behavior: not-yet-proven
+    responsive: not-yet-proven
+    keyboard: not-yet-proven
+    accessibility: not-yet-proven
+fieldBindingStatus:
+  surfaceId: candidate-pending-acceptance
+  templateId: unresolved-no-catalog-match
+  layoutIds: pending-no-canonical-layout-ids
+  componentIds: proposal-copy-shared-binding-pending
+  patternIds: proposal-copy-PDP-2-acceptance-pending
+  tokenDependencies: pending
+  domainObjectRefs: pending
+  operationRefs: pending
+  stateRefs: pending-local-labels-not-canonical
+  entry: pending
+  exit: pending
+  actionConsequences: unresolved-pending-owner-binding
+  responsiveBehavior: proposal-unverified
+  fixtures: missing
+  verification: not-run
+productId: media
+screenId: media.view.compose-scene
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.create
+purpose: Scene entities/material/camera/light and model bindings
+contextGoalNowNext:
+  context: A versioned scene graph with entities, material references, camera/light state, and model or simulation
+    bindings.
+  goal: Assemble a scene whose references and technical bindings remain explicit and inspectable.
+  now: Show scene hierarchy, asset versions, material/lighting controls, camera, and missing or unqualified bindings.
+  next: Edit a scene element, validate the composition, or open a reviewable preview.
+anatomy:
+- scene-version-and-hierarchy
+- entity-and-material-list
+- camera-and-light-inspector
+- asset-version-references
+- model-and-simulation-bindings
+- validation-and-preview-state
+componentRefs:
+- media.component.scene-inspector
+- media.component.storyboard
+- media.component.simulation-instruments
+- media.component.artifact-browser
+states:
+- empty-scene
+- ready
+- asset-missing
+- binding-unqualified
+- validation-pending
+- partial
+- conflict
+- read-only
+actions:
+- media.action.add-scene-entity
+- media.action.select-scene-entity
+- media.action.inspect-scene-binding
+- media.action.update-scene-binding
+- media.action.validate-scene-references
+- media.action.preview-current-revision
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+actionIntents:
+- add or select a scene entity
+- inspect or change a binding
+- validate scene references
+- preview the current revision
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+surfaceContract:
+  surfaceRef: media.channel.web
+  status: channel-and-host-rendering-owner-review-pending
+templateContract:
+  templateRef: media.template.compose-scene
+  kind: owner-defined-template-pending-review
+layoutContract:
+  primaryRegion: intent-and-context
+  supportingRegions: anatomy-list-order
+  responsiveRuleRef: existing-responsive-description
+patternRefs:
+  - media.gui.pattern.creation-plan-review
+validation:
+  status: proposal-validation-pending-owner-review
+  rule: validate-inputs-authority-and-finality-before-dispatch
+recovery:
+  status: explicit-recovery-proposal-pending-owner-review
+  rule: preserve-context-and-unknown-outcomes-before-retry-or-resubmit
+accessibility:
+  status: accessibility-intent-proposal-pending-owner-review
+  rule: preserve-focus-reading-order-names-and-recovery-announcements
+localization:
+  status: Shared-localization-binding-pending-owner-review
+  rule: use-Shared-locale-formatting-and-accessibility-contracts
+sourceRefs:
+- master-plan:section-20.2
+- .product-experience/pdp-0-product-truth
+journeyRefs: []

@@ -1,0 +1,43 @@
+schemaVersion: media.protocol-operation-contract.v1
+operationId: media.http.getMediaConsent
+protocolIdentity:
+  protocol: HTTP
+  method: GET
+  path: /api/v1/consents/{consentId}
+  operationId: getMediaConsent
+sourceContract: contracts/openapi/media.yaml
+sourceContractDisposition: implementation-or-projection-observation; not-declared-canonical-wire-authority
+routeManifestObservation:
+  source: config/route-manifest.json
+  routeId: GET /api/v1/consents/{consentId}
+  identityMatch: exact-method-path-operationId
+parameters:
+  refs:
+  - '#/components/parameters/TenantHeader'
+  - '#/components/parameters/PrincipalHeader'
+  - '#/components/parameters/ConsentId'
+request:
+  schemaRefs: []
+response:
+  responseRefsByStatus:
+    '404': '#/components/responses/Error'
+  schemaRefsByStatus:
+    '200':
+    - '#/components/schemas/ConsentRecord'
+    '404':
+    - '#/components/schemas/ErrorEnvelope'
+pdp1SemanticBinding:
+  logicalOperationRef: null
+  bindingStatus: unresolved-no-source-explicit-http-member-crosswalk
+  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
+  ownerReview: pending
+contractStatus: proposal-only; owner-review-pending
+nonClaims:
+- authentication
+- idempotency
+- retry
+- cancellation
+- finality
+- state-effects
+- privacy
+- event-guarantees

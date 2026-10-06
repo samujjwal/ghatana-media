@@ -1,34 +1,106 @@
 # Media requirements and current-state ledger
 
 The editable Media-specific requirements are maintained under
-[`.product-experience/phase-0-product-truth/requirements.yaml`](../.product-experience/phase-0-product-truth/requirements.yaml).
+[`.product-experience/pdp-0-product-truth/requirements.yaml`](../.product-experience/pdp-0-product-truth/requirements.yaml).
 This document explains the current implementation and verification boundary;
 it is not a replacement requirements registry.
 
-## Current required surface
+## Current required capabilities
 
-The source tree must preserve one canonical Product Definition root and expose
-deterministic, source-linked projections for all applicable GUI, CLI, API, SDK,
-event, and service surfaces. The current local proof covers:
+The source tree now has one canonical Product Definition root and source
+registries for the applicable GUI, CLI, API, SDK, agent/tool, event, and service
+surfaces. These records are proposals unless an acceptance record says
+otherwise. The repository currently contains:
 
-- 462 Phase 0 capability leaves with family, requirement, state, authority,
-  recovery, provenance, and proposed channel references.
-- 28 Phase 1 component contracts with explicit design, action, state,
+- 38 functional requirement groups and 462 PDP-0 capability leaves. Their
+  presence and structural links do not establish complete owner-approved
+  semantics.
+- 28 PDP-2 semantic component contracts with design, action, state,
   accessibility, localization, and prohibited-use fields.
-- 47 Phase 2 screen contracts, 30 registered journeys, and 28 required journey
-  proposal files.
-- A deterministic synthetic simulation/CLI and a read-only browser Explorer
-  with Product, Explore, Specification, and Verify modes.
-- Stable source-derived Explorer records with canonical locations, relation
-  metadata, verification status, and explicit pending currentness.
-- Local cross-phase validation proving capability-family-requirement, component,
-  screen, journey, action, and view references resolve without dangling IDs.
+- 47 PDP-3 canonical screen IDs in 48 screen-contract files (including the
+  job-family specialization), 30 registered journeys, and 30 journey-contract
+  files (28 baseline contracts plus J-29/J-30 extensions).
+- A deterministic synthetic simulation/CLI and a local Explorer with Product,
+  Explore, Specification, Verify, Overview, and semantic views.
+- A generated source manifest and Explorer index. The generator derives IDs
+  from repository paths for newly indexed records; those IDs are not semantic
+  stable identities. Tools semantic fingerprints and currentness remain absent.
+- A local checker for structural completeness and selected cross-phase
+  references. It does not evaluate semantic acceptance or production behavior.
 
 The repeatable local proof command is:
 
 ```sh
 pnpm check:product-experience-local
 ```
+
+A pass is limited to that checker. It does not prove operation-specific semantics,
+expanded PDP-3 screen contracts, stable semantic identity, full machine-interface
+coverage, accepted visual composition, or native acceptance.
+
+## Governing four-phase minimum and ordered tasks
+
+The user's **Ghatana Media — Four-Phase Product Definition Hardening Plan** is
+the ordered execution and completion checklist. Product meaning is authoritative
+only in its owning PDP records and accepted decisions; the migration plan is a
+reference, not a competing semantic source. Preserve existing work and reconcile authority
+before adding missing semantics or deriving implementation. The target is one
+`.product-experience` root with PDP-0 Product Truth, PDP-1 Canonical Domain & Data
+Model, PDP-2 Design Language & Interface System, PDP-3 Complete Product
+Experience, and Explorer outside phase numbering. The present legacy crosswalk
+is an unresolved migration condition, not acceptance of the target architecture.
+
+The complete ordered ledger below retains every prescribed task. These entries
+are execution references, not a second semantic registry and not completion
+claims. Migrate one semantic family at a time while keeping the
+repository valid; do not copy active authorities and retain both generations.
+
+| Wave | Ordered tasks | Required disposition |
+| --- | --- | --- |
+| 0 — Authority | CROSS-001, CROSS-002, CROSS-003, CROSS-004 | Atomically normalize phases/references; complete manifest metadata and stable IDs; register every surface; demote migration plans to provenance/execution reference after extracting unique meaning |
+| 1 — Product Truth | PDP0-001, PDP0-002, PDP0-003, PDP0-004 | Self-contained requirements; finish all 462 capability leaves; reconcile OCR with accepted DI boundary; normalize scope/maturity independently of implementation, qualification, availability, and licensing |
+| 2 — Canonical semantics | PDP1-001, PDP1-002, PDP1-003, PDP1-004, PDP1-005 | Own objects/value objects/relationships; consequential operations; state machines/transitions; events/evidence/provenance; privacy/version/history/offline/interoperability/authority/decisions |
+| 3 — Representation | PDP2-001, PDP2-002, PDP2-003, PDP2-004, PDP2-005 | Verify Shared versions/consumption; register GUI primitives/patterns/layouts/templates/composition; remove unexplained local visual authority; define API and CLI/SDK/event/agent interface languages |
+| 4 — Experience | PDP3-001, PDP3-002, PDP3-003, PDP3-004, PDP3-005 | Expand all 47 screens; contract every HTTP/gRPC operation; settle SDK architecture; complete CLI/SDK/event/agent/system-service registries; contract or explicitly disposition every journey, including J-29/J-30 |
+| 5 — Explorer | EXP-001, EXP-002, EXP-003, EXP-004, EXP-005, EXP-006, EXP-007 | Bind published Tools contracts; use manifest phase/IDs; implement all semantic modes; render accepted composition for 47 screens; simulate canonical operations; inspect every machine interface; consume generated currentness/fingerprints |
+| 6 — Reconciliation | VER-001, VER-002, VER-003, VER-004 | Validate four-phase authority/reference/reachability; design provenance; canonical operation/wire/client/agent parity; full visual/accessibility matrix with independent review |
+| 7 — Derived implementation | IMP-01, IMP-02, IMP-03, IMP-04, IMP-05 | After owning definitions are accepted: correct OCR adapters, consolidate SDK, align runtime states, prove isolated builds, implement admitted production Web/CLI |
+
+Local cleanup disposition: CLEAN-1 replaced the obsolete API guide with an
+authority pointer; CLEAN-2 records the source-specific OpenAPI, route-manifest,
+protobuf, and provider-manifest authorities; CLEAN-3 removed the obsolete
+implementation summary. Canonical architecture and status are documented in
+[README](README.md), [ARCHITECTURE](ARCHITECTURE.md), and the PDP-0
+[product-truth overview](../.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md).
+CLEAN-4 retired the misleading feature-completeness report; CLEAN-5 inventoried
+stale container paths for gated follow-up.
+CLEAN-6's ownership decision is recorded under PDP0-003 and the OCR
+classification file. The runtime adapter correction and public Document
+Intelligence binding remain pending under IMP-01.
+
+Fixed reconciliation baselines are 462 capability leaves, 28 semantic component
+contracts, 47 canonical screen contracts plus one job-family specialization file
+(48 YAML files), 30 journeys with 28 baseline proposals plus J-29/J-30 extension
+contracts, 27 HTTP operations, 43 gRPC RPCs (12/11/10/10), four `av.*` tool
+handlers, and 11 plan CLI commands. Preserve these denominators until an
+authoritative reconciliation justifies a change. The additional
+artifact-verification job-family file does not create a 48th canonical screen;
+the local fixture inventory currently observes 12 command entries and keeps that
+observation distinct from the plan's 11-command denominator.
+No screen is proven complete against the expanded PDP-3 contract by the existing
+checker. All material states, authority/guards, action consequences, design
+composition, entry/exit/handoffs, fixtures, traceability, and verification must be
+bound; machine operations need equivalent complete behavior contracts.
+
+Completion requires one owner per concept, no active old phase directories or
+duplicate authorities, no canonical workstation-local paths, complete semantic
+traceability, and generated currentness. The canonical phase directories,
+source manifest, surface registry, and primary domain/design/interface/experience
+registries are now present locally. The Explorer uses manifest artifact IDs and
+exposes Truth/Domain/Design/Experience/Interfaces and the other semantic views,
+but newly indexed IDs are path-derived and are not stable semantic identities;
+the generated index also does not provide Tools currentness. Browser
+determinism alone does not satisfy pixel-reference or design-quality acceptance.
 
 ## Vision and downstream coverage
 
@@ -48,8 +120,49 @@ which remaining gaps require owner decisions rather than local inference.
 
 ## Current-state gaps
 
-The following are required before phase acceptance, but cannot be inferred or
-closed by local source edits:
+The canonical phase directories, source manifest generator, surface registry,
+PDP-1/PDP-2 registries, machine-interface registries, semantic Explorer views,
+and local structural validators are now present. They establish local structure
+and proposals, not accepted semantics or implementation parity. Remaining
+current-state gaps include:
+
+- P0 definition depth and independent review across the 462 capability leaves;
+  a record count or required-shape check does not establish owner-approved
+  bounds and behavior.
+- PDP-1 semantic review and reconciliation of proposed domain/state meaning with
+  runtime and external owner contracts.
+- PDP-2 verification of Shared package versions and consumption, plus full visual
+  provenance and accessibility/localization conformance.
+- PDP-3 complete behavioral contracts and parity across all registered machine
+  operations and every screen/journey state. The existing structural checks do
+  not accept those semantics.
+- Stable semantic artifact identity and generated Tools fingerprints/currentness.
+  The local manifest generator derives IDs from repository paths for new paths;
+  its content hashes are provenance only and its dependency lists are empty.
+
+The SDK source still contains competing route families: `MediaOperationClient`
+uses `/api/v1/media/*`, `AudioVideoClient` uses `/api/stt/*` and other modality
+paths, while the current OpenAPI uses `/api/v1/artifacts`, `/api/v1/jobs`, and
+`/api/v1/streams`. A canonical route projection now records the OpenAPI paths
+and labels legacy paths as compatibility routes; consumer migration and runtime
+parity remain open under PDP3-003. TypeScript types and UI include the canonical
+`RETRY_PENDING`, `OUTCOME_UNKNOWN`, and `RECONCILING` states, with `CANCELLING`
+and `RETRYING` retained at explicit compatibility boundaries. The STT Java
+adapter maps unknown/reconciling states through the sibling status enum while
+retaining the Media state in metadata; complete cross-runtime parity still needs
+verification. Documentation does not choose an SDK transport model.
+
+The local token-alias record observes Shared source `0.1.0-SNAPSHOT`; Media UI
+declares `@ghatana/tokens`, `@ghatana/theme`, and `@ghatana/design-system` `0.1.2`.
+Published package availability and consumer conformance must be verified before
+rebinding the authored record. GAP-11 covers Media's isolated loading,
+render/inspect/dispatch, and browser presentation against published Tools
+contracts; generic host standalone capability is not a Media acceptance claim.
+
+## Hard blockers requiring human decision or owner evidence
+
+These block their owning acceptance/implementation tasks; they do not prevent a
+read-only audit of the now-explicit definition:
 
 - P0-010 independent semantic review and owner appointment for affected domain
   capability and quality decisions.
@@ -59,6 +172,18 @@ closed by local source edits:
   accessibility, localization, visual, and human review.
 - Owner-approved API/SDK/event contracts, consumer parity, runtime
   qualification, privacy/erasure/SLO evidence, and supply-chain admission.
+- Isolated JVM build proof is blocked before project compilation by the sibling
+  composite's missing `libs.jackson.dataformat.yaml` catalog entry. Workspace
+  dependency installation is also blocked by unavailable private package
+  `@ghatana/design-system@0.1.2`; browser evidence must be rerun after dependency
+  resolution and the latest source/index normalization.
+- PDP0-003 / IMP-01: MDI-001 ownership and the local OCR classification are
+  recorded. The DI public binding and runtime adapter correction remain pending;
+  the `media.ocr` provider adapter still assigns generic models/confidence to
+  Media and conflicts with that boundary.
+- PDP2-005 / PDP3-004: decide whether the four `av.*` public tool identities are
+  compatibility identities or canonicalize to `media.*`; preserve them until
+  the owner records the decision and consumer compatibility proof.
 
 The authoritative cross-phase list is
 [`gaps.yaml`](../.product-experience/gaps.yaml). Unknown or unapproved work
@@ -66,7 +191,15 @@ remains blocked; this file does not convert it into a completion claim.
 
 ## Improvement backlog
 
-Full runtime realization for all proposal views, provider/model qualification,
-production browser hosting, broad visual campaigns, and release publication
-are improvement or release work after the current owner and evidence gates.
-They must not be implemented as local substitutes for the missing authority.
+The prescribed hardening, qualification prerequisites, and visual/accessibility
+proof stay required even where they depend on owner evidence. IMP-05 production
+Web/CLI work waits for admission of those surfaces. Additional product features
+outside the finite governing plan and broader lifecycle/scale/release campaigns
+are later backlog, subject to their own authorization and gates.
+
+## Unsupported-by-design behavior
+
+Fixture CLI/Explorer never supply live identity, byte transfer, model/provider
+execution, production writes, or acceptance authority. Generic OCR execution and
+domain truth belonging to another product must not be invented inside Media.
+Archived desktop source is historical and is not an admitted active surface.

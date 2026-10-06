@@ -1,0 +1,34 @@
+schemaVersion: media.protocol-operation-contract.v1
+operationId: media.grpc.MultimodalService.AnalyzeCrossModal
+protocolIdentity:
+  protocol: gRPC
+  package: com.ghatana.audio.video.multimodal.grpc
+  service: MultimodalService
+  fullyQualifiedService: com.ghatana.audio.video.multimodal.grpc.MultimodalService
+  method: AnalyzeCrossModal
+  clientStreaming: false
+  serverStreaming: false
+sourceContract: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+sourceContractDisposition: implementation-or-projection-observation; not-declared-canonical-wire-authority
+request:
+  protobufMessage: CrossModalRequest
+  schemaRef: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto#com.ghatana.audio.video.multimodal.grpc.CrossModalRequest
+response:
+  protobufMessage: CrossModalResponse
+  schemaRef: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto#com.ghatana.audio.video.multimodal.grpc.CrossModalResponse
+pdp1SemanticBinding:
+  logicalOperationRef: media.operation.multimodal-analysis
+  bindingStatus: proposed-exact-source-member-map; owner-review-pending
+  mappingSource: .product-experience/pdp-1-domain-data/operations.yaml#/sourceDenominators/grpcRpcs/explicitMemberOperationIds
+  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
+  ownerReview: pending
+contractStatus: proposal-only; owner-review-pending
+nonClaims:
+- authentication
+- idempotency
+- retry
+- cancellation
+- finality
+- state-effects
+- privacy
+- event-guarantees

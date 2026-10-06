@@ -1,0 +1,74 @@
+schemaVersion: media.pdp-1.value-objects.v1
+artifactId: media.pdp-1.value-objects
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-0-product-truth/time-units-fidelity.yaml
+scopeStatus: proposed-values-and-observed-fields; pending-owner-review
+sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml, .product-experience/pdp-0-product-truth/time-units-fidelity.yaml, .product-experience/pdp-0-product-truth/quality-policy.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, libs/audio-video-types/src/contracts.ts, contracts/openapi/media.yaml, modules/speech/stt-service/src/main/proto/stt_service.proto, modules/speech/tts-service/src/main/proto/tts_service.proto, modules/vision/vision-service/src/main/proto/vision_service.proto, modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql, providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql]
+values:
+  - id: media.value.opaque-id
+    name: OpaqueId
+    meaning: stable-reference-without-embedded-authority
+    observedForms: Java String; bounded TypeScript string; protobuf identifiers
+    scopeStatus: observed-shape; canonical-format-unselected; pending-owner-review
+  - id: media.value.artifact-digest
+    name: ArtifactDigest
+    meaning: content-integrity-digest-bound-to-algorithm-and-bytes
+    observedForms: SHA-256 in Java and TypeScript contracts
+    scopeStatus: observed-shape; canonical-multialgorithm-policy-unselected; pending-owner-review
+  - id: media.value.byte-count
+    name: ByteCount
+    unit: byte
+    observedForms: byteLength and sizeBytes numeric fields
+    scopeStatus: observed-fields; wire-range-parity-pending-owner-review
+  - id: media.value.wall-clock-instant
+    name: WallClockInstant
+    meaning: lifecycle-or-deadline-instant; not-media-or-simulation-time
+    observedForms: Java Instant; ISO timestamp; protobuf millisecond timestamps
+    scopeStatus: observed-forms; precision-conversion-contract-pending-owner-review
+  - id: media.value.duration
+    name: Duration
+    meaning: interval-bound-to-an-explicit-clock-and-unit
+    observedForms: durationMs, duration_ms, Java Duration
+    scopeStatus: some-fields-explicitly-milliseconds; other-unit-unknown; pending-owner-review
+  - id: media.value.source-pts
+    name: SourcePresentationTimestamp
+    meaning: exact-position-on-source-stream-time-base
+    observedStatus: no shared source-PTS/time-base contract established by the named inputs
+    scopeStatus: unresolved; absent-from-scanned-client-contract; do-not-infer-representation
+  - id: media.value.sample-position
+    name: AudioSamplePosition
+    meaning: integer-sample-index-in-identified-audio-stream
+    proposedRequiredContext: [sampleRate, sampleFormat, channelLayout, sampleCount, encoderPriming, encoderPadding]
+    requiredContextStatus: proposed; unaccepted; pending-owner-review
+    sourceRefs: [.product-experience/pdp-0-product-truth/time-units-fidelity.yaml#integerDomains]
+    scopeStatus: proposed; pending-owner-review
+  - id: media.value.frame-rate
+    name: FrameRate
+    observedForms: scalar-fps-in-TypeScript-contract; other service-specific frame fields
+    scopeStatus: frame-rate-meaning-and-exactness-unresolved; do-not-infer-rational-or-constant-rate
+  - id: media.value.pixel-coordinate
+    name: PixelCoordinate
+    meaning: image-space-value-requiring-origin-reference-dimensions-and-mapping
+    observedForm: numeric-x-y-width-height
+    scopeStatus: observed-fields-with-incomplete-coordinate-semantics; pending-owner-review
+  - id: media.value.physical-quantity
+    name: PhysicalQuantity
+    meaning: magnitude-with-explicit-dimension-and-unit
+    observedStatus: no shared physical-unit registry established by the named inputs
+    scopeStatus: unit-and-dimension-unresolved; no-default-unit-selected
+  - id: media.value.uncertainty
+    name: Uncertainty
+    meaning: scoped uncertainty, confidence, limitation, or explicit abstention
+    rule: confidence-is-not-correctness; missing-is-not-pass
+    scopeStatus: PDP-0-quality-semantics; pending-owner-review
+  - id: media.value.classification
+    name: MediaClassification
+    meaning: sensitivity-classification-with-source-floor-propagated-to-derivatives
+    observedForms: Java and TypeScript vocabularies differ
+    scopeStatus: vocabulary-crosswalk-unresolved; pending-owner-review
+  - id: media.value.policy-disposition
+    name: PolicyDisposition
+    meaning: independent-outcome-for-named-policy-axis-and-exact-scope
+    values: not-enumerated-here
+    scopeStatus: PDP-0-policy-owned; pending-owner-review

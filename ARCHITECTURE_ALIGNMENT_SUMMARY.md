@@ -1,55 +1,48 @@
 # Media Architecture Alignment
 
-**Status:** Current local-closure architecture note
+**Status:** Migration-only local architecture summary; not a production-readiness claim.
 **Service:** Media runtime
-**Canonical contract:** [`service-contract.yaml`](service-contract.yaml)
+**Contract authority:** Source-specific HTTP, gRPC, provider, and Product Definition records.
 
-## Boundary
+## Boundary and composition
 
-Media owns tenant-scoped artifact upload/finalization, processing jobs, stream
-sessions, consent, privacy maintenance, modality providers, and the lifecycle
-state for those concerns. The launcher is the executable composition root;
-`runtime-contracts` contains the stable domain boundary and provider modules
-contain durable/external implementations.
+Media owns tenant-scoped artifacts and uploads, processing jobs, stream sessions,
+consent, privacy maintenance, modality providers, and lifecycle state. The
+`launcher` is the executable composition root; `runtime-contracts` contains the
+domain boundary, while modules and providers contain implementations.
 
-Media does not own Data Cloud governance, Event Plane durable event truth, AI
-Inference provider routing, Action Plane effects, or Agent execution. Those
-boundaries are consumed through typed public contracts.
+Media consumes, but does not own, Data Cloud governance, Event Plane durable
+event truth, AI Inference provider routing, Action Plane effects, or Agents
+execution. Their public contracts remain the integration boundary.
 
-## Repository and service layering
+## Contract surfaces (CLEAN-2)
 
-Repository/provider implementations expose the synchronous provider boundary
-required by their storage technology. Launcher services compose those providers
-into ActiveJ `Promise`-returning operations, enforce tenant and governance
-invariants, and publish typed lifecycle events. This keeps blocking storage and
-remote provider work out of the public domain contracts while preserving an
-explicit asynchronous service boundary.
+There is no active aggregate `service-contract.yaml`, authored aggregate source,
+or generator in this checkout. The current contract surfaces are deliberately
+source-specific:
 
-## Lifecycle publication and retry contract
+- HTTP: `contracts/openapi/media.yaml` reconciled with `config/route-manifest.json`.
+- gRPC: the service protobuf declarations under `modules/*/src/main/proto/`.
+- Provider availability: `config/provider-manifest.json` and its provider records.
+- Semantic and experience definitions: canonical PDP-1/PDP-3 registries under
+  `.product-experience/`.
 
-The Media service contract declares `queue-and-retry` for the optional Event
-Plane dependency in production-like operation. The current local launcher
-publisher is deliberately narrower: it performs one bounded synchronous HTTP
-publication, uses Event Plane idempotency keyed by the lifecycle event ID, and
-reports a failed publication as unconfirmed. Local composition therefore does
-not claim durable publication or restart-safe retry.
+These surfaces have different responsibilities; none is represented as a
+generated aggregate. Historical migration inventories that name the omitted
+source-repository artifact remain provenance records, not active target paths
+or build inputs. GAP-06 remains open where authored-source ownership, consumer
+parity, or native qualification is still pending.
 
-Production-like composition must select a durable publication queue/worker
-adapter that persists the event before exposing the lifecycle transition and
-retries only under the Event Plane contract's idempotency and failure rules. A
-failed or uncertain publication must remain visible for reconciliation; callers
-must not silently replay a remote operation or treat a best-effort local
-publication as durable.
+## Runtime and qualification boundary
 
-## Persistence and recovery
+The launcher composes provider operations, tenant and governance checks, and
+lifecycle publication. Local publication is bounded and synchronous; it does
+not establish durable queue/retry behavior. Production-like operation requires
+the separately owned durable publication adapter and its evidence.
 
-Durable profiles require PostgreSQL metadata/job/stream/consent state and
-encrypted object storage. Upload claims, leases, fencing, idempotency, provider
-outcomes, cancellation state, retention, and erasure remain explicit. Local
-profiles may use file/in-memory providers for diagnosis, but local job and stream
-state is not restart durable and must not be used to make production claims.
-
-The implementation must preserve the contract's distinction between confirmed,
-failed, and unknown external outcomes. Unknown provider or Event Plane outcomes
-enter reconciliation rather than blind retry. Privacy purge failures retain
-retryable metadata until object deletion is verified.
+Durable profiles use PostgreSQL metadata/state and encrypted object storage.
+Local profiles may use diagnostic file/in-memory providers and do not establish
+restart durability. Confirmed, failed, and unknown external outcomes remain
+distinct; unknown outcomes require reconciliation rather than blind replay.
+Runtime qualification, owner acceptance, migration cutover, and deployment are
+separate gates and are not claimed by this summary.

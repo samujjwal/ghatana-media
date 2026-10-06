@@ -1,0 +1,146 @@
+schemaVersion: media.screen-contract.v2
+contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+surfaceId: media.surface.web
+templateId: null
+layoutIds: []
+componentIds: [media.component.source-player, media.component.artifact-integrity-summary, media.component.provenance-summary, media.component.quality-inspector]
+patternIds: [media.gui.pattern.quality-and-uncertainty]
+tokenDependencies: []
+domainObjectRefs: []
+operationRefs: []
+stateRefs: []
+entry: []
+exit: []
+actionConsequences:
+  - actionId: media.action.inspect-artifact
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.inspect-provenance
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.inspect-output-preview-and-version
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.inspect-quality-evidence
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+  - actionId: media.action.open-admitted-delivery-action
+    operationRef: null
+    effectRef: null
+    consequence: unresolved
+    status: pending-owner-binding
+responsiveBehavior: {ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive, status: proposal-unverified, screenOverrides: []}
+fixtures: {refs: [], status: missing}
+verification:
+  status: not-run
+  evidenceRefs: []
+  checks: {structural: not-proven, rendering: not-proven, behavior: not-proven, responsive: not-proven, keyboard: not-proven, accessibility: not-proven}
+fieldBindingStatus:
+  surfaceId: candidate-binding-pending-owner-review
+  templateId: unresolved; no existing catalog template ID matches the declared templateRef
+  layoutIds: none-registered
+  componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
+  patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
+  tokenDependencies: no-canonical-references-declared
+  domainObjectRefs: no-canonical-references-declared
+  operationRefs: no-canonical-references-declared
+  stateRefs: no-PDP1-state-references-declared
+  entry: no-canonical-entry-contract-declared
+  exit: no-canonical-exit-contract-declared
+  actionConsequences: unresolved; owner-effect-binding-pending
+  responsiveBehavior: proposal-only; unverified
+  fixtures: missing
+  verification: not-run
+productId: media
+screenId: media.view.inspect-output
+status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+channel: media.channel.web
+actors:
+- media.creator
+- media.editor
+intentRef: media.intent.deliver
+purpose: Playback/download/review/provenance and delivery action
+contextGoalNowNext:
+  context: One exact output artifact version, its playback or preview, provenance, integrity, and allowed delivery
+    actions.
+  goal: Inspect an output version and its recorded origin before deciding whether to use or deliver it.
+  now: Show the preview, artifact identity, integrity and quality evidence, provenance limitations, and current
+    rights state.
+  next: Download, request approval, or return to the output list only when the relevant action is admitted.
+anatomy:
+- output-version-identity
+- accessible-preview
+- integrity-and-quality-summary
+- provenance-and-limitations
+- rights-and-approval-state
+- allowed-next-actions
+componentRefs:
+- media.component.source-player
+- media.component.artifact-integrity-summary
+- media.component.provenance-summary
+- media.component.quality-inspector
+states:
+- loading
+- available
+- verifying
+- quarantined
+- rejected
+- metadata-incomplete
+- rights-blocked
+- preview-unavailable
+actions:
+- media.action.inspect-artifact
+- media.action.inspect-provenance
+- media.action.inspect-output-preview-and-version
+- media.action.inspect-quality-evidence
+- media.action.open-admitted-delivery-action
+actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+actionIntents:
+- inspect an output preview and exact version
+- review provenance and quality limits
+- continue to an admitted delivery action
+channelDispositions:
+- channelRef: media.channel.web
+  disposition: baseline-view-contract-proposal
+- channelRef: media.channel.cli
+  disposition: command-counterpart-not-bound
+- channelRef: media.channel.api
+  disposition: logical-operation-and-wire-contract-not-bound
+- channelRef: media.channel.embedded
+  disposition: host-rendering-and-focus-contract-not-bound
+surfaceContract:
+  surfaceRef: media.channel.web
+  status: channel-and-host-rendering-owner-review-pending
+templateContract:
+  templateRef: media.template.inspect-output
+  kind: owner-defined-template-pending-review
+layoutContract:
+  primaryRegion: intent-and-context
+  supportingRegions: anatomy-list-order
+  responsiveRuleRef: existing-responsive-description
+patternRefs:
+  - media.gui.pattern.quality-and-uncertainty
+validation:
+  status: proposal-validation-pending-owner-review
+  rule: validate-inputs-authority-and-finality-before-dispatch
+recovery:
+  status: explicit-recovery-proposal-pending-owner-review
+  rule: preserve-context-and-unknown-outcomes-before-retry-or-resubmit
+accessibility:
+  status: accessibility-intent-proposal-pending-owner-review
+  rule: preserve-focus-reading-order-names-and-recovery-announcements
+localization:
+  status: Shared-localization-binding-pending-owner-review
+  rule: use-Shared-locale-formatting-and-accessibility-contracts
+sourceRefs:
+- master-plan:section-20.2
+- .product-experience/pdp-0-product-truth
+journeyRefs: []

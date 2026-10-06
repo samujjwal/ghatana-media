@@ -1,0 +1,8 @@
+schemaVersion: media.api-cancellation.v1
+owner: ghatana-media-product-api
+authority: Media job runtime owns cancellation request and effect semantics
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-2-design-interface-system/api/async-operations.yaml, .product-experience/pdp-0-product-truth/state-models.yaml]
+scopeStatus: proposal; cancellation guarantees are operation-specific and unbound
+acceptance: {criteria: [where cancellation is supported, it is a request with an explicit operation-specific outcome, repeated requests do not imply duplicate effects, completed effects are not misreported as cancelled], status: pending-runtime-owner-review}
+verification: {method: Exercise cancellation before, during, and after irreversible effect boundaries and after response loss, status: not-run}
+rules: [requesting cancellation does not mean cancellation completed, report state/finality only to the extent the operation can establish them, distinguish too-late from accepted-for-processing and unknown where the wire contract supports those outcomes, stopping a client wait is not server cancellation, no cancellation availability or effect-termination guarantee is established here]

@@ -1,0 +1,25 @@
+schemaVersion: media.explorer-tools-binding.v1
+productId: media
+status: EXTERNAL_PACKAGE_AND_OWNER_REVIEW_PENDING
+owner: ghatana-tools
+purpose: >-
+  Declare the external Tools host and contract boundary for the Media Explorer
+  without copying Tools schemas or treating local browser behavior as native
+  Explorer evidence.
+hostPackage: '@ghatana/product-dev-explorer'
+requiredBindings:
+  - product-picker-and-coordinate: ghatana.product/media
+  - source-manifest-consumer: .product-experience/source-manifest.yaml
+  - phase-verification: ghatana-tools-owned-stage-and-claim-contract
+  - traceability-graph: ghatana-tools-workspace-graph
+  - render-inspect-dispatch: published-tools-host-contract
+localProjection:
+  path: apps/media-experience-explorer/
+  status: LOCAL_ONLY
+  semanticAuthority: false
+  receiptAuthority: ghatana-tools-native-evidence-generator
+  currentnessAuthority: ghatana-tools-owned-generated-currentness
+explicitNonClaims:
+  - local browser routes do not prove Tools host binding
+  - deterministic simulation does not prove runtime qualification
+  - pending currentness is not a generated receipt

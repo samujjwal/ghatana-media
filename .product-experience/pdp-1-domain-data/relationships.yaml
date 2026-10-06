@@ -1,0 +1,96 @@
+schemaVersion: media.pdp-1.relationships.v1
+artifactId: media.pdp-1.relationships
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-0-product-truth/domain-model.yaml
+scopeStatus: proposed-relationship-map; pending-owner-review
+sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml, .product-experience/pdp-0-product-truth/state-models.yaml]
+relationships:
+  - id: media.rel.project-revision
+    from: media.domain.project
+    to: media.domain.project-revision
+    meaning: metadata-change-creates-versioned-revision
+    cardinality: one-project-to-many-revisions
+    cardinalityBasis: PDP-0 semantic proposal; not an observed storage constraint; unaccepted pending Media owner review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject]
+    scopeStatus: proposed; pending-owner-review
+  - id: media.rel.project-asset
+    from: media.domain.project
+    to: media.domain.media-asset
+    meaning: project-revision-references-project-specific-asset-uses
+    cardinality: one-to-many
+    cardinalityBasis: PDP-0 semantic proposal; not an observed storage constraint; unaccepted pending Media owner review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject, .product-experience/pdp-0-product-truth/domain-model.yaml#MediaAsset]
+    scopeStatus: proposed; pending-owner-review
+  - id: media.rel.asset-artifact-version
+    from: media.domain.media-asset
+    to: media.domain.artifact-version
+    meaning: asset-references-exact-immutable-artifact-version
+    cardinality: many-to-one
+    cardinalityBasis: PDP-0 semantic proposal; exact cardinality not established by storage keys; unaccepted pending Media owner review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaAsset, .product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion]
+    scopeStatus: proposed; pending-owner-review
+  - id: media.rel.job-plan
+    from: media.domain.processing-job
+    to: media.domain.resolved-plan
+    meaning: job-binds-accepted-request-to-admitted-plan-when-plan-contract-exists
+    cardinality: zero-or-one-per-job; exact-cardinality-unbound
+    cardinalityBasis: PDP-0 semantic proposal; exact cardinality explicitly unbound; no storage-key inference; unaccepted pending Media owner review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ResolvedMediaPlan]
+    scopeStatus: proposed; pending-owner-review
+  - id: media.rel.job-attempt
+    from: media.domain.processing-job
+    to: media.domain.job-attempt
+    meaning: retry-creates-distinct-attempt-under-same-logical-job
+    cardinality: one-to-many
+    cardinalityBasis: PDP-0 state-machine semantic proposal; not an observed storage constraint; unaccepted pending Media owner review
+    sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml#media-job, .product-experience/pdp-0-product-truth/domain-model.yaml#ProcessingJob]
+    scopeStatus: PDP-0-state-rule; pending-owner-review
+  - id: media.rel.attempt-lease
+    from: media.domain.job-attempt
+    to: media.domain.job-lease
+    meaning: current-fenced-lease-authorizes-bounded-attempt-writes
+    cardinality: one-current-lease; historical-cardinality-unbound
+    cardinalityBasis: PDP-0 state-machine semantic proposal; historical cardinality unbound; no storage-key inference; unaccepted pending Media owner review
+    sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml#media-attempt]
+    scopeStatus: PDP-0-state-rule; pending-owner-review
+  - id: media.rel.run-checkpoint
+    from: media.domain.media-run
+    to: media.domain.checkpoint
+    meaning: append-only-run-observations-and-checkpoints
+    cardinality: one-to-many
+    cardinalityBasis: PDP-0 semantic proposal; not an observed storage constraint; unaccepted pending Media owner review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint]
+    scopeStatus: proposed; pending-owner-review
+  - id: media.rel.scene-model-binding
+    from: media.domain.scene-graph
+    to: media.domain.simulation-world
+    meaning: typed-visual-binding-to-model-state-or-observable
+    cardinality: many-to-many-through-explicit-binding
+    cardinalityBasis: PDP-0 semantic proposal; binding/storage constraint unobserved; unaccepted pending owner review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph, .product-experience/pdp-0-product-truth/domain-model.yaml#SimulationWorld]
+    scopeStatus: proposed; binding-contract-unobserved; pending-owner-review
+  - id: media.rel.animation-property-owner
+    from: media.domain.animation-graph
+    to: media.domain.scene-graph
+    meaning: explicit-owner-bridge-when-simulation-also-drives-property
+    cardinality: many-to-many-through-explicit-binding
+    cardinalityBasis: PDP-0 semantic proposal; binding/storage constraint unobserved; unaccepted pending owner review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#AnimationGraph, .product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph]
+    scopeStatus: proposed; pending-owner-review
+  - id: media.rel.derived-artifact
+    from: media.domain.artifact-version
+    to: media.domain.artifact-version
+    meaning: derived-version-records-parent-lineage-without-source-mutation
+    cardinality: directed-many-to-many; acyclicity-contract-unbound
+    cardinalityBasis: PDP-0 semantic proposal; acyclicity and storage constraint unbound; unaccepted pending Media owner review
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion]
+    scopeStatus: proposed; pending-owner-review
+  - id: media.rel.assessment-subject
+    from: media.domain.quality-assessment
+    to: [media.domain.artifact-version, media.domain.processing-job, media.domain.media-run]
+    meaning: bind-exact-subject-scope-method-and-evidence
+    cardinality: one-to-many-explicit-subjects
+    cardinalityBasis: PDP-0 quality-policy semantic proposal; not an observed storage constraint; unaccepted pending Media owner review
+    sourceRefs: [.product-experience/pdp-0-product-truth/quality-policy.yaml]
+    scopeStatus: proposed-from-quality-policy; pending-owner-review

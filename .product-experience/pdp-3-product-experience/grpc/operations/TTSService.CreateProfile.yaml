@@ -1,0 +1,34 @@
+schemaVersion: media.protocol-operation-contract.v1
+operationId: media.grpc.TTSService.CreateProfile
+protocolIdentity:
+  protocol: gRPC
+  package: com.ghatana.audio.video.tts.grpc
+  service: TTSService
+  fullyQualifiedService: com.ghatana.audio.video.tts.grpc.TTSService
+  method: CreateProfile
+  clientStreaming: false
+  serverStreaming: false
+sourceContract: modules/speech/tts-service/src/main/proto/tts_service.proto
+sourceContractDisposition: implementation-or-projection-observation; not-declared-canonical-wire-authority
+request:
+  protobufMessage: CreateProfileRequest
+  schemaRef: modules/speech/tts-service/src/main/proto/tts_service.proto#com.ghatana.audio.video.tts.grpc.CreateProfileRequest
+response:
+  protobufMessage: ProfileResponse
+  schemaRef: modules/speech/tts-service/src/main/proto/tts_service.proto#com.ghatana.audio.video.tts.grpc.ProfileResponse
+pdp1SemanticBinding:
+  logicalOperationRef: null
+  bindingStatus: unresolved-no-source-explicit-member-map
+  mappingSource: null
+  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
+  ownerReview: pending
+contractStatus: proposal-only; owner-review-pending
+nonClaims:
+- authentication
+- idempotency
+- retry
+- cancellation
+- finality
+- state-effects
+- privacy
+- event-guarantees

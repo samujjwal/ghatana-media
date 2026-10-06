@@ -79,7 +79,15 @@
     "status": "pending",
     "evidenceRefs": [],
     "automaticSelectionEligible": false,
-    "runnerRef": "service-contract.yaml",
+    "authorityRefs": [
+      "contracts/openapi/media.yaml",
+      "config/route-manifest.json",
+      "modules/speech/stt-service/src/main/proto/stt_service.proto",
+      "modules/speech/tts-service/src/main/proto/tts_service.proto",
+      "modules/vision/vision-service/src/main/proto/vision_service.proto",
+      "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto"
+    ],
+    "authorityDecision": "CLEAN-2-source-specific-authorities; no aggregate service-contract.yaml",
     "reportSchemaRef": "config/kernel-provider-conformance-report.v1.schema.json",
     "requiredScenarios": [
       "HAPPY_PATH",

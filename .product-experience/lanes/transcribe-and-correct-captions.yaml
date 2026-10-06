@@ -8,9 +8,9 @@ sourceMediaKinds:
   excluded: [video]
   reason: The selected transcription capability accepts audio artifacts or live audio streams; video audio-extraction and its source-time mapping are outside this lane.
 sourceAuthorities:
-  capabilities: .product-experience/phase-0-product-truth/capabilities.yaml
-  requirements: .product-experience/phase-0-product-truth/requirements.yaml
-  actorsAndOutcomes: .product-experience/phase-0-product-truth/goals-jtbd.yaml
+  capabilities: .product-experience/pdp-0-product-truth/capabilities.yaml
+  requirements: .product-experience/pdp-0-product-truth/requirements.yaml
+  actorsAndOutcomes: .product-experience/pdp-0-product-truth/goals-jtbd.yaml
 includedCapabilityIds:
   - media.artifact.inspect
   - media.artifact.derive

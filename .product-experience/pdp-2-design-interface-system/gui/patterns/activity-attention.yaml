@@ -1,0 +1,51 @@
+schemaVersion: media.gui-pattern.v1
+id: media.gui.pattern.activity-attention
+productId: media
+authority: Media owns domain-specific composition and behavior; Shared owns reusable primitive implementation
+status: proposal; semantics, source completeness, owner bindings, accessibility, and implementation pending
+intent: Help an authorized user find a recorded job requiring status review, outcome check, or later follow-up, then open that exact job before another consequential action.
+sourceRefs:
+  - .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml
+  - .product-experience/pdp-3-product-experience/screen-registry.yaml#media.view.review-activity
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.check-job-outcome
+context:
+  scope: Current authorized workspace and jobs visible under its read authority.
+  purpose: Attention for jobs or notifications requiring attention; not an infrastructure dashboard.
+  identity: Keep the selected job identity and purpose visible; open and check only that exact job.
+anatomy:
+  - activity-heading
+  - job-activity-list
+  - job-identity-and-purpose
+  - recorded-state-and-finality
+  - age-or-time-context-when-source-provides-it
+  - urgency-only-when-source-provides-an-authoritative-level
+  - safe-next-action
+  - empty-or-unavailable-state
+states:
+  - loading
+  - populated
+  - empty
+  - partial
+  - stale
+  - access-denied
+  - offline
+  - job-outcome-unknown
+  - evidence-unavailable
+behavior:
+  stateAndFinality: Show only the recorded job state and its supported finality; unknown or unavailable outcome remains explicitly unknown and is not inferred from age, absence, or event observation.
+  nextSafeAction: Offer opening the exact job status; offer checking the outcome only for that same job when its recorded outcome is unknown and the action is authorized.
+  urgencyAndAge: Do not invent priority, urgency, due time, or age. Display age or timestamps only when a bound source supplies them and their meaning is reviewed.
+  acknowledgement: No dismiss, acknowledge, read/unread, or notification-clear action is proposed because source support is not established.
+  deliveryAndReceipts: A listed item is not proof of event delivery, durable receipt, unseen notification, or authoritative finality.
+actions:
+  - media.action.view-job-status
+  - media.action.check-job-outcome
+componentRefs:
+  - media.component.job-status-card
+review:
+  semantics: pending
+  sourceCompleteness: pending
+  ownerBindings: pending
+  accessibility: pending
+  implementation: pending

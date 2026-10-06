@@ -1,0 +1,307 @@
+artifactVersion: media.phase-0.domain-model.v1
+phaseTask: P0-004
+status:
+  maturity: proposal
+  acceptance: not-submitted
+  ownerReview: pending
+  implementation: not-authorized-by-this-artifact
+  statement: >-
+    This file is a product-domain inventory and proposed contract boundary, not
+    an accepted wire schema, generated API, or implementation claim.
+
+purpose: >-
+  Define Media record responsibilities from master-plan sections 7 and 7.2;
+  separate immutable specifications, compiled plans, mutable execution state,
+  and domain-owned physical/model state from visual presentation state.
+
+authorityBoundary:
+  productTruth: >-
+    PDP-0 owns product purpose, outcomes, policy boundaries, and the high-level
+    statement that Media owns media-specific semantics.
+  canonicalDomainAndData: .product-experience/pdp-1-domain-data/
+  handoffStatus: pending-PDP-1-reconciliation
+  rule: >-
+    The catalog, lifecycle rules, and observed-contract notes in this file are
+    transitional source material, not an accepted canonical domain/data
+    authority. Preserve their unique source observations and proposed meaning
+    until corresponding PDP-1 records are reviewed; do not infer that the
+    handoff is complete from PDP-1 references back to this file.
+  unresolved: >-
+    PDP-1 projections still cite this file and remain pending owner review.
+    Authority references and any unique domain semantics require reconciliation
+    in a separately authorized wave; this wave does not edit or claim acceptance
+    of PDP-1 records.
+
+authority:
+  mediaSource:
+    repository: samujjwal/ghatana
+    revision: 245e966591913bc73f59fad9bf43651673b0280e
+    path: services/media
+    evidenceScope: tracked committed source at the migration inventory revision
+  ownershipDecision:
+    record: MDI-001
+    path: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+    effect: >-
+      Media owns temporal and scene-text semantics only. Generic OCR,
+      document parsing, and document workflow remain owned by Document
+      Intelligence; Shared continues to own document-extraction contracts.
+
+evidenceLabels:
+  observed-contract: Source code, schema, or fixture exists at a cited path.
+  owner-design: An external product owner documents a canonical or target design.
+  proposed-media-contract: A Media domain responsibility proposed by this file.
+  unverified: No admitted conversion, compatibility, or conformance result was found.
+
+existingContractMap:
+  - id: media-runtime-records
+    evidence: observed-contract
+    source: services/media/runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+    observedRecords:
+      - MediaArtifact
+      - ProcessingJobRequest
+      - ProcessingJob
+      - JobLease
+      - StreamSessionRequest
+      - StreamSession
+      - MediaGovernanceContext
+      - ConsentDecision
+    compatibilityFacts:
+      - MediaArtifact carries tenant/principal and artifact IDs, byte length, SHA-256, type, object reference, classification, created/expiry wall-clock Instants, and an extensible metadata map.
+      - ProcessingJobRequest carries a generic parameter map; this is an observed compatibility surface and is not sufficient as the proposed typed core-operation contract.
+      - ProcessingJob state has a version and wall-clock lifecycle timestamps; JobLease uses an expiry Instant and fencing token.
+      - StreamSession lease and lifecycle timestamps are wall-clock Instants; sequence and byte counters are integers.
+    gaps:
+      - No separate immutable ArtifactVersion record was located in this source file.
+      - Generic metadata and parameter maps do not establish units, color, frame/sample mapping, or scene semantics.
+
+  - id: media-audio-video-client-types
+    evidence: observed-contract
+    source: services/media/libs/audio-video-types/src/index.ts
+    observedFields:
+      - AudioData.durationMs
+      - AudioData.sampleRate
+      - AudioData.channels
+      - AudioData.bitsPerSample
+      - VideoData.durationMs
+      - VideoData.fps
+      - VideoData.width
+      - VideoData.height
+      - WordTimestamp.start
+      - WordTimestamp.end
+      - BoundingBox.x/y/width/height
+    compatibilityFacts:
+      - Audio/video and image dimensions are numeric fields; WordTimestamp start/end do not declare a unit in this interface.
+      - DEFAULT_AUDIO_FORMAT uses 16000 Hz for the client STT default; this is an input default, not a universal mastering or artifact rate.
+      - Existing fixtures also exercise 22050, 44100, and 48000 Hz, and multiple video frame rates.
+    gaps:
+      - Video fps is a scalar number rather than a rational rate in this interface.
+      - This interface has no complete color, alpha, pixel-aspect, clean-aperture, orientation, VFR timestamp-map, or encoder-delay descriptor.
+
+  - id: media-protobuf-time-fields
+    evidence: observed-contract
+    sources:
+      - services/media/modules/speech/stt-service/src/main/proto/stt_service.proto
+      - services/media/modules/speech/tts-service/src/main/proto/tts_service.proto
+      - services/media/modules/vision/vision-service/src/main/proto/vision_service.proto
+      - services/media/modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    compatibilityFacts:
+      - Several streaming and frame-analysis messages use integer timestamp_ms fields.
+      - STT word timings use integer start_ms/end_ms; TTS returns duration_ms and sample_rate.
+      - Vision and multimodal video messages also use timestamp_ms and duration_ms.
+      - Field names make milliseconds explicit in these messages; these wire fields remain compatibility surfaces.
+    gaps:
+      - The observed millisecond fields do not encode rational source PTS, a VFR mapping, or a sample-exact audio mapping.
+      - No Media-owned scene, animation, or simulation IR was located in the inventoried services/media tree; absence is limited to that scanned tree and is not a claim about every consumer or branch.
+
+  - id: media-openapi-artifact-projection
+    evidence: observed-contract
+    source: services/media/contracts/openapi/media.yaml
+    compatibilityFacts:
+      - The current OpenAPI MediaArtifact component is permissive and allows additional properties.
+      - Keep existing API paths, fields, generated clients, package exports, and protobuf identities compatible until consumer parity and owner gates are satisfied.
+    gaps:
+      - The permissive projection does not establish a richer canonical Media domain model or dimensional validation.
+
+  - id: tutorputor-aef-irs
+    evidence: owner-design
+    owner: TutorPutor
+    repository: samujjwal/ghatana-products
+    revision: ca6a6d5fe88ffd2e2d19a83d2069c678c5044716
+    sources:
+      - products/tutorputor/contracts/v1/experience/experience-ir.ts
+      - products/tutorputor/contracts/v1/experience/model-ir.ts
+      - products/tutorputor/contracts/v1/experience/scene-ir.ts
+      - products/tutorputor/contracts/v1/experience/timeline.ts
+      - products/tutorputor/contracts/v1/experience/scientific.ts
+      - products/tutorputor/contracts/v1/experience/fidelity.ts
+      - products/tutorputor/docs/architecture/experience-fabric/CONTRACTS_AND_IR.md
+    observedSemantics:
+      - Experience IR owns learning purpose, audience, pedagogy, and evidence intent.
+      - Model IR owns domain behavior/state, quantities, units, fidelity, validity, uncertainty, and determinism.
+      - Scene IR owns representations, bindings, controls, instruments, and presentation; it is separate from model truth.
+      - Scientific quantities require units in the scientific helper contract, and scientific time series declare a unit and sampling mode.
+      - The AEF fidelity tiers are F0 through F4; determinism labels include EXACT, TOLERANCE_BOUND, DISTRIBUTION_BOUND, and NON_REPLAYABLE_EXTERNAL.
+    boundary:
+      - These are TutorPutor-owned semantics. Media may bind through a reviewed public contract or adapter, but must not fork TutorPutor Experience IR, Model IR, learning evidence, or assessment semantics.
+      - TutorPutor's legacy Simulation Manifest/USP remains a compatibility input. Its visual and physical fields are mixed and some quantities are unitless or carry legacy aliases.
+      - No Media-to-TutorPutor conversion has been qualified by this inventory; see conformance/domain-contracts/p0-004-golden-fixtures.yaml.
+
+  - id: tutorputor-legacy-usp
+    evidence: observed-contract
+    owner: TutorPutor
+    repository: samujjwal/ghatana-products
+    revision: ca6a6d5fe88ffd2e2d19a83d2069c678c5044716
+    sources:
+      - products/tutorputor/contracts/v1/simulation/types.ts
+      - products/tutorputor/contracts/v1/simulation/manifest.schema.json
+      - products/tutorputor/libs/tutorputor-simulation/src/physics/types/entities.ts
+    compatibilityFacts:
+      - SimKeyframe has stepIndex and numeric timestamp without a unit on timestamp.
+      - SimulationRunRequest samplingRate is described as keyframes per second.
+      - PhysicsMetadata units are optional; timeScale and multiple time fields are numeric.
+      - Legacy PhysicsEntity x/y are canvas coordinates, rotation is degrees, while PhysicsProperties documents mass in kg and angular velocity in rad/s.
+      - AEF documentation explicitly keeps legacy manifest read/replay compatibility and uses an adapter toward Experience, Model, and Scene IR.
+    boundary:
+      - Preserve source meaning and aliases on the legacy path; do not silently infer missing units, axis conventions, or time bases while adapting to a Media proposal.
+
+recordLifecycleRules:
+  specification:
+    proposedMeaning: Immutable versioned user/domain intent or authored graph.
+    examples: [MediaRecipe, MediaProcessingGraph, ScenePlan, SceneGraph, AnimationGraph, SimulationWorld, Timeline, CompositionConfig]
+    mutationRule: Semantic edits create a new version; an execution never mutates its source specification.
+  resolvedPlan:
+    proposedMeaning: Immutable admitted compilation result pinned to inputs, capability bindings, environment, bounds, policy decisions, and a fingerprint.
+    examples: [ResolvedMediaPlan]
+  run:
+    proposedMeaning: Mutable progression of one admitted execution, with immutable observations/checkpoints and explicit attempts.
+    examples: [ProcessingJob, ArtifactVerificationJob, JobAttempt, JobLease, MediaRun, Checkpoint]
+  artifact:
+    proposedMeaning: Immutable byte identity and technical descriptor, with access, retention, and lifecycle represented separately.
+    examples: [MediaArtifact, ArtifactVersion, RenderOutcome, DeliveryOutcome]
+  identity:
+    proposedRule: Use opaque stable IDs and explicit version/hash references across boundaries; never rely on engine object identity.
+  mutableState:
+    proposedRule: Only run/job/lease/stream progression is mutable; recorded decisions and observations are append-only or versioned.
+
+proposedRecordCatalog:
+  - id: MediaProject
+    evidence: proposed-media-contract
+    meaning: Tenant/workspace membership, title, immutable revision reference, asset and scene/timeline references, settings, and access policy.
+    stateBoundary: Project metadata is versioned; referenced artifact bytes are not embedded.
+  - id: MediaArtifact-and-ArtifactVersion
+    evidence: proposed-media-contract
+    meaning: Immutable content identity, digest, byte size, media type, technical descriptors, origin, and owner references.
+    stateBoundary: Access, lifecycle, retention, and deletion/purge state are separate from immutable content identity.
+    typedRequirements: Physical and signal quantities carry explicit units or an explicit unknown/not-applicable state; unknown is never silently defaulted.
+  - id: MediaAsset
+    evidence: proposed-media-contract
+    meaning: Project-specific use of an artifact version, purpose, crop/trim, and presentation bindings.
+    stateBoundary: References bytes; does not duplicate or redefine them.
+  - id: MediaRecipe
+    evidence: proposed-media-contract
+    meaning: Versioned parameterized processing, animation, or simulation intent, with typed parameters, bounds, required ports, and safe variants.
+    stateBoundary: Specification only; no provider or engine execution object is part of its public shape.
+  - id: ProcessingJob-and-RenderJob
+    evidence: proposed-media-contract
+    meaning: Durable requested operation with immutable request/plan references, owner, state, attempts, and outputs; RenderJob and ArtifactVerificationJob are intent-specific views.
+    stateBoundary: Job status progresses independently of the immutable request and plan; verification-job finality does not replace artifact lifecycle disposition.
+  - id: ArtifactVerificationJob
+    evidence: proposed-media-contract
+    meaning: An intent-specific ProcessingJob that collects integrity, format, and required policy evidence for an uploaded artifact.
+    stateBoundary: Its stable identity is distinct from the related upload and any resulting artifact; owner evidence controls the artifact lifecycle transition.
+  - id: JobAttempt-and-JobLease
+    evidence: proposed-media-contract
+    meaning: Attempt identity, worker claim/fencing token, deadline, side-effect boundary, provider execution reference, and reconciliation state.
+    stateBoundary: Lease/attempt progression is mutable and durably versioned; provider reference remains opaque.
+  - id: MediaProcessingGraph
+    evidence: proposed-media-contract
+    meaning: Immutable typed nodes/edges, artifact references, required semantics, and parameter contracts.
+    stateBoundary: The specification is acyclic per admitted execution plan; bounded stateful loops stay inside typed node contracts.
+  - id: ResolvedMediaPlan
+    evidence: proposed-media-contract
+    meaning: Admitted concrete graph, capability bindings, execution environment, resource bounds, policy-decision references, cost reservation, and plan fingerprint.
+    stateBoundary: Immutable for a run; re-planning creates a successor plan.
+  - id: MediaRun-and-Checkpoint
+    evidence: proposed-media-contract
+    meaning: Mutable execution progression plus immutable observations and checkpoint references.
+    stateBoundary: Run progression never mutates source graph or plan; replay claims attach to a declared fidelity/replay class.
+  - id: ScenePlan-and-SceneBrief
+    evidence: proposed-media-contract
+    meaning: Narrative/visual intent, purpose, timing, references, controls, narration, and transitions.
+    stateBoundary: Intent only; it is not permission or proof of model behavior.
+  - id: SceneGraph
+    evidence: proposed-media-contract
+    meaning: Versioned visual scene entities, assets, transforms, materials, cameras, lights, and typed bindings to model state or observables.
+    stateBoundary: Visual representation is distinct from physical/model state; imported engine-specific objects remain adapter-private.
+  - id: AnimationGraph
+    evidence: proposed-media-contract
+    meaning: Tracks, keyframes, curves, constraints, events, rig mappings, and bindings to scene properties.
+    stateBoundary: A declared bridge says whether animation drives a kinematic property or a simulation supplies its rendered value; contradictory owners are invalid.
+  - id: SimulationWorld
+    evidence: proposed-media-contract
+    meaning: Initial physical/model state, quantities and units, solver/engine requirements, boundary conditions, constraints, and sampled output contract.
+    stateBoundary: Model truth and numerical state are distinct from scene mesh, camera, materials, and visual styling.
+    typedRequirements: Scientific/physical core values cannot be unitless; equations or authoritative model references and validity ranges accompany quantitative fidelity claims.
+  - id: Timeline-and-CompositionConfig
+    evidence: proposed-media-contract
+    meaning: Rational-time tracks and clips, transitions, audio mix, captions, graphics, color configuration, and delivery intent.
+    stateBoundary: Editorial/presentation clocks remain distinct from simulation time and wall-clock deadlines.
+  - id: GenerationControlBundle
+    evidence: proposed-media-contract
+    meaning: Typed references for masks, depth/normals, pose, edges, segmentation, layout, palette, camera/subject trajectories, and static/motion regions.
+    stateBoundary: Controls describe generation intent and do not imply model/identity truth.
+  - id: ContinuityState
+    evidence: proposed-media-contract
+    meaning: Scene-to-scene identity, appearance, geometry, and style references plus qualified comparison observations.
+    stateBoundary: A continuity observation is not identity proof.
+  - id: QualityAssessment
+    evidence: proposed-media-contract
+    meaning: Metric/version, applicability, input/output references, score and unit, threshold, uncertainty, failure region, and reviewer disposition.
+    stateBoundary: Visual quality is not scientific/domain fidelity.
+  - id: RenderOutcome-and-DeliveryOutcome
+    evidence: proposed-media-contract
+    meaning: Registered outputs, exact technical descriptors, validation, degradation, provenance, and publication certainty.
+    stateBoundary: A successful render is not a successful delivery or external publication.
+  - id: ConsentReference-RightsDecision-ProvenanceManifest
+    evidence: proposed-media-contract
+    meaning: Separate authority references for permission, lawful/contractual permitted use, and observed creation history.
+    stateBoundary: User intent and media metadata cannot widen external authority decisions.
+
+separationAndCompatibility:
+  productBoundary:
+    - Media owns media-domain artifact, upload, job, stream, speech, vision, scene-text, consent, and lifecycle semantics as established by P0-001.
+    - Shared owns generic workflow, messaging, audit, observability, identity, governed-document, and document-extraction contracts.
+    - Ghatana owns the reusable Document Intelligence service; Media may later consume its public API for temporal/scene-text observations.
+    - AI Inference owns generic model/provider execution and governance; Media does not add a second model registry.
+    - Data Cloud read models and consumer APIs remain Data Cloud-owned.
+  publicShape:
+    - Product records use discriminated, validated payloads and typed references; arbitrary Map<String, unknown> is not an adequate new core semantic contract.
+    - SDK/engine/device/tensor/scene-library objects, database entities, local filesystem paths, credentials, and signed URLs stay behind adapters.
+    - Compatibility changes are classified and versioned; existing OpenAPI/protobuf/package/persistence identities are not reinterpreted in place.
+  irCompatibility:
+    tutorputor:
+      - Prefer a reviewed public TutorPutor contract or owner-approved bounded adapter.
+      - Preserve Experience IR learning intent, Model IR domain truth, Scene IR presentation, and the legacy read/replay path under TutorPutor ownership.
+      - Media does not import the broad @tutorputor/simulation package as its public model and does not introduce competing learning or assessment schemas.
+      - Unitless or renderer-shaped legacy values may remain readable in the legacy representation but cannot be promoted to a scientific Media model without an explicit, tested conversion disposition.
+    externalFrameworks:
+      - External SDK classes and engine-specific scene/simulation objects are adapter-private.
+      - Interchange conversion must declare supported subset and conversion loss; lossy import/export requires explicit disposition.
+
+openValidationItems:
+  - Validate any Media-native 3D coordinate proposal against admitted scene/model contracts before adopting it as a universal default.
+  - Confirm public TutorPutor adapter boundary and current contract version with TutorPutor owners; no cross-product acceptance is recorded here.
+  - Select a governed unit identifier vocabulary and dimensional validator before implementation; this proposal requires explicit units but does not mint a unit registry.
+  - Establish which canonical interchange subsets (including glTF/GLB or OpenTimelineIO where applicable) are supported and measure conversion loss.
+  - Complete golden conversions and negative dimensional validation; the fixture file is a specification only and is not evidence that an implementation passes.
+
+conformanceFixtureSpecification:
+  path: conformance/domain-contracts/p0-004-golden-fixtures.yaml
+  status: test-vector-specification-only
+  implementationStatus: not-run-against-a-domain-adapter
+  scope:
+    - rational temporal conversion
+    - coordinate serialization round-trip and ambiguous legacy coordinates
+    - color/alpha descriptor preservation
+    - negative dimensional input
+    - TutorPutor IR ownership and compatibility boundary

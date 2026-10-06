@@ -1,0 +1,96 @@
+schemaVersion: media.pdp-0.ocr-ownership.v1
+artifactId: media.pdp-0.ocr-ownership
+productId: media
+owner: media-product
+purpose: >-
+  Explicitly classify OCR material so a generic helper or compatibility adapter
+  cannot silently become Media Product Truth.
+authority: .product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md
+scopeStatus: TARGET
+publicDependency:
+  required: true
+  authority: Ghatana services/document-intelligence public client; Shared owns neutral document-extraction contracts
+  status: EXTERNAL_BLOCKER
+  reason: >-
+    The current checkout contains a Kernel adapter and a local OcrService but
+    does not expose the admitted public DI client needed for runtime cutover.
+classifications:
+  - id: media.ocr.semantic-capability
+    target: CANONICAL_MEDIA_SEMANTIC
+    owner: media-product
+    sourceOfMeaning: .product-experience/pdp-0-product-truth/capabilities.yaml
+    classification: CANONICAL_MEDIA_SEMANTIC
+    implementationStatus: definition-only; no admitted runtime binding
+    qualificationStatus: PENDING_EXTERNAL_DI
+    allowedUse: >-
+      Product Truth may describe OCR as a bounded Media capability only when
+      provider identity, consent, provenance, confidence, and recovery are
+      represented by the canonical operation and evidence contracts.
+  - id: media.ocr.local-service
+    target: LEGACY_COMPATIBILITY
+    source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/OcrService.java
+    classification: LEGACY_COMPATIBILITY
+    semanticAuthority: false
+    allowedUse: existing-adapter-compatibility-only; no new Media semantic authority
+    implementationStatus: LEGACY_COMPATIBILITY
+    qualificationStatus: PENDING_EXTERNAL_DI
+    migration: retain current runtime behavior until the public DI client is published and consumer-verified; then migrate and requalify
+  - id: media.ocr.kernel-adapter
+    target: INCORRECT_IMPLEMENTATION
+    source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java
+    classification: INCORRECT_IMPLEMENTATION
+    semanticAuthority: false
+    allowedUse: preserve existing adapter behavior pending a published DI client; do not admit as generic OCR ownership
+    implementationStatus: LEGACY_COMPATIBILITY
+    qualificationStatus: PENDING_EXTERNAL_DI
+    migration: replace only after the public DI client is published and consumer-verified; re-run provider conformance without replaying prior evidence
+  - id: media.ocr.vision-model-engine
+    target: LEGACY_COMPATIBILITY
+    source: modules/vision/vision-service/src/main/java/com/ghatana/vision/engine/VisionModelEngine.java
+    scope: symbol
+    symbol: VisionModelEngine.extractText
+    excludedSymbols:
+      - VisionModelEngine.detectObjects
+      - VisionModelEngine.classify
+      - VisionModelEngine.detectFaces
+    exclusionStatement: These other object-detection, image-classification, and face-detection operations are outside this OCR disposition and remain governed by their owning vision definitions.
+    classification: LEGACY_COMPATIBILITY
+    semanticAuthority: false
+    allowedUse: existing compatibility surface only; generic text extraction is not a Media capability
+    implementationStatus: LEGACY_COMPATIBILITY
+    qualificationStatus: NOT_ADMITTED
+    migration: remove or rebind OCR entry points only after the public DI client is published and the consumer path is verified
+  - id: media.ocr.vision-detector-contract
+    target: LEGACY_COMPATIBILITY
+    source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/detection/VisionDetector.java
+    scope: symbol
+    symbol: VisionDetector.extractText
+    excludedSymbols:
+      - VisionDetector.detectObjects
+      - VisionDetector.classify
+      - VisionDetector.detectFaces
+    exclusionStatement: These other object-detection, image-classification, and face-detection operations are outside this OCR disposition and remain governed by their owning vision definitions.
+    classification: LEGACY_COMPATIBILITY
+    semanticAuthority: false
+    allowedUse: existing compatibility surface only; generic OCR provider semantics remain Document Intelligence-owned
+    implementationStatus: LEGACY_COMPATIBILITY
+    qualificationStatus: NOT_ADMITTED
+    migration: retain until an admitted public DI client and replacement conformance path exist
+registrations:
+  - id: media.ocr.provider-manifest-entry
+    source: config/provider-manifest.json#/providers/media.ocr
+    disposition: source-registration-only
+    semanticAuthority: false
+    qualificationStatus: PENDING_EXTERNAL_DI
+    note: provider registration is not an implementation or Product Truth acceptance
+decisions:
+  - id: PDP0-003-D1
+    decision: MDI-001 assigns generic OCR/Document Intelligence execution to the platform service; Media owns only media-specific scene, temporal, region, tracking, and editing semantics and may consume the admitted public DI client.
+    state: accepted-boundary
+    authority: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+  - id: PDP0-003-D2
+    decision: Generic OcrService, VisionModelEngine, VisionDetector, and KernelOcrProviderAdapter do not establish Media OCR ownership by naming or source presence.
+    state: accepted-boundary
+  - id: PDP0-003-D3
+    decision: Runtime correction remains blocked until the external public DI client is available and independently verified.
+    state: blocked-external-dependency

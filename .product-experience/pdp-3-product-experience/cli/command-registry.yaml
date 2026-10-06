@@ -1,0 +1,59 @@
+schemaVersion: media.command-registry.v1
+productId: media
+status: implemented-local-fixture-command-simulator; production-runtime-cli-not-connected
+executionScope: deterministic-synthetic-fixtures-only; no-Media-runtime-or-provider-connection
+source: libs/media-experience-simulation/src/cli.ts
+sourcePopulation:
+  count: 11
+  classification: Explorer simulation infrastructure; fixture command parser/runner only
+  productionCommandCount: 0
+  admission: not-a-production-cli-contract; canonical-production-cli-design-pending
+commands:
+  - id: media.fixture-cli.upload-inspect
+    canonicalCommand: "ghatana-media upload inspect"
+    options: [--upload, --format]
+    execution: synthetic-fixture-only
+  - id: media.fixture-cli.upload-resume
+    canonicalCommand: "ghatana-media upload resume"
+    options: [--upload, --format]
+    execution: synthetic-fixture-only
+  - id: media.fixture-cli.transcribe
+    canonicalCommand: "ghatana-media transcribe"
+    options: [--source-version, --language]
+    execution: synthetic-fixture-only
+  - id: media.fixture-cli.transcript-review
+    canonicalCommand: "ghatana-media transcript review"
+    options: [--transcript-version]
+    execution: synthetic-fixture-only
+  - id: media.fixture-cli.job-status
+    canonicalCommand: "ghatana-media job status"
+    options: [--job]
+    execution: synthetic-fixture-only
+  - id: media.fixture-cli.job-cancel
+    canonicalCommand: "ghatana-media job cancel"
+    options: [--job]
+    execution: synthetic-fixture-only
+  - id: media.fixture-cli.job-check-outcome
+    canonicalCommand: "ghatana-media job check-outcome"
+    options: [--job]
+    execution: synthetic-fixture-only
+  - id: media.fixture-cli.caption-correct-text
+    canonicalCommand: "ghatana-media caption correct-text"
+    options: [--artifact-version, --segment, --text]
+    execution: synthetic-fixture-only
+  - id: media.fixture-cli.caption-align-timing
+    canonicalCommand: "ghatana-media caption align-timing"
+    options: [--artifact-version, --segment, --start-tick, --end-tick]
+    execution: synthetic-fixture-only
+  - id: media.fixture-cli.caption-save-version
+    canonicalCommand: "ghatana-media caption save-version"
+    options: [--draft-version, --purpose]
+    execution: synthetic-fixture-only
+  - id: media.fixture-cli.caption-compare-versions
+    canonicalCommand: "ghatana-media caption compare-versions"
+    options: [--left-version, --right-version]
+    execution: synthetic-fixture-only
+globalOptions:
+  - --format human|json|jsonl
+  - --scenario <fixture-id>
+productionCliDisposition: no-production-cli-command-claims-in-this-fixture-registry

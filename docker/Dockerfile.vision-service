@@ -14,14 +14,12 @@ COPY settings.gradle.kts gradle.properties ./
 COPY buildSrc/ buildSrc/
 COPY build.gradle.kts ./
 
-# Selective copy for dependency caching
-COPY platform/java/ platform/java/
-COPY products/audio-video/libs/common/ products/audio-video/libs/common/
-COPY products/audio-video/modules/vision/ products/audio-video/modules/vision/
-COPY platform/contracts/ platform/contracts/
+# Build from the standalone Media repository root; settings.gradle.kts owns the
+# full runtime-contract and provider graph.
+COPY . .
 
 RUN chmod +x gradlew && \
-    ./gradlew :products:audio-video:modules:vision:vision-service:shadowJar \
+    ./gradlew :services:media:modules:vision:vision-service:shadowJar \
       --no-daemon \
       -x test \
       -x checkstyleMain
@@ -34,7 +32,7 @@ RUN groupadd -r vision && useradd -r -g vision vision
 WORKDIR /app
 
 COPY --from=builder \
-    /workspace/products/audio-video/modules/vision/vision-service/build/libs/*-all.jar \
+    /workspace/modules/vision/vision-service/build/libs/*-all.jar \
     app.jar
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \

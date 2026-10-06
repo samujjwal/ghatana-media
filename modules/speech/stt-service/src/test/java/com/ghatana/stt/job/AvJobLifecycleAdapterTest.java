@@ -76,8 +76,22 @@ class AvJobLifecycleAdapterTest {
     @DisplayName("converts canonical status back to local status")
     void convertsCanonicalBackToLocal() {
         assertThat(AvJobLifecycleAdapter.fromCanonical(CanonicalJobStatus.RETRYING))
-                .isEqualTo(AvTranscriptionJob.JobStatus.RETRYING);
+                .isEqualTo(AvTranscriptionJob.JobStatus.RETRY_PENDING);
         assertThat(AvJobLifecycleAdapter.fromCanonical(CanonicalJobStatus.SCHEDULED))
                 .isNull();
+    }
+
+    @Test
+    @DisplayName("retains canonical unknown and retry states without marking them terminal")
+    void retainsCanonicalIntermediateStates() {
+        AvTranscriptionJob job = AvTranscriptionJob.create(
+                "audio-4", "tenant-1", "en", Map.of(), "trace-4", "req-4", "whisper-3")
+                .withStatus(AvTranscriptionJob.JobStatus.OUTCOME_UNKNOWN);
+
+        CanonicalJobRecord canonical = AvJobLifecycleAdapter.toCanonical(job);
+
+        assertThat(canonical.status()).isEqualTo(CanonicalJobStatus.RUNNING);
+        assertThat(canonical.metadata()).containsEntry("mediaCanonicalState", "OUTCOME_UNKNOWN");
+        assertThat(canonical.isTerminal()).isFalse();
     }
 }

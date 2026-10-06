@@ -1,6 +1,6 @@
 import artifacts from "../specification-artifacts.json";
 
-export type ExperiencePhase = "P0" | "P1" | "P2" | "P3" | "Cross-phase";
+export type ExperiencePhase = "PDP-0" | "PDP-1" | "PDP-2" | "PDP-3" | "EXPLORER" | "CROSS_PHASE" | "IMPLEMENTATION" | "EVIDENCE" | "REFERENCE" | "OBSOLETE";
 
 export interface SpecificationArtifact {
   readonly phase: ExperiencePhase;
@@ -23,23 +23,25 @@ export interface ArtifactTraceMetadata {
 export const specificationArtifacts: readonly SpecificationArtifact[] = Object.freeze(artifacts as SpecificationArtifact[]);
 
 const authorityClassForPhase: Readonly<Record<ExperiencePhase, string>> = Object.freeze({
-  P0: "PRODUCT_TRUTH_AUTHORITY",
-  P1: "DESIGN_SYSTEM_AUTHORITY",
-  P2: "PRODUCT_EXPERIENCE_AUTHORITY",
-  P3: "EXPLORER_ADAPTER",
-  "Cross-phase": "EVIDENCE_ONLY",
+  "PDP-0": "PRODUCT_TRUTH_AUTHORITY",
+  "PDP-1": "DOMAIN_DATA_AUTHORITY",
+  "PDP-2": "DESIGN_INTERFACE_AUTHORITY",
+  "PDP-3": "PRODUCT_EXPERIENCE_AUTHORITY",
+  EXPLORER: "EXPLORER_PROJECTION",
+  CROSS_PHASE: "CROSS_PHASE_GOVERNANCE",
+  IMPLEMENTATION: "IMPLEMENTATION_PROJECTION",
+  EVIDENCE: "EVIDENCE_PROJECTION",
+  REFERENCE: "REFERENCE_ONLY",
+  OBSOLETE: "OBSOLETE_REFERENCE",
 });
-
-function stablePathId(path: string): string {
-  return `media.explorer.artifact.${path.replace(/^\.product-experience\//u, "").replace(/[^a-zA-Z0-9]+/gu, ".").replace(/^\.+|\.+$/gu, "").toLocaleLowerCase()}`;
-}
 
 function verificationStatusForArtifact(artifact: SpecificationArtifact): string {
   if (artifact.path.endsWith("/PRODUCT-TRUTH.md")) return "BOUNDARY_SLICE_ACCEPTED_FULL_PHASE_PENDING";
-  if (artifact.phase === "P0") return "PROPOSAL_P0_010_PENDING";
-  if (artifact.phase === "P1") return "PROPOSAL_P1_REVIEW_PENDING";
-  if (artifact.phase === "P2") return "PROPOSAL_P2_008_PENDING";
-  if (artifact.phase === "P3") return "LOCAL_PROJECTION_TOOLS_BINDING_PENDING";
+  if (artifact.phase === "PDP-0") return "PROPOSAL_PDP0_INDEPENDENT_REVIEW_PENDING";
+  if (artifact.phase === "PDP-1") return "PROPOSAL_PDP1_SEMANTIC_REVIEW_PENDING";
+  if (artifact.phase === "PDP-2") return "PROPOSAL_PDP2_DESIGN_REVIEW_PENDING";
+  if (artifact.phase === "PDP-3") return "PROPOSAL_PDP3_EXPERIENCE_REVIEW_PENDING";
+  if (artifact.phase === "EXPLORER") return "LOCAL_PROJECTION_TOOLS_BINDING_PENDING";
   return "GOVERNANCE_RECORD_OWNER_REVIEW_PENDING";
 }
 
@@ -87,9 +89,10 @@ function manifestRelations(record: string, section: "dependencies" | "dependents
 export function traceMetadataForArtifact(artifact: SpecificationArtifact, sourceManifest = ""): ArtifactTraceMetadata {
   const manifestRef = ".product-experience/source-manifest.yaml";
   const record = manifestRecordForArtifact(sourceManifest, artifact.path);
+  const canonicalArtifactId = manifestArtifactId(record);
   return {
-    stableId: stablePathId(artifact.path),
-    canonicalArtifactId: manifestArtifactId(record) || "Not resolved from source manifest",
+    stableId: canonicalArtifactId || "media.explorer.artifact.unresolved",
+    canonicalArtifactId: canonicalArtifactId || "Not resolved from source manifest",
     authorityClass: authorityClassForPhase[artifact.phase],
     canonicalLocation: artifact.path,
     semanticFingerprint: "PENDING_OWNER_APPROVED_TOOLS_GENERATION",

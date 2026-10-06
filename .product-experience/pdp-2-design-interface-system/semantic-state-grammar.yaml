@@ -1,0 +1,42 @@
+schemaVersion: media.semantic-state-grammar.v1
+productId: media
+authority: Media state presentation mappings; PDP-0 owns state machines
+status: authored-proposal; P0-010-and-accessibility-review-pending
+source: .product-experience/pdp-0-product-truth/state-models.yaml
+presentationRules:
+  - Render the exact owning state plus a short explanation; do not create a second UI-only lifecycle.
+  - Keep job status, attempt status, consent, transcript alignment, review status, and effect finality as separate fields.
+  - A state with no safe user action shows the responsible boundary and an explanation.
+states:
+  - stateRef: media-job.QUEUED
+    label: Waiting to start
+    explanation: The request is recorded; processing has not started.
+    safeActionRefs: [media.action.view-job-status, media.action.request-cancellation]
+  - stateRef: media-job.RUNNING
+    label: Transcribing
+    explanation: A current attempt is processing the authorized request.
+    safeActionRefs: [media.action.view-job-status, media.action.request-cancellation]
+  - stateRef: media-job.COMPLETED
+    label: Transcript ready to review
+    explanation: The result is recorded; review is still required where applicable.
+    safeActionRefs: [media.action.review-transcript, media.action.inspect-provenance]
+  - stateRef: media-job.OUTCOME_UNKNOWN
+    label: Outcome not confirmed
+    explanation: The request may have started; check its status before taking another action.
+    safeActionRefs: [media.action.check-job-outcome]
+  - stateRef: media-upload-and-artifact.VERIFYING
+    label: Checking source file
+    explanation: Integrity, format, and policy checks are still in progress.
+    safeActionRefs: [media.action.inspect-source]
+  - stateRef: media-upload-and-artifact.AVAILABLE
+    label: Source ready
+    explanation: Source integrity was verified for this fixture; runtime availability is not implied.
+    safeActionRefs: [media.action.inspect-source, media.action.request-transcription]
+  - stateRef: media-upload-and-artifact.QUARANTINED
+    label: Source needs review
+    explanation: The source is isolated and cannot be used until its disposition is recorded.
+    safeActionRefs: [media.action.inspect-source]
+  - stateRef: media-rights-and-consent.consent.REVOKED
+    label: Processing stopped by consent change
+    explanation: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy.
+    safeActionRefs: [media.action.view-job-status]
