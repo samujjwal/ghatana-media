@@ -11,7 +11,7 @@ import {
   reduceMediaExperience,
 } from "@ghatana/media-experience-simulation";
 import type { MediaAction, MediaExperienceState, ScenarioId, SimulationEvent, TransitionResult } from "@ghatana/media-experience-simulation";
-import { specificationArtifacts, type ExperiencePhase, type SpecificationArtifact } from "./specification.js";
+import { specificationArtifacts, traceMetadataForArtifact, type ExperiencePhase, type SpecificationArtifact } from "./specification.js";
 
 type ExplorerMode = "product" | "explore" | "specification" | "verify";
 type ExplorerChannel = "web" | "cli";
@@ -62,6 +62,7 @@ const screenContractArtifacts = specificationArtifacts.filter((artifact) =>
   artifact.path.includes("/screen-contracts/") && !artifact.path.endsWith("/artifact-verification-job-family.yaml"));
 const actionRegistryArtifact = specificationArtifacts.find((artifact) =>
   artifact.path.endsWith("/phase-2-product-experience/action-registry.yaml"));
+const sourceManifestArtifact = specificationArtifacts.find((artifact) => artifact.path === ".product-experience/source-manifest.yaml");
 function productContractPathFromLocation(): string | undefined {
   const match = location.hash.match(/^#product\/view\/(.+)$/u);
   if (!match) return undefined;
@@ -911,7 +912,7 @@ function renderScreenContractPreview(artifact: SpecificationArtifact, source: st
   </section>`;
 }
 
-function renderProductContractProjection(artifact: SpecificationArtifact, source: string, actionRegistrySource: string): string {
+function renderProductContractProjection(artifact: SpecificationArtifact, source: string, actionRegistrySource: string, sourceManifest: string): string {
   if (!source.includes("schemaVersion: media.screen-contract.v1")) {
     return `<main class="product-contract-main" id="main-content" tabindex="-1"><a class="product-back-link" href="#product" data-product-home>← Media workspace</a><section class="product-contract-empty"><h1>View proposal unavailable</h1><p>This record does not define a Product view contract.</p><a class="button button-outline" href="#product" data-product-home>Return to Media</a></section></main>`;
   }
@@ -948,6 +949,7 @@ function renderProductContractProjection(artifact: SpecificationArtifact, source
     <a class="product-back-link" href="#product" data-product-home>← Media workspace</a>
     <div class="product-contract-heading"><div><div class="product-contract-breadcrumb">Workspace <span aria-hidden="true">/</span> ${escapeHtml(screenName)}</div><h1>${escapeHtml(screenName)}</h1><p>${escapeHtml(readablePurpose)}</p></div><span class="product-contract-status">PROPOSAL</span></div>
     <aside class="product-contract-notice" role="note"><span aria-hidden="true">i</span><div><strong>Proposal view · simulated structure</strong><p>This route projects the declared view contract. It does not represent connected product data or behavior.</p></div></aside>
+    ${renderTraceMetadata(artifact, sourceManifest)}
     ${contextCards ? `<section class="product-context-grid" aria-label="Context, goal, now, and next step">${contextCards}</section>` : ""}
     <section class="product-contract-section" aria-labelledby="product-view-structure"><div class="product-contract-section-heading"><div><h2 id="product-view-structure">View structure</h2><p>Regions declared for this view</p></div><span>${anatomy.length} regions</span></div><div class="product-region-grid">${anatomyCards}</div></section>
     <div class="product-contract-columns">
@@ -969,14 +971,38 @@ function renderSpecificationArtifactLinks(artifacts: readonly SpecificationArtif
   return artifacts.map((artifact) => `<button type="button" class="artifact-link ${artifact.path === selectedArtifact.path ? "is-current" : ""}" data-artifact="${escapeHtml(artifact.path)}"><span class="file-glyph" aria-hidden="true">${artifact.path.endsWith(".md") ? "M" : "Y"}</span><span><strong>${escapeHtml(artifact.title)}</strong><small>${escapeHtml(artifact.path.split("/").at(-1))}</small></span></button>`).join("");
 }
 
+function renderTraceMetadata(artifact: SpecificationArtifact, sourceManifest: string): string {
+  const metadata = traceMetadataForArtifact(artifact, sourceManifest);
+  const list = (values: readonly string[]): string => values.map((value) => `<li><code>${escapeHtml(value)}</code></li>`).join("");
+  return `<section class="trace-metadata" aria-labelledby="trace-metadata-title"><div class="trace-section-heading"><h3 id="trace-metadata-title">Projection trace</h3><span>Source-linked</span></div>
+    <dl class="trace-metadata-grid">
+      <div><dt>Stable Explorer ID</dt><dd><code>${escapeHtml(metadata.stableId)}</code></dd></div>
+      <div><dt>Canonical artifact ID</dt><dd><code>${escapeHtml(metadata.canonicalArtifactId)}</code></dd></div>
+      <div><dt>Owning phase</dt><dd>${escapeHtml(artifact.phase)} · ${escapeHtml(metadata.authorityClass)}</dd></div>
+      <div><dt>Canonical location</dt><dd><code>${escapeHtml(metadata.canonicalLocation)}</code></dd></div>
+      <div><dt>Semantic fingerprint</dt><dd>${escapeHtml(metadata.semanticFingerprint)}</dd></div>
+      <div><dt>Currentness</dt><dd>${escapeHtml(metadata.currentness)}</dd></div>
+      <div><dt>Verification status</dt><dd>${escapeHtml(metadata.verificationStatus)}</dd></div>
+    </dl>
+    <div class="trace-relations"><div><span>Dependencies</span><ul>${list(metadata.dependencies)}</ul></div><div><span>Dependents</span><ul>${list(metadata.dependents)}</ul></div></div>
+    <p class="trace-honesty-note">The Explorer exposes the canonical path and declared relation authority. It does not generate semantic fingerprints, currentness, acceptance, or Tools receipts.</p>
+  </section>`;
+}
+
 function specificationSurface(): string {
   const phaseArtifacts = specificationArtifacts.filter((artifact) => artifact.phase === selectedPhase);
   const visibleArtifacts = filteredSpecificationArtifacts(phaseArtifacts);
   const activeArtifact = phaseArtifacts.find((artifact) => artifact.path === selectedArtifact.path) ?? phaseArtifacts[0]!;
   selectedArtifact = activeArtifact;
   ensureSpecificationContentLoaded(activeArtifact);
+  if (sourceManifestArtifact) ensureSpecificationContentLoaded(sourceManifestArtifact);
   const sourceContent = specificationContents.get(activeArtifact.path);
+  const sourceManifestContent = sourceManifestArtifact ? specificationContents.get(sourceManifestArtifact.path) ?? "" : "";
   const content = sourceContent ?? specificationErrors.get(activeArtifact.path) ?? "Loading source file…";
+  const phaseCoverage = phaseIds.map((phase) => {
+    const count = specificationArtifacts.filter((artifact) => artifact.phase === phase).length;
+    return `<button type="button" class="phase-coverage-card ${phase === selectedPhase ? "is-current" : ""}" data-phase="${escapeHtml(phase)}" aria-label="Inspect ${escapeHtml(phaseSummary[phase].title)} records"><span>${escapeHtml(phase)}</span><strong>${count}</strong><small>${escapeHtml(phaseSummary[phase].title)}</small></button>`;
+  }).join("");
   return `<div class="specification-workspace ${highContrast ? "contrast-on" : ""}">
     <aside class="spec-sidebar"><div class="eyebrow">SOURCE OF MEANING</div><h1>Specification</h1><p>Inspect the source records behind this experience.</p>
       <div class="phase-selector" role="radiogroup" aria-label="Select an experience phase" aria-orientation="${phaseSelectorOrientation()}">${phaseIds.map((phase) => `<button id="${phaseTabId(phase)}" type="button" role="radio" aria-checked="${phase === selectedPhase}" tabindex="${phase === selectedPhase ? 0 : -1}" class="phase-tab ${phase === selectedPhase ? "is-current" : ""}" data-phase="${phase}"><span>${phase}</span><strong>${escapeHtml(phaseSummary[phase].title)}</strong></button>`).join("")}</div>
@@ -985,11 +1011,12 @@ function specificationSurface(): string {
       <nav class="artifact-list" aria-label="Phase artifacts">${renderSpecificationArtifactLinks(visibleArtifacts)}</nav>
     </aside>
     <main class="spec-document" id="main-content"><header class="spec-doc-header"><div><div class="eyebrow">${selectedPhase} · ${escapeHtml(phaseSummary[selectedPhase].title.toUpperCase())}</div><h2>${escapeHtml(activeArtifact.title)}</h2><p>${escapeHtml(activeArtifact.path)}</p></div><span class="proposal-chip"><span></span> ${escapeHtml(reviewStatusForArtifact(activeArtifact))}</span></header>
+      <section class="phase-coverage" aria-label="Product Definition coverage">${phaseCoverage}</section>
       <div class="spec-context"><div class="spec-context-icon">${selectedPhase}</div><div><strong>${escapeHtml(phaseSummary[selectedPhase].summary)}</strong><span>Read-only content bundled from the repository’s current authority file.</span></div></div>
       ${renderScreenContractPreview(activeArtifact, sourceContent ?? "")}
       <pre class="spec-source"><code>${escapeHtml(content)}</code></pre>
     </main>
-    <aside class="spec-inspector"><div class="eyebrow">TRACE CONTEXT</div><h2>${escapeHtml(activeArtifact.title)}</h2><div class="trace-card"><span>Authority path</span><code>${escapeHtml(activeArtifact.path)}</code></div><div class="trace-card"><span>Product identity</span><code>ghatana.product/media</code></div><div class="trace-card"><span>Tools stage or scope</span><code>${escapeHtml(({ P0: "establish-product-definition", P1: "establish-experience-language", P2: "specify-executable-experience", P3: "materialize-implementation", "Cross-phase": "shared governance; not a phase" } as const)[selectedPhase])}</code></div><div class="trace-card"><span>Record status</span><strong>${escapeHtml(reviewStatusForArtifact(activeArtifact))}</strong></div><div class="trace-links"><h3>Related views</h3><button type="button" class="text-button" data-mode="verify">Open verification workspace →</button><button type="button" class="text-button" data-mode="explore">Inspect live scenario →</button></div></aside>
+    <aside class="spec-inspector"><div class="eyebrow">TRACE CONTEXT</div><h2>${escapeHtml(activeArtifact.title)}</h2><div class="trace-card"><span>Authority path</span><code>${escapeHtml(activeArtifact.path)}</code></div><div class="trace-card"><span>Product identity</span><code>ghatana.product/media</code></div><div class="trace-card"><span>Tools stage or scope</span><code>${escapeHtml(({ P0: "establish-product-definition", P1: "establish-experience-language", P2: "specify-executable-experience", P3: "materialize-implementation", "Cross-phase": "shared governance; not a phase" } as const)[selectedPhase])}</code></div><div class="trace-card"><span>Record status</span><strong>${escapeHtml(reviewStatusForArtifact(activeArtifact))}</strong></div>${renderTraceMetadata(activeArtifact, sourceManifestContent)}<div class="trace-links"><h3>Related views</h3><button type="button" class="text-button" data-mode="verify">Open verification workspace →</button><button type="button" class="text-button" data-mode="explore">Inspect live scenario →</button></div></aside>
   </div>`;
 }
 
@@ -1005,14 +1032,15 @@ function verificationSurface(): string {
     { label: "Fixture runner CLI", detail: "JSON, JSONL, upload status, help, fixture validation, and malformed input behavior.", count: "6 CLI checks", icon: "✓" },
     { label: "Canonical command CLI", detail: "Registered upload, transcription, caption, and job status, outcome-checking, and cancellation commands with stable identities, formats, and exit status.", count: "15 CLI checks", icon: "✓" },
     { label: "TypeScript and browser build", detail: `Strict TypeScript checks pass for the simulation package and browser client; all ${specificationArtifacts.length} specification records are bundled.`, count: "PASS · Vite 7.3.1", icon: "✓" },
+    { label: "Browser experience audit", detail: "Every synthetic scenario, source artifact, valid Product proposal route, inline job-family specialization, Verify surface, keyboard path, and responsive viewport is exercised without console errors or horizontal overflow.", count: "29 scenarios · 147 artifacts · 47 routes · 6 viewports", icon: "✓" },
   ];
   const pending = [
-    { label: "Tools phase verification", detail: "An explicit repo-root:pnpm binding resolves the shared-root materials and the canonical planner selects readiness, rollup, and scan. Evidence Generator authority is unavailable, so these materials remain unverified.", status: "EVIDENCE AUTHORITY OPEN", tone: "caution" },
+    { label: "Tools phase verification", detail: "The current verifier resolves the Media subject but returns CANDIDATE_PLAN with structuralFallback=true, no selected operations, and PLANNER_BINDING_OWNER_AMBIGUOUS. Native phase evidence remains unavailable.", status: "PLANNER BINDING OPEN", tone: "caution" },
     { label: "Browser host binding", detail: "This browser client renders Media-specific projections. Published Tools host integration remains open.", status: "OPEN", tone: "neutral" },
     { label: "All baseline views and journeys", detail: "All 41 baseline view proposals and six selected-lane specializations have source-derived Product routes; proposal actions remain disabled. Full action semantics, state/scenario/channel bindings, journey behavior, owner review, and acceptance remain open.", status: "OPEN", tone: "neutral" },
-    { label: "Visual and accessibility review", detail: "Local screenshots have been inspected; full accessibility evidence and independent human review are not recorded.", status: "REVIEW REQUIRED", tone: "caution" },
+    { label: "Visual and accessibility review", detail: "The deterministic browser audit passes geometry, accessible-name, and responsive checks; pixel-reference conformance, screen-reader, forced-colors, zoom, and independent human review remain unrecorded.", status: "REVIEW REQUIRED", tone: "caution" },
   ];
-  return `<div class="verify-workspace" id="main-content"><header class="verify-header"><div><div class="eyebrow">EVIDENCE & COVERAGE</div><h1>Verify experience</h1><p>Separate model checks from phase acceptance and browser review.</p></div><button type="button" class="button button-outline" data-mode="specification">Review source records</button></header>
+  return `<main class="verify-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">EVIDENCE & COVERAGE</div><h1>Verify experience</h1><p>Separate model checks from phase acceptance and browser review.</p></div><button type="button" class="button button-outline" data-mode="specification">Review source records</button></header>
     <div class="verify-summary"><div class="verify-summary-icon">✓</div><div><strong>Local simulation checks pass</strong><span>These checks cover J-01 synthetic first-use, J-02 metadata-only artifact intake and verification-job CLI, J-20 transcription-job recovery, and the selected J-03 audio transcript and caption workflow. They do not accept Phases 0–3.</span></div><button type="button" class="text-button" data-run-local-checks aria-expanded="${showVerificationCommands}">${showVerificationCommands ? "Hide verification commands" : "Show verification commands"} <span aria-hidden="true">→</span></button></div>
     <section class="verify-section phase-status-section"><div class="verify-section-heading"><div><h2>Phase status</h2><p>Local work, owner review, and acceptance are separate states.</p></div><span class="section-count">4 phases</span></div><div class="phase-status-grid">${phaseStates.map((phase) => `<article class="phase-status-card"><div class="phase-status-heading"><span>${phase.id}</span><strong>${escapeHtml(phase.status)}</strong></div><h3>${escapeHtml(phase.title)}</h3><p>${escapeHtml(phase.detail)}</p></article>`).join("")}</div></section>
     ${showVerificationCommands ? `<pre class="verify-local-commands"><code>pnpm dlx --package typescript@6.0.3 tsc --noEmit -p apps/media-experience-explorer/tsconfig.json
@@ -1022,8 +1050,8 @@ node --test libs/media-experience-simulation/tests/*.test.mjs
 pnpm dlx vite@7.3.1 build --config apps/media-experience-explorer/vite.config.mjs</code></pre>` : ""}
     <section class="verify-section"><div class="verify-section-heading"><div><h2>Verified local behavior</h2><p>Evidence recorded for the deterministic simulation package.</p></div><span class="section-count">${passed.length} checks</span></div><div class="check-grid">${passed.map((check) => `<article class="check-card"><span class="check-icon">${check.icon}</span><div><h3>${check.label}</h3><p>${check.detail}</p><small>${check.count}</small></div><span class="check-state">PASS</span></article>`).join("")}</div></section>
     <section class="verify-section"><div class="verify-section-heading"><div><h2>Open phase evidence</h2><p>Structural catalog checks do not prove semantic completeness or acceptance.</p></div><span class="section-count">${pending.length} open</span></div><div class="pending-list">${pending.map((item) => `<article class="pending-card"><span class="pending-status ${item.tone}">${escapeHtml(item.status)}</span><div><h3>${item.label}</h3><p>${item.detail}</p></div></article>`).join("")}</div></section>
-    <div class="verify-command"><div><span class="terminal-small-icon">›_</span><span><strong>Verify phase evidence with ghatana-tools</strong><small>Run from the Tools repository, pass both repository roots, and bind the shared-root build unit explicitly.</small></span></div><code>node tools/product-development/cli/dist/bin/product-dev.js workspace verify --root &lt;media-root&gt; --root &lt;tools-root&gt; --subject samujjwal/ghatana-media:media --material &lt;path&gt; --stage &lt;stage&gt; --claim &lt;classification&gt; --build-unit repo-root:pnpm</code></div>
-  </div>`;
+    <div class="verify-command"><div><span class="terminal-small-icon">›_</span><span><strong>Verify phase evidence with ghatana-tools</strong><small>Run from the Tools repository with both repository roots; the installed verifier must resolve an owner-bound build unit before native evidence can be admitted.</small></span></div><code>node tools/product-development/cli/dist/bin/product-dev.js workspace verify --root &lt;media-root&gt; --root &lt;tools-root&gt; --subject samujjwal/ghatana-media:media --material &lt;path&gt; --stage &lt;stage&gt; --claim &lt;classification&gt;</code></div>
+  </main>`;
 }
 
 function mainContent(): string {
@@ -1037,13 +1065,15 @@ function mainContent(): string {
       }
       ensureSpecificationContentLoaded(selectedProductContract);
       if (actionRegistryArtifact) ensureSpecificationContentLoaded(actionRegistryArtifact);
+      if (sourceManifestArtifact) ensureSpecificationContentLoaded(sourceManifestArtifact);
       const source = specificationContents.get(selectedProductContract.path);
       const actionRegistrySource = actionRegistryArtifact ? specificationContents.get(actionRegistryArtifact.path) : "";
+      const sourceManifestContent = sourceManifestArtifact ? specificationContents.get(sourceManifestArtifact.path) ?? "" : "";
       const failure = specificationErrors.get(selectedProductContract.path);
       const actionRegistryPending = actionRegistryArtifact && actionRegistrySource === undefined && !specificationErrors.has(actionRegistryArtifact.path);
       const content = source === undefined || actionRegistryPending
         ? `<main class="product-contract-main" id="main-content" tabindex="-1"><p class="product-proposal-empty">${escapeHtml(failure ?? "Loading view proposal…")}</p></main>`
-        : renderProductContractProjection(selectedProductContract, source, actionRegistrySource ?? "");
+        : renderProductContractProjection(selectedProductContract, source, actionRegistrySource ?? "", sourceManifestContent);
       return `<div class="product-app product-contract-app ${highContrast ? "contrast-on" : ""} ${reducedMotion ? "motion-reduced" : ""}"><header class="product-topbar"><a class="product-brand" href="#product" data-product-home><span class="product-mark" aria-hidden="true">M</span><span>Media</span><span class="brand-divider"></span><span class="product-breadcrumb">${escapeHtml(selectedProductContract.title)}</span></a><span class="product-contract-topbar-note">Synthetic proposal</span></header>${content}</div>`;
     }
     case "explore": return exploreSurface();
@@ -1303,9 +1333,10 @@ root.addEventListener("click", (event) => {
     }
     return;
   }
-  const phaseButton = target.closest<HTMLButtonElement>("button[role=radio][data-phase]");
+  const phaseButton = target.closest<HTMLButtonElement>("button[data-phase]");
   if (phaseButton) {
     const phase = phaseButton.dataset.phase as ExperiencePhase;
+    if (!phaseIds.includes(phase)) return;
     selectedPhase = phase;
     selectedArtifact = specificationArtifacts.find((artifact) => artifact.phase === phase)!;
     render();

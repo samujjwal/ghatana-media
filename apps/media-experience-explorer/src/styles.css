@@ -424,6 +424,14 @@ a { color: inherit; }
 .spec-doc-header p { margin: 0; color: #8b95a1; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 8px; }
 .proposal-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border: 1px solid #f0dfbb; border-radius: 999px; color: #91611e; background: #fffaf0; font-size: 8px; font-weight: 650; white-space: nowrap; }
 .proposal-chip span { width: 5px; height: 5px; border-radius: 50%; background: #c9953c; }
+.phase-coverage { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; margin: 14px 0 12px; }
+.phase-coverage-card { display: grid; min-width: 0; grid-template-columns: 24px 1fr; align-items: center; gap: 2px 7px; padding: 8px; border: 1px solid #e3e8ed; border-radius: 8px; color: #556477; background: #fff; cursor: pointer; text-align: left; }
+.phase-coverage-card:hover { border-color: #c8d8e6; background: #f8fbfd; }
+.phase-coverage-card > span { display: grid; width: 23px; height: 23px; grid-row: span 2; place-items: center; border-radius: 6px; color: #3d6989; background: #edf4f8; font-size: 8px; font-weight: 750; }
+.phase-coverage-card strong { color: #263f56; font-size: 12px; line-height: 1; }
+.phase-coverage-card small { min-width: 0; overflow: hidden; color: #85909d; font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
+.phase-coverage-card.is-current { border-color: #bfd7e8; background: #f2f8fc; box-shadow: 0 0 0 2px rgb(47 109 151 / 8%); }
+.phase-coverage-card:focus-visible { outline: 3px solid rgb(39 108 165 / 22%); outline-offset: 2px; }
 .spec-context { display: flex; align-items: center; gap: 11px; margin: 15px 0 12px; padding: 10px 12px; border: 1px solid #e4edf5; border-radius: 8px; background: #f6f9fc; }
 .spec-context-icon { display: grid; width: 27px; height: 27px; place-items: center; border-radius: 8px; color: #215f95; background: #e3eff8; font-size: 8px; font-weight: 750; }
 .spec-context strong, .spec-context span { display: block; }
@@ -439,6 +447,20 @@ a { color: inherit; }
 .trace-links { display: grid; gap: 4px; margin-top: 18px; padding-top: 12px; border-top: 1px solid #e9ebef; }
 .trace-links h3 { margin: 0 0 4px; color: #5a6677; font-size: 8px; }
 .trace-links .text-button { font-size: 8px; }
+.trace-metadata { margin-top: 15px; padding-top: 13px; border-top: 1px solid #e9ebef; }
+.trace-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.trace-section-heading h3 { margin: 0; color: #5a6677; font-size: 9px; }
+.trace-section-heading span { color: #758294; font-size: 7px; font-weight: 700; text-transform: uppercase; }
+.trace-metadata-grid { display: grid; gap: 7px; margin: 9px 0 0; }
+.trace-metadata-grid > div { display: grid; gap: 3px; }
+.trace-metadata-grid dt { color: #8b95a1; font-size: 7px; }
+.trace-metadata-grid dd { margin: 0; color: #4e5f73; font-size: 8px; line-height: 1.45; overflow-wrap: anywhere; }
+.trace-metadata-grid code, .trace-relations code { color: #526176; font-size: 7px; overflow-wrap: anywhere; }
+.trace-relations { display: grid; gap: 7px; margin-top: 10px; }
+.trace-relations > div { display: grid; gap: 4px; }
+.trace-relations span { color: #8b95a1; font-size: 7px; }
+.trace-relations ul { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.trace-honesty-note { margin: 10px 0 0; color: #6e7885; font-size: 8px; line-height: 1.45; }
 .artifact-filter-label { display: block; margin: 12px 7px 5px; color: #596779; font-size: 10px; font-weight: 650; }
 .artifact-filter { width: 100%; min-height: 36px; padding: 7px 9px; border: 1px solid #d5dbe3; border-radius: 7px; color: #263244; background: #fff; font-size: 11px; }
 .artifact-filter::placeholder { color: #667085; }
@@ -684,8 +706,8 @@ a { color: inherit; }
   .explore-workspace { grid-template-columns: 1fr; }
   .control-panel { padding: 15px 12px; border-right: 0; border-bottom: 1px solid #e4e7eb; }
   .control-panel-head { margin-bottom: 10px; }
-  .control-panel h1 { display: inline-block; margin-right: 6px; font-size: 16px; }
-  .control-panel-head .eyebrow { display: inline; }
+  .control-panel h1 { display: block; margin: 3px 0 0; font-size: 16px; }
+  .control-panel-head .eyebrow { display: block; }
   .control-panel-head p { font-size: 9px; }
   .control-group { grid-template-columns: minmax(112px, .7fr) minmax(0, 1fr); align-items: center; gap: 4px 9px; margin-top: 8px; padding-top: 8px; }
   .control-group > label, .control-label { grid-column: 1; }
@@ -1142,4 +1164,6 @@ a { color: inherit; }
   .product-contract-details dl > div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
   .view-preview-open-product { align-items: flex-start; flex-direction: column; }
   .view-preview-open-product .button { width: 100%; }
+  .phase-coverage { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .phase-coverage-card:last-child { grid-column: 1 / -1; }
 }

@@ -972,6 +972,12 @@ governanceArtifacts:
     role: authored-migration-snapshot-and-artifact-index
     authority: migration-observations-and-artifact-index; not-a-semantic-acceptance-result
     acceptanceState: P0-001-boundary-slice-only; all-other-phase-acceptance-pending
+  - id: ART-GOV-VISION-REQUIREMENTS-COVERAGE
+    title: Vision and requirements coverage ledger
+    path: vision-requirements-coverage.yaml
+    role: authored-cross-phase-coverage-ledger
+    authority: authored-cross-phase-alignment-record; not-a-semantic-acceptance-result
+    acceptanceState: maintained-governance-record; coverage-reconciliation-pending-owner-review
 externalAuthorities:
 - id: EXT-SHARED
   owner: samujjwal/ghatana-shared

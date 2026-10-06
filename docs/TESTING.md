@@ -56,6 +56,10 @@ external provider.
 
 Run from the repository root:
 
+    pnpm check:product-experience-local
+    pnpm test:product-experience-local
+    pnpm test:experience-browser
+
     ./gradlew :services:media:runtime-contracts:test
     ./gradlew :services:media:launcher:test --tests 'com.ghatana.media.launcher.MediaRuntimeActiveTest'
     ./gradlew :services:media:launcher:test --tests 'com.ghatana.media.launcher.MediaRuntimeRestartReconciliationTest'
@@ -75,6 +79,16 @@ The full integration target is intentionally separate:
 It runs integration-tagged workflows and requires Docker/Testcontainers. Use
 it when durable infrastructure and external test dependencies are available,
 not as the fast local closure command.
+
+The browser experience audit starts from a running Explorer preview at
+`http://127.0.0.1:4179/` and exercises all 29 synthetic scenarios, all 147
+source artifacts, all 47 valid Product proposal routes, the inline
+artifact-verification specialization, Verify, keyboard mode/phase navigation,
+accessible names, console/page errors, and horizontal overflow at six recorded
+viewports. It writes screenshots and a JSON report to
+`/tmp/media-experience-browser-audit` by default. This is deterministic browser
+evidence and visual-review input; it is not independent human approval,
+pixel-reference conformance, or Tools-native acceptance.
 
 ## Failure, recovery, and concurrency coverage
 

@@ -38,6 +38,7 @@ validation: Progress is omitted when not measured; unknown finality is never pre
 recovery: For unknown outcome, check the existing job outcome; do not submit again.
 responsive: status-and-safe-next-action-precede-secondary-job-details
 accessibility: announce-state-change-once; throttle-progress-announcements; expose-progress-text
+localization: Localize human-readable labels and explanations; preserve canonical IDs, reason codes, raw timestamps, measurements, and object identity; format dates, numbers, units, and plurals by locale without changing stored values.
 copyRefs:
 - media.copy.job.queued
 - media.copy.job.running

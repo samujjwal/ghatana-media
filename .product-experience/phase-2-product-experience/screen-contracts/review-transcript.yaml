@@ -36,6 +36,7 @@ validation: Recognition is not verification; language and speaker attribution ar
 recovery: Keep the source and transcript draft; permit manual correction only while current authority allows it.
 responsive: maintain-source-time-and-selected-segment-across-view-change
 accessibility: transcript-is-an-equivalent-content-path; segment-name-includes-source-time
+localization: Localize human-readable labels and explanations; preserve canonical IDs, reason codes, raw timestamps, measurements, and object identity; format dates, numbers, units, and plurals by locale without changing stored values.
 copyRefs:
 - media.copy.transcript.recognized
 - media.copy.transcript.uncertain

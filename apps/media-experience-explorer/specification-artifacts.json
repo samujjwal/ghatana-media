@@ -728,5 +728,10 @@
     "phase": "P2",
     "path": ".product-experience/phase-2-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
     "title": "J-28 · Spatial/360/interactive/synthetic-data export to declared consumer"
+  },
+  {
+    "phase": "Cross-phase",
+    "path": ".product-experience/vision-requirements-coverage.yaml",
+    "title": "Vision, requirements, and phase alignment ledger"
   }
 ]

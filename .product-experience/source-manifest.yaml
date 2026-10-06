@@ -1812,6 +1812,41 @@ productArtifactIndex:
       ownerApprovedToolsBinding: not-bound
       gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
     acceptanceState: P0-001-boundary-slice-only; all-other-phase-acceptance-pending
+  - artifactId: ART-GOV-VISION-REQUIREMENTS-COVERAGE
+    title: Vision and requirements coverage ledger
+    owner: ghatana-media-product-owners
+    authorityClass: evidence-only
+    authority: authored-cross-phase-alignment-record; not-a-semantic-acceptance-result
+    owningPhase: cross-phase-governance
+    path: .product-experience/vision-requirements-coverage.yaml
+    authoredOrGeneratedRole: authored-cross-phase-coverage-ledger
+    sourceAuthorityRef: authority-map:ART-GOV-VISION-REQUIREMENTS-COVERAGE
+    semanticFingerprint:
+      status: pending-owner-approved-Tools-generation
+      value:
+      blockedBy: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    contentFingerprintSemantics: Exact file bytes for provenance only; not a semantic fingerprint or acceptance/currentness result.
+    dependencies:
+      planTaskRefs: [P0-010, P1-006, P2-008, P3-001]
+      artifactRefs:
+      - .product-experience/phase-0-product-truth/goals-jtbd.yaml
+      - .product-experience/phase-0-product-truth/requirements.yaml
+      - .product-experience/phase-0-product-truth/journey-catalog.yaml
+      - .product-experience/phase-1-design-language/
+      - .product-experience/phase-2-product-experience/
+      - .product-experience/phase-3-experience-explorer/
+    dependents:
+      planTaskRefs: [P0-010, P1-006, P2-008, P3-001]
+      artifactRefs:
+      - .product-experience/traceability.yaml
+      - .product-experience/gaps.yaml
+      - docs/PRODUCT-DEFINITION-COVERAGE.md
+    validationContract:
+      planVerificationRefs:
+      - docs/migration/expert-reviewed-master-plan.md#section-5
+      ownerApprovedToolsBinding: not-bound
+      gapRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    acceptanceState: maintained-governance-record; coverage-reconciliation-pending-owner-review
   - artifactId: ART-P1-PHASE-1-DESIGN-LANGUAGE-DESIGN-LANGUAGE-MD
     title: Design language overview
     owner: ghatana-media-design-owners

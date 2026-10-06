@@ -51,16 +51,32 @@ define production format limits. The Phase 2 registries index 41 baseline views 
 required by the master plan, plus two supplementary Phase 0 journeys). All 41 baseline
 views have proposal contracts, and six selected-lane specializations are indexed. All 28 required journeys have proposal files: four retain scoped J-01/J-02/J-03/J-20 slices, and 24 add Phase 0-grounded outcomes and ordered screen paths. All authored screen action intents now resolve to intent-based proposal action references, including intent-derived registry entries. Complete action semantics, capability authority, component interactions, state transitions, copy, fixtures, wire/channel bindings, and owner review remain open.
 
-Specification mode indexes all 146 source records, including all 41 baseline view
+Specification mode indexes all 147 source records, including all 41 baseline view
 contracts and six selected-lane view specializations. It renders the declared
 purpose, context, anatomy, states, actions, channel dispositions, and responsive
 and accessibility guidance as read-only proposal previews; actions are labeled
 as not executable, and the source YAML remains available below each preview.
-The record search filters by title and filename. These previews make the source
-contracts inspectable without implementing their views or closing Phase 2 or 3
-acceptance.
+The record search filters by title and filename. Each selected record also
+exposes a deterministic Explorer projection ID, owning phase and authority
+class, canonical location, semantic-fingerprint/currentness status, declared
+relation authority, and verification status. Tools-generated fingerprints and
+currentness remain explicitly pending until their owner binding is available.
+These previews make the source contracts inspectable without implementing their
+views or closing Phase 2 or 3 acceptance.
 The browser client does not constitute
 full Phase 3 acceptance or a `ghatana-tools` host binding. See the
 [verification matrix](../../.product-experience/phase-3-experience-explorer/verification-matrix.yaml)
 and [open gaps](../../.product-experience/gaps.yaml) for current evidence and
 remaining owner reviews.
+
+Run `pnpm check:product-experience-local` from the repository root for the
+read-only local invariant check that backs the closure matrix.
+
+Run `pnpm test:experience-browser` with the Vite preview active on port 4179 to
+exercise all 29 scenarios, 147 source artifacts, 47 valid Product proposal
+routes, Verify, the inline artifact-verification specialization, keyboard
+navigation, accessible names, and six responsive viewports. The audit writes
+fixed-viewport screenshots and `report.json` to
+`/tmp/media-experience-browser-audit` by default. A repeat run must produce
+identical screenshot hashes. It is browser evidence for visual review, not a
+human pixel-perfect approval or Tools-native acceptance receipt.

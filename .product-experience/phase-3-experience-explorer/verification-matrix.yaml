@@ -2,6 +2,50 @@ schemaVersion: media.explorer-verification-matrix.v1
 productId: media
 status: locally-built-and-partially-observed; no-Explorer-acceptance
 checks:
+- id: media.explorer.check.product-definition-local-invariants
+  scope: canonical-source-index-trace-metadata-and-local-closure-matrix-invariants
+  implementation: scripts/check-product-experience-local.mjs
+  command: node scripts/check-product-experience-local.mjs
+  observation: PASS
+  detail: The read-only local check found all 147 indexed source records, 462 Phase 0 capability leaves with the required definition shape, 38 capability families, 38 requirement IDs, 10 vision outcomes with journey/supporting-view coverage, 28 Phase 1 component contracts with required fields, all 47 screen proposal contracts with required fields, 43 journey view references and 16 journey action references resolving, 30 indexed journeys with 28 required journey proposal files, complete 33-area matrix coverage, proposal actions disabled in the Product projection, and no generated currentness.yaml while Tools generation remains unresolved. This is local invariant evidence only; it is not native Tools admission or phase acceptance.
+- id: media.explorer.check.vision-requirements-phase-alignment
+  scope: master-prompt-vision-outcome-requirement-journey-view-and-phase-crosswalk
+  implementation: .product-experience/vision-requirements-coverage.yaml; docs/PRODUCT-DEFINITION-COVERAGE.md
+  command: node scripts/check-product-experience-local.mjs
+  observation: PASS
+  detail: The alignment ledger captures the pasted master prompt's eight auditable section bands, the PDP-0 through PDP-3 to local P0/P1/P2/P3 crosswalk, all 10 vision outcomes, all 38 requirement groups, all 13 NFR and decision records, 462 capability leaves, 28 components, 47 screen contracts, 30 journeys, 146 actions, and 147 Explorer source records. The permitted-settings outcome is explicitly covered by the supporting settings view and project requirement. This is a source-coverage and traceability observation, not owner acceptance or native Tools evidence.
+- id: media.explorer.check.product-definition-local-invariant-regression
+  scope: regression-test-for-the-cross-phase-local-invariant-check
+  implementation: tests/product-experience-local.test.mjs
+  command: pnpm test:product-experience-local
+  observation: PASS
+  detail: The focused Node test invokes the canonical local checker and asserts the published denominators for 462 Phase 0 capability leaves, 28 Phase 1 components, 47 Phase 2 screen contracts, 28 required journey proposals, and the intentional absence of generated currentness.yaml. This is a regression guard for local source integrity, not native evidence or phase acceptance.
+- id: media.explorer.check.browser-experience-sweep
+  scope: all-Explorer-scenarios-source-artifacts-Product-proposal-routes-Verify-keyboard-and-responsive-geometry
+  implementation: scripts/check-experience-browser.mjs
+  environment: Chromium via Playwright 1.63.0; local Vite preview at 127.0.0.1:4179
+  command: pnpm test:experience-browser
+  observation: PASS
+  detail: The browser audit exercised all 29 synthetic Explore scenarios, all 147 Specification records, all 47 valid Product proposal routes, the inline artifact-verification job-family specialization, Verify, mode-tab and phase-radio keyboard navigation, visible control accessible names, and six viewports (1536x960, 1280x800, 1024x768, 768x1024, 390x844, and 320x640). It produced no console errors, page errors, enabled proposal actions, or horizontal overflow. Fixed-viewport screenshots were repeated in a second run with identical SHA-1 hashes for all eight review captures. Screenshots and report.json were emitted under /tmp/media-experience-browser-audit. This is deterministic browser evidence and visual-review input; it is not pixel-reference conformance, independent human review, assistive-technology certification, or Tools-native acceptance.
+- id: media.explorer.check.tools-explorer-shared-projection
+  scope: native-Tools-Explorer-picker-and-shared-traceability-graph
+  implementation: Ghatana-Tools product-dev explore and workspace graph
+  environment: current Ghatana Tools checkout with Media and Tools roots
+  command: node tools/product-development/cli/dist/bin/product-dev.js explore --root &lt;media-root&gt; --root &lt;tools-root&gt; --coordinate ghatana.product/media --json; node tools/product-development/cli/dist/bin/product-dev.js workspace graph --root &lt;media-root&gt; --root &lt;tools-root&gt; --json
+  observation: PASS_WITH_SYNTHETIC_RENDERER
+  detail: Tools Explorer selected ghatana.product/media and loaded media-conformance-package with rendererId=default, source=synthetic, locale=en, and no diagnostics. The shared traceability graph resolved 147 nodes and 141 relations, including 132 Media nodes, six shared-framework-contract nodes, and two product-dev-explorer nodes. The native Explorer returned no product renderResult or inspection projection, so this proves picker/graph projection only; it does not prove a connected browser host or native phase acceptance.
+- id: media.explorer.check.source-linked-trace-context
+  scope: Specification-mode-source-link-metadata-and-phase-coverage
+  implementation: apps/media-experience-explorer/src/specification.ts; apps/media-experience-explorer/src/main.ts
+  environment: local-browser-127.0.0.1:4179
+  observation: PASS
+  detail: On 2026-10-05, the local production preview rendered the selected P0, P2, and P3 records and a direct P2 Product proposal route with stable Explorer projection ID, owning phase and authority class, canonical source path, pending Tools semantic fingerprint, intentionally ungenerated currentness, relation authority, and verification status. The phase coverage controls switched between 24 P0, 94 P2, and 6 P3 records without losing the trace panel. This proves local source-linked presentation only; it does not prove Tools currentness or acceptance.
+- id: media.explorer.check.phase-selector-keyboard
+  scope: Specification-mode-roving-phase-radio-navigation
+  implementation: apps/media-experience-explorer/src/main.ts
+  environment: local-browser-127.0.0.1:4179
+  observation: PASS
+  detail: On 2026-10-05, the focused P3 phase radio moved to P2 with ArrowLeft, updated aria-checked and tabindex state, retained the selected record, and restored focus to the selected phase control. This is focused keyboard evidence; full screen-reader, zoom, forced-colors, locale, and independent review remain open.
 - id: media.explorer.check.simulation-package-typecheck
   scope: strict-TypeScript-check-of-the-Media-simulation-package
   implementation: libs/media-experience-simulation
@@ -50,7 +94,7 @@ checks:
   environment: Vite-7.3.1
   command: pnpm dlx vite@7.3.1 build --config apps/media-experience-explorer/vite.config.mjs
   observation: PASS
-  detail: Production bundle built with a 167.31 kB JavaScript asset, an 85.99 kB CSS asset, and all 146 current specification
+  detail: Production bundle built with a 173.68 kB JavaScript asset, an 88.29 kB CSS asset, and all 147 current specification
     records; strict TypeScript checking passed for the updated client.
 - id: media.explorer.check.capability-label-uniqueness
   scope: unique-human-readable-labels-for-all-462-Phase-0-capability-leaves
@@ -179,45 +223,46 @@ checks:
   scope: representative-P0-through-P3-material-verification-with-the-canonical-Tools-planner-including-the-P2-action-registry
   implementation: Ghatana-Tools product-dev workspace verify
   subject: samujjwal/ghatana-media:media
-  explicitBuildUnitBinding: repo-root:pnpm
-  observation: EVIDENCE_AUTHORITY_UNAVAILABLE
-  detail: Materials from all four phases resolve in the current Ghatana Tools subject catalog; the Phase 2 screen
-    registry, action registry, and API mapping were checked separately. Explicitly binding the selected subject to
-    repo-root:pnpm resolves shared-root ownership and produces a canonical plan with readiness, rollup, and scan
-    selected for each material. Evidence Generator authority remains unavailable, so structural presence is not
-    authoritative and these results are not PASS or phase certification. Material fingerprints below identify the
-    exact bytes presented to the planner.
+  observation: PLANNER_BINDING_OWNER_AMBIGUOUS
+  detail: Materials from all four phases resolve in the current Ghatana Tools subject catalog, and the Phase 2 screen
+    registry, action registry, and API mapping were checked separately. The installed verifier rejects the previously
+    recorded --build-unit option. Without an owner-resolved build-unit binding, every representative material returns
+    CANDIDATE_PLAN with structuralFallback=true, no selected operations, and evidenceAuthorityId=unavailable. These
+    results are not PASS or phase certification. Material fingerprints below identify the exact bytes presented to the planner.
   materialChecks:
   - phase: P0
     material: .product-experience/phase-0-product-truth/capabilities.yaml
     stageId: establish-product-definition
     claim: PRODUCT_SEMANTIC_AUTHORITY
-    plannerDisposition: CANONICAL_PLAN
+    plannerDisposition: CANDIDATE_PLAN
     materialIdentity: {algorithm: sha256, digest: d4ee0a93aab1320c1b18b36524cc99dadc8dc1a9d57460c9fb6eaa718aaa1ae3, byteLength: 3624069}
-    status: EVIDENCE_AUTHORITY_UNAVAILABLE
+    status: PLANNER_BINDING_OWNER_AMBIGUOUS
     evidenceAuthorityId: unavailable
-    selectedOperationIds: [readiness.repo-root.pnpm, rollup.repo-root.pnpm, scan.repo-root.pnpm]
-    failure: Evidence Generator authority is unavailable; file presence is only an observation.
+    selectedOperationIds: []
+    structuralFallback: true
+    failure: "canonical plan unavailable: PLANNER_BINDING_OWNER_AMBIGUOUS"
   - phase: P1
     material: .product-experience/phase-1-design-language/component-contracts.yaml
     stageId: establish-experience-language
     claim: EXPERIENCE_AUTHORITY
-    plannerDisposition: CANONICAL_PLAN
+    plannerDisposition: CANDIDATE_PLAN
     materialIdentity: {algorithm: sha256, digest: 1b05515968ed4e7895ceb2166d2d000a99502ba818a1c966890f8f22a7eaabc6, byteLength: 71136}
-    status: EVIDENCE_AUTHORITY_UNAVAILABLE
+    status: PLANNER_BINDING_OWNER_AMBIGUOUS
     evidenceAuthorityId: unavailable
-    selectedOperationIds: [readiness.repo-root.pnpm, rollup.repo-root.pnpm, scan.repo-root.pnpm]
-    failure: Evidence Generator authority is unavailable; file presence is only an observation.
+    selectedOperationIds: []
+    structuralFallback: true
+    failure: "canonical plan unavailable: PLANNER_BINDING_OWNER_AMBIGUOUS"
   - phase: P2
     material: .product-experience/phase-2-product-experience/screen-registry.yaml
     stageId: specify-executable-experience
     claim: EXPERIENCE_AUTHORITY
-    plannerDisposition: CANONICAL_PLAN
+    plannerDisposition: CANDIDATE_PLAN
     materialIdentity: {algorithm: sha256, digest: 4738e19dfd2a3e9aa92907866cd24fa821140c581049c43eb882cb3528a34f04, byteLength: 23059}
-    status: EVIDENCE_AUTHORITY_UNAVAILABLE
+    status: PLANNER_BINDING_OWNER_AMBIGUOUS
     evidenceAuthorityId: unavailable
-    selectedOperationIds: [readiness.repo-root.pnpm, rollup.repo-root.pnpm, scan.repo-root.pnpm]
-    failure: Evidence Generator authority is unavailable; file presence is only an observation.
+    selectedOperationIds: []
+    structuralFallback: true
+    failure: "canonical plan unavailable: PLANNER_BINDING_OWNER_AMBIGUOUS"
   - phase: P2
     material: .product-experience/phase-2-product-experience/action-registry.yaml
     stageId: specify-executable-experience
@@ -226,31 +271,34 @@ checks:
       algorithm: sha256
       digest: 74db6943417476328513aa5f258372907c9e2472219ee37d56f4ce6d7cd14d3d
       byteLength: 252846
-    plannerDisposition: CANONICAL_PLAN
-    status: EVIDENCE_AUTHORITY_UNAVAILABLE
+    plannerDisposition: CANDIDATE_PLAN
+    status: PLANNER_BINDING_OWNER_AMBIGUOUS
     evidenceAuthorityId: unavailable
-    selectedOperationIds: [readiness.repo-root.pnpm, rollup.repo-root.pnpm, scan.repo-root.pnpm]
-    failure: Evidence Generator authority is unavailable; file presence is only an observation.
+    selectedOperationIds: []
+    structuralFallback: true
+    failure: "canonical plan unavailable: PLANNER_BINDING_OWNER_AMBIGUOUS"
   - phase: P2
     material: .product-experience/phase-2-product-experience/api-experience-mapping.yaml
     stageId: specify-executable-experience
     claim: EXPERIENCE_AUTHORITY
-    plannerDisposition: CANONICAL_PLAN
+    plannerDisposition: CANDIDATE_PLAN
     materialIdentity: {algorithm: sha256, digest: 7cafcc10aee5c734146fa96a69689e6ce344a77c5247e23fa619879318b3d656, byteLength: 5279}
-    status: EVIDENCE_AUTHORITY_UNAVAILABLE
+    status: PLANNER_BINDING_OWNER_AMBIGUOUS
     evidenceAuthorityId: unavailable
-    selectedOperationIds: [readiness.repo-root.pnpm, rollup.repo-root.pnpm, scan.repo-root.pnpm]
-    failure: Evidence Generator authority is unavailable; file presence is only an observation.
+    selectedOperationIds: []
+    structuralFallback: true
+    failure: "canonical plan unavailable: PLANNER_BINDING_OWNER_AMBIGUOUS"
   - phase: P3
     material: .product-experience/phase-3-experience-explorer/media-experience-package.yaml
     stageId: materialize-implementation
     claim: EXPERIENCE_AUTHORITY
-    plannerDisposition: CANONICAL_PLAN
+    plannerDisposition: CANDIDATE_PLAN
     materialIdentity: {algorithm: sha256, digest: 47034842b9d785f40d50c323e46f49cc3d3d53802cfb26c4d7afb6e966d31cb0, byteLength: 1534}
-    status: EVIDENCE_AUTHORITY_UNAVAILABLE
+    status: PLANNER_BINDING_OWNER_AMBIGUOUS
     evidenceAuthorityId: unavailable
-    selectedOperationIds: [readiness.repo-root.pnpm, rollup.repo-root.pnpm, scan.repo-root.pnpm]
-    failure: Evidence Generator authority is unavailable; file presence is only an observation.
+    selectedOperationIds: []
+    structuralFallback: true
+    failure: "canonical plan unavailable: PLANNER_BINDING_OWNER_AMBIGUOUS"
 - id: media.explorer.check.responsive-geometry
   scope: Responsive layout of the selected caption editor, job previews, CLI terminal, and Verify summary at recorded viewport sizes.
   implementation: apps/media-experience-explorer
@@ -309,7 +357,7 @@ checks:
     card width and the View job status and Check job outcome actions stack below it at 320px and 390px. From the shared
     job-status view, checking the outcome retains the same job ID and reports Checking outcome without submitting a
     second request. With one saved caption version, the comparison view explains that a second version is needed and
-    offers Correct captions as the next action. Verify reads the indexed artifact count and displays 146 source records.
+    offers Correct captions as the next action. Verify reads the indexed artifact count and displays 147 source records.
     This is local UI and fixture evidence; it does not realize all baseline views or establish independent human review
     or phase acceptance.
 - id: media.explorer.check.human-visual-review

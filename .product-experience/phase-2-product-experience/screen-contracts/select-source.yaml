@@ -38,6 +38,7 @@ recovery: Preserve search and project context; explain re-authentication, quaran
   source.
 responsive: use-typography-layout-and-responsive-variants; preserve-source-selection
 accessibility: labelled-search-and-list; keyboard-selection; source-state-is-not-color-only
+localization: Localize human-readable labels and explanations; preserve canonical IDs, reason codes, raw timestamps, measurements, and object identity; format dates, numbers, units, and plurals by locale without changing stored values.
 copyRefs:
 - media.copy.source.empty
 - media.copy.source.quarantined

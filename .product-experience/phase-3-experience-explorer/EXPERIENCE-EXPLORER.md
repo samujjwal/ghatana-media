@@ -54,7 +54,7 @@ the Phase 2 view and action identifiers under the Phase 0 naming policy.
   Product routes with source-derived purpose, declared regions and states,
   and disabled action proposals. These are navigable proposal projections,
   not implementations of the 41 baseline views or the six selected-lane
-  specializations. Specification mode indexes all 146 source records and
+  specializations. Specification mode indexes all 147 source records and
   previews all 47 screen contracts without claiming their proposals are
   executable. The app does not implement all required journeys.
 - Product proposal routes use `#product/view/<URL-encoded-contract-path>`;
@@ -96,26 +96,38 @@ the Phase 2 view and action identifiers under the Phase 0 naming policy.
 - `view-projections.yaml` maps the selected screens to the same product state.
 - `verification-matrix.yaml` records required structural, behavior, responsive,
   accessibility, packaging, and human-review observations.
+- `scripts/check-experience-browser.mjs` exercises every source-derived
+  scenario, Specification record, valid Product proposal route, inline
+  artifact-verification specialization, Verify surface, keyboard path, and
+  responsive viewport. It emits deterministic browser diagnostics and review
+  screenshots without writing Evidence Generator artifacts.
+- Specification trace context exposes a stable Explorer projection ID, phase and
+  authority class, canonical source location, pending Tools semantic
+  fingerprint/currentness, declared relation authority, and verification
+  status. This is a projection of the source manifest, not a replacement
+  semantic authority.
 - The canonical command simulator uses the command IDs and guarded reducer
   declared in Phase 2. Versioned JSON/JSONL result and parse-error records stay
   machine-readable on stdout; human diagnostics stay on stderr. It is a local
   synthetic-fixture executable, not the production Media runtime CLI. API
   transport parity remains unspecified.
+- `pnpm check:product-experience-local` is the repeatable local invariant check
+  for indexed source existence, screen/action/journey denominators, proposal
+  action disabling, closure-matrix coverage, and the intentional absence of
+  generated `currentness.yaml`. It cannot replace Tools-native evidence or
+  owner acceptance.
 - The simulation package typechecks with TypeScript 6.0.3 and all 31 tests
   across the reducer and two CLI surfaces pass. The local browser client builds
-  with Vite 7.3.1 and bundles 146 current specification records. These
+  with Vite 7.3.1 and bundles 147 current specification records. These
   local observations do not establish a Tools-host binding or phase acceptance.
-- A production-build DOM geometry sweep covered all 47 Product proposal routes
-  at 320x640, 390x844, 768x1024, 1024x768, and 1280x800. Every route had four
-  context cards and disabled proposal actions, with unique titles and no
-  page-level horizontal overflow. Rendered anatomy/state names use sentence
-  case and channel references resolve to the P0 human-readable channel names.
-  Screenshot spot checks covered the caption editor at mobile, tablet, and
-  desktop sizes; the verification-job view was visually inspected at all five
-  widths in an earlier review. This confirms route projection and geometry,
-  while the embedded CLI retained unknown job/upload identity and fit the
-  320px/390px views without overflow; its narrow desktop preview is centered in
-  the available canvas. This does not establish full view behavior or
-  pixel-perfect treatment across every view. Keyboard,
-  screen-reader, zoom, forced-colors, independent visual review, and owner
-  acceptance remain outstanding, so Phase 3 is not accepted.
+- The Playwright browser audit now covers all 29 Explore scenarios, all 147
+  Specification records, all 47 valid Product proposal routes at six viewports
+  (1536x960, 1280x800, 1024x768, 768x1024, 390x844, and 320x640), the inline
+  artifact-verification specialization, Verify, keyboard navigation, visible
+  accessible names, console/page errors, and horizontal overflow. It records
+  282 Product route/viewport observations and repeated fixed-viewport screenshot
+  hashes are identical across runs. This confirms deterministic route geometry
+  and browser behavior, while the embedded CLI retains unknown job/upload
+  identity and fits the 320px/390px views without overflow. Pixel-reference
+  conformance, screen-reader, zoom, forced-colors, independent visual review,
+  and owner acceptance remain outstanding, so Phase 3 is not accepted.

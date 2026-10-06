@@ -37,6 +37,7 @@ recovery: Keep unsaved edits locally and identify conflicts; never claim a versi
   save.
 responsive: provide-numeric-timing-entry-and-keyboard-segment-navigation
 accessibility: inline-errors-associated-with-segment; focus-returns-to-edited-segment
+localization: Localize human-readable labels and explanations; preserve canonical IDs, reason codes, raw timestamps, measurements, and object identity; format dates, numbers, units, and plurals by locale without changing stored values.
 copyRefs:
 - media.copy.caption.draft
 - media.copy.caption.conflict

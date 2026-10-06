@@ -1,0 +1,317 @@
+schemaVersion: media.mandatory-surface-closure-matrix.v1
+productId: media
+scope: .product-experience plus apps/media-experience-explorer and libs/media-experience-simulation
+mode: harden-source-of-truth
+authority: local audit matrix; not Product Definition acceptance, Tools evidence, or release evidence
+promptContext:
+  source: /Users/samujjwal/.codex/attachments/69b84256-9d4b-47fb-a44f-288faf3a2cde/Pasted text.txt
+  governingRequirements:
+  - one canonical Product Definition root with explicit authority ownership
+  - complete PDP-0 through PDP-3 projections for applicable GUI, CLI, API, SDK, event, and service surfaces
+  - deterministic source links, currentness, traceability, simulation, and verification without fabricated acceptance
+  - complete GUI design-system and accessibility/localization obligations where applicable
+repoGuidance:
+  discovered:
+  - no AGENTS.md, nested AGENTS.md, .github/copilot-instructions.md, .github/instructions, or .github/prompts files found
+  - .product-experience/README.md
+  - .product-experience/authority-map.yaml
+  - .product-experience/source-manifest.yaml
+  - .product-experience/acceptance.yaml
+  - .product-experience/gaps.yaml
+  - .product-experience/traceability.yaml
+  - .product-experience/phase-0-product-truth/applications-channels.yaml
+  - .product-experience/phase-1-design-language/DESIGN-LANGUAGE.md
+  - .product-experience/phase-2-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md
+  - .product-experience/phase-3-experience-explorer/EXPERIENCE-EXPLORER.md
+  - docs/README.md
+  - docs/VISION.md
+  - docs/REQUIREMENTS.md
+  - docs/ARCHITECTURE.md
+  - docs/DESIGN.md
+  - docs/EXAMPLES.md
+  - docs/TESTING.md
+  - docs/EVIDENCE.md
+  - apps/media-experience-explorer/README.md
+  - libs/media-experience-simulation/README.md
+surface:
+  buildUnits:
+  - type: GUI_WEB
+    id: apps/media-experience-explorer
+    purpose: Media-owned local Product Definition review and synthetic projection host
+    authority: .product-experience/phase-3-experience-explorer
+  - type: CLI
+    id: libs/media-experience-simulation/bin/ghatana-media.mjs
+    purpose: deterministic synthetic command projection
+    authority: .product-experience/phase-2-product-experience/cli-command-registry.yaml
+  - type: SERVICE_API
+    id: media.api.logical
+    purpose: proposed machine-facing logical operations
+    authority: .product-experience/phase-2-product-experience/api-experience-mapping.yaml
+    status: proposed-wire-unresolved
+  - type: SDK
+    id: media.sdk.logical
+    purpose: proposed consumer binding for admitted operations
+    authority: .product-experience/phase-0-product-truth/applications-channels.yaml
+    status: proposed-public-binding-unresolved
+  - type: EVENT_STREAM
+    id: media.events.logical
+    purpose: lifecycle and finality observations
+    authority: .product-experience/phase-0-product-truth/state-models.yaml
+    status: proposed-runtime-binding-unresolved
+evidencePlan:
+  localCommands:
+  - pnpm dlx --package typescript@6.0.3 tsc --noEmit -p libs/media-experience-simulation/tsconfig.json
+  - node --test libs/media-experience-simulation/tests/*.test.mjs
+  - pnpm dlx --package typescript@6.0.3 tsc --noEmit -p apps/media-experience-explorer/tsconfig.json
+  - pnpm dlx vite@7.3.1 build --config apps/media-experience-explorer/vite.config.mjs
+  - node scripts/check-product-experience-local.mjs
+  - node --test tests/product-experience-local.test.mjs
+  - pnpm test:experience-browser
+  intentionallyNotRun:
+  - owner review and phase acceptance because no authorized reviewer decision was supplied
+  - Tools-native admission because the current verifier returns PLANNER_BINDING_OWNER_AMBIGUOUS with structuralFallback=true and no selected operations
+  - live API, SDK, event, provider, upload, worker, and runtime qualification because contracts/runtime are unbound
+  - independent visual, pixel-reference, and assistive-technology review because browser automation is not human review
+rows:
+  - id: prompt-repo-guidance
+    status: implemented
+    classification: current-state gap
+    evidence: matrix.promptContext and matrix.repoGuidance.discovered record the pasted constitutional contract and repo guidance scan.
+    change: retain this matrix as the auditable context record for the current repair slice
+    verification: node scripts/check-product-experience-local.mjs
+  - id: recursive-inventory
+    status: implemented
+    classification: current-state gap
+    evidence: .product-experience/source-manifest.yaml and apps/media-experience-explorer/specification-artifacts.json inventory the canonical records and Explorer projection.
+    change: local invariant checker compares the source tree and 147-record Explorer index and validates cross-phase reference closure
+    verification: node scripts/check-product-experience-local.mjs
+  - id: surface-kind-build-unit
+    status: implemented
+    classification: current-state gap
+    evidence: matrix.surface.buildUnits plus package manifests identify the GUI, CLI, logical API, SDK, and event scopes.
+    change: preserve explicit surface classification without claiming unbound runtime support
+    verification: node scripts/check-product-experience-local.mjs
+  - id: ownership-boundary-placement
+    status: reviewed-no-gap
+    classification: not-applicable
+    evidence: .product-experience/authority-map.yaml and phase-3-experience-explorer/EXPERIENCE-EXPLORER.md assign Media semantics to Media and generic host/contracts to Tools/Shared.
+  - id: vision-non-goals-consumers
+    status: reviewed-no-gap
+    classification: not-applicable
+    evidence: .product-experience/README.md and phase-0-product-truth/PRODUCT-TRUTH.md state the bounded product identity, consumers, non-goals, and accepted boundary slice.
+  - id: architecture-design
+    status: reviewed-no-gap
+    classification: not-applicable
+    evidence: phase-1-design-language/DESIGN-LANGUAGE.md, phase-2-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md, and phase-3-experience-explorer/EXPERIENCE-EXPLORER.md define the downstream projection architecture.
+  - id: documentation-examples
+    status: implemented
+    classification: current-state gap
+    evidence: docs/README.md, docs/VISION.md, docs/REQUIREMENTS.md, docs/PRODUCT-DEFINITION-COVERAGE.md, docs/ARCHITECTURE.md, docs/DESIGN.md, docs/EXAMPLES.md, docs/TESTING.md, docs/EVIDENCE.md, root and package READMEs, and phase documents describe usage, boundaries, tests, and evidence limitations.
+    change: add the missing vision, requirements, and examples entrypoints and include cross-phase reference validation in the repeatable local invariant command
+    verification: node scripts/check-product-experience-local.mjs
+  - id: requirements-current-state
+    status: gap-found
+    classification: current-state gap
+    location: .product-experience/gaps.yaml and .product-experience/traceability.yaml
+    rootCause: authored proposals and implementation observations are intentionally not reconciled by owner acceptance.
+    fix: keep proposed, implemented, admitted, and accepted states separate; close only with owner-authorized upstream records.
+    acceptance: every active requirement has an explicit downstream disposition and no proposal is presented as accepted.
+    tests: node scripts/check-product-experience-local.mjs
+    evidence: Current Tools verification remains a structural fallback with PLANNER_BINDING_OWNER_AMBIGUOUS and no native operations selected.
+    impact: blocks phase acceptance; does not block local source-link and invariant tooling.
+  - id: gap-backlog-classification
+    status: implemented
+    classification: current-state gap
+    evidence: .product-experience/gaps.yaml is the single editable gap register and this matrix classifies local repairs versus external blockers.
+    change: add exact local evidence and external blocker boundaries here
+    verification: node scripts/check-product-experience-local.mjs
+  - id: feature-completeness
+    status: gap-found
+    classification: current-state gap
+    location: .product-experience/gaps.yaml GAP-MEDIA-PHASE2-COVERAGE and GAP-11
+    rootCause: 41 baseline views and 28 required journeys are proposal-indexed but not fully behavior-bound; the generic Tools browser host is unbound.
+    fix: complete owner-reviewed action/state/scenario/channel bindings and bind the published Tools host before acceptance.
+    acceptance: all active surfaces and capabilities resolve to executable or explicitly unsupported-by-design projections with owner evidence.
+    tests: node scripts/check-product-experience-local.mjs; local simulation tests
+    evidence: .product-experience/phase-3-experience-explorer/verification-matrix.yaml records local-only route and reducer observations.
+    impact: blocks P2-008 and P3 acceptance.
+  - id: correctness
+    status: implemented
+    classification: current-state gap
+    evidence: libs/media-experience-simulation/tests and the local checker cover stable IDs, guarded actions, route inventory, proposal-only action disabling, and cross-phase capability/component/screen/journey reference closure.
+    change: make invariant checks repeatable and fail closed on missing currentness, enabled proposal actions, missing required shapes, or dangling cross-phase references
+    verification: pnpm check:product-experience-local; pnpm test:product-experience-local
+  - id: api-contracts-config
+    status: blocked
+    classification: current-state gap
+    location: .product-experience/phase-2-product-experience/api-experience-mapping.yaml and phase-0-product-truth/applications-channels.yaml
+    rootCause: exact HTTP/gRPC/SDK routes, schemas, and owner bindings are unresolved under GAP-05.
+    fix: reconcile canonical external contracts and record the owner-approved wire mapping; do not invent routes locally.
+    acceptance: every logical operation has an admitted route/RPC, request/response/error/finality semantics, auth, idempotency, and compatibility evidence.
+    tests: Tools-owned contract validation plus consumer parity checks after publication
+    evidence: local mapping records unresolved-under-GAP-05; no local evidence may close this row.
+    impact: blocks non-GUI interface completeness and P2 acceptance.
+  - id: generated-source-of-truth-parity
+    status: implemented
+    classification: current-state gap
+    evidence: apps/media-experience-explorer/specification-artifacts.json is the bundled projection; source YAML is loaded read-only at runtime and proposal actions are not generated authority.
+    change: local checker verifies every indexed artifact exists and no currentness file is fabricated
+    verification: node scripts/check-product-experience-local.mjs
+  - id: naming
+    status: implemented
+    classification: current-state gap
+    evidence: Phase 0 glossary, Phase 2 action registry, and Explorer labels use outcome-oriented names; local checker rejects duplicate projection IDs and empty labels.
+    change: preserve intent-based labels in source-link metadata and coverage summaries
+    verification: node scripts/check-product-experience-local.mjs
+  - id: duplication
+    status: reviewed-no-gap
+    classification: not-applicable
+    evidence: .product-experience/README.md and phase-3 documentation explicitly distinguish canonical source, generated projection, simulation, and Tools host ownership.
+  - id: organization-placement
+    status: implemented
+    classification: current-state gap
+    evidence: canonical records remain under .product-experience; simulation and browser projections remain in their owning packages.
+    change: put local audit tooling under scripts and keep it non-authoritative
+    verification: node scripts/check-product-experience-local.mjs
+  - id: cohesion-coupling
+    status: reviewed-no-gap
+    classification: not-applicable
+    evidence: browser UI consumes the simulation package and source artifacts through explicit adapters; no production runtime dependency is added.
+  - id: tests-coverage
+    status: gap-found
+    classification: current-state gap
+    location: apps/media-experience-explorer
+    rootCause: the browser client has type/build and manual geometry observations but no automated keyboard, screen-reader, zoom, forced-colors, or full-route interaction suite.
+    fix: add browser-level accessibility and interaction coverage when the supported browser harness and reviewer scope are authorized.
+    acceptance: every active route and channel has repeatable keyboard/focus, responsive, semantic, and failure-state evidence.
+    tests: existing TypeScript/build and simulation tests; future browser harness required
+    evidence: GAP-12 and verification-matrix.yaml
+    impact: blocks P3 acceptance.
+  - id: compatibility-migration-deprecation
+    status: blocked
+    classification: current-state gap
+    location: migration/contract-compatibility.yaml and phase-0-product-truth/applications-channels.yaml
+    rootCause: source migration and public package parity are not accepted.
+    fix: complete consumer inventory, public version publication, parity checks, and cutover authorization.
+    acceptance: compatibility commitments and deprecation boundaries are owner-approved and verified against consumers.
+    tests: migration and consumer parity suites after owner bindings
+    evidence: GAP-01, GAP-02, GAP-05, and GAP-15
+    impact: blocks source cutover and public package claims.
+  - id: affected-scope-verification
+    status: implemented
+    classification: current-state gap
+    evidence: matrix.evidencePlan defines the smallest local typecheck, simulation, build, invariant, and regression-test commands.
+    change: codify commands and intentionally unrun external checks
+    verification: execute matrix.evidencePlan.localCommands
+  - id: evidence-generator-integration
+    status: blocked
+    classification: current-state gap
+    location: .product-experience/phase-3-experience-explorer/verification-matrix.yaml and GAP-MEDIA-TOOLS-SCHEMA-BINDING
+    rootCause: the Tools Evidence Generator authority is unavailable and published isolated bindings are not verified.
+    fix: obtain owner-resolved package/schema/validator bindings and run the native planner, collector, gate, and receipt workflow.
+    acceptance: native artifacts are current, schema-valid, repeatable, and admitted by Tools; local observations remain separate.
+    tests: Tools-native verification after binding publication
+    evidence: current matrix status PLANNER_BINDING_OWNER_AMBIGUOUS with structuralFallback=true and no selected operations
+    impact: blocks numeric convergence, phase acceptance, and currentness generation.
+  - id: missing-evidence-generator-capabilities
+    status: blocked
+    classification: current-state gap
+    location: GAP-MEDIA-TOOLS-SCHEMA-BINDING and GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    rootCause: no owner-approved collector/validator/output contract is available to generate currentness and coverage.
+    fix: implement or publish the Tools-owned collector/schema/gate path; Media must consume it rather than copy it.
+    acceptance: coverage/currentness output includes scope fingerprint, provenance, repeatability, and owner acceptance.
+    tests: Tools schema and repeatability tests
+    evidence: .product-experience/README.md intentionally leaves currentness.yaml absent.
+    impact: blocks P0-010 and all phase certification.
+  - id: security
+    status: implemented
+    classification: current-state gap
+    evidence: simulation reducer guards identity, workspace, consent, source, upload, job, and unknown-finality actions; no remote effects are exposed.
+    change: local checker asserts proposal routes cannot expose enabled actions and source files are read-only projections
+    verification: simulation tests and local checker
+  - id: privacy-data-governance-compliance
+    status: blocked
+    classification: current-state gap
+    location: phase-0-product-truth/policy-authority-model.yaml and GAP-13
+    rootCause: retention, erasure, storage, outbox, and worker qualification evidence is not available.
+    fix: complete privacy/operations owner review and runtime evidence; keep synthetic fixtures metadata-only.
+    acceptance: no unadmitted bytes, PII, or cross-tenant effects are claimed; runtime retention/erasure evidence is owner-approved.
+    tests: privacy and storage qualification suites after runtime binding
+    evidence: local fixtures explicitly contain no file bytes; GAP-13 remains open.
+    impact: blocks runtime qualification and activation.
+  - id: observability-diagnostics
+    status: reviewed-no-gap
+    classification: not-applicable
+    evidence: local synthetic CLI emits structured result/error records and the browser exposes deterministic event logs; live runtime telemetry is outside this local scope.
+  - id: reliability-resilience-operability
+    status: gap-found
+    classification: current-state gap
+    location: phase-2-product-experience/recovery-finality-contracts.yaml and phase-3-experience-explorer
+    rootCause: synthetic recovery semantics exist for selected lanes, but live persistence, retry, watch detach, and worker recovery are unbound.
+    fix: bind runtime lifecycle contracts and qualify retry/idempotency/finality behavior before availability claims.
+    acceptance: stopping observation is distinct from cancellation, unknown outcomes are non-retryable until reconciled, and recovery is durable.
+    tests: selected simulation tests now; runtime recovery tests after binding
+    evidence: verification-matrix.yaml selected J-02/J-20 checks
+    impact: blocks runtime readiness and full journey closure.
+  - id: performance-scalability
+    status: blocked
+    classification: current-state gap
+    location: GAP-10 and phase-0-product-truth/quality-policy.yaml
+    rootCause: no owner-approved engine/GPU/model quality or reproducibility measurements.
+    fix: define and run bounded qualification profiles with real measurement provenance.
+    acceptance: claims include declared dimensions, budgets, repeatability, and abstentions.
+    tests: qualification and load suites after runtime admission
+    evidence: local browser/build checks are not performance qualification.
+    impact: blocks quality/performance claims.
+  - id: accessibility-internationalization
+    status: gap-found
+    classification: current-state gap
+    location: phase-1-design-language/accessibility.yaml, localization-content.yaml, and GAP-12
+    rootCause: proposals and local responsive geometry exist, but keyboard/screen-reader/zoom/forced-colors/localization review is not accepted.
+    fix: execute the matrix across active views/channels with independent review and record owner evidence.
+    acceptance: keyboard/focus, semantic announcements, zoom, contrast, reduced motion, locale/RTL, and long-label behavior are proven.
+    tests: local type/build plus authorized browser accessibility harness
+    evidence: verification-matrix.yaml explicitly records missing evidence.
+    impact: blocks P1/P3 acceptance.
+  - id: ai-ml-applicability
+    status: blocked
+    classification: improvement-backlog
+    location: phase-0-product-truth/quality-policy.yaml and GAP-08/GAP-10
+    rootCause: AI/model capability and qualification are product-owner/runtime concerns not inferable from synthetic Explorer fixtures.
+    fix: record owner-approved model interfaces, safety, provenance, fallback, and qualification evidence when AI surfaces are admitted.
+    acceptance: no model or provider availability is implied by a proposal or fixture.
+    tests: model qualification suites after admission
+    evidence: phase records explicitly separate capability definition from runtime availability.
+    impact: blocks AI capability claims; not needed for deterministic local simulation.
+  - id: build-dependency-release-readiness
+    status: implemented
+    classification: current-state gap
+    evidence: package manifests, TypeScript checks, Vite build, and the local checker cover package metadata and bundle inputs.
+    change: keep local packages private and synthetic; do not add release claims
+    verification: typecheck, simulation tests, browser build, local checker
+  - id: dependency-supply-chain-licensing
+    status: blocked
+    classification: current-state gap
+    location: GAP-07 and GAP-09
+    rootCause: external code, models, weights, fonts, assets, and benchmark scripts lack complete license/security admission.
+    fix: complete provenance, license, and security review before distribution or execution.
+    acceptance: every shipped/executed dependency has owner-approved provenance and license disposition.
+    tests: supply-chain checks after admission
+    evidence: no local run claims affected assets are admitted.
+    impact: blocks distribution/execution claims.
+  - id: repeatability-reproducibility
+    status: implemented
+    classification: current-state gap
+    evidence: deterministic fixture tests and matrix.evidencePlan use fixed scenario IDs, reducer state, and explicit commands.
+    change: local checker enforces stable inventory and absence of hand-authored currentness
+    verification: repeat each local command and compare output/status
+  - id: convergence-stability
+    status: blocked
+    classification: current-state gap
+    location: .product-experience/acceptance.yaml, gaps.yaml, and verification-matrix.yaml
+    rootCause: native evidence authority, owner acceptance, and external bindings remain unavailable.
+    fix: rerun the current Tools assessor after each owner-bound change; preserve the local/native distinction.
+    acceptance: all local invariants pass, native artifacts are current and admitted, owner gates are recorded, and no open blocker is hidden.
+    tests: full evidence plan plus native Tools run
+    evidence: current local result is partial and fail-closed by design.
+    impact: prevents reporting complete convergence.

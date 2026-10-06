@@ -1,0 +1,158 @@
+schemaVersion: media.vision-requirements-coverage.v1
+productId: media
+authority: authored-cross-phase-alignment-ledger; not-semantic-acceptance-or-currentness
+sourceInputs:
+  masterPrompt: user-provided-generic-four-phase-product-definition-and-complete-experience-explorer-prompt
+  vision: docs/VISION.md
+  goals: phase-0-product-truth/goals-jtbd.yaml
+  requirements: phase-0-product-truth/requirements.yaml
+  nonfunctionalRequirements: phase-0-product-truth/nonfunctional-requirements.yaml
+  domain: phase-0-product-truth/domain-model.yaml
+  states: phase-0-product-truth/state-models.yaml
+  design: phase-1-design-language/
+  experience: phase-2-product-experience/
+  explorer: phase-3-experience-explorer/ and ../apps/media-experience-explorer/
+phaseCrosswalk:
+  - masterPromptPhase: PDP-0
+    localProjection: P0
+    sources: [phase-0-product-truth/]
+    status: captured-proposal; P0-001-boundary-slice-accepted; P0-010-pending
+  - masterPromptPhase: PDP-1
+    localProjection: P0-domain-and-state-records
+    sources:
+      - phase-0-product-truth/domain-model.yaml
+      - phase-0-product-truth/state-models.yaml
+      - phase-0-product-truth/time-units-fidelity.yaml
+      - phase-0-product-truth/schema-bindings.yaml
+    status: captured-proposal; independent-semantic-review-pending
+  - masterPromptPhase: PDP-2
+    localProjection: P1
+    sources: [phase-1-design-language/]
+    status: captured-proposal; P1-006-pending
+  - masterPromptPhase: PDP-3
+    localProjection: P2
+    sources: [phase-2-product-experience/]
+    status: captured-proposal; P2-008-pending
+  - masterPromptPhase: Experience-Explorer-projection
+    localProjection: P3
+    sources:
+      - phase-3-experience-explorer/
+      - ../apps/media-experience-explorer/
+      - ../libs/media-experience-simulation/
+    status: deterministic-local-projection; Tools-binding-and-human-review-pending
+masterPromptCoverage:
+  - id: MP-0-04
+    sections: 0-4
+    theme: mission-constitution-surfaces-canonical-root-and-source-manifest
+    sources: [.product-experience/README.md, .product-experience/source-manifest.yaml, docs/VISION.md]
+    status: captured; owner-acceptance-and-currentness-pending
+  - id: MP-5-11
+    sections: 5-11
+    theme: Explorer-completeness-source-links-information-architecture-and-product-truth-domain-modes
+    sources: [apps/media-experience-explorer/specification-artifacts.json, phase-3-experience-explorer/EXPERIENCE-EXPLORER.md, phase-3-experience-explorer/verification-matrix.yaml]
+    status: source-index-and-trace-metadata-captured; structured-mode-and-native-rendering-gap-open
+  - id: MP-12-16
+    sections: 12-16
+    theme: PDP-0-product-truth-and-PDP-1-domain-data-contracts
+    sources: [phase-0-product-truth/]
+    status: captured-proposal; P0-010-independent-review-pending
+  - id: MP-17-32
+    sections: 17-32
+    theme: PDP-2-design-language-GUI-foundations-components-patterns-layouts-and-machine-interface-conventions
+    sources: [phase-1-design-language/]
+    status: captured-proposal; P1-006-review-and-Shared-binding-pending
+  - id: MP-33-54
+    sections: 33-54
+    theme: PDP-3-surfaces-screens-interfaces-journeys-states-actions-traceability-fixtures-and-simulation
+    sources: [phase-2-product-experience/, phase-3-experience-explorer/, libs/media-experience-simulation/]
+    status: captured-proposal; P2-008-and-runtime-binding-pending
+  - id: MP-55-64
+    sections: 55-64
+    theme: pixel-perfect-responsive-accessibility-localization-conformance-source-code-and-brownfield-rules
+    sources: [phase-1-design-language/accessibility.yaml, phase-1-design-language/localization-content.yaml, phase-1-design-language/responsive-adaptive.yaml, phase-3-experience-explorer/verification-matrix.yaml, docs/PRODUCT-DEFINITION-COVERAGE.md]
+    status: deterministic-local-browser-proof-partial; independent-review-and-reference-baseline-gap-open
+  - id: MP-65-72
+    sections: 65-72
+    theme: definition-of-ready-complete-Explorer-review-invariants-change-propagation-currentness-and-cleanup
+    sources: [.product-experience/acceptance.yaml, .product-experience/traceability.yaml, .product-experience/gaps.yaml, .product-experience/mandatory-surface-closure-matrix.yaml]
+    status: governance-records-captured; native-generator-and-owner-acceptance-pending
+  - id: MP-73-79
+    sections: 73-79
+    theme: execution-procedure-modes-final-report-closure-and-constitutional-rules
+    sources: [docs/PRODUCT-DEFINITION-COVERAGE.md, .product-experience/vision-requirements-coverage.yaml, .product-experience/mandatory-surface-closure-matrix.yaml]
+    status: procedure-and-closure-contract-captured; convergence-blocked-by-native-evidence
+visionCoverage:
+  outcomeDenominator: 10
+  jobDenominator: 11
+  intentDenominator: 19
+  outcomes:
+    - id: media.goal.finished-asset
+      requirementRefs: [MEDIA-REQ-CAP-PROJECT, MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-STREAM, MEDIA-REQ-CAP-GENERATE-IMAGE, MEDIA-REQ-CAP-GENERATE-VIDEO, MEDIA-REQ-CAP-GENERATE-AUDIO, MEDIA-REQ-CAP-SPEECH-SYNTHESIS, MEDIA-REQ-CAP-GENERATE-SPATIAL, MEDIA-REQ-CAP-ANIMATION, MEDIA-REQ-CAP-ANIMATION-EDITING, MEDIA-REQ-CAP-ANIMATION-OUTPUT, MEDIA-REQ-CAP-RECIPE-TEMPLATE, MEDIA-REQ-CAP-EDIT, MEDIA-REQ-CAP-SYNC, MEDIA-REQ-CAP-COMPOSE, MEDIA-REQ-CAP-COLOR, MEDIA-REQ-CAP-MASTER-AUDIO]
+      journeyRefs: [J-01, J-04, J-07, J-08, J-09, J-10, J-11, J-12, J-13, J-14, J-16, J-17, J-18, J-24, J-28]
+      status: captured-with-journey-coverage
+    - id: media.goal.preserve-source
+      requirementRefs: [MEDIA-REQ-CAP-PROJECT, MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-PROVENANCE, MEDIA-REQ-CAP-ENHANCE-IMAGE, MEDIA-REQ-CAP-ENHANCE-VIDEO, MEDIA-REQ-CAP-ENHANCE-AUDIO, MEDIA-REQ-CAP-EDIT, MEDIA-REQ-CAP-SYNC, MEDIA-REQ-CAP-COMPOSE, MEDIA-REQ-CAP-COLOR, MEDIA-REQ-CAP-MASTER-AUDIO, MEDIA-REQ-CAP-QUALITY, MEDIA-REQ-CAP-QUALITY-IMAGE, MEDIA-REQ-CAP-QUALITY-VIDEO, MEDIA-REQ-CAP-QUALITY-AUDIO]
+      journeyRefs: [J-02, J-07, J-08, J-11, J-18, J-26]
+      status: captured-with-journey-coverage
+    - id: media.goal.understand-media
+      requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-STREAM, MEDIA-REQ-CAP-PROVENANCE, MEDIA-REQ-CAP-VISION-SCENE-TEXT, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION, MEDIA-REQ-CAP-VISION, MEDIA-REQ-CAP-MULTIMODAL, MEDIA-REQ-CAP-AUDIO-ANALYSIS, MEDIA-REQ-CAP-QUALITY]
+      journeyRefs: [J-02, J-03, J-05, J-06]
+      status: captured-with-journey-coverage
+    - id: media.goal.explain-or-demonstrate
+      requirementRefs: [MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SIMULATION, MEDIA-REQ-CAP-SIMULATION-OUTPUT, MEDIA-REQ-CAP-RECIPE-TEMPLATE]
+      journeyRefs: [J-09, J-10, J-12, J-13, J-14, J-15, J-28]
+      status: captured-with-journey-coverage
+    - id: media.goal.improve-with-disclosure
+      requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-PROVENANCE, MEDIA-REQ-CAP-ENHANCE-IMAGE, MEDIA-REQ-CAP-ENHANCE-VIDEO, MEDIA-REQ-CAP-ENHANCE-AUDIO, MEDIA-REQ-CAP-EDIT, MEDIA-REQ-CAP-COLOR, MEDIA-REQ-CAP-MASTER-AUDIO, MEDIA-REQ-CAP-QUALITY, MEDIA-REQ-CAP-QUALITY-IMAGE, MEDIA-REQ-CAP-QUALITY-VIDEO, MEDIA-REQ-CAP-QUALITY-AUDIO]
+      journeyRefs: [J-07, J-08, J-11, J-15, J-19]
+      status: captured-with-journey-coverage
+    - id: media.goal.review-trustworthy-output
+      requirementRefs: [MEDIA-REQ-CAP-RIGHTS, MEDIA-REQ-CAP-PROVENANCE]
+      journeyRefs: [J-03, J-05, J-09, J-16, J-18, J-21, J-22]
+      supportingViewRefs: [M-EXACT-VERSION]
+      status: captured-with-journey-and-supporting-view-coverage
+    - id: media.goal.deliver-approved-output
+      requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-RIGHTS, MEDIA-REQ-CAP-PROVENANCE, MEDIA-REQ-CAP-DELIVER]
+      journeyRefs: [J-09, J-16, J-17, J-18, J-22]
+      status: captured-with-journey-coverage
+    - id: media.goal.integrate-repeatably
+      requirementRefs: [MEDIA-REQ-CAP-PROFILE, MEDIA-REQ-CAP-CAPABILITY, MEDIA-REQ-CAP-HEALTH]
+      journeyRefs: [J-24, J-25, J-30]
+      supportingViewRefs: [M-HELP]
+      status: captured-with-journey-and-supporting-view-coverage
+    - id: media.goal.resolve-safely
+      requirementRefs: [MEDIA-REQ-CAP-PROJECT, MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-STREAM, MEDIA-REQ-CAP-CAPABILITY, MEDIA-REQ-CAP-HEALTH, MEDIA-REQ-CAP-RIGHTS]
+      journeyRefs: [J-01, J-02, J-20, J-23, J-26, J-27, J-29, J-30]
+      status: captured-with-journey-coverage
+    - id: media.goal.apply-permitted-settings
+      requirementRefs: [MEDIA-REQ-CAP-PROJECT]
+      supportingViewRefs: [M-SETTINGS]
+      status: captured-with-supporting-view; no-independent-master-plan-journey
+coverageChecks:
+  requirements: {expected: 38, rule: every-requirement-has-capability-and-outcome-trace}
+  nonfunctionalRequirements: {expected: 13, rule: security-privacy-observability-accessibility-localization-performance-cost-time-fidelity-recovery-deployment-and-SLO-coverage}
+  capabilities: {expected: 462, rule: every-leaf-has-requirement-intent-outcome-state-authority-recovery-provenance-and-channel-fields}
+  componentContracts: {expected: 28, rule: every-component-has-design-state-action-accessibility-localization-and-misuse-fields}
+  screenContracts: {expected: 47, rule: every-contract-is-indexed-source-linked-and-proposal-actions-are-disabled}
+  journeys: {expected: 30, proposalFiles: 28, rule: every-journey-has-outcome-actor-step-success-failure-recovery-context-channel-and-accessibility-fields}
+  explorerArtifacts: {expected: 147, rule: every-indexed-source-record-is-reachable-from-Specification-with-trace-metadata}
+knownCoverageGaps:
+  - id: capability-leaf-journey-reachability
+    count: 385
+    location: phase-0-product-truth/capabilities.yaml
+    status: pending-P0-010-per-leaf-fit-review
+  - id: action-capability-reachability
+    count: 123
+    location: phase-2-product-experience/action-registry.yaml
+    status: pending-P2-action-binding-review
+  - id: component-capability-reachability
+    count: 1
+    location: phase-1-design-language/component-contracts.yaml#media.component.identity-context-boundary
+    status: pending-P1-component-binding-review
+  - id: explorer-structured-truth-domain-overview
+    location: phase-3-experience-explorer/ and apps/media-experience-explorer/
+    gapRef: GAP-MEDIA-EXPLORER-CONTENT-COVERAGE
+    status: source-records-are-indexed-and-traceable; dedicated-structured-modes-and-native-Tools-rendering-pending
+  - id: native-currentness-and-acceptance
+    location: GAP-MEDIA-TOOLS-SCHEMA-BINDING and GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
+    status: blocked-by-owner-resolved-Tools-binding

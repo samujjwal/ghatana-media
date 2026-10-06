@@ -105,6 +105,12 @@ outcomeCoverage:
   proposedChannels: [media.channel.web, media.channel.cli, media.channel.http-api]
   criticalNonhappyJourneyRefs: [J-01, J-02, J-20, J-23, J-26, J-27, J-29, J-30]
   accessibility: media.a11y.baseline
+- outcomeRef: media.goal.apply-permitted-settings
+  supportingViewRefs: [M-SETTINGS]
+  coverageDisposition: supporting-settings-view; no-independent-master-plan-journey
+  proposedChannels: [media.channel.web]
+  criticalNonhappyJourneyRefs: [J-01, J-30]
+  accessibility: media.a11y.baseline
 
 journeys:
 - id: J-01

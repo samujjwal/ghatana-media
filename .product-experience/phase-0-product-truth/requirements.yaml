@@ -148,6 +148,7 @@ requirements:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  - media.goal.apply-permitted-settings
   intentTraceSource: goals-jtbd.yaml#intents
   stateModelRefs:
   - media-project

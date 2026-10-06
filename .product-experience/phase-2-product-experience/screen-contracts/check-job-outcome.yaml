@@ -36,6 +36,7 @@ recovery: Keep the existing job identity and prevent duplicate submission until 
   successor.
 responsive: uncertainty-and-next-safe-action-remain-visible
 accessibility: announce-finality-and-disable-resubmission-with-reason
+localization: Localize human-readable labels and explanations; preserve canonical IDs, reason codes, raw timestamps, measurements, and object identity; format dates, numbers, units, and plurals by locale without changing stored values.
 copyRefs:
 - media.copy.job.unknown
 - media.copy.job.outcome-checked

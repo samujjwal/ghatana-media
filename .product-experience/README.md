@@ -49,6 +49,14 @@ map.
   verification runs remain `CANDIDATE_PLAN` because the planner has no
   owner-bound plan.
 - [`gaps.yaml`](./gaps.yaml) is the single editable cross-phase gap register.
+- [`mandatory-surface-closure-matrix.yaml`](./mandatory-surface-closure-matrix.yaml)
+  is the current 33-area local convergence audit. It records exact local
+  repairs and external/native blockers; it is not a phase acceptance result.
+- [`vision-requirements-coverage.yaml`](./vision-requirements-coverage.yaml)
+  is the machine-readable cross-phase alignment ledger. It maps the
+  master-prompt authority hierarchy and Media's ten P0 outcomes through
+  requirements, capabilities, journeys/views, channels, and Explorer records;
+  it is an authored coverage record, not a semantic acceptance result.
 - [`PRODUCT-CONSTITUTION.md`](./PRODUCT-CONSTITUTION.md) points to the
   structured constitutional register; `phase-0-product-truth/constitution.yaml`
   is the sole editable authority for those requirements.
@@ -89,3 +97,9 @@ here. The distinct generated coverage/currentness output remains open under
 validator binding. Phase 0 through Phase 2 projection targets and the Phase 3
 package path are recorded in `phase-0-product-truth/schema-bindings.yaml`; those
 paths identify planned outputs, not generated artifacts or owner validation.
+
+The repeatable local source-of-truth check is `pnpm check:product-experience-local`.
+It validates the bundled Explorer index, source-linked cross-phase coverage,
+screen/action/journey denominators, proposal-only action guards, matrix
+coverage, and the intentional absence of Tools-generated currentness. It does
+not issue receipts or acceptance.
