@@ -98,8 +98,11 @@ ownerReview:
   - PDP3-004-cli-sdk-event-agent-tool-and-service-registry-structure-only
   - PDP3-005-channel-to-surface-candidate-reference-normalization-only
   - PDP3-005-130-step-journey-contract-structure-only
+  - CLEAN-2-source-specific-contract-and-Agent-Tool-identity-disposition-only
+  - CROSS-002-pinned-artifact-identity-and-display-class-metadata-only
+  - VER004-local-Explorer-touch-target-baseline-only
   approvedModelTerms: [PDP-0-Product-Truth, PDP-1-Canonical-Domain-and-Data-Model, PDP-2-Design-Language-and-Interface-System, PDP-3-Complete-Product-Experience, Explorer-outside-PDP-phases]
-  notAccepted: [full-PDP-0, full-PDP-1, full-PDP-2, full-PDP-3, Tools-or-Shared-owner-decisions, native-currentness-or-receipts, publication, qualification, release-readiness, IMP-05]
+  notAccepted: [full-PDP-0, full-PDP-1, full-PDP-2, full-PDP-3, Tools-or-Shared-owner-decisions, native-currentness-or-receipts, publication, qualification, release-readiness, IMP-01, IMP-02, IMP-03, IMP-04, IMP-05]
   comments:
   - PDP-0 references, capability bounds, and proposal-action reachability require source-grounded reconciliation before semantic acceptance. The malformed capabilities.yaml families sequence and requirements.yaml indentation are repaired and parse locally with PyYAML; portable Node parser-backed CI coverage remains blocked because pnpm cannot resolve private @ghatana/tokens from the configured unauthenticated registry. The 445-bound, 385-reference, and 123-action gaps remain open.
   - PDP-1 observed interfaces are projections, not canonical meaning. PXD-007 approves nine PDP1 logical-operation proposals with the required 22-field shape and source inventory only. Their 146 UI actions partition into 11 single proposed links, one ambiguous link, and 134 unresolved. PDP3-002 found 27 HTTP operation IDs match OpenAPI and runtime-route inventories, while all 15 API/action mappings remain unresolved and no per-operation contracts exist. All 43 gRPC registry entries match active proto declarations; PDP1 proposes family links for 24 and leaves 19 unresolved, while all PDP3 experience bindings remain pending. The stale “26 active” count label was corrected to the 43-RPC source census with a focused regression; this does not resolve wire authority or semantic mappings. CLI remains 11 fixture commands versus 12 broader proposals (including unbound `media.cli.job.retry`). The 27-entry SDK registry remains unbound, with apparent parser false positives unresolved. Four Agent Tool handlers and 15 event names still lack complete canonical bindings. Do not infer semantic, wire, or runtime parity from inventory matches.
@@ -114,6 +117,11 @@ ownerReview:
   - PXD-020 approves PDP3-004 registry structure only: 11 fixture CLI commands, 27 SDK source entries, nine runtime event types separate from 15 local notifications, four non-admitted Agent Tool handlers, and 25 service implementation observations. No production interface or delivery guarantee is admitted.
   - PXD-021 approves only a source-grounded candidate channel-to-surface crosswalk for reference normalization. It does not admit any channel or infer deployment/runtime support; media.channel.api remains an abstract layer with no direct surface.
   - PXD-022 approves PDP3-005's structure only: 30 journey contracts and 130 structured ordered steps, with J-29/J-30 source step IDs preserved and 148 candidate surface refs normalized. Seven PDP-1 operation refs remain proposals; at least 123 operation bindings plus object/state/authority/decision/transition/handoff/requirements and step-specific outcomes remain unresolved; all verification is not-run.
+  - PXD-023 approves CLEAN-2's source-specific contract disposition and preserves the four observed av.* handler IDs. Tools' standalone explorer check passed, but Media package publication, isolated consumer loading/integration, canonical Tool identity, and Tools-native currentness/receipts remain pending.
+  - PXD-024 approves artifact identity and six display-class metadata only: all 206 IDs in the reviewed committed baseline remain exact, 72 additions are explicit pinned literals, and 60 legacy path-digest-shaped values are disclosed and never recomputed. The strict constrained registry parser, class taxonomy, relocation invariant, projection-collision check, and deterministic generation are locally tested; none conveys product-semantic authority or currentness.
+  - PXD-025 approves only 24 CSS-pixel minimum hit areas for the synthetic Explorer source scrubber and timestamp seek buttons. It changes no action semantics and does not accept Shared/PDP-2 styling or production UI design.
+  - EXP-003/006 now provide source-linked semantic-mode projections and registry-only interface views; Verify no longer stores transient pass/fail results. These views remain partial projections, not complete accepted semantics or machine-interface contracts.
+  - Wave 6 validators are implemented with focused regressions: VER-001 local structural closure passes while semantic/currentness findings remain; VER-002 fails closed with 143 unexplained design-authority findings and unresolved Shared/PDP-2 bindings; VER-003 preserves 27/27 OpenAPI/runtime/PDP-3 HTTP and 43/43 gRPC/protobuf identities but reports 50 contract/client/semantic gaps across 20 SDK HTTP call sites and unresolved registry bindings; VER-004 post-normalization browser automation passes with no console/page/assertion failures, while manual screen-reader and independent visual review remain open.
   - PXD-005 approves PDP1-001 source-reconciliation/proposal structure only: 37 domain-object, 13 value-object, and 11 relationship records; seven observed-only candidate crosswalks; per-relationship source/proposal bases and non-storage caveats; explicit proposed/unaccepted sample-position context; and exact PDP-0 fragments. The five composite fragments were corrected, and the documented PyYAML check plus local authority/local checks pass. Domain meanings, identities, values, cardinalities, and projections remain unaccepted.
   - PDP3-001 now has a v2 structural regression over all 47 canonical screen proposals plus the separate job-family specialization. Three template IDs resolve to catalog entries, 44 remain null, and canonical layout IDs are absent. Screen refs, component/pattern refs, the candidate Web surface, and action consequence records remain proposals; token/domain/operation/state/entry/exit bindings, design centralization, fixtures, behavior, accessibility, responsive review, and verification remain open.
   - PDP3-004 inventories 11 fixture commands, 12 broader CLI proposals, 27 SDK method entries (with apparent false positives), 15 event names, four handlers, and 25 service implementation entries. Production CLI wiring, event semantics/delivery, per-tool authority/input/result/finality contracts, and product-to-product consumer contracts remain open.
@@ -172,6 +180,18 @@ evidencePlan:
   - blocker: ghatana-design-system-package
     result: BLOCKED
     evidence: registry lookup for @ghatana/design-system@0.1.2 returns E404 on the configured public registry; adjacent Shared source manifests report 0.1.0-SNAPSHOT, not 0.1.2
+  - blocker: imp-01-ocr-cutover
+    result: OWNER_AND_PACKAGE_GATE_PENDING
+    evidence: MDI-001 records the intended ownership boundary, but the public Document Intelligence client is not published/consumer-verified and runtime/provider cutover remains unaccepted.
+  - blocker: imp-02-sdk-consolidation
+    result: PDP-1_PDP-3_AND_CONSUMER_CUTOVER_GATE_PENDING
+    evidence: canonical logical-operation and protocol bindings remain proposals; VER-003 reports diverging SDK route paths and unresolved operation/type/tool mappings.
+  - blocker: imp-03-runtime-state-alignment
+    result: PDP-1_SEMANTIC_ACCEPTANCE_PENDING
+    evidence: extracted state-machine and transition inventories remain proposal-only; no downstream language or runtime is authorized to adopt unaccepted transition semantics.
+  - blocker: imp-04-standalone-build-cleanup
+    result: MIGRATION_CUTOVER_AND_SIBLING_BUILD_GATE_PENDING
+    evidence: the targeted Media STT compile resolves the Jackson YAML alias and reaches the included Event Plane contracts, then fails on 73 unresolved event-store symbols absent from the current Shared source; old Gradle/Docker paths remain gated on migration/cutover decisions.
   - blocker: accepted-pdp3-and-imp05
     result: OWNER_GATE_PENDING
     evidence: Web/CLI production implementation remains prohibited until those surfaces are admitted and PDP-3 definitions are owner-accepted
@@ -247,9 +267,9 @@ rows:
   - id: correctness
     status: gap-found
     classification: current-state gap
-    evidence: libs/media-experience-simulation/tests and the local checker cover stable IDs, guarded actions, route inventory, proposal-only action disabling, and cross-phase capability/component/screen/journey reference closure.
-    change: make invariant checks repeatable and fail closed on missing currentness, enabled proposal actions, missing required shapes, or dangling cross-phase references
-    verification: pnpm check:product-experience-local; pnpm test:product-experience-local
+    evidence: VER-001 adds fail-closed checks for required PDP-3 v2 screen shapes, journey-step shape, duplicate identifiers, and selected screen/operation/domain/state/requirement/API/event references. Mutation tests reject missing shapes, unresolved schema refs, unknown binding statuses, and misleading accepted/complete statuses. Currentness remains pending Tools authority.
+    change: retain repeatable invariant checks, fail closed on missing required structure or dangling references, and keep semantic/native status separate from local structure
+    verification: pnpm check:product-experience-local; pnpm test:product-experience-local; node --test tests/product-experience-local.test.mjs
   - id: api-contracts-config
     status: gap-found
     classification: current-state gap
@@ -258,7 +278,7 @@ rows:
     fix: reconcile canonical external contracts and record the owner-approved wire mapping; do not invent routes locally.
     acceptance: every logical operation has an admitted route/RPC, request/response/error/finality semantics, auth, idempotency, and compatibility evidence.
     tests: Tools-owned contract validation plus consumer parity checks after publication
-    evidence: local mapping records unresolved-under-GAP-05; no local evidence may close this row.
+    evidence: VER-003 preserves structural 27/27 OpenAPI/runtime/PDP-3 HTTP IDs and 43/43 protobuf/gRPC RPC IDs, while explicitly reporting 43 gaps including SDK path divergence, missing SDK-to-OpenAPI bindings, unbound TypeScript/Agent Tool contracts, and unresolved PDP-1 semantics. These local observations do not close this row or establish wire authority.
     impact: blocks non-GUI interface completeness and PDP-3 acceptance.
   - id: generated-source-of-truth-parity
     status: gap-found
@@ -295,10 +315,10 @@ rows:
     status: gap-found
     classification: current-state gap
     location: apps/media-experience-explorer
-    rootCause: the browser client has type/build and manual geometry observations but no automated keyboard, screen-reader, zoom, forced-colors, or full-route interaction suite.
-    fix: add browser-level accessibility and interaction coverage when the supported browser harness and reviewer scope are authorized.
+    rootCause: automated six-viewport browser checks now pass, including keyboard navigation, text scaling, zoom/reflow, forced colors, reduced motion, long-label stress, enabled touch targets, and focus visibility. Screen-reader and independent visual review remain manual gates; no canonical visual references are supplied.
+    fix: execute supported screen-reader and independent expert visual review, and supply accepted canonical visual references where available; retain the local automated audit as necessary but insufficient proof.
     acceptance: every active route and channel has repeatable keyboard/focus, responsive, semantic, and failure-state evidence.
-    tests: existing TypeScript/build and simulation tests; future browser harness required
+    tests: Vite production build and pnpm test:experience-browser; focused browser-audit regression; manual screen-reader and independent review
     evidence: GAP-12 and verification-matrix.yaml
     impact: blocks PDP-3 acceptance.
   - id: compatibility-migration-deprecation
@@ -312,14 +332,17 @@ rows:
     evidence: GAP-01, GAP-02, GAP-05, and GAP-15
     impact: blocks source cutover and public package claims.
   - id: affected-scope-verification
-    status: reviewed-no-gap
-    classification: not-applicable
+    status: gap-found
+    classification: current-state gap
     evidence: >-
-      after `pnpm generate:product-definition-manifest` and a fresh Vite 7.3.1 production build/preview,
-      `pnpm test:experience-browser` passed on 2026-10-06: 29 Explore scenarios, 203 indexed artifacts,
-      47 Product routes × six viewports, keyboard mode/phase navigation, zero console/page errors, and no failed
-      assertions or horizontal overflow. Screenshots are in /tmp/media-experience-browser-audit.
-    change: local post-normalization verification is current; keep it separate from human visual/accessibility review and Tools-native evidence.
+      after two byte-identical manifest generations and a fresh Vite 7.3.1 production build/preview,
+      `pnpm test:experience-browser` exercised 29 Explore scenarios, 279 indexed artifacts, 282 Product route/viewport
+      observations across six viewports, keyboard navigation, 100%/200% text scaling, zoom/reflow, forced colors, and
+      reduced motion with zero console/page errors and zero automated failures. The audit checks 28 enabled visible targets,
+      represents two visually-hidden toggle inputs by their adequate visible labels, and excludes ten disabled/hidden/non-rendered
+      controls. Screenshots and JSON report are in /tmp/media-experience-browser-audit. Screen-reader, canonical visual references,
+      and independent visual review remain manual/unverified.
+    change: complete manual screen-reader and independent visual-review gates; keep local browser evidence separate from human review and Tools-native evidence.
     verification: >-
       `pnpm dlx vite@7.3.1 build --config apps/media-experience-explorer/vite.config.mjs`; run the documented
       Vite preview on port 4179; `pnpm test:experience-browser`; `pnpm check:product-experience-local`

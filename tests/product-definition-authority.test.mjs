@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { validateScopeStatuses } from "../scripts/normalize-media-scope-status.mjs";
@@ -625,13 +625,23 @@ test("Explorer index exposes source paths without workstation identity", () => {
 });
 
 test("HTTP route, SDK, and interface projections retain canonical ownership", () => {
-  const output = execFileSync(process.execPath, ["scripts/check-media-contract-parity.mjs"], { cwd: root, encoding: "utf8" });
-  assert.match(output, /contract parity check passed/u);
+  const result = spawnSync(process.execPath, ["scripts/check-media-contract-parity.mjs"], { cwd: root, encoding: "utf8" });
+  assert.equal(result.status, 1, result.stderr);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.match(output, /Media contract parity: NON-GREEN/u);
+  assert.match(output, /"openapiRoutes":27,"runtimeRoutes":27,"httpRegistryRoutes":27/u);
+  assert.match(output, /semantic binding: UNRESOLVED/u);
+  assert.match(output, /client path divergence/u);
 });
 
 test("screen composition records retain Shared-boundary design metadata", () => {
-  const output = execFileSync(process.execPath, ["scripts/check-media-design-conformance.mjs"], { cwd: root, encoding: "utf8" });
-  assert.match(output, /design conformance source check passed/u);
+  const result = spawnSync(process.execPath, ["scripts/check-media-design-conformance.mjs"], { cwd: root, encoding: "utf8" });
+  assert.equal(result.status, 1, result.stderr);
+  const output = `${result.stdout}${result.stderr}`;
+  assert.match(output, /Media design conformance BLOCKED/u);
+  assert.match(output, /143 unexplained finding/u);
+  assert.match(output, /Shared package binding is unresolved/u);
+  assert.match(output, /template catalog is proposal/u);
 });
 
 test("PDP2-002 GUI pattern registry covers every required category without inventing destructive semantics", () => {

@@ -12,18 +12,67 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
-const baseUrl = process.env.MEDIA_EXPLORER_URL ?? "http://127.0.0.1:4179/";
-const artifactDirectory = resolve(process.env.MEDIA_EXPLORER_ARTIFACT_DIR ?? "/tmp/media-experience-browser-audit");
-const viewports = [
+export const auditConfig = Object.freeze({
+  baseUrl: process.env.MEDIA_EXPLORER_URL ?? "http://127.0.0.1:4179/",
+  artifactDirectory: resolve(process.env.MEDIA_EXPLORER_ARTIFACT_DIR ?? "/tmp/media-experience-browser-audit"),
+});
+export const viewports = Object.freeze([
   { name: "wide", width: 1536, height: 960 },
   { name: "desktop", width: 1280, height: 800 },
   { name: "compact-desktop", width: 1024, height: 768 },
   { name: "tablet", width: 768, height: 1024 },
   { name: "mobile", width: 390, height: 844 },
   { name: "narrow-mobile", width: 320, height: 640 },
-];
+]);
+export const manualGates = Object.freeze({
+  screenReader: { status: "MANUAL_NOT_VERIFIED", reason: "No supported screen-reader automation is configured for this audit." },
+  independentVisualReview: { status: "MANUAL_NOT_VERIFIED", reason: "Screenshots and geometry diagnostics do not constitute independent expert visual review." },
+  canonicalVisualReferences: { status: "NOT_SUPPLIED", reason: "No accepted canonical visual references are indexed for this browser audit." },
+});
+
+export function createAuditReport({ baseUrl, viewports: auditedViewports, scenarioCount = "unknown", productRouteCount = 0, observations = [], consoleErrors = [], pageErrors = [], failures = [], screenshots = [] }) {
+  return {
+    baseUrl,
+    viewports: auditedViewports,
+    coverage: ["retained viewport sweeps", "100% and 200% text sizing", "browser zoom/reflow", "keyboard", "forced colors", "reduced motion", "long-label localization stress", "RTL when admitted", "touch targets", "focus not obscured"],
+    manualGates,
+    scenarioCount,
+    productRouteCount,
+    observations,
+    consoleErrors,
+    pageErrors,
+    failures,
+    screenshots,
+  };
+}
+
+export async function setTextScaleWithCdp(cdp, frameId, styleSheetId, scale, baselinePx) {
+  try {
+    if (!Number.isFinite(baselinePx) || baselinePx <= 0) throw new Error("computed baseline font size is unavailable");
+    const sheetId = styleSheetId ?? (await cdp.send("CSS.createStyleSheet", { frameId })).styleSheetId;
+    await cdp.send("CSS.setStyleSheetText", {
+      styleSheetId: sheetId,
+      text: `html { font-size: ${baselinePx * scale}px !important; }`,
+    });
+    return { supported: true, styleSheetId: sheetId };
+  } catch (error) {
+    return { supported: false, styleSheetId: styleSheetId ?? null, reason: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+export function classifyTouchTarget(target) {
+  if (target.disabled) return { include: false, reason: "disabled" };
+  if (target.hidden || target.inert || target.ariaHidden || !target.rendered || target.display === "none" || target.visibility === "hidden") {
+    return { include: false, reason: "hidden or not rendered" };
+  }
+  if (target.opacity === "0" && target.delegatedVisibleLabel) {
+    return { include: false, reason: "visually-hidden control represented by its visible label" };
+  }
+  return { include: true, reason: "enabled visible target" };
+}
 
 const artifacts = (await import("../apps/media-experience-explorer/specification-artifacts.json", { with: { type: "json" } })).default;
 const productRoutes = artifacts
@@ -31,6 +80,8 @@ const productRoutes = artifacts
   .map(({ path }) => path);
 const artifactVerificationSpecialization = artifacts.find(({ path }) => path.endsWith("/artifact-verification-job-family.yaml"))?.path;
 
+async function runAudit() {
+const { baseUrl, artifactDirectory } = auditConfig;
 const failures = [];
 const observations = [];
 
@@ -139,15 +190,18 @@ try {
 
   await gotoHash(page, "#explore");
   await page.locator("#mode-explore").focus();
+  const modes = await page.locator('[role="tab"][data-mode]').evaluateAll((tabs) => tabs.map((tab) => tab.dataset.mode));
+  const exploreIndex = modes.indexOf("explore");
+  const nextMode = modes[(exploreIndex + 1) % modes.length];
   await page.keyboard.press("ArrowRight");
-  if (await page.locator("#mode-specification").getAttribute("aria-selected") !== "true") fail("keyboard/mode-tabs", "ArrowRight did not select Specification");
-  await page.locator("#mode-specification").focus();
+  if (await page.locator(`#mode-${nextMode}`).getAttribute("aria-selected") !== "true") fail("keyboard/mode-tabs", `ArrowRight did not select ${nextMode}`);
+  await page.locator(`#mode-${nextMode}`).focus();
   await page.keyboard.press("Enter");
-  await inspectPage(page, "keyboard/specification");
+  await inspectPage(page, `keyboard/${nextMode}`);
   await page.locator("#phase-tab-pdp-0").focus();
   await page.keyboard.press("ArrowDown");
   if (await page.locator("#phase-tab-pdp-1").getAttribute("aria-checked") !== "true") fail("keyboard/phase-tabs", "ArrowDown did not select PDP-1");
-  observations.push("keyboard mode-tab and phase-radio navigation: pass");
+  observations.push("keyboard mode-tab and phase-radio navigation exercised");
 
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
@@ -185,8 +239,10 @@ try {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await gotoHash(page, "#verify");
     const verifyResult = await inspectPage(page, `verify/${viewport.name}`);
-    if (await page.locator(".phase-status-card").count() !== 5) fail(`verify/${viewport.name}`, "expected four PDP phase cards plus the Explorer projection card");
     if (verifyResult.h1[0] !== "Verify experience") fail(`verify/${viewport.name}`, "unexpected Verify heading");
+    if (await page.getByText("NOT SUPPLIED", { exact: true }).count() < 1 || !(await page.getByText("No durable run report is indexed", { exact: false }).count())) {
+      fail(`verify/${viewport.name}`, "Verify no longer reports results not supplied / no durable indexed run report");
+    }
   }
 
   let routeCount = 0;
@@ -201,6 +257,143 @@ try {
     }
   }
   observations.push(`Product proposal routes exercised: ${routeCount}`);
+
+  // Text sizing and zoom/reflow checks are intentionally separate: CSS text
+  // scaling and Chromium page-scale zoom exercise different failure modes.
+  const cdp = await context.newCDPSession(page);
+  let textScaleSheetId = null;
+  let textScaleBaselinePx = null;
+  try {
+    await cdp.send("DOM.enable");
+    await cdp.send("CSS.enable");
+    const frameTree = await cdp.send("Page.getFrameTree");
+    const frameId = frameTree.frameTree.frame.id;
+    textScaleBaselinePx = await page.evaluate(() => Number.parseFloat(getComputedStyle(document.documentElement).fontSize));
+    for (const scale of [1, 2]) {
+    await gotoHash(page, "#explore");
+      const injection = await setTextScaleWithCdp(cdp, frameId, textScaleSheetId, scale, textScaleBaselinePx);
+      if (!injection.supported) {
+        const message = `UNSUPPORTED_NOT_VERIFIED: CDP stylesheet injection for ${scale * 100}% text sizing failed: ${injection.reason}`;
+        observations.push(message);
+        fail(`text-size/${scale * 100}%`, message);
+        continue;
+      }
+      textScaleSheetId = injection.styleSheetId;
+      await page.evaluate(() => new Promise((resolveFrame) => requestAnimationFrame(() => requestAnimationFrame(resolveFrame))));
+      const actualRootFontSizePx = await page.evaluate(() => Number.parseFloat(getComputedStyle(document.documentElement).fontSize));
+      const expectedRootFontSizePx = textScaleBaselinePx * scale;
+      if (!Number.isFinite(actualRootFontSizePx) || Math.abs(actualRootFontSizePx - expectedRootFontSizePx) > 0.5) {
+        const message = `UNSUPPORTED_NOT_VERIFIED: requested ${scale * 100}% root text size, computed ${actualRootFontSizePx}px; expected ${expectedRootFontSizePx}px`;
+        observations.push(message);
+        fail(`text-size/${scale * 100}%`, message);
+        continue;
+      }
+    const result = await inspectPage(page, `text-size/${scale * 100}%`);
+    if (result.bodyScrollWidth > result.clientWidth) fail(`text-size/${scale * 100}%`, "horizontal reflow failure at text scale");
+      observations.push(`text sizing ${scale * 100}%: SUPPORTED_AND_EXERCISED (computed root font size ${actualRootFontSizePx}px)`);
+    }
+  } catch (error) {
+    const message = `UNSUPPORTED_NOT_VERIFIED: text scaling audit setup failed: ${error instanceof Error ? error.message : String(error)}`;
+    observations.push(message);
+    fail("text-size/setup", message);
+  } finally {
+    if (textScaleSheetId) {
+      try { await cdp.send("CSS.setStyleSheetText", { styleSheetId: textScaleSheetId, text: "" }); } catch { /* The page is closing; report remains authoritative. */ }
+    }
+  }
+  await gotoHash(page, "#explore");
+  await cdp.send("Emulation.setPageScaleFactor", { pageScaleFactor: 2 });
+  await inspectPage(page, "browser-zoom/200%", { requireNoHorizontalOverflow: false });
+  await cdp.send("Emulation.setPageScaleFactor", { pageScaleFactor: 1 });
+  await page.setViewportSize({ width: 640, height: 800 }); // 200% desktop zoom equivalent layout viewport.
+  await inspectPage(page, "browser-zoom/reflow-equivalent-640px");
+  observations.push("browser zoom: Chromium page scale 200% and equivalent narrow layout viewport exercised");
+
+  await gotoHash(page, "#explore");
+  await page.emulateMedia({ forcedColors: "active" });
+  await inspectPage(page, "forced-colors/active");
+  await page.emulateMedia({ forcedColors: "none", reducedMotion: "reduce" });
+  await inspectPage(page, "reduced-motion/reduce");
+  observations.push("forced-colors active and reduced-motion reduce preferences exercised");
+
+  await page.emulateMedia({ forcedColors: "none", reducedMotion: "no-preference" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await gotoHash(page, "#explore");
+  const longLabelAudit = await page.locator('[role="tab"][data-mode]').evaluateAll((tabs) => {
+    const originals = tabs.map((tab) => ({ tab, markup: tab.innerHTML }));
+    for (const { tab } of originals) tab.append(document.createTextNode(" — Übersetzte Bezeichnung mit zusätzlichem erklärendem Text"));
+    const result = originals.map(({ tab }) => ({
+      label: tab.textContent?.trim() ?? "",
+      width: tab.getBoundingClientRect().width,
+      scrollWidth: tab.scrollWidth,
+      clientWidth: tab.clientWidth,
+    }));
+    for (const { tab, markup } of originals) tab.innerHTML = markup;
+    return result;
+  });
+  for (const label of longLabelAudit.filter(({ scrollWidth, clientWidth }) => scrollWidth > clientWidth + 1)) {
+    fail("long-label-localization", `expanded label overflows its mode tab (${label.scrollWidth}px > ${label.clientWidth}px)`);
+  }
+  observations.push(`long-label localization stress: ${longLabelAudit.length} mode labels expanded with a deterministic long-label fixture (not a translation claim)`);
+  const rtlAdmitted = await page.locator("html[data-rtl-supported='true'], [data-rtl-supported='true']").count() > 0;
+  if (rtlAdmitted) {
+    await page.evaluate(() => { document.documentElement.dir = "rtl"; });
+    await inspectPage(page, "rtl/admitted");
+    observations.push("RTL: exercised because the rendered surface declares data-rtl-supported=true");
+  } else observations.push("RTL: not admitted by rendered surface; not simulated");
+  const touchTargetCandidates = await page.locator("button, a, input, select, textarea, [role=tab], [role=radio], label.toggle-row").evaluateAll((nodes) => nodes.map((node) => {
+    const style = getComputedStyle(node);
+    const rect = node.getBoundingClientRect();
+    const delegatedLabel = node instanceof HTMLInputElement && ["checkbox", "radio"].includes(node.type) ? node.closest("label") : null;
+    const delegatedStyle = delegatedLabel ? getComputedStyle(delegatedLabel) : null;
+    const delegatedRect = delegatedLabel?.getBoundingClientRect();
+    const delegatedVisibleLabel = Boolean(delegatedLabel && delegatedLabel.getClientRects().length && delegatedStyle?.display !== "none" && delegatedStyle?.visibility === "visible" && delegatedStyle.opacity !== "0" && delegatedRect && delegatedRect.width >= 24 && delegatedRect.height >= 24);
+    return {
+      name: (node.getAttribute("aria-label") || node.textContent || node.tagName).trim().slice(0, 80),
+      tagName: node.tagName,
+      disabled: node.matches(":disabled"),
+      hidden: node.hidden || Boolean(node.closest("[hidden]")),
+      inert: Boolean(node.closest("[inert]")),
+      ariaHidden: node.closest('[aria-hidden="true"]') !== null,
+      rendered: node.getClientRects().length > 0,
+      display: style.display,
+      visibility: style.visibility,
+      opacity: style.opacity,
+      delegatedVisibleLabel,
+      width: rect.width,
+      height: rect.height,
+      delegatedLabelSize: delegatedRect ? { width: delegatedRect.width, height: delegatedRect.height } : null,
+    };
+  }));
+  const touchTargets = touchTargetCandidates.filter((target) => classifyTouchTarget(target).include);
+  const excludedTouchTargets = touchTargetCandidates.filter((target) => !classifyTouchTarget(target).include);
+  for (const target of touchTargets.filter(({ width, height }) => width < 24 || height < 24)) fail("touch-targets", `target below 24 CSS px: ${target.name} (${target.width}x${target.height})`);
+  const representedHiddenControls = excludedTouchTargets.filter(({ delegatedVisibleLabel }) => delegatedVisibleLabel);
+  observations.push(`touch targets: ${touchTargets.length} enabled visible targets checked against 24 CSS px; ${representedHiddenControls.length} visually-hidden checkbox/radio controls represented by visible associated labels; ${excludedTouchTargets.length - representedHiddenControls.length} disabled/hidden/non-rendered targets excluded`);
+
+  await gotoHash(page, "#explore");
+  await page.reload({ waitUntil: "networkidle" });
+  await page.waitForTimeout(30);
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  });
+  await page.evaluate(() => new Promise((resolveFrame) => requestAnimationFrame(() => requestAnimationFrame(resolveFrame))));
+  await page.keyboard.press("Tab");
+  const focusState = await page.evaluate(() => {
+    const element = document.activeElement;
+    if (!(element instanceof HTMLElement)) return { focused: false, inViewport: false, obscured: true };
+    const rect = element.getBoundingClientRect();
+    const x = Math.max(0, Math.min(window.innerWidth - 1, rect.left + rect.width / 2));
+    const y = Math.max(0, Math.min(window.innerHeight - 1, rect.top + rect.height / 2));
+    const hit = document.elementFromPoint(x, y);
+    const target = `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ""}.${element.className?.toString().split(/\s+/u).filter(Boolean).join(".") ?? ""}`;
+    return { focused: true, target, scrollX: window.scrollX, scrollY: window.scrollY, rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right }, inViewport: rect.top >= 0 && rect.bottom <= window.innerHeight && rect.left >= 0 && rect.right <= window.innerWidth, obscured: !hit || !(hit === element || element.contains(hit) || hit.contains(element)) };
+  });
+  if (!focusState.focused || !focusState.inViewport || focusState.obscured) fail("focus-not-obscured", `focused element visibility check failed: ${JSON.stringify(focusState)}`);
+  observations.push("focus-not-obscured: first keyboard focus target checked for viewport visibility and hit-test obstruction");
   if (artifactVerificationSpecialization) {
     await gotoHash(page, `#product/view/${encodeURIComponent(artifactVerificationSpecialization)}`);
     const specializationHeading = await page.locator("h1").first().textContent();
@@ -231,7 +424,7 @@ try {
   await browser.close();
 }
 
-const report = {
+const report = createAuditReport({
   baseUrl,
   viewports,
   scenarioCount: observations.find((item) => item.startsWith("explore scenarios:")) ?? "unknown",
@@ -244,7 +437,10 @@ const report = {
     "explore-desktop.png", "specification-desktop.png", "verify-desktop.png", "product-edit-captions-desktop.png",
     "explore-narrow-mobile.png", "specification-narrow-mobile.png", "verify-narrow-mobile.png", "product-edit-captions-narrow-mobile.png",
   ].map((name) => resolve(artifactDirectory, name)),
-};
+});
 await writeFile(resolve(artifactDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
 console.log(JSON.stringify(report, null, 2));
 if (consoleErrors.length || pageErrors.length || failures.length) process.exitCode = 1;
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await runAudit();

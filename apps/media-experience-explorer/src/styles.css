@@ -179,7 +179,7 @@ a { color: inherit; }
 .wave-bar:nth-child(5n + 2) { background: #a8bfd1; }
 .wave-bar.is-playhead { background: #4f86b5; }
 .wave-markers { position: absolute; right: 0; bottom: 0; left: 0; display: flex; justify-content: space-between; color: #9aa3ad; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 7px; }
-.source-seek { display: block; width: 100%; height: 10px; margin: 3px 0 0; accent-color: #377cab; cursor: pointer; }
+.source-seek { display: block; width: 100%; height: 10px; min-height: 24px; margin: 3px 0 0; accent-color: #377cab; cursor: pointer; }
 .playback-bottomline { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; margin-top: 1px; }
 .source-time-help, .clock-basis { color: #98a0aa; font-size: 8px; }
 .clock-basis { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
@@ -195,7 +195,7 @@ a { color: inherit; }
 .segment-card { display: grid; grid-template-columns: 79px minmax(0, 1fr); gap: 12px; padding: 11px 11px 9px; border: 1px solid #e7e9ed; border-radius: 9px; background: #fff; transition: border-color .12s ease, box-shadow .12s ease; }
 .segment-card.is-active { border-color: #c3d8e9; box-shadow: inset 3px 0 #5585aa; }
 .segment-time { display: flex; align-items: flex-start; gap: 4px; padding-top: 2px; color: #99a2ae; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 8px; white-space: nowrap; }
-.time-link { padding: 0; border: 0; color: #42749e; background: transparent; cursor: pointer; font: inherit; font-weight: 700; }
+.time-link { min-height: 24px; padding: 0; border: 0; color: #42749e; background: transparent; cursor: pointer; font: inherit; font-weight: 700; }
 .time-link:hover { color: #15598b; text-decoration: underline; }
 .segment-main { min-width: 0; }
 .segment-meta { display: flex; align-items: center; gap: 7px; }

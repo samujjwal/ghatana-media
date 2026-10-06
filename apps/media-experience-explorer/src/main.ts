@@ -166,7 +166,6 @@ let cliHistory: { command: string; output: string; exitCode: number }[] = [];
 let lastResult: TransitionResult | null = null;
 let versionPurpose = "";
 let detailsVisible = true;
-let showVerificationCommands = false;
 let transientAnnouncement = "";
 const specificationContents = new Map<string, string>();
 const specificationErrors = new Map<string, string>();
@@ -174,7 +173,7 @@ const specificationLoads = new Set<string>();
 const focusPreservingDataAttributes = [
   "data-action", "data-align", "data-artifact", "data-clear-cli", "data-cli-help", "data-event",
   "data-mode", "data-open-product-screen", "data-phase", "data-reset", "data-resolve-conflict",
-  "data-run-local-checks", "data-seek-to", "data-setting", "data-toggle-details", "data-workflow-view",
+  "data-seek-to", "data-setting", "data-toggle-details", "data-workflow-view",
 ] as const;
 
 type FocusAddress =
@@ -1038,59 +1037,145 @@ function specificationSurface(): string {
 }
 
 function verificationSurface(): string {
-  const phaseStates = [
-    { id: "PDP-0", title: "Product Truth", status: "Boundary accepted · definition review open", detail: "PDP0-001 boundary is accepted. Operation-specific proposals cover 17 of 462 capability leaves; 445 leaves, remaining product definition, and independent review are open." },
-    { id: "PDP-1", title: "Domain & Data", status: "Canonical registries added · semantic review open", detail: "Objects, values, relationships, operations, state machines, events, evidence, provenance, privacy, versioning, offline sync, interoperability, authority, and decisions are registered; owner review and projection parity remain open." },
-    { id: "PDP-2", title: "Design & Interfaces", status: "Design/interface registries added · conformance open", detail: "GUI composition and protocol/interface language registries are present and point to Shared authorities; visual provenance, accessibility, and owner review remain open." },
-    { id: "PDP-3", title: "Product Experience", status: "47 screens · machine registries · journey bindings open", detail: "Screen contracts, machine-interface projections, CLI/SDK/event/tool/service registries, and J-29/J-30 records are present; wire parity, scenario completeness, and acceptance remain open." },
-    { id: "EXPLORER", title: "Experience Explorer", status: "Local projection · Tools currentness pending", detail: "The Explorer is outside the PDP phases. Its source-linked projection and deterministic simulation are local-only until Tools-owned currentness, binding, and visual/accessibility evidence are admitted." },
-  ];
-  const passed = [
-    { label: "Reducer and lifecycle", detail: "Deterministic first-use, caption, project-request, artifact-transfer and verification states, and transcription-job finality.", count: "10 simulation checks", icon: "✓" },
-    { label: "Fixture runner CLI", detail: "JSON, JSONL, upload status, help, fixture validation, and malformed input behavior.", count: "6 CLI checks", icon: "✓" },
-    { label: "Canonical command CLI", detail: "Registered upload, transcription, caption, and job status, outcome-checking, and cancellation commands with stable identities, formats, and exit status.", count: "15 CLI checks", icon: "✓" },
-    { label: "TypeScript and browser build", detail: `Strict TypeScript checks pass for the simulation package and browser client; all ${specificationArtifacts.length} specification records are bundled.`, count: "PASS · Vite 7.3.1", icon: "✓" },
-    { label: "Browser experience audit", detail: "The browser audit is retained as historical input until the normalized source index and route contracts are rerun with the current dependency set.", count: "RERUN REQUIRED · 47 routes · 6 viewports", icon: "!" },
-  ];
-  const pending = [
-    { label: "Tools phase verification", detail: "The current verifier resolves the Media subject but returns CANDIDATE_PLAN with structuralFallback=true, no selected operations, and PLANNER_BINDING_OWNER_AMBIGUOUS. Native phase evidence remains unavailable.", status: "PLANNER BINDING OPEN", tone: "caution" },
-    { label: "Browser host binding", detail: "This browser client renders Media-specific projections. Published Tools host integration remains open.", status: "OPEN", tone: "neutral" },
-    { label: "All canonical screens and journeys", detail: "All 47 canonical screen proposals plus the job-family specialization have source-derived Product routes; proposal actions remain disabled. J-29/J-30 are explicit journey extensions. Full action semantics, state/scenario/channel bindings, journey behavior, owner review, and acceptance remain open.", status: "OPEN", tone: "neutral" },
-    { label: "Visual and accessibility review", detail: "The deterministic browser audit passes geometry, accessible-name, and responsive checks; pixel-reference conformance, screen-reader, forced-colors, zoom, and independent human review remain unrecorded.", status: "REVIEW REQUIRED", tone: "caution" },
-  ];
-  return `<main class="verify-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">EVIDENCE & COVERAGE</div><h1>Verify experience</h1><p>Separate model checks from phase acceptance and browser review.</p></div><button type="button" class="button button-outline" data-mode="specification">Review source records</button></header>
-    <div class="verify-summary"><div class="verify-summary-icon">✓</div><div><strong>Local simulation checks pass</strong><span>These checks cover J-01 synthetic first-use, J-02 metadata-only artifact intake and verification-job CLI, J-20 transcription-job recovery, and the selected J-03 audio transcript and caption workflow. They do not accept PDP-0 through PDP-3.</span></div><button type="button" class="text-button" data-run-local-checks aria-expanded="${showVerificationCommands}">${showVerificationCommands ? "Hide verification commands" : "Show verification commands"} <span aria-hidden="true">→</span></button></div>
-    <section class="verify-section phase-status-section"><div class="verify-section-heading"><div><h2>Phase status</h2><p>Local work, owner review, and acceptance are separate states.</p></div><span class="section-count">${phaseStates.length} entries</span></div><div class="phase-status-grid">${phaseStates.map((phase) => `<article class="phase-status-card"><div class="phase-status-heading"><span>${phase.id}</span><strong>${escapeHtml(phase.status)}</strong></div><h3>${escapeHtml(phase.title)}</h3><p>${escapeHtml(phase.detail)}</p></article>`).join("")}</div></section>
-    ${showVerificationCommands ? `<pre class="verify-local-commands"><code>pnpm dlx --package typescript@6.0.3 tsc --noEmit -p apps/media-experience-explorer/tsconfig.json
-pnpm dlx --package typescript@6.0.3 tsc --noEmit -p libs/media-experience-simulation/tsconfig.json
-node libs/media-experience-simulation/bin/ghatana-media.mjs --help
-node --test libs/media-experience-simulation/tests/*.test.mjs
-pnpm dlx vite@7.3.1 build --config apps/media-experience-explorer/vite.config.mjs</code></pre>` : ""}
-    <section class="verify-section"><div class="verify-section-heading"><div><h2>Verified local behavior</h2><p>Evidence recorded for the deterministic simulation package.</p></div><span class="section-count">${passed.length} checks</span></div><div class="check-grid">${passed.map((check) => `<article class="check-card"><span class="check-icon">${check.icon}</span><div><h3>${check.label}</h3><p>${check.detail}</p><small>${check.count}</small></div><span class="check-state">PASS</span></article>`).join("")}</div></section>
-    <section class="verify-section"><div class="verify-section-heading"><div><h2>Open phase evidence</h2><p>Structural catalog checks do not prove semantic completeness or acceptance.</p></div><span class="section-count">${pending.length} open</span></div><div class="pending-list">${pending.map((item) => `<article class="pending-card"><span class="pending-status ${item.tone}">${escapeHtml(item.status)}</span><div><h3>${item.label}</h3><p>${item.detail}</p></div></article>`).join("")}</div></section>
-    <div class="verify-command"><div><span class="terminal-small-icon">›_</span><span><strong>Verify phase evidence with ghatana-tools</strong><small>Run from the Tools repository with both repository roots; the installed verifier must resolve an owner-bound build unit before native evidence can be admitted.</small></span></div><code>node tools/product-development/cli/dist/bin/product-dev.js workspace verify --root &lt;media-root&gt; --root &lt;tools-root&gt; --subject samujjwal/ghatana-media:media --material &lt;path&gt; --stage &lt;stage&gt; --claim &lt;classification&gt;</code></div>
+  const sourceArtifacts = specificationArtifacts.filter((artifact) =>
+    artifact.path.includes("verification-matrix") || artifact.path.includes("scenario-fixtures") ||
+    artifact.path.endsWith("/tools-binding.yaml") || artifact.path.endsWith("/acceptance.yaml") ||
+    artifact.path.endsWith("/mandatory-surface-closure-matrix.yaml") || artifact.path.endsWith("/source-manifest.yaml"));
+  const links = sourceArtifacts.length ? sourceArtifacts.map((artifact) => `<button type="button" class="artifact-link" data-artifact="${escapeHtml(artifact.path)}" data-mode="specification"><span class="file-glyph" aria-hidden="true">${artifact.path.endsWith(".md") ? "M" : "Y"}</span><span><strong>${escapeHtml(artifact.title)}</strong><small>${escapeHtml(artifact.phase)} · ${escapeHtml(reviewStatusForArtifact(artifact))} · ${escapeHtml(artifact.path)}</small></span></button>`).join("") : `<p class="artifact-filter-empty">No verification-source records are present in the current index.</p>`;
+  return `<main class="verify-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">VERIFICATION SOURCES & EVIDENCE AVAILABILITY</div><h1>Verify experience</h1><p>Results are shown only when a durable run report is available from indexed sources.</p></div><span class="proposal-chip"><span></span> LOCAL PROJECTION</span></header>
+    <section class="verify-section"><div class="verify-section-heading"><div><h2>Run-result availability</h2><p>No task-local command output is persisted here as current evidence.</p></div><span class="section-count">NOT SUPPLIED</span></div><div class="pending-list"><article class="pending-card"><span class="pending-status neutral">NOT AVAILABLE</span><div><h3>No durable run report is indexed</h3><p>Verification result, timestamp, command provenance, and artifact reference have not been supplied to this view. Consult the indexed source records below; their presence does not mean a check passed.</p></div></article><article class="pending-card"><span class="pending-status neutral">NOT SUPPLIED</span><div><h3>Tools currentness and owner acceptance</h3><p>No native receipt or owner acceptance is asserted by this local projection.</p></div></article></div></section>
+    <section class="verify-section"><div class="verify-section-heading"><div><h2>Indexed verification sources</h2><p>Open the canonical source record; source presence alone is not a run result.</p></div><span class="section-count">${sourceArtifacts.length} records</span></div><div class="semantic-card-grid">${links}</div></section>
   </main>`;
 }
 
-function semanticModeSurface(): string {
-  const modeDefinitions: Readonly<Record<Exclude<ExplorerMode, "product" | "explore" | "specification" | "verify">, { title: string; summary: string; phase?: ExperiencePhase; pathHints?: readonly string[] }>> = {
-    overview: { title: "Overview", summary: "One source-linked map of Product Truth, Domain/Data, Design/Interfaces, Product Experience, and the Explorer projection." },
-    truth: { title: "Truth", summary: "Requirements, actors, outcomes, capabilities, laws, policy, and journeys owned by PDP-0.", phase: "PDP-0" },
-    domain: { title: "Domain", summary: "Canonical objects, values, relationships, operations, events, evidence, provenance, and authority owned by PDP-1.", phase: "PDP-1" },
-    "design-system": { title: "Design System", summary: "Live Media composition and interface-language records over Shared primitives and contracts.", phase: "PDP-2" },
-    experience: { title: "Experience", summary: "Complete screen, action, channel, and recovery contracts owned by PDP-3.", phase: "PDP-3" },
-    interfaces: { title: "Interfaces", summary: "HTTP, gRPC, CLI, SDK, events, Agent Tools, and service projections registered by PDP-3.", pathHints: ["/api/", "/grpc/", "/cli/", "/sdk/", "/events/", "/agent-tools/", "/services/"] },
-    journeys: { title: "Journeys", summary: "Journey contracts, step transitions, surfaces, operations, recovery, and postconditions.", pathHints: ["journey"] },
-    "states-data": { title: "States / Data", summary: "State machines, fixture/data views, and semantic state-to-presentation mappings.", pathHints: ["state", "data", "domain"] },
-    traceability: { title: "Traceability", summary: "Bidirectional source-linked relationships from outcomes and requirements through operations, surfaces, implementation, and verification.", pathHints: ["traceability", "registry", "operation"] },
-    dependencies: { title: "Dependencies", summary: "Owners, boundaries, external contracts, compatibility, and evidence dependencies.", pathHints: ["dependency", "authority", "provenance"] },
+interface IndexedInterfaceRow {
+  readonly id: string;
+  readonly status: string;
+  readonly path: string;
+  readonly fields: string;
+  readonly contractPath: string | null;
+}
+
+function indexedOperationContractPath(registry: SpecificationArtifact, values: Map<string, string>): string | null {
+  const contractFile = values.get("contractFile")?.replace(/^['"]|['"]$/gu, "");
+  if (!contractFile || contractFile.startsWith("/") || contractFile.includes("\\") || contractFile.split("/").some((part) => part === ".." || part === ".")) return null;
+  const family = registry.path.endsWith("/api/api-registry.yaml")
+    ? "api/operations/"
+    : registry.path.endsWith("/grpc/service-registry.yaml") ? "grpc/operations/" : null;
+  if (!family || !contractFile.startsWith("operations/") || !/^[A-Za-z0-9._-]+\.ya?ml$/u.test(contractFile.slice("operations/".length))) return null;
+  const candidate = `${registry.path.slice(0, registry.path.lastIndexOf("/") + 1)}${contractFile}`;
+  const expectedPrefix = `.product-experience/pdp-3-product-experience/${family}`;
+  return candidate.startsWith(expectedPrefix) && specificationArtifacts.some((artifact) => artifact.path === candidate)
+    ? candidate
+    : null;
+}
+
+/** Read simple list-item scalars from an already indexed registry source only. */
+function indexedInterfaceRows(artifact: SpecificationArtifact, source: string): IndexedInterfaceRow[] {
+  const collectionNames = ["operations", "rpcs", "methods", "commands", "events", "tools"];
+  const lines = source.split(/\r?\n/u);
+  const records: { collection: string; values: Map<string, string> }[] = [];
+  let collection = "";
+  let record: { collection: string; values: Map<string, string> } | null = null;
+  let recordIndent = -1;
+  for (const line of lines) {
+    const section = line.match(/^(\s*)([A-Za-z][\w-]*):\s*$/u);
+    if (section && section[1]!.length <= 2) {
+      if (record) records.push(record);
+      record = null;
+      recordIndent = -1;
+      collection = collectionNames.includes(section[2]!) ? section[2]! : "";
+      continue;
+    }
+    if (!collection) continue;
+    const item = line.match(/^(\s*)-\s+([A-Za-z][\w-]*):\s*(.*)$/u);
+    if (item) {
+      if (record) records.push(record);
+      recordIndent = item[1]!.length;
+      record = { collection, values: new Map([[item[2]!, item[3]!.trim()]]) };
+      continue;
+    }
+    if (!record) continue;
+    const field = line.match(/^(\s*)([A-Za-z][\w-]*):\s*(.*)$/u);
+    if (field && field[1]!.length === recordIndent + 2 && field[3]!.trim()) {
+      record.values.set(field[2]!, field[3]!.trim());
+    } else if (line.trim() && !/^\s/u.test(line) && record) {
+      records.push(record);
+      record = null;
+      recordIndent = -1;
+      collection = "";
+    }
+  }
+  if (record) records.push(record);
+
+  const value = (values: Map<string, string>, ...keys: string[]): string => {
+    for (const key of keys) {
+      const found = values.get(key);
+      if (found !== undefined && found !== "" && found !== "null") return found;
+    }
+    return "Not recorded in indexed source";
   };
-  const definition = modeDefinitions[mode as keyof typeof modeDefinitions];
-  const candidates = definition.phase
-    ? specificationArtifacts.filter((artifact) => artifact.phase === definition.phase)
-    : specificationArtifacts.filter((artifact) => definition.pathHints?.some((hint) => artifact.path.toLocaleLowerCase().includes(hint)) ?? false);
-  const cards = candidates.slice(0, 80).map((artifact) => `<button type="button" class="artifact-link" data-artifact="${escapeHtml(artifact.path)}" data-mode="specification"><span class="file-glyph" aria-hidden="true">${artifact.path.endsWith(".md") ? "M" : "Y"}</span><span><strong>${escapeHtml(artifact.title)}</strong><small>${escapeHtml(artifact.phase)} · ${escapeHtml(artifact.path)}</small></span></button>`).join("");
-  return `<main class="semantic-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">SOURCE-LINKED SEMANTIC VIEW</div><h1>${escapeHtml(definition.title)}</h1><p>${escapeHtml(definition.summary)}</p></div><span class="proposal-chip"><span></span> LOCAL PROJECTION</span></header><section class="semantic-summary"><strong>${candidates.length} source records</strong><span>Every card opens the canonical source in Specification mode. Semantic fingerprints/currentness remain owner-generated and are not fabricated by this client.</span></section><section class="semantic-card-grid" aria-label="Source records">${cards || `<p class="artifact-filter-empty">No matching source records are currently indexed.</p>`}</section></main>`;
+  const fieldRows: readonly [string, ...string[]][] = [
+    ["Consumer intent", "consumerIntent", "intent", "purpose"],
+    ["Canonical operation", "canonicalOperation", "canonicalOperationRef", "logicalOperationRef"],
+    ["Per-operation contract reference", "contractFile"],
+    ["Request", "request", "requestSchema", "inputSchema"],
+    ["Response", "response", "responseSchema", "resultSchema", "responseStatuses"],
+    ["Examples", "examples", "example", "exampleRefs"],
+    ["Errors", "errors", "errorCases", "safeFailure"],
+    ["Authority", "authority", "authorityAndDelegation", "semanticAuthority", "authorityDisposition"],
+    ["Idempotency", "idempotency"],
+    ["Cancellation", "cancellation"],
+    ["Retry", "retry"],
+    ["Operation version", "version", "apiVersion"],
+    ["Registry schema version", "schemaVersion"],
+    ["Resulting state/event", "resultingState", "resultingEvent", "stateEffects", "events"],
+    ["Deterministic scenario", "deterministicScenario", "scenario", "scenarioRef"],
+  ];
+  return records.map(({ collection: recordCollection, values }) => {
+    const id = value(values, "id", "operationId", "eventName", "canonicalCommand", "method");
+    const bindingStatus = value(values, "experienceBinding", "bindingStatus", "contractStatus", "status");
+    const details = fieldRows.map(([label, ...keys]) => `${label}: ${value(values, ...keys)}`).join(" · ");
+    return { id, status: bindingStatus, path: artifact.path, fields: `${recordCollection} · ${details}`, contractPath: indexedOperationContractPath(artifact, values) };
+  }).filter((row) => row.id !== "Not recorded in indexed source");
+}
+
+function semanticModeSurface(): string {
+  type SemanticMode = Exclude<ExplorerMode, "product" | "explore" | "specification" | "verify">;
+  type ModeDefinition = { readonly title: string; readonly summary: string; readonly predicate: (artifact: SpecificationArtifact) => boolean; readonly groups: readonly { readonly label: string; readonly predicate: (artifact: SpecificationArtifact) => boolean }[] };
+  const has = (artifact: SpecificationArtifact, ...terms: string[]): boolean => terms.some((term) => artifact.path.toLocaleLowerCase().includes(term));
+  const phase = (value: ExperiencePhase) => (artifact: SpecificationArtifact): boolean => artifact.phase === value;
+  const definitions: Readonly<Record<SemanticMode, ModeDefinition>> = {
+    overview: { title: "Overview", summary: "An indexed map of the product-definition sources and local Explorer evidence. Counts describe indexed records only, not semantic completeness.", predicate: (a) => ["PRODUCT-TRUTH.md", "DOMAIN-MODEL.md", "DESIGN-LANGUAGE.md", "screen-registry.yaml", "journey-registry.yaml", "view-projections.yaml", "tools-binding.yaml"].some((name) => a.path.endsWith(name)), groups: [{ label: "Definition and projection entry points", predicate: () => true }] },
+    truth: { title: "Truth", summary: "Product requirements, actors, outcomes, capabilities, policy, and lifecycle proposals from indexed PDP-0 sources.", predicate: phase("PDP-0"), groups: [{ label: "Intent and requirements", predicate: (a) => has(a, "goal", "requirement", "content-intent", "glossary", "constitution") }, { label: "Actors, capabilities, and policy", predicate: (a) => has(a, "actor", "capabilit", "policy", "qualification", "responsibilit") }, { label: "Other PDP-0 sources", predicate: () => true }] },
+    domain: { title: "Domain", summary: "PDP-1 object, relationship, operation, state, event, evidence, provenance, and authority sources; proposals remain qualified until accepted.", predicate: phase("PDP-1"), groups: [{ label: "Objects and relationships", predicate: (a) => has(a, "domain-objects", "value-objects", "relationships", "domain-model") }, { label: "Operations, states, and events", predicate: (a) => has(a, "operations", "states", "transitions", "events") }, { label: "Evidence, provenance, and authority", predicate: (a) => has(a, "evidence", "provenance", "authority", "privacy") }, { label: "Versioning, offline, decisions, and other PDP-1 sources", predicate: () => true }] },
+    "design-system": { title: "Design System", summary: "Indexed PDP-2 composition, design language, accessibility, state grammar, reusable patterns, layouts, and interface conventions.", predicate: phase("PDP-2"), groups: [{ label: "GUI language and composition", predicate: (a) => has(a, "/gui/", "design-language", "component-contract", "semantic-state", "responsive", "accessibility") }, { label: "Protocol and interaction conventions", predicate: (a) => has(a, "/api/", "events/conventions", "localization", "animation") }, { label: "Other indexed PDP-2 sources", predicate: () => true }] },
+    experience: { title: "Experience", summary: "PDP-3 screen, action, surface, and journey proposals with explicit acceptance and binding gaps.", predicate: (a) => a.phase === "PDP-3" && has(a, "screen", "journey", "surface", "action-registry", "simulation-semantics"), groups: [{ label: "Screen and surface proposals", predicate: (a) => has(a, "screen", "surface", "action-registry") }, { label: "Journey and recovery proposals", predicate: (a) => has(a, "journey", "simulation-semantics") }, { label: "Other indexed experience sources", predicate: () => true }] },
+    interfaces: { title: "Interfaces", summary: "Indexed HTTP, gRPC, SDK, CLI, event, Agent Tool, and service registries. Only fields present in these sources are shown; other operation semantics remain unresolved.", predicate: (a) => a.phase === "PDP-3" && has(a, "api-registry", "grpc/service-registry", "sdk/operation-registry", "cli/command-registry", "events/event-registry", "agent-tools/tool-registry", "services/service-registry"), groups: [{ label: "Interface registries", predicate: () => true }] },
+    journeys: { title: "Journeys", summary: "Journey catalogs and indexed journey contracts. Step bindings and outcomes are proposals unless the source explicitly resolves them.", predicate: (a) => has(a, "journey"), groups: [{ label: "Journey sources", predicate: () => true }] },
+    "states-data": { title: "States / Data", summary: "State and data authority sources, plus indexed fixture references. Empty or unresolved bindings are shown as gaps, not complete models.", predicate: (a) => has(a, "states", "transitions", "domain-objects", "value-objects", "relationships", "schema-bindings", "scenario-fixtures", "fixture"), groups: [{ label: "Canonical state and data sources", predicate: (a) => a.phase === "PDP-1" }, { label: "Fixture and presentation projections", predicate: () => true }] },
+    traceability: { title: "Traceability", summary: "Source-manifest IDs and declared crosswalk/registry relationships. This local view does not generate owner fingerprints or bidirectional closure.", predicate: (a) => has(a, "source-manifest", "crosswalk", "traceability", "registry", "mapping"), groups: [{ label: "Declared source and crosswalk records", predicate: () => true }] },
+    dependencies: { title: "Dependencies", summary: "Indexed ownership, dependency, authority, provenance, and interoperability records. Missing edges are not inferred.", predicate: (a) => has(a, "dependenc", "authority", "provenance", "interoperability", "compatibility"), groups: [{ label: "Declared boundary and dependency sources", predicate: () => true }] },
+  };
+  const definition = definitions[mode as SemanticMode];
+  const candidates = specificationArtifacts.filter(definition.predicate);
+  const interfaceRows = mode === "interfaces" ? candidates.flatMap((artifact) => {
+    const source = specificationContents.get(artifact.path);
+    if (!source) { ensureSpecificationContentLoaded(artifact); return []; }
+    return indexedInterfaceRows(artifact, source);
+  }) : [];
+  const assignedRecords = new Set<SpecificationArtifact>();
+  const groupMarkup = definition.groups.map((group) => {
+    const records = candidates.filter((artifact) => !assignedRecords.has(artifact) && group.predicate(artifact));
+    for (const artifact of records) assignedRecords.add(artifact);
+    if (!records.length) return "";
+    const cards = records.map((artifact) => `<button type="button" class="artifact-link" data-artifact="${escapeHtml(artifact.path)}" data-mode="specification"><span class="file-glyph" aria-hidden="true">${artifact.path.endsWith(".md") ? "M" : "Y"}</span><span><strong>${escapeHtml(artifact.title)}</strong><small>${escapeHtml(artifact.phase)} · ${escapeHtml(reviewStatusForArtifact(artifact))} · ${escapeHtml(artifact.path)}</small></span></button>`).join("");
+    return `<section class="verify-section"><div class="verify-section-heading"><div><h2>${escapeHtml(group.label)}</h2><p>${records.length} indexed source ${records.length === 1 ? "record" : "records"}</p></div><span class="section-count">INDEXED</span></div><div class="semantic-card-grid">${cards}</div></section>`;
+  }).join("");
+  const interfaceMarkup = mode === "interfaces" ? `<section class="verify-section"><div class="verify-section-heading"><div><h2>Indexed interface registry entries</h2><p>${interfaceRows.length} registry entries; direct-scalar extraction is partial and is not a complete interface projection.</p></div><span class="section-count">REGISTRY VIEW ONLY</span></div>${interfaceRows.length ? `<div class="pending-list">${interfaceRows.map((row) => `<article class="pending-card"><span class="pending-status ${row.contractPath ? "caution" : "neutral"}">${row.contractPath ? "REGISTRY SUMMARY · CONTRACT LINKED" : "REGISTRY VIEW ONLY"}</span><div><h3>${escapeHtml(row.id)}</h3><p>${escapeHtml(row.status)}</p><details><summary>Partial registry scalar observations (not a full contract)</summary><p>${escapeHtml(row.fields)}</p></details>${row.contractPath ? `<button type="button" class="text-button" data-artifact="${escapeHtml(row.contractPath)}" data-mode="specification">Open matching indexed operation contract →</button>` : `<button type="button" class="text-button" data-artifact="${escapeHtml(row.path)}" data-mode="specification">Open owning indexed registry · registry view only →</button>`}</div></article>`).join("")}</div>` : `<p class="artifact-filter-empty">Loading indexed interface registries, or no operation entries are present in them.</p>`}<p class="trace-honesty-note">HTTP/gRPC rows link to the matching per-operation artifact only when the registry’s contractFile resolves to that exact indexed artifact; otherwise its exact contractFile value remains visible in the partial registry record. SDK, CLI, event, and Agent Tool rows without a per-operation contract remain registry-only. Missing semantics are not inferred.</p></section>` : "";
+  const countSummary = mode === "overview" ? `<div class="phase-status-grid">${(["PDP-0", "PDP-1", "PDP-2", "PDP-3", "EXPLORER"] as ExperiencePhase[]).map((p) => `<article class="phase-status-card"><div class="phase-status-heading"><span>${escapeHtml(p)}</span><strong>INDEXED</strong></div><h3>${specificationArtifacts.filter((a) => a.phase === p).length} source records</h3><p>Generated index count only; not a completeness or acceptance measure.</p></article>`).join("")}</div>` : "";
+  const empty = candidates.length ? "" : `<p class="artifact-filter-empty">No matching indexed records are available. This view does not substitute unindexed or inferred content.</p>`;
+  return `<main class="semantic-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">SOURCE-LINKED SEMANTIC PROJECTION</div><h1>${escapeHtml(definition.title)}</h1><p>${escapeHtml(definition.summary)}</p></div><span class="proposal-chip"><span></span> INDEXED · LOCAL ONLY</span></header>${countSummary}<section class="semantic-summary"><strong>${candidates.length} indexed source records</strong><span>Cards open their canonical source record. Proposal status, unresolved bindings, and local verification scope remain visible; semantic fingerprints, Tools currentness, and owner acceptance are not generated here.</span></section>${groupMarkup}${interfaceMarkup}${empty}</main>`;
 }
 
 function mainContent(): string {
@@ -1266,7 +1351,7 @@ root.addEventListener("click", (event) => {
     root!.querySelector<HTMLElement>("#main-content")?.focus();
     return;
   }
-  const modeButton = target.closest<HTMLButtonElement>("button[data-mode]");
+  const modeButton = target.closest<HTMLButtonElement>("button[data-mode]:not([data-artifact])");
   if (modeButton) {
     updateMode(modeButton.dataset.mode as ExplorerMode, modeButton.getAttribute("role") === "tab");
     return;
@@ -1384,12 +1469,20 @@ root.addEventListener("click", (event) => {
     return;
   }
   const artifactButton = target.closest<HTMLElement>("[data-artifact]");
-  if (artifactButton) { selectedArtifact = specificationArtifacts.find((artifact) => artifact.path === artifactButton.dataset.artifact)!; render(); return; }
+  if (artifactButton) {
+    const artifact = specificationArtifacts.find((candidate) => candidate.path === artifactButton.dataset.artifact);
+    if (!artifact) return;
+    selectedArtifact = artifact;
+    selectedPhase = artifact.phase;
+    const requestedMode = artifactButton.dataset.mode as ExplorerMode | undefined;
+    if (requestedMode && requestedMode !== mode) updateMode(requestedMode);
+    else render();
+    return;
+  }
   if (target.closest("[data-reset]")) { state = createFixtureState("media.scenario.transcript-ready"); lastResult = null; cliHistory = []; versionPurpose = ""; productView = "transcript"; transientAnnouncement = "Scenario reset to transcript ready."; render(); return; }
   if (target.closest("[data-toggle-details]")) { detailsVisible = !detailsVisible; transientAnnouncement = detailsVisible ? "Source and job information shown." : "Source and job information hidden."; render(); return; }
   if (target.closest("[data-cli-help]")) { runCommand("help"); return; }
   if (target.closest("[data-clear-cli]")) { cliHistory = []; render(); return; }
-  if (target.closest("[data-run-local-checks]")) { showVerificationCommands = !showVerificationCommands; render(); }
 });
 
 root.addEventListener("change", (event) => {

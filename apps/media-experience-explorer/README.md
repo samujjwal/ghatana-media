@@ -69,7 +69,18 @@ currentness remain explicitly pending until their owner binding is available.
 These previews make the source contracts inspectable without implementing their
 views or closing PDP-2 or PDP-3 acceptance.
 The browser client does not constitute
-full Phase 3 acceptance or a `ghatana-tools` host binding. See the
+full Phase 3 acceptance or a `ghatana-tools` host binding. The current Tools
+source contracts are recorded in
+[`tools-binding.yaml`](../../.product-experience/explorer/tools-binding.yaml):
+Product Definition, Experience Language, Experience Specification, Experience
+Package, Explorer Contracts, the headless Product Dev Explorer library, and
+Development Traceability. These package roles are source-verified only; a
+published package artifact and isolated Media consumer installation have not
+been verified. In particular, the headless Explorer library is not this
+Media-owned Vite host, Development Traceability projects source models but does
+not construct or resolve the graph, and the named contracts do not prove Media
+phase-verification support or host admission. The Tools-owned runtime support
+gap therefore remains open. See the
 [verification matrix](../../.product-experience/explorer/verification-matrix.yaml)
 and [open gaps](../../.product-experience/gaps.yaml) for current evidence and
 remaining owner reviews.

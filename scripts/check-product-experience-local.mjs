@@ -13,7 +13,8 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { createHash } from "node:crypto";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+const rootArgument = process.argv.find((argument) => argument.startsWith("--root="))?.slice("--root=".length);
+const root = rootArgument ? resolve(rootArgument) : resolve(new URL("..", import.meta.url).pathname);
 const productRoot = join(root, ".product-experience");
 const indexPath = join(root, "apps/media-experience-explorer/specification-artifacts.json");
 const matrixPath = join(productRoot, "mandatory-surface-closure-matrix.yaml");
@@ -114,7 +115,9 @@ for (const file of screenFiles) {
 note(`${screenFiles.length} screen-contract directory records are present (47 canonical screen contracts plus one job-family specialization); ${indexedScreenPaths.size} are indexed for read-only projection`);
 
 const actionSource = read(join(productRoot, "pdp-3-product-experience/action-registry.yaml"));
-const actionIds = new Set(idsFrom(actionSource, /^\s*- id: (media\.action\.[A-Za-z0-9._-]+)$/gmu));
+const actionIdList = idsFrom(actionSource, /^\s*- id: (media\.action\.[A-Za-z0-9._-]+)$/gmu);
+unique(actionIdList, "PDP-3 action ID");
+const actionIds = new Set(actionIdList);
 if (actionIds.size === 0) fail("PDP-3 action registry produced no action IDs");
 const referencedActions = new Set();
 for (const file of screenFiles) {
@@ -222,7 +225,9 @@ note(outcomeIds.size + " PDP-0 vision outcomes have journey/supporting-view cove
 note(`${capabilityIds.size} PDP-0 capability leaves resolve to ${familyIds.size} families and ${requirementIds.size} requirement IDs; ${capabilityCoreComplete} expose the required definition shape; ${operationSpecificParameterProposals} have operation-specific parameter proposals and ${capabilityIds.size - operationSpecificParameterProposals} still require owner-approved bounds`);
 
 const componentSource = read(join(productRoot, "pdp-2-design-interface-system/component-contracts.yaml"));
-const componentIds = new Set(idsFrom(componentSource, /^\s*- id: (media\.component\.[A-Za-z0-9._-]+)$/gmu));
+const componentIdList = idsFrom(componentSource, /^\s*- id: (media\.component\.[A-Za-z0-9._-]+)$/gmu);
+unique(componentIdList, "PDP-2 component ID");
+const componentIds = new Set(componentIdList);
 const componentSection = componentSource.split(/^components:\s*$/mu)[1]?.split(/^masterPlanCoverage:\s*$/mu)[0] ?? "";
 const componentCoreFields = ["purpose", "anatomy", "variants", "states", "actions", "keyboard", "accessibility", "localization", "prohibitedUse", "semanticRole", "capabilityRefs", "actionBindingState", "sourceRef"];
 const componentCoreComplete = assertBlocksHaveFields(topLevelBlocks(componentSection), componentCoreFields, "Component");
@@ -233,8 +238,10 @@ const journeyDir = join(productRoot, "pdp-3-product-experience/journey-contracts
 const journeyFiles = readdirSync(journeyDir).filter((file) => file.endsWith(".yaml"));
 const journeyRegistry = read(join(productRoot, "pdp-3-product-experience/journey-registry.yaml"));
 const journeyIds = new Set(idsFrom(journeyRegistry, /^\s*- id: (J-[0-9]+)$/gmu));
+unique(idsFrom(journeyRegistry, /^\s*- id: (J-[0-9]+)$/gmu), "PDP-3 journey ID");
 const screenRegistrySource = read(join(productRoot, "pdp-3-product-experience/screen-registry.yaml"));
 const screenRegistryIds = new Set(idsFrom(screenRegistrySource, /^\s*- id: (media\.view\.[A-Za-z0-9._-]+)$/gmu));
+unique(idsFrom(screenRegistrySource, /^\s*- id: (media\.view\.[A-Za-z0-9._-]+)$/gmu), "PDP-3 screen ID");
 const screenComponentRefs = collectMatches(screenSources, /\b(media\.component\.[A-Za-z0-9._-]+)/gu);
 const screenJourneyRefs = collectMatches(screenSources, /\b(J-[0-9]+)\b/gu);
 if (screenIds.size !== 47) fail(`Screen contract ID denominator is ${screenIds.size}; expected 47 proposal views plus the non-screen verification family`);
@@ -242,8 +249,87 @@ if (screenRegistryIds.size !== 47) fail(`Screen registry ID denominator is ${scr
 assertKnown(screenIds, screenRegistryIds, "Screen contract not present in screen registry");
 assertKnown(screenComponentRefs, componentIds, "Screen component reference");
 assertKnown(screenJourneyRefs, journeyIds, "Screen journey reference");
-const screenCoreFields = ["schemaVersion", "productId", "screenId", "status", "channel", "purpose", "anatomy", "states", "actions", "actionBindingState", "channelDispositions", "validation", "recovery", "accessibility", "localization", "sourceRefs", "journeyRefs"];
-const screenCoreComplete = screenSources.filter((source) => source.includes("schemaVersion: media.screen-contract.v1")).reduce((total, source) => total + assertBlocksHaveFields([source], screenCoreFields, "Screen"), 0);
+// v2 is the current structural contract. Empty/null values are permitted only
+// when the matching binding-status field explains the unresolved authority.
+const screenRequiredFields = ["schemaVersion", "contractSchemaRef", "surfaceId", "templateId", "layoutIds", "componentIds", "patternIds", "tokenDependencies", "domainObjectRefs", "operationRefs", "stateRefs", "entry", "exit", "actionConsequences", "responsiveBehavior", "fixtures", "verification", "fieldBindingStatus"];
+// The v2 schema requires a status and reason but does not declare an enum.
+// Pin the finite proposal-only vocabulary currently authored by the 47 screen
+// contracts; adding a new value requires explicit validator review. In
+// particular, no accepted/complete status is authorized by this source tree.
+const allowedScreenBindingStatuses = new Set([
+  "candidate-binding-pending-owner-review",
+  "candidate-pending-acceptance",
+  "candidate-pending-owner-binding",
+  "candidate; owner-binding-pending",
+  "catalog-id-copied-exactly; template-binding-acceptance-pending",
+  "copied-from-proposal-componentRefs; Shared-binding-pending",
+  "copied-from-proposal-patternRefs; PDP2-acceptance-pending",
+  "missing",
+  "missing-no-existing-fixtureRefs",
+  "missing; no-existing-fixtureRefs-declared",
+  "no-PDP1-state-references-declared",
+  "no-canonical-entry-contract-declared",
+  "no-canonical-exit-contract-declared",
+  "no-canonical-references-declared",
+  "none-registered",
+  "not-run",
+  "not-run; no-evidence-refs",
+  "pending",
+  "pending-local-labels-not-canonical",
+  "pending-no-canonical-layout-ids",
+  "pending-owner-operation-and-effect-binding",
+  "pending; owner-operation-and-effect-binding-required",
+  "proposal-copied-from-existing-componentRefs; Shared-binding-pending",
+  "proposal-copied-from-existing-patternRefs; PDP-2-acceptance-pending",
+  "proposal-copy-PDP-2-acceptance-pending",
+  "proposal-copy-shared-binding-pending",
+  "proposal-copy; PDP-2-acceptance-pending",
+  "proposal-copy; Shared-binding-pending",
+  "proposal-only; unverified",
+  "proposal-unverified",
+  "proposal-unverified; PDP-2-acceptance-pending",
+  "proposal-unverified; central-rule-reference-only",
+  "source-proposal; behavior-unverified",
+  "unresolved-no-PDP-1-canonical-reference; local-UI-states-not-promoted",
+  "unresolved-no-canonical-layout-ids-registered",
+  "unresolved-no-catalog-match",
+  "unresolved-no-direct-canonical-reference",
+  "unresolved-no-exact-catalogued-reference",
+  "unresolved-no-existing-componentRefs",
+  "unresolved-pending-owner-binding",
+  "unresolved; local-UI-state-labels-not-promoted",
+  "unresolved; no existing catalog template ID matches the declared templateRef",
+  "unresolved; no-canonical-layout-ids-registered",
+  "unresolved; no-canonical-reference-declared",
+  "unresolved; no-exact-template-catalog-match",
+  "unresolved; owner-effect-binding-pending",
+]);
+let screenCoreComplete = 0;
+for (let index = 0; index < screenSources.length; index += 1) {
+  const source = screenSources[index];
+  const path = `.product-experience/pdp-3-product-experience/screen-contracts/${screenFiles[index]}`;
+  if (screenFiles[index] === "artifact-verification-job-family.yaml") continue;
+  const missing = screenRequiredFields.filter((field) => !new RegExp(`^${field}:`, "mu").test(source));
+  if (missing.length) fail(`Screen contract ${path} is missing required v2 shape: ${missing.join(", ")}`);
+  else if (!source.includes("schemaVersion: media.screen-contract.v2")) fail(`Screen contract ${path} does not declare the current v2 contract schema`);
+  else {
+    screenCoreComplete += 1;
+    const schemaRef = source.match(/^contractSchemaRef:\s*([^\s#]+)/mu)?.[1];
+    if (!schemaRef || !existsSync(join(root, schemaRef))) fail(`Screen contract ${path} has an unresolved contractSchemaRef`);
+    const bindingBlock = source.match(/^fieldBindingStatus:\s*\n((?:[ \t]+.*\n?)*)/mu)?.[1] ?? "";
+    for (const field of screenRequiredFields.filter((candidate) => !["fieldBindingStatus", "schemaVersion", "contractSchemaRef"].includes(candidate))) {
+      const status = bindingBlock.match(new RegExp(`^\\s+${field}:\\s*(.*?)\\s*$`, "mu"))?.[1];
+      if (!status) {
+        fail(`Screen contract ${path} lacks a fieldBindingStatus entry for ${field}`);
+      } else if (/\b(?:accepted|complete|completed)\b/iu.test(status)) {
+        fail(`Screen contract ${path} has an unapproved accepted/complete fieldBindingStatus for ${field}: ${status}`);
+      } else if (!allowedScreenBindingStatuses.has(status)) {
+        fail(`Screen contract ${path} has an unknown fieldBindingStatus for ${field}: ${status}`);
+      }
+    }
+  }
+}
+if (screenCoreComplete !== 47) fail(`PDP-3 screen structural shape count is ${screenCoreComplete}; expected 47 v2 screen contracts (job-family remains a separate specialization)`);
 
 const journeySources = journeyFiles.map((file) => read(join(journeyDir, file)));
 const journeyViewRefs = collectMatches(journeySources, /^\s*(?:-\s*)?view: (media\.view\.[A-Za-z0-9._-]+)$/gmu);
@@ -254,6 +340,20 @@ assertKnown(journeyActionRefs, actionIds, "Journey action reference");
 assertKnown(journeyFileIds, journeyIds, "Journey contract ID");
 const journeyCoreFields = ["schemaVersion", "productId", "journeyId", "title", "status", "outcomes", "actors", "preconditions", "steps", "terminalSuccess", "criticalNonhappyPaths", "recovery", "contextPreserved", "channelEquivalents"];
 const journeyCoreComplete = journeySources.reduce((total, source) => total + assertBlocksHaveFields([source], journeyCoreFields, "Journey"), 0);
+if (journeyCoreComplete !== journeySources.length) fail(`Journey structural shape count is ${journeyCoreComplete}; expected all ${journeySources.length} contracts to expose required fields`);
+for (let index = 0; index < journeySources.length; index += 1) {
+  const source = journeySources[index];
+  const path = `.product-experience/pdp-3-product-experience/journey-contracts/${journeyFiles[index]}`;
+  if (!/^journeyId: J-[0-9]+$/mu.test(source)) fail(`Journey contract ${path} is missing a stable journeyId`);
+  const stepBlocks = source.split(/(?=^\s*- (?:view|stepId): )/mu).slice(1);
+  if (!stepBlocks.length) fail(`Journey contract ${path} has no journey steps`);
+  for (const [stepIndex, block] of stepBlocks.entries()) {
+    if (!/^\s*- (?:view|stepId):\s*\S/mu.test(block)) fail(`Journey step ${stepIndex + 1} in ${path} lacks a stable view or stepId reference`);
+    const stepRequired = ["surfaceRefs", "objectRefs", "stateRefs", "canonicalOperationRef", "authorityRef", "transitionRef", "success", "failure", "degradedBehavior", "recovery", "postconditions", "requirementRefs", "verification"];
+    const missing = stepRequired.filter((field) => !new RegExp(`^\\s*${field}:`, "mu").test(block));
+    if (missing.length) fail(`Journey step ${stepIndex + 1} in ${path} is missing required shape: ${missing.join(", ")}`);
+  }
+}
 const journeyAccessibilityComplete = journeySources.filter((source) => /^\s*accessibility(?:Ref|IntentRef):/mu.test(source)).length;
 if (journeyAccessibilityComplete !== journeySources.length) fail(`${journeySources.length - journeyAccessibilityComplete} journey contracts lack an accessibility reference or intent`);
 const actionCapabilityIds = new Set();
@@ -281,6 +381,66 @@ if (journeyIds.size !== 30) fail(`Journey registry exposes ${journeyIds.size} jo
 if (journeyFiles.length !== 30) fail(`Journey contract directory contains ${journeyFiles.length} files; expected 28 baseline contracts plus the explicit J-29/J-30 contracts`);
 note(`${journeyIds.size} journeys are indexed and ${journeyFiles.length} journey contracts have source files (28 baseline plus J-29/J-30 extensions)`);
 
+// Stable IDs and references are checked where the local authored registries
+// provide an unambiguous shape. Semantic equivalence/acceptance remains owner
+// authority and is deliberately not inferred from these structural links.
+const operationSource = read(join(productRoot, "pdp-1-domain-data/operations.yaml"));
+const operationIds = new Set(idsFrom(operationSource, /^\s*- id: (media\.operation\.[A-Za-z0-9._-]+)$/gmu));
+unique([...operationIds], "PDP-1 operation ID");
+const domainObjectSource = read(join(productRoot, "pdp-1-domain-data/domain-objects.yaml"));
+const domainObjectIds = new Set(idsFrom(domainObjectSource, /^\s*- id: (media\.[A-Za-z0-9._-]+)$/gmu));
+const stateSource = read(join(productRoot, "pdp-1-domain-data/states.yaml"));
+const machineIds = new Set(idsFrom(stateSource, /^\s*- machineId: ([A-Za-z0-9._-]+)$/gmu));
+const transitionSource = read(join(productRoot, "pdp-1-domain-data/transitions.yaml"));
+const transitionRecords = transitionSource.split(/^transitionRecords:\s*$/mu)[1] ?? "";
+const transitionBlocks = transitionRecords.split(/(?=^\s+- id: )/mu).filter((block) => /^\s+- id: /mu.test(block));
+unique(transitionBlocks.map((block) => block.match(/^\s+- id: ([^\s]+)/mu)?.[1]).filter(Boolean), "PDP-1 transition ID");
+for (const transition of transitionBlocks) {
+  const id = transition.match(/^\s+- id: ([^\s]+)/mu)?.[1] ?? "unknown";
+  const machine = transition.match(/^\s*sourceMachineId: ([^\s]+)/mu)?.[1];
+  if (!machine || !machineIds.has(machine)) fail(`Transition ${id} has an unresolved state-machine reference`);
+  const refs = transition.match(/^\s*operationRefs:\s*\[([^\]]*)\]/mu)?.[1] ?? "";
+  for (const ref of refs.matchAll(/media\.operation\.[A-Za-z0-9._-]+/gu)) assertKnown(new Set([ref[0]]), operationIds, `Transition ${id} operation reference`);
+}
+for (const source of journeySources) {
+  for (const ref of source.matchAll(/^\s*canonicalOperationRef:\s*(media\.operation\.[A-Za-z0-9._-]+)/gmu)) assertKnown(new Set([ref[1]]), operationIds, "Journey canonical operation reference");
+  for (const ref of source.matchAll(/^\s*objectRefs:\s*\n((?:\s+- [^\n]+\n?)*)/gmu)) {
+    for (const id of ref[1].matchAll(/media\.[A-Za-z0-9._-]+/gu)) assertKnown(new Set([id[0]]), domainObjectIds, "Journey domain object reference");
+  }
+}
+const requirementDomainRefs = collectMatches([requirementSource], /^\s*(?:domainObjectRefs|domainRefs):\s*\[([^\]]*)\]/gmu);
+for (const ref of requirementDomainRefs) for (const id of ref.matchAll(/media\.[A-Za-z0-9._-]+/gu)) assertKnown(new Set([id[0]]), domainObjectIds, "Requirement domain reference");
+const requirementCapabilityRefs = collectMatches([requirementSource], /^\s*capabilityIds:\s*\n((?:\s+- media\.[^\n]+\n?)*)/gmu);
+for (const ref of requirementCapabilityRefs) for (const id of ref.matchAll(/media\.[A-Za-z0-9._-]+/gu)) assertKnown(new Set([id[0]]), capabilityIds, "Requirement capability/domain mapping");
+const httpRegistry = read(join(productRoot, "pdp-3-product-experience/api/api-registry.yaml"));
+const httpIds = idsFrom(httpRegistry, /^\s+- id: (media\.http\.[A-Za-z0-9._-]+)$/gmu);
+unique(httpIds, "HTTP API ID");
+for (const [index, block] of httpRegistry.split(/(?=^\s+- id: media\.http\.)/mu).filter((value) => /^\s+- id: media\.http\./mu.test(value)).entries()) {
+  const id = httpIds[index];
+  for (const field of ["contractFile", "method", "path", "operationId"]) if (!new RegExp(`^\\s+${field}:`, "mu").test(block)) fail(`HTTP API ${id} is missing required ${field} shape`);
+  const contract = block.match(/^\s+contractFile:\s*([^\s#]+)/mu)?.[1];
+  if (contract && !existsSync(join(productRoot, "pdp-3-product-experience/api", contract))) fail(`HTTP API ${id} has unresolved contractFile: ${contract}`);
+}
+const grpcRegistry = read(join(productRoot, "pdp-3-product-experience/grpc/service-registry.yaml"));
+const grpcIds = idsFrom(grpcRegistry, /^\s+- id: (media\.grpc\.[A-Za-z0-9._-]+)$/gmu);
+unique(grpcIds, "gRPC API ID");
+for (const [index, block] of grpcRegistry.split(/(?=^\s+- id: media\.grpc\.)/mu).filter((value) => /^\s+- id: media\.grpc\./mu.test(value)).entries()) {
+  const id = grpcIds[index];
+  for (const field of ["contractFile", "service", "method", "source"]) if (!new RegExp(`^\\s+${field}:`, "mu").test(block)) fail(`gRPC API ${id} is missing required ${field} shape`);
+  const contract = block.match(/^\s+contractFile:\s*([^\s#]+)/mu)?.[1];
+  if (contract && !existsSync(join(productRoot, "pdp-3-product-experience/grpc", contract))) fail(`gRPC API ${id} has unresolved contractFile: ${contract}`);
+}
+const eventRegistry = read(join(productRoot, "pdp-3-product-experience/events/event-registry.yaml"));
+const eventIds = idsFrom(eventRegistry, /^\s+- id: (media\.event\.[^\s]+)$/gmu);
+unique(eventIds, "PDP-3 event ID");
+for (const block of eventRegistry.split(/(?=^\s+- id: media\.event\.)/mu).filter((value) => /^\s+- id: media\.event\./mu.test(value))) {
+  const id = block.match(/^\s+- id: ([^\s]+)/mu)?.[1];
+  if (!/^\s+eventName:\s*\S/mu.test(block)) fail(`Event ${id} is missing required eventName shape`);
+}
+note(`Structural references checked against ${operationIds.size} PDP-1 operations, ${domainObjectIds.size} domain-object IDs, ${machineIds.size} state machines, ${httpIds.length} HTTP APIs, ${grpcIds.length} gRPC APIs, and ${eventIds.length} event IDs`);
+note("Requirement→domain/object semantics, action→operation bindings, and PDP-2 surface/layout authority remain unselected or proposal-only in local source; no inferred bindings are accepted");
+note("Tools-native PDP validator/currentness authority is unavailable in this checkout; local structural checks do not establish semantic acceptance or currentness");
+
 const mainSource = read(join(root, "apps/media-experience-explorer/src/main.ts"));
 const specificationSource = read(join(root, "apps/media-experience-explorer/src/specification.ts"));
 if (!mainSource.includes("data-open-product-screen") || !mainSource.includes("disabled aria-describedby=\"proposal-action-note-")) {
@@ -292,8 +452,12 @@ if (!mainSource.includes("renderTraceMetadata") || !specificationSource.includes
 if (!mainSource.includes("renderProductContractProjection") || !mainSource.includes("sourceManifestContent") || !mainSource.includes("renderTraceMetadata(artifact, sourceManifest)")) {
   fail("Product proposal routes do not expose source-linked trace metadata");
 }
-if (!specificationSource.includes("PRODUCT_TRUTH_AUTHORITY")) {
-  fail("Explorer authority-class metadata is not defined for the source-linked projection");
+const explorerIndex = JSON.parse(read(join(root, "apps/media-experience-explorer/specification-artifacts.json")));
+if (!explorerIndex.length || explorerIndex.some((artifact) => !artifact.artifactId || !artifact.authorityClass)) {
+  fail("Explorer index is missing canonical artifact identity or manifest authority-class metadata");
+}
+if (!specificationSource.includes('manifestScalar(record, "authorityClass")')) {
+  fail("Explorer source-linked projection does not read authority class from manifest metadata");
 }
 
 if (failures.length) {

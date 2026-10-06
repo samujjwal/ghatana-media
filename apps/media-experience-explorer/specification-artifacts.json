@@ -1,1038 +1,1955 @@
 [
   {
+    "artifactId": "ART-P0-CONSTITUTION-REFERENCE",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "path": ".product-experience/PRODUCT-CONSTITUTION.md",
     "title": "PRODUCT CONSTITUTION"
   },
   {
+    "artifactId": "ART-GOV-README",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "path": ".product-experience/README.md",
     "title": "README"
   },
   {
+    "artifactId": "ART-P0-ACCEPTANCE-INPUTS",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "path": ".product-experience/acceptance.yaml",
     "title": "Acceptance"
   },
   {
+    "artifactId": "ART-GOV-AUTHORITY-MAP",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "path": ".product-experience/authority-map.yaml",
     "title": "Authority Map"
   },
   {
+    "artifactId": "ART-GOV-DECISION-LOG",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "path": ".product-experience/decision-log.md",
     "title": "Decision Log"
   },
   {
+    "artifactId": "ART-P3-PHASE-3-EXPERIENCE-EXPLORER-EXPERIENCE-EXPLORER-MD",
+    "authorityClass": "EXPLORER_PROJECTION",
     "phase": "EXPLORER",
     "path": ".product-experience/explorer/EXPERIENCE-EXPLORER.md",
     "title": "EXPERIENCE EXPLORER"
   },
   {
+    "artifactId": "ART-P3-PHASE-3-EXPERIENCE-EXPLORER-INTERACTION-DISPOSITIONS-YAML",
+    "authorityClass": "EXPLORER_PROJECTION",
     "phase": "EXPLORER",
     "path": ".product-experience/explorer/interaction-dispositions.yaml",
     "title": "Interaction Dispositions"
   },
   {
+    "artifactId": "ART-P3-PHASE-3-EXPERIENCE-EXPLORER-MEDIA-EXPERIENCE-PACKAGE-YAML",
+    "authorityClass": "EXPLORER_PROJECTION",
     "phase": "EXPLORER",
     "path": ".product-experience/explorer/media-experience-package.yaml",
     "title": "Media Experience Package"
   },
   {
+    "artifactId": "ART-P3-PHASE-3-EXPERIENCE-EXPLORER-SCENARIO-FIXTURES-YAML",
+    "authorityClass": "EXPLORER_PROJECTION",
     "phase": "EXPLORER",
     "path": ".product-experience/explorer/scenario-fixtures.yaml",
     "title": "Scenario Fixtures"
   },
   {
+    "artifactId": "ART-MEDIA-D34C3F69B2E2",
+    "authorityClass": "EXPLORER_PROJECTION",
     "phase": "EXPLORER",
     "path": ".product-experience/explorer/tools-binding.yaml",
     "title": "Tools Binding"
   },
   {
+    "artifactId": "ART-P3-PHASE-3-EXPERIENCE-EXPLORER-VERIFICATION-MATRIX-YAML",
+    "authorityClass": "EXPLORER_PROJECTION",
     "phase": "EXPLORER",
     "path": ".product-experience/explorer/verification-matrix.yaml",
     "title": "Verification Matrix"
   },
   {
+    "artifactId": "ART-P3-PHASE-3-EXPERIENCE-EXPLORER-VIEW-PROJECTIONS-YAML",
+    "authorityClass": "EXPLORER_PROJECTION",
     "phase": "EXPLORER",
     "path": ".product-experience/explorer/view-projections.yaml",
     "title": "View Projections"
   },
   {
+    "artifactId": "ART-GOV-GAPS",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "path": ".product-experience/gaps.yaml",
     "title": "Gaps"
   },
   {
+    "artifactId": "ART-P2-LANES-TRANSCRIBE-AND-CORRECT-CAPTIONS-YAML",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "path": ".product-experience/lanes/transcribe-and-correct-captions.yaml",
     "title": "Transcribe And Correct Captions"
   },
   {
+    "artifactId": "ART-MEDIA-4AFE1D61B4BA",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "path": ".product-experience/mandatory-surface-closure-matrix.yaml",
     "title": "Mandatory Surface Closure Matrix"
   },
   {
+    "artifactId": "ART-P0-PRODUCT-TRUTH-BOUNDARY",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
     "title": "PRODUCT TRUTH"
   },
   {
+    "artifactId": "ART-P0-ACTORS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
     "title": "Actors Responsibilities"
   },
   {
+    "artifactId": "ART-P0-APPLICATIONS-CHANNELS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
     "title": "Applications Channels"
   },
   {
+    "artifactId": "ART-P0-CAPABILITIES",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
     "title": "Capabilities"
   },
   {
+    "artifactId": "ART-P0-CAPABILITY-CROSSWALK",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml",
     "title": "Capability Preservation Crosswalk"
   },
   {
+    "artifactId": "ART-P0-CONSTITUTION",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/constitution.yaml",
     "title": "Constitution"
   },
   {
+    "artifactId": "ART-P0-CONTENT-INTENT",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/content-intent.yaml",
     "title": "Content Intent"
   },
   {
+    "artifactId": "ART-P0-DEPENDENCY-CONTRACTS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml",
     "title": "Dependency Contracts"
   },
   {
+    "artifactId": "ART-P0-DOMAIN-MODEL",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/domain-model.yaml",
     "title": "Domain Model"
   },
   {
+    "artifactId": "ART-P0-GLOSSARY",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/glossary.yaml",
     "title": "Glossary"
   },
   {
+    "artifactId": "ART-P0-GOALS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
     "title": "Goals Jtbd"
   },
   {
+    "artifactId": "ART-P0-HANDOFF-CONTRACTS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml",
     "title": "Handoff Contracts"
   },
   {
+    "artifactId": "ART-P0-INFORMATION-ARCHITECTURE",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/information-architecture.yaml",
     "title": "Information Architecture"
   },
   {
+    "artifactId": "ART-P0-JOURNEYS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
     "title": "Journey Catalog"
   },
   {
+    "artifactId": "ART-P0-NFR",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
     "title": "Nonfunctional Requirements"
   },
   {
+    "artifactId": "ART-MEDIA-1171EC203BAC",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/ocr-ownership.yaml",
     "title": "Ocr Ownership"
   },
   {
+    "artifactId": "ART-P0-POLICY-AUTHORITY",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
     "title": "Policy Authority Model"
   },
   {
+    "artifactId": "ART-P0-PROFILE-SEMANTICS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
     "title": "Profile Semantics"
   },
   {
+    "artifactId": "ART-P0-QUALIFICATION-POLICY",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
     "title": "Qualification Policy"
   },
   {
+    "artifactId": "ART-P0-QUALITY-POLICY",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
     "title": "Quality Policy"
   },
   {
+    "artifactId": "ART-P0-REQUIREMENTS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/requirements.yaml",
     "title": "Requirements"
   },
   {
+    "artifactId": "ART-P0-REUSE-DECISIONS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml",
     "title": "Reuse Decisions"
   },
   {
+    "artifactId": "ART-P0-SCHEMA-BINDINGS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/schema-bindings.yaml",
     "title": "Schema Bindings"
   },
   {
+    "artifactId": "ART-P0-STATE-MODELS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/state-models.yaml",
     "title": "State Models"
   },
   {
+    "artifactId": "ART-P0-TIME-UNITS-FIDELITY",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml",
     "title": "Time Units Fidelity"
   },
   {
+    "artifactId": "ART-MEDIA-47FB3B0FB9BC",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md",
     "title": "DOMAIN MODEL"
   },
   {
+    "artifactId": "ART-MEDIA-EF11C75D9B14",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/authority.yaml",
     "title": "Authority"
   },
   {
+    "artifactId": "ART-MEDIA-28AD95DFEFCB",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/decisions.yaml",
     "title": "Decisions"
   },
   {
+    "artifactId": "ART-MEDIA-04EC9D20A16F",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
     "title": "Domain Objects"
   },
   {
+    "artifactId": "ART-MEDIA-14E1A64D66D1",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/events.yaml",
     "title": "Events"
   },
   {
+    "artifactId": "ART-MEDIA-8D00AF08D9BD",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/evidence.yaml",
     "title": "Evidence"
   },
   {
+    "artifactId": "ART-MEDIA-6B1179C045DD",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/interoperability.yaml",
     "title": "Interoperability"
   },
   {
+    "artifactId": "ART-MEDIA-B4CD4A667F3C",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/offline-sync.yaml",
     "title": "Offline Sync"
   },
   {
+    "artifactId": "ART-MEDIA-A8AB9C932FE9",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/operations.yaml",
     "title": "Operations"
   },
   {
+    "artifactId": "ART-MEDIA-00087458393C",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/privacy.yaml",
     "title": "Privacy"
   },
   {
+    "artifactId": "ART-MEDIA-7F661ACF7E69",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/provenance.yaml",
     "title": "Provenance"
   },
   {
+    "artifactId": "ART-MEDIA-0A5282A28C1D",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/relationships.yaml",
     "title": "Relationships"
   },
   {
+    "artifactId": "ART-MEDIA-0D44B0159B14",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/states.yaml",
     "title": "States"
   },
   {
+    "artifactId": "ART-MEDIA-1C4EF7DD41BE",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/transitions.yaml",
     "title": "Transitions"
   },
   {
+    "artifactId": "ART-MEDIA-B7C7A594ADEB",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/value-objects.yaml",
     "title": "Value Objects"
   },
   {
+    "artifactId": "ART-MEDIA-87D1A235ECF0",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/versioning.yaml",
     "title": "Versioning"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-DESIGN-LANGUAGE-MD",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
     "title": "DESIGN LANGUAGE"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-ACCESSIBILITY-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
     "title": "Accessibility"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-ACTION-FINALITY-GRAMMAR-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
     "title": "Action Finality Grammar"
   },
   {
+    "artifactId": "ART-MEDIA-A39E6A5D43A8",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
     "title": "Conventions"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-ANIMATION-SIMULATION-GRAMMAR-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml",
     "title": "Animation Simulation Grammar"
   },
   {
+    "artifactId": "ART-MEDIA-795189921377",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml",
     "title": "Async Operations"
   },
   {
+    "artifactId": "ART-MEDIA-275BCDD12CFE",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/auth.yaml",
     "title": "Auth"
   },
   {
+    "artifactId": "ART-MEDIA-9AA54153E79F",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/cancellation.yaml",
     "title": "Cancellation"
   },
   {
+    "artifactId": "ART-MEDIA-A887C337D4B5",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/compatibility.yaml",
     "title": "Compatibility"
   },
   {
+    "artifactId": "ART-MEDIA-ED07803AE7D0",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/concurrency.yaml",
     "title": "Concurrency"
   },
   {
+    "artifactId": "ART-MEDIA-341B7687F0C7",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
     "title": "Conventions"
   },
   {
+    "artifactId": "ART-MEDIA-AFA090EA88CC",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/correlation.yaml",
     "title": "Correlation"
   },
   {
+    "artifactId": "ART-MEDIA-6A021EC09D4D",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/errors.yaml",
     "title": "Errors"
   },
   {
+    "artifactId": "ART-MEDIA-1B77D8607036",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/filtering-sorting.yaml",
     "title": "Filtering Sorting"
   },
   {
+    "artifactId": "ART-MEDIA-8C19A6D459DC",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/idempotency.yaml",
     "title": "Idempotency"
   },
   {
+    "artifactId": "ART-MEDIA-7D3EBBF91E45",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/identifiers.yaml",
     "title": "Identifiers"
   },
   {
+    "artifactId": "ART-MEDIA-6A1050C1A3C0",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/pagination.yaml",
     "title": "Pagination"
   },
   {
+    "artifactId": "ART-MEDIA-A943BA035FE0",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml",
     "title": "Retry Timeout Unknown Outcome"
   },
   {
+    "artifactId": "ART-MEDIA-1C2A65E04F9D",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/versioning.yaml",
     "title": "Versioning"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-CLI-LANGUAGE-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/cli-language.yaml",
     "title": "Cli Language"
   },
   {
+    "artifactId": "ART-MEDIA-B8509DB091B1",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml",
     "title": "Conventions"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-COMPONENT-CONTRACTS-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
     "title": "Component Contracts"
   },
   {
+    "artifactId": "ART-MEDIA-D93AAC60D437",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/events/conventions.yaml",
     "title": "Conventions"
   },
   {
+    "artifactId": "ART-MEDIA-8B2627A1C5C0",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
     "title": "Layout"
   },
   {
+    "artifactId": "ART-MEDIA-144680451754",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/patterns/activity-attention.yaml",
     "title": "Activity Attention"
   },
   {
+    "artifactId": "ART-MEDIA-8BCD78F94CAB",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
     "title": "Catalog"
   },
   {
+    "artifactId": "ART-MEDIA-55A8B1E26DF6",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/patterns/destructive-lifecycle-action.yaml",
     "title": "Destructive Lifecycle Action"
   },
   {
+    "artifactId": "ART-MEDIA-A4A7BBFAAE1A",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/patterns/rendering.yaml",
     "title": "Rendering"
   },
   {
+    "artifactId": "ART-MEDIA-55600F3DB206",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/patterns/review-approval.yaml",
     "title": "Review Approval"
   },
   {
+    "artifactId": "ART-MEDIA-640CFF99D53D",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/primitives.yaml",
     "title": "Primitives"
   },
   {
+    "artifactId": "ART-MEDIA-C46E1B47171F",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml",
     "title": "Screen Composition Schema"
   },
   {
+    "artifactId": "ART-MEDIA-93CBF4320DC2",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
     "title": "Style Authority"
   },
   {
+    "artifactId": "ART-MEDIA-644F7F7EE315",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
     "title": "Catalog"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-LOCALIZATION-CONTENT-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
     "title": "Localization Content"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-MEDIA-EDITING-GRAMMAR-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml",
     "title": "Media Editing Grammar"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-MEDIA-TOKEN-ALIASES-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
     "title": "Media Token Aliases"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-MOTION-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/motion.yaml",
     "title": "Motion"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-RESPONSIVE-ADAPTIVE-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
     "title": "Responsive Adaptive"
   },
   {
+    "artifactId": "ART-MEDIA-629E1F91BA34",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml",
     "title": "Conventions"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-SEMANTIC-STATE-GRAMMAR-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
     "title": "Semantic State Grammar"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-TRUST-PROVENANCE-GRAMMAR-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/trust-provenance-grammar.yaml",
     "title": "Trust Provenance Grammar"
   },
   {
+    "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-TYPOGRAPHY-LAYOUT-YAML",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
     "title": "Typography Layout"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-COMPLETE-PRODUCT-EXPERIENCE-MD",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md",
     "title": "COMPLETE PRODUCT EXPERIENCE"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-ACTION-REGISTRY-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
     "title": "Action Registry"
   },
   {
+    "artifactId": "ART-MEDIA-1382A9C1C8E7",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml",
     "title": "Tool Registry"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-API-EXPERIENCE-MAPPING-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/api-experience-mapping.yaml",
     "title": "Api Experience Mapping"
   },
   {
+    "artifactId": "ART-MEDIA-6F948BFA1762",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/api/.generate-interface-registries.py",
     "title": ".Generate Interface Registries"
   },
   {
+    "artifactId": "ART-MEDIA-D10A1C99C5CC",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/api/api-registry.yaml",
     "title": "Api Registry"
   },
   {
+    "artifactId": "ART-MEDIA-FF4D8155E870",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/api/operations/README.md",
     "title": "README"
   },
   {
+    "artifactId": "ART-MEDIA-7843729AD8A2B7C6C98D",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/appendMediaChunk.yaml",
+    "title": "AppendMediaChunk"
+  },
+  {
+    "artifactId": "ART-MEDIA-3F7A46F06AFB8A97E516",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/beginMediaUpload.yaml",
+    "title": "BeginMediaUpload"
+  },
+  {
+    "artifactId": "ART-MEDIA-AE0B60F810CF2AFD145E",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/cancelMediaJob.yaml",
+    "title": "CancelMediaJob"
+  },
+  {
+    "artifactId": "ART-MEDIA-2CE401638C56A67F5ECC",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/closeMediaStream.yaml",
+    "title": "CloseMediaStream"
+  },
+  {
+    "artifactId": "ART-MEDIA-899C36C6803B0EB99032",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/completeMediaUpload.yaml",
+    "title": "CompleteMediaUpload"
+  },
+  {
+    "artifactId": "ART-MEDIA-93BE8CABF64F152A0B5E",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/connectMediaStream.yaml",
+    "title": "ConnectMediaStream"
+  },
+  {
+    "artifactId": "ART-MEDIA-8F996618DD715BC123C2",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaArtifact.yaml",
+    "title": "GetMediaArtifact"
+  },
+  {
+    "artifactId": "ART-MEDIA-E24E49FB91BB3490A71A",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaConsent.yaml",
+    "title": "GetMediaConsent"
+  },
+  {
+    "artifactId": "ART-MEDIA-22BB3FEB2A018899B1A9",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaHealth.yaml",
+    "title": "GetMediaHealth"
+  },
+  {
+    "artifactId": "ART-MEDIA-856AD0340760D615613E",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaInfo.yaml",
+    "title": "GetMediaInfo"
+  },
+  {
+    "artifactId": "ART-MEDIA-E10AA1A51D9EC18D1A9D",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaJob.yaml",
+    "title": "GetMediaJob"
+  },
+  {
+    "artifactId": "ART-MEDIA-130CC25246B39D4BB5E4",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaLiveness.yaml",
+    "title": "GetMediaLiveness"
+  },
+  {
+    "artifactId": "ART-MEDIA-7ADD87059AB5E8270276",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaMetrics.yaml",
+    "title": "GetMediaMetrics"
+  },
+  {
+    "artifactId": "ART-MEDIA-31858B36C3DEE6B98435",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaProviders.yaml",
+    "title": "GetMediaProviders"
+  },
+  {
+    "artifactId": "ART-MEDIA-3DABFCC42AE8B80C5AA4",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaReadiness.yaml",
+    "title": "GetMediaReadiness"
+  },
+  {
+    "artifactId": "ART-MEDIA-D6A23350B077F5979016",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaReadyAlias.yaml",
+    "title": "GetMediaReadyAlias"
+  },
+  {
+    "artifactId": "ART-MEDIA-83FB6B3CAC9946177A33",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaStartup.yaml",
+    "title": "GetMediaStartup"
+  },
+  {
+    "artifactId": "ART-MEDIA-A1AA245A0464609AFAA3",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaStream.yaml",
+    "title": "GetMediaStream"
+  },
+  {
+    "artifactId": "ART-MEDIA-9467710B6AF9B599D59D",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaUpload.yaml",
+    "title": "GetMediaUpload"
+  },
+  {
+    "artifactId": "ART-MEDIA-B4D05B90EE9A8258A9F1",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaVersionedHealth.yaml",
+    "title": "GetMediaVersionedHealth"
+  },
+  {
+    "artifactId": "ART-MEDIA-44B0B162F3B50ECA2C7D",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/grantMediaConsent.yaml",
+    "title": "GrantMediaConsent"
+  },
+  {
+    "artifactId": "ART-MEDIA-C9E8491824E4AA0B1728",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/listMediaConsents.yaml",
+    "title": "ListMediaConsents"
+  },
+  {
+    "artifactId": "ART-MEDIA-4C15DAE1C76835FD1911",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/listMediaJobs.yaml",
+    "title": "ListMediaJobs"
+  },
+  {
+    "artifactId": "ART-MEDIA-38C9537B69DBDE662590",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/openMediaStream.yaml",
+    "title": "OpenMediaStream"
+  },
+  {
+    "artifactId": "ART-MEDIA-CE7E70C4196FC7E909AE",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/revokeMediaConsent.yaml",
+    "title": "RevokeMediaConsent"
+  },
+  {
+    "artifactId": "ART-MEDIA-207A3708CF34448EE544",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/submitMediaJob.yaml",
+    "title": "SubmitMediaJob"
+  },
+  {
+    "artifactId": "ART-MEDIA-5ED39315AC0053182E83",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/submitMediaStreamFrame.yaml",
+    "title": "SubmitMediaStreamFrame"
+  },
+  {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-APPLICATION-CHANNEL-REGISTRY-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
     "title": "Application Channel Registry"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-CLI-COMMAND-REGISTRY-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/cli-command-registry.yaml",
     "title": "Cli Command Registry"
   },
   {
+    "artifactId": "ART-MEDIA-3F9340A75887",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
     "title": "Command Registry"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-CONTENT-COPY-CATALOG-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/content-copy-catalog.yaml",
     "title": "Content Copy Catalog"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-DATA-VIEW-CONTRACTS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/data-view-contracts.yaml",
     "title": "Data View Contracts"
   },
   {
+    "artifactId": "ART-MEDIA-6DEC24896131",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/events/event-registry.yaml",
     "title": "Event Registry"
   },
   {
+    "artifactId": "ART-MEDIA-96177BF670D050B776EA",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.AnalyzeCrossModal.yaml",
+    "title": "MultimodalService.AnalyzeCrossModal"
+  },
+  {
+    "artifactId": "ART-MEDIA-CD7FF4F02367922B1993",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.AnalyzeVideoWithAudio.yaml",
+    "title": "MultimodalService.AnalyzeVideoWithAudio"
+  },
+  {
+    "artifactId": "ART-MEDIA-938D7AA39A720269D4A0",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.GenerateDescription.yaml",
+    "title": "MultimodalService.GenerateDescription"
+  },
+  {
+    "artifactId": "ART-MEDIA-2BD35F20A64281ADE9ED",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.GetInsights.yaml",
+    "title": "MultimodalService.GetInsights"
+  },
+  {
+    "artifactId": "ART-MEDIA-F15191F8E85907E5C3AA",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.GetStatus.yaml",
+    "title": "MultimodalService.GetStatus"
+  },
+  {
+    "artifactId": "ART-MEDIA-D7D05B59D5DAB47ACB50",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.HealthCheck.yaml",
+    "title": "MultimodalService.HealthCheck"
+  },
+  {
+    "artifactId": "ART-MEDIA-1BC69C2C9C7DEAE5C8F0",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.ListModels.yaml",
+    "title": "MultimodalService.ListModels"
+  },
+  {
+    "artifactId": "ART-MEDIA-10AEB2AE61D5B957BBCB",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.LoadModel.yaml",
+    "title": "MultimodalService.LoadModel"
+  },
+  {
+    "artifactId": "ART-MEDIA-496A92AA46FE39E9585F",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.ProcessMultimodal.yaml",
+    "title": "MultimodalService.ProcessMultimodal"
+  },
+  {
+    "artifactId": "ART-MEDIA-365822CE3AB863695382",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/MultimodalService.UnloadModel.yaml",
+    "title": "MultimodalService.UnloadModel"
+  },
+  {
+    "artifactId": "ART-MEDIA-22CFED7B1CB2",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/grpc/operations/README.md",
     "title": "README"
   },
   {
+    "artifactId": "ART-MEDIA-C344B2423CA1F35592B4",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/STTService.AdaptModel.yaml",
+    "title": "STTService.AdaptModel"
+  },
+  {
+    "artifactId": "ART-MEDIA-925C78646C901DF7A346",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/STTService.CreateProfile.yaml",
+    "title": "STTService.CreateProfile"
+  },
+  {
+    "artifactId": "ART-MEDIA-609F8354AEB834C2BAD6",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/STTService.GetProfile.yaml",
+    "title": "STTService.GetProfile"
+  },
+  {
+    "artifactId": "ART-MEDIA-39682EB66F23A42D9458",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/STTService.GetStatus.yaml",
+    "title": "STTService.GetStatus"
+  },
+  {
+    "artifactId": "ART-MEDIA-79B9271B80F8DDB7E2E2",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/STTService.HealthCheck.yaml",
+    "title": "STTService.HealthCheck"
+  },
+  {
+    "artifactId": "ART-MEDIA-D2961D7852E2DD3C6C46",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/STTService.ListModels.yaml",
+    "title": "STTService.ListModels"
+  },
+  {
+    "artifactId": "ART-MEDIA-EBA408748A40719B86D2",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/STTService.LoadModel.yaml",
+    "title": "STTService.LoadModel"
+  },
+  {
+    "artifactId": "ART-MEDIA-4945A5020FB0AD5AB262",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/STTService.StreamTranscribe.yaml",
+    "title": "STTService.StreamTranscribe"
+  },
+  {
+    "artifactId": "ART-MEDIA-76F31D11AB77F8A41AB5",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/STTService.SubmitCorrection.yaml",
+    "title": "STTService.SubmitCorrection"
+  },
+  {
+    "artifactId": "ART-MEDIA-774248DF4CB07E08CF52",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/STTService.Transcribe.yaml",
+    "title": "STTService.Transcribe"
+  },
+  {
+    "artifactId": "ART-MEDIA-22040C79551ABF0C4188",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/STTService.UnloadModel.yaml",
+    "title": "STTService.UnloadModel"
+  },
+  {
+    "artifactId": "ART-MEDIA-F2D88F799347998DF159",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/STTService.UpdateProfile.yaml",
+    "title": "STTService.UpdateProfile"
+  },
+  {
+    "artifactId": "ART-MEDIA-0D0BA5106FBF1CFE6F91",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.CloneVoice.yaml",
+    "title": "TTSService.CloneVoice"
+  },
+  {
+    "artifactId": "ART-MEDIA-1C7A934BA42DA8AB5AE1",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.CreateProfile.yaml",
+    "title": "TTSService.CreateProfile"
+  },
+  {
+    "artifactId": "ART-MEDIA-4CAA23CE868F198B7057",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.GetMetrics.yaml",
+    "title": "TTSService.GetMetrics"
+  },
+  {
+    "artifactId": "ART-MEDIA-064BEF1279EA91ECDEF6",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.GetProfile.yaml",
+    "title": "TTSService.GetProfile"
+  },
+  {
+    "artifactId": "ART-MEDIA-126E6EA3577F6D19A68E",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.GetStatus.yaml",
+    "title": "TTSService.GetStatus"
+  },
+  {
+    "artifactId": "ART-MEDIA-F9040DBF72F7EC1E2805",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.GetVoices.yaml",
+    "title": "TTSService.GetVoices"
+  },
+  {
+    "artifactId": "ART-MEDIA-28E197069AD594BC863A",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.LoadVoice.yaml",
+    "title": "TTSService.LoadVoice"
+  },
+  {
+    "artifactId": "ART-MEDIA-50DB3F1AA88C9B5C9E34",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.StreamSynthesize.yaml",
+    "title": "TTSService.StreamSynthesize"
+  },
+  {
+    "artifactId": "ART-MEDIA-3A79E1708A663AB36FEB",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.SubmitFeedback.yaml",
+    "title": "TTSService.SubmitFeedback"
+  },
+  {
+    "artifactId": "ART-MEDIA-BE3F674BF75446CCF337",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.Synthesize.yaml",
+    "title": "TTSService.Synthesize"
+  },
+  {
+    "artifactId": "ART-MEDIA-2CA841D0FA7DE8BADC25",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/TTSService.UpdateProfile.yaml",
+    "title": "TTSService.UpdateProfile"
+  },
+  {
+    "artifactId": "ART-MEDIA-94C770B4F65FF5BE9A3E",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.AnalyzeImage.yaml",
+    "title": "VisionService.AnalyzeImage"
+  },
+  {
+    "artifactId": "ART-MEDIA-E28D956424E0AD3702E2",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.AnalyzeVideoFile.yaml",
+    "title": "VisionService.AnalyzeVideoFile"
+  },
+  {
+    "artifactId": "ART-MEDIA-816FE0DDE57A03578D28",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.ClassifyImage.yaml",
+    "title": "VisionService.ClassifyImage"
+  },
+  {
+    "artifactId": "ART-MEDIA-D17CD9DB3FF8785C9BEB",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.DetectObjects.yaml",
+    "title": "VisionService.DetectObjects"
+  },
+  {
+    "artifactId": "ART-MEDIA-164D24FFED35E2CCE069",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.GetStatus.yaml",
+    "title": "VisionService.GetStatus"
+  },
+  {
+    "artifactId": "ART-MEDIA-4A0E454C743331567D45",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.HealthCheck.yaml",
+    "title": "VisionService.HealthCheck"
+  },
+  {
+    "artifactId": "ART-MEDIA-BD333D61977784C75017",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.ListModels.yaml",
+    "title": "VisionService.ListModels"
+  },
+  {
+    "artifactId": "ART-MEDIA-F63A5AC926A3127219EE",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.LoadModel.yaml",
+    "title": "VisionService.LoadModel"
+  },
+  {
+    "artifactId": "ART-MEDIA-3B89D12D1CCB52041B79",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.ProcessVideo.yaml",
+    "title": "VisionService.ProcessVideo"
+  },
+  {
+    "artifactId": "ART-MEDIA-EE8431F8F54C42140EAB",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.UnloadModel.yaml",
+    "title": "VisionService.UnloadModel"
+  },
+  {
+    "artifactId": "ART-MEDIA-EAACF8E6DB89",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/grpc/service-registry.yaml",
     "title": "Service Registry"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-HANDOFF-BINDINGS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/handoff-bindings.yaml",
     "title": "Handoff Bindings"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-INTERACTION-REGISTRY-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
     "title": "Interaction Registry"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-ANALYZE-IMAGE-VIDEO-GEOMETRY-AND-TRACKS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
     "title": "Analyze Image Video Geometry And Tracks"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-ANIMATE-3D-SCENES-AND-CHARACTERS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
     "title": "Animate 3d Scenes And Characters"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-ANIMATE-VECTOR-OR-PROCEDURAL-SCENES-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
     "title": "Animate Vector Or Procedural Scenes"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-AUTHORIZED-TEXT-TO-SPEECH-TO-APPROVED-AUDIO-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
     "title": "Authorized Text To Speech To Approved Audio"
   },
   {
+    "artifactId": "ART-MEDIA-478F9DED724B",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
     "title": "Check Which Processing Options Are Eligible"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-CLEAN-NOISY-INTERVIEW-AUDIO-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
     "title": "Clean Noisy Interview Audio"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-COMPOSE-AND-RENDER-REVIEWED-MEDIA-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
     "title": "Compose And Render Reviewed Media"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-CONTINUE-SAFELY-WHEN-PROCESSING-IS-UNAVAILABLE-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
     "title": "Continue Safely When Processing Is Unavailable"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-CREATE-REVIEW-AND-DELIVER-FROM-A-BRIEF-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml",
     "title": "Create Review And Deliver From A Brief"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-DELETE-OR-REVOKE-MEDIA-WITH-VISIBLE-LIFECYCLE-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
     "title": "Delete Or Revoke Media With Visible Lifecycle"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-DELIVER-EXPORT-WITH-DESTINATION-ACKNOWLEDGEMENT-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
     "title": "Deliver Export With Destination Acknowledgement"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-EDIT-TRACKED-MEDIA-REGION-WITH-UNDO-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
     "title": "Edit Tracked Media Region With Undo"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-EXPLORE-DOMAIN-SIMULATION-AND-REVIEW-MEASUREMENTS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
     "title": "Explore Domain Simulation And Review Measurements"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-EXPORT-SPATIAL-MEDIA-WITH-FORMAT-LOSS-REPORTING-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
     "title": "Export Spatial Media With Format Loss Reporting"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-FIRST-USE-AND-PROJECT-CREATION-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
     "title": "First Use And Project Creation"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-GENERATE-FROM-REFERENCES-AND-REVIEW-CONTINUITY-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
     "title": "Generate From References And Review Continuity"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-INSPECT-QUALITY-AND-OPTIMIZE-WITHIN-BOUNDS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
     "title": "Inspect Quality And Optimize Within Bounds"
   },
   {
+    "artifactId": "ART-MEDIA-7DF5945561DA",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml",
     "title": "Live Session Loss Consent Change And Bounded Recovery"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-LONG-RUNNING-JOB-OBSERVATION-AND-RECOVERY-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
     "title": "Long Running Job Observation And Recovery"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-MIX-AND-MASTER-MUSIC-AND-EFFECTS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
     "title": "Mix And Master Music And Effects"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-REFINE-SIMULATION-PASSES-WITH-SEMANTIC-VALIDATION-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
     "title": "Refine Simulation Passes With Semantic Validation"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-REPAIR-VIDEO-WITH-MEASURED-QUALITY-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
     "title": "Repair Video With Measured Quality"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-RETURN-BOUNDED-RESULTS-TO-INTEGRATING-PRODUCTS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
     "title": "Return Bounded Results To Integrating Products"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-RETURN-GROUNDED-TYPED-CONSUMER-RESULTS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
     "title": "Return Grounded Typed Consumer Results"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-REVIEW-EXACT-VERSION-AND-RECHECK-CHANGES-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
     "title": "Review Exact Version And Recheck Changes"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-RUN-CLI-BATCH-AND-REVIEW-VERIFIED-OUTPUTS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml",
     "title": "Run Cli Batch And Review Verified Outputs"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-TRANSCRIBE-AND-CORRECT-CAPTIONS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
     "title": "Transcribe And Correct Captions"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-TRANSLATE-AND-DUB-EXISTING-VIDEO-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
     "title": "Translate And Dub Existing Video"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-UPLOAD-IMPORT-AND-VERIFY-ARTIFACT-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
     "title": "Upload Import And Verify Artifact"
   },
   {
+    "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-WORK-LOCALLY-AND-RECONCILE-AFTER-RECONNECT-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml",
     "title": "Work Locally And Reconcile After Reconnect"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-REGISTRY-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
     "title": "Journey Registry"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-NAVIGATION-CONTRACTS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
     "title": "Navigation Contracts"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-RECOVERY-FINALITY-CONTRACTS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
     "title": "Recovery Finality Contracts"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-RESPONSIVE-VARIANTS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/responsive-variants.yaml",
     "title": "Responsive Variants"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCENARIO-FIXTURE-REGISTRY-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
     "title": "Scenario Fixture Registry"
   },
   {
+    "artifactId": "ART-MEDIA-BC5B36FE3B4B63A33B18",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
+    "title": "Screen Contract Schema"
+  },
+  {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-ADJUST-COLOR-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
     "title": "Adjust Color"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-ANIMATE-MEDIA-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
     "title": "Animate Media"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-ARRANGE-SCENES-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
     "title": "Arrange Scenes"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOB-FAMILY-ARTIFACT-VERIFICATION-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/artifact-verification-job-family.yaml",
     "title": "Artifact Verification Job Family"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-AUTHENTICATE-AND-SELECT-CONTEXT-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml",
     "title": "Authenticate And Select Context"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-BROWSE-MEDIA-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml",
     "title": "Browse Media"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-JOB-OUTCOME-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml",
     "title": "Check Job Outcome"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-PROCESSING-OPTIONS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml",
     "title": "Check Processing Options"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-PROCESSING-READINESS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml",
     "title": "Check Processing Readiness"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHOOSE-ELIGIBLE-PROCESSING-OPTION-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml",
     "title": "Choose Eligible Processing Option"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPARE-CAPTION-VERSIONS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml",
     "title": "Compare Caption Versions"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPARE-RESULTS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml",
     "title": "Compare Results"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPOSE-MEDIA-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml",
     "title": "Compose Media"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPOSE-SCENE-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml",
     "title": "Compose Scene"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CORRECT-CAPTIONS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml",
     "title": "Correct Captions"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-AUDIO-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml",
     "title": "Create Audio"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-IMAGE-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml",
     "title": "Create Image"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-MEDIA-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml",
     "title": "Create Media"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-VIDEO-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml",
     "title": "Create Video"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-DELIVER-OUTPUT-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml",
     "title": "Deliver Output"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-CAPTIONS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml",
     "title": "Edit Captions"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-MEDIA-REGION-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml",
     "title": "Edit Media Region"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-MEDIA-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml",
     "title": "Edit Media"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EXPLORE-SIMULATION-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml",
     "title": "Explore Simulation"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-FIND-PROJECTS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml",
     "title": "Find Projects"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-FIND-TASK-GUIDANCE-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml",
     "title": "Find Task Guidance"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-IMPORT-MEDIA-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml",
     "title": "Import Media"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-IMPROVE-MEDIA-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml",
     "title": "Improve Media"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-MEDIA-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml",
     "title": "Inspect Media"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-OUTPUT-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml",
     "title": "Inspect Output"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-PROVENANCE-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml",
     "title": "Inspect Provenance"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-JOB-STATUS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml",
     "title": "Job Status"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-PREPARE-RENDER-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml",
     "title": "Prepare Render"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-RESUME-WORK-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml",
     "title": "Resume Work"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-ACTIVITY-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml",
     "title": "Review Activity"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-CREATION-PLAN-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml",
     "title": "Review Creation Plan"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-DUBBING-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml",
     "title": "Review Dubbing"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-EXACT-VERSION-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml",
     "title": "Review Exact Version"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-OUTPUTS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml",
     "title": "Review Outputs"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-QUALITY-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml",
     "title": "Review Quality"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-RIGHTS-AND-CONSENT-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml",
     "title": "Review Rights And Consent"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-TRANSCRIPT-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml",
     "title": "Review Transcript"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-WORKSPACE-SETTINGS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml",
     "title": "Review Workspace Settings"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-SELECT-SOURCE-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml",
     "title": "Select Source"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-TRANSCRIPTION-PROGRESS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml",
     "title": "Transcription Progress"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-USE-AUTHORIZED-VOICE-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml",
     "title": "Use Authorized Voice"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-WORK-IN-PROJECT-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml",
     "title": "Work In Project"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-WORK-WITH-SPEECH-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml",
     "title": "Work With Speech"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-REGISTRY-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
     "title": "Screen Registry"
   },
   {
+    "artifactId": "ART-MEDIA-B30ECDD3DE737F4CB3C2",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/sdk/client-architecture.yaml",
+    "title": "Client Architecture"
+  },
+  {
+    "artifactId": "ART-MEDIA-24164A2CBD50",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml",
     "title": "Operation Registry"
   },
   {
+    "artifactId": "ART-MEDIA-EFCDFCE4606B",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
     "title": "Service Registry"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SIMULATION-SEMANTICS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
     "title": "Simulation Semantics"
   },
   {
+    "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-STATE-TRANSITION-BINDINGS-YAML",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
     "title": "State Transition Bindings"
   },
   {
+    "artifactId": "ART-MEDIA-4E7104A99344",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "path": ".product-experience/surface-registry.yaml",
     "title": "Surface Registry"
   },
   {
+    "artifactId": "ART-P0-TRACEABILITY",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "path": ".product-experience/traceability.yaml",
     "title": "Traceability"
   },
   {
+    "artifactId": "ART-GOV-VISION-REQUIREMENTS-COVERAGE",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "path": ".product-experience/vision-requirements-coverage.yaml",
     "title": "Vision Requirements Coverage"
   },
   {
-    "phase": "CROSS_PHASE",
     "path": ".product-experience/source-manifest.yaml",
-    "title": "Source Manifest",
-    "artifactId": "ART-MEDIA-SOURCE-MANIFEST"
+    "artifactId": "ART-MEDIA-SOURCE-MANIFEST",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "title": "Source Manifest"
   }
 ]

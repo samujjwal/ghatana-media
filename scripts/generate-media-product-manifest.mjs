@@ -10,12 +10,14 @@
  */
 
 import { createHash } from "node:crypto";
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const productRoot = join(root, ".product-experience");
 const manifestPath = join(productRoot, "source-manifest.yaml");
+const identityRegistryPath = join(productRoot, "artifact-identities.yaml");
 const explorerIndexPath = join(root, "apps/media-experience-explorer/specification-artifacts.json");
 
 function sha256(value) {
@@ -46,17 +48,6 @@ function phaseFor(path) {
   return "CROSS_PHASE";
 }
 
-function authorityClassFor(phase) {
-  return {
-    "PDP-0": "PRODUCT_TRUTH_AUTHORITY",
-    "PDP-1": "DOMAIN_DATA_AUTHORITY",
-    "PDP-2": "DESIGN_INTERFACE_AUTHORITY",
-    "PDP-3": "PRODUCT_EXPERIENCE_AUTHORITY",
-    EXPLORER: "EXPLORER_PROJECTION",
-    CROSS_PHASE: "CROSS_PHASE_GOVERNANCE",
-  }[phase];
-}
-
 function surfacesFor(path, phase) {
   if (phase === "EXPLORER") return ["media.surface.explorer"];
   if (path.startsWith(".product-experience/pdp-3-product-experience/api/")) return ["media.surface.public-http", "media.surface.service-grpc"];
@@ -77,42 +68,186 @@ function surfacesFor(path, phase) {
   return [];
 }
 
-function stableArtifactId(path, priorIds) {
-  if (priorIds.has(path)) return priorIds.get(path);
-  const digest = sha256(path).slice(0, 12).toUpperCase();
-  return `ART-MEDIA-${digest}`;
+const supportedAuthorityClasses = Object.freeze([
+  "CROSS_PHASE_GOVERNANCE",
+  "EXPLORER_PROJECTION",
+  "PRODUCT_TRUTH_AUTHORITY",
+  "DOMAIN_DATA_AUTHORITY",
+  "DESIGN_INTERFACE_AUTHORITY",
+  "PRODUCT_EXPERIENCE_AUTHORITY",
+]);
+
+/**
+ * Parse the deliberately small YAML profile used by artifact-identities.yaml.
+ * Supported syntax is block mappings/sequences with JSON-quoted identity
+ * scalars; comments, aliases, tags, flow collections, and block scalars are
+ * rejected. This avoids ambiguous YAML features while remaining dependency-free.
+ */
+export function parseArtifactIdentityRegistry(source) {
+  const root = new Map();
+  const policy = new Map();
+  const projection = new Map();
+  const records = [];
+  const authorityClasses = [];
+  let section = "";
+  let currentRecord = undefined;
+  let recordFields = new Set();
+
+  const addUnique = (map, key, value, location) => {
+    if (map.has(key)) throw new Error(`Duplicate YAML key '${key}' in ${location}.`);
+    map.set(key, value);
+  };
+  const parseScalar = (raw, location, requireQuoted = false) => {
+    const value = raw.trim();
+    if (!value || value.includes("\t") || value.startsWith("#") || /\s+#/u.test(value)) {
+      throw new Error(`Malformed scalar in ${location}.`);
+    }
+    if (value.startsWith('"')) {
+      let parsed;
+      try { parsed = JSON.parse(value); } catch { throw new Error(`Malformed JSON-quoted YAML scalar in ${location}.`); }
+      if (typeof parsed !== "string" || !parsed) throw new Error(`Expected a non-empty string in ${location}.`);
+      return parsed;
+    }
+    if (requireQuoted || /^[\[\]{}&*!|>%@`]/u.test(value) || /:\s/u.test(value)) {
+      throw new Error(`Unsupported YAML scalar syntax in ${location}; quote strings with JSON double quotes.`);
+    }
+    return value;
+  };
+
+  for (const [index, line] of source.split(/\r?\n/u).entries()) {
+    const lineNumber = index + 1;
+    if (!line.trim()) continue;
+    if (line.includes("\t") || line.startsWith("#") || /\s+#/u.test(line)) {
+      throw new Error(`Unsupported tab/comment syntax at artifact-identities.yaml:${lineNumber}.`);
+    }
+
+    const top = line.match(/^([A-Za-z][A-Za-z0-9]*):(?:\s+(.*))?$/u);
+    if (top) {
+      const [, key, raw = ""] = top;
+      addUnique(root, key, raw, "top level");
+      section = key;
+      currentRecord = undefined;
+      if (["schemaVersion", "status", "purpose"].includes(key)) {
+        root.set(key, parseScalar(raw, `line ${lineNumber}`));
+      } else if (["inventoryPolicy", "manifestProjection", "allowedAuthorityClasses", "records"].includes(key)) {
+        if (raw) throw new Error(`Section '${key}' must not have an inline value at line ${lineNumber}.`);
+      } else {
+        throw new Error(`Unknown top-level field '${key}' at line ${lineNumber}.`);
+      }
+      continue;
+    }
+
+    if (section === "inventoryPolicy" || section === "manifestProjection") {
+      const entry = line.match(/^  ([A-Za-z][A-Za-z0-9]*): (.+)$/u);
+      if (!entry) throw new Error(`Malformed ${section} entry at line ${lineNumber}.`);
+      const [, key, raw] = entry;
+      const target = section === "inventoryPolicy" ? policy : projection;
+      addUnique(target, key, parseScalar(raw, `line ${lineNumber}`), section);
+      continue;
+    }
+
+    if (section === "allowedAuthorityClasses") {
+      const item = line.match(/^  - (.+)$/u);
+      if (!item) throw new Error(`Malformed authorityClass vocabulary entry at line ${lineNumber}.`);
+      const value = parseScalar(item[1], `line ${lineNumber}`, true);
+      if (authorityClasses.includes(value)) throw new Error(`Duplicate allowedAuthorityClasses value '${value}'.`);
+      authorityClasses.push(value);
+      continue;
+    }
+
+    if (section === "records") {
+      const first = line.match(/^  - path: (.+)$/u);
+      if (first) {
+        currentRecord = { path: parseScalar(first[1], `line ${lineNumber}`, true) };
+        records.push(currentRecord);
+        recordFields = new Set(["path"]);
+        continue;
+      }
+      const field = line.match(/^    ([A-Za-z][A-Za-z0-9]*): (.+)$/u);
+      if (!field || !currentRecord) throw new Error(`Malformed artifact identity record at line ${lineNumber}.`);
+      const [, key, raw] = field;
+      if (!["artifactId", "authorityClass"].includes(key)) throw new Error(`Unknown artifact identity field '${key}' at line ${lineNumber}.`);
+      if (recordFields.has(key)) throw new Error(`Duplicate YAML key '${key}' in artifact record at line ${lineNumber}.`);
+      recordFields.add(key);
+      currentRecord[key] = parseScalar(raw, `line ${lineNumber}`, true);
+      continue;
+    }
+
+    throw new Error(`Unexpected or malformed YAML at artifact-identities.yaml:${lineNumber}.`);
+  }
+
+  const exactKeys = (map, expected, label) => {
+    const actual = [...map.keys()].sort();
+    const wanted = [...expected].sort();
+    if (JSON.stringify(actual) !== JSON.stringify(wanted)) {
+      throw new Error(`${label} fields must be exactly: ${wanted.join(", ")}.`);
+    }
+  };
+  exactKeys(root, ["schemaVersion", "status", "purpose", "inventoryPolicy", "allowedAuthorityClasses", "manifestProjection", "records"], "Registry");
+  exactKeys(policy, ["locationMetadata", "identityPolicy", "classificationPolicy", "selfExclusion"], "inventoryPolicy");
+  exactKeys(projection, ["path", "artifactId", "authorityClass"], "manifestProjection");
+  if (root.get("schemaVersion") !== "media.artifact-identities.v1") throw new Error("Unsupported artifact identity registry schemaVersion.");
+  if (!records.length || !authorityClasses.length) throw new Error("Artifact identity records and allowedAuthorityClasses must be non-empty.");
+  for (const [index, record] of records.entries()) {
+    if (!record.artifactId || !record.authorityClass || JSON.stringify(Object.keys(record).sort()) !== JSON.stringify(["artifactId", "authorityClass", "path"])) {
+      throw new Error(`Artifact identity record ${index + 1} must contain exactly path, artifactId, and authorityClass.`);
+    }
+  }
+  return { records, authorityClasses, manifestProjection: Object.fromEntries(projection), inventoryPolicy: Object.fromEntries(policy) };
 }
 
-function readPriorIds() {
-  if (!existsSync(manifestPath)) return new Map();
-  const source = readFileSync(manifestPath, "utf8");
-  const ids = new Map();
-  for (const record of source.split(/\n  - artifactId:\s*/u).slice(1)) {
-    const [id, ...rest] = record.split("\n");
-    const path = rest.join("\n").match(/^    path:\s*(.+)$/mu)?.[1]?.trim();
-    if (id && path) ids.set(path, id.trim());
+export function validateArtifactIdentities(records, sourcePaths, authorityClasses = supportedAuthorityClasses, manifestProjection = undefined) {
+  const byPath = new Map();
+  const ids = new Set();
+  const allowed = new Set(authorityClasses);
+  if (!allowed.size || allowed.size !== authorityClasses.length) throw new Error("Allowed authorityClass vocabulary must be non-empty and unique.");
+  for (const record of records) {
+    if (!record.path || !record.artifactId || !record.authorityClass) {
+      throw new Error("Every artifact identity requires path, artifactId, and authorityClass.");
+    }
+    if (byPath.has(record.path)) throw new Error(`Duplicate artifact identity path: ${record.path}`);
+    if (ids.has(record.artifactId)) throw new Error(`Duplicate artifactId: ${record.artifactId}`);
+    if (!allowed.has(record.authorityClass)) throw new Error(`Unknown authorityClass '${record.authorityClass}' for ${record.path}.`);
+    byPath.set(record.path, record);
+    ids.add(record.artifactId);
   }
-  return ids;
+  const missing = sourcePaths.filter((path) => !byPath.has(path));
+  const stale = [...byPath.keys()].filter((path) => !sourcePaths.includes(path));
+  if (missing.length || stale.length) {
+    throw new Error(`Artifact identity coverage mismatch; missing: ${missing.join(", ") || "none"}; stale: ${stale.join(", ") || "none"}`);
+  }
+  if (manifestProjection) {
+    if (!manifestProjection.path || !manifestProjection.artifactId || !manifestProjection.authorityClass) {
+      throw new Error("Manifest projection identity requires path, artifactId, and authorityClass.");
+    }
+    if (ids.has(manifestProjection.artifactId)) throw new Error(`Manifest projection artifactId collides with a source artifactId: ${manifestProjection.artifactId}`);
+    if (!allowed.has(manifestProjection.authorityClass)) throw new Error(`Unknown authorityClass '${manifestProjection.authorityClass}' for manifest projection.`);
+  }
+  return byPath;
 }
 
 function yamlScalar(value) {
   return JSON.stringify(value);
 }
 
+function generate() {
+const identitySource = readFileSync(identityRegistryPath, "utf8");
+const registry = parseArtifactIdentityRegistry(identitySource);
 const relativeFiles = walk(productRoot)
   .map((path) => relative(root, path).replaceAll("\\", "/"))
-  .filter((path) => path !== ".product-experience/source-manifest.yaml")
+  .filter((path) => path !== ".product-experience/source-manifest.yaml" && path !== ".product-experience/artifact-identities.yaml")
   .sort();
-const priorIds = readPriorIds();
+const identities = validateArtifactIdentities(registry.records, relativeFiles, registry.authorityClasses, registry.manifestProjection);
+const manifestProjectionRecord = registry.manifestProjection;
 const records = relativeFiles.map((path) => {
   const phase = phaseFor(path);
   const source = readFileSync(join(root, path), "utf8");
-  const artifactId = stableArtifactId(path, priorIds);
+  const identity = identities.get(path);
   return {
-    artifactId,
+    artifactId: identity.artifactId,
     title: titleFor(path),
     owner: phase === "EXPLORER" ? "ghatana-media-explorer-owners" : "ghatana-media-product-owners",
-    authorityClass: authorityClassFor(phase),
+    authorityClass: identity.authorityClass,
     owningPhase: phase,
     path,
     surfaceIds: surfacesFor(path, phase),
@@ -134,13 +269,6 @@ const records = relativeFiles.map((path) => {
     legacyPlanTaskRefs: [],
   };
 });
-const manifestProjectionRecord = {
-  phase: "CROSS_PHASE",
-  path: ".product-experience/source-manifest.yaml",
-  title: "Source Manifest",
-  artifactId: "ART-MEDIA-SOURCE-MANIFEST",
-};
-
 const lines = [
   "schemaVersion: media.source-manifest.v2",
   "productId: media",
@@ -194,5 +322,8 @@ for (const record of records) {
 }
 
 writeFileSync(manifestPath, `${lines.join("\n")}\n`);
-writeFileSync(explorerIndexPath, `${JSON.stringify([...records.map(({ owningPhase: phase, path, title }) => ({ phase, path, title })), manifestProjectionRecord], null, 2)}\n`);
+writeFileSync(explorerIndexPath, `${JSON.stringify([...records.map(({ artifactId, authorityClass, owningPhase: phase, path, title }) => ({ artifactId, authorityClass, phase, path, title })), { ...manifestProjectionRecord, phase: "CROSS_PHASE", title: "Source Manifest" }], null, 2)}\n`);
 console.log(`Generated ${records.length} manifest records and ${records.length + 1} Explorer records.`);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) generate();

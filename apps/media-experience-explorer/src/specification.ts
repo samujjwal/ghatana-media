@@ -1,8 +1,10 @@
-import artifacts from "../specification-artifacts.json";
+import artifacts from "../specification-artifacts.json" with { type: "json" };
 
 export type ExperiencePhase = "PDP-0" | "PDP-1" | "PDP-2" | "PDP-3" | "EXPLORER" | "CROSS_PHASE" | "IMPLEMENTATION" | "EVIDENCE" | "REFERENCE" | "OBSOLETE";
 
 export interface SpecificationArtifact {
+  readonly artifactId: string;
+  readonly authorityClass: string;
   readonly phase: ExperiencePhase;
   readonly path: string;
   readonly title: string;
@@ -21,19 +23,6 @@ export interface ArtifactTraceMetadata {
 }
 
 export const specificationArtifacts: readonly SpecificationArtifact[] = Object.freeze(artifacts as SpecificationArtifact[]);
-
-const authorityClassForPhase: Readonly<Record<ExperiencePhase, string>> = Object.freeze({
-  "PDP-0": "PRODUCT_TRUTH_AUTHORITY",
-  "PDP-1": "DOMAIN_DATA_AUTHORITY",
-  "PDP-2": "DESIGN_INTERFACE_AUTHORITY",
-  "PDP-3": "PRODUCT_EXPERIENCE_AUTHORITY",
-  EXPLORER: "EXPLORER_PROJECTION",
-  CROSS_PHASE: "CROSS_PHASE_GOVERNANCE",
-  IMPLEMENTATION: "IMPLEMENTATION_PROJECTION",
-  EVIDENCE: "EVIDENCE_PROJECTION",
-  REFERENCE: "REFERENCE_ONLY",
-  OBSOLETE: "OBSOLETE_REFERENCE",
-});
 
 function verificationStatusForArtifact(artifact: SpecificationArtifact): string {
   if (artifact.path.endsWith("/PRODUCT-TRUTH.md")) return "BOUNDARY_SLICE_ACCEPTED_FULL_PHASE_PENDING";
@@ -90,10 +79,11 @@ export function traceMetadataForArtifact(artifact: SpecificationArtifact, source
   const manifestRef = ".product-experience/source-manifest.yaml";
   const record = manifestRecordForArtifact(sourceManifest, artifact.path);
   const canonicalArtifactId = manifestArtifactId(record);
+  const manifestAuthorityClass = manifestScalar(record, "authorityClass");
   return {
     stableId: canonicalArtifactId || "media.explorer.artifact.unresolved",
     canonicalArtifactId: canonicalArtifactId || "Not resolved from source manifest",
-    authorityClass: authorityClassForPhase[artifact.phase],
+    authorityClass: manifestAuthorityClass || "Not resolved from source manifest",
     canonicalLocation: artifact.path,
     semanticFingerprint: "PENDING_OWNER_APPROVED_TOOLS_GENERATION",
     currentness: "NOT_GENERATED_CURRENTNESS_YAML_INTENTIONALLY_ABSENT",

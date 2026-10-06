@@ -101,10 +101,9 @@ constitute runtime or phase acceptance.
      actions, operations, states, scenarios, surface bindings, journey steps,
      and verification against the plan, preserving the fixed denominator
      unless authoritative reconciliation changes it.
-  5. Manifest artifact IDs currently preserve identities by file path and
-     derive new IDs from paths. Treat these as locators, not semantic stable
-     identities; Explorer acceptance must prove relocation preserves canonical
-     IDs or use an owner-authored stable identity.
+  5. Superseded for artifact identity and display classification only by
+     PXD-024: the authored identity registry preserves committed IDs and pins
+     added IDs across relocation. This metadata is not semantic authority.
   6. Keep Tools-native schema binding, currentness, receipts, owner acceptance,
      independent P0-010 review, specialist appointments, publication, and
      qualification explicitly pending. Do not generate local substitutes.
@@ -620,6 +619,33 @@ constitute runtime or phase acceptance.
 - **Comments returned:** at least 123 canonical operation bindings remain unresolved; object/state/authority/decision/transition/handoff/requirement refs are largely empty; surface refs are candidates, not channel admission; outcomes/recovery/context are often journey-level proposals not allocated per step; degraded behavior/postconditions are incomplete; every verification remains not-run with no evidence.
 - **Excludes:** semantic acceptance of PDP-1/PDP-3, full journey behavior, capabilities, wire/runtime parity, accessibility/localization, scenario execution, production channel admission, or release readiness.
 - **Evidence:** `ACCEPT-INPUT-PDP3-005`; all 30 journey contracts; 130-step structural regression; duplicate-key-safe YAML validation; 148 candidate surface-reference normalizations.
+
+### PXD-023 — Approve source-specific service contracts and preserve observed Agent Tool IDs, with comments
+
+- **Status:** approved for repository contract disposition and identity preservation only; no external Tools acceptance or production Agent Tool admission.
+- **Authority:** the user's explicit 2026-10-06 instruction to review the hardening plan as owner and approve or comment on its proposed changes.
+- **Approved:** CLEAN-2 selects source-specific contract authorities rather than restoring an aggregate `service-contract.yaml`: OpenAPI, protobuf, and provider-manifest records remain distinct contract surfaces, while PDP-1 owns product semantics. Historical migration references remain historical. Preserve the four observed `av.*` handler IDs as-is; do not silently rename them to `media.*` or claim they are final canonical Tool IDs.
+- **Comments returned:** the Tools Explorer's standalone proof is no longer an open Tools-side gap: `pnpm check:product-dev-explorer-standalone` passed in `ghatana-tools` on 2026-10-06 with the declared flag matching the live proof. The library is headless; this does not prove a published Media consumer dependency, isolated Media loading, Media render/inspect/dispatch integration, or browser-host admission. Canonical Agent Tool naming remains subject to the accountable Tools/tool-registry owner.
+- **Excludes:** semantic acceptance of PDP-1/PDP-3; aggregate contract generation; Agent Tool renaming or production admission; Media consumer/package publication; Tools-native Media currentness, receipts, publication, qualification, or release readiness.
+- **Evidence:** the supplied plan's CLEAN-2, Agent Tool, and EXP-001 sections; `docs/README.md`, `docs/ARCHITECTURE.md`, `docs/DESIGN.md`, `docs/TESTING.md`, `config/provider-manifest.json`; `.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml`; `.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml`; and the read-only `ghatana-tools` standalone check.
+
+### PXD-024 — Approve pinned artifact identity and display-class metadata, with comments
+
+- **Status:** approved for stable identity and classification metadata only; no product semantics, phase acceptance, or native evidence is accepted.
+- **Authority:** the user's explicit 2026-10-06 instruction to review the hardening plan as owner and approve or comment on its proposed changes.
+- **Approved:** `.product-experience/artifact-identities.yaml` is the authored source for artifact IDs and the six allowed display-authority classes. The 206 IDs already committed at the reviewed base are preserved exactly; the 72 added identities are pinned literals. Relocation changes path metadata only. The generator validates class membership, rejects malformed/duplicate/unknown registry fields, checks projected-ID collision, and emits deterministic manifest/index projections.
+- **Comments returned:** 60 preserved legacy IDs have the historical path-digest shape; they are retained as compatibility literals, are never recomputed, and their shape is not proof of path-independent origin. The 72 added values are explicit pinned IDs, not semantic authority. The local checker confirms inventory and structural consistency only.
+- **Excludes:** semantic identity of product concepts; PDP acceptance; native currentness, receipts, owner acceptance outside this bounded metadata decision, qualification, or publication.
+- **Evidence:** `tests/media-explorer-manifest-authority.test.mjs` (8 focused tests); `pnpm check:product-definition-authority`; `pnpm check:product-experience-local`; two byte-identical generator runs; and exact preservation of all 206 pre-existing IDs.
+
+### PXD-025 — Approve minimum touch hit areas for synthetic Explorer seek controls, with comments
+
+- **Status:** approved for local Explorer accessibility affordance only; no PDP-2 acceptance or production UI design authority.
+- **Authority:** the user's explicit 2026-10-06 instruction to review the hardening plan as owner and approve or comment on its proposed changes.
+- **Approved:** the synthetic Explorer source-position range and timestamp seek buttons may receive a minimum 24 CSS-pixel hit area while preserving their existing action semantics and visible track/label content.
+- **Comments returned:** the approval is limited to the local Explorer projection and is grounded in the post-normalization browser audit's measured 280×10px enabled range and two approximately 25×9px enabled seek buttons. It does not establish conformance with Shared tokens, accepted PDP-2 composition, or production Media surfaces; those gates remain open.
+- **Excludes:** changing the action contract or reducer semantics; product Web/CLI implementation; Shared package substitution; semantic PDP-2/PDP-3 acceptance; human visual/accessibility approval; Tools-native currentness or receipts.
+- **Evidence:** post-normalization `pnpm test:experience-browser` report, which exercised 279 indexed artifacts and 282 route/viewport observations and isolated the three undersized controls after excluding hidden checkbox implementation inputs and resetting focus to a clean viewport.
 
 ## Governance decisions for this authority root
 

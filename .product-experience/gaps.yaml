@@ -102,53 +102,36 @@ gaps:
   impact: blocks-quality-performance-and-reproducibility-claims
 - id: GAP-11
   status: open
-  scope: actual-Tools-Explorer-runtime-support-for-Media-targets
+  scope: Media-consumer-binding-and-browser-adapter-for-current-Tools-Explorer-contracts
   owner: Tools-Explorer-owner
-  evidence: The native Tools Explorer selects ghatana.product/media and loads media-conformance-package with a synthetic
-    default renderer and no diagnostics; it returns no product renderResult or inspection projection. The shared Tools graph
-    resolves 147 nodes and 141 relations, including 132 Media nodes, six shared-framework-contract nodes, and two
-    product-dev-explorer nodes. A Media-owned Vite browser client renders three synthetic J-01 first-use routes, three J-02 artifact-intake
-    views, activity, and verification-job views, plus a shared job-status view for J-20 transcription jobs. It provides
-    J-02 upload inspection/resume and job-status/outcome-check commands, J-20 transcription-job status viewing/cancellation/outcome checking,
-    and the selected transcript/caption lane in Product, Explore, Specification, and Verify modes. J-01, J-02, J-03,
-    and J-20 use synthetic fixtures. The current local source index is generated independently; the prior native observation
-    indexed 147 records and rendered read-only previews for the then-current screen inventory. All 47 canonical screen contracts also open as
-    route-addressable Product projections of their declared purpose, structure, states, and disabled actions; these
-    are not executable view implementations. A five-viewport DOM geometry sweep of all 47 Product routes found no
-    horizontal overflow, missing context cards, duplicate titles, or enabled proposal actions. The inspected Tools Explorer remains headless and declares
-    standalonePro false;
-    the local client is not a generic Tools host and has no published isolated package binding.
-  remaining: implement-and-owner-bind-a-Tools-browser-host-for-Media-package-contracts
-  impact: blocks-P3-001-Explorer-package-acceptance
+  evidence: >-
+    The earlier statement that the Tools product-dev-explorer package lacked standalone proof is stale. On 2026-10-06,
+    `pnpm check:product-dev-explorer-standalone` passed in the sibling ghatana-tools repository; its live check confirmed
+    the declared `standaloneProven: true` flag, built exports, dependency isolation, package load, dispatch, render,
+    inspection, diagnostics, and conformance. The library is headless and is not a Media browser host. Current Tools package
+    source contracts are inventoried in explorer/tools-binding.yaml at 0.1.0-SNAPSHOT; source inspection does not prove
+    published artifact resolution or an isolated Media consumer install. The Media-owned Vite application remains a
+    separate local browser projection. Its indexed screens and local browser checks do not prove Tools host admission,
+    Media-specific render/inspect/dispatch through a published package, or native currentness/receipt admission.
+  remaining: resolve-authorized-immutable-Tools-package-publication-and-verified-Media-consumer-binding; prove-isolated-Media-package-loading-and-Tools-backed-Media-render-inspect-dispatch; record-Tools-owner-acceptance-for-Media-specific-package-and-currentness-bindings
+  impact: blocks-EXP-001-Media-consumer-binding-and-Explorer-package-acceptance
 - id: GAP-12
   status: open
   scope: built-Explorer-browser-visual-accessibility-and-human-review-evidence
   owner: independent-experience-reviewer
-  evidence: The local browser client builds. Browser automation recorded the caption-editor Product route at CSS viewports
-    1280x800, 768x1024, and 320x640 with no visible clipping. A production-build DOM geometry sweep covered all 47 Product
-    proposal routes at 1280x800, 1024x768, 768x1024, 390x844, and 320x640; every route had four context cards, a unique
-    title, disabled proposal actions, and no page-level horizontal overflow. The verification-job route was also
-    visually inspected at all five widths in an earlier review. The embedded CLI ran both transcription and artifact-
-    verification outcome checks and was inspected at 320px and 390px without page, response, or terminal overflow; its
-    390px desktop preview was centered in the available canvas. These observations are limited to the Media-owned Vite
-    client; independent
-    visual review, keyboard/screen-reader/zoom/forced-colors coverage, and all-view/channel variant evidence are
-    not recorded.
-  localProgress: Source-linked Specification trace metadata, phase coverage controls, focused phase-radio keyboard evidence, and a
-    Playwright browser audit now cover all 29 scenarios, the generated source index, 47 valid Product proposal routes, Verify, accessible
-    control names, six viewports, and horizontal-overflow/console-error checks. This does not close independent visual,
-    screen-reader, zoom, forced-colors, locale, pixel-reference, or human review.
-  remaining: complete-the-required-responsive-accessibility-and-independent-human-review-matrix
+  evidence: The rebuilt Media-owned Vite preview was audited after source-manifest regeneration. Playwright exercised all six viewports, 29 Explore scenarios, 279 indexed artifacts, 47 canonical Product routes (282 route/viewport observations), Verify's not-supplied state, keyboard navigation, 100%/200% text scaling, zoom/reflow, forced colors, reduced motion, and long-label stress. The final run had zero failed assertions, console errors, or page errors. It checked 28 enabled visible targets; two visually-hidden toggle inputs were represented by adequate visible labels, and ten disabled/hidden/non-rendered controls were excluded. This is local browser evidence, not visual or accessibility acceptance.
+  localProgress: The browser audit emits a structured report and screenshots under /tmp/media-experience-browser-audit; CSP remains enabled while text scaling is injected through Chromium's DevTools CSS domain and verified at 16px/32px. RTL is not admitted by the rendered surface. Screen-reader testing, canonical visual references, and independent expert visual review remain manual/unverified.
+  remaining: complete-supported-screen-reader-and-independent-human-visual-review; collect-canonical-visual-reference-and-all-admitted-view/channel-variant-evidence
   impact: blocks-PDP-3-acceptance
 - id: GAP-MEDIA-EXPLORER-CONTENT-COVERAGE
   status: open
   scope: structured-Explorer-Truth-Domain-Overview-Traceability-and-Dependency-inspection
   owner: Media-Explorer-and-Ghatana-Tools-Explorer-owners
-  evidence: The new vision-requirements-coverage.yaml ledger and 147-record Specification index make the cross-phase
-    source set and outcome/requirement links inspectable with trace metadata. The local host still presents these records
-    through Specification rather than dedicated structured Truth, Domain, Overview, Traceability, and Dependency modes.
-  remaining: add-structured-source-linked-inspection-for-vision-requirements-domain-state-design-system-surfaces-and-cross-phase-relationships;
-    preserve-Product-mode-separation-and-never-promote-Explorer-projections-to-semantic-authority
+  evidence: The generated 279-record Specification index and dedicated Overview, Truth, Domain, Design System, Experience,
+    Interfaces, Journeys, States/Data, Traceability, and Dependencies modes expose source-linked read-only projections.
+    The groupings and direct-scalar interface extraction remain partial; they do not establish exhaustive requirement/domain,
+    object/state/operation, design-composition, or bidirectional traceability semantics. Product actions remain proposal-only.
+  remaining: complete-source-aware-and-schema-backed-cross-phase-projections; resolve-exhaustive-bidirectional-requirement-domain-state-operation-design-and-surface-relationships-against-accepted-authorities; retain-explicit-proposal-and-unresolved-labels-and-never-promote-Explorer-projections-to-semantic-authority
   impact: blocks-complete-Experience-Explorer-content-coverage-and-PDP-3-acceptance
 - id: GAP-13
   status: open
@@ -170,8 +153,8 @@ gaps:
   scope: complete-view-journey-action-state-and-channel-contracts-for-the-pdp-3-baseline
   owner: ghatana-media-product-design-and-experience-owners
   evidence: 47 canonical screens each have a v2 PDP-3 proposal contract; the separate artifact-verification-job-family specialization remains outside the 47-screen denominator. Three template IDs resolve in the PDP-2 catalog, 44 remain null, no canonical layout IDs are registered, and the Web surface/component/pattern/action-consequence refs remain candidates. Token/domain-object/operation/state/entry/exit bindings are unresolved; one screen carries source fixture refs; inline anatomy/template/layout proposals have not been centralized. All 30 journeys now have 130 structured ordered steps with the plan-required per-step fields; J-29/J-30 each preserve their four source step IDs. A candidate crosswalk normalized 148 step surface refs. Seven source-crosswalk PDP-1 logical-operation refs remain proposals and 123 canonical operation refs are null. Journey-level success/failure/recovery/context remain proposal-only and are not consistently allocated to individual steps; degraded behavior, postconditions, object/state/authority/decision/transition/handoff/requirements, scenarios, and step verification remain incomplete.
-  localProgress: The focused product-definition regression passes for 47 v2 screen structures and all 30 journey contracts/130 structured steps, including route-ID nonpromotion and J-29/J-30 ordering. Duplicate-key-safe YAML checks passed for the expanded journey contracts and protocol registries. The generic local checker still reports 0 required screen shapes because its VER-001 validation rule has not yet been upgraded; its 43 view and 16 action-reference counts remain local structural evidence only. No behavior, owner acceptance, qualification, native currentness, or release evidence is claimed.
-  remaining: bind-all-screen-and-step-semantics-to-accepted-PDP-1-and-PDP-2-authorities; resolve-123-null-canonical-operation-bindings-and-step-object-state-authority-decision-transition-handoff-requirement-contracts; allocate-success-failure-degraded-recovery-and-postconditions-per-step; centralize-inline-screen-design-proposals-into-accepted-layouts-and-templates; add-owner-reviewed-scenarios-and-behavior/accessibility/localization-evidence; upgrade-local-checker-under-VER-001; define-and-accept-full-Web-CLI-API-embedded-and-wire-behavior
+  localProgress: Focused regressions cover 47 v2 screen structures and all 30 journey contracts/130 ordered steps, including route-ID nonpromotion and J-29/J-30 ordering. VER-001 now checks all 47 required screen shapes, journey-step structure, selected IDs and source references, and reports unresolved semantic bindings explicitly. Three template IDs resolve and 44 remain null; canonical layouts are absent, 123 canonical operation refs remain null, and only 135 of 146 distinct screen action references resolve. No behavior, semantic phase acceptance, qualification, native currentness, or release evidence is claimed.
+  remaining: bind-all-screen-and-step-semantics-to-accepted-PDP-1-and-PDP-2-authorities; resolve-123-null-canonical-operation-bindings-and-step-object-state-authority-decision-transition-handoff-requirement-contracts; allocate-success-failure-degraded-recovery-and-postconditions-per-step; centralize-inline-screen-design-proposals-into-accepted-layouts-and-templates; add-owner-reviewed-scenarios-and-behavior/accessibility/localization-evidence; define-and-accept-full-Web-CLI-API-embedded-and-wire-behavior
   impact: blocks-P2-008-full-PDP-3-acceptance-and-PDP-3-coverage
 - id: GAP-MEDIA-DI-PUBLIC-CLIENT
   status: open

@@ -7,12 +7,39 @@ purpose: >-
   without copying Tools schemas or treating local browser behavior as native
   Explorer evidence.
 hostPackage: '@ghatana/product-dev-explorer'
+sourceContracts:
+  sourceReview: VERIFIED
+  packageArtifactResolution: NOT_VERIFIED
+  isolatedMediaConsumer: NOT_VERIFIED
+  packages:
+    - packageId: '@ghatana/product-definition'
+      version: 0.1.0-SNAPSHOT
+      role: normative-product-truth-contract
+    - packageId: '@ghatana/experience-language'
+      version: 0.1.0-SNAPSHOT
+      role: presentation-interaction-responsive-accessibility-and-product-owned-binding-contracts
+    - packageId: '@ghatana/experience-specification'
+      version: 0.1.0-SNAPSHOT
+      role: experience-view-journey-interaction-state-transition-action-and-effect-contracts
+    - packageId: '@ghatana/experience-package'
+      version: 0.1.0-SNAPSHOT
+      role: runtime-package-context-session-render-dispatch-effect-and-inspection-contracts
+    - packageId: '@ghatana/experience-explorer-contracts'
+      version: 0.1.0-SNAPSHOT
+      role: explorer-headless-state-package-loader-workspace-inspection-and-diagnostics-contracts
+    - packageId: '@ghatana/product-dev-explorer'
+      version: 0.1.0-SNAPSHOT
+      role: standalone-headless-explorer-library-not-a-media-browser-host
+    - packageId: '@ghatana/development-traceability'
+      version: 0.1.0-SNAPSHOT
+      role: product-development-source-projectors-for-documentation-model-graph
 requiredBindings:
   - product-picker-and-coordinate: ghatana.product/media
   - source-manifest-consumer: .product-experience/source-manifest.yaml
-  - phase-verification: ghatana-tools-owned-stage-and-claim-contract
-  - traceability-graph: ghatana-tools-workspace-graph
-  - render-inspect-dispatch: published-tools-host-contract
+  - phase-verification: NOT_VERIFIED_IN_NAMED_EXPLORER_PACKAGES
+  - traceability-projection: '@ghatana/development-traceability@0.1.0-SNAPSHOT'
+  - traceability-graph: '@ghatana/documentation-model (graph construction and resolution; not owned by development-traceability)'
+  - render-inspect-dispatch: '@ghatana/experience-package contract consumed by the headless Explorer library'
 localProjection:
   path: apps/media-experience-explorer/
   status: LOCAL_ONLY
@@ -20,6 +47,10 @@ localProjection:
   receiptAuthority: ghatana-tools-native-evidence-generator
   currentnessAuthority: ghatana-tools-owned-generated-currentness
 explicitNonClaims:
+  - source inspection does not verify a published artifact or isolated Media consumer installation
+  - the headless product-dev-explorer library is not the Media-owned Vite browser host
+  - development-traceability projects source models and does not implement graph construction or resolution
+  - named source packages do not establish Media phase-verification support or host admission
   - local browser routes do not prove Tools host binding
   - deterministic simulation does not prove runtime qualification
   - pending currentness is not a generated receipt

@@ -494,6 +494,73 @@ recordedHumanDecisionInputs:
   exclusions:
   - Renaming stable task, ART-*, GAP-*, or requirement IDs; accepting PDP-0 through PDP-3 or Explorer
   - Shared/Tools owner decisions, native evidence/currentness, package publication, cutover, runtime qualification, or release readiness
+- id: ACCEPT-INPUT-HARDENING-PLAN-OWNER-REVIEW
+  phaseTask: HARDENING-PLAN-OWNER-REVIEW
+  decisionInput: accepted
+  acceptedScope:
+  - CLEAN-2 uses source-specific OpenAPI, protobuf, and provider-manifest contract surfaces; PDP-1 remains the owner of product semantics and no aggregate service-contract.yaml authority is restored.
+  - The four observed av.* Agent Tool handler IDs are preserved without renaming or production admission until their accountable Tools/tool-registry owner settles canonical identity.
+  - The Tools product-dev-explorer standalone proof is distinguished from Media package resolution, isolated consumer loading, Media host admission, render/inspect/dispatch behavior, and Media-specific native currentness or receipts.
+  evidenceRefs:
+  - docs/README.md
+  - docs/ARCHITECTURE.md
+  - docs/DESIGN.md
+  - docs/TESTING.md
+  - config/provider-manifest.json
+  - .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
+  - .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml
+  - .product-experience/explorer/tools-binding.yaml
+  - .product-experience/gaps.yaml#GAP-11
+  - ghatana-tools:pnpm-check:product-dev-explorer-standalone
+  sourceOfDecision: explicit-user-delegation-to-act-as-media-product-owner-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - The standalone check passed in the Tools repository; it is not a Media consumer receipt or publication proof. Package source observations remain 0.1.0-SNAPSHOT and do not validate the declared Media 0.1.2 consumer resolution.
+  - av.* remains the observed identity only. Canonical Tool identity and consumer migration require the accountable Tools/tool-registry owner.
+  exclusions:
+  - Full semantic acceptance of PDP-1/PDP-3 or any other PDP phase
+  - Tools owner acceptance of Media bindings, private package publication, native Media currentness/receipts, or release readiness
+  - Agent Tool ID rename, runtime admission, or production Web/CLI implementation
+- id: ACCEPT-INPUT-HARDENING-ARTIFACT-IDENTITIES
+  phaseTask: ARTIFACT-IDENTITY-AND-CLASSIFICATION-METADATA
+  decisionInput: accepted
+  acceptedScope:
+  - The authored identity registry pins artifact IDs separately from repository paths and defines the six allowed display-authority classes.
+  - All 206 IDs present at the reviewed base remain exact; 72 added IDs are explicit literals; relocation updates path metadata without changing canonical IDs.
+  - The generator and local checker validate the constrained registry profile, class taxonomy, and manifest-projection identity collision; generated projections are deterministic.
+  evidenceRefs:
+  - .product-experience/artifact-identities.yaml
+  - .product-experience/source-manifest.yaml
+  - apps/media-experience-explorer/specification-artifacts.json
+  - scripts/generate-media-product-manifest.mjs
+  - scripts/check-product-experience-local.mjs
+  - tests/media-explorer-manifest-authority.test.mjs
+  - .product-experience/decision-log.md#pxd-024
+  sourceOfDecision: explicit-user-delegation-to-act-as-media-product-owner-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - Sixty preserved legacy IDs have path-digest-shaped values. They are compatibility literals, never recomputed, and their format does not establish path-independent historical origin.
+  - Seventy-two added IDs are pinned values only; neither identity metadata nor display classes confer product-semantic authority.
+  exclusions:
+  - Product semantics or PDP phase acceptance
+  - Tools-native currentness, receipts, qualification, publication, or release readiness
+- id: ACCEPT-INPUT-EXPLORER-TOUCH-TARGET-BASELINE
+  phaseTask: VER004-LOCAL-EXPLORER-TOUCH-TARGETS
+  decisionInput: accepted
+  acceptedScope:
+  - The synthetic Explorer source-position range and timestamp seek buttons may use a minimum 24 CSS-pixel hit area while preserving action semantics.
+  evidenceRefs:
+  - scripts/check-experience-browser.mjs
+  - apps/media-experience-explorer/src/main.ts
+  - apps/media-experience-explorer/src/styles.css
+  - .product-experience/decision-log.md#pxd-025
+  sourceOfDecision: explicit-user-delegation-to-act-as-media-product-owner-on-2026-10-06
+  decisionDate: '2026-10-06'
+  comments:
+  - This is a local Explorer accessibility affordance, not accepted PDP-2 composition, Shared token conformance, or a production Media design decision.
+  exclusions:
+  - Action semantics or reducer behavior changes
+  - Semantic PDP-2/PDP-3 acceptance, production UI implementation, Tools-native currentness/receipts, or release readiness
 phaseAcceptanceInputs:
 - id: ACCEPT-INPUT-P0-002
   phase: PDP-0
