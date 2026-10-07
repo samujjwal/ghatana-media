@@ -12,6 +12,7 @@ const DEFAULT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PATHS = Object.freeze({
   style: ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
   aliases: ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+  semanticBindings: ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
   templates: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
   layout: ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
   components: ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
@@ -38,6 +39,57 @@ const filesUnder = (root, directory) => {
 };
 const lineAt = (source, offset) => source.slice(0, offset).split("\n").length;
 const scalar = (source, key) => source?.match(new RegExp(`^${key}:[ \\t]*([^\\r\\n#]+)`, "mu"))?.[1]?.trim() ?? null;
+/** Read a child scalar only inside the named top-level YAML authority section. */
+const sectionScalar = (source, section, key) => {
+  if (!source) return null;
+  const start = new RegExp(`^${section}:\\s*#!/usr/bin/env node
+/**
+ * Fail-closed design-authority gate for Media product presentation sources.
+ * Explorer chrome is reported as host-only evidence and is never used as
+ * product design authority. Candidate mappings are not PDP-2 acceptance.
+ */
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { dirname, extname, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const DEFAULT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const PATHS = Object.freeze({
+  style: ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
+  aliases: ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+  semanticBindings: ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
+  templates: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
+  layout: ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
+  components: ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+  states: ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
+  screens: ".product-experience/pdp-3-product-experience/screen-contracts",
+  productSources: [
+    "libs/audio-video-ui/src",
+    "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src",
+  ],
+  explorerFixtureSource: "apps/media-experience-explorer/src",
+});
+
+const read = (root, path) => {
+  const file = join(root, path);
+  return existsSync(file) ? readFileSync(file, "utf8") : null;
+};
+const filesUnder = (root, directory) => {
+  const absolute = join(root, directory);
+  if (!existsSync(absolute)) return [];
+  return readdirSync(absolute, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(absolute, entry.name);
+    return entry.isDirectory() ? filesUnder(root, relative(root, path)) : [path];
+  });
+};
+const lineAt = (source, offset) => source.slice(0, offset).split("\n").length;
+const scalar = (source, key) => source?.match(new RegExp(`^${key}:[ \\t]*([^\\r\\n#]+)`, "mu"))?.[1]?.trim() ?? null;
+, 'm').exec(source);
+  if (!start) return null;
+  const remainder = source.slice(start.index + start[0].length);
+  const nextTopLevel = remainder.search(/^[A-Za-z][A-Za-z0-9_-]*:\\s*/m);
+  const body = nextTopLevel >= 0 ? remainder.slice(0, nextTopLevel) : remainder;
+  return body.match(new RegExp(`^  ${key}:\\s*([^\\r\\n#]+)`, 'm'))?.[1]?.trim() ?? null;
+};
 const listIds = (source, key) => [...(source?.matchAll(new RegExp(`^\\s*- ${key}:\\s*([^\\r\\n#]+)`, "gmu")) ?? [])].map((match) => match[1].trim());
 
 /** Analyze a repository root. Findings are observations, never acceptance. */
@@ -48,20 +100,30 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   const block = (detail) => blockers.push(detail);
   const style = read(root, PATHS.style);
   const aliases = read(root, PATHS.aliases);
+  const semanticBindings = read(root, PATHS.semanticBindings);
   const templateCatalog = read(root, PATHS.templates);
   const layout = read(root, PATHS.layout);
   const componentContracts = read(root, PATHS.components);
   const stateGrammar = read(root, PATHS.states);
 
-  for (const [path, value] of [[PATHS.style, style], [PATHS.aliases, aliases], [PATHS.templates, templateCatalog], [PATHS.layout, layout], [PATHS.components, componentContracts], [PATHS.states, stateGrammar]]) {
+  for (const [path, value] of [[PATHS.style, style], [PATHS.aliases, aliases], [PATHS.semanticBindings, semanticBindings], [PATHS.templates, templateCatalog], [PATHS.layout, layout], [PATHS.components, componentContracts], [PATHS.states, stateGrammar]]) {
     if (value === null) block(`required PDP-2 authority source is missing: ${path}`);
   }
 
   if (style) {
     if (scalar(style, "scopeStatus") !== "ACCEPTED") block(`PDP-2 style authority is not accepted (scopeStatus=${scalar(style, "scopeStatus") ?? "missing"})`);
-    if (scalar(style, "semanticAuthority") !== "true") block("style authority does not explicitly grant accepted semantic authority");
-    if (!/^\s*status:\s*(?:VERIFIED|CURRENT)$/mu.test(style)) block(`Shared package binding is unresolved (status=${style.match(/^\s*status:\s*(.+)$/mu)?.[1]?.trim() ?? "missing"})`);
-    if (/status:\s*NOT_RUN\b/u.test(style)) block("PDP-2 conformance review is not run");
+    if (scalar(style, "authority") !== PATHS.aliases
+      || sectionScalar(style, "currentProjection", "semanticAuthority") !== PATHS.semanticBindings) {
+      block("style authority must reference canonical Media aliases and component binding sources");
+    }
+    const sharedStatus = sectionScalar(style, "sharedBinding", "status");
+    if (!["VERIFIED", "CURRENT"].includes(sharedStatus)) {
+      block(`Shared package binding is unresolved (status=${sharedStatus ?? "missing"})`);
+    }
+    const conformanceStatus = sectionScalar(style, "conformance", "status");
+    if (!["VERIFIED", "CURRENT"].includes(conformanceStatus)) {
+      block(`PDP-2 conformance review is not verified (status=${conformanceStatus ?? "missing"})`);
+    }
   }
   if (aliases && !/^status:\s*accepted\b/imu.test(aliases)) block(`semantic token aliases are not accepted (status=${scalar(aliases, "status") ?? "missing"})`);
   if (templateCatalog && !/^scopeStatus:\s*accepted\b/imu.test(templateCatalog)) block(`template catalog is proposal/pending review, not accepted composition authority (scopeStatus=${scalar(templateCatalog, "scopeStatus") ?? "missing"})`);
