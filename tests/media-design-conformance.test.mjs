@@ -12,7 +12,8 @@ const write = (root, path, content) => {
 };
 function fixture({ css = ".sample { color: var(--text); }", extraSource = "", screen = "templateId: media.gui.template.collection\nlayoutIds: [media.gui.layout.standard]\n" } = {}) {
   const root = mkdtempSync(join(tmpdir(), "media-design-gate-"));
-  write(root, ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml", `scopeStatus: ACCEPTED\nsemanticAuthority: true\nsharedBinding:\n  status: VERIFIED\nconformance:\n  status: VERIFIED\nexplorerFixtureSource: apps/media-experience-explorer/src/styles.css\nexplorerFixtureSemanticAuthority: false\nexceptionPolicy: >-\n  Raw values in the Explorer fixture stylesheet remain Explorer-owned and carry no Media product meaning.\n`);
+  write(root, ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml", `scopeStatus: ACCEPTED\nauthority: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml\ncurrentProjection:\n  semanticAuthority: .product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml\nsharedBinding:\n  status: VERIFIED\nconformance:\n  status: VERIFIED\nexplorerFixtureSource: apps/media-experience-explorer/src/styles.css\nexplorerFixtureSemanticAuthority: false\nexceptionPolicy: >-\n  Raw values in the Explorer fixture stylesheet remain Explorer-owned and carry no Media product meaning.\n`);
+  write(root, ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml", "status: VERIFIED\n");
   write(root, ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml", `status: accepted\naliases:\n  - id: media.token.content.primary\n    cssVariable: --text\n    sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.contentPrimary"\n`);
   write(root, ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml", `scopeStatus: accepted\ntemplates:\n  - id: media.gui.template.collection\n`);
   write(root, ".product-experience/pdp-2-design-interface-system/gui/layout.yaml", `status: accepted\nlayoutRules:\n  standard: columns\n  layouts:\n    - media.gui.layout.standard\n`);
@@ -92,3 +93,25 @@ test("repository keeps owner-gated blockers separate from source findings", () =
   assert.ok(result.blockers.some((item) => item.includes("Shared package binding is unresolved")));
   assert.ok(result.blockers.some((item) => item.includes("template catalog is proposal")));
 });
+
+test("style authority must reference actual canonical Media alias and component sources", () => withFixture({}, (root) => {
+  write(root, ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
+    "scopeStatus: ACCEPTED\nauthority: wrong.yaml\ncurrentProjection:\n  semanticAuthority: wrong-bindings.yaml\nsharedBinding:\n  status: VERIFIED\nconformance:\n  status: VERIFIED\n");
+  const result = analyzeDesignConformance(root);
+  assert.equal(result.ok, false);
+  assert.ok(result.blockers.some((item) => item.includes("canonical Media aliases and component")));
+}));
+
+test("nested conformance status cannot impersonate verified Shared binding", () => withFixture({}, (root) => {
+  write(root, ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
+    "scopeStatus: ACCEPTED\nauthority: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml\ncurrentProjection:\n  semanticAuthority: .product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml\nsharedBinding:\n  status: PENDING\nconformance:\n  status: VERIFIED\n");
+  const result = analyzeDesignConformance(root);
+  assert.ok(result.blockers.some((item) => item.includes("Shared package binding is unresolved")));
+}));
+
+test("Shared success cannot impersonate independent PDP-2 review", () => withFixture({}, (root) => {
+  write(root, ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
+    "scopeStatus: ACCEPTED\nauthority: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml\ncurrentProjection:\n  semanticAuthority: .product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml\nsharedBinding:\n  status: VERIFIED\nconformance:\n  status: NOT_RUN\n");
+  const result = analyzeDesignConformance(root);
+  assert.ok(result.blockers.some((item) => item.includes("conformance review is not verified")));
+}));
