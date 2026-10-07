@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "closure-surface",
+  "id": "media.product-definition",
+  "kind": "LOGICAL",
+  "title": "Media Product Definition",
+  "owner": {
+    "implementationUnitIds": [
+      "ghatana-media.product-definition"
+    ]
+  },
+  "composition": {
+    "childSurfaceIds": []
+  },
+  "closureDependencies": [],
+  "externalContractDependencyIds": [],
+  "obligationIds": [
+    "media.pdp-0.product-truth",
+    "media.pdp-1.domain-data",
+    "media.pdp-2.design-interface-system",
+    "media.pdp-3.product-experience"
+  ],
+  "phaseProgramRef": "media.product-definition.v1",
+  "phaseBindingRef": "media.product-definition.phase-binding.v1"
+}

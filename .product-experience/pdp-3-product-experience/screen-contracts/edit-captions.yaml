@@ -59,8 +59,8 @@ responsiveBehavior:
   status: proposal-unverified
   screenOverrides: []
 fixtures:
-  refs: []
-  status: missing
+  refs: [media.scenario.alignment-required, media.scenario.caption-corrected, media.scenario.caption-conflict]
+  status: linked-to-deterministic-simulation-seeds; owner-review-and-behavior-verification-pending
 verification:
   status: not-run
   evidenceRefs: []
@@ -85,7 +85,7 @@ fieldBindingStatus:
   exit: pending
   actionConsequences: unresolved-pending-owner-binding
   responsiveBehavior: proposal-unverified
-  fixtures: missing
+  fixtures: source-proposal; behavior-unverified
   verification: not-run
 productId: media
 screenId: media.view.edit-captions

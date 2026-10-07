@@ -2,6 +2,17 @@ schemaVersion: media.scenario-fixture-registry.v1
 productId: media
 status: selected-lane-first-use-and-upload-proposals; content-payload-owned-by-PDP-3
 contentPolicy: .product-experience/pdp-0-product-truth/content-intent.yaml
+journeyCoverage:
+  status: partial-deterministic-fixture-payloads; owner-approved-oracles-pending
+  journeyContractCount: 30
+  journeysWithExactSimulationSeeds: [J-01, J-02, J-03]
+  journeysWithoutExactSimulationSeeds: [J-04, J-05, J-06, J-07, J-08, J-09, J-10, J-11, J-12, J-13, J-14, J-15, J-16, J-17, J-18, J-19, J-20, J-21, J-22, J-23, J-24, J-25, J-26, J-27, J-28, J-29, J-30]
+  blocker: >-
+    No deterministic PDP-3 simulation payload is currently bound for these 27 journeys. Their authored journey-level
+    success and exception proposals are not executable fixture payloads or owner-approved expected results. Add exact
+    seeds and independently verified oracles before marking scenario coverage complete; do not infer coverage from a
+    neighboring journey or a shared generic job fixture.
+  acceptance: pending; synthetic-fixture-availability-does-not-establish-runtime-or-owner-acceptance
 fixtures:
   - id: media.scenario.upload-interrupted
     sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY

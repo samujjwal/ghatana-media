@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "media.development-version-policy.v1",
+  "productId": "media",
+  "developmentVersion": "0.1.0-SNAPSHOT",
+  "rootVersion": "0.1.0-SNAPSHOT",
+  "releasePolicy": "SNAPSHOT versions are forbidden in release verification.",
+  "temporaryCompatibilityExceptions": [
+    {
+      "id": "TOOLS-JAVA-RUNTIME-RC1",
+      "gradleProperty": "ghatana.tools.version",
+      "version": "0.1.0-rc.1",
+      "owner": "ghatana-tools",
+      "reason": "The Tools Gradle root currently publishes its Java runtime at RC1 while Product Development TypeScript packages remain SNAPSHOT.",
+      "resolution": "Align the upstream Tools Java runtime version or maintain this recorded exception with owner evidence."
+    },
+    {
+      "id": "LIFECYCLE-RUNTIME-RC1",
+      "version": "0.1.0-rc.1",
+      "owner": "ghatana-lifecycle",
+      "sourceFiles": [
+        "package.json",
+        "build.gradle.kts",
+        "tools/evidence-generator/package.json",
+        "tools/evidence-generator/tool-product.json"
+      ],
+      "generatedResource": {
+        "path": "tools/evidence-generator/src/main/resources/evidence-generator-version.properties",
+        "sourceTemplateVersion": "0.1.0-SNAPSHOT",
+        "packagedVersionSource": "processResources from project.version"
+      },
+      "reason": "The Lifecycle source checkout currently declares RC1 coordinates.",
+      "resolution": "Align the upstream Lifecycle version or maintain this recorded exception with owner evidence."
+    },
+    {
+      "id": "KERNEL-STABLE-010",
+      "gradleProperty": "ghatana.kernel.version",
+      "version": "0.1.0",
+      "owner": "ghatana-kernel",
+      "reason": "The available Kernel source checkout declares the stable 0.1.0 coordinate.",
+      "resolution": "Align the upstream Kernel development coordinate or maintain this recorded exception with owner evidence."
+    }
+  ],
+  "exceptionOwnerApproval": "pending",
+  "semanticCurrentness": "not-claimed"
+}

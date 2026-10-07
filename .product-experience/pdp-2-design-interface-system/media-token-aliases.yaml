@@ -14,8 +14,7 @@ sharedPublicContract:
   publicTypeApiSnapshot: platform/typescript/tokens/scripts/public-type-api.snapshot.json
   publicExportSource: platform/typescript/tokens/src/semantic-roles.ts
   sourceRepository: samujjwal/ghatana-shared
-  sourceRevision: 495663b2d6b61c270367048cec54db8a06f22d69
-  sourceObservation: clean-at-inspected-head
+  sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana-shared
   resolvedRoleApi: semanticColorRoles.light-and-dark
   mediaDeclaredDependency: 0.1.0-SNAPSHOT
   mediaDependencyManifest: libs/audio-video-ui/package.json

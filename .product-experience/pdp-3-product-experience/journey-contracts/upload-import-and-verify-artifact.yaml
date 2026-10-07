@@ -469,7 +469,7 @@ requiredScenarioBehaviors:
       - media.scenario.artifact-verification-running
       - media.scenario.artifact-verification-outcome-unknown
       - media.scenario.artifact-verification-completed
-scenarioRefs: [media.scenario.upload-interrupted, media.scenario.upload-checksum-mismatch, media.scenario.upload-format-unsupported, media.scenario.upload-quarantined, media.scenario.upload-verified-available, media.scenario.upload-outcome-unknown, media.scenario.upload-permission-revoked]
+scenarioRefs: [media.scenario.upload-interrupted, media.scenario.upload-checksum-mismatch, media.scenario.upload-format-unsupported, media.scenario.upload-quarantined, media.scenario.upload-verified-available, media.scenario.upload-outcome-unknown, media.scenario.upload-permission-revoked, media.scenario.artifact-verification-running, media.scenario.artifact-verification-outcome-unknown, media.scenario.artifact-verification-completed]
 unresolvedProductDecisions:
   - exact-supported-source-formats-and-size-or-duration-bounds-remain-with-the-media.artifact.upload-owner-and-qualified-public-contract
   - external-provider-imports-and-progressive-transfer-limits-require-an-admitted-source-integration-and-rights-policy

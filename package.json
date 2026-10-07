@@ -14,6 +14,7 @@
     "test:product-definition-authority": "node --test tests/product-definition-authority.test.mjs",
     "test:presentation-architecture": "node --test tests/media-presentation-architecture.test.mjs",
     "check:product-experience-local": "node scripts/check-product-experience-local.mjs",
+    "check:lifecycle-closure-inputs": "node scripts/check-media-lifecycle-closure-inputs.mjs",
     "test:product-experience-local": "node --test tests/product-experience-local.test.mjs",
     "test:tools-media-consumer": "node scripts/test-tools-media-consumer.mjs",
     "test:shared-media-consumer": "node scripts/verify-media-shared-artifact-consumer.mjs",

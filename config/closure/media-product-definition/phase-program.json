@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "closure-phase-program",
+  "programId": "media.product-definition.v1",
+  "title": "Media Product Definition four-phase program",
+  "description": "Media consumer declaration. Phase order is a dependency graph; each phase retains its own selected obligation and cannot inherit its denominator from a predecessor.",
+  "phases": [
+    {
+      "schemaVersion": "ghatana.closure.phase-definition",
+      "id": "PDP-0",
+      "title": "Product Truth",
+      "description": "Product intent, actors, capabilities, requirements, quality policy, and explicit scope decisions.",
+      "obligationIds": [
+        "media.pdp-0.product-truth"
+      ]
+    },
+    {
+      "schemaVersion": "ghatana.closure.phase-definition",
+      "id": "PDP-1",
+      "title": "Domain and Data",
+      "description": "Canonical domain objects, authority, state, transition, operation, data, and projection semantics.",
+      "dependsOn": [
+        "PDP-0"
+      ],
+      "obligationIds": [
+        "media.pdp-1.domain-data"
+      ]
+    },
+    {
+      "schemaVersion": "ghatana.closure.phase-definition",
+      "id": "PDP-2",
+      "title": "Design and Interface System",
+      "description": "Reusable design language and interface contracts traceable to accepted product and domain meaning.",
+      "dependsOn": [
+        "PDP-0",
+        "PDP-1"
+      ],
+      "obligationIds": [
+        "media.pdp-2.design-interface-system"
+      ]
+    },
+    {
+      "schemaVersion": "ghatana.closure.phase-definition",
+      "id": "PDP-3",
+      "title": "Complete Product Experience",
+      "description": "Screen, journey, and machine experiences bound to product meaning, domain contracts, and reusable presentation authorities.",
+      "dependsOn": [
+        "PDP-0",
+        "PDP-1",
+        "PDP-2"
+      ],
+      "obligationIds": [
+        "media.pdp-3.product-experience"
+      ]
+    }
+  ],
+  "metadata": {
+    "status": "PENDING_OWNER_ADJUDICATION",
+    "authorityBoundary": "Media owns product semantics; Lifecycle owns admission, fingerprints, currentness, evidence, receipts, and closure decisions."
+  }
+}

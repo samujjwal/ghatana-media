@@ -645,3 +645,20 @@ recovery: Every recovery preserves the source and completed output; retry requir
 contextPreserved: [project, source-artifact-version, source-time, language-intent, job-identity, transcript-version, caption-draft-version]
 channelEquivalents: [web, cli, grpc-api, sdk]
 accessibilityRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml
+requiredScenarioBehaviors:
+  status: deterministic-synthetic-fixtures-exist; expected-results-and-runtime-bindings-remain-unverified
+  scenarios:
+    - media.scenario.source-available
+    - media.scenario.source-quarantined
+    - media.scenario.transcript-ready
+    - media.scenario.language-uncertain
+    - media.scenario.alignment-required
+    - media.scenario.consent-revoked
+    - media.scenario.job-running
+    - media.scenario.job-outcome-unknown
+    - media.scenario.job-outcome-confirmed
+    - media.scenario.caption-corrected
+    - media.scenario.caption-conflict
+    - media.scenario.caption-version-comparison
+    - media.scenario.caption-source-mismatch
+scenarioRefs: [media.scenario.source-available, media.scenario.source-quarantined, media.scenario.transcript-ready, media.scenario.language-uncertain, media.scenario.alignment-required, media.scenario.consent-revoked, media.scenario.job-running, media.scenario.job-outcome-unknown, media.scenario.job-outcome-confirmed, media.scenario.caption-corrected, media.scenario.caption-conflict, media.scenario.caption-version-comparison, media.scenario.caption-source-mismatch]

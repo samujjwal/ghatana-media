@@ -14,9 +14,8 @@
     "FIX": "correct or extend the active package",
     "CONSOLIDATE": "canonicalize only after ownership and consumer proof",
     "REPLACE": "replace after explicit migration evidence",
-    "RETIRE": "remove active use while retaining required records",
     "ARCHIVE_ONLY": "historical evidence; not active or admitted",
-    "UNRESOLVED": "evidence is insufficient to decide"
+    "UNRESOLVED": "evidence does not justify a final reuse/fix/consolidate/replace/archive disposition; unresolvedReason is required"
   },
   "limitations": [
     "Purpose and PDP summaries are source inventory, not owner acceptance.",
@@ -1035,8 +1034,9 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "REFACTOR",
-      "admissionState": "inventory-only; no automatic admission"
+      "disposition": "UNRESOLVED",
+      "admissionState": "inventory-only; no automatic admission",
+      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
     },
     {
       "sourcePath": "apps/media-experience-explorer/specification-artifacts.json",
@@ -1061,8 +1061,9 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "REFACTOR",
-      "admissionState": "inventory-only; no automatic admission"
+      "disposition": "UNRESOLVED",
+      "admissionState": "inventory-only; no automatic admission",
+      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
     },
     {
       "sourcePath": "apps/media-experience-explorer/src/main.ts",
@@ -1087,8 +1088,9 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "REFACTOR",
-      "admissionState": "inventory-only; no automatic admission"
+      "disposition": "UNRESOLVED",
+      "admissionState": "inventory-only; no automatic admission",
+      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
     },
     {
       "sourcePath": "apps/media-experience-explorer/src/product-review.tsx",
@@ -1113,8 +1115,9 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "REFACTOR",
-      "admissionState": "inventory-only; no automatic admission"
+      "disposition": "UNRESOLVED",
+      "admissionState": "inventory-only; no automatic admission",
+      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
     },
     {
       "sourcePath": "apps/media-experience-explorer/src/specification.ts",
@@ -1139,8 +1142,9 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "REFACTOR",
-      "admissionState": "inventory-only; no automatic admission"
+      "disposition": "UNRESOLVED",
+      "admissionState": "inventory-only; no automatic admission",
+      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
     },
     {
       "sourcePath": "apps/media-experience-explorer/src/styles.css",
@@ -1165,8 +1169,9 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "REFACTOR",
-      "admissionState": "inventory-only; no automatic admission"
+      "disposition": "UNRESOLVED",
+      "admissionState": "inventory-only; no automatic admission",
+      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
     },
     {
       "sourcePath": "apps/media-experience-explorer/src/vite-env.d.ts",
@@ -1191,8 +1196,9 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "REFACTOR",
-      "admissionState": "inventory-only; no automatic admission"
+      "disposition": "UNRESOLVED",
+      "admissionState": "inventory-only; no automatic admission",
+      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
     },
     {
       "sourcePath": "apps/media-experience-explorer/tsconfig.json",
@@ -1217,8 +1223,9 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "REFACTOR",
-      "admissionState": "inventory-only; no automatic admission"
+      "disposition": "UNRESOLVED",
+      "admissionState": "inventory-only; no automatic admission",
+      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
     },
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/package.json",

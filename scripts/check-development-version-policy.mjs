@@ -3,10 +3,13 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const expectedVersion = '0.1.0-SNAPSHOT';
-const toolsJavaRuntimeVersion = '0.1.0-rc.1';
+const versionPolicy = JSON.parse(readFileSync(join(root, '.product-experience/development-version-policy.json'), 'utf8'));
+const expectedVersion = versionPolicy.developmentVersion;
+const exceptions = new Map(versionPolicy.temporaryCompatibilityExceptions.map((exception) => [exception.id, exception]));
+const toolsJavaRuntimeVersion = exceptions.get('TOOLS-JAVA-RUNTIME-RC1')?.version;
 const lifecycleRoot = join(root, '..', 'ghatana-lifecycle');
-const lifecycleVersion = '0.1.0-rc.1';
+const lifecycleException = exceptions.get('LIFECYCLE-RUNTIME-RC1');
+const lifecycleVersion = lifecycleException?.version;
 const sharedTypeScriptRoot = join(root, '..', 'ghatana-shared', 'platform', 'typescript');
 const toolsProductDevelopmentRoot = join(root, '..', 'ghatana-tools', 'libs', 'product-development');
 const toolsProductDevelopmentPackages = [
@@ -24,6 +27,25 @@ const toolsProductDevelopmentPackages = [
 const releaseMode = process.argv.includes('--release');
 const errors = [];
 const activePackages = [];
+
+if (versionPolicy.schemaVersion !== 'media.development-version-policy.v1'
+    || versionPolicy.productId !== 'media'
+    || versionPolicy.developmentVersion !== '0.1.0-SNAPSHOT'
+    || versionPolicy.rootVersion !== versionPolicy.developmentVersion
+    || versionPolicy.exceptionOwnerApproval !== 'pending'
+    || versionPolicy.semanticCurrentness !== 'not-claimed'
+    || exceptions.size !== versionPolicy.temporaryCompatibilityExceptions.length) {
+  errors.push('development-version-policy.json is malformed or contains duplicate temporary exception IDs');
+}
+for (const exception of versionPolicy.temporaryCompatibilityExceptions) {
+  if (!exception.owner || !exception.reason || !exception.resolution || !exception.version) {
+    errors.push(`development-version-policy.json: ${exception.id ?? 'unknown'} lacks owner, version, reason, or resolution`);
+  }
+  if (exception.sourceFiles !== undefined && (!Array.isArray(exception.sourceFiles) || exception.sourceFiles.length === 0
+      || exception.sourceFiles.some((path) => typeof path !== 'string' || path.length === 0))) {
+    errors.push(`development-version-policy.json: ${exception.id ?? 'unknown'} has an invalid sourceFiles list`);
+  }
+}
 
 function validateVersion(label, version, expected = expectedVersion) {
   if (releaseMode) {
@@ -108,11 +130,9 @@ for (const { label, manifest } of activePackages) {
 const gradleProperties = readFileSync(join(root, 'gradle.properties'), 'utf8');
 const gradleDependencyVersions = new Map([
   ['ghatana.shared.version', expectedVersion],
-  // Tools Java runtime coordinates follow the Tools Gradle root (RC1), while
-  // its Product Development TypeScript packages remain SNAPSHOT.
-  ['ghatana.tools.version', toolsJavaRuntimeVersion],
-  // The available Kernel checkout intentionally publishes stable 0.1.0.
-  ['ghatana.kernel.version', '0.1.0'],
+  ...versionPolicy.temporaryCompatibilityExceptions
+    .filter((exception) => exception.gradleProperty)
+    .map((exception) => [exception.gradleProperty, exception.version]),
 ]);
 for (const [property, developmentVersion] of gradleDependencyVersions) {
   const match = gradleProperties.match(new RegExp(`^${property.replaceAll('.', '\\.')}=(.*)$`, 'm'));
@@ -175,10 +195,10 @@ if (toolsDefaultRootVersion !== toolsJavaRuntimeVersion) {
 
 const rootBuild = readFileSync(join(root, 'build.gradle.kts'), 'utf8');
 const rootVersion = /^version\s*=\s*"([^"]+)"\s*$/m.exec(rootBuild)?.[1];
-if (releaseMode ? !rootVersion || rootVersion.includes('SNAPSHOT') : rootVersion !== expectedVersion) {
+if (releaseMode ? !rootVersion || rootVersion.includes('SNAPSHOT') : rootVersion !== versionPolicy.rootVersion) {
   errors.push(releaseMode
     ? `build.gradle.kts: root Gradle version authority must not use SNAPSHOT during release verification (found ${rootVersion ?? 'missing'})`
-      : `build.gradle.kts: root Gradle version authority must set version = "${expectedVersion}" (found ${rootVersion ?? 'missing'})`);
+      : `build.gradle.kts: root Gradle version authority must set version = "${versionPolicy.rootVersion}" (found ${rootVersion ?? 'missing'})`);
 }
 
 let lifecyclePackageCount = 0;
@@ -215,17 +235,16 @@ if (readdirSync(join(root, '..'), { withFileTypes: true })
     errors.push(`ghatana-lifecycle: expected 19 composite TypeScript packages (found ${lifecyclePackageCount})`);
   }
 
-  // Evidence Generator's resource is a fallback value; processResources
-  // rewrites it to project.version. Verify that build rule so the checked
-  // runtime identity follows Lifecycle's actual Gradle coordinate (RC1).
+  // The checked resource is a SNAPSHOT template; processResources rewrites
+  // it to Lifecycle's RC1 project.version for the packaged runtime.
   const evidenceBuild = readFileSync(join(lifecycleRoot, 'tools/evidence-generator/build.gradle.kts'), 'utf8');
   const evidenceResource = readFileSync(join(lifecycleRoot, 'tools/evidence-generator/src/main/resources/evidence-generator-version.properties'), 'utf8');
   const evidenceProduct = JSON.parse(readFileSync(join(lifecycleRoot, 'tools/evidence-generator/tool-product.json'), 'utf8'));
   const generatedVersionResource = /^evidence\.generator\.version=([^\r\n]+)$/m.exec(evidenceResource)?.[1];
   const generatedResourceRule = evidenceBuild.includes('line.replaceFirst(Regex("^evidence\\\\.generator\\\\.version=.*$"), "evidence.generator.version=${project.version}")');
   const evidenceProjectVersion = /^version\s*=\s*rootProject\.version\s*$/m.test(evidenceBuild);
-  if (!generatedResourceRule || !evidenceProjectVersion || generatedVersionResource !== expectedVersion || evidenceProduct.version !== expectedVersion) {
-    errors.push(`ghatana-lifecycle/tools/evidence-generator: tool-product metadata and checked-in resource template must remain ${expectedVersion}, and processResources must generate the packaged identity from project.version`);
+  if (!generatedResourceRule || !evidenceProjectVersion || generatedVersionResource !== lifecycleException?.generatedResource?.sourceTemplateVersion || evidenceProduct.version !== lifecycleVersion) {
+    errors.push(`ghatana-lifecycle/tools/evidence-generator: tool-product metadata must match Lifecycle exception ${lifecycleVersion}; the resource template must match its recorded template version and processResources must generate the packaged identity from project.version`);
   }
 } else {
   errors.push('ghatana-lifecycle: composite source checkout is missing; cannot verify its RC1 root, TypeScript packages, or Evidence Generator identity split');
@@ -236,7 +255,10 @@ if (errors.length > 0) {
   for (const error of errors) console.error(`- ${error}`);
   process.exitCode = 1;
 } else {
+  const exceptionSummary = [...exceptions.values()]
+    .map(({ id, owner, version }) => `${id} (${owner}: ${version})`)
+    .join('; ');
   console.log(releaseMode
     ? 'Release version policy passed (no active SNAPSHOT coordinates).'
-    : `Development version policy passed: Media, 20 Shared TypeScript packages and 11 Tools Product Development packages are ${expectedVersion}; Tools Gradle root default and Lifecycle root plus ${lifecyclePackageCount} TypeScript packages are ${toolsJavaRuntimeVersion}; Evidence Generator metadata/template remains ${expectedVersion} and packaged runtime identity is generated from its project version.`);
+    : `Development version policy passed: ordinary Ghatana development artifacts use ${expectedVersion}; temporary compatibility exceptions: ${exceptionSummary}. Exception owners have not approved full closure.`);
 }

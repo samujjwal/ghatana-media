@@ -1,0 +1,802 @@
+{
+  "projectionKind": "experience-specification",
+  "projectionStatus": "GENERATED_CANDIDATE_NOT_ACCEPTED_NOT_CURRENT",
+  "subjectId": "media",
+  "sourceAuthorities": [
+    {
+      "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+      "sha256": "d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd",
+      "bytes": 24299,
+      "format": "yaml",
+      "schemaVersion": "media.screen-registry.v1",
+      "authority": null,
+      "status": "41-baseline-view-contract-proposals-authored; channel-bindings-action-closure-fixture-coverage-and-owner-review-pending",
+      "topLevelFields": [
+        "contextualSpecializations",
+        "contractSchemaRef",
+        "coverage",
+        "inventorySource",
+        "laneRef",
+        "laneViews",
+        "legacyViewIdsAre",
+        "productId",
+        "schemaVersion",
+        "screens",
+        "status"
+      ],
+      "declaredIds": [
+        "media.view.adjust-color",
+        "media.view.animate-media",
+        "media.view.arrange-scenes",
+        "media.view.authenticate-and-select-context",
+        "media.view.browse-media",
+        "media.view.check-job-outcome",
+        "media.view.check-processing-options",
+        "media.view.check-processing-readiness",
+        "media.view.choose-eligible-processing-option",
+        "media.view.compare-caption-versions",
+        "media.view.compare-results",
+        "media.view.compose-media",
+        "media.view.compose-scene",
+        "media.view.correct-captions",
+        "media.view.create-audio",
+        "media.view.create-image",
+        "media.view.create-media",
+        "media.view.create-video",
+        "media.view.deliver-output",
+        "media.view.edit-captions",
+        "media.view.edit-media",
+        "media.view.edit-media-region",
+        "media.view.explore-simulation",
+        "media.view.find-projects",
+        "media.view.find-task-guidance",
+        "media.view.import-media",
+        "media.view.improve-media",
+        "media.view.inspect-media",
+        "media.view.inspect-output",
+        "media.view.inspect-provenance",
+        "media.view.job-status",
+        "media.view.monitor-transcription",
+        "media.view.prepare-render",
+        "media.view.resume-work",
+        "media.view.review-activity",
+        "media.view.review-creation-plan",
+        "media.view.review-dubbing",
+        "media.view.review-exact-version",
+        "media.view.review-outputs",
+        "media.view.review-quality",
+        "media.view.review-rights-and-consent",
+        "media.view.review-transcript",
+        "media.view.review-workspace-settings",
+        "media.view.select-source",
+        "media.view.use-authorized-voice",
+        "media.view.work-in-project",
+        "media.view.work-with-speech"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "sha256": "1f7618550726233a72249555aeb44f315fab76d3caaa2b5413b79a6cfe85d998",
+      "bytes": 11713,
+      "format": "yaml",
+      "schemaVersion": "media.journey-registry.v1",
+      "authority": null,
+      "status": "all-28-required-journeys-have-proposal-files; J-01-J-03-and-J-20-retain-scoped-proposal-slices; full-pdp-3-contracts-and-acceptance-pending",
+      "topLevelFields": [
+        "additionalPdp0JourneyCount",
+        "coverageObservation",
+        "coverageRule",
+        "journeySource",
+        "journeys",
+        "pdp0Authority",
+        "productId",
+        "requiredMasterPlanJourneyCount",
+        "schemaVersion",
+        "status"
+      ],
+      "declaredIds": [
+        "J-01",
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-06",
+        "J-07",
+        "J-08",
+        "J-09",
+        "J-10",
+        "J-11",
+        "J-12",
+        "J-13",
+        "J-14",
+        "J-15",
+        "J-16",
+        "J-17",
+        "J-18",
+        "J-19",
+        "J-20",
+        "J-21",
+        "J-22",
+        "J-23",
+        "J-24",
+        "J-25",
+        "J-26",
+        "J-27",
+        "J-28",
+        "J-29",
+        "J-30"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml",
+      "sha256": "a0e67cb434c5a8af867a1667f5ded9c57fe613170e877db347a845b339fea118",
+      "bytes": 252828,
+      "format": "yaml",
+      "schemaVersion": "media.action-registry.v1",
+      "authority": null,
+      "status": "intent-derived-view-action-proposals; authority-effect-finality-interaction-and-owner-review-pending",
+      "topLevelFields": [
+        "actions",
+        "productId",
+        "schemaVersion",
+        "status"
+      ],
+      "declaredIds": [
+        "media.action.add-scene-entity",
+        "media.action.add-storyboard-scene",
+        "media.action.align-caption-timing",
+        "media.action.align-source-time-interval",
+        "media.action.apply-admitted-edit",
+        "media.action.apply-authorized-rights-restriction",
+        "media.action.associate-authorized-reference",
+        "media.action.attach-source-asset",
+        "media.action.begin-artifact-upload",
+        "media.action.change-interpolation-curve",
+        "media.action.change-permitted-preference",
+        "media.action.check-job-outcome",
+        "media.action.choose-admitted-audio-operation",
+        "media.action.choose-alignment-basis",
+        "media.action.choose-intent",
+        "media.action.choose-media-improvement-intent",
+        "media.action.choose-named-destination",
+        "media.action.choose-source",
+        "media.action.compare-candidate-on-metric",
+        "media.action.compare-caption-versions",
+        "media.action.compare-media-versions",
+        "media.action.continue-within-recorded-scope",
+        "media.action.correct-caption",
+        "media.action.create-project",
+        "media.action.deliver-exact-version",
+        "media.action.edit-admitted-adjustment",
+        "media.action.edit-audio-mix-controls",
+        "media.action.edit-keyframe",
+        "media.action.edit-mask-boundary",
+        "media.action.edit-requested-outcome-and-admitted-controls",
+        "media.action.edit-scene-timing-or-transition",
+        "media.action.edit-transition-or-caption-alignment",
+        "media.action.edit-unresolved-plan-decision",
+        "media.action.edit-video-temporal-plan",
+        "media.action.enter-exact-edit-constraints",
+        "media.action.export-authorized-provenance",
+        "media.action.inspect-artifact",
+        "media.action.inspect-consent-and-permitted-use",
+        "media.action.inspect-driver-or-constraint",
+        "media.action.inspect-effective-processing-constraints",
+        "media.action.inspect-generated-candidates",
+        "media.action.inspect-governing-evidence",
+        "media.action.inspect-input-output-color-interpretation",
+        "media.action.inspect-operation-contract",
+        "media.action.inspect-operation-readiness",
+        "media.action.inspect-output-preview-and-version",
+        "media.action.inspect-project-creation",
+        "media.action.inspect-provenance",
+        "media.action.inspect-quality-evidence",
+        "media.action.inspect-scene-binding",
+        "media.action.inspect-setting-owner",
+        "media.action.inspect-simulation-domain-and-fidelity",
+        "media.action.inspect-simulation-result",
+        "media.action.inspect-source",
+        "media.action.inspect-source-grounded-observation",
+        "media.action.inspect-source-measurements",
+        "media.action.inspect-version-and-review-scope",
+        "media.action.inspect-voice-authorization",
+        "media.action.limit-tracking-propagation-range",
+        "media.action.open-admitted-delivery-action",
+        "media.action.open-approval-view",
+        "media.action.open-authorized-recovery-instruction",
+        "media.action.open-project",
+        "media.action.open-qualification-evidence",
+        "media.action.open-related-view",
+        "media.action.play-source",
+        "media.action.prepare-redacted-diagnostics",
+        "media.action.preview-current-revision",
+        "media.action.preview-motion",
+        "media.action.reconcile-delivery-acknowledgment",
+        "media.action.record-authorized-attestation",
+        "media.action.record-candidate-for-review",
+        "media.action.record-review-comment",
+        "media.action.record-review-follow-up",
+        "media.action.record-version-review-decision",
+        "media.action.refresh-operation-readiness",
+        "media.action.remove-storyboard-scene",
+        "media.action.reorder-storyboard-scenes",
+        "media.action.reorder-track",
+        "media.action.request-admitted-speech-operation",
+        "media.action.request-authorized-review",
+        "media.action.request-cancellation",
+        "media.action.request-plan-validation",
+        "media.action.request-rights-review",
+        "media.action.request-transcription",
+        "media.action.resolve-caption-conflict",
+        "media.action.restore-prior-setting-preference",
+        "media.action.resume-artifact-upload",
+        "media.action.retry-job",
+        "media.action.return-to-requested-destination-after-identity-confirmation",
+        "media.action.review-bounded-repair-proposal",
+        "media.action.review-estimates-and-rights-effects",
+        "media.action.review-output-evidence",
+        "media.action.review-processing-parameters",
+        "media.action.review-recognized-or-synthesized-content",
+        "media.action.review-repair-bounds",
+        "media.action.review-rights-approval-and-format-effects",
+        "media.action.review-scene-timing-and-transitions",
+        "media.action.review-transcript",
+        "media.action.review-translated-segment",
+        "media.action.review-uncertain-tracking",
+        "media.action.revise-dubbing-segment",
+        "media.action.revoke-authorized-consent",
+        "media.action.save-caption-version",
+        "media.action.save-dubbing-version",
+        "media.action.save-new-revision",
+        "media.action.save-setting-preference",
+        "media.action.save-storyboard-revision",
+        "media.action.save-versioned-edit",
+        "media.action.search-authorized-artifacts",
+        "media.action.search-by-user-outcome",
+        "media.action.search-named-profiles",
+        "media.action.search-product-guidance",
+        "media.action.seek-source",
+        "media.action.select-artifact-source",
+        "media.action.select-authorized-reference",
+        "media.action.select-eligible-processing-profile",
+        "media.action.select-exact-candidates",
+        "media.action.select-identity-confirmed-workspace",
+        "media.action.select-keyframe",
+        "media.action.select-region-or-point",
+        "media.action.select-scene-entity",
+        "media.action.select-shot-or-region",
+        "media.action.select-simulation-output-pass",
+        "media.action.select-source-time-interval",
+        "media.action.select-track-or-region",
+        "media.action.set-declared-simulation-input",
+        "media.action.set-simulation-initial-condition",
+        "media.action.share-diagnostics-after-explicit-choice",
+        "media.action.start-upstream-identity-handoff",
+        "media.action.stop-authorized-voice-use",
+        "media.action.submit-admitted-plan",
+        "media.action.submit-render",
+        "media.action.submit-simulation",
+        "media.action.submit-validated-request",
+        "media.action.switch-measurement-presentation",
+        "media.action.trim-track",
+        "media.action.undo-or-redo-versioned-change",
+        "media.action.update-repair-bounds",
+        "media.action.update-scene-binding",
+        "media.action.validate-composition",
+        "media.action.validate-exact-snapshot",
+        "media.action.validate-processing-profile",
+        "media.action.validate-scene-references",
+        "media.action.validate-simulation-plan",
+        "media.action.view-job-status"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+      "sha256": "1ce1de58a27e3a1ab320d2dcef57b98e99dd74f6a1e6329e8f99113ce3da6d2d",
+      "bytes": 1730,
+      "format": "yaml",
+      "schemaVersion": "media.state-transition-bindings.v1",
+      "authority": null,
+      "status": "selected-lane-proposal; P0-010-state-model-acceptance-pending",
+      "topLevelFields": [
+        "bindings",
+        "productId",
+        "schemaVersion",
+        "sourceAuthority",
+        "status"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+      "sha256": "f93b763618765dd008c8c1a96836831402c3c53034741fb3092da9f686bc6aa2",
+      "bytes": 10988,
+      "format": "yaml",
+      "schemaVersion": "media.scenario-fixture-registry.v1",
+      "authority": null,
+      "status": "selected-lane-first-use-and-upload-proposals; content-payload-owned-by-PDP-3",
+      "topLevelFields": [
+        "contentPolicy",
+        "fixtures",
+        "journeyCoverage",
+        "productId",
+        "schemaVersion",
+        "status"
+      ],
+      "declaredIds": [
+        "media.scenario.alignment-required",
+        "media.scenario.artifact-verification-completed",
+        "media.scenario.artifact-verification-outcome-unknown",
+        "media.scenario.artifact-verification-running",
+        "media.scenario.caption-conflict",
+        "media.scenario.caption-corrected",
+        "media.scenario.caption-source-mismatch",
+        "media.scenario.caption-version-comparison",
+        "media.scenario.consent-revoked",
+        "media.scenario.first-use-empty",
+        "media.scenario.identity-required",
+        "media.scenario.intent-unavailable",
+        "media.scenario.job-outcome-confirmed",
+        "media.scenario.job-outcome-unknown",
+        "media.scenario.job-retry-eligible",
+        "media.scenario.job-retry-ineligible",
+        "media.scenario.job-running",
+        "media.scenario.language-uncertain",
+        "media.scenario.project-create-outcome-unknown",
+        "media.scenario.project-created-empty",
+        "media.scenario.source-available",
+        "media.scenario.source-quarantined",
+        "media.scenario.transcript-ready",
+        "media.scenario.upload-checksum-mismatch",
+        "media.scenario.upload-format-unsupported",
+        "media.scenario.upload-interrupted",
+        "media.scenario.upload-outcome-unknown",
+        "media.scenario.upload-permission-revoked",
+        "media.scenario.upload-quarantined",
+        "media.scenario.upload-verified-available",
+        "media.scenario.workspace-access-denied"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+      "sha256": "2d8ec033ccce6f908e614e1ce809bbe732203d4b504f2916abb210bf320e05e0",
+      "bytes": 1167,
+      "format": "yaml",
+      "schemaVersion": "media.product-simulation-semantics.v1",
+      "authority": null,
+      "status": "deterministic-simulation-proposal; no-runtime-evidence",
+      "topLevelFields": [
+        "channelProjection",
+        "implementationBinding",
+        "productId",
+        "rules",
+        "schemaVersion",
+        "status"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+      "sha256": "68933ff43a115210b8e448663ec286ec571243910effd811bdefd96ec4a08549",
+      "bytes": 1247,
+      "format": "yaml",
+      "schemaVersion": "media.recovery-finality-contracts.v1",
+      "authority": null,
+      "status": "selected-lane-proposal; distributed-systems-and-rights-review-pending",
+      "topLevelFields": [
+        "contracts",
+        "productId",
+        "schemaVersion",
+        "status"
+      ],
+      "declaredIds": [
+        "media.recovery.alignment-incomplete",
+        "media.recovery.consent-revoked",
+        "media.recovery.language-uncertain",
+        "media.recovery.outcome-unknown",
+        "media.recovery.version-conflict"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
+      "sha256": "cd0fb51f5289402f7ac1d2866a016ec0f81ed99b4ef48cf11482961a4714b3f3",
+      "bytes": 2011,
+      "format": "yaml",
+      "schemaVersion": "media.screen-contract-schema.v1",
+      "authority": null,
+      "status": "proposal; owner-review-pending",
+      "topLevelFields": [
+        "contractVersion",
+        "designAuthority",
+        "productId",
+        "provenance",
+        "purpose",
+        "requiredTopLevelFields",
+        "schemaVersion",
+        "status",
+        "valueRules",
+        "verification"
+      ],
+      "declaredIds": []
+    }
+  ],
+  "candidateModel": {
+    "subjectId": "media",
+    "schemaVersion": "ghatana.experience-specification.v1"
+  },
+  "candidateFieldSources": {
+    "subjectId": {
+      "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+      "sourcePath": "productId",
+      "mapping": "identity copy"
+    },
+    "schemaVersion": {
+      "sourceRef": "@ghatana/experience-specification public export",
+      "sourcePath": "EXPERIENCE_SPECIFICATION_SCHEMA_VERSION",
+      "mapping": "public contract constant"
+    }
+  },
+  "fieldMappingBlockers": [
+    {
+      "field": "id",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "No canonical ExperienceDefinition identifier is declared in Media PDP-3 sources; productId is not reused as a definition ID."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "contextDimensions",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "No source resolves context dimensions to typed values, allowed values, and importance under this contract."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "renderTargets",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "Channel mentions are proposal dispositions, not resolved render-target definitions with schema kinds and display names."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "componentContracts",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "PDP-2 component contracts and Shared primitive bindings remain proposal/unadmitted; no accepted component contract set is selected."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "views",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "Screen records have candidate view content, but component, journey, and state refs are unresolved across source authorities."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "journeys",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "Journey steps, actors, outcomes, and view links need owner-resolved cross-phase references; fixture coverage is not an accepted mapping."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "interactions",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "Action intents do not yet supply schema trigger, preconditions, or resolved actionRef contracts."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "states",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "State projections require accepted PDP-1 state definitions and resolved invariant semantics, which remain pending."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "transitions",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "Transition bindings are proposals and do not establish accepted transition semantics or references."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "actions",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "Action registry entries are proposal intents; operation authority, effects, preconditions, and references remain unresolved."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "effects",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "No accepted effect contract maps action outcomes to the schema effects collection."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "finality",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "Recovery/finality proposals do not provide a resolved set of ExperienceDefinition finality records."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "recovery",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "Recovery contracts remain proposals without accepted action, state, and finality references."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "scenarios",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "Scenario records describe fixtures/proposals and are not mapped to the schema's behavioral scenario contract."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "fixtures",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "Fixture registry records do not directly supply the ExperienceDefinition fixture shape and linked source data."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "search",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "No PDP-3 source explicitly defines search contracts in the ExperienceDefinition schema shape."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "inspections",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "Specification inspection surfaces are Explorer behavior, not source-defined Product Experience inspection contracts."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "createdAt",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "No Media authority supplies an ExperienceDefinition creation timestamp; generation time is not a source fact."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    },
+    {
+      "field": "updatedAt",
+      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "reasons": [
+        "No Media authority supplies an ExperienceDefinition update timestamp; generation time is not a source fact."
+      ],
+      "sourceAuthoritiesReviewed": [
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml"
+      ]
+    }
+  ],
+  "derivationBoundary": "Only explicitly source-backed identifiers and public schema versions are included in candidateModel. Each direct field has a source locator; all unmapped required schema fields remain absent and have an explicit blocker. Source facts remain unmerged observations until approved mappings and owners exist.",
+  "knownBlockers": [
+    "Required ExperienceDefinition fields without direct source mappings remain absent; exact field-level mapping blockers are listed below."
+  ],
+  "validation": {
+    "schemaPackage": "@ghatana/experience-specification",
+    "schemaContract": "../ghatana-tools/libs/product-development/experience-specification/schemas/experience-specification.v1.schema.json",
+    "schemaId": "https://schemas.ghatana.dev/product-development/experience-specification/v1",
+    "schemaValid": false,
+    "schemaBlockers": [
+      "/ must have required property 'id'",
+      "/ must have required property 'contextDimensions'",
+      "/ must have required property 'renderTargets'",
+      "/ must have required property 'componentContracts'",
+      "/ must have required property 'views'",
+      "/ must have required property 'journeys'",
+      "/ must have required property 'interactions'",
+      "/ must have required property 'states'",
+      "/ must have required property 'transitions'",
+      "/ must have required property 'actions'",
+      "/ must have required property 'effects'",
+      "/ must have required property 'finality'",
+      "/ must have required property 'recovery'",
+      "/ must have required property 'scenarios'",
+      "/ must have required property 'fixtures'",
+      "/ must have required property 'search'",
+      "/ must have required property 'inspections'",
+      "/ must have required property 'createdAt'",
+      "/ must have required property 'updatedAt'"
+    ],
+    "publicValidator": "installed-public-package-export",
+    "publicValidatorPassed": false,
+    "publicValidatorBlockers": [
+      "ExperienceDefinition: $.id is required."
+    ]
+  },
+  "acceptance": "NOT_CLAIMED",
+  "currentness": "NOT_GENERATED; Lifecycle authority required"
+}

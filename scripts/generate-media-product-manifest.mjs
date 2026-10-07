@@ -10,7 +10,8 @@
  */
 
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -230,6 +231,58 @@ function yamlScalar(value) {
   return JSON.stringify(value);
 }
 
+function repositoryObservation(repositoryId, relativeRoot, files) {
+  const repositoryRoot = resolve(root, relativeRoot);
+  if (!existsSync(join(repositoryRoot, ".git"))) {
+    return { repositoryId, available: false, revision: null, workingTree: "UNAVAILABLE", files: [] };
+  }
+  const runGit = (args) => execFileSync("git", ["-C", repositoryRoot, ...args], { encoding: "utf8" }).trim();
+  const revision = runGit(["rev-parse", "HEAD"]);
+  const workingTree = runGit(["status", "--porcelain", "--untracked-files=no"]).length ? "MODIFIED" : "CLEAN";
+  const observedFiles = files.flatMap(({ path, packageName }) => {
+    const absolutePath = join(repositoryRoot, path);
+    if (!existsSync(absolutePath)) return [{ path, package: packageName, state: "UNAVAILABLE" }];
+    const bytes = readFileSync(absolutePath);
+    const record = { path, sha256: sha256(bytes) };
+    if (packageName && path.endsWith("package.json")) {
+      try { record.version = JSON.parse(bytes.toString("utf8")).version ?? null; }
+      catch { record.version = "INVALID_PACKAGE_JSON"; }
+      record.package = packageName;
+    }
+    return [record];
+  });
+  return { repositoryId, available: true, revision, workingTree, files: observedFiles };
+}
+
+const externalOwnerObservations = [
+  repositoryObservation("ghatana", "../ghatana", [
+    { path: "config/repo-boundary.json" },
+    { path: "config/service-contract-source.json" },
+    { path: "services/media/service-contract.yaml" },
+    { path: "services/media/service-contract-supplements/source-overlay.json" },
+  ]),
+  repositoryObservation("ghatana-tools", "../ghatana-tools", [
+    { packageName: "@ghatana/product-definition", path: "libs/product-development/product-definition/package.json" },
+    { path: "libs/product-development/product-definition/schemas/product-definition.v1.schema.json" },
+    { packageName: "@ghatana/experience-language", path: "libs/product-development/experience-language/package.json" },
+    { path: "libs/product-development/experience-language/schemas/experience-language.v1.schema.json" },
+    { packageName: "@ghatana/experience-specification", path: "libs/product-development/experience-specification/package.json" },
+    { path: "libs/product-development/experience-specification/schemas/experience-specification.v1.schema.json" },
+    { packageName: "@ghatana/experience-package", path: "libs/product-development/experience-package/package.json" },
+    { packageName: "@ghatana/product-dev-explorer", path: "tools/product-development/explorer/package.json" },
+  ]),
+  repositoryObservation("ghatana-lifecycle", "../ghatana-lifecycle", [
+    { packageName: "@ghatana/lifecycle", path: "package.json" },
+    { path: "scripts/checks/check-pdp-acceptance.mjs" },
+  ]),
+  repositoryObservation("ghatana-shared", "../ghatana-shared", [
+    { packageName: "@ghatana/tokens", path: "platform/typescript/tokens/package.json" },
+    { path: "platform/typescript/tokens/src/semantic-roles.ts" },
+    { packageName: "@ghatana/theme", path: "platform/typescript/theme/package.json" },
+    { packageName: "@ghatana/design-system", path: "platform/typescript/design-system/package.json" },
+  ]),
+];
+
 function generate() {
 const identitySource = readFileSync(identityRegistryPath, "utf8");
 const registry = parseArtifactIdentityRegistry(identitySource);
@@ -239,6 +292,24 @@ const relativeFiles = walk(productRoot)
   .sort();
 const identities = validateArtifactIdentities(registry.records, relativeFiles, registry.authorityClasses, registry.manifestProjection);
 const manifestProjectionRecord = registry.manifestProjection;
+const artifactIdByPath = new Map([...identities].map(([path, identity]) => [path, identity.artifactId]));
+const sourceByPath = new Map(relativeFiles.map((path) => [path, readFileSync(join(root, path), "utf8")]));
+const dependenciesByPath = new Map(relativeFiles.map((sourcePath) => {
+  const source = sourceByPath.get(sourcePath);
+  const dependencies = relativeFiles
+    .filter((targetPath) => targetPath !== sourcePath && source.includes(targetPath))
+    .map((targetPath) => artifactIdByPath.get(targetPath))
+    .filter(Boolean)
+    .sort();
+  return [sourcePath, dependencies];
+}));
+const dependentsByPath = new Map(relativeFiles.map((path) => [path, []]));
+for (const [sourcePath, dependencies] of dependenciesByPath) {
+  for (const targetId of dependencies) {
+    const targetPath = relativeFiles.find((path) => artifactIdByPath.get(path) === targetId);
+    if (targetPath) dependentsByPath.get(targetPath).push(artifactIdByPath.get(sourcePath));
+  }
+}
 const records = relativeFiles.map((path) => {
   const phase = phaseFor(path);
   const source = readFileSync(join(root, path), "utf8");
@@ -264,8 +335,8 @@ const records = relativeFiles.map((path) => {
       contentSha256: sha256(source),
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance.",
     },
-    dependencies: [],
-    dependents: [],
+    dependencies: dependenciesByPath.get(path),
+    dependents: dependentsByPath.get(path).sort(),
     legacyPlanTaskRefs: [],
   };
 });
@@ -284,6 +355,28 @@ const lines = [
   "  classification: REFERENCE",
   "  executionRole: MIGRATION_EXECUTION_PLAN",
   "  semanticAuthority: false",
+  "externalOwnerObservations:",
+  "  status: SOURCE_OBSERVATION_ONLY; not-schema-validation-or-semantic-currentness",
+  "  repositories:",
+];
+
+for (const observation of externalOwnerObservations) {
+  lines.push(`  - repositoryId: ${observation.repositoryId}`);
+  lines.push(`    available: ${observation.available}`);
+  lines.push(`    revision: ${observation.revision ?? "UNAVAILABLE"}`);
+  lines.push(`    workingTree: ${observation.workingTree}`);
+  lines.push("    files:");
+  if (!observation.files.length) lines.push("      []");
+  for (const file of observation.files) {
+    lines.push("      - path: " + yamlScalar(file.path));
+    if (file.package) lines.push("        package: " + yamlScalar(file.package));
+    if (file.version) lines.push("        version: " + yamlScalar(file.version));
+    if (file.sha256) lines.push(`        sha256: ${file.sha256}`);
+    if (file.state) lines.push(`        state: ${file.state}`);
+  }
+}
+
+lines.push(
   "supplementalDecisionReference:",
   "  title: Document Intelligence ownership instruction",
   "  path: docs/migration/decisions/MDI-001-document-intelligence-ownership.md",
@@ -294,7 +387,7 @@ const lines = [
   "  taskDependencySource: .product-experience/traceability.yaml",
   "  generator: scripts/generate-media-product-manifest.mjs",
   "  records:",
-];
+);
 
 for (const record of records) {
   lines.push(`  - artifactId: ${record.artifactId}`);
@@ -308,8 +401,11 @@ for (const record of records) {
   lines.push(`    generatedOrAuthored: ${record.generatedOrAuthored}`);
   lines.push("    generatedFrom:");
   for (const value of record.generatedFrom) lines.push(`    - ${value}`);
-  lines.push("    dependencies: []");
-  lines.push("    dependents: []");
+  const dependencies = record.dependencies;
+  const dependents = record.dependents;
+  lines.push("    dependencyBasis: explicit-repository-relative-source-path-mentions; provenance-only");
+  lines.push(`    dependencies: [${dependencies.join(", ")}]`);
+  lines.push(`    dependents: [${dependents.join(", ")}]`);
   lines.push(`    schema: ${record.schema}`);
   lines.push(`    verification: ${record.verification}`);
   lines.push(`    acceptanceState: ${record.acceptanceState}`);

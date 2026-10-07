@@ -641,6 +641,37 @@ coverage:
   authoredLaneSpecificViewProposalCount: 6
   partialBaselineViewFragmentCount: 10
   rule: Every-baseline-view-requires-a-closed-contract; authored-proposals-do-not-count-as-accepted-contracts; J-01-and-J-02-fragments-and-lane-specific-J-03-contracts-do-not-certify-a-complete-baseline-view.
+  currentContractObservation:
+    status: source-inventory-only; semantic-acceptance-pending
+    canonicalScreenContractCount: 47
+    templateId:
+      recordedExactCatalogIdCandidates: 3
+      unresolvedOrNull: 44
+      acceptance: pending; catalog-candidate-reference-does-not-prove-template-composition
+    layoutIds:
+      empty: 47
+      blocker: PDP-2-has-no-registered-layout-ids-to-bind
+    tokenDependencies:
+      empty: 47
+      blocker: screen-specific-token-dependencies-are-not-bound
+    domainObjectRefs:
+      empty: 47
+      blocker: PDP-1-domain-records-remain-proposal-only-and-screen-bindings-are-not-declared
+    operationRefs:
+      empty: 47
+      blocker: action-to-operation-and-effect-bindings-remain-unresolved
+    stateRefs:
+      empty: 47
+      blocker: canonical-PDP-1-screen-state-bindings-remain-unresolved
+    actionConsequences:
+      total: 182
+      withBoundOperation: 0
+      withBoundEffect: 0
+      pending: 182
+    verification:
+      notRun: 47
+      accepted: 0
+    evidenceBasis: parsed-screen-contract-directory; counts-are-inventory-only-and-do-not-establish-behavior-design-acceptance-or-currentness
 contextualSpecializations:
 - viewRef: media.view.select-source
   contractRef: screen-contracts/select-source.yaml

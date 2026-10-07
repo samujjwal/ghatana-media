@@ -216,10 +216,26 @@ if (requirementOutcomeTraceCount !== requirementIds.size) {
   fail("Only " + requirementOutcomeTraceCount + " of " + requirementIds.size + " requirements have an outcome trace");
 }
 if (!coverageSource.includes("outcomeDenominator: 10") ||
-    !coverageSource.includes("explorerArtifacts: {expected: 147") ||
+    !coverageSource.includes("explorerArtifacts: {rule: generated-count-equals-current-source-manifest-records-plus-the-manifest-projection}") ||
     !coverageSource.includes("masterPromptCoverage:") ||
     !coverageSource.includes("id: MP-73-79")) {
   fail("Vision/requirements coverage ledger does not record the current denominators and full master-prompt section coverage");
+}
+for (const [phase, localProjection, source] of [
+  ["PDP-0", "PDP-0-product-truth", "pdp-0-product-truth/"],
+  ["PDP-1", "PDP-1-domain-data", "pdp-1-domain-data/"],
+  ["PDP-2", "PDP-2-design-interface-system", "pdp-2-design-interface-system/"],
+  ["PDP-3", "PDP-3-product-experience", "pdp-3-product-experience/"],
+  ["Experience-Explorer-projection", "EXPLORER", "explorer/"],
+]) {
+  const escapedPhase = phase.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  const block = coverageSource.match(new RegExp(`- masterPromptPhase: ${escapedPhase}\\n([\\s\\S]*?)(?=\\n  - masterPromptPhase:|\\nmasterPlanCoverage:|$)`, "u"))?.[1] ?? "";
+  if (!block.includes(`localProjection: ${localProjection}`) || !block.includes(source)) {
+    fail(`Four-phase crosswalk misbinds ${phase}; expected ${localProjection} over ${source}`);
+  }
+}
+if (/localProjection: (?:P0|P1|P2|P3)(?:\s|$)/mu.test(coverageSource)) {
+  fail("Vision/requirements crosswalk contains legacy P0/P1/P2/P3 projections");
 }
 note(outcomeIds.size + " PDP-0 vision outcomes have journey/supporting-view coverage; " + requirementOutcomeTraceCount + " requirement groups have outcome traces");
 note(`${capabilityIds.size} PDP-0 capability leaves resolve to ${familyIds.size} families and ${requirementIds.size} requirement IDs; ${capabilityCoreComplete} expose the required definition shape; ${operationSpecificParameterProposals} have operation-specific parameter proposals and ${capabilityIds.size - operationSpecificParameterProposals} still require owner-approved bounds`);

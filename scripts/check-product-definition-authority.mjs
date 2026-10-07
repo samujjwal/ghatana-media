@@ -83,6 +83,7 @@ for (const artifact of index) {
   if (artifact.path.startsWith("/") || !exists(artifact.path)) fail(`invalid Explorer source path ${artifact.path}`);
 }
 if (!index.some((artifact) => artifact.path === ".product-experience/source-manifest.yaml")) fail("Explorer index does not expose the generated source manifest");
+if (index.length !== manifestRecords.length + 1) fail(`Explorer index has ${index.length} records; expected the generated manifest count ${manifestRecords.length} plus the manifest projection`);
 if (index.some((artifact) => /stablePathId|path-derived/iu.test(JSON.stringify(artifact)))) fail("Explorer index contains path-derived semantic identity metadata");
 
 required([
@@ -121,8 +122,11 @@ required([
 ]);
 
 const surfaceRegistry = read(".product-experience/surface-registry.yaml");
-for (const [field, expected] of [["guiScreens", 47], ["httpOperations", 27], ["grpcRpcs", 43], ["agentToolHandlers", 4], ["planCliCommands", 11], ["fixtureCliCommandsObserved", 12], ["explorerRecordsHistorical", 147]]) {
+for (const [field, expected] of [["guiScreens", 47], ["httpOperations", 27], ["grpcRpcs", 43], ["agentToolHandlers", 4], ["planCliCommands", 11], ["fixtureCliCommandsObserved", 12]]) {
   if (!new RegExp(`^  ${field}: ${expected}$`, "mu").test(surfaceRegistry)) fail(`surface registry denominator ${field} is not ${expected}`);
+}
+if (/^  explorerRecordsHistorical:/mu.test(surfaceRegistry) || /historical 147-record index/u.test(surfaceRegistry)) {
+  fail("surface registry retains a stale fixed Explorer record count instead of using the generated source index");
 }
 for (const field of ["surfaceId:", "surfaceType:", "purpose:", "consumers:", "owners:", "upstreamProductTruth:", "canonicalDomainConcepts:", "interactionModel:", "contractAuthority:", "securityAuthorityModel:", "availabilityExpectations:", "versioningExpectations:", "compatibilityExpectations:", "applicablePdpArtifacts:", "explorerProjection:", "semanticStatus:", "implementationStatus:", "qualificationStatus:"]) {
   if (!surfaceRegistry.includes(field)) fail(`surface registry lacks field ${field}`);

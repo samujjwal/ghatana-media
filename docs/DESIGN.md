@@ -83,11 +83,12 @@ boundary slice.
 `.product-experience/source-manifest.yaml` and
 `apps/media-experience-explorer/specification-artifacts.json` from the authored
 Product Definition tree. Rerun it after changing those sources; do not edit
-either generated file manually. The generator preserves IDs for unchanged paths
-and derives IDs from repository paths for newly indexed paths, so these artifact
-IDs are not semantic stable IDs. Its content hashes are provenance only, its
-dependency lists are not populated, and it does not generate owner-approved
-semantic fingerprints or currentness. Product/Experience contract mechanics
+either generated file manually. Artifact IDs are explicitly pinned in
+`artifact-identities.yaml`; opaque legacy IDs resembling path digests remain
+unchanged. The generator records source-path mentions as provenance-only
+dependency edges, not semantic relations. Content hashes are provenance only,
+and it does not generate owner-approved semantic fingerprints or currentness.
+Product/Experience contract mechanics
 belong to Tools; generated cross-repository currentness and evidence outputs
 belong to lifecycle.
 
@@ -112,8 +113,8 @@ establishes Document Intelligence ownership, and
 classification of prepared OCR code. Public-client binding and runtime adapter
 reconciliation remain open under PDP0-003/IMP-01. The competing SDK route
 families and `av.*` tool identity policy require owner decisions before changes.
-Duplicating Shared values, treating Explorer as a PDP phase, or using path-derived
-IDs as semantic identity cannot satisfy the prescribed target.
+Duplicating Shared values, treating Explorer as a PDP phase, or treating
+provenance as semantic identity cannot satisfy the prescribed target.
 
 ## Verification
 

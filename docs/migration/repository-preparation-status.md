@@ -20,7 +20,7 @@ boundary slice is accepted. Remaining PDP-0 meaning and independent review are
 open. Current fixed denominators are 10 P0 outcomes, 38 functional requirement
 groups, 462 capability leaves, 28 PDP-2 component contracts, 47 canonical
 screens in 48 screen-contract files, 30 journeys, 27 HTTP operations, 43 gRPC
-RPCs, 11 planned CLI commands (12 fixture entries observed), and four Agent
+RPCs, 11 CLI fixture/plan commands versus 12 broader proposal records, and four Agent
 Tool handlers. These counts are inventory denominators, not acceptance or
 implementation claims.
 

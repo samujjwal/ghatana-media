@@ -70,15 +70,21 @@ and currentness remain explicitly pending until their owner binding is available
 These previews make the source contracts inspectable without implementing their
 views or closing PDP-2 or PDP-3 acceptance.
 
-The Tools Review tab (`#tools-review`) runs the Media consumer bridge through public Tools package exports
-at `0.1.0-SNAPSHOT`. It validates clearly labeled synthetic Product Definition
-and Media ProductExperiencePackage fixtures, exercises public trace projection,
-and loads, renders, inspects, and dispatches the Media package through
-`createExplorer`. The route labels itself as local snapshot simulation proof;
-currentness is absent and owner acceptance is none. The existing Product and
-Explore modes remain Media-owned review surfaces, not a generic Tools-hosted
-product runtime. This route does not establish full Phase 3 acceptance, registry
-publication, normal workspace lockfile resolution, or Lifecycle currentness.
+The Tools Review tab (`#tools-review`) loads the Media package binding and the
+actual indexed Product Truth, domain, presentation, screen, journey, action, and
+Explorer verification source files. It then loads the scoped Media package
+adapter through the public `@ghatana/product-dev-explorer` API and exercises
+render, inspect, and dispatch. The deterministic scenario state is explicitly
+still a fixture projection. The route reports blockers, absent Lifecycle
+currentness and owner acceptance, and raw source authorities; source presence
+and package structure validation are not semantic acceptance. The existing
+Product and Explore modes remain Media-owned review surfaces. This route does
+not establish full PDP-3 acceptance, registry publication, normal workspace
+lockfile resolution, or Lifecycle currentness. Product Truth YAML is not
+presented as a canonical `ProductDefinition` instance because no such instance
+is published in the Media source tree. PDP-2 template/layout bindings to PDP-3
+screens remain proposals; candidate Shared screen bodies remain labeled
+unadmitted.
 The current Tools source contracts are recorded in
 [`tools-binding.yaml`](../../.product-experience/explorer/tools-binding.yaml):
 Product Definition, Experience Language, Experience Specification, Experience

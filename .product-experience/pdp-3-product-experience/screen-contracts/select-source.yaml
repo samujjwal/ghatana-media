@@ -45,9 +45,10 @@ responsiveBehavior:
 responsiveBehaviorBindingStatus: proposal-only-no-screen-specific-overrides
 fixtures:
   refs:
-    []
-  status: missing-no-existing-fixtureRefs-declared
-fixturesBindingStatus: missing-owner-reviewed-fixture-binding
+    - media.scenario.source-available
+    - media.scenario.source-quarantined
+  status: linked-to-deterministic-simulation-seeds; owner-review-and-behavior-verification-pending
+fixturesBindingStatus: exact-registry-ids-linked; expected-results-and-owner-review-pending
 verification:
   status: not-run
   evidenceRefs: []
@@ -73,7 +74,7 @@ fieldBindingStatus:
   exit: unresolved; no-canonical-reference-declared
   actionConsequences: pending; owner-operation-and-effect-binding-required
   responsiveBehavior: proposal-unverified; central-rule-reference-only
-  fixtures: missing; no-existing-fixtureRefs-declared
+  fixtures: source-proposal; behavior-unverified
   verification: not-run; no-evidence-refs
 channel: media.channel.web
 actors:

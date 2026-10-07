@@ -13,7 +13,6 @@ denominators:
   agentToolHandlers: 4
   planCliCommands: 11
   fixtureCliCommandsObserved: 12
-  explorerRecordsHistorical: 147
 statusVocabulary: [SOURCE_ONLY, PROPOSED, LOCAL_ONLY, COMPATIBILITY_ONLY, PENDING, OBSOLETE]
 applicabilityDispositionVocabulary: [TARGET_PENDING_ADMISSION, TARGET_HOST_CONTRACT_PENDING, COMPATIBILITY_CANONICALIZATION_PENDING, COMPATIBILITY_CONSOLIDATION_PENDING, TARGET_FIXTURE_ONLY, OWNER_DECISION_PENDING, TOOLING_LOCAL_ONLY, NOT_ACTIVE_ARCHIVED]
 surfaces:
@@ -344,7 +343,7 @@ surfaces:
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
     availabilityExpectations: local-only when Tools product/experience binding or lifecycle currentness is unavailable; never imply native acceptance
     versioningExpectations: generated projection follows source manifest and never owns semantic IDs
-    compatibilityExpectations: historical 147-record index is retained only as migration context
+    compatibilityExpectations: Explorer index is regenerated from the current source manifest; historical counts are evidence only
     applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
     explorerProjection: '#overview'
     semanticStatus: PROPOSED

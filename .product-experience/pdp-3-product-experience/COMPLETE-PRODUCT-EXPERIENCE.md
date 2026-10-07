@@ -43,9 +43,11 @@ states with safe next actions.
 The lane uses `media.goal.understand-media`, `media.goal.review-trustworthy-output`,
 `media.intent.understand`, and PDP-0 journey `J-03`. It does not claim a
 supported locale, a callable wire route, provider availability, or a qualified
-runtime. API wire bindings remain open under `GAP-05`; Tools validation and
-Explorer bindings remain open under `GAP-MEDIA-TOOLS-SCHEMA-BINDING` and
-`GAP-11`.
+runtime. API wire bindings remain open under `GAP-05`; complete Tools validation
+and Explorer bindings remain open under `GAP-MEDIA-TOOLS-SCHEMA-BINDING` and
+`GAP-11`. A local generated candidate invokes available public schema and
+validator contracts but fails closed on unresolved ExperienceDefinition fields
+and owner references; it does not validate or accept the full PDP-3.
 
 ## Reading the specification
 
@@ -63,6 +65,12 @@ Explorer bindings remain open under `GAP-MEDIA-TOOLS-SCHEMA-BINDING` and
   state projection, CLI/API parity, realistic synthetic scenarios, and recovery.
 - `scenario-fixture-registry.yaml` references PDP-3 fixture content; it does
   not duplicate fixture payloads.
+- `generated/experience-specification.candidate.json` records source hashes,
+  observed identifiers, and a partial candidate subject/schema identity. The
+  sibling schema and public validator report missing required model fields;
+  external actor, outcome, guard, and context references remain unresolved.
+  This generated candidate does not imply a complete ExperienceDefinition,
+  acceptance, or Lifecycle currentness.
 
 The reviewed plan's legacy `M-*` view IDs remain crosswalk references. New
 view, action, CLI-command, and scenario identifiers follow the canonical

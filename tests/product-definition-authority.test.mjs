@@ -204,7 +204,7 @@ test("active cross-phase metadata uses canonical PDP labels while stable excepti
   const gaps = readFileSync(resolve(root, ".product-experience/gaps.yaml"), "utf8");
   assert.match(gaps, /^- id: GAP-MEDIA-PHASE2-COVERAGE$/mu);
   assert.match(gaps, /^- id: GAP-MEDIA-PHASE1-COMPONENT-COVERAGE$/mu);
-  assert.match(gaps, /PDP-0, PDP-1, PDP-2, and PDP-3 checks/u);
+  assert.match(gaps, /PDP-0, PDP-1, PDP-2,\s+and PDP-3 checks/u);
   assert.match(gaps, /PDP-0-through-PDP-3-certification/u);
   const verification = readFileSync(resolve(root, ".product-experience/explorer/verification-matrix.yaml"), "utf8");
   assert.match(verification, /462-PDP-0-capability-leaves/u);

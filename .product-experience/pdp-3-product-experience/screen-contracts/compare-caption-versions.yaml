@@ -30,8 +30,8 @@ responsiveBehavior:
   status: proposal-unverified
   screenSpecificOverrides: []
 fixtures:
-  refs: []
-  status: missing
+  refs: [media.scenario.caption-version-comparison, media.scenario.caption-source-mismatch]
+  status: linked-to-deterministic-simulation-seeds; owner-review-and-behavior-verification-pending
 verification:
   status: not-run
   evidenceRefs: []
@@ -56,7 +56,7 @@ fieldBindingStatus:
   exit: unresolved-no-direct-canonical-reference
   actionConsequences: pending-owner-operation-and-effect-binding
   responsiveBehavior: proposal-unverified; PDP-2-acceptance-pending
-  fixtures: missing-no-existing-fixtureRefs
+  fixtures: source-proposal; behavior-unverified
   verification: not-run; no-evidence-refs
 productId: media
 screenId: media.view.compare-caption-versions

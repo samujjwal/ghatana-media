@@ -28,11 +28,25 @@
     "title": "Authority Map"
   },
   {
+    "artifactId": "ART-GOV-CLOSURE-DASHBOARD",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/closure-dashboard.yaml",
+    "title": "Closure Dashboard"
+  },
+  {
     "artifactId": "ART-GOV-DECISION-LOG",
     "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "path": ".product-experience/decision-log.md",
     "title": "Decision Log"
+  },
+  {
+    "artifactId": "ART-GOV-DEVELOPMENT-VERSION-POLICY",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/development-version-policy.json",
+    "title": "Development Version Policy"
   },
   {
     "artifactId": "ART-GOV-EXECUTABLE-REPRESENTATION-README",
@@ -229,6 +243,13 @@
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/domain-model.yaml",
     "title": "Domain Model"
+  },
+  {
+    "artifactId": "ART-PDP0-PRODUCT-DEFINITION-CANDIDATE",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
+    "phase": "PDP-0",
+    "path": ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json",
+    "title": "Product Definition.Candidate"
   },
   {
     "artifactId": "ART-P0-GLOSSARY",
@@ -665,6 +686,13 @@
     "title": "Executable Ui Inventory"
   },
   {
+    "artifactId": "ART-PDP2-EXPERIENCE-LANGUAGE-CANDIDATE",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json",
+    "title": "Experience Language.Candidate"
+  },
+  {
     "artifactId": "ART-MEDIA-8B2627A1C5C0",
     "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
@@ -712,6 +740,13 @@
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/primitives.yaml",
     "title": "Primitives"
+  },
+  {
+    "artifactId": "ART-PDP2-REUSE-AUDIT",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml",
+    "title": "Reuse Audit"
   },
   {
     "artifactId": "ART-MEDIA-C46E1B47171F",
@@ -1083,6 +1118,13 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/events/event-registry.yaml",
     "title": "Event Registry"
+  },
+  {
+    "artifactId": "ART-PDP3-EXPERIENCE-SPECIFICATION-CANDIDATE",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
+    "title": "Experience Specification.Candidate"
   },
   {
     "artifactId": "ART-MEDIA-96177BF670D050B776EA",

@@ -26,6 +26,7 @@ or manufacture duplicate schemas. The remaining binding work is tracked under
 | Product | Shows the selected first-use, artifact-intake, transcription, caption-review, or job-status surface, or a route-addressable, read-only projection of one of the 47 PDP-3 screen contracts. Proposal actions are visibly disabled. The header, mode tabs, Explorer tabpanel, and Explorer controls are absent; the document title follows the selected view. |
 | Explore | Selects a named scenario, supported web or CLI projection, preview width, and accessibility profile; actor and locale remain fixture-declared. J-01 is Web-only; J-02 upload recovery and J-20 transcription job status, cancellation, and outcome checking have local CLI commands. |
 | Specification | Inspects PDP-0 outcome/capability, PDP-1 component/state rules, and PDP-3 action/view/journey records. All 47 canonical screen contracts plus the job-family specialization have read-only previews of their declared structure, states, actions, channels, and guidance; actions remain labeled as not connected. Each screen preview opens its Product proposal route. Search filters records by title and filename, with the source YAML retained below the preview. |
+| Tools Review | Loads actual indexed Media authority files and the scoped Media package adapter through the public `@ghatana/product-dev-explorer` API, then exposes deterministic render/inspect/dispatch observations and blockers. Scenario state remains a fixture projection; source presence, package structure, and proposal routes are not semantic acceptance. |
 | Verify | Reports current package bindings, reducer observations, structural and action coverage, and the required browser/accessibility evidence still missing. |
 
 The Explorer also exposes Overview and semantic views for Truth, Domain, Design
@@ -108,8 +109,9 @@ the PDP-3 view and action identifiers under the PDP-0 naming policy.
 - Specification trace context exposes the manifest artifact ID, phase and
   authority class, canonical source location, pending Tools semantic
   fingerprint/currentness, declared relation fields, and verification status.
-  The generator derives IDs from repository paths for newly indexed sources, so
-  they are not stable semantic identities. This is a source-manifest
+  Artifact IDs are explicitly pinned in `artifact-identities.yaml`; opaque
+  legacy values resembling path digests are retained unchanged. Generated
+  source-path mention edges are provenance-only. This is a source-manifest
   projection, not a replacement semantic authority.
 - The canonical command simulator uses the command IDs and guarded reducer
   declared in PDP-2/PDP-3. Versioned JSON/JSONL result and parse-error records stay

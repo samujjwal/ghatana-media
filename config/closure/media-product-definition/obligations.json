@@ -1,0 +1,94 @@
+[
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-0.product-truth",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "product-truth",
+    "statement": "Owner-adjudicate complete, testable, traceable product intent, actors, capabilities, quality requirements, and scope for PDP-0.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-0"
+      ],
+      "blockingIn": [
+        "PDP-0"
+      ],
+      "affects": [
+        "PDP-0"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": []
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.domain-data",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "domain-data",
+    "statement": "Owner-adjudicate canonical domain, state, operation, authority, data, and projection semantics for PDP-1.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": []
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-2.design-interface-system",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "design-interface-system",
+    "statement": "Owner-adjudicate reusable presentation, interaction, accessibility, and machine-interface contracts for PDP-2.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-2"
+      ],
+      "blockingIn": [
+        "PDP-2"
+      ],
+      "affects": [
+        "PDP-2"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": []
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.product-experience",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "complete-product-experience",
+    "statement": "Owner-adjudicate and verify complete screen, journey, and machine experiences bound to PDP-0 through PDP-2 for PDP-3.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": []
+  }
+]

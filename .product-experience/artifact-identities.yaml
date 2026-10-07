@@ -3,7 +3,7 @@ status: OWNER_APPROVED_IDENTITY_AND_CLASSIFICATION_METADATA_ONLY
 purpose: Pinned canonical artifact identity and explicit display-authority classification.
 inventoryPolicy:
   locationMetadata: repository-relative paths; moving an artifact updates path only and preserves artifactId.
-  identityPolicy: 206 previously committed IDs are preserved; 60 use legacy ART-MEDIA- plus first 12 uppercase SHA-256(path) hex and are never recomputed or claimed path-independent; 72 prior additions are explicit opaque IDs and 17 new additions use explicit stable descriptive IDs.
+  identityPolicy: Every artifactId is explicitly pinned in this registry and remains unchanged when its source path moves; the generator never derives semantic identity from path, title, content, or inventory order. Opaque legacy IDs remain stable identifiers, not claims about meaning.
   classificationPolicy: authorityClass is explicitly authored per identity and is not inferred from owningPhase.
   selfExclusion: .product-experience/artifact-identities.yaml is source metadata and is excluded from its own generated artifact inventory.
 allowedAuthorityClasses:
@@ -903,3 +903,21 @@ records:
   - path: ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml"
     artifactId: "ART-P2-SEMANTIC-COMPONENT-BINDINGS"
     authorityClass: "DESIGN_INTERFACE_AUTHORITY"
+  - path: ".product-experience/development-version-policy.json"
+    artifactId: "ART-GOV-DEVELOPMENT-VERSION-POLICY"
+    authorityClass: "CROSS_PHASE_GOVERNANCE"
+  - path: ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json"
+    artifactId: "ART-PDP0-PRODUCT-DEFINITION-CANDIDATE"
+    authorityClass: "PRODUCT_TRUTH_AUTHORITY"
+  - path: ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json"
+    artifactId: "ART-PDP2-EXPERIENCE-LANGUAGE-CANDIDATE"
+    authorityClass: "DESIGN_INTERFACE_AUTHORITY"
+  - path: ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml"
+    artifactId: "ART-PDP2-REUSE-AUDIT"
+    authorityClass: "DESIGN_INTERFACE_AUTHORITY"
+  - path: ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json"
+    artifactId: "ART-PDP3-EXPERIENCE-SPECIFICATION-CANDIDATE"
+    authorityClass: "PRODUCT_EXPERIENCE_AUTHORITY"
+  - path: ".product-experience/closure-dashboard.yaml"
+    artifactId: "ART-GOV-CLOSURE-DASHBOARD"
+    authorityClass: "CROSS_PHASE_GOVERNANCE"

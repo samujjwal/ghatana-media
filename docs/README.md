@@ -59,11 +59,12 @@ deterministic Explorer fixtures.
 
 Available checks include Node local invariant tests, simulation tests,
 module/launcher/provider tests, API consumption tests, and a Playwright browser
-audit. The 2026-10-07 browser audit ran against the regenerated 296-record
-index and current Vite build: 29 scenarios, 47 Product proposal routes, six
-viewports, and no assertion, console, or page errors. This is local browser
-evidence; it does not establish Tools-native acceptance, owner review, build
-isolation, or Lifecycle currentness.
+audit. The repository-recorded 2026-10-07 report exercised 29 scenarios, 47
+Product proposal routes, the 296-record Specification index, and six viewports;
+it reports no failed assertions, console errors, or page errors. That report
+predates subsequent Explorer package-consumer edits, so rerun the browser audit
+before using it as evidence for the current checkout. It does not establish
+Tools-native acceptance, owner review, build isolation, or Lifecycle currentness.
 
 ### Repairable documentation drift
 

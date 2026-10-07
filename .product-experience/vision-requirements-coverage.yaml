@@ -14,27 +14,24 @@ sourceInputs:
   explorer: explorer/ and ../apps/media-experience-explorer/
 phaseCrosswalk:
   - masterPromptPhase: PDP-0
-    localProjection: P0
+    localProjection: PDP-0-product-truth
     sources: [pdp-0-product-truth/]
     status: captured-proposal; P0-001-boundary-slice-accepted; P0-010-pending
   - masterPromptPhase: PDP-1
-    localProjection: P0-domain-and-state-records
+    localProjection: PDP-1-domain-data
     sources:
-      - pdp-0-product-truth/domain-model.yaml
-      - pdp-0-product-truth/state-models.yaml
-      - pdp-0-product-truth/time-units-fidelity.yaml
-      - pdp-0-product-truth/schema-bindings.yaml
+      - pdp-1-domain-data/
     status: captured-proposal; independent-semantic-review-pending
   - masterPromptPhase: PDP-2
-    localProjection: P1
+    localProjection: PDP-2-design-interface-system
     sources: [pdp-2-design-interface-system/]
     status: captured-proposal; P1-006-pending
   - masterPromptPhase: PDP-3
-    localProjection: P2
+    localProjection: PDP-3-product-experience
     sources: [pdp-3-product-experience/]
     status: captured-proposal; P2-008-pending
   - masterPromptPhase: Experience-Explorer-projection
-    localProjection: P3
+    localProjection: EXPLORER
     sources:
       - explorer/
       - ../apps/media-experience-explorer/
@@ -135,7 +132,7 @@ coverageChecks:
   componentContracts: {expected: 28, rule: every-component-has-design-state-action-accessibility-localization-and-misuse-fields}
   screenContracts: {expected: 47, rule: every-contract-is-indexed-source-linked-and-proposal-actions-are-disabled}
   journeys: {expected: 30, proposalFiles: 28, rule: every-journey-has-outcome-actor-step-success-failure-recovery-context-channel-and-accessibility-fields}
-  explorerArtifacts: {expected: 147, rule: every-indexed-source-record-is-reachable-from-Specification-with-trace-metadata}
+  explorerArtifacts: {rule: generated-count-equals-current-source-manifest-records-plus-the-manifest-projection}
 knownCoverageGaps:
   - id: capability-leaf-journey-reachability
     count: 385

@@ -28,7 +28,7 @@ actionConsequences:
     consequence: unresolved
     status: pending-owner-binding
 responsiveBehavior: {ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive, status: proposal-unverified, screenOverrides: []}
-fixtures: {refs: [], status: missing}
+fixtures: {refs: [media.scenario.upload-interrupted, media.scenario.upload-checksum-mismatch, media.scenario.upload-format-unsupported, media.scenario.upload-quarantined, media.scenario.upload-verified-available, media.scenario.upload-outcome-unknown, media.scenario.upload-permission-revoked], status: linked-to-deterministic-simulation-seeds; owner-review-and-behavior-verification-pending}
 verification:
   status: not-run
   evidenceRefs: []
@@ -47,7 +47,7 @@ fieldBindingStatus:
   exit: no-canonical-exit-contract-declared
   actionConsequences: unresolved; owner-effect-binding-pending
   responsiveBehavior: proposal-only; unverified
-  fixtures: missing
+  fixtures: source-proposal; behavior-unverified
   verification: not-run
 productId: media
 screenId: media.view.import-media

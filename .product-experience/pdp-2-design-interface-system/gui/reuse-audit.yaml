@@ -1,0 +1,565 @@
+schemaVersion: media.pdp2-reuse-audit.v1
+productId: media
+authority: Source inventory observations and PDP-2 contract/catalog identity crosswalk; candidate links are not
+  admitted implementation or design bindings.
+status: audit-recorded; component-owner-review-pending; composition-review-pending; Shared-style-binding-unverified
+sourceInventory:
+  path: .product-experience/pdp-2-design-interface-system/executable-ui-inventory.json
+  sourceRevision: 25dcc89b04d3810ad126a1c7ea0881191f38edf1
+  entryCount: 157
+  dispositionCounts:
+    ARCHIVE_ONLY: 111
+    FIX: 22
+    REUSE: 16
+    UNRESOLVED: 8
+  dispositionRule: Every row uses REUSE, FIX, CONSOLIDATE, REPLACE, ARCHIVE_ONLY, or UNRESOLVED with unresolvedReason.
+    Existing observed hashes and working-tree states remain source observations, not freshness or acceptance evidence.
+  reviewLimits:
+  - Source presence/public exports do not prove an independently reusable component.
+  - No runtime, rendered accessibility, responsive behavior, or visual acceptance is inferred.
+  - Explorer rows remain host/proposal evidence and do not admit product screens.
+componentFamilyCrosswalk:
+- componentRef: media.component.identity-context-boundary
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.identity-context-boundary
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.intent-launcher
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.intent-launcher
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.project-browser
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.project-browser
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.project-context-summary
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.project-context-summary
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.creation-plan-summary
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.creation-plan-summary
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.source-picker
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.source-picker
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+  - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.source-player
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.source-player
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.transcript-review
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.transcript-review
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.caption-track-editor
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.caption-track-editor
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.job-status-card
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.job-status-card
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+  - libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.provenance-summary
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.provenance-summary
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.artifact-source-picker
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-source-picker
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.artifact-transfer-status
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-transfer-status
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.artifact-integrity-summary
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-integrity-summary
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.artifact-browser
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-browser
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.waveform-spectrogram
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.waveform-spectrogram
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/Waveform.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.storyboard
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.storyboard
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.timeline-keyframe-editor
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.timeline-keyframe-editor
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/PhraseTimeline.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.audio-mixer
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.audio-mixer
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/StemTrack.tsx
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.mask-tracking-editor
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.mask-tracking-editor
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.scene-inspector
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.scene-inspector
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.simulation-instruments
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.simulation-instruments
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.result-comparison
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.result-comparison
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.quality-inspector
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.quality-inspector
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.delivery-profile-picker
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.delivery-profile-picker
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.rights-retention-review
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.rights-retention-review
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.activity-recovery-feed
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.activity-recovery-feed
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
+  bindingStatus: candidate-source-link-needs-owner-review
+  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.cli-output
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.cli-output
+  contractStatus: authored-proposal; bindings-and-review-pending
+  implementationEvidence: no exact reusable implementation identified in the audited source inventory
+  bindingStatus: contract-only-no-observed-reusable-export
+  publicExport: none established
+  reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+templateCrosswalk:
+- templateId: media.gui.template.collection
+  catalogSource: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+  useFor: Searchable project, artifact, or version collections.
+  regions:
+  - context
+  - heading
+  - filters
+  - results
+  - pagination
+  - empty-or-error
+  - primary-action
+  patternRefs:
+  - media.gui.pattern.project-browser
+  status: catalog-proposal-pending-review
+  instanceTraceability: PDP-3 consumers require screen-owner binding and review; no acceptance implied
+- templateId: media.gui.template.workbench
+  catalogSource: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+  useFor: Time-based media review and editing.
+  regions:
+  - project-context
+  - source-player
+  - synchronized-work-area
+  - selection-details
+  - validation
+  - save-action
+  patternRefs:
+  - media.gui.pattern.transcript-and-playback
+  - media.gui.pattern.caption-editor
+  status: catalog-proposal-pending-review
+  instanceTraceability: PDP-3 consumers require screen-owner binding and review; no acceptance implied
+- templateId: media.gui.template.job-observation
+  catalogSource: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+  useFor: Durable asynchronous job observation and safe recovery.
+  regions:
+  - job-identity
+  - state-and-finality
+  - progress
+  - outputs
+  - cancellation-or-recovery
+  - provenance
+  patternRefs:
+  - media.gui.pattern.job-status-and-recovery
+  - media.gui.pattern.activity-attention
+  - media.gui.pattern.safe-confirmation-and-unknown-outcome
+  status: catalog-proposal-pending-review
+  instanceTraceability: PDP-3 consumers require screen-owner binding and review; no acceptance implied
+- templateId: media.gui.template.review-and-compare
+  catalogSource: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+  useFor: Review, compare, and accept or reject versioned outputs.
+  regions:
+  - source-context
+  - compared-identities
+  - comparison-content
+  - quality-and-uncertainty
+  - provenance
+  - decision-actions
+  patternRefs:
+  - media.gui.pattern.version-comparison
+  - media.gui.pattern.review-approval
+  - media.gui.pattern.quality-and-uncertainty
+  - media.gui.pattern.provenance-and-lineage
+  status: catalog-proposal-pending-review
+  instanceTraceability: PDP-3 consumers require screen-owner binding and review; no acceptance implied
+- templateId: media.gui.template.consent-gate
+  catalogSource: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+  useFor: Resolve required rights, consent, or access before affected work.
+  regions:
+  - requested-outcome
+  - affected-material
+  - scope-and-validity
+  - decision
+  - next-safe-action
+  patternRefs:
+  - media.gui.pattern.rights-and-consent-review
+  status: catalog-proposal-pending-review
+  instanceTraceability: PDP-3 consumers require screen-owner binding and review; no acceptance implied
+- templateId: media.gui.template.render-preparation-and-review
+  catalogSource: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+  useFor: Prepare one exact composition snapshot for rendering, then inspect and review outputs before separately
+    bound delivery.
+  regions:
+  - composition-snapshot
+  - profile-and-validation
+  - rights-and-estimates
+  - submission-and-job-finality
+  - output-verification
+  - review-decision
+  - delivery-status
+  patternRefs:
+  - media.gui.pattern.rendering
+  - media.gui.pattern.review-approval
+  - media.gui.pattern.provenance-and-lineage
+  status: catalog-proposal-pending-review
+  instanceTraceability: PDP-3 consumers require screen-owner binding and review; no acceptance implied
+- templateId: media.gui.template.lifecycle-confirmation
+  catalogSource: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+  useFor: Present a proposed consequential lifecycle request with exact scope, authority, impact, uncertainty, and
+    safe follow-up.
+  regions:
+  - exact-target-and-version
+  - authority-and-preconditions
+  - impact-and-retention
+  - explicit-confirmation
+  - pending-or-unknown-finality
+  - safe-verification-and-recovery
+  patternRefs:
+  - media.gui.pattern.destructive-lifecycle-action
+  - media.gui.pattern.safe-confirmation-and-unknown-outcome
+  status: catalog-proposal-pending-review
+  instanceTraceability: PDP-3 consumers require screen-owner binding and review; no acceptance implied
+layoutAuthority:
+  path: .product-experience/pdp-2-design-interface-system/gui/layout.yaml
+  observedAuthority: One composition rule set (hierarchy, responsive reflow, media work, collections, dialogs, density,
+    forbidden patterns).
+  layoutIdsRegistered: []
+  status: no canonical reusable layout identities are registered; do not assign PDP-3 layout IDs from descriptive
+    rules alone
+  scopeStatus: proposal; viewport values and Shared layout bindings require validation
+patternAuthority:
+  path: .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml
+  finding: Pattern catalog identities are available as references in the reusable template catalog; template/pattern
+    binding remains proposal and is not accepted.
+styleAuthority:
+  path: .product-experience/pdp-2-design-interface-system/gui/style-authority.yaml
+  semanticAliases: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
+  publicSharedContract: .product-experience/pdp-2-design-interface-system/gui/primitives.yaml
+  finding: Semantic aliases and candidate source roles are recorded. A local SNAPSHOT consumer check is documented,
+    but public registry/immutable release binding and design owner review are pending. Local stylesheet geometry/system
+    fallbacks remain unqualified implementation details; no raw style is promoted.
+blockers:
+- The AI Voice exports and Media screen implementations are source candidates, not owner-reviewed equivalence to
+  PDP-2 component family contracts.
+- PDP-2 component contracts do not yet record exact public export and independently reusable implementation bindings
+  for all 28 families.
+- gui/layout.yaml defines rules but registers zero canonical layout IDs; reusable layout identity and template-to-layout
+  binding remain unresolved.
+- Seven template identities exist, but their proposal status and screen-instance bindings require review; do not
+  infer screen acceptance.
+- Shared token and component package versions are source-observed at 0.1.0-SNAPSHOT and locally consumer-checked;
+  registry resolution, immutable release binding, and Shared/design-owner review remain open.
+- No component/template/layout visual or accessibility acceptance is established by this audit.
+componentContractCompleteness:
+  componentCount: 28
+  fieldCounts:
+    anatomy: 28
+    states: 28
+    variants: 28
+    actions: 28
+    accessibility: 28
+    localization: 28
+    prohibitedUse: 28
+    sourceRef: 28
+    events: 0
+    publicExport: 0
+  finding: All 28 contracts currently record anatomy, states, variants, action IDs, accessibility, localization
+    and misuse boundaries. None records an events contract or exact public export. Do not fill events or export
+    bindings without source and owner evidence.
+  status: proposal-contracts-incomplete; owner-review-pending
+patternCoverage:
+  catalogSource: .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml
+  patternCount: 18
+  patternIds:
+  - media.gui.pattern.project-browser
+  - media.gui.pattern.project-context-header
+  - media.gui.pattern.intent-launcher
+  - media.gui.pattern.creation-plan-review
+  - media.gui.pattern.source-picker
+  - media.gui.pattern.upload-and-verification
+  - media.gui.pattern.job-status-and-recovery
+  - media.gui.pattern.activity-attention
+  - media.gui.pattern.transcript-and-playback
+  - media.gui.pattern.caption-editor
+  - media.gui.pattern.version-comparison
+  - media.gui.pattern.review-approval
+  - media.gui.pattern.quality-and-uncertainty
+  - media.gui.pattern.rights-and-consent-review
+  - media.gui.pattern.rendering
+  - media.gui.pattern.provenance-and-lineage
+  - media.gui.pattern.safe-confirmation-and-unknown-outcome
+  - media.gui.pattern.destructive-lifecycle-action
+  templatePatternReferenceCount: 16
+  templatePatternReferences:
+  - media.gui.pattern.project-browser
+  - media.gui.pattern.transcript-and-playback
+  - media.gui.pattern.caption-editor
+  - media.gui.pattern.job-status-and-recovery
+  - media.gui.pattern.activity-attention
+  - media.gui.pattern.safe-confirmation-and-unknown-outcome
+  - media.gui.pattern.version-comparison
+  - media.gui.pattern.review-approval
+  - media.gui.pattern.quality-and-uncertainty
+  - media.gui.pattern.provenance-and-lineage
+  - media.gui.pattern.rights-and-consent-review
+  - media.gui.pattern.rendering
+  - media.gui.pattern.review-approval
+  - media.gui.pattern.provenance-and-lineage
+  - media.gui.pattern.destructive-lifecycle-action
+  - media.gui.pattern.safe-confirmation-and-unknown-outcome
+  mechanicalResolution: all 16 template-to-pattern references resolve to one of the 18 registered pattern IDs
+  reviewStatus: proposal; pattern behavior and component bindings require product and accessibility review
+  verificationStatus: not-run
+compositionCoverage:
+  schemaSource: .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml
+  requiredFields:
+  - schemaVersion
+  - viewId
+  - templateRef
+  - sourceRefs
+  - scopeStatus
+  - regions
+  - acceptance
+  - verification
+  scopeStatus: proposed-schema; no downstream screen is claimed validated by this schema alone
+  acceptanceStatus: pending-review
+  verificationStatus: not-run
+  templateCount: 7
+  canonicalLayoutCount: 0
+  finding: Template and pattern identities are registered; layout identities and complete per-screen composition
+    bindings remain unresolved.
+interactionGrammarCoverage:
+  status: proposal; no interaction, state, accessibility, responsive, or localization acceptance asserted
+  artifacts:
+  - path: action-finality-grammar.yaml
+    status: authored-proposal; P0-010-and-distributed-systems-review-pending
+    rules: 7
+    outcomes: 6
+  - path: semantic-state-grammar.yaml
+    status: authored-proposal; P0-010-and-accessibility-review-pending
+    states: 8
+  - path: media-editing-grammar.yaml
+    status: authored-proposal; P0-010-and-audio-specialist-review-pending
+    rules: 5
+  - path: animation-simulation-grammar.yaml
+    status: authored-proposal; graphics-simulation-and-domain-owner-review-pending
+    rules: 5
+  - path: motion.yaml
+    status: authored-proposal; accessibility-review-pending
+    rules: 5
+  - path: responsive-adaptive.yaml
+    status: authored-proposal; P0-010-and-human-viewport-review-pending
+    variants:
+    - wide-desktop
+    - compact-desktop
+    - tablet
+    - mobile
+    viewports:
+    - 1536x960
+    - 1280x800
+    - 1024x768
+    - 768x1024
+    - 390x844
+    - 320x640
+  - path: accessibility.yaml
+    status: authored-proposal; accessibility-specialist-and-P0-010-review-pending
+    requirements: 8
+    reviewEvidenceRequired:
+    - keyboard-only-observation
+    - screen-reader-observation
+    - zoom-and-reflow-observation
+    - forced-colors-and-reduced-motion-observation
+    - human-reviewer-and-version
+  - path: localization-content.yaml
+    status: authored-proposal; locale-owner-and-P0-010-review-pending
+    rules: 6
+    runtimeLocalesAccepted: false
+  - path: typography-layout.yaml
+    status: authored-proposal; shared-token-binding-and-P0-010-pending
+    readingOrderItems: 6
+machineInterfaceCoverage:
+  status: proposal-only; interface owners and runtime bindings remain pending
+  lanes:
+  - lane: HTTP API
+    directory: api/
+    artifactCount: 14
+    artifacts:
+    - async-operations.yaml
+    - auth.yaml
+    - cancellation.yaml
+    - compatibility.yaml
+    - concurrency.yaml
+    - conventions.yaml
+    - correlation.yaml
+    - errors.yaml
+    - filtering-sorting.yaml
+    - idempotency.yaml
+    - identifiers.yaml
+    - pagination.yaml
+    - retry-timeout-unknown-outcome.yaml
+    - versioning.yaml
+    ownerStatus: all convention records remain proposals
+    verificationStatus: not-run; route/schema/operation/runtime bindings unresolved
+  - lane: CLI
+    artifacts:
+    - cli-language.yaml
+    - cli/conventions.yaml
+    ownerStatus: naming and output conventions proposed; no admitted production CLI claim
+    verificationStatus: not-run or no accepted production CLI consumer
+  - lane: SDK
+    artifacts:
+    - sdk/conventions.yaml
+    ownerStatus: proposal-only; package contract/generated-client policy/API owner bindings pending
+    verificationStatus: not-run; no accepted SDK consumer contract
+  - lane: Events
+    artifacts:
+    - events/conventions.yaml
+    ownerStatus: proposal; producer/consumer taxonomy and Shared event-platform binding unresolved
+    verificationStatus: not-run
+  - lane: Agent tools
+    artifacts:
+    - agent-tools/conventions.yaml
+    ownerStatus: proposal; no tool admitted/callable/authorized
+    verificationStatus: not-run; handler and runtime bindings pending
+  commonClosureGap: No lane is approved for transport, error, pagination, cancellation, idempotency, version, auth,
+    localization or human/machine-output parity.
+visualAccessibilityAcceptance:
+  status: pending; no visual or accessibility acceptance asserted
+  reviewObligations:
+  - Review every unique layout and template and their instantiated screens.
+  - Review critical state and action variants, keyboard/assistive navigation, zoom/reflow, forced colors, reduced
+    motion, localization expansion, and semantic color distinction.
+  - Record reviewed reference, evaluator, package/version, composed use, verification evidence, and unresolved findings.
+  evidenceRequired:
+  - keyboard-only-observation
+  - screen-reader-observation
+  - zoom-and-reflow-observation
+  - forced-colors-and-reduced-motion-observation
+  - human-reviewer-and-version
+  currentEvidence: PDP-2 declarations and source observations only; no human visual/accessibility review result
+    or accepted composed-use evidence is recorded.

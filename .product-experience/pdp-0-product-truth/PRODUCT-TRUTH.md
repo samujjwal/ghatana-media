@@ -5,7 +5,7 @@
 **Target repository:** `samujjwal/ghatana-media`  
 **Current implementation authority:** `samujjwal/ghatana:services/media` until an approved cutover executes.
 
-This page is the readable guide to the structured Phase 0 records. The YAML
+This page is the readable guide to the structured PDP-0 records. The YAML
 records own detailed meaning. This summary does not claim implementation,
 license admission, technical qualification, runtime availability, migration
 cutover, or production readiness.
@@ -163,7 +163,14 @@ authored or being integrated as proposals. P0-010 must still validate schemas,
 IDs, aliases, references, source roles, and complete outcome/capability/state/
 authority/failure paths through independent semantic review. Named owner
 decisions and immutable public Tools package bindings are also outstanding.
-Phase 1 depends on P0-010 acceptance; Phase 2 depends on Phase 1; Phase 3
-depends on Phase 2. Later-phase artifacts and local implementation are
-provisional work products; none is represented as accepted ahead of its
-dependency gates.
+PDP-1 depends on P0-010 acceptance; PDP-2 depends on PDP-1; PDP-3 depends on
+PDP-2. Explorer remains a projection outside these phases. Later-phase
+artifacts and local implementation are provisional work products; none is
+represented as accepted ahead of its dependency gates.
+
+`generated/product-definition.candidate.json` is a deterministic read-only
+projection of source observations. It contains only the product/subject
+identifiers and public schema version; it does not map the Product Truth records
+into an accepted ProductDefinition. The sibling schema and public validator
+reject it as incomplete, with the exact blockers retained in the generated
+file. This candidate is not phase acceptance or Lifecycle currentness.

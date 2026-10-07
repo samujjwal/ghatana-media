@@ -21,11 +21,18 @@ otherwise. The repository currently contains:
   job-family specialization), 30 registered journeys, and 30 journey-contract
   files (28 baseline contracts plus J-29/J-30 extensions).
 - A deterministic synthetic simulation/CLI and a local Explorer with Product,
-  Explore, Specification, Verify, Overview, and semantic views.
-- A generated source manifest and Explorer index. The generator derives IDs
-  from repository paths for newly indexed records; those IDs are not semantic
-  stable identities. Lifecycle-generated semantic fingerprints/currentness are
-  not bound or present.
+  Explore, Specification, Verify, Tools Review, Overview, and semantic views.
+- A generated source manifest and Explorer index. Artifact IDs are explicitly
+  pinned in `artifact-identities.yaml`; opaque legacy values that resemble path
+  digests are retained unchanged. The manifest generator records explicit
+  repository-relative source-path mentions as provenance-only dependency edges;
+  these are not resolved semantic dependencies. Lifecycle-generated semantic
+  fingerprints/currentness are not bound or present.
+- Read-only candidate projections for Product Definition, Experience Language,
+  and Experience Specification under their phase directories. The generator
+  runs the available Tools JSON Schema contracts and public validators against
+  partial candidates and records their blockers. These are not canonical
+  phase models, owner-resolved semantics, acceptance, or currentness.
 - A local checker for structural completeness and selected cross-phase
   references. It does not evaluate semantic acceptance or production behavior.
 
@@ -48,8 +55,10 @@ reference, not a competing semantic source. Preserve existing work and reconcile
 before adding missing semantics or deriving implementation. The target is one
 `.product-experience` root with PDP-0 Product Truth, PDP-1 Canonical Domain & Data
 Model, PDP-2 Design Language & Interface System, PDP-3 Complete Product
-Experience, and Explorer outside phase numbering. The present legacy crosswalk
-is an unresolved migration condition, not acceptance of the target architecture.
+Experience, and Explorer outside phase numbering. The target phase taxonomy is
+approved as an authority model; that does not accept the phase content. Any
+remaining legacy crosswalk records are unresolved migration inputs, not a
+competing taxonomy or acceptance of product semantics.
 
 The complete ordered ledger below retains every prescribed task. These entries
 are execution references, not a second semantic registry and not completion
@@ -58,7 +67,7 @@ repository valid; do not copy active authorities and retain both generations.
 
 | Wave | Ordered tasks | Required disposition |
 | --- | --- | --- |
-| 0 — Authority | CROSS-001, CROSS-002, CROSS-003, CROSS-004 | Atomically normalize phases/references; complete manifest metadata and stable IDs; register every surface; demote migration plans to provenance/execution reference after extracting unique meaning |
+| 0 — Authority | CROSS-001, CROSS-002, CROSS-003, CROSS-004 | Atomically normalize phases/references; complete manifest metadata and governed artifact identities; register every surface; demote migration plans to provenance/execution reference after extracting unique meaning |
 | 1 — Product Truth | PDP0-001, PDP0-002, PDP0-003, PDP0-004 | Self-contained requirements; finish all 462 capability leaves; reconcile OCR with accepted DI boundary; normalize scope/maturity independently of implementation, qualification, availability, and licensing |
 | 2 — Canonical semantics | PDP1-001, PDP1-002, PDP1-003, PDP1-004, PDP1-005 | Own objects/value objects/relationships; consequential operations; state machines/transitions; events/evidence/provenance; privacy/version/history/offline/interoperability/authority/decisions |
 | 3 — Representation | PDP2-001, PDP2-002, PDP2-003, PDP2-004, PDP2-005 | Verify Shared versions/consumption; register GUI primitives/patterns/layouts/templates/composition; remove unexplained local visual authority; define API and CLI/SDK/event/agent interface languages |
@@ -83,11 +92,12 @@ Fixed reconciliation baselines are 462 capability leaves, 28 semantic component
 contracts, 47 canonical screen contracts plus one job-family specialization file
 (48 YAML files), 30 journeys with 28 baseline proposals plus J-29/J-30 extension
 contracts, 27 HTTP operations, 43 gRPC RPCs (12/11/10/10), four `av.*` tool
-handlers, and 11 plan CLI commands. Preserve these denominators until an
+handlers, and 11 planned CLI commands. Preserve these denominators until an
 authoritative reconciliation justifies a change. The additional
 artifact-verification job-family file does not create a 48th canonical screen;
-the local fixture inventory currently observes 12 command entries and keeps that
-observation distinct from the plan's 11-command denominator.
+the CLI fixture registry contains 11 commands, while the broader PDP-3 proposal
+registry contains 12 records (including the unbound retry proposal). Keep these
+denominators separate until their owner reconciles them.
 No screen is proven complete against the expanded PDP-3 contract by the existing
 checker. All material states, authority/guards, action consequences, design
 composition, entry/exit/handoffs, fixtures, traceability, and verification must be
@@ -100,10 +110,11 @@ and evidence-backed closure outputs; Media records only their inputs and does
 not claim a closure state. The canonical phase directories,
 source manifest, surface registry, and primary domain/design/interface/experience
 registries are now present locally. The Explorer uses manifest artifact IDs and
-exposes Truth/Domain/Design/Experience/Interfaces and the other semantic views,
-but newly indexed IDs are path-derived and are not stable semantic identities;
-the generated index also does not provide lifecycle currentness. Browser
-determinism alone does not satisfy pixel-reference or design-quality acceptance.
+exposes Truth/Domain/Design/Experience/Interfaces and the other semantic views;
+IDs are pinned in the identity registry, while manifest relations remain
+provenance-only. The generated index does not provide lifecycle currentness.
+Browser determinism alone does not satisfy pixel-reference or design-quality
+acceptance.
 
 ## Vision and downstream coverage
 
@@ -139,9 +150,10 @@ current-state gaps include:
 - PDP-3 complete behavioral contracts and parity across all registered machine
   operations and every screen/journey state. The existing structural checks do
   not accept those semantics.
-- Stable semantic artifact identity and lifecycle-generated fingerprints/currentness.
-  The local manifest generator derives IDs from repository paths for new paths;
-  its content hashes are provenance only and its dependency lists are empty.
+- Stable semantic identity and lifecycle-generated fingerprints/currentness.
+  Identity assignments are pinned; content hashes and source-path-mention
+  dependency edges are provenance only. Dependency edges do not establish
+  semantic relations, and Lifecycle-generated currentness remains absent.
 
 The SDK source still contains competing route families: `MediaOperationClient`
 uses `/api/v1/media/*`, `AudioVideoClient` uses `/api/stt/*` and other modality
@@ -182,9 +194,12 @@ read-only audit of the now-explicit definition:
 
 - P0-010 independent semantic review and owner appointment for affected domain
   capability and quality decisions.
-- Published Tools Product Definition/Experience schemas, validators, and
-  generic Explorer contracts, plus separate lifecycle evidence/currentness/
-  receipt bindings.
+- Owner-approved source-to-Tools mappings and external reference resolvers for
+  Product Definition, Experience Language, and Experience Specification. The
+  local candidate generator invokes available public validators and records
+  structural blockers; it does not bind a complete phase validator or accept
+  those projections. Generic Explorer host integration and separate Lifecycle
+  evidence/currentness/receipt bindings also remain open.
 - Released Shared design-token/component bindings and independent
   accessibility, localization, visual, and human review.
 - Owner-approved API/SDK/event contracts, consumer parity, runtime

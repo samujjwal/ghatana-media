@@ -1,114 +1,141 @@
-schemaVersion: media.phase-schema-bindings.v1
+schemaVersion: media.phase-schema-bindings.v2
 productId: media
-authorityStatus: contract-mapping-authored; publication-and-owner-validation-pending
+authorityStatus: semantic-role-mapping-authored; publication-and-owner-validation-pending
 principle: >-
-  Media authors product meaning. It consumes the Tools-owned public schemas,
-  contracts, and validators where they exist; it does not copy generic schema
-  implementations, invent a generic lifecycle or acceptance engine, or treat
-  package presence as runtime capability. Media-owned detail records extend
-  domain semantics outside the neutral package contracts.
-toolsSnapshot:
-  ownerRepository: samujjwal/ghatana-tools
-  sourceRevision: 6f35f2aa4193479fe4cce3d7e9f913cf6e611308
-  observation: local-owner-checkout; no public registry publication verified
-  workingTreeStatus: modified-local-checkout; product-dev-catalog-and-CLI-changes-remain-uncommitted
-bindings:
-  phase0:
-    authorityShape:
-      package: '@ghatana/product-definition'
-      packagePath: libs/product-development/product-definition
-      observedVersion: 0.1.0-SNAPSHOT
-      packageExports: ['.', './schema', './package.json']
-      schemaPath: libs/product-development/product-definition/schemas/product-definition.v1.schema.json
-      schemaVersion: ghatana.product-definition.v1
-      schemaSha256: d3db40ac0f84ab62648ff6391c771719fbf84f46eea37375550c42e0c8fa2205
-      validator: validateProductDefinition
-      fieldsOwnedByNeutralShape: [purpose, scope, nonGoals, actors, responsibilities, userIntents, businessIntents, desiredOutcomes, capabilities, requirements, domainRules, policies, invariants, journeys, trustContexts, successMeasures, ownershipRules]
-      productSpecificDetailRemainsMediaOwned: [capability-availability-dimensions, full-state-transitions, temporal-units, geometry-and-fidelity, privacy-enforcement-map, quality-profiles, media-fixtures, deployment-budgets]
-      packageLimitations: [no-runtime-enforcement, no-publication-claim, external-owner-reference-values-resolved-by-consumer]
-      ownerConsumerValidation: pending-public-artifact-and-isolated-consumer-run
-    sourceMapping:
-      targetAuthority: .product-experience/pdp-0-product-truth/product-definition.yaml
-      projectionStatus: not-generated; phase-0-source-authorities-are-proposals
-      detailAuthorities: [constitution.yaml, actors-responsibilities.yaml, goals-jtbd.yaml, glossary.yaml, capabilities.yaml, requirements.yaml, domain-model.yaml, time-units-fidelity.yaml, state-models.yaml, policy-authority-model.yaml, dependency-contracts.yaml, nonfunctional-requirements.yaml, profile-semantics.yaml, quality-policy.yaml, content-intent.yaml, qualification-policy.yaml]
-      projectionRule: product-definition.yaml-is-the-Tools-contract-projection-of-the-media-owned-details; no-duplicated-independent-editing
-  phase1:
-    authorityShape:
-      package: '@ghatana/experience-language'
-      packagePath: libs/product-development/experience-language
-      observedVersion: 0.1.0-SNAPSHOT
-      packageExports: ['.', './schema', './package.json']
-      schemaPath: libs/product-development/experience-language/schemas/experience-language.v1.schema.json
-      schemaVersion: ghatana.experience-language.v1
-      schemaSha256: 19ec73af7941ea30e6e7c482956ebaa25f692726cf3367db0df6b71652ba5f31
-      validator: validateExperienceLanguage
-      ownerReferencesResolvedBy: [component-authority, recipe-authority, shared-token-authority, media-domain-state-authority]
-      packageLimitations: [product-specific-domain-meaning-remains-Media-owned, schema-does-not-prove-accessibility-or-localization-conformance]
-      ownerConsumerValidation: pending-public-artifact-and-isolated-consumer-run
-    sourceMapping:
-      targetAuthority: .product-experience/pdp-2-design-interface-system/media-experience-language.yaml
-      projectionStatus: not-generated; phase-1-source-authorities-are-proposals
-      mediaTokens: aliases-only-to-Shared-token-authority
-  phase2:
-    authorityShape:
-      package: '@ghatana/experience-specification'
-      packagePath: libs/product-development/experience-specification
-      observedVersion: 0.1.0-SNAPSHOT
-      packageExports: ['.', './schema', './package.json']
-      schemaPath: libs/product-development/experience-specification/schemas/experience-specification.v1.schema.json
-      schemaVersion: ghatana.experience-specification.v1
-      schemaSha256: 42b8c067f968e9542a1a901d79ff8eef77753f6c851fdeba996102650f9ff31a
-      validator: validateExperienceDefinition
-      packageLimitations: [structural-and-reference-validation-only, no-state-machine-execution, no-product-simulation, external-owner-resolvers-required]
-      ownerConsumerValidation: pending-public-artifact-and-isolated-consumer-run
-    sourceMapping:
-      targetAuthority: .product-experience/pdp-3-product-experience/experience-definition.yaml
-      projectionStatus: not-generated; phase-2-source-authorities-are-proposals
-      detailAuthorities: [screen-contracts, journey-contracts, action-registry.yaml, interaction-registry.yaml, state-transition-bindings.yaml, cli-command-registry.yaml, api-experience-mapping.yaml, scenario-fixture-registry.yaml, simulation-semantics.yaml, recovery-finality-contracts.yaml, handoff-bindings.yaml, responsive-variants.yaml]
-      projectionRule: use-Tools-shape-for-views-actions-states-journeys-fixtures; do-not-claim-runtime-execution
-  phase3:
-    productPackage:
-      package: '@ghatana/experience-package'
-      packagePath: libs/product-development/experience-package
-      observedVersion: 0.1.0-SNAPSHOT
-      schemaPath: libs/product-development/experience-package/schemas/product-experience-manifest.v1.schema.json
-      schemaVersion: ghatana.product-experience.v1
-      schemaSha256: 49745b044d2a3166fd95b608561d6400bb4fd9d40c221ce0481980664c94bdf8
-      purpose: Media-owned state-and-action package contract plus Tools package conformance helpers
-      ownerConsumerValidation: pending-public-artifact-and-isolated-consumer-run
-    explorerContracts:
-      package: '@ghatana/experience-explorer-contracts'
-      packagePath: libs/product-development/experience-explorer-contracts
-      observedVersion: 0.1.0-SNAPSHOT
-      ownerConsumerValidation: pending-public-artifact-and-isolated-consumer-run
-    host:
-      package: '@ghatana/product-dev-explorer'
-      packagePath: tools/product-development/explorer
-      observedVersion: 0.1.0-SNAPSHOT
-      publicExports: ['.', './headless', './package.json']
-      observationSource: CONSUMER_GUIDE.md-and-package.json
-      packageLimitations: [headless-review-host-no-product-specific-visual-shell, no-owner-authored-scenario-manifest-declared, no-platform-support-claim-declared]
-      ownerConsumerValidation: pending-public-artifact-and-built-browser-review
-    sourceMapping:
-      targetAuthority: .product-experience/explorer/media-experience-package.yaml
-      projectionStatus: Media-owned-adapter-proposal; Tools-host-binding-not-verified
-      productSemanticsAndState: Media-owned
-      ExplorerHostAndGenericControls: Tools-owned
-      productSpecificAdapter: Media-owned
-  lifecycleAndValidation:
-    productDefinitionValidation: public-validateProductDefinition-on-Tools-package-release
-    experienceLanguageValidation: public-validateExperienceLanguage-on-Tools-package-release
-    experienceSpecificationValidation: public-validateExperienceDefinition-on-Tools-package-release
-    phaseAcceptance: owner-review-and-phase-specific-semantic-coverage-in-addition-to-structural-validation
-    explorerAcceptance: built-browser-behavior-accessibility-currentness-and-human-review; a headless contract is not pixel-level evidence
-    genericLocalValidator: prohibited
-    mediaSemanticChecks: may-validate-Media-owned-reference-closure-and-boundary-invariants-without-copying-generic-schemas
+  Media owns all product-specific normative meaning. Tools schemas are assigned by
+  their actual contract role, never by legacy phase number. Projections are
+  generated from Media authorities, read-only, and remain proposals until the
+  relevant owners accept their source semantics and the Tools owner accepts the
+  consumer binding.
+canonicalPhases:
+  - phase: PDP-0
+    name: Product Truth
+    sourceAuthority: .product-experience/pdp-0-product-truth/
+    toolsContracts: [product-definition]
+    acceptanceState: P0-001-boundary-slice-only; full-PDP-0-review-pending
+  - phase: PDP-1
+    name: Canonical Domain and Data
+    sourceAuthority: .product-experience/pdp-1-domain-data/
+    toolsContracts: []
+    bindingDisposition: >-
+      No public generic Product Development domain-data contract is currently
+      bound. Keep canonical domain/data proposals Media-owned; do not misclassify
+      PDP-0 domain observations or force them into the product-definition shape.
+    acceptanceState: domain-owner-adjudication-pending
+  - phase: PDP-2
+    name: Design Language and Interface System
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/
+    toolsContracts: [experience-language]
+    acceptanceState: P1-006-review-and-Shared-binding-pending
+  - phase: PDP-3
+    name: Complete Product Experience
+    sourceAuthority: .product-experience/pdp-3-product-experience/
+    toolsContracts: [experience-specification]
+    acceptanceState: P2-008-and-runtime-binding-pending
+explorerBinding:
+  phase: EXPLORER
+  outsideCanonicalPhases: true
+  sourceAuthority: .product-experience/explorer/
+  toolsContracts: [experience-package, experience-explorer-contracts, product-dev-explorer]
+  acceptanceState: browser-review-and-owner-binding-pending
+toolsContracts:
+  product-definition:
+    package: '@ghatana/product-definition'
+    packagePath: libs/product-development/product-definition
+    schemaPath: libs/product-development/product-definition/schemas/product-definition.v1.schema.json
+    schemaVersion: ghatana.product-definition.v1
+    publicValidator: validateProductDefinition
+    sourceProjection: .product-experience/pdp-0-product-truth/generated/product-definition.candidate.json
+    sourceAuthorities:
+      - .product-experience/pdp-0-product-truth/constitution.yaml
+      - .product-experience/pdp-0-product-truth/actors-responsibilities.yaml
+      - .product-experience/pdp-0-product-truth/goals-jtbd.yaml
+      - .product-experience/pdp-0-product-truth/capabilities.yaml
+      - .product-experience/pdp-0-product-truth/requirements.yaml
+      - .product-experience/pdp-0-product-truth/domain-model.yaml
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+      - .product-experience/pdp-0-product-truth/journey-catalog.yaml
+      - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml
+    role: neutral-shape-projection; media-detail-remains-in-source-authorities
+    projectionStatus: generated-candidate; Tools-schema-and-public-validator-blocked-on-required-product-mappings
+    publication: not-verified
+    ownerConsumerValidation: pending
+  experience-language:
+    package: '@ghatana/experience-language'
+    packagePath: libs/product-development/experience-language
+    schemaPath: libs/product-development/experience-language/schemas/experience-language.v1.schema.json
+    schemaVersion: ghatana.experience-language.v1
+    publicValidator: validateExperienceLanguage
+    sourceProjection: .product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json
+    sourceAuthorities:
+      - .product-experience/pdp-2-design-interface-system/gui/primitives.yaml
+      - .product-experience/pdp-2-design-interface-system/component-contracts.yaml
+      - .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml
+      - .product-experience/pdp-2-design-interface-system/gui/layout.yaml
+      - .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+      - .product-experience/pdp-2-design-interface-system/accessibility.yaml
+      - .product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml
+      - .product-experience/pdp-2-design-interface-system/localization-content.yaml
+      - .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
+    role: reusable-experience-language-projection; semantic-and-Shared-review-pending
+    projectionStatus: generated-candidate; Tools-schema-and-public-validator-blocked-on-required-product-mappings
+    publication: not-verified
+    ownerConsumerValidation: pending
+  experience-specification:
+    package: '@ghatana/experience-specification'
+    packagePath: libs/product-development/experience-specification
+    schemaPath: libs/product-development/experience-specification/schemas/experience-specification.v1.schema.json
+    schemaVersion: ghatana.experience-specification.v1
+    publicValidator: validateExperienceDefinition
+    sourceProjection: .product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json
+    sourceAuthorities:
+      - .product-experience/pdp-3-product-experience/screen-contracts/
+      - .product-experience/pdp-3-product-experience/journey-contracts/
+      - .product-experience/pdp-3-product-experience/action-registry.yaml
+      - .product-experience/pdp-3-product-experience/interaction-registry.yaml
+      - .product-experience/pdp-3-product-experience/state-transition-bindings.yaml
+      - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
+    role: executable-experience-contract-projection; owner-resolvers-required
+    projectionStatus: generated-candidate; Tools-schema-and-public-validator-blocked-on-required-product-mappings
+    publication: not-verified
+    ownerConsumerValidation: pending
+  experience-package:
+    package: '@ghatana/experience-package'
+    packagePath: libs/product-development/experience-package
+    schemaPath: libs/product-development/experience-package/schemas/product-experience-manifest.v1.schema.json
+    schemaVersion: ghatana.product-experience.v1
+    role: Media-owned-product-package-contract-consumed-by-Explorer
+    publication: not-verified
+    ownerConsumerValidation: pending
+  experience-explorer-contracts:
+    package: '@ghatana/experience-explorer-contracts'
+    packagePath: libs/product-development/experience-explorer-contracts
+    role: generic-Explorer-host-contracts
+    publication: not-verified
+    ownerConsumerValidation: pending
+  product-dev-explorer:
+    package: '@ghatana/product-dev-explorer'
+    packagePath: tools/product-development/explorer
+    publicExports: ['.', './headless', './package.json']
+    role: generic-host-mechanics; not-Media-product-semantic-authority
+    ownerConsumerValidation: local-packed-consumer-observation-only
+  lifecycle:
+    ownerRepository: ghatana-lifecycle
+    role: phase-obligations-evidence-currentness-receipts-and-closure
+    publicContract: consumer-defined-phase-obligations-and-proof-producer-bindings
+    ownerConsumerValidation: pending
+projectionRules:
+  generation: scripts/generate-media-phase-projections.mjs
+  edits: canonical-source-authorities-only; generated-projections-are-read-only
+  validation: actual-public-Tools-schema-and-validator-contracts
+  semanticAcceptance: owner-review-and-phase-specific-semantic-coverage-in-addition-to-schema-validation
+  currentnessAndClosure: Lifecycle-owner-generated-output-only
+  prohibited: [legacy-phase-number-remapping, generic-local-schema-copy, inferred-operation-equivalence, fabricated-acceptance-or-currentness]
 gaps:
   - id: GAP-MEDIA-TOOLS-SCHEMA-BINDING
     status: open
-    remaining: published-version-availability-isolated-consumer-validation-and-owner-accepted-phase-validator-bindings
-    impact: blocks-full-GOV-003-and-Phase0-through-Phase3-certification
-    evidence: local-Tools-source-checkout-shapes-and-exports-only
+    remaining: public-artifact-availability-isolated-consumer-validation-and-Tools-owner-accepted-phase-validator-bindings
+    impact: blocks-full-GOV-003-and-PDP-0-through-PDP-3-certification
   - id: GAP-02
     status: open
     remaining: immutable-public-versions-and-artifact-only-consumption-for-Tools-packages

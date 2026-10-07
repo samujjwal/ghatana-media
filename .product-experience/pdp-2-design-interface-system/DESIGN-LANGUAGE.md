@@ -44,3 +44,11 @@ Web, terminal, API examples, and embedded results refer to the same Media artifa
 ## Current decision state
 
 All records are proposals. Component action intents now resolve to named PDP-3 action references. Capability authority, component interactions, state transitions, and owner approval remain open, and the component contracts do not establish runtime implementation. The nine Media token aliases now reference source-verified public Shared semantic-role exports at the observed clean repository revision; a released package version, Media CSS adapter, Shared primitive bindings, and owner review remain unverified. PDP-0 has unresolved semantic and external-owner reviews; the Tools publication/validation binding is also unverified. No viewport, locale, WCAG conformance, or visual result is accepted by this document.
+
+`generated/experience-language.candidate.json` records source observations and
+the subject/schema identifiers available for a deterministic candidate. It is
+not a mapped ExperienceLanguage instance: component, recipe, token-group, and
+domain-state owner resolvers remain unavailable. The sibling schema and public
+validator reject the candidate as incomplete; blockers are retained in that
+generated file. Its presence does not establish Shared binding or PDP-2
+acceptance.

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ghatana.io/schemas/closure/consumer.schema.json",
+  "schemaVersion": "ghatana.closure.consumer",
+  "consumerId": "ghatana-media.product-definition",
+  "contractSet": {
+    "id": "ghatana.closure",
+    "version": "1"
+  },
+  "sources": {
+    "surfaces": [
+      { "schemaVersion": "closure-source-ref", "kind": "file", "ref": "config/closure/media-product-definition/surface.json" }
+    ],
+    "phasePrograms": [
+      { "schemaVersion": "closure-source-ref", "kind": "file", "ref": "config/closure/media-product-definition/phase-program.json" }
+    ],
+    "phaseBindings": [
+      { "schemaVersion": "closure-source-ref", "kind": "file", "ref": "config/closure/media-product-definition/phase-binding.json" }
+    ],
+    "obligations": [
+      { "schemaVersion": "closure-source-ref", "kind": "file", "ref": "config/closure/media-product-definition/obligations.json" }
+    ],
+    "dependencies": []
+  },
+  "providerBindings": [],
+  "authority": "ghatana-media.product-definition.consumer-inputs"
+}

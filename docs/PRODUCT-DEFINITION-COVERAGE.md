@@ -16,13 +16,18 @@ canonical folders use these phase labels:
 | Master-prompt authority | Media local source | Coverage status |
 | --- | --- | --- |
 | PDP-0 Product Truth | pdp-0-product-truth/ truth, goals, actors, requirements, policies, quality, channels, and journeys | Authored proposal; P0-001 boundary slice accepted, P0-010 pending |
-| PDP-1 Canonical Domain and Data Model | pdp-1-domain-data/ plus PDP-0 source references | Canonical object, value, relationship, operation, state, event, evidence, provenance, privacy, versioning, offline, interoperability, authority, and decision registries; semantic review pending |
+| PDP-1 Canonical Domain and Data Model | pdp-1-domain-data/ plus PDP-0 source references | Proposed object, value, relationship, operation, state, event, evidence, provenance, privacy, versioning, offline, interoperability, authority, and decision registries; semantic review pending |
 | PDP-2 Design Language and Interface System | pdp-2-design-interface-system/ | Authored Shared bindings, GUI primitive/pattern/layout/template/composition registries, token/state/accessibility/localization, responsive, and CLI/API/event/SDK/tool conventions; owner conformance pending |
-| PDP-3 Complete Product Experience | pdp-3-product-experience/ | 47 canonical screens, 30 journeys including J-29/J-30, action/state/channel contracts, 27 HTTP, 43 gRPC, 11 CLI, SDK, event, tool, and service registries; owner acceptance pending |
+| PDP-3 Complete Product Experience | pdp-3-product-experience/ | 47 canonical screen IDs (48 contract files including a job-family specialization), 30 journeys including J-29/J-30, action/state/channel proposals, 27 HTTP operations and 43 gRPC RPCs observed in the current contract inventory; 11 fixture/plan CLI commands versus 12 broader CLI proposal records; SDK, event, tool, and service registries remain proposal-level; owner acceptance pending |
 | Experience Explorer projection | explorer/, apps/media-experience-explorer/, and libs/media-experience-simulation/ | Deterministic local projection and verification client; not a fifth semantic phase |
 
 The complete intended surface denominator and per-surface ownership/contract
 references are in [surface-registry.yaml](../.product-experience/surface-registry.yaml).
+The read-only generated Tool-model candidates are stored under each owning
+phase's `generated/` directory. They contain source observations and partial
+candidate identities, and currently fail the sibling schemas/public validators;
+they are not accepted Product Definition, Experience Language, or Experience
+Specification authorities.
 
 ## Vision outcome coverage
 
@@ -87,10 +92,13 @@ relationships:
 - The 28 baseline journey proposals plus explicit J-29/J-30 contracts and all
   47 canonical screen contracts remain source-linked but are not complete
   runtime or owner acceptance evidence.
-- Explorer implements local Overview/Truth/Domain/Design System/Experience/
-  Interfaces/Journeys/States-Data/Traceability/Dependencies projections and
-  exposes trace metadata; independent accessibility review, lifecycle-owned
-  rendering, and generated currentness remain open.
+- Explorer implements local Product/Explore/Specification/Verify modes and
+  additional Overview/Truth/Domain/Design System/Experience/Interfaces/
+  Journeys/States-Data/Traceability/Dependencies projections. Its local
+  package review loads Media source authorities and exercises public Explorer
+  mechanics with a scoped deterministic fixture adapter; it does not resolve
+  semantic models or establish phase verification. Independent accessibility
+  review, lifecycle-owned rendering, and generated currentness remain open.
 
 These are current-state coverage/acceptance gaps, not missing vision ideas.
 They are tracked in the canonical gap register and must close through the

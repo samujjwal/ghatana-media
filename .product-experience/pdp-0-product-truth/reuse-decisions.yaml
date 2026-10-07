@@ -64,11 +64,11 @@ decisions:
     need: neutral product-experience definition and validation contracts
     owner: ghatana-tools
     contract: '@ghatana/experience-specification'
-    decision: use the public package for its declared experience-definition scope; it does not define full Phase 0 requirements or execute an Explorer
-    sourceRevision: 6f35f2aa4193479fe4cce3d7e9f913cf6e611308
+    decision: use the public package for its declared experience-definition scope; it does not define full PDP-0 requirements or execute an Explorer
+    sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana-tools
     version: 0.1.0-SNAPSHOT
     publication: not-verified
-    phaseUse: phase-2-shape-only-until-Tools-owner-verifies-Experience-contract-fit
+    phaseUse: PDP-3-shape-only-until-Tools-owner-verifies-Experience-contract-fit
     sourceCouplingAllowed: false
     blocker: GAP-02
   - id: REUSE-TOOLS-PRODUCT-DEFINITION
@@ -76,32 +76,32 @@ decisions:
     owner: ghatana-tools
     contract: '@ghatana/product-definition'
     decision: adopt-v1-shape-and-validator-for-the-neutral-product-meaning-subset; keep time-fidelity-state-and-media-qualification-detail-in-Media-owned-records
-    sourceRevision: 6f35f2aa4193479fe4cce3d7e9f913cf6e611308
+    sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana-tools
     sourceVersion: 0.1.0-SNAPSHOT
     publication: local-owner-manifest-and-schema-observed; immutable-public-artifact-and-isolated-consumer-not-verified
-    phaseUse: phase-0-authority-shape-pending-public-package-consumption
+    phaseUse: PDP-0-authority-shape-pending-public-package-consumption
     sourceCouplingAllowed: false
     blocker: GAP-MEDIA-TOOLS-SCHEMA-BINDING
   - id: REUSE-TOOLS-EXPERIENCE-LANGUAGE
     need: neutral-interaction-responsive-accessibility-localization-and-presentation-language-shape
     owner: ghatana-tools
     contract: '@ghatana/experience-language'
-    decision: adopt-v1-shape-for-phase-1; Media owns domain state presentation and token aliases only
-    sourceRevision: 6f35f2aa4193479fe4cce3d7e9f913cf6e611308
+    decision: adopt-v1-shape-for-PDP-2; Media owns domain state presentation and token aliases only
+    sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana-tools
     sourceVersion: 0.1.0-SNAPSHOT
     publication: local-owner-manifest-and-schema-observed; immutable-public-artifact-and-isolated-consumer-not-verified
-    phaseUse: phase-1-pending-phase-0-acceptance-and-public-consumer
+    phaseUse: PDP-2-pending-PDP-0-acceptance-and-public-consumer
     sourceCouplingAllowed: false
     blocker: GAP-MEDIA-TOOLS-SCHEMA-BINDING
   - id: REUSE-TOOLS-EXPERIENCE-PACKAGE-AND-EXPLORER
     need: product-owned-deterministic-experience-package-contract-and-generic-review-host
     owner: ghatana-tools
     contract: '@ghatana/experience-package; @ghatana/experience-explorer-contracts; @ghatana/product-dev-explorer'
-    decision: use-owner-package-and-host-if-public-version-and-built-browser-contract-meet-phase3; request-missing-generic-host-behavior-from-Tools
-    sourceRevision: 6f35f2aa4193479fe4cce3d7e9f913cf6e611308
+    decision: use-owner-package-and-host-if-public-version-and-built-browser-contract-meet-Explorer-requirements; request-missing-generic-host-behavior-from-Tools
+    sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana-tools
     sourceVersion: 0.1.0-SNAPSHOT
     publication: source-contract-and-headless-host-observed; public-isolated-consumer-and-browser-admission-unverified
-    phaseUse: phase-3-only-after-Phase2-acceptance
+    phaseUse: EXPLORER-only-after-PDP-3-acceptance
     sourceCouplingAllowed: false
     blockers: [GAP-02, GAP-11, GAP-12]
   - id: REUSE-LIFECYCLE-CLOSURE-AND-EVIDENCE
@@ -123,7 +123,7 @@ decisions:
     owner: ghatana-services-data-cloud
     contract: /api/v1/media-read-model-and-governed-metadata-paths
     decision: retain-as-consumer-and-read-model-only; Media-remains-canonical-for-artifact-upload-job-and-stream-lifecycle
-    sourceRevision: 245e966591913bc73f59fad9bf43651673b0280e
+    sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana
     publication: existing-source-and-reference-scan-observed; cross-repository-route-DTO-and-client-parity-not-verified
     sourceCouplingAllowed: false
     blocker: GAP-05
@@ -132,7 +132,7 @@ decisions:
     owner: ghatana
     contract: public-Event-Plane-and-Action-Plane-interfaces
     decision: use-owner-boundaries-only; Media-retains-event-meaning-and-effect-preconditions; no-direct-privileged-bypass
-    sourceRevision: 245e966591913bc73f59fad9bf43651673b0280e
+    sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana
     publication: source-contract-and-production-durability-qualification-not-verified
     sourceCouplingAllowed: false
     blockers: [GAP-02, GAP-13]

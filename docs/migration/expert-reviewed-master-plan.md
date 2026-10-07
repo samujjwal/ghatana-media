@@ -1,5 +1,5 @@
 # Ghatana Media — Expert-Reviewed Master Plan
-## Ecosystem-first product graduation and complete Phase 0–3 source of truth
+## Ecosystem-first product graduation and complete PDP-0–PDP-3 source of truth
 
 **Document ID:** MEDIA-MASTER-PLAN  
 **Review date:** October 4, 2026  
@@ -11,6 +11,8 @@
 **Product CLI:** `ghatana-media`  
 **Authority phases:** PDP-0, PDP-1, PDP-2, PDP-3 only; the Experience Explorer is outside the PDP phases
 
+**Legacy plan taxonomy:** This retained plan was authored with legacy `Phase 0`–`Phase 3` labels and `P0-`–`P3-` execution IDs. These prefixes are stable plan identifiers, not canonical PDP numbers. Their original grouping maps as follows: legacy Phase/P0 → PDP-0, except P0-004 and P0-005 which are owned by PDP-1; legacy Phase/P1 → PDP-2; legacy Phase/P2 → PDP-3; legacy Phase/P3 → Experience Explorer, outside the PDP phases. PDP-1 Domain & Data has no dedicated legacy phase/task prefix; see §18.4 for its current authority and the crosswalk. Existing IDs and task content are preserved.
+
 > Reuse the appropriate Ghatana owner first. Define Media meaning once. Keep every channel consistent. Make protection and quality native, and complexity optional. Verify the resulting behavior rather than inferring it from source presence.
 
 ## How to use this document
@@ -19,7 +21,7 @@ This document is retained as a migration/execution sequence and historical prove
 
 The product scope includes existing media processing and streaming, speech recognition and synthesis, image/video/audio/music generation, enhancement and restoration, editing, animation, simulation, synchronization, composition, professional color and mastering, quality assessment, delivery, and spatial-media extension points. None of these disappears because an initial provider is missing.
 
-**Execution modes are separate permissions.** `PLAN_ONLY` produces/reviews this plan. `DEFINE_PRODUCT` authors Phase 0–2 artifacts and builds the Phase 3 Explorer, fixtures, adapters, and verification. `EXECUTE_MIGRATION` moves existing source and its ownership after its prerequisites. `IMPLEMENT_RUNTIME` builds production capabilities from accepted authority. A request for a plan or Explorer does not authorize production deployment, database mutation, model downloads, paid inference, publication, deletion, or repository cutover.
+**Execution modes are separate permissions.** `PLAN_ONLY` produces/reviews this plan. `DEFINE_PRODUCT` authors PDP-0–PDP-3 authorities and builds the Experience Explorer as their deterministic projection. `EXECUTE_MIGRATION` moves existing source and its ownership after its prerequisites. `IMPLEMENT_RUNTIME` builds production capabilities from accepted authority. A request for a plan or Explorer does not authorize production deployment, database mutation, model downloads, paid inference, publication, deletion, or repository cutover.
 
 Migration is a cross-repository workstream, not a numbered product-definition phase. Production implementation and qualification are downstream workstreams, not a fifth PDP phase. Existing service contracts remain with their legitimate owners until an explicit transfer. This document does not authorize source transfer, runtime mutation, publication, qualification, or release.
 
@@ -65,16 +67,17 @@ gap.
 - [15. Ecosystem-first dependency and OSS policy](#15-ecosystem-first-dependency-and-oss-policy)
 - [16. Target source layout and module ownership](#16-target-source-layout-and-module-ownership)
 - [17. Cross-product recipes and dependency handoffs](#17-cross-product-recipes-and-dependency-handoffs)
-- [18. Phase 0 — Product Truth](#18-phase-0--product-truth)
-- [19. Phase 1 — Design Language](#19-phase-1--design-language)
-- [20. Phase 2 — Complete Product Experience Specification](#20-phase-2--complete-product-experience-specification)
-- [21. Phase 3 — Deterministic, pixel-perfect Experience Explorer](#21-phase-3--deterministic-pixel-perfect-experience-explorer)
+- [18. PDP-0 — Product Truth](#18-pdp-0-product-truth-legacy-plan-phase-0)
+- [18.4 PDP-1 — Domain & Data authority mapping](#184-pdp-1-domain-data-authority-mapping)
+- [19. PDP-2 — Design & Interface System](#19-pdp-2-design-interface-system-legacy-plan-phase-1)
+- [20. PDP-3 — Complete Product Experience](#20-pdp-3-complete-product-experience-legacy-plan-phase-2)
+- [21. Experience Explorer — outside the PDP phases](#21-experience-explorer-outside-the-pdp-phases-legacy-plan-phase-3)
 - [22. Derived implementation handoff and runtime sequence](#22-derived-implementation-handoff-and-runtime-sequence)
 - [23. Prescriptive work packages and task dependency graph](#23-prescriptive-work-packages-and-task-dependency-graph)
 - [24. Verification, experiments and completion measurement](#24-verification-experiments-and-completion-measurement)
 - [25. Execution order, unresolved prerequisites and final acceptance](#25-execution-order-unresolved-prerequisites-and-final-acceptance)
 - [Appendix A. Preservation and reconciliation crosswalk](#appendix-a-preservation-and-reconciliation-crosswalk)
-- [Appendix B. External candidate inventory — only after the Ghatana reuse gate](#appendix-b-external-candidate-inventory--only-after-the-ghatana-reuse-gate)
+- [Appendix B. External candidate inventory — only after the Ghatana reuse gate](#appendix-b-external-candidate-inventory-only-after-the-ghatana-reuse-gate)
 - [Appendix C. Source evidence and reference register](#appendix-c-source-evidence-and-reference-register)
 - [Appendix D. Minimal record templates and execution instructions](#appendix-d-minimal-record-templates-and-execution-instructions)
 - [Appendix E. Document consistency checks](#appendix-e-document-consistency-checks)
@@ -86,7 +89,7 @@ gap.
 
 ## 1.1 Assessment
 
-The supplied plan has broad capability coverage and a sound intention: one Media product, four source-of-truth phases, strong privacy, simple UX, and replaceable implementations. It is not safe to execute unchanged. Several instructions conflate source relocation with product redesign, presume reusable components without checking their boundaries, leave safety-critical contracts underspecified, or describe desired quality as if it were guaranteed.
+The supplied plan has broad capability coverage and a sound intention: one Media product, four PDP source-of-truth authorities, strong privacy, simple UX, and replaceable implementations. It is not safe to execute unchanged. Several instructions conflate source relocation with product redesign, presume reusable components without checking their boundaries, leave safety-critical contracts underspecified, or describe desired quality as if it were guaranteed.
 
 This review examined the plan from product-management, ecosystem architecture, migration/release engineering, distributed systems, media signal processing, graphics/animation, scientific simulation, AI/ML, privacy/security, licensing, UX/accessibility, CLI/API, and verification perspectives. These are analytical review lenses, not claims of independent human sign-off.
 
@@ -254,7 +257,7 @@ The repository portfolio boundary explicitly separates these authorities [R01]. 
 
 ## 3.4 Reuse decision record
 
-The authoritative register is `.product-experience/phase-0-product-truth/reuse-decisions.yaml`. Each record must include:
+The authoritative register is `.product-experience/pdp-0-product-truth/reuse-decisions.yaml`. Each record must include:
 
 ```yaml
 id: MEDIA-REUSE-ANIMATION-001
@@ -281,7 +284,7 @@ This is a record design, not a claim that an existing Tools schema accepts this 
 
 # 4. Product constitution and ambient guarantees
 
-The following stable constitutional IDs preserve the original principles and add explicit enforcement. Phase 0 owns them. A readable `PRODUCT-CONSTITUTION.md` is generated from, or unambiguously references, the single structured requirement register; it is not another editable set of rules.
+The following stable constitutional IDs preserve the original principles and add explicit enforcement. PDP-0 owns them. A readable `PRODUCT-CONSTITUTION.md` is generated from, or unambiguously references, the single structured requirement register; it is not another editable set of rules.
 
 | ID | Binding requirement |
 |---|---|
@@ -326,10 +329,11 @@ The following stable constitutional IDs preserve the original principles and add
 
 | Layer | Owns | Must not own |
 |---|---|---|
-| Phase 0 — Product Truth | Meaning, actors, outcomes, requirements, capabilities, domain/time/units, authority, states, failure/finality, dependencies and NFRs | CSS, component-specific styling, provider brands as semantic truth |
-| Phase 1 — Design Language | Reusable visual/interaction/content/accessibility/responsive and terminal grammar | New capabilities or changed action consequences |
-| Phase 2 — Complete Product Experience | Exact screens/views, CLI/API experience mappings, content, interactions, journeys, scenarios and product simulation semantics | Independent business state machines or duplicate external schemas |
-| Phase 3 — Experience Explorer | Executable, deterministic visual/interaction projection of accepted definitions | New product meaning, fake backend proof, production availability claims |
+| PDP-0 — Product Truth | Product intent, actors, outcomes, requirements, capability scope, policy, quality goals, boundaries and nonfunctional requirements | PDP-1 canonical domain/state/operation contracts; PDP-2 presentation rules; PDP-3 screen/journey behavior |
+| PDP-1 — Domain & Data | Canonical domain objects, values, relationships, authority, states, transitions, operations, events, projections and data lifecycle | Reusable design rules, screen composition, or independent product meaning in runtime projections |
+| PDP-2 — Design & Interface System | Reusable visual/interaction/content/accessibility/responsive and terminal grammar; shared component and token bindings | New product capabilities or changed domain/action consequences |
+| PDP-3 — Product Experience | Exact screens/views, channel experience mappings, content, interactions, journeys, scenarios and product simulation semantics, bound to PDP-0/1/2 | Independent business state machines or duplicate external schemas |
+| Experience Explorer — outside the PDP phases | Executable, deterministic projection of accepted PDP definitions for exploration and verification | New product meaning, fake backend proof, production availability claims |
 | External owner contracts | Their authoritative API/schema/lifecycle semantics | Copying those semantics into Media as a parallel owner |
 | Production implementation | Real runtime execution and measured results | Weakening intended requirements merely to match incomplete code |
 
@@ -347,18 +351,21 @@ A missing upstream rule found in Explorer must be fixed at its owning phase firs
   decision-log.md
   gaps.yaml                       # one canonical cross-phase gap register
   acceptance.yaml                 # structured acceptance inputs; results are generated
-  PRODUCT-CONSTITUTION.md          # derived readable Phase-0 constitution
-  phase-0-product-truth/
-  phase-1-design-language/
-  phase-2-product-experience/
-  phase-3-experience-explorer/
+  PRODUCT-CONSTITUTION.md          # derived readable PDP-0 constitution
+  pdp-0-product-truth/
+  pdp-1-domain-data/
+  pdp-2-design-interface-system/
+  pdp-3-product-experience/
+  explorer/                         # support projections and Explorer source metadata
+apps/
+  media-experience-explorer/        # executable local Explorer application; outside PDP phases
 ```
 
-Existing equivalent authorities are reconciled and registered instead of duplicated. Phase-local gap/coverage/acceptance files are generated filtered views of the root records when useful, never competing editable ledgers. Top-level product `capabilities.yaml` and `dependencies.yaml` are projections of the corresponding accepted Phase-0 records when the portfolio registry requires them.
+Existing equivalent authorities are reconciled and registered instead of duplicated. PDP-local gap/coverage/acceptance files are generated filtered views of the root records when useful, never competing editable ledgers. Top-level product `capabilities.yaml` and `dependencies.yaml` are projections of the corresponding accepted PDP-0 records when the portfolio registry requires them.
 
-The authoritative reuse decision register is the Phase-0 `reuse-decisions.yaml`. `config/reuse-decisions.yaml`, when useful to runtime packaging, is a **generated admitted-decision projection**, never a second editable decision register. `config/dependency-bindings.yaml` records deployment-specific resolved/public artifact bindings under the runtime owner, constrained by Phase-0 dependency semantics. `config/oss-components.yaml` is the exact technical supply-chain inventory and admission evidence; it does not redefine the product’s license policy. Register these roles separately.
+The authoritative reuse decision register is the PDP-0 `reuse-decisions.yaml`. `config/reuse-decisions.yaml`, when useful to runtime packaging, is a **generated admitted-decision projection**, never a second editable decision register. `config/dependency-bindings.yaml` records deployment-specific resolved/public artifact bindings under the runtime owner, constrained by PDP-0 dependency semantics. `config/oss-components.yaml` is the exact technical supply-chain inventory and admission evidence; it does not redefine the product’s license policy. Register these roles separately.
 
-The source manifest records artifact ID, title, owner, authority class, owning phase, exact path/reference, authored/generated role, semantic fingerprint, dependencies, dependents, validation contract and acceptance state. External service schemas stay with the service owner; include public contract fingerprints and owner resolution, not copied semantics.
+The source manifest records artifact ID, title, owner, authority class, owning PDP or workstream, exact path/reference, authored/generated role, semantic fingerprint, dependencies, dependents, validation contract and acceptance state. Explorer entries are classified as projections/verification work outside the PDP authorities. External service schemas stay with the service owner; include public contract fingerprints and owner resolution, not copied semantics.
 
 ## 5.3 Reproducible change and version handling
 
@@ -369,7 +376,7 @@ Preserve accepted unaffected work. Do not rerun an expensive model benchmark bec
 
 ## 6.1 Capability records, not a list of library names
 
-The following families are **required product-definition scope**. They are not assertions that implementations or qualified models already exist. Phase 0 expands every named operation into a stable leaf record or an explicit alias of another leaf. An operation cannot vanish by being relabeled “future.” Record its intended channel, priority, implementation lane and availability separately.
+The following families are **required product-definition scope**. They are not assertions that implementations or qualified models already exist. PDP-0 records every named capability family into a stable leaf record or an explicit alias of another leaf. An operation cannot vanish by being relabeled “future.” Record its intended channel, priority, implementation lane and availability separately.
 
 Each leaf records: ID; outcome and actor; input/output artifact types; preconditions; supported parameters with units/ranges; constraints; action and state references; required authority; rights/privacy implications; quality/fidelity contract; cancellation/retry/reconciliation; execution/resource requirements; accessibility representation; provenance; Ghatana reuse decision; external dependencies; acceptance cases; qualification dimensions; supported channels; and explicit unsupported cases.
 
@@ -574,7 +581,7 @@ Resolution must satisfy both model-native grid/latent constraints and encoder pi
 
 ## 8.3 Scene and physical units
 
-Use an explicit scene-coordinate convention, units and handedness in the contract; the initial Media-native convention is right-handed, +Y up, meters, seconds, kilograms and radians unless a domain model declares converted units. The initial native convention uses camera forward −Z, quaternions `[x, y, z, w]`, column vectors, local transform `T × R × S`, world transform `parentWorld × local`, and column-major serialized matrices. Pivot operations are explicit transforms, not hidden engine defaults. Image-space controls use a top-left origin and pixel-center coordinates; normalized coordinates declare their mapping. Phase 0 must validate these proposed conventions against the admitted existing Ghatana scene/model contracts and record any necessary conversion rather than imposing a conflicting universal schema. Import adapters perform tested conversions; silent axis flips or degree/radian mixing fail validation.
+Use an explicit scene-coordinate convention, units and handedness in the contract; the initial Media-native convention is right-handed, +Y up, meters, seconds, kilograms and radians unless a domain model declares converted units. The initial native convention uses camera forward −Z, quaternions `[x, y, z, w]`, column vectors, local transform `T × R × S`, world transform `parentWorld × local`, and column-major serialized matrices. Pivot operations are explicit transforms, not hidden engine defaults. Image-space controls use a top-left origin and pixel-center coordinates; normalized coordinates declare their mapping. PDP-1 must validate these proposed conventions against the admitted existing Ghatana scene/model contracts and record any necessary conversion rather than imposing a conflicting universal schema. Import adapters perform tested conversions; silent axis flips or degree/radian mixing fail validation.
 
 Simulation models specify equations/constraints or an authoritative model reference, initial/boundary conditions, solver type, fixed/adaptive step, tolerances, integration policy, collision representation, mass/inertia and material parameters. Scene meshes need not equal collision meshes. Physics controls cannot be inferred from a pretty render.
 
@@ -817,7 +824,7 @@ Maintain tenant-aware resource admission, fair scheduling, per-job budgets and c
 
 Lifecycle policy covers originals, derivatives, thumbnails, proxies, captions/transcripts, masks/geometry, embeddings/voice models, source requests, temporary files, cached intermediates, exports, remote provider copies, backups and retained audit/provenance. References, legal holds and retention constraints require explicit decisions; do not blindly delete shared physical bytes still referenced by an authorized retained artifact.
 
-Use states such as `ERASURE_REQUESTED`, `ACCESS_REVOKED`, `PHYSICAL_ERASURE_PENDING`, `ERASURE_CONFIRMED`, `BLOCKED_BY_HOLD` and `EXTERNAL_ERASURE_UNCONFIRMED`. State names are product proposals to materialize in Phase 0. Do not mark physical erasure complete when only metadata was hidden. Restore procedures replay erasure tombstones before data becomes accessible so backups do not resurrect deleted content.
+Use states such as `ERASURE_REQUESTED`, `ACCESS_REVOKED`, `PHYSICAL_ERASURE_PENDING`, `ERASURE_CONFIRMED`, `BLOCKED_BY_HOLD` and `EXTERNAL_ERASURE_UNCONFIRMED`. State names are product proposals to reconcile in PDP-1, with policy meaning retained by PDP-0. Do not mark physical erasure complete when only metadata was hidden. Restore procedures replay erasure tombstones before data becomes accessible so backups do not resurrect deleted content.
 
 A downloaded or published copy may be beyond Media’s control; revoking access cannot honestly promise remote recall. Explain scope. Preserve only allowed minimal provenance/audit under retention policy; “immutable” does not require retaining personal content forever. Encryption, key deletion and provider deletion claims need the deployment-specific proof they assert.
 
@@ -881,7 +888,7 @@ Offline operation has an explicit entitlement/policy validity window. It cannot 
 
 ## 12.6 Performance targets are proposed acceptance budgets
 
-The following are **initial proposed budgets**, not observed performance or universal promises. Phase 0 records them; qualification freezes hardware, load, corpus, network conditions and measurement method. A material change requires explicit target revision, not a denominator shortcut.
+The following are **initial proposed budgets**, not observed performance or universal promises. PDP-0 records product-level targets; qualification freezes hardware, load, corpus, network conditions and measurement method. A material change requires explicit target revision, not a denominator shortcut.
 
 | Surface | Proposed budget / acceptance method |
 |---|---|
@@ -908,7 +915,7 @@ The destination is the standalone repository `samujjwal/ghatana-media`. `ghatana
 
 Migration transfers the whole Media bounded context, including document intelligence and all admitted clients/tests/configuration, except items individually classified for a legitimate different owner. It is not an excuse to discard capabilities or copy platform machinery into Products. Target product ownership is the intended decision; live source remains canonical until the explicit cutover.
 
-First accept a **Phase-0 boundary slice**: product identity, what moves/remains, ecosystem contracts, named consumers, compatibility commitments, and the migration authority. This does not require completing all future product features. Full Phase 0–3 definition can proceed against that boundary while behavior-preserving migration is prepared. Do not make full definition depend on cutover and cutover depend on full definition.
+First accept a **PDP-0/PDP-1 authority boundary slice**: product identity, what moves/remains, ecosystem contracts, named consumers, compatibility commitments, and the migration authority. This does not require completing all future product features. Full PDP-0–PDP-3 definition can proceed against that boundary while behavior-preserving migration is prepared. Do not make full definition depend on cutover and cutover depend on full definition.
 
 Before source cutover, the target may author prospective product requirements and migration records under the registered transfer intent, but current runtime contracts are **referenced from their existing owner**, not copied into a second editable authority. Approving intended future behavior does not claim that the current runtime implements it. A change to an existing owned concept is made through that owner until the cutover manifest transfers it; afterward, rebind the references and remove the former editable authority.
 
@@ -1017,7 +1024,7 @@ Target WCAG 2.2 AA for supported Web processes and assess media-authoring/output
 
 Avoid assuming machine captions, descriptions or translations are correct. Mark generated drafts and support review/correction. Distinguish prerecorded/live captions and audio-description requirements by output use. Flashing/motion risks require checks and safe playback behavior. Do not auto-play disruptive audio.
 
-Use Shared localization and formatting. UI locale, speech language, subtitle language, voice locale and metadata/time formatting are independent. Define RTL/bidi, font fallback/licensing, shaping, long labels and translated-caption wrapping. Choose supported locale sets in Phase 0; unqualified languages remain visible as unavailable rather than silently falling back to English. Test at least a Latin and a Devanagari fixture plus RTL/pseudo-localization where claimed; this is a resilience test, not a launch-language certification.
+Use Shared localization and formatting. UI locale, speech language, subtitle language, voice locale and metadata/time formatting are independent. Define RTL/bidi, font fallback/licensing, shaping, long labels and translated-caption wrapping. Choose supported locale intent in PDP-0 and canonical language/data semantics in PDP-1; unqualified languages remain visible as unavailable rather than silently falling back to English. Test at least a Latin and a Devanagari fixture plus RTL/pseudo-localization where claimed; this is a resilience test, not a launch-language certification.
 
 ---
 
@@ -1062,8 +1069,8 @@ ghatana-media/
     product-manifest.yaml or current ecosystem-equivalent
     canonical-product-registry.json or current standalone-equivalent
 
-  capabilities.yaml                       # product projection of Phase 0
-  dependencies.yaml                       # ecosystem dependency projection of Phase 0
+  capabilities.yaml                       # product projection of PDP-0
+  dependencies.yaml                       # ecosystem dependency projection of PDP-0
   .product-experience/
     source-manifest.yaml
     authority-map.yaml
@@ -1073,10 +1080,13 @@ ghatana-media/
     gaps.yaml
     acceptance.yaml
     PRODUCT-CONSTITUTION.md
-    phase-0-product-truth/
-    phase-1-design-language/
-    phase-2-product-experience/
-    phase-3-experience-explorer/
+    pdp-0-product-truth/
+    pdp-1-domain-data/
+    pdp-2-design-interface-system/
+    pdp-3-product-experience/
+    explorer/                            # supporting projection and source metadata
+  apps/
+    media-experience-explorer/           # executable Explorer application; outside PDP phases
   migration/
     source-inventory.yaml
     consumer-inventory.yaml
@@ -1154,7 +1164,7 @@ Pilot recipes preserve breadth while limiting initial implementation cost: uploa
 
 ---
 
-# 18. Phase 0 — Product Truth
+# 18. PDP-0 — Product Truth (legacy plan Phase 0)
 
 ## 18.1 Goal and entry
 
@@ -1164,7 +1174,7 @@ The early boundary slice enables migration preparation. Full Phase-0 acceptance 
 
 ## 18.2 Required authored artifacts
 
-All paths below are under `.product-experience/phase-0-product-truth/`; use an existing equivalent if already canonical and register the mapping.
+PDP-0 authority paths are under `.product-experience/pdp-0-product-truth/`; use an existing equivalent only when its authority mapping is registered.
 
 | Artifact | Exact responsibility |
 |---|---|
@@ -1188,23 +1198,27 @@ All paths below are under `.product-experience/phase-0-product-truth/`; use an e
 
 Use the published Tools-owned Product Definition/Experience schema and model shapes. Media extensions specify Media semantics; do not copy those generic schemas locally. Lifecycle owns cross-repository closure/evidence/currentness/receipt contracts and outputs; Media references them without creating local copies. Source-manifest classifies authored inputs, generated views, external references, runtime references and evidence distinctly.
 
+PDP-0 passes when identity and ownership are unambiguous; all admitted requirements/capabilities/actors/outcomes reconcile; policy, boundaries and product-level failure/recovery are explicit; full scope has channel/journey disposition; and there are no competing product-semantic authorities or unexplained orphan records. Tests validate reference closure and semantic invariants, not just file existence.
+
 ## 18.3 Requirement record and acceptance
 
 Every requirement includes ID, normative statement, rationale/source, owning capability/actor, preconditions, expected behavior, important states, consequences, failure/degradation/recovery, NFRs, acceptance cases, related external contract and downstream mappings. Every capability in §6 receives disposition; every consequential action receives authority and finality. Undefined support is a gap, not a default.
 
-Phase 0 passes when identity and ownership are unambiguous; all admitted requirements/capabilities/actors/outcomes reconcile; state transitions and dependencies are defined; full scope has channel/journey disposition; trust/fidelity and failure/recovery are explicit; there are no competing product-semantic authorities or unexplained orphan records. Tests validate reference closure and semantic invariants, not just file existence.
+# 18.4 PDP-1 — Domain & Data authority mapping
+
+The original plan grouped all of its first work under legacy `Phase 0` and has no separate legacy phase section or `P1-` task family for Domain & Data. Canonical PDP-1 is nevertheless an independent authority in `.product-experience/pdp-1-domain-data/`. In the retained task set, `P0-004` (domain/time/unit semantics) and `P0-005` (state/transition semantics) map to PDP-1 where they define domain objects, values, relationships, authority, canonical states or transitions; their IDs remain legacy execution identifiers. Their related PDP-0 requirements, policy and product-boundary decisions remain PDP-0. Do not infer authority from a legacy prefix or copy an unresolved PDP-0 proposal into PDP-1 without reconciliation and owner review.
 
 ---
 
-# 19. Phase 1 — Design Language
+# 19. PDP-2 — Design & Interface System (legacy plan Phase 1)
 
 ## 19.1 Goal and dependencies
 
-Represent accepted Phase-0 meaning consistently across Web, CLI and embedded/interactive delivery. Consume Shared design-system/tokens/theme/headless/accessibility/localization public contracts [R10]. Media owns domain-specific patterns, not a second primitive design system. A new capability or changed finality discovered here returns to Phase 0.
+Represent accepted PDP-0 intent and PDP-1 semantics consistently across Web, CLI and embedded/interactive delivery. Consume Shared design-system/tokens/theme/headless/accessibility/localization public contracts [R10]. Media owns domain-specific patterns, not a second primitive design system. A new capability or changed domain/action consequence discovered here returns to its PDP-0 or PDP-1 owner.
 
 ## 19.2 Required artifacts
 
-Under `phase-1-design-language/`, author `DESIGN-LANGUAGE.md`, `media-token-aliases.yaml`, `typography-layout.yaml`, `component-contracts.yaml`, `semantic-state-grammar.yaml`, `action-finality-grammar.yaml`, `trust-provenance-grammar.yaml`, `media-editing-grammar.yaml`, `animation-simulation-grammar.yaml`, `responsive-adaptive.yaml`, `accessibility.yaml`, `localization-content.yaml`, `motion.yaml` and `cli-language.yaml`.
+Under `pdp-2-design-interface-system/`, author `DESIGN-LANGUAGE.md`, `media-token-aliases.yaml`, `typography-layout.yaml`, `component-contracts.yaml`, `semantic-state-grammar.yaml`, `action-finality-grammar.yaml`, `trust-provenance-grammar.yaml`, `media-editing-grammar.yaml`, `animation-simulation-grammar.yaml`, `responsive-adaptive.yaml`, `accessibility.yaml`, `localization-content.yaml`, `motion.yaml` and `cli-language.yaml`.
 
 Use canonical spacing/type/color/density rules; Media aliases reference Shared tokens. Specify typography, grid, breakpoints, borders/radii/elevation/iconography, semantic states, focus/motion, actions/confirmations, validation/errors, notification priority and handoffs. Never hide quality, egress, rights, scientific fidelity or uncertain-finality consequences behind a generic green badge.
 
@@ -1212,21 +1226,21 @@ Each component defines purpose/semantic role, exact anatomy/slots, hierarchy, al
 
 ## 19.3 Canonical responsive and terminal variants
 
-Initial proposed verification viewports are 1536×960, 1280×800, 1024×768, 768×1024, 390×844 and 320×640 CSS pixels, plus 200% text and relevant zoom/reflow. These are product test fixtures to accept in Phase 1, not universal device claims. Define whether each workflow is fully editable, limited-edit or review/monitoring on each form factor. Mobile does not silently drop recovery or critical information.
+Initial proposed verification viewports are 1536×960, 1280×800, 1024×768, 768×1024, 390×844 and 320×640 CSS pixels, plus 200% text and relevant zoom/reflow. These are product test fixtures to accept in PDP-2, not universal device claims. Define whether each workflow is fully editable, limited-edit or review/monitoring on each form factor. Mobile does not silently drop recovery or critical information.
 
-Use focused editor composition on tablet, contextual drawers rather than compressed desktop panes, and a review/monitoring-first mobile experience unless Phase 0 requires more. All keyboard-only operations have visible focus; dragging has alternatives. Screen-reader content exposes selected clip/keyframe/model measurement and permitted actions.
+Use focused editor composition on tablet, contextual drawers rather than compressed desktop panes, and a review/monitoring-first mobile experience unless PDP-0/PDP-1 requires more. All keyboard-only operations have visible focus; dragging has alternatives. Screen-reader content exposes selected clip/keyframe/model measurement and permitted actions.
 
 Terminal verification covers 80/120/160 columns and narrow plain-text wrapping, TTY/non-TTY, unicode-safe names, color-disabled mode, errors, progress and machine output. Human translated copy is separate from stable JSON field names/reason codes.
 
-Phase 1 passes when every represented Phase-0 state/action/trust concept has a reusable rule, media-specific components have complete contracts, all supported adaptive/accessibility/localization states are defined, and equivalent situations use consistent patterns. Visual approval remains a recorded human review, not a guessed score.
+PDP-2 passes when every represented PDP-0/PDP-1 state/action/trust concept has a reusable rule, media-specific components have complete contracts, all supported adaptive/accessibility/localization states are defined, and equivalent situations use consistent patterns. Visual approval remains a recorded human review, not a guessed score.
 
 ---
 
-# 20. Phase 2 — Complete Product Experience Specification
+# 20. PDP-3 — Complete Product Experience (legacy plan Phase 2)
 
 ## 20.1 Goal and authority
 
-Specify the entire intended human/machine-facing experience independently of Explorer code. Consume accepted Phase0 meaning and Phase1 representation. Use `@ghatana/experience-specification` for neutral definitions/validation, not as if it implements runtime guards or simulations [R11].
+Specify the entire intended human/machine-facing experience independently of Explorer code. Consume accepted PDP-0 meaning, PDP-1 domain/data semantics, and PDP-2 representation. Use `@ghatana/experience-specification` for neutral definitions/validation, not as if it implements runtime guards or simulations [R11].
 
 Required artifacts: `COMPLETE-PRODUCT-EXPERIENCE.md`, `application-channel-registry.yaml`, `navigation-contracts.yaml`, `screen-registry.yaml`, `screen-contracts/`, `journey-registry.yaml`, `journey-contracts/`, `action-registry.yaml`, `interaction-registry.yaml`, `state-transition-bindings.yaml`, `cli-command-registry.yaml`, `api-experience-mapping.yaml`, `content-copy-catalog.yaml`, `data-view-contracts.yaml`, `scenario-fixture-registry.yaml`, `simulation-semantics.yaml`, `recovery-finality-contracts.yaml`, `handoff-bindings.yaml` and `responsive-variants.yaml`. Coverage and filtered gaps are generated from root authority.
 
@@ -1286,7 +1300,7 @@ Every meaningful view records ID/channel/route, actors/intents, purpose; **Conte
 
 Every consequential action records actor/context/authority, preconditions, confirmation, effect and affected objects, reversibility, commit/finality, downstream effects, success/partial/failure/unknown outcomes, retry/cancel/recovery, provenance and next safe action. UI and CLI may not reinterpret a non-retryable unknown result as “Try again.”
 
-Exact copy is part of Phase2 where it affects decisions. For example: “Your completed scenes are safe. The last scene’s remote outcome is not confirmed. Check its status before starting another generation.” Do not use generic “Details,” fake example content or technical trace messages as the normal experience.
+Exact copy is part of PDP-3 where it affects decisions. For example: “Your completed scenes are safe. The last scene’s remote outcome is not confirmed. Check its status before starting another generation.” Do not use generic “Details,” fake example content or technical trace messages as the normal experience.
 
 ## 20.4 Required end-to-end journeys
 
@@ -1329,11 +1343,11 @@ These journeys are not the final denominator: every additional admitted capabili
 
 The graph is bidirectional: outcome → requirement → actor/intent → capability → journey/step → Web view or CLI/API operation → component/action → state/effect → design contract → scenario/fixture → Explorer realization → verification → downstream implementation mapping.
 
-Phase2 passes when every admitted journey reaches an actual defined experience and completion; every action/navigation/control has semantics; no active requirement disappears; content/state/context remain coherent across channels; recovery/a11y/localization/adaptive behavior is specified; and zero undefined experience paths remain. It must be implementable without reading Explorer code.
+PDP-3 passes when every admitted journey reaches an actual defined experience and completion; every action/navigation/control has semantics; no active requirement disappears; content/state/context remain coherent across channels; recovery/a11y/localization/adaptive behavior is specified; and zero undefined experience paths remain. It must be implementable without reading Explorer code.
 
 ---
 
-# 21. Phase 3 — Deterministic, pixel-perfect Experience Explorer
+# 21. Experience Explorer — outside the PDP phases (legacy plan Phase 3)
 
 ## 21.1 Product package, not a new generic Explorer
 
@@ -1375,7 +1389,7 @@ Verify semantic DOM and token references, computed styles, geometry, clipping/ov
 
 Human review inspects purpose, hierarchy, density, alignment, readability, action clarity, trust disclosure, media previews, timeline/scene/simulation controls, responsive/localized behavior and overall coherence. Automated pixel diff alone cannot pass this gate. Record reviewer, version, surface/scenario/viewport and findings. Without that observation, visual acceptance is `REVIEW_REQUIRED`.
 
-Phase3 passes only when every canonical Phase2 view/state/journey/CLI disposition is realizable, no dead paths/unclassified controls exist, product/explorer chrome remain separate, simulations are coherent, required variants/a11y/geometry pass, current visual evidence exists and human review passes. Production remains a separately measured consumer.
+Explorer verification passes only when every applicable PDP-3 view/state/journey/CLI disposition is realizable from accepted PDP-0/1/2 definitions, no dead paths/unclassified controls exist, product/Explorer chrome remain separate, simulations are coherent, required variants/a11y/geometry pass, current visual evidence exists and human review passes. Explorer remains outside the PDP authority phases; production remains a separately measured consumer.
 
 ---
 
@@ -1392,11 +1406,11 @@ Keep definition complete across full intended scope while runtime implementation
 
 ## 23.1 Task conventions
 
-The cards below are execution instructions, not completion claims. `P0` in **priority** means prerequisite/correctness-critical; it is different from **Phase 0**. `P1` means required product/feature-completeness work; it is not optional. Dependency order governs execution within and across priorities. Task identities are qualified by `MEDIA-MASTER-PLAN/<task-id>`; earlier draft task IDs are mapped in Appendix A and are not silently reused as the same completed work. All tasks start `NOT_STARTED` for this plan unless a current owner observation is explicitly adopted. The owner entries are accountable roles to assign, not invented people or approvals.
+The cards below are execution instructions, not completion claims. `P0` in **priority** means prerequisite/correctness-critical; it is distinct from the preserved legacy `P0-` task-ID prefix. `P1` means required product/feature-completeness work; it is not optional. Legacy task prefixes do not determine the current semantic owner; use the explicit owner mapping above and the task index below. Dependency order governs execution within and across workstreams. Task identities are qualified by `MEDIA-MASTER-PLAN/<task-id>`; earlier draft task IDs are mapped in Appendix A and are not silently reused as the same completed work. All tasks start `NOT_STARTED` for this plan unless a current owner observation is explicitly adopted. The owner entries are accountable roles to assign, not invented people or approvals.
 
-Paths without a repository prefix are relative to the root of `samujjwal/ghatana-media`. Phase artifact filenames are relative to the named `.product-experience/phase-*` folder; root acceptance/gap/currentness paths are defined in §5. Test files and `check:definition`, `test:explorer` wrappers below are **proposed deliverables**, not commands claimed to exist today. Register wrappers in the product package and delegate to actual public tooling/native tests; do not implement another generic validation/closure engine.
+Paths without a repository prefix are relative to the root of `samujjwal/ghatana-media`. PDP artifact filenames are relative to `.product-experience/pdp-0-product-truth/`, `pdp-1-domain-data/`, `pdp-2-design-interface-system/`, or `pdp-3-product-experience/`; Explorer implementation targets are under `apps/media-experience-explorer/`. Root acceptance/gap/currentness paths are defined in §5. Test files and `check:definition`, `test:explorer` wrappers below are **proposed deliverables**, not commands claimed to exist today. Register wrappers in the product package and delegate to actual public tooling/native tests; do not implement another generic validation/closure engine.
 
-Each task inherits §4 constitutional requirements. **Completion effect:** Phase tasks can accept only their definition/reference scope; migration tasks transfer ownership only; runtime tasks establish only the exact tested capability/environment. None automatically issues a release, certification or platform receipt. **Evidence impact:** preserve unaffected observations; refresh only the downstream material named by the task and its dependency graph. Missing required evidence remains `BLOCKED` or `REVIEW_REQUIRED`, not “not applicable.”
+Each task inherits §4 constitutional requirements. **Completion effect:** PDP definition tasks can accept only their definition/reference scope; migration tasks transfer ownership only; Explorer tasks establish only the exact verified reference projection; runtime tasks establish only the exact tested capability/environment. None automatically issues a release, certification or platform receipt. **Evidence impact:** preserve unaffected observations; refresh only the downstream material named by the task and its dependency graph. Missing required evidence remains `BLOCKED` or `REVIEW_REQUIRED`, not “not applicable.”
 
 Base prerequisites apply to every instance. Where a card lists **scope prerequisites**, expand them into concrete prerequisite edges for the explicitly selected capability/view/deployment lane before execution. For example, core Web work can start after the real SDK exists without waiting for a fluid solver, but a simulation view cannot be accepted before its own execution dependency is ready. A lane manifest lists included and excluded capability IDs with reasons; exclusion from activation never removes the full product requirement or turns incomplete full-scope work into pass. Validate the expanded instance DAG and require all applicable prerequisites.
 
@@ -1409,16 +1423,16 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 | GOV-001 | Cross-phase governance | None |
 | GOV-002 | Cross-phase governance | GOV-001 |
 | GOV-003 | Cross-phase governance | GOV-001 |
-| P0-001 | Phase 0 | GOV-002, GOV-003 |
-| P0-002 | Phase 0 | P0-001 |
-| P0-003 | Phase 0 | P0-002 |
-| P0-004 | Phase 0 | P0-003 |
-| P0-005 | Phase 0 | P0-004 |
-| P0-006 | Phase 0 | P0-002, P0-004, P0-005 |
-| P0-007 | Phase 0 | P0-003, P0-004, P0-006 |
-| P0-008 | Phase 0 | GOV-002, P0-006, MIG-002 |
-| P0-009 | Phase 0 | P0-002, P0-003, P0-007 |
-| P0-010 | Phase 0 | P0-001, P0-002, P0-003, P0-004, P0-005, P0-006, P0-007, P0-008, P0-009 |
+| P0-001 | PDP-0 (legacy P0 task group) | GOV-002, GOV-003 |
+| P0-002 | PDP-0 (legacy P0 task group) | P0-001 |
+| P0-003 | PDP-0 (legacy P0 task group) | P0-002 |
+| P0-004 | PDP-1 — Domain & Data (legacy P0 task) | P0-003 |
+| P0-005 | PDP-1 — Domain & Data (legacy P0 task) | P0-004 |
+| P0-006 | PDP-0 (legacy P0 task group) | P0-002, P0-004, P0-005 |
+| P0-007 | PDP-0 (legacy P0 task group) | P0-003, P0-004, P0-006 |
+| P0-008 | PDP-0 (legacy P0 task group) | GOV-002, P0-006, MIG-002 |
+| P0-009 | PDP-0 (legacy P0 task group) | P0-002, P0-003, P0-007 |
+| P0-010 | PDP-0 (legacy P0 task group) | P0-001, P0-002, P0-003, P0-004, P0-005, P0-006, P0-007, P0-008, P0-009 |
 | MIG-001 | Migration; not a phase | P0-001 |
 | MIG-002 | Migration; not a phase | GOV-001 |
 | MIG-003 | Migration; not a phase | MIG-001, MIG-002, GOV-002 |
@@ -1427,27 +1441,27 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 | MIG-006 | Migration; not a phase | MIG-005 |
 | MIG-007 | Migration; not a phase | MIG-006 |
 | MIG-008 | Migration; not a phase | MIG-007, IMP-015 |
-| P1-001 | Phase 1 | P0-010, GOV-002 |
-| P1-002 | Phase 1 | P1-001 |
-| P1-003 | Phase 1 | P1-001 |
-| P1-004 | Phase 1 | P1-002, P1-003 |
-| P1-005 | Phase 1 | P1-003 |
-| P1-006 | Phase 1 | P1-001, P1-002, P1-003, P1-004, P1-005 |
-| P2-001 | Phase 2 | P1-006 |
-| P2-002 | Phase 2 | P2-001 |
-| P2-003 | Phase 2 | P2-001, P0-007 |
-| P2-004 | Phase 2 | P2-001, P0-004, P0-008 |
-| P2-005 | Phase 2 | P2-001 |
-| P2-006 | Phase 2 | P2-002, P2-003, P2-004, P2-005 |
-| P2-007 | Phase 2 | P2-002, P2-003, P2-004, P2-005, P2-006 |
-| P2-008 | Phase 2 | P2-001, P2-002, P2-003, P2-004, P2-005, P2-006, P2-007 |
-| P3-001 | Phase 3 | P2-008, GOV-002 |
-| P3-002 | Phase 3 | P3-001 |
-| P3-003 | Phase 3 | P3-002 |
-| P3-004 | Phase 3 | P3-002, P2-006 |
-| P3-005 | Phase 3 | P3-003, P3-004 |
-| P3-006 | Phase 3 | P3-005, P1-004 |
-| P3-007 | Phase 3 | P3-006 |
+| P1-001 | PDP-2 (legacy P1 task group) | P0-010, GOV-002 |
+| P1-002 | PDP-2 (legacy P1 task group) | P1-001 |
+| P1-003 | PDP-2 (legacy P1 task group) | P1-001 |
+| P1-004 | PDP-2 (legacy P1 task group) | P1-002, P1-003 |
+| P1-005 | PDP-2 (legacy P1 task group) | P1-003 |
+| P1-006 | PDP-2 (legacy P1 task group) | P1-001, P1-002, P1-003, P1-004, P1-005 |
+| P2-001 | PDP-3 (legacy P2 task group) | P1-006 |
+| P2-002 | PDP-3 (legacy P2 task group) | P2-001 |
+| P2-003 | PDP-3 (legacy P2 task group) | P2-001, P0-007 |
+| P2-004 | PDP-3 (legacy P2 task group) | P2-001, P0-004, P0-008 |
+| P2-005 | PDP-3 (legacy P2 task group) | P2-001 |
+| P2-006 | PDP-3 (legacy P2 task group) | P2-002, P2-003, P2-004, P2-005 |
+| P2-007 | PDP-3 (legacy P2 task group) | P2-002, P2-003, P2-004, P2-005, P2-006 |
+| P2-008 | PDP-3 (legacy P2 task group) | P2-001, P2-002, P2-003, P2-004, P2-005, P2-006, P2-007 |
+| P3-001 | Experience Explorer (outside PDP phases) (legacy P3 task group) | P2-008, GOV-002 |
+| P3-002 | Experience Explorer (outside PDP phases) (legacy P3 task group) | P3-001 |
+| P3-003 | Experience Explorer (outside PDP phases) (legacy P3 task group) | P3-002 |
+| P3-004 | Experience Explorer (outside PDP phases) (legacy P3 task group) | P3-002, P2-006 |
+| P3-005 | Experience Explorer (outside PDP phases) (legacy P3 task group) | P3-003, P3-004 |
+| P3-006 | Experience Explorer (outside PDP phases) (legacy P3 task group) | P3-005, P1-004 |
+| P3-007 | Experience Explorer (outside PDP phases) (legacy P3 task group) | P3-006 |
 | HAND-001 | Derived handoff; not a phase | P3-007 |
 | HAND-002 | Cross-phase reconciliation | HAND-001 |
 | IMP-001 | Downstream runtime; not a phase | HAND-001, MIG-007 |
@@ -1489,7 +1503,7 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Priority:** P0. **Owner:** Ecosystem architect + Shared/Tools/Kernel/product owners. **Dependencies:** GOV-001.
 
-**Target:** `.product-experience/phase-0-product-truth/reuse-decisions.yaml; generated config/reuse-decisions.yaml; config/dependency-bindings.yaml; root gaps`.
+**Target:** `.product-experience/pdp-0-product-truth/reuse-decisions.yaml; generated config/reuse-decisions.yaml; config/dependency-bindings.yaml; root gaps`.
 
 **Problem / basis:** External OSS was selected before concrete ecosystem reuse and publication checks. Evidence: R04–R11, R14, R18; §§3,15,17.
 
@@ -1517,11 +1531,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** All phase registries and generated handoff; regenerate stale projections only.
 
-### P0-001 — Phase 0
+### P0-001 — PDP-0 — Product Truth (legacy P0 task ID)
 
 **Priority:** P0. **Owner:** Media PM + ecosystem architect. **Dependencies:** GOV-002, GOV-003.
 
-**Target:** `phase-0-product-truth/PRODUCT-TRUTH.md; policy-authority-model.yaml; dependency-contracts.yaml; migration/contract-compatibility.yaml`.
+**Target:** `pdp-0-product-truth/PRODUCT-TRUTH.md; policy-authority-model.yaml; dependency-contracts.yaml; migration/contract-compatibility.yaml`.
 
 **Problem / basis:** Cutover cannot precede accepted product ownership and consumer obligations. Evidence: REV-02,04,06,10,26; R01–R03,R15.
 
@@ -1531,13 +1545,13 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Verification:** Boundary review and proposed conformance/boundary-slice.spec.ts; compare current consumer constraints with R01/R02/R03/R15.
 
-**Downstream and evidence effect:** Enables migration registration/preparation and remaining Phase0; does not authorize live cutover.
+**Downstream and evidence effect:** Enables migration registration/preparation and remaining PDP-0; does not authorize live cutover.
 
-### P0-002 — Phase 0
+### P0-002 — PDP-0 — Product Truth (legacy P0 task ID)
 
 **Priority:** P1. **Owner:** Product manager + UX architect. **Dependencies:** P0-001.
 
-**Target:** `phase-0-product-truth/constitution.yaml; actors-responsibilities.yaml; goals-jtbd.yaml; glossary.yaml`.
+**Target:** `pdp-0-product-truth/constitution.yaml; actors-responsibilities.yaml; goals-jtbd.yaml; glossary.yaml`.
 
 **Problem / basis:** Ambient requirements and user outcomes were scattered among feature lists. Evidence: U1 §§3–5,13–14,18; §§2–4,14.
 
@@ -1545,15 +1559,15 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Acceptance:** Every constitutional invariant has a requirement/acceptance owner; every actor has an outcome and authority; MediaSynth and product/runtime/Explorer simulation meanings are distinct.
 
-**Verification:** Proposed conformance/phase-0-semantics.spec.ts plus PM/security/UX review; unresolved meaning is an explicit gap.
+**Verification:** Proposed conformance/pdp-0-semantics.spec.ts plus PM/security/UX review; unresolved meaning is an explicit gap.
 
 **Downstream and evidence effect:** Capability requirements, design grammar and all experiences; materially changed intent reopens affected descendants.
 
-### P0-003 — Phase 0
+### P0-003 — PDP-0 — Product Truth (legacy P0 task ID)
 
 **Priority:** P1. **Owner:** Media domain lead + capability specialists. **Dependencies:** P0-002.
 
-**Target:** `phase-0-product-truth/capabilities.yaml; requirements.yaml; qualification-policy.yaml`.
+**Target:** `pdp-0-product-truth/capabilities.yaml; requirements.yaml; qualification-policy.yaml`.
 
 **Problem / basis:** A broad catalog lacked per-leaf completeness and honest availability. Evidence: U1 §10; R15; §6.
 
@@ -1565,11 +1579,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** Journey/screen/CLI denominators, adapter selection and runtime qualification; new leaves legitimately expand the denominator.
 
-### P0-004 — Phase 0
+### P0-004 — PDP-1 — Domain & Data (legacy P0 task ID)
 
 **Priority:** P1. **Owner:** Media architect + graphics/audio/simulation specialists. **Dependencies:** P0-003.
 
-**Target:** `phase-0-product-truth/domain-model.yaml; time-units-fidelity.yaml`.
+**Target:** `.product-experience/pdp-0-product-truth/domain-model.yaml` (source proposal); `.product-experience/pdp-1-domain-data/domain-objects.yaml; value-objects.yaml; relationships.yaml; authority.yaml`; and `.product-experience/pdp-0-product-truth/time-units-fidelity.yaml` pending canonical owner reconciliation.
 
 **Problem / basis:** Graph state, time, units and reproducibility were underspecified. Evidence: REV-11–14,25; R04,R05; W03,W07,W08; §§7–8.
 
@@ -1581,11 +1595,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** All media engines, plans, animation/simulation, imports/exports and quality; changes invalidate related measurements and fixtures.
 
-### P0-005 — Phase 0
+### P0-005 — PDP-1 — Domain & Data (legacy P0 task ID)
 
 **Priority:** P0. **Owner:** Distributed-systems lead. **Dependencies:** P0-004.
 
-**Target:** `phase-0-product-truth/state-models.yaml; policy-authority-model.yaml; recovery-finality definitions`.
+**Target:** `.product-experience/pdp-0-product-truth/state-models.yaml` (source proposal); `.product-experience/pdp-1-domain-data/states.yaml; transitions.yaml; state-adjudication.yaml; operations.yaml; action-contracts.yaml`; and `.product-experience/pdp-0-product-truth/policy-authority-model.yaml` for PDP-0 policy meaning.
 
 **Problem / basis:** Job stage, cancellation and remote outcome were conflated. Evidence: R02,R06,R07; §§10–12.
 
@@ -1597,11 +1611,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** API/SDK/UI/CLI status semantics, scheduler and audit; regenerate all affected state projections.
 
-### P0-006 — Phase 0
+### P0-006 — PDP-0 — Product Truth (legacy P0 task ID)
 
 **Priority:** P0. **Owner:** Security/privacy engineer + rights owner. **Dependencies:** P0-002, P0-004, P0-005.
 
-**Target:** `phase-0-product-truth/policy-authority-model.yaml; nonfunctional-requirements.yaml; content-intent.yaml`.
+**Target:** `pdp-0-product-truth/policy-authority-model.yaml; nonfunctional-requirements.yaml; content-intent.yaml`.
 
 **Problem / basis:** Privacy labels, rights, erasure and native-worker safety were incomplete. Evidence: REV-16–20; R03,R08,R09,R15; W05,W06; §11.
 
@@ -1613,11 +1627,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** Every capability/worker/external adapter and user consent/rights flow; security changes can invalidate reuse even without byte changes.
 
-### P0-007 — Phase 0
+### P0-007 — PDP-0 — Product Truth (legacy P0 task ID)
 
 **Priority:** P1. **Owner:** Media-quality lead + AI/ML lead. **Dependencies:** P0-003, P0-004, P0-006.
 
-**Target:** `phase-0-product-truth/profile-semantics.yaml; quality-policy.yaml; qualification-policy.yaml`.
+**Target:** `pdp-0-product-truth/profile-semantics.yaml; quality-policy.yaml; qualification-policy.yaml`.
 
 **Problem / basis:** Profiles and quality loops could silently alter meaning or spend indefinitely. Evidence: REV-12,15,23; §§8–9,15.
 
@@ -1629,11 +1643,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** MediaSynth, enhancement, comparisons, provider selection and performance/quality tests.
 
-### P0-008 — Phase 0
+### P0-008 — PDP-0 — Product Truth (legacy P0 task ID)
 
 **Priority:** P0. **Owner:** Ecosystem architect + capability owners. **Dependencies:** GOV-002, P0-006, MIG-002.
 
-**Target:** `phase-0-product-truth/dependency-contracts.yaml; reuse-decisions.yaml; .product-experience/gaps.yaml`.
+**Target:** `pdp-0-product-truth/dependency-contracts.yaml; reuse-decisions.yaml; .product-experience/gaps.yaml`.
 
 **Problem / basis:** Product cross-calls and local AI exemptions could create cycles/parallel owners. Evidence: R01,R03–R07,R15,R16,R18; §§3,17.
 
@@ -1645,11 +1659,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** Migration compatibility, all adapter tasks and handoffs; no unrelated owner proof needs rerun.
 
-### P0-009 — Phase 0
+### P0-009 — PDP-0 — Product Truth (legacy P0 task ID)
 
 **Priority:** P1. **Owner:** UX/accessibility lead + SRE. **Dependencies:** P0-002, P0-003, P0-007.
 
-**Target:** `phase-0-product-truth/information-architecture.yaml; applications-channels.yaml; journey-catalog.yaml; handoff-contracts.yaml; nonfunctional-requirements.yaml`.
+**Target:** `pdp-0-product-truth/information-architecture.yaml; applications-channels.yaml; journey-catalog.yaml; handoff-contracts.yaml; nonfunctional-requirements.yaml`.
 
 **Problem / basis:** Simplicity and operational budgets were aspirations rather than acceptance requirements. Evidence: §§12,14,17; W04.
 
@@ -1659,23 +1673,23 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Verification:** Outcome-to-journey check, responsiveness workload manifest and usability/a11y acceptance review.
 
-**Downstream and evidence effect:** Phase1/2 view contracts, performance fixtures and supported release lanes.
+**Downstream and evidence effect:** PDP-2/3 view contracts, performance fixtures and supported release lanes.
 
-### P0-010 — Phase 0
+### P0-010 — PDP-0 — Product Truth (legacy P0 task ID)
 
 **Priority:** P0. **Owner:** Independent product-definition reviewer. **Dependencies:** P0-001, P0-002, P0-003, P0-004, P0-005, P0-006, P0-007, P0-008, P0-009.
 
-**Target:** `root acceptance inputs; generated Phase0 coverage/currentness`.
+**Target:** `root acceptance inputs; generated PDP-0 coverage/currentness`.
 
-**Problem / basis:** Checklist/file presence does not prove Product Truth completeness. Evidence: U2 Phase0 gate; §18.
+**Problem / basis:** Checklist/file presence does not prove Product Truth completeness. Evidence: U2 legacy Phase 0 gate; §18.
 
-**Procedure:** Validate all Phase0 schemas, IDs, aliases, refs and source roles; walk every outcome/capability/state/authority/failure path; resolve competing docs at the owning layer. Record accepted material fingerprints and explicit remaining runtime gaps.
+**Procedure:** Validate all PDP-0 schemas, IDs, aliases, refs and source roles; walk every outcome/capability/policy/failure path; resolve competing docs at the owning layer. Reconcile PDP-1 domain/state dependencies without accepting them by implication. Record accepted material fingerprints and explicit remaining runtime gaps.
 
 **Acceptance:** §18 exit conditions satisfied; no unresolved material semantic gap; planned runtime availability is not presented as current.
 
 **Verification:** Run direct check:definition --phase 0 once implemented; independent semantic review and generated coverage report.
 
-**Downstream and evidence effect:** Accepts definition only; unlocks Phase1. Does not claim migration, model or production qualification.
+**Downstream and evidence effect:** Accepts PDP-0 definition only; unblocks dependent PDP-1/2/3 work subject to each owner’s inputs. Does not claim migration, model or production qualification.
 
 ### MIG-001 — Migration; not a phase
 
@@ -1805,11 +1819,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** Runtime ownership handover only; final activation additionally requires OPS-001 approval.
 
-### P1-001 — Phase 1
+### P1-001 — PDP-2 — Design & Interface System (legacy P1 task ID)
 
 **Priority:** P1. **Owner:** Design-system consumer lead. **Dependencies:** P0-010, GOV-002.
 
-**Target:** `phase-1-design-language/media-token-aliases.yaml; typography-layout.yaml; Shared public component bindings`.
+**Target:** `pdp-2-design-interface-system/media-token-aliases.yaml; typography-layout.yaml; Shared public component bindings`.
 
 **Problem / basis:** Media risks a private primitive design system and ad hoc styling. Evidence: R10; §19.
 
@@ -1821,11 +1835,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** All view geometry; changes selectively invalidate visual snapshots and derived styles.
 
-### P1-002 — Phase 1
+### P1-002 — PDP-2 — Design & Interface System (legacy P1 task ID)
 
 **Priority:** P1. **Owner:** Media interaction + animation/simulation designers. **Dependencies:** P1-001.
 
-**Target:** `phase-1-design-language/component-contracts.yaml; media-editing-grammar.yaml; animation-simulation-grammar.yaml`.
+**Target:** `pdp-2-design-interface-system/component-contracts.yaml; media-editing-grammar.yaml; animation-simulation-grammar.yaml`.
 
 **Problem / basis:** Timeline, masks, waveform, physics instruments and animation need exact reusable interaction contracts. Evidence: R04,R05; §§8,14,19.
 
@@ -1835,9 +1849,9 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Verification:** Component contract completeness tests and keyboard/control walkthroughs using fixed representative fixtures.
 
-**Downstream and evidence effect:** Phase2 compositions and Phase3 components; impacted visual and interaction evidence refreshed.
+**Downstream and evidence effect:** PDP-3 compositions and Explorer components; impacted visual and interaction evidence refreshed.
 
-### P1-003 — Phase 1
+### P1-003 — PDP-2 — Design & Interface System (legacy P1 task ID)
 
 **Priority:** P1. **Owner:** UX + trust/operations designers. **Dependencies:** P1-001.
 
@@ -1847,13 +1861,13 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Procedure:** Define simple user-state mapping, one primary action, safe fallback/confirmation, progress unknown, contextual AI proposals, required audit versus diagnostics, errors/recovery and operator drilldown. Keep sharing/locality/fidelity independent.
 
-**Acceptance:** Every Phase0 trust/finality/degraded state has consistent representation; no false green success or silent compromise.
+**Acceptance:** Every PDP-0/1 trust/finality/degraded state has consistent representation; no false green success or silent compromise.
 
 **Verification:** Table-driven semantic-state coverage and product-specific copy review.
 
 **Downstream and evidence effect:** All channels and recovery fixtures; changed risk copy/state mapping triggers relevant review.
 
-### P1-004 — Phase 1
+### P1-004 — PDP-2 — Design & Interface System (legacy P1 task ID)
 
 **Priority:** P1. **Owner:** Accessibility/localization specialist. **Dependencies:** P1-002, P1-003.
 
@@ -1869,11 +1883,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** Screen contracts, fixture assets, screenshots and usability validation.
 
-### P1-005 — Phase 1
+### P1-005 — PDP-2 — Design & Interface System (legacy P1 task ID)
 
 **Priority:** P1. **Owner:** CLI/SDK designer + technical writer. **Dependencies:** P1-003.
 
-**Target:** `phase-1-design-language/cli-language.yaml; content-voice rules`.
+**Target:** `pdp-2-design-interface-system/cli-language.yaml; content-voice rules`.
 
 **Problem / basis:** Terminal output, aliases and interruption semantics were inconsistent. Evidence: R14; §10.5–10.6.
 
@@ -1883,25 +1897,25 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Verification:** Golden terminal widths/output/exit cases and CLI accessibility/content review.
 
-**Downstream and evidence effect:** Phase2 command registry, Explorer CLI simulation and implementation tests.
+**Downstream and evidence effect:** PDP-3 command registry, Explorer CLI simulation and implementation tests.
 
-### P1-006 — Phase 1
+### P1-006 — PDP-2 — Design & Interface System (legacy P1 task ID)
 
 **Priority:** P1. **Owner:** Design authority reviewer. **Dependencies:** P1-001, P1-002, P1-003, P1-004, P1-005.
 
-**Target:** `Phase1 acceptance input; generated design coverage`.
+**Target:** `PDP-2 acceptance input; generated design coverage`.
 
 **Problem / basis:** File presence cannot establish a coherent representation language. Evidence: U2; §19.
 
-**Procedure:** Walk every Phase0 concept requiring representation against the Phase1 pattern owner. Resolve contradictions, eliminate arbitrary duplication and accept versioned visual/interaction rules.
+**Procedure:** Walk every PDP-0/1 concept requiring representation against the PDP-2 pattern owner. Resolve contradictions, eliminate arbitrary duplication and accept versioned visual/interaction rules.
 
 **Acceptance:** §19 exit gate passes with no missing material grammar; human design decisions recorded.
 
 **Verification:** Direct definition/design checks and human review; no production visual parity claim.
 
-**Downstream and evidence effect:** Unlocks Phase2; future material design changes invalidate only dependent views/evidence.
+**Downstream and evidence effect:** Unlocks PDP-3; future material design changes invalidate only dependent views/evidence.
 
-### P2-001 — Phase 2
+### P2-001 — PDP-3 — Complete Product Experience (legacy P2 task ID)
 
 **Priority:** P1. **Owner:** UX information architect. **Dependencies:** P1-006.
 
@@ -1917,7 +1931,7 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** All screen contracts and Explorer route adapters.
 
-### P2-002 — Phase 2
+### P2-002 — PDP-3 — Complete Product Experience (legacy P2 task ID)
 
 **Priority:** P1. **Owner:** Product UX + distributed-systems analyst. **Dependencies:** P2-001.
 
@@ -1933,7 +1947,7 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** Core Explorer and foundation runtime tests.
 
-### P2-003 — Phase 2
+### P2-003 — PDP-3 — Complete Product Experience (legacy P2 task ID)
 
 **Priority:** P1. **Owner:** Generation/editing/quality experience lead. **Dependencies:** P2-001, P0-007.
 
@@ -1949,7 +1963,7 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** MediaSynth and quality Explorer, runtime adapter/metric qualification.
 
-### P2-004 — Phase 2
+### P2-004 — PDP-3 — Complete Product Experience (legacy P2 task ID)
 
 **Priority:** P1. **Owner:** Animation/simulation/domain integration architect. **Dependencies:** P2-001, P0-004, P0-008.
 
@@ -1965,7 +1979,7 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** Animation/simulation Explorer, reusable-engine extraction and render/export tests.
 
-### P2-005 — Phase 2
+### P2-005 — PDP-3 — Complete Product Experience (legacy P2 task ID)
 
 **Priority:** P1. **Owner:** Audio/speech/streaming experience lead. **Dependencies:** P2-001.
 
@@ -1981,7 +1995,7 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** Audio/stream/doc Explorer and native contract/quality tests.
 
-### P2-006 — Phase 2
+### P2-006 — PDP-3 — Complete Product Experience (legacy P2 task ID)
 
 **Priority:** P1. **Owner:** API/SDK/CLI contract owner. **Dependencies:** P2-002, P2-003, P2-004, P2-005.
 
@@ -1997,7 +2011,7 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** CLI/API Explorer, SDK generation and runtime parity.
 
-### P2-007 — Phase 2
+### P2-007 — PDP-3 — Complete Product Experience (legacy P2 task ID)
 
 **Priority:** P1. **Owner:** Experience simulation + content lead. **Dependencies:** P2-002, P2-003, P2-004, P2-005, P2-006.
 
@@ -2011,9 +2025,9 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Verification:** Pure transition/replay tests; fixture referential integrity and content/rights checks.
 
-**Downstream and evidence effect:** Phase3 implementation and later implementation-parity fixtures.
+**Downstream and evidence effect:** Experience Explorer implementation and later implementation-parity fixtures.
 
-### P2-008 — Phase 2
+### P2-008 — PDP-3 — Complete Product Experience (legacy P2 task ID)
 
 **Priority:** P1. **Owner:** Independent experience reviewer. **Dependencies:** P2-001, P2-002, P2-003, P2-004, P2-005, P2-006, P2-007.
 
@@ -2027,17 +2041,17 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Verification:** Direct check:definition --phase 2 plus full journey/action/navigation audit and schema validation.
 
-**Downstream and evidence effect:** Unlocks Phase3; accept definition, not implementation readiness.
+**Downstream and evidence effect:** Unlocks the Experience Explorer; accept definition, not implementation readiness.
 
-### P3-001 — Phase 3
+### P3-001 — Experience Explorer — outside the PDP phases (legacy P3 task ID)
 
 **Priority:** P1. **Owner:** Explorer adapter engineer + Tools owner. **Dependencies:** P2-008, GOV-002.
 
-**Target:** `phase-3-experience-explorer/manifest.yaml; product-package/; public Tools Explorer binding`.
+**Target:** `apps/media-experience-explorer/manifest.yaml; product-package/; public Tools Explorer binding`.
 
 **Problem / basis:** Neutral spec types are not an implemented Explorer runtime. Evidence: R11,R14; §21.
 
-**Procedure:** Discover/reuse the current public Explorer contracts/runtime; record missing generic capabilities as Tools owner gaps. Build Media package adapters referencing Phase0–2 fingerprints, render targets and fixtures. Keep product rules out of generic core.
+**Procedure:** Discover/reuse the current public Explorer contracts/runtime; record missing generic capabilities as Tools owner gaps. Build Media package adapters referencing PDP-0–PDP-3 fingerprints, render targets and fixtures. Keep product rules out of generic core.
 
 **Acceptance:** Package loads through public boundaries without private source copies or live production dependencies.
 
@@ -2045,11 +2059,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** All Explorer modes and build assets.
 
-### P3-002 — Phase 3
+### P3-002 — Experience Explorer — outside the PDP phases (legacy P3 task ID)
 
 **Priority:** P1. **Owner:** Product simulation engineer. **Dependencies:** P3-001.
 
-**Target:** `phase-3-experience-explorer/simulations/; fixtures/; mock transport adapters`.
+**Target:** `apps/media-experience-explorer/simulations/; fixtures/; mock transport adapters`.
 
 **Problem / basis:** Cross-screen actions must change one coherent simulated product. Evidence: §21.3.
 
@@ -2061,11 +2075,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** Web/CLI/API simulation projections; not runtime scientific or provider proof.
 
-### P3-003 — Phase 3
+### P3-003 — Experience Explorer — outside the PDP phases (legacy P3 task ID)
 
 **Priority:** P1. **Owner:** Media UI engineers. **Dependencies:** P3-002.
 
-**Target:** `phase-3-experience-explorer/product-package/views/; components/; Shared design bindings`.
+**Target:** `apps/media-experience-explorer/product-package/views/; components/; Shared design bindings`.
 
 **Problem / basis:** Every intended workspace needs faithful composition, not generic placeholders. Evidence: §§19–21.
 
@@ -2077,11 +2091,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** Visual/interaction/a11y evidence and downstream UI reference.
 
-### P3-004 — Phase 3
+### P3-004 — Experience Explorer — outside the PDP phases (legacy P3 task ID)
 
 **Priority:** P1. **Owner:** CLI/API experience engineer. **Dependencies:** P3-002, P2-006.
 
-**Target:** `phase-3-experience-explorer/product-package/channels/cli/ and api/; Explore/Specification/Verify mode bindings`.
+**Target:** `apps/media-experience-explorer/product-package/channels/cli/ and api/; Explore/Specification/Verify mode bindings`.
 
 **Problem / basis:** CLI demos and diagnostic panels must not invent independent behavior. Evidence: §§10,21.2.
 
@@ -2093,7 +2107,7 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** Channel completeness and developer handoff examples.
 
-### P3-005 — Phase 3
+### P3-005 — Experience Explorer — outside the PDP phases (legacy P3 task ID)
 
 **Priority:** P1. **Owner:** Frontend packaging/security engineer. **Dependencies:** P3-003, P3-004.
 
@@ -2109,11 +2123,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** All browser/visual evidence; asset/build changes invalidate affected rendered references.
 
-### P3-006 — Phase 3
+### P3-006 — Experience Explorer — outside the PDP phases (legacy P3 task ID)
 
 **Priority:** P1. **Owner:** QA/accessibility/visual engineer. **Dependencies:** P3-005, P1-004.
 
-**Target:** `phase-3-experience-explorer/verification/; screenshots/; conformance/browser/`.
+**Target:** `apps/media-experience-explorer/verification/; screenshots/; conformance/browser/`.
 
 **Problem / basis:** Screenshot diff alone misses behavior/accessibility and can hide unsupported states. Evidence: U2; §21.5.
 
@@ -2125,11 +2139,11 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Downstream and evidence effect:** Automated Explorer acceptance only; human visual review still required.
 
-### P3-007 — Phase 3
+### P3-007 — Experience Explorer — outside the PDP phases (legacy P3 task ID)
 
 **Priority:** P1. **Owner:** Human product/design/accessibility reviewers. **Dependencies:** P3-006.
 
-**Target:** `root acceptance records; Phase3 visual/usability review observations`.
+**Target:** `root acceptance records; Experience Explorer visual/usability review observations`.
 
 **Problem / basis:** Automated green status cannot establish pixel-perfect clarity or usability. Evidence: U2; §§14,21.
 
@@ -2139,7 +2153,7 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Verification:** Signed/attributed review records, current screenshot/geometry bindings and no unresolved critical navigation/meaning defects.
 
-**Downstream and evidence effect:** Accepts Phase3 reference; no production or certification claim.
+**Downstream and evidence effect:** Accepts the Explorer reference; no production or certification claim.
 
 ### HAND-001 — Derived handoff; not a phase
 
@@ -2441,7 +2455,7 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 | Gate | What it proves | What it cannot prove |
 |---|---|---|
 | `MIGRATION_PARITY` | Source/contract ownership transferred, supported baseline behavior preserved, consumers compatible, no duplicate owner or source coupling | New feature completeness, new provider quality, production activation or a full product redesign |
-| `PRODUCT_DEFINITION` | Phases0–3 define the complete intended product and a faithful deterministic reference with current visual/accessibility review | Durable production behavior, real engine/model performance, scientific validation or real deployment readiness |
+| `PRODUCT_DEFINITION` | PDP-0–PDP-3 define the complete intended product; the separate Experience Explorer provides a faithful deterministic reference with current visual/accessibility review | Durable production behavior, real engine/model performance, scientific validation or real deployment readiness |
 | `RUNTIME_QUALIFICATION` | Exact selected capabilities, artifact builds, models, datasets, environment and deployment profile satisfy their measured contracts | Universal device/model support, unrelated capabilities or automatic release/certification |
 
 Do not merge these into a single percentage. A migration can pass while new MediaSynth work is absent. Product definition can pass while an advanced solver remains unqualified. A runtime lane cannot claim “all Media complete” while catalog leaves remain unimplemented.
@@ -2527,12 +2541,12 @@ Material changes invalidate only dependent records/observations; an updated scie
 ## 25.1 Dependency-ordered execution
 
 1. **Observe and bind:** GOV-001–003 establish source inventory, Ghatana reuse and Tools schema ownership. No new external stack is selected first.
-2. **Accept the boundary:** P0-001 and MIG-001–003 establish product ownership, inbound-graduation policy and consumer contracts. P0 remaining requirements proceed in parallel with migration preparation.
+2. **Accept the authority boundary:** P0-001 and MIG-001–003 establish product ownership, inbound-graduation policy and consumer contracts. PDP-0 boundary work may proceed in parallel with migration preparation.
 3. **Relocate without redesign:** MIG-004–007 prepare/test/switch source ownership using the admitted manifest. Runtime/data movement remains separately authorized.
-4. **Complete product meaning:** P0-002–010 fully define all capabilities and invariants, regardless of runtime implementation coverage.
-5. **Define representation:** P1-001–006 establish Media language over Shared design contracts.
-6. **Specify exact experiences:** P2-001–008 define Web/CLI/API/embedded behavior, actions, state, content, fixtures and traceability.
-7. **Realize and inspect:** P3-001–007 build the generic-Explorer Media package, verify it and obtain human visual/accessibility review.
+4. **Complete Product Truth and Domain & Data:** P0-002–003 and P0-006–010 define PDP-0 meaning; retained task IDs P0-004/005 address PDP-1 domain/time/unit and state/transition semantics. Their source proposals require canonical reconciliation and owner review.
+5. **Define reusable representation:** P1-001–006 (legacy IDs) establish PDP-2 Design & Interface System contracts over Shared public design contracts.
+6. **Specify exact experiences:** P2-001–008 (legacy IDs) define PDP-3 screens, channel mappings, actions, journeys, scenarios, content and traceability.
+7. **Build and verify the reference Explorer:** P3-001–007 (legacy IDs) implement the Experience Explorer outside the PDP phases, projecting accepted PDP-0 through PDP-3 definitions and obtaining current human visual/accessibility review.
 8. **Generate the handoff:** HAND-001–002 reconcile authority and project construction/test work from accepted definition.
 9. **Implement qualified slices:** IMP tasks follow their dependency graph. Shared reuse, security and tests accompany each slice. Do not implement every candidate engine in parallel.
 10. **Qualify and activate deliberately:** IMP-014–015 establish the selected lane’s evidence; MIG-008 handles any authorized runtime transfer; OPS-001 is a separate activation decision.
@@ -2545,7 +2559,7 @@ These gaps identify missing execution inputs/observations, not missing planning 
 
 | Gap ID | Missing or unresolved prerequisite | Owning work / stop condition |
 |---|---|---|
-| GAP-01 | Full reverse-consumer/source inventory across all relevant repositories/environments | MIG-002; blocks source cutover for unassessed required consumers, not Phase0 authoring |
+| GAP-01 | Full reverse-consumer/source inventory across all relevant repositories/environments | MIG-002; blocks source cutover for unassessed required consumers, not PDP-0 authoring |
 | GAP-02 | Verified public versions/publication/isolated consumption for every selected Ghatana dependency | GOV-002/P0-008; blocks that runtime binding; no guessed package coordinates/version |
 | GAP-03 | Owner-approved neutral reuse/extraction of TutorPutor mechanics without core/contracts coupling | GOV-002/IMP-006; blocks unreviewed direct reuse, not specification or a justified alternative |
 | GAP-04 | Inbound service-to-product graduation support in actual portfolio policy/schema/guard | MIG-001; blocks recording a false completed transfer |
@@ -2556,12 +2570,12 @@ These gaps identify missing execution inputs/observations, not missing planning 
 | GAP-09 | Exact external code/build/weight/font/asset license and security admission | GOV-002/IMP-014; blocks distribution/execution of the affected unapproved component |
 | GAP-10 | Real engine/GPU/model/quality benchmark observations for selected profiles | IMP-014; blocks quality/reproducibility/performance claims, not intended capability definition |
 | GAP-11 | Actual Tools Explorer support for Media targets and required generic behavior | P3-001; owner extension required if missing; never pretend schema package is the runtime |
-| GAP-12 | Current built Explorer/browser/visual/accessibility and human usability reviews | P3-006–007; blocks Phase3 acceptance; document preparation is not that evidence |
+| GAP-12 | Current built Explorer/browser/visual/accessibility and human usability reviews | P3-006–007; blocks Explorer verification acceptance; document preparation is not that evidence |
 | GAP-13 | Real storage/audit/outbox/worker crash/restore/erasure/soak observations and explicit deployment SLO/RPO/RTO | IMP-015; blocks production qualification/activation |
 | GAP-14 | Document worker consumer relocation parity and preservation of current qualification/activation state | MIG-003/IMP-013; blocks affected consumer handover |
 | GAP-15 | Named owners and authorizations for cross-repository source cutover, runtime transfer and public activation | MIG-006–008/OPS-001; a planning request grants none of these |
 
-At plan delivery: migration is **not executed**; Phase0–3 artifacts/Explorer are **not accepted by this review**; runtime qualification/production activation is **not established**. Existing source may already implement capabilities, but its status is adopted only through a current owner observation with matching scope. The reviewed current Media service contract describes internal preview and prohibits production promotion without required proof [R12].
+At plan delivery: migration is **not executed**; PDP-0 through PDP-3 artifacts and the Experience Explorer are **not accepted by this review**; runtime qualification/production activation is **not established**. Existing source may already implement capabilities, but its status is adopted only through a current owner observation with matching scope. The reviewed current Media service contract describes internal preview and prohibits production promotion without required proof [R12].
 
 ## 25.3 Final definition of complete
 
@@ -2608,10 +2622,10 @@ This table documents where the supplied plan’s sections are retained. It is no
 | 17 Animation/simulation | §§6.5–6.6,8,17,20–21; TutorPutor reuse and scientific fidelity |
 | 18 Simple UX | §14; §§19–21 shell/components/exact experience |
 | 19 CLI | §10 command/output/config/exit/signal contract; P2-006/P3-004/IMP-004 |
-| 20 Phase0 | §18; P0-001–010 |
-| 21 Phase1 | §19; P1-001–006 |
-| 22 Phase2 | §20; P2-001–008 |
-| 23 Phase3 | §21; P3-001–007 |
+| U1 §20 (legacy Phase 0) | §18 maps product truth to PDP-0; P0-001–003, P0-006–010 |
+| U1 §21 (legacy Phase 1) | §19 maps design language to PDP-2; P1-001–006 |
+| U1 §22 (legacy Phase 2) | §20 maps experience specification to PDP-3; P2-001–008 |
+| U1 §23 (legacy Phase 3) | §21 maps the Experience Explorer outside PDP phases; P3-001–007 |
 | 24 Implementation handoff | §22; HAND-001–002; not an authority phase |
 | 25 I-001–018 production sequence | §22 and IMP-001–015/OPS-001; protections included from first slice |
 | 26 Testing | §24 cases/experiments; direct/native and lifecycle evidence parity |
@@ -2663,7 +2677,7 @@ Existing accepted product requirement IDs are preserved. The original document�
 | I-015 | IMP-014 |
 | I-017, I-018 | IMP-003, IMP-015 |
 
-The original generic four-phase framework [U2] is retained through one authority owner per concept, manifest/currentness/traceability, exact screen/journey/action contracts, independent Phase2, four Explorer modes, realistic content, interaction disposition, deterministic simulation, responsive/a11y/localization, combined visual verification and human review, derived handoff, selective invalidation and honest phase statuses. No fifth source-of-truth phase is introduced.
+The original generic four-phase framework [U2] is retained through one authority owner per concept, manifest/currentness/traceability, exact screen/journey/action contracts, independent PDP-3 experience specification, four Explorer modes, realistic content, interaction disposition, deterministic simulation, responsive/a11y/localization, combined visual verification and human review, derived handoff, selective invalidation and honest phase statuses. No fifth source-of-truth phase is introduced.
 
 ---
 
@@ -2721,7 +2735,7 @@ Read date is October 4, 2026. Git blob hashes below identify inspected file cont
 ## C.2 Supplied materials
 
 - **[U1]** `Ghatana_Media_Consolidated_Phase_0_3_Plan.md`, supplied in the conversation; 3,795 lines. SHA-256 `a55f070fa9dc7ac7352e59c282d4d19c26bcdae96108ff91722f75626a51d87f`. Full document reviewed. Appendix A maps its sections to the revised plan.
-- **[U2]** `Pasted text.txt`, Generic Four-Phase Product Source-of-Truth Review & Hardening Prompt; 1,630 lines. SHA-256 `2b41f1e069dd46fdb979b0fbf328d2f1387914ba5984c64cff30f0842cfb1906`. Establishes Phases0–3, source ownership, PLAN_ONLY task detail, Explorer and derived handoff constraints.
+- **[U2]** `Pasted text.txt`, Generic Four-Phase Product Source-of-Truth Review & Hardening Prompt; 1,630 lines. SHA-256 `2b41f1e069dd46fdb979b0fbf328d2f1387914ba5984c64cff30f0842cfb1906`. Establishes the legacy Phase 0–3 plan grouping, source ownership, PLAN_ONLY task detail, Explorer and derived handoff constraints; current PDP mapping is recorded in the front matter.
 
 ## C.3 Inspected repository sources
 
@@ -2802,14 +2816,14 @@ For TutorPutor extraction, attach a dependency graph proving which renderer/anim
 
 ## D.4 Operator/developer instruction block
 
-Execute only the authorized workstream. Read canonical owner contracts before changing code. Use public Ghatana artifacts/clients and verify their versions. Keep one editable authority. Follow §23 prerequisites; record blockers in the root gap register. Do not change generated projections by hand, widen privacy, invent fake providers, silently downgrade quality, or manufacture test/evidence success. Run focused native tests and reconcile planned/discovered/executed observations. Update owning Phase0–2 when implementation exposes a semantic gap, then regenerate Phase3/handoff. Remove proven obsolete duplication only after consumer/reference reconciliation. Report exact modifications, checks, failures and remaining dependencies separately from release/certification.
+Execute only the authorized workstream. Read canonical owner contracts before changing code. Use public Ghatana artifacts/clients and verify their versions. Keep one editable authority. Follow §23 prerequisites; record blockers in the root gap register. Do not change generated projections by hand, widen privacy, invent fake providers, silently downgrade quality, or manufacture test/evidence success. Run focused native tests and reconcile planned/discovered/executed observations. Update the owning PDP-0–PDP-3 authority when implementation exposes a semantic gap, then regenerate the Experience Explorer/handoff. Remove proven obsolete duplication only after consumer/reference reconciliation. Report exact modifications, checks, failures and remaining dependencies separately from release/certification.
 
-**Ultimate target:** one Ghatana-native Media product whose Web, CLI, API and embedded experiences share complete Phase0–3 authority; whose media creation, animation, simulation, understanding, improvement and delivery reuse the appropriate ecosystem capabilities; and whose real execution is governed, bounded, observable, recoverable and honestly qualified.
+**Ultimate target:** one Ghatana-native Media product whose Web, CLI, API and embedded experiences share complete PDP-0–PDP-3 authority; whose media creation, animation, simulation, understanding, improvement and delivery reuse the appropriate ecosystem capabilities; and whose real execution is governed, bounded, observable, recoverable and honestly qualified.
 
 ---
 
 # Appendix E. Document consistency checks
 
-This master document was mechanically checked for balanced Markdown code fences; one task card per registered task; unique task IDs; resolving and acyclic task prerequisites; resolving source-reference IDs; the 32 constitutional IDs; the 26 review findings; and the 15 explicit execution-gap records. The source-section crosswalk preserves all 31 sections of the supplied consolidated plan. No authority-phase heading beyond Phase 0–3 is present.
+This master document was mechanically checked for balanced Markdown code fences; one task card per registered task; unique task IDs; resolving and acyclic task prerequisites; resolving source-reference IDs; the 32 constitutional IDs; the 26 review findings; and the 15 explicit execution-gap records. The source-section crosswalk preserves all 31 sections of the supplied consolidated plan. The historical plan group labels have an explicit mapping to PDP-0–PDP-3; Experience Explorer is outside those authority phases.
 
 These are **document consistency checks only**. They do not execute repository code, prove feature implementation, qualify a model/engine, establish a production deployment, replace a human visual/accessibility review or eliminate the possibility of additional findings during execution.

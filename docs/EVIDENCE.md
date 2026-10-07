@@ -16,11 +16,14 @@ generator or release-readiness claim.
 all 29 scenarios, the generated Specification index, 47 valid Product proposal
 routes, the inline artifact-verification specialization, Verify, keyboard
 navigation, accessible-name checks, and six responsive viewports. A prior audit
-recorded no console/page errors or horizontal overflow and produced review
-fixed-viewport screenshots under `/tmp/media-experience-browser-audit`; that
-record predates the canonical phase-path and generated-index normalization and
-is historical until the audit is rerun with the current dependency set. The
-current repository state has no browser proof from that earlier report.
+report is present at `/tmp/media-experience-browser-audit/report.json`. It
+records 29 scenarios, 47 routes, 296 indexed specification records, six
+viewports, no assertion/console/page errors, and the listed responsive,
+keyboard, zoom, forced-colors, reduced-motion, and touch-target observations.
+It predates the latest Explorer package-consumer edits, so it is not current
+browser proof for the present checkout; rerun the audit after those changes.
+Screen-reader automation and independent visual review remain manual and
+unverified, and no accepted canonical visual references were supplied.
 
 The audit proves deterministic browser behavior and geometry. It does not
 replace human visual/accessibility review, a pixel-reference comparison, or

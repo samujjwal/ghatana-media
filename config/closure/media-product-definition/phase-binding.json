@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "ghatana.closure.phase-binding",
+  "bindingId": "media.product-definition.phase-binding.v1",
+  "closureSurfaceId": "media.product-definition",
+  "programId": "media.product-definition.v1",
+  "phases": {
+    "PDP-0": {
+      "applicability": "APPLICABLE",
+      "obligationIds": [
+        "media.pdp-0.product-truth"
+      ]
+    },
+    "PDP-1": {
+      "applicability": "APPLICABLE",
+      "obligationIds": [
+        "media.pdp-1.domain-data"
+      ]
+    },
+    "PDP-2": {
+      "applicability": "APPLICABLE",
+      "obligationIds": [
+        "media.pdp-2.design-interface-system"
+      ]
+    },
+    "PDP-3": {
+      "applicability": "APPLICABLE",
+      "obligationIds": [
+        "media.pdp-3.product-experience"
+      ]
+    }
+  }
+}

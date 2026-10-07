@@ -1,0 +1,392 @@
+schemaVersion: media.product-closure-dashboard.v1
+productId: media
+artifactType: source-grounded-closure-scoreboard
+authority: Media source observations and target tracking only; product owners own semantic decisions; ghatana-lifecycle owns
+  generated currentness, evidence admission, receipts, and closure.
+status: PENDING
+observationDate: '2026-10-07'
+observationMethod: Counts below are derived from the cited current-worktree source registries/files where practical. Counts
+  establish record presence only, never semantic completeness, correctness, acceptance, verification, or currentness.
+nonClaims:
+- No phase percentage is calculated.
+- No phase or dimension is marked accepted, current, or closed.
+- Target and observed counts are distinct; an observed count equal to a target does not establish completion.
+- Non-applicability requires owner review and is not a denominator reduction.
+requiredClosureDimensions:
+- id: semantic-completeness
+  intent: Applicable normative meaning and required relationships are complete; unresolved meaning is explicitly dispositioned.
+- id: source-correctness-and-authority
+  intent: Claims are grounded in the owning authority and source observations do not become semantic decisions.
+- id: cross-artifact-consistency
+  intent: References, dependencies, shared concepts, and downstream projections agree with their owning phase authorities.
+- id: owner-and-specialist-review
+  intent: Required product, domain, Shared/platform, and independent reviewers have adjudicated their assigned scope.
+- id: verification-evidence
+  intent: Applicable schema, semantic, behavioral, accessibility, interface, and projection checks have reviewable evidence.
+- id: lifecycle-currentness-and-closure
+  intent: Lifecycle has admitted evidence, resolved dependencies/currentness, and issued a current phase closure result.
+phases:
+  PDP-0:
+    phaseStatus: PENDING
+    authorityPath: .product-experience/pdp-0-product-truth/
+    dimensions:
+    - id: semantic-completeness
+      status: PENDING
+      target: Applicable normative meaning and required relationships are complete; unresolved meaning is explicitly dispositioned.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: &id001
+      - .product-experience/acceptance.yaml
+      - .product-experience/traceability.yaml
+      - .product-experience/authority-map.yaml
+    - id: source-correctness-and-authority
+      status: PENDING
+      target: Claims are grounded in the owning authority and source observations do not become semantic decisions.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id001
+    - id: cross-artifact-consistency
+      status: PENDING
+      target: References, dependencies, shared concepts, and downstream projections agree with their owning phase authorities.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id001
+    - id: owner-and-specialist-review
+      status: PENDING
+      target: Required product, domain, Shared/platform, and independent reviewers have adjudicated their assigned scope.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id001
+    - id: verification-evidence
+      status: PENDING
+      target: Applicable schema, semantic, behavioral, accessibility, interface, and projection checks have reviewable evidence.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id001
+    - id: lifecycle-currentness-and-closure
+      status: PENDING
+      target: Lifecycle has admitted evidence, resolved dependencies/currentness, and issued a current phase closure result.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id001
+    sourceObservations:
+    - id: requirements
+      target: 38
+      observed: 38
+      unit: requirement-records
+      source: .product-experience/pdp-0-product-truth/requirements.yaml#/requirements
+      observation: Record count only; semantic acceptance is not inferred.
+    - id: capability-families
+      target: 38
+      observed: 38
+      unit: capability-families
+      source: .product-experience/pdp-0-product-truth/capabilities.yaml#/families
+      observation: Record count only.
+    - id: capability-leaves
+      target: 462
+      observed: 462
+      unit: capability-leaves
+      source: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities
+      observation: Inventory coverage count does not establish leaf meaning, correctness, or reachability.
+    - id: journeys
+      target: 30
+      observed: 30
+      unit: journey-records
+      source: .product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys
+      observation: Inventory count only; journey semantics remain reviewable obligations.
+  PDP-1:
+    phaseStatus: PENDING
+    authorityPath: .product-experience/pdp-1-domain-data/
+    dimensions:
+    - id: semantic-completeness
+      status: PENDING
+      target: Applicable normative meaning and required relationships are complete; unresolved meaning is explicitly dispositioned.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: &id002
+      - .product-experience/acceptance.yaml
+      - .product-experience/traceability.yaml
+      - .product-experience/authority-map.yaml
+    - id: source-correctness-and-authority
+      status: PENDING
+      target: Claims are grounded in the owning authority and source observations do not become semantic decisions.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id002
+    - id: cross-artifact-consistency
+      status: PENDING
+      target: References, dependencies, shared concepts, and downstream projections agree with their owning phase authorities.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id002
+    - id: owner-and-specialist-review
+      status: PENDING
+      target: Required product, domain, Shared/platform, and independent reviewers have adjudicated their assigned scope.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id002
+    - id: verification-evidence
+      status: PENDING
+      target: Applicable schema, semantic, behavioral, accessibility, interface, and projection checks have reviewable evidence.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id002
+    - id: lifecycle-currentness-and-closure
+      status: PENDING
+      target: Lifecycle has admitted evidence, resolved dependencies/currentness, and issued a current phase closure result.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id002
+    sourceObservations:
+    - id: domain-objects
+      target: all-applicable
+      observed: 37
+      unit: proposal-or-observed-object-records
+      source: .product-experience/pdp-1-domain-data/domain-objects.yaml#/objects
+      observation: Count includes proposal/observation records, not accepted canonical meanings.
+    - id: value-objects
+      target: all-applicable
+      observed: 13
+      unit: proposal-value-records
+      source: .product-experience/pdp-1-domain-data/value-objects.yaml#/values
+      observation: Count only.
+    - id: relationships
+      target: all-applicable
+      observed: 11
+      unit: proposal-relationship-records
+      source: .product-experience/pdp-1-domain-data/relationships.yaml#/relationships
+      observation: Count only; cardinality and relationship semantics remain subject to review.
+    - id: state-machines
+      target: all-applicable
+      observed: 11
+      unit: source-observed-state-machines
+      source: .product-experience/pdp-1-domain-data/states.yaml#/stateMachines
+      observation: Source inventory does not establish canonical state meanings.
+    - id: transition-records
+      target: all-applicable
+      observed: 49
+      unit: source-observed-transition-records
+      source: .product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords
+      observation: Source inventory does not accept guards or transition legality.
+    - id: logical-operations
+      target: all-applicable
+      observed: 9
+      unit: proposal-operation-records
+      source: .product-experience/pdp-1-domain-data/operations.yaml#/operations
+      observation: Count only; bindings and operation semantics remain pending.
+    - id: presentation-projections
+      target: all-applicable
+      observed: 12
+      unit: proposal-projection-records
+      source: .product-experience/pdp-1-domain-data/presentation-projections.yaml#/projections
+      observation: Count only; typed consumer binding and source semantics remain pending.
+  PDP-2:
+    phaseStatus: PENDING
+    authorityPath: .product-experience/pdp-2-design-interface-system/
+    dimensions:
+    - id: semantic-completeness
+      status: PENDING
+      target: Applicable normative meaning and required relationships are complete; unresolved meaning is explicitly dispositioned.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: &id003
+      - .product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml
+      - .product-experience/pdp-2-design-interface-system/gui/style-authority.yaml
+      - .product-experience/traceability.yaml
+    - id: source-correctness-and-authority
+      status: PENDING
+      target: Claims are grounded in the owning authority and source observations do not become semantic decisions.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id003
+    - id: cross-artifact-consistency
+      status: PENDING
+      target: References, dependencies, shared concepts, and downstream projections agree with their owning phase authorities.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id003
+    - id: owner-and-specialist-review
+      status: PENDING
+      target: Required product, domain, Shared/platform, and independent reviewers have adjudicated their assigned scope.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id003
+    - id: verification-evidence
+      status: PENDING
+      target: Applicable schema, semantic, behavioral, accessibility, interface, and projection checks have reviewable evidence.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id003
+    - id: lifecycle-currentness-and-closure
+      status: PENDING
+      target: Lifecycle has admitted evidence, resolved dependencies/currentness, and issued a current phase closure result.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id003
+    sourceObservations:
+    - id: component-families
+      target: 28
+      observed: 28
+      unit: proposal-component-contracts
+      source: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components
+      observation: All 28 have anatomy, states, variants, actions, accessibility, localization, misuse, and sourceRef fields;
+        none has an events field or exact public family export.
+    - id: templates
+      target: all-applicable
+      observed: 7
+      unit: proposal-template-identities
+      source: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates
+      observation: Catalog identities only; reviewed screen use is not inferred.
+    - id: patterns
+      target: all-applicable
+      observed: 18
+      unit: proposal-pattern-identities
+      source: .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns
+      observation: Catalog identities only; owner review remains pending.
+    - id: layouts
+      target: all-applicable
+      observed: 0
+      unit: registered-canonical-layout-identities
+      source: .product-experience/pdp-2-design-interface-system/gui/layout.yaml
+      observation: Layout rules exist; no canonical reusable layout IDs are registered.
+    - id: semantic-token-aliases
+      target: all-applicable
+      observed: 9
+      unit: candidate-media-aliases
+      source: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#/aliases
+      observation: Candidate aliases; Shared release binding and design review are pending.
+    - id: shared-primitive-bindings
+      target: all-applicable
+      observed: 5
+      unit: candidate-primitive-binding-records
+      source: .product-experience/pdp-2-design-interface-system/gui/primitives.yaml#/bindings
+      observation: Export names/source observations exist; per-role consumer verification, Shared owner review, and immutable
+        release binding are pending.
+  PDP-3:
+    phaseStatus: PENDING
+    authorityPath: .product-experience/pdp-3-product-experience/
+    dimensions:
+    - id: semantic-completeness
+      status: PENDING
+      target: Applicable normative meaning and required relationships are complete; unresolved meaning is explicitly dispositioned.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: &id004
+      - .product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md
+      - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
+      - .product-experience/traceability.yaml
+    - id: source-correctness-and-authority
+      status: PENDING
+      target: Claims are grounded in the owning authority and source observations do not become semantic decisions.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id004
+    - id: cross-artifact-consistency
+      status: PENDING
+      target: References, dependencies, shared concepts, and downstream projections agree with their owning phase authorities.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id004
+    - id: owner-and-specialist-review
+      status: PENDING
+      target: Required product, domain, Shared/platform, and independent reviewers have adjudicated their assigned scope.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id004
+    - id: verification-evidence
+      status: PENDING
+      target: Applicable schema, semantic, behavioral, accessibility, interface, and projection checks have reviewable evidence.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id004
+    - id: lifecycle-currentness-and-closure
+      status: PENDING
+      target: Lifecycle has admitted evidence, resolved dependencies/currentness, and issued a current phase closure result.
+      observed: No accepted and current phase-level proof recorded.
+      evidenceRefs: *id004
+    sourceObservations:
+    - id: canonical-screen-contracts
+      target: 47
+      observed: 47
+      unit: canonical-screen-contract-files
+      source: .product-experience/pdp-3-product-experience/screen-contracts/
+      observation: 48 YAML screen-contract files are present; 47 are canonical screens and artifact-verification-job-family.yaml
+        is an additional specialization excluded from the canonical denominator.
+    - id: journey-contracts
+      target: 30
+      observed: 30
+      unit: journey-contract-files
+      source: .product-experience/pdp-3-product-experience/journey-contracts/
+      observation: File count only.
+    - id: journey-step-bindings
+      target: 130
+      observed: 130
+      unit: ordered-step-records
+      source: .product-experience/pdp-3-product-experience/journey-contracts/
+      observation: Step record count only; semantic bindings and verification are not inferred.
+    - id: scenario-seeds
+      target: 30
+      observed: 3
+      unit: journeys-with-exact-simulation-seeds
+      source: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#/journeyCoverage
+      observation: Three seed references exist; registry says owner-approved oracles are pending, so 0/30 journeys are recorded
+        as scenario-verified.
+    - id: machine-interface-channels
+      target: 6
+      observed: 6
+      unit: interface-channel-families
+      source: .product-experience/pdp-3-product-experience/api-experience-mapping.yaml
+      observation: HTTP API, gRPC, SDK, CLI, events, and Agent Tools source families are inventoried; accepted dispositions
+        are not recorded as complete.
+      supportingSourcePaths:
+      - .product-experience/pdp-3-product-experience/api/
+      - .product-experience/pdp-3-product-experience/grpc/
+      - .product-experience/pdp-3-product-experience/sdk/
+      - .product-experience/pdp-3-product-experience/cli/
+      - .product-experience/pdp-3-product-experience/events/
+      - .product-experience/pdp-3-product-experience/agent-tools/
+pdp3ExplicitTargets:
+- id: screen-contracts-semantically-complete
+  targetCount: 47
+  targetUnit: canonical-screen-contracts
+  observedCount: 47
+  observationUnit: canonical-files-present
+  status: PENDING
+  evidenceRefs:
+  - .product-experience/pdp-3-product-experience/screen-contracts/
+  - .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
+  pendingReason: Presence is not semantic completeness; screen binding, review, and verification remain open.
+- id: journey-steps-bound
+  targetCount: 130
+  targetUnit: journey-steps
+  observedCount: 130
+  observationUnit: ordered-step-records
+  status: PENDING
+  evidenceRefs:
+  - .product-experience/pdp-3-product-experience/journey-contracts/
+  - .product-experience/pdp-3-product-experience/journey-registry.yaml
+  pendingReason: Step count does not show complete authority/object/state/operation/transition/recovery/requirement bindings
+    or verification.
+- id: journeys-scenario-verified
+  targetCount: 30
+  targetUnit: journeys-with-reviewed-deterministic-scenarios-and-oracles
+  observedCount: 3
+  observationUnit: journeys-with-exact-simulation-seeds; owner-approved-oracle-count=0-recorded
+  status: PENDING
+  evidenceRefs:
+  - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
+  pendingReason: Registry reports exact seeds for J-01 through J-03 and owner-approved oracles pending; no journey is recorded
+    scenario-verified.
+- id: machine-interfaces-dispositioned
+  targetCount: 6
+  targetUnit: applicable-channel-families-with-owner-reviewed-dispositions
+  observedCount: 6
+  observationUnit: source-channel-families-inventoried; accepted-disposition-count=not-recorded
+  status: PENDING
+  evidenceRefs:
+  - .product-experience/pdp-3-product-experience/api-experience-mapping.yaml
+  - .product-experience/pdp-3-product-experience/grpc/
+  - .product-experience/pdp-3-product-experience/sdk/
+  - .product-experience/pdp-3-product-experience/cli/
+  - .product-experience/pdp-3-product-experience/events/
+  - .product-experience/pdp-3-product-experience/agent-tools/
+  pendingReason: Source inventories and proposals do not establish final supported/unsupported/excluded owner dispositions.
+- id: explorer-fidelity-and-accessibility-accepted
+  target: Explorer faithfully projects applicable accepted PDP artifacts and passes required accessibility review
+  observed: Local browser sweep evidence exists for a projection; independent human visual/accessibility review and full projection
+    fidelity remain pending.
+  status: PENDING
+  evidenceRefs:
+  - .product-experience/acceptance.yaml
+  - .product-experience/traceability.yaml
+  - .product-experience/explorer/verification-matrix.yaml
+  pendingReason: Projection behavior and browser automation do not establish owner-accepted product fidelity or human accessibility
+    conformance.
+- id: lifecycle-closure-current
+  target: Lifecycle-issued current closure output for all applicable PDP-3 obligations
+  observed: PENDING; .product-experience/currentness.yaml is not created and no Lifecycle output is bound.
+  status: PENDING
+  evidenceRefs:
+  - .product-experience/authority-map.yaml
+  - .product-experience/acceptance.yaml
+  pendingReason: Lifecycle owns currentness and closure; Media does not mint these results.
+closureRule: A phase can be considered closed only when every applicable dimension is owner-reviewed and accepted, required
+  verification evidence is admitted, and Lifecycle reports current closure; each not-applicable dimension also requires reviewed
+  justification.

@@ -194,11 +194,17 @@ gaps:
   status: open
   scope: public-artifact-publication-isolated-consumption-and-owner-accepted-four-phase-validator-bindings
   owner: ghatana-tools
-  evidence: Media is registered in the Tools product-development stages and appears in its generated catalog. The
-    installed verifier accepts both repository roots and resolves the Media subject, but its
-    representative PDP-0, PDP-1, PDP-2, and PDP-3 checks return CANDIDATE_PLAN with structuralFallback=true, no selected operations,
-    evidenceAuthorityId=unavailable, and PLANNER_BINDING_OWNER_AMBIGUOUS. The recorded --build-unit option is rejected by
-    this installed CLI, so no native phase evidence or certification is claimed.
+  evidence: >-
+    Media is registered in the Tools product-development stages and appears in its generated catalog. The installed
+    verifier accepts both repository roots and resolves the Media subject, but its representative PDP-0, PDP-1, PDP-2,
+    and PDP-3 checks return CANDIDATE_PLAN with structuralFallback=true, no selected operations,
+    evidenceAuthorityId=unavailable, and PLANNER_BINDING_OWNER_AMBIGUOUS. The recorded --build-unit option is rejected
+    by this installed CLI, so no native phase evidence or certification is claimed. On 2026-10-07, deterministic
+    read-only candidate projections were generated from actual Media authorities and checked against the sibling Tools
+    public schemas and validators. Only directly sourced identity/schema-version fields are mapped; validation fails
+    closed with 19 ProductDefinition, 17 ExperienceLanguage, and 19 ExperienceDefinition required fields unmapped.
+    Field-specific blockers identify the reviewed source authorities and why the required fields lack a direct,
+    lossless mapping. No semantic placeholders, generated timestamps, acceptance, or currentness were added.
   observedPackages:
   - product-definition
   - experience-language
@@ -210,12 +216,20 @@ gaps:
   impact: blocks-full-GOV-003-and-PDP-0-through-PDP-3-certification-not-the-migration-boundary-slice
 - id: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
   status: open
-  scope: owner-approved-generated-PDP-0-coverage-and-currentness-observation
+  scope: admitted-phase-obligations-proof-producers-and-owner-approved-generated-coverage-currentness
   owner: ghatana-lifecycle
   dependencies:
   - GAP-MEDIA-TOOLS-SCHEMA-BINDING
+  evidence: >-
+    config/closure/consumer.json now binds a four-phase Media closure surface, program, phase binding, and distinct
+    phase-level obligations through Lifecycle's public ghatana.closure v1 contract. Lifecycle's public consumer-admission
+    adapter accepts the input as CANONICAL: the consumer, surface, phase program, phase binding, and obligations resolve
+    with zero errors. The phase inputs remain blocked because detailed owner-adjudicated requirement, case,
+    observer/oracle, and proof-method denominators are pending; no Media proof producer/provider is admitted.
+    Verification Planner execution, owner-approved proof production, and closure outputs remain unverified. No
+    currentness.yaml or receipt is generated in Media.
   requiredEvidence: reproducible-owner-approved-coverage-currentness-output-bound-to-published-PDP-0-schema-and-validator-versions
-  remaining: lifecycle-generation-contract-and-output-not-bound-or-produced; currentness.yaml-must-remain-absent-until-lifecycle-owner-approved-generation-is-available
+  remaining: obtain-owner-approved-phase-obligations-and-proof-producer/provider-bindings; run-Lifecycle-Verification-Planner-and-proof-producers; produce-owner-approved-currentness-and-closure-outputs; keep-currentness.yaml-absent-until-Lifecycle-generates-an-admitted-output
   impact: blocks-P0-010-independent-acceptance-and-the-PDP-2-prerequisite-gate-not-the-P0-001-migration-boundary-slice
 - id: GAP-MEDIA-DOMAIN-REVIEWER-APPOINTMENT
   status: open

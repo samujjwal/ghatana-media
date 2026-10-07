@@ -34,8 +34,8 @@ actionConsequences:
     status: pending-owner-binding
 responsiveBehavior: {ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive, status: proposal-unverified, screenOverrides: []}
 fixtures:
-  refs: [media.scenario.job-running, media.scenario.job-outcome-unknown, media.scenario.job-retry-eligible, media.scenario.job-retry-ineligible]
-  status: source-proposal-not-verified-behavior
+  refs: [media.scenario.job-running, media.scenario.job-outcome-unknown, media.scenario.job-outcome-confirmed]
+  status: linked-to-deterministic-simulation-seeds; owner-review-and-behavior-verification-pending
 verification:
   status: not-run
   evidenceRefs: []
