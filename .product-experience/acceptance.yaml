@@ -562,6 +562,28 @@ recordedHumanDecisionInputs:
   exclusions:
   - Action semantics or reducer behavior changes
   - Semantic PDP-2/PDP-3 acceptance, production UI implementation, lifecycle-owned currentness/receipts, or release readiness
+- id: ACCEPT-INPUT-MEDIA-OWNER-20261007
+  phaseTask: CROSS-PDP-OWNER-POLICY-20261007
+  decisionInput: accepted
+  acceptedScope:
+    - Four canonical PDP phases define source of truth, not production deployment or release admission.
+    - Ghatana-first package authority and permissive-third-party candidate selection boundaries.
+    - Explicit capability-leaf applicability and phase-specific migration routing policies.
+    - Canonical job/attempt/delivery identity, legacy state non-equivalence, retry and finality policy.
+    - Multi-interface operation disposition taxonomy and exact renderer/product-port strategy.
+    - Lifecycle pending-to-input-ready policy without Media-authored closure or currentness.
+  evidenceRefs:
+    - .product-experience/reviews/2026-10-07-owner-decision-and-resolution.md
+    - .product-experience/pdp-1-domain-data/state-adjudication.yaml
+    - .product-experience/decision-log.md#PXD-026
+  sourceOfDecision: explicit-2026-10-07-user-delegation-to-resolve-media-product-owner-decisions
+  decisionDate: '2026-10-07'
+  exclusions:
+    - Full individual capability, requirement, journey, state-transition, or interface binding acceptance
+    - PDP-0-through-PDP-3 phase acceptance or P0-010 independent semantic approval
+    - Public owner acceptance, license/codec/model authorization, provider operation or production deployment
+    - Independent visual, screen-reader, security, legal or accessibility signoff
+    - Lifecycle-admitted proof/currentness/receipts or production release readiness
 phaseAcceptanceInputs:
 - id: ACCEPT-INPUT-P0-002
   phase: PDP-0
