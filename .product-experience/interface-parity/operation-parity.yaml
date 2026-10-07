@@ -1,0 +1,111 @@
+schemaVersion: media.interface-parity.operation.v1
+artifactId: media.interface-parity.operation
+productId: media
+authority: .product-experience/pdp-1-domain-data/operations.yaml
+status: source-inventory-reconciliation; no-bindings-owner-accepted
+dispositions:
+  accepted: 0
+  mappedProposal: association-is-plausible-but-not-accepted
+  transportOnly: transport-mechanics-have-no-domain-operation-meaning
+  internalOnly: implementation-private-behavior-has-no-product-operation-meaning
+  unresolved: no-equivalence-or-disposition-is-supported-by-current-evidence
+surfaces:
+  - surface: UI action registry
+    denominator: 146
+    source: .product-experience/pdp-3-product-experience/action-registry.yaml
+    dispositionCounts: {mappedProposal: 11, ambiguous: 1, unresolved: 134}
+    explicitlyProposed:
+      media.operation.artifact-ingest: [media.action.begin-artifact-upload, media.action.resume-artifact-upload, media.action.inspect-artifact, media.action.attach-source-asset]
+      media.operation.job-lifecycle: [media.action.view-job-status, media.action.check-job-outcome, media.action.request-cancellation, media.action.retry-job]
+      media.operation.transcription: [media.action.review-transcript, media.action.correct-caption, media.action.align-caption-timing]
+    ambiguous:
+      media.action.request-transcription: [media.operation.transcription, media.operation.job-lifecycle]
+    unresolvedStaleReference: media.action.review-rights-and-consent
+    canonicalRefs: .product-experience/pdp-1-domain-data/operations.yaml#/operations/*/actionRefs
+    bindingStatus: one-proposed-is-not-equivalence; one-ambiguous; remaining-unresolved-as-recorded-in-source-inventory
+  - surface: HTTP
+    denominator: 27
+    source: contracts/openapi/media.yaml
+    identities: [getMediaHealth, getMediaLiveness, getMediaReadiness, getMediaStartup, getMediaReadyAlias, getMediaMetrics, getMediaInfo, getMediaVersionedHealth, grantMediaConsent, listMediaConsents, getMediaConsent, revokeMediaConsent, beginMediaUpload, getMediaUpload, appendMediaChunk, completeMediaUpload, getMediaArtifact, submitMediaJob, listMediaJobs, getMediaJob, cancelMediaJob, openMediaStream, getMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream, getMediaProviders]
+    dispositionCounts: {unresolved: 27}
+    canonicalRefs: .product-experience/pdp-1-domain-data/operations.yaml#/observedBindings.httpOperations
+    bindingStatus: route-and-schema-identity-observed; every-route-to-logical-operation-link-unresolved
+  - surface: gRPC
+    denominator: 43
+    source:
+      - modules/speech/stt-service/src/main/proto/stt_service.proto
+      - modules/speech/tts-service/src/main/proto/tts_service.proto
+      - modules/vision/vision-service/src/main/proto/vision_service.proto
+      - modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    explicitlyProposed:
+      media.operation.transcription: [STTService.Transcribe, STTService.StreamTranscribe, STTService.SubmitCorrection]
+      media.operation.synthesis: [TTSService.Synthesize, TTSService.StreamSynthesize, TTSService.GetVoices, TTSService.CloneVoice]
+      media.operation.vision-analysis: [VisionService.DetectObjects, VisionService.AnalyzeImage, VisionService.ClassifyImage, VisionService.AnalyzeVideoFile, VisionService.ProcessVideo]
+      media.operation.multimodal-analysis: [MultimodalService.ProcessMultimodal, MultimodalService.AnalyzeVideoWithAudio, MultimodalService.GenerateDescription, MultimodalService.AnalyzeCrossModal, MultimodalService.GetInsights]
+      media.operation.health-capability: [STTService.HealthCheck, TTSService.GetStatus, TTSService.GetMetrics, VisionService.GetStatus, VisionService.HealthCheck, MultimodalService.GetStatus, MultimodalService.HealthCheck]
+    unresolved:
+      STTService: [LoadModel, UnloadModel, ListModels, AdaptModel, GetStatus, CreateProfile, GetProfile, UpdateProfile]
+      TTSService: [LoadVoice, CreateProfile, GetProfile, UpdateProfile, SubmitFeedback]
+      VisionService: [LoadModel, UnloadModel, ListModels]
+      MultimodalService: [LoadModel, UnloadModel, ListModels]
+    dispositionCounts: {mappedProposal: 24, unresolved: 19}
+    bindingStatus: exact-service-and-method-identity-retained; proposed-family-association-requires-owner-review
+  - surface: CLI fixture commands
+    denominator: 11
+    source: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
+    identities: [media.fixture-cli.upload-inspect, media.fixture-cli.upload-resume, media.fixture-cli.transcribe, media.fixture-cli.transcript-review, media.fixture-cli.job-status, media.fixture-cli.job-cancel, media.fixture-cli.job-check-outcome, media.fixture-cli.caption-correct-text, media.fixture-cli.caption-align-timing, media.fixture-cli.caption-save-version, media.fixture-cli.caption-compare-versions]
+    dispositionCounts: {unresolved: 11}
+    relatedProposalRegistry: .product-experience/pdp-3-product-experience/cli-command-registry.yaml#/commands
+    denominatorReconciliation:
+      plannedCommandCount: 11
+      fixtureRegistryIdentityCount: 11
+      fixtureParserCommandCount: 11
+      proposalRegistryRecordCount: 12
+      additionalProposalIdentity: media.cli.job.retry
+      additionalProposalDisposition: product-proposal; not-present-in-fixture-command-registry-or-parseMediaCommand-dispatch
+      implementationEvidence:
+        fixtureParser: libs/media-experience-simulation/src/cli.ts
+        fixtureCommandRegistry: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
+        proposalRecord: .product-experience/pdp-3-product-experience/cli-command-registry.yaml#/commands/media.cli.job.retry
+      helpDisposition: fixture-control-path; parseMediaCommand-returns-help-and-bin/ghatana-media.mjs-handles---help; not-a-command-identity-or-12th-command
+      priorTwelveFixtureObservation: unresolved-source-discrepancy; inspected-current-registry-and-parser-evidence-support-eleven-fixture-command-identities-only
+    bindingStatus: 11-fixture-command-identities-observed; proposal-registry-has-12-records-including-retry-proposal; all-exact-fixture-command-bindings-unresolved
+  - surface: SDK registry
+    denominator: 27
+    source: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
+    dispositionCounts: {unresolved: 27}
+    parserFalsePositivesRetainedAsUnresolved: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
+    legacyClientSource: libs/audio-video-client/src/index.ts
+    bindingStatus: registry-identities-and-legacy-client-methods-remain-distinct; no-method-operation-binding-accepted
+  - surface: Agent Tool handlers
+    denominator: 4
+    source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
+    identities: [av.speech-to-text, av.text-to-speech, av.vision-analysis, av.multimodal-inference]
+    handlerClasses: [SpeechToTextToolHandler, TextToSpeechToolHandler, VisionAnalysisToolHandler, MultimodalInferenceToolHandler]
+    dispositionCounts: {unresolved: 4}
+    bindingStatus: handler-identity-observed; operation-and-admitted-tool-contract-bindings-unresolved
+  - surface: lifecycle event names
+    denominator: 15
+    source: .product-experience/pdp-3-product-experience/events/event-registry.yaml
+    dispositionCounts: {unresolved: 15}
+    runtimePublisherObservation: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEventPublisher.java
+    bindingStatus: registry-notifications-and-runtime-publisher-events-are-distinct-populations; trigger-operation-and-delivery-bindings-unresolved
+  - surface: internal runtime events
+    denominator: 9
+    source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java
+    explicitEventTypes: [media.upload.started, media.artifact.completed, media.job.accepted, media.job.cancelled, media.job.cancel_requested, media.stream.opened, media.stream.closed]
+    dynamicEventPattern: media.job.<terminal.status-lowercase>
+    dispositionCounts: {unresolved: 9}
+    bindingStatus: source-callsite-observation-does-not-establish-public-event-contract-or-operation-equivalence
+crossSurfaceRules:
+  - same-name-or-similar-name-is-not-a-binding
+  - mappings-do-not-imply-runtime-execution-or-release-support
+  - protocol-level-health-readiness-auth-pagination-and-error-mechanics-may-be-classified-transport-only-only-with-explicit-boundary-evidence
+  - source-inventories-preserve-unresolved-identities; no-omitted-interface-is-assumed-absent-from-product
+  - exact-source-and-compatibility-evidence-is-required-before-changing-a-disposition
+nextEvidenceRequired:
+  - owner-reviewed-logical-operation-to-wire-operation-crosswalk
+  - SDK-and-CLI-consumer-and-release-inventories
+  - Agent Tool invocation contracts and authority bindings
+  - event producer trigger ordering replay retention and consumer contracts
+  - action registry audit that removes stale refs and proves reachable runtime UI

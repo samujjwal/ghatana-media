@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Purpose: exercise every Media Explorer/Product/CLI/Verify experience in a
+ * Purpose: exercise every Media Explorer/shared-candidate/CLI/Verify experience in a
  * real browser at the supported responsive viewports and emit deterministic
  * geometry/accessibility diagnostics plus review screenshots.
  * Consumers: local experience verification and the closure matrix.
@@ -250,13 +250,53 @@ try {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     for (const route of productRoutes) {
       await gotoHash(page, `#product/view/${encodeURIComponent(route)}`);
-      const result = await inspectPage(page, `product/${route}/${viewport.name}`, { requireMain: true, requireNoHorizontalOverflow: true });
-      if (await page.locator(".product-proposal-action-list button:not([disabled])").count()) fail(`product/${route}/${viewport.name}`, "proposal action enabled");
-      if (!result.h1[0]) fail(`product/${route}/${viewport.name}`, "product proposal title is missing");
+      await page.locator(".view-contract-preview").waitFor({ state: "visible", timeout: 5000 }).catch(() => {});
+      const result = await inspectPage(page, `legacy-proposal/${route}/${viewport.name}`, { requireMain: true, requireNoHorizontalOverflow: true });
+      if (await page.locator("#app").getAttribute("data-mode") !== "specification") fail(`legacy-proposal/${route}/${viewport.name}`, "legacy proposal URL did not resolve to Specification mode");
+      if (await page.locator(".view-contract-preview").count() !== 1) fail(`legacy-proposal/${route}/${viewport.name}`, "read-only Specification proposal preview is missing");
+      if (await page.locator("#shared-presentation-mount").count()) fail(`legacy-proposal/${route}/${viewport.name}`, "legacy proposal route mounted a Product presentation");
+      if (result.h1[0] !== "Specification") fail(`legacy-proposal/${route}/${viewport.name}`, "proposal route is not headed as Specification");
       routeCount += 1;
     }
   }
-  observations.push(`Product proposal routes exercised: ${routeCount}`);
+  observations.push(`Legacy proposal URLs exercised in read-only Specification mode: ${routeCount}`);
+
+  const candidateScenarios = [
+    { id: "media.scenario.first-use-empty", heading: "Projects in this workspace" },
+    { id: "media.scenario.upload-interrupted", heading: "Import media" },
+    { id: "media.scenario.artifact-verification-running", heading: "Job status and recovery" },
+  ];
+  for (const viewport of viewports) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    for (const candidate of candidateScenarios) {
+      await gotoHash(page, "#explore");
+      await page.selectOption("#scenario-picker", candidate.id);
+      await page.locator('.preview-toolbar button[data-mode="product"]').click();
+      const scope = `candidate/${candidate.id}/${viewport.name}`;
+      await inspectPage(page, scope);
+      if (await page.locator("#app").getAttribute("data-mode") !== "product") fail(scope, "candidate review mount is not in Product review mode");
+      if (!(await page.getByText("CANDIDATE · NOT ADMITTED", { exact: true }).count())) fail(scope, "candidate admission status is not visible");
+      if (await page.locator("#shared-presentation-mount .media-screen-body").count() !== 1) fail(scope, "shared screen body did not mount");
+      if (!(await page.locator("#shared-presentation-mount").getByText(candidate.heading, { exact: true }).count())) fail(scope, `unexpected candidate heading; expected ${candidate.heading}`);
+    }
+    await gotoHash(page, "#explore");
+    await page.selectOption("#scenario-picker", "media.scenario.caption-corrected");
+    await page.locator('.preview-toolbar button[data-mode="product"]').click();
+    await page.locator('button[data-workflow-view="captions"]').click();
+    const captionScope = `candidate/media.scenario.caption-corrected/captions/${viewport.name}`;
+    if (await page.locator("#shared-presentation-mount .media-screen-body").count() !== 1) fail(captionScope, "transcript/caption shared screen body did not mount");
+    if (!(await page.locator("#shared-presentation-mount").getByText("Correct captions", { exact: true }).count())) fail(captionScope, "transcript/caption candidate screen did not render");
+    const captionInput = page.locator("#shared-presentation-mount textarea").first();
+    if (await captionInput.count()) {
+      await captionInput.fill("Browser review caption draft");
+      const applyCorrection = page.locator("#shared-presentation-mount button", { hasText: "Apply caption correction" }).first();
+      if (await applyCorrection.isEnabled()) {
+        await applyCorrection.click();
+        if (await captionInput.inputValue() !== "Browser review caption draft") fail(captionScope, "caption correction payload was not retained by the simulation adapter");
+      } else fail(captionScope, "source fixture did not expose its declared caption-correction action");
+    } else fail(captionScope, "caption draft editor is missing");
+  }
+  observations.push("J-01, J-02, J-20 and J-03 shared candidate bodies mounted at all six viewports; caption correction payload exercised");
 
   // Text sizing and zoom/reflow checks are intentionally separate: CSS text
   // scaling and Chromium page-scale zoom exercise different failure modes.
@@ -396,9 +436,10 @@ try {
   observations.push("focus-not-obscured: first keyboard focus target checked for viewport visibility and hit-test obstruction");
   if (artifactVerificationSpecialization) {
     await gotoHash(page, `#product/view/${encodeURIComponent(artifactVerificationSpecialization)}`);
-    const specializationHeading = await page.locator("h1").first().textContent();
-    if (specializationHeading !== "View proposal not found") fail("product/artifact-verification-specialization", "non-screen job-family specialization became an executable Product route");
-    observations.push("artifact-verification job-family specialization remains inline/non-route: pass");
+    if (await page.locator("#app").getAttribute("data-mode") !== "specification") fail("legacy/artifact-verification-specialization", "non-screen proposal did not stay in Specification mode");
+    if (!(await page.getByText("Legacy Product URL opened as Specification", { exact: true }).count())) fail("legacy/artifact-verification-specialization", "legacy non-screen proposal URL did not show a Specification-only notice");
+    if (await page.locator("#shared-presentation-mount").count()) fail("legacy/artifact-verification-specialization", "non-screen proposal mounted a Product composition");
+    observations.push("Artifact-verification job-family URL remains a Specification record, not a Product route");
   }
 
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -408,8 +449,9 @@ try {
   await screenshot(page, "specification-desktop");
   await gotoHash(page, "#verify");
   await screenshot(page, "verify-desktop");
-  await gotoHash(page, `#product/view/${encodeURIComponent(productRoutes.find((route) => route.endsWith("edit-captions.yaml")) ?? productRoutes[0])}`);
-  await screenshot(page, "product-edit-captions-desktop");
+  await gotoHash(page, "#product");
+  await page.locator('button[data-workflow-view="captions"]').click();
+  await screenshot(page, "candidate-edit-captions-desktop");
   await page.setViewportSize({ width: 320, height: 640 });
   await gotoHash(page, "#explore");
   await screenshot(page, "explore-narrow-mobile");
@@ -417,8 +459,9 @@ try {
   await screenshot(page, "specification-narrow-mobile");
   await gotoHash(page, "#verify");
   await screenshot(page, "verify-narrow-mobile");
-  await gotoHash(page, `#product/view/${encodeURIComponent(productRoutes.find((route) => route.endsWith("edit-captions.yaml")) ?? productRoutes[0])}`);
-  await screenshot(page, "product-edit-captions-narrow-mobile");
+  await gotoHash(page, "#product");
+  await page.locator('button[data-workflow-view="captions"]').click();
+  await screenshot(page, "candidate-edit-captions-narrow-mobile");
 } finally {
   await context.close();
   await browser.close();
@@ -434,8 +477,8 @@ const report = createAuditReport({
   pageErrors,
   failures,
   screenshots: [
-    "explore-desktop.png", "specification-desktop.png", "verify-desktop.png", "product-edit-captions-desktop.png",
-    "explore-narrow-mobile.png", "specification-narrow-mobile.png", "verify-narrow-mobile.png", "product-edit-captions-narrow-mobile.png",
+    "explore-desktop.png", "specification-desktop.png", "verify-desktop.png", "candidate-edit-captions-desktop.png",
+    "explore-narrow-mobile.png", "specification-narrow-mobile.png", "verify-narrow-mobile.png", "candidate-edit-captions-narrow-mobile.png",
   ].map((name) => resolve(artifactDirectory, name)),
 });
 await writeFile(resolve(artifactDirectory, "report.json"), `${JSON.stringify(report, null, 2)}\n`);

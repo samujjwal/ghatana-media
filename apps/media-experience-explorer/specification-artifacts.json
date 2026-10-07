@@ -35,6 +35,48 @@
     "title": "Decision Log"
   },
   {
+    "artifactId": "ART-GOV-EXECUTABLE-REPRESENTATION-README",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/executable-representation/README.md",
+    "title": "README"
+  },
+  {
+    "artifactId": "ART-GOV-EXECUTABLE-REPRESENTATION-ADMISSION-SCHEMA",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/executable-representation/admission-schema.yaml",
+    "title": "Admission Schema"
+  },
+  {
+    "artifactId": "ART-GOV-EXECUTABLE-REPRESENTATION-ADMISSIONS-README",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/executable-representation/admissions/README.md",
+    "title": "README"
+  },
+  {
+    "artifactId": "ART-GOV-EXECUTABLE-REPRESENTATION-EXPORT-MAP",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/executable-representation/export-map.yaml",
+    "title": "Export Map"
+  },
+  {
+    "artifactId": "ART-GOV-EXECUTABLE-REPRESENTATION-HOST-MAP",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/executable-representation/host-map.yaml",
+    "title": "Host Map"
+  },
+  {
+    "artifactId": "ART-GOV-EXECUTABLE-REPRESENTATION-MIGRATION-LEDGER",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/executable-representation/migration-ledger.yaml",
+    "title": "Migration Ledger"
+  },
+  {
     "artifactId": "ART-P3-PHASE-3-EXPERIENCE-EXPLORER-EXPERIENCE-EXPLORER-MD",
     "authorityClass": "EXPLORER_PROJECTION",
     "phase": "EXPLORER",
@@ -91,6 +133,20 @@
     "title": "Gaps"
   },
   {
+    "artifactId": "ART-GOV-INTERFACE-PARITY-README",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/interface-parity/README.md",
+    "title": "README"
+  },
+  {
+    "artifactId": "ART-GOV-INTERFACE-OPERATION-PARITY",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/interface-parity/operation-parity.yaml",
+    "title": "Operation Parity"
+  },
+  {
     "artifactId": "ART-P2-LANES-TRANSCRIBE-AND-CORRECT-CAPTIONS-YAML",
     "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
@@ -131,6 +187,13 @@
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
     "title": "Capabilities"
+  },
+  {
+    "artifactId": "ART-P0-CAPABILITY-LEAF-REVIEW",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
+    "phase": "PDP-0",
+    "path": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+    "title": "Capability Leaf Review"
   },
   {
     "artifactId": "ART-P0-CAPABILITY-CROSSWALK",
@@ -201,6 +264,13 @@
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
     "title": "Journey Catalog"
+  },
+  {
+    "artifactId": "ART-P0-MIGRATION-SEMANTICS-REVIEW",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
+    "phase": "PDP-0",
+    "path": ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml",
+    "title": "Migration Semantics Review"
   },
   {
     "artifactId": "ART-P0-NFR",
@@ -287,11 +357,25 @@
     "title": "DOMAIN MODEL"
   },
   {
+    "artifactId": "ART-P1-ACTION-CONTRACTS",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
+    "phase": "PDP-1",
+    "path": ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+    "title": "Action Contracts"
+  },
+  {
     "artifactId": "ART-MEDIA-EF11C75D9B14",
     "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/authority.yaml",
     "title": "Authority"
+  },
+  {
+    "artifactId": "ART-P1-CANONICAL-RECONCILIATION",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
+    "phase": "PDP-1",
+    "path": ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml",
+    "title": "Canonical Reconciliation"
   },
   {
     "artifactId": "ART-MEDIA-28AD95DFEFCB",
@@ -343,6 +427,13 @@
     "title": "Operations"
   },
   {
+    "artifactId": "ART-P1-PRESENTATION-PROJECTIONS",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
+    "phase": "PDP-1",
+    "path": ".product-experience/pdp-1-domain-data/presentation-projections.yaml",
+    "title": "Presentation Projections"
+  },
+  {
     "artifactId": "ART-MEDIA-00087458393C",
     "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
@@ -362,6 +453,13 @@
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/relationships.yaml",
     "title": "Relationships"
+  },
+  {
+    "artifactId": "ART-P1-STATE-ADJUDICATION",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
+    "phase": "PDP-1",
+    "path": ".product-experience/pdp-1-domain-data/state-adjudication.yaml",
+    "title": "State Adjudication"
   },
   {
     "artifactId": "ART-MEDIA-0D44B0159B14",
@@ -553,6 +651,20 @@
     "title": "Conventions"
   },
   {
+    "artifactId": "ART-P2-EXECUTABLE-UI-INVENTORY-JSON",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/executable-ui-inventory.json",
+    "title": "Executable Ui Inventory"
+  },
+  {
+    "artifactId": "ART-P2-EXECUTABLE-UI-INVENTORY-MD",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/executable-ui-inventory.md",
+    "title": "Executable Ui Inventory"
+  },
+  {
     "artifactId": "ART-MEDIA-8B2627A1C5C0",
     "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
@@ -607,6 +719,13 @@
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml",
     "title": "Screen Composition Schema"
+  },
+  {
+    "artifactId": "ART-P2-SEMANTIC-COMPONENT-BINDINGS",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
+    "title": "Semantic Component Bindings"
   },
   {
     "artifactId": "ART-MEDIA-93CBF4320DC2",

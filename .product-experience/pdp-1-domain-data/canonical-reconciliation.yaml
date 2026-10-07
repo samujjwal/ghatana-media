@@ -1,0 +1,186 @@
+schemaVersion: media.pdp-1.canonical-reconciliation.v1
+artifactId: media.pdp-1.canonical-reconciliation
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-0-product-truth/domain-model.yaml
+status: source-grounded-adjudication-proposal; owner-acceptance-pending
+purpose: >-
+  Keep canonical domain distinctions and observed interface/storage identities
+  side by side. Proposed meaning is not runtime behavior or owner acceptance.
+sourceRefs:
+  - .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md
+  - .product-experience/pdp-1-domain-data/domain-objects.yaml
+  - .product-experience/pdp-1-domain-data/relationships.yaml
+  - .product-experience/pdp-1-domain-data/versioning.yaml
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+  - libs/audio-video-types/src/contracts.ts
+  - contracts/openapi/media.yaml
+  - modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql
+  - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql
+reconciliationRules:
+  - tenant-scoped-storage-keys-do-not-prove-global-domain-identity-or-principal-identity
+  - a-digest-is-content-evidence-not-a-version-key-or-lineage-edge
+  - timestamps-and-aggregate-version-fields-do-not-prove-append-only-history
+  - project-revision-is-not-an-artifact-version; job-attempt-is-not-a-logical-job
+  - missing-runtime-records-remain-proposed-domain-concepts
+concepts:
+  - concept: Project
+    canonicalRef: media.domain.project
+    proposedIdentity: stable opaque project identifier; tenant binding required but key format and ownership cardinality unresolved
+    observedIdentity: PDP-0 proposal only; no matching record established in the inspected Java, TypeScript, OpenAPI, protobuf, or listed SQL schemas
+    versioning: metadata may be revised; exact revision identity and snapshot contents unresolved
+    tenancy: required in product contract; authenticated tenant authority is external and deployed binding unverified
+    cardinality: project-to-revisions and project-to-assets are proposals in relationships.yaml, not accepted storage constraints
+    history: append-only revision history is proposed; durable implementation evidence absent
+    disposition: unresolved-owner-decision
+  - concept: ProjectRevision
+    canonicalRef: media.domain.project-revision
+    proposedIdentity: project identifier plus opaque revision reference; exact key and ordering unresolved
+    observedIdentity: no matching runtime or persistence record observed
+    versioning: immutable snapshot proposal; commit/conflict semantics remain in PDP-0 proposal
+    tenancy: inherits project scope by proposal; enforcement evidence absent
+    cardinality: one project to many revisions proposed; accepted cardinality absent
+    history: preserve prior revisions proposed; durable history absent
+    disposition: unresolved-owner-decision
+  - concept: Artifact
+    canonicalRef: media.domain.artifact
+    proposedIdentity: stable opaque artifact identity scoped by tenant until global identity contract is decided
+    observedIdentity: Java tenantId+artifactId; TypeScript id with checksumSha256/sourceArtifactIds; OpenAPI MediaArtifact projection; PostgreSQL key (tenant_id, artifact_id), unique (tenant_id, sha256, size_bytes)
+    versioning: separate ArtifactVersion is proposed; digest and storage uniqueness do not establish immutable version identity
+    tenancy: Java and persisted keys are tenant scoped; TypeScript/OpenAPI scope differs or is not fully bound
+    cardinality: upload-to-artifact completion is source behavior; artifact-to-version and cross-project cardinality unresolved
+    history: bytes immutability, replacement history, erasure completeness and derived ancestry unresolved
+    disposition: observed-shapes-preserved; canonical-key-and-version-unresolved
+  - concept: ArtifactVersion
+    canonicalRef: media.domain.artifact-version
+    proposedIdentity: artifact identifier plus immutable version reference; digest may be evidence but is not selected as key
+    observedIdentity: no separate runtime record or canonical version key observed
+    versioning: immutable version and replacement-as-successor are proposals only
+    tenancy: inherited from artifact proposal; cross-tenant deduplication unresolved
+    cardinality: artifact-to-versions unresolved; derived-version lineage is proposed many-to-many
+    history: lineage and append-only retention unresolved
+    disposition: proposed-concept; no-runtime-projection-established
+  - concept: Upload
+    canonicalRef: media.domain.upload-session
+    proposedIdentity: stable upload-session reference within explicit tenant scope
+    observedIdentity: Java uploadId plus tenantId; TypeScript id and artifactId; OpenAPI uploadId projection; SQL primary key (tenant_id, upload_id)
+    versioning: mutable session snapshot has no established history/version contract
+    tenancy: observed Java/SQL tenant scope; principal/authentication binding not inferred
+    cardinality: upload session may reference zero or one completed artifact in observed SQL; retry/replacement cardinality unresolved
+    history: chunk rows keyed by tenant, upload, chunk index and cascade-delete; this is storage behavior, not product history policy
+    disposition: session-key-source-specific; product-level identity-and-retention-unresolved
+  - concept: MediaJob
+    canonicalRef: media.domain.processing-job
+    proposedIdentity: stable logical job identifier; requests and attempts remain distinct
+    observedIdentity: Java tenantId+jobId; SQL (tenant_id, job_id), unique (tenant_id, request_id); TypeScript job union; OpenAPI PlatformOperation is narrower
+    versioning: Java/SQL version field supports mutable aggregate version observations; does not establish immutable event or attempt history
+    tenancy: Java/SQL tenant scoped; cross-interface tenant propagation and authenticated authority unresolved
+    cardinality: one logical job to multiple attempts is PDP-0 proposal only; persistence attempt table not observed in cited schema
+    history: durable attempt, reconciliation, and finality history unresolved
+    disposition: logical-job-distinction-proposed; wire-state-mapping-unresolved
+  - concept: Attempt
+    canonicalRef: media.domain.job-attempt
+    proposedIdentity: unique attempt identifier and increasing fence, separate from job ID
+    observedIdentity: JobLease exposes expiry/fencing token; no durable JobAttempt record established in cited runtime contracts or migration
+    versioning: increasing fence is an execution guard, not a history/version key
+    tenancy: inherited from logical job proposal; exact persistence scope unobserved
+    cardinality: one job to many attempts proposed; one current lease proposal, historical lease cardinality unresolved
+    history: append-only durable attempt history unresolved
+    disposition: proposal-only; execution-fencing-observed-without-attempt-history
+  - concept: StreamSession
+    canonicalRef: media.domain.stream-session
+    proposedIdentity: stable session reference scoped to tenant
+    observedIdentity: Java tenantId+sessionId; SQL primary key (tenant_id, session_id); OpenAPI schema; protobuf streaming RPCs have no established session identity equivalence
+    versioning: SQL version and last sequence are mutable session observations, not durable per-frame history
+    tenancy: tenant scoped in Java/SQL; principalId recorded in SQL but identity authority external
+    cardinality: session-to-frames and cross-RPC session equivalence unresolved
+    history: acknowledged sequence and reconnect counters observed; replay/retention guarantees unresolved
+    disposition: runtime-session-identity-observed; cross-interface-binding-unresolved
+  - concept: Transcript
+    canonicalRef: media.domain.transcription
+    proposedIdentity: stable transcription record plus exact source artifact version and operation reference; canonical key unresolved
+    observedIdentity: protobuf Transcription and TypeScript TranscriptionResult; legacy persistence transcription UUID linked to audio_file_id; no unified key
+    versioning: transcript correction should preserve prior versions is proposed; immutable version key and ancestry unresolved
+    tenancy: persisted tenant_id observed; wire/runtime propagation varies
+    cardinality: source-to-transcript multiplicity and revision ancestry unresolved
+    history: legacy row version column does not establish append-only transcript history
+    disposition: observed-family; canonical-identity-and-history-unresolved
+  - concept: CaptionVersion
+    canonicalRef: media.domain.caption-version
+    proposedIdentity: stable caption lineage plus immutable version reference; exact key unresolved
+    observedIdentity: no canonical CaptionVersion record established in inspected runtime contracts, OpenAPI, protobuf, or SQL
+    versioning: immutable saved versions and explicit comparison are product proposals
+    tenancy: project/artifact scope proposed; exact binding unresolved
+    cardinality: transcript-to-caption and caption-version ancestry unresolved
+    history: append-only version history not observed
+    disposition: proposed-concept; owner-decision-required
+  - concept: MediaOutput
+    canonicalRef: media.domain.render-outcome
+    proposedIdentity: exact output ArtifactVersion plus producing job/run reference
+    observedIdentity: generic job result/result_json and service-specific result messages; no unified output record
+    versioning: immutable output reference proposed; output mutation/key unresolved
+    tenancy: inherited scope not uniformly established
+    cardinality: job-to-output zero/many and partial-success semantics unresolved
+    history: output ancestry and retained prior observations unresolved
+    disposition: proposed-concept; runtime-projection-unresolved
+  - concept: Consent
+    canonicalRef: media.domain.consent-record
+    proposedIdentity: consent ID plus revision/version and explicit subject, purpose, region, and effective interval
+    observedIdentity: Java ConsentDecision contains version/purpose/region/grant/expiry/revocation fields; OpenAPI consent records and SQL V003 are distinct projections
+    versioning: version field observed in Java; immutable revision/history guarantees unverified
+    tenancy: tenant scope observed in runtime contract/storage; principal identity comes from external authenticated transport by contract
+    cardinality: one subject may have multiple purpose/region decisions is policy proposal; exact key constraints require authority-owner review
+    history: revocation and prior-effect disposition are separate; complete audit history unresolved
+    disposition: source projections observed; authority and cross-interface identity unresolved
+  - concept: RightsDecision
+    canonicalRef: media.domain.rights-decision
+    proposedIdentity: decision ID plus policy version, exact subject and purpose scope
+    observedIdentity: no canonical separate rights-decision record established; consent decision is not presumed equivalent
+    versioning: policy-version binding proposed; historical policy semantics unresolved
+    tenancy: policy and identity authority boundaries remain external/proposed
+    cardinality: decision-to-subject and decision-to-effect cardinalities unresolved
+    history: decision and downstream-effect history unresolved
+    disposition: proposed-concept; consent-equivalence-prohibited-without-owner-binding
+  - concept: QualityAssessment
+    canonicalRef: media.domain.quality-assessment
+    proposedIdentity: assessment ID plus method/version and exact subject scope
+    observedIdentity: quality-policy proposal; no matching unified runtime or storage record established in named sources
+    versioning: immutable assessment and supersession are proposals
+    tenancy: inherited subject scope unresolved
+    cardinality: multiple assessments per exact subject/method allowed by proposal; storage cardinality absent
+    history: preserve scope, evidence, abstention and superseded assessment proposed; persistence absent
+    disposition: proposed-concept; owner-review-required
+  - concept: ProvenanceRecord
+    canonicalRef: media.domain.provenance-manifest
+    proposedIdentity: manifest ID plus version bound to exact inputs, transformations and outputs
+    observedIdentity: TypeScript sourceArtifactIds and metadata fields are observations only; no canonical manifest record established
+    versioning: append-only lineage proposed; manifest key and completeness unresolved
+    tenancy: cross-product reference scope unresolved
+    cardinality: derivation graph cardinality and cycle policy unresolved
+    history: complete ancestry and retention not established
+    disposition: proposed-concept; observed-fields-do-not-prove-lineage
+  - concept: Delivery
+    canonicalRef: media.domain.delivery-outcome
+    proposedIdentity: delivery request plus destination reference and recipient acknowledgement
+    observedIdentity: no unified delivery record established in inspected runtime/wire/storage sources
+    versioning: immutable delivery observations proposed; exact key unresolved
+    tenancy: tenant and destination authority bindings unresolved
+    cardinality: one output to multiple delivery attempts/destinations unresolved
+    history: recipient acknowledgement and remote finality are distinct; durable history absent
+    disposition: proposed-concept; owner-decision-required
+openDecisions:
+  - id: canonical-tenant-and-global-identity
+    requires: Media-domain-owner-and-identity-owner
+    question: whether domain identifiers are globally unique or tenant-scoped, and how authenticated tenant/principal claims bind across interfaces
+  - id: canonical-artifact-version-and-lineage
+    requires: Media-domain-owner-and-storage-owner
+    question: version key, byte immutability, content deduplication, derived ancestry, retention and erasure evidence
+  - id: canonical-job-and-attempt-history
+    requires: Media-domain-owner-and-runtime-owner
+    question: durable attempt identity/history, fencing relation, aggregate history and reconciliation contract
+  - id: transcript-caption-output-versioning
+    requires: Media-domain-owner-and-consumer-owners
+    question: immutable version identity, source ancestry, output multiplicity and cross-product references
+  - id: consent-and-rights-authority
+    requires: Media-policy-owner-and-consent-authority-owner
+    question: whether RightsDecision is distinct from consent, decision keys, version/history and effect disposition

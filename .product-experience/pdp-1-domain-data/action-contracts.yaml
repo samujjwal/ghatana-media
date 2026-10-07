@@ -1,0 +1,81 @@
+schemaVersion: media.pdp-1.action-contracts.v1
+artifactId: media.pdp-1.action-contracts
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-1-domain-data/operations.yaml
+status: host-neutral-outcome-contract-proposal; transport-adapters-unresolved
+sourceRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml
+  - .product-experience/pdp-1-domain-data/states.yaml
+  - .product-experience/pdp-1-domain-data/transitions.yaml
+outcomeEnvelope:
+  requiredFields: [contractVersion, outcome, operationRef, correlationRef, observedAt]
+  optionalFields: [requestRef, resourceRef, sourceVersion, retryAfter, problemRef, effectEvidenceRef, freshness, partialResult]
+  rules:
+    - outcome-is-a-request-or-observation-result-not-a-domain-state
+    - resourceRef-and-sourceVersion-are-present-only-when-established-by-adapter
+    - absent-effect-evidence-does-not-mean-no-effect
+    - all-retry-and-cancel-affordances-are-authoritative-host-decisions
+outcomes:
+  - id: REQUEST_STARTED
+    meaning: local-adapter-has-begun-submitting-the-request
+    proves: local-dispatch-attempt-began
+    doesNotProve: server-receipt-or-domain-acceptance
+  - id: REQUEST_ACKNOWLEDGED
+    meaning: authoritative-boundary-acknowledged-request-according-to-its-transport-contract
+    proves: request-receipt-only-unless-contract-defines-stronger-commit
+    doesNotProve: processing-completion-or-external-effect-finality
+  - id: PROCESSING
+    meaning: latest-authoritative-observation-reports-in-progress
+    proves: processing-observation-at-observedAt
+    doesNotProve: currentness-after-observedAt-or-worker-lease-validity
+  - id: COMPLETED
+    meaning: operation-specific-completion-evidence-satisfies-defined-success-finality
+    proves: only-effect-scope-and-result-defined-by-bound-operation-contract
+    doesNotProve: rights-approval-quality-approval-or-delivery-unless-explicitly-in-contract
+  - id: DENIED
+    meaning: authority-boundary-rejected-request-or-effect
+    proves: denial-for-reported-scope-at-observation-time
+    doesNotProve: that-no-prior-effect-exists
+  - id: CONFLICT
+    meaning: conditional-update-or-version-precondition-did-not-match
+    proves: submitted-change-not-accepted-under-reported-precondition
+    doesNotProve: conflict-winner-or-safe-replay
+  - id: FAILED
+    meaning: operation-contract-reports-failure-finality-for-the-reported-scope
+    proves: failure-only-as-defined-by-bound-operation
+    doesNotProve: absence-of-partial-or-external-effects-or-safe-retry
+  - id: UNAVAILABLE
+    meaning: adapter-could-not-obtain-a-usable-authority-or-transport-response
+    proves: no-current-authoritative-result-was-obtained
+    doesNotProve: remote-service-failure-or-request-nonreceipt
+  - id: UNKNOWN_OUTCOME
+    meaning: request-or-effect-may-have-been-accepted-or-applied-but-result-is-not-authoritatively-known
+    proves: outcome-is-unresolved
+    doesNotProve: failure-success-or-safe-resubmission
+  - id: CANCELLED_OBSERVATION
+    meaning: an-authoritative-observation-confirms-cancellation-for-reported-scope
+    proves: only-cancellation-scope-confirmed-by-bound-operation
+    doesNotProve: cancellation-request-alone-stopped-work-or-reversed-prior-effects
+operationFamilyBindings:
+  media.operation.artifact-ingest: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome
+  media.operation.job-lifecycle: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome-cancelled-observation
+  media.operation.transcription: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome
+  media.operation.synthesis: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome
+  media.operation.vision-analysis: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome
+  media.operation.multimodal-analysis: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome
+  media.operation.stream-session: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome-cancelled-observation
+  media.operation.consent: request-started-acknowledged-completed-denied-conflict-failed-unavailable-unknown-outcome
+  media.operation.health-capability: processing-completed-unavailable-unknown-outcome
+bindingRules:
+  - above-family-lists-are-allowed-result-shapes-not-guaranteed-result-support
+  - each-HTTP-gRPC-SDK-CLI-Agent-tool-and-event-adapter-must-declare-its-actual-supported-subset
+  - events-report-observations-and-do-not-act-as-command-acknowledgements-without-an-explicit-contract
+  - source-specific-transport-errors-and-enums-remain-preserved-in-transport-details
+  - no-global-retryability-or-idempotency-is-implied
+unresolved:
+  - exact-transport-status-to-outcome-mappings
+  - authentication-and-authorization-denial-shapes
+  - operation-specific-completion-and-partial-success-evidence
+  - cancellation-confirmation-source-and-scope
+  - event-correlation-and-ordering-contract

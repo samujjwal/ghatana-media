@@ -1,0 +1,96 @@
+schemaVersion: media.pdp-1.presentation-projections.v1
+artifactId: media.pdp-1.presentation-projections
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-1-domain-data/domain-objects.yaml
+status: projection-contract-proposal; owner-review-pending
+rules:
+  - projections-are-read-models-and-do-not-own-domain-transitions-or-authority
+  - preserve-source-state-and-freshness; do-not-present-stale-or-unknown-as-current-finality
+  - safeActions-are-supplied-by-authoritative-host-and-are-not-derived-from-state-spelling
+  - authorizationScope-is-a-filtering-and-disclosure-boundary-not-a-client-side-grant
+projections:
+  - projectionId: media.projection.project-summary
+    sourceObjects: [media.domain.project, media.domain.project-revision]
+    fields: [projectId, displayName, lifecycleState, headRevisionRef, revisionObservedAt, memberSummary]
+    freshness: caller-supplied observedAt and sourceRevision; no polling guarantee established
+    uncertainty: preserve missing-head, conflict, and stale-revision as distinct source observations
+    authorizationScope: authenticated tenant and project access scope from host; binding unresolved
+    safeActions: host-supplied; no action inferred from project state
+  - projectionId: media.projection.artifact-summary
+    sourceObjects: [media.domain.artifact, media.domain.artifact-version, media.domain.upload-session]
+    fields: [artifactId, exactVersionRef, fileName, mediaType, sizeBytes, digest, ingestionDisposition, verificationDisposition, accessDisposition, createdAt, lastObservedAt]
+    freshness: per-field observedAt/sourceVersion required; verification and access may change independently
+    uncertainty: upload receipt, verification completion, artifact availability, quarantine, and erasure are distinct dispositions
+    authorizationScope: tenant plus artifact-read permission supplied by host; do not expose storage keys or unauthorized lineage
+    safeActions: host-supplied after current policy and artifact evidence checks
+  - projectionId: media.projection.job-summary
+    sourceObjects: [media.domain.processing-job, media.domain.job-attempt, media.domain.job-lease]
+    fields: [jobId, operation, state, finality, createdAt, lastObservedAt, currentAttemptRef, progressMeasurement, safeActions]
+    freshness: lastObservedAt and aggregate version supplied by adapter; polling/subscription interval not guaranteed
+    uncertainty: represent unknown outcome, reconciliation, partial success, and stale observation distinctly; never infer success/failure from timeout
+    authorizationScope: tenant and job visibility from host; principal/delegation is not projected as product authority
+    safeActions: host-supplied from current operation contract and authority; no retry/cancel inference in presentation
+  - projectionId: media.projection.stream-session
+    sourceObjects: [media.domain.stream-session, media.domain.stream-frame]
+    fields: [sessionId, streamKind, state, lastAcknowledgedSequence, bufferedBytes, reconnectCount, lastObservedAt, safeActions]
+    freshness: sequence and observation timestamp must travel together; reconnect freshness unspecified
+    uncertainty: distinguish accepted, acknowledged, buffered, lost, and unknown frame outcomes only when adapter evidence provides them
+    authorizationScope: authenticated tenant, principal, session and stream purpose from host
+    safeActions: host-supplied; resume/replay semantics unresolved
+  - projectionId: media.projection.transcript-summary
+    sourceObjects: [media.domain.transcription, media.domain.artifact-version]
+    fields: [transcriptId, transcriptVersionRef, sourceArtifactVersionRef, language, segmentCount, reviewDisposition, createdAt, lastObservedAt]
+    freshness: source version and transcript version required; no cross-service refresh guarantee
+    uncertainty: confidence, abstention and timing fidelity must retain source-specific quality/scope; absent ancestry stays unknown
+    authorizationScope: tenant, artifact access and transcript sensitivity scope from host
+    safeActions: host-supplied after source version and rights checks
+  - projectionId: media.projection.caption-version
+    sourceObjects: [media.domain.caption-version, media.domain.transcription]
+    fields: [captionLineageRef, captionVersionRef, sourceTranscriptVersionRef, language, format, reviewDisposition, createdAt, lastObservedAt]
+    freshness: immutable version refs and observedAt required; canonical version contract remains unresolved
+    uncertainty: timing units, source clock and transformation ancestry must remain explicit or unknown
+    authorizationScope: tenant and caption/artifact access scope from host
+    safeActions: host-supplied; save/compare/edit eligibility not inferred here
+  - projectionId: media.projection.output-summary
+    sourceObjects: [media.domain.render-outcome, media.domain.artifact-version, media.domain.quality-assessment]
+    fields: [outputArtifactVersionRef, producingJobRef, qualityAssessmentRef, outputDisposition, deliveryDisposition, createdAt, lastObservedAt]
+    freshness: producing job, artifact and assessment revisions/timestamps remain separately visible
+    uncertainty: partial output, quality abstention, recipient acknowledgement and remote finality remain distinct
+    authorizationScope: tenant, output access and destination disclosure policy from host
+    safeActions: host-supplied after output, quality, consent and destination checks
+  - projectionId: media.projection.consent-summary
+    sourceObjects: [media.domain.consent-record, media.domain.consent-reference]
+    fields: [consentId, consentVersionRef, subjectRef, purpose, region, effectiveFrom, expiresAt, revokedAt, authorityObservation, lastObservedAt]
+    freshness: current authority observation and observation time mandatory for effect decisions
+    uncertainty: unavailable, stale, denied, and revoked must not collapse; prior effects are outside this projection
+    authorizationScope: consent-administration scope from authenticated host plus consent authority response
+    safeActions: host-supplied by consent authority; no new grant is inferred from displayed state
+  - projectionId: media.projection.rights-decision
+    sourceObjects: [media.domain.rights-decision, media.domain.provenance-manifest]
+    fields: [decisionId, policyVersion, subjectRef, purpose, scope, disposition, evidenceRefs, decidedAt, lastObservedAt]
+    freshness: policy version and decision observedAt required; validity window contract unresolved
+    uncertainty: do not substitute consent record or scene intent for a rights decision
+    authorizationScope: policy decision visibility from rights authority and host
+    safeActions: host-supplied after current policy validation
+  - projectionId: media.projection.quality-assessment
+    sourceObjects: [media.domain.quality-assessment, media.domain.artifact-version, media.domain.processing-job]
+    fields: [assessmentId, methodVersion, subjectRef, scope, disposition, evidenceRefs, measuredAt, supersedesRef]
+    freshness: assessment time and exact subject version required
+    uncertainty: PASS, FAIL, ABSTAINED, REVIEW_REQUIRED and NOT_ASSESSED retain distinct meanings; no quality threshold inferred
+    authorizationScope: tenant and assessment evidence scope from host
+    safeActions: host-supplied; assessment cannot grant publication or delivery authority
+  - projectionId: media.projection.provenance
+    sourceObjects: [media.domain.provenance-manifest, media.domain.artifact-version]
+    fields: [manifestRef, manifestVersionRef, subjectVersionRef, parentVersionRefs, transformationRefs, completeness, observedAt]
+    freshness: each edge records source version and observation; completeness is explicit
+    uncertainty: an identifier list or absent edge is not lineage proof
+    authorizationScope: tenant and lineage disclosure scope from host; external product references may be redacted
+    safeActions: host-supplied; lineage is informational and grants no rights
+  - projectionId: media.projection.delivery
+    sourceObjects: [media.domain.delivery-outcome, media.domain.render-outcome]
+    fields: [deliveryRef, outputVersionRef, destinationRef, submissionDisposition, recipientAcknowledgement, remoteFinality, lastObservedAt]
+    freshness: submission and acknowledgement observation times remain separate
+    uncertainty: unknown remote outcome and partial delivery remain visible; acknowledgement is not remote finality unless destination contract says so
+    authorizationScope: tenant, destination and delivery audit scope from host
+    safeActions: host-supplied from current destination policy and delivery evidence

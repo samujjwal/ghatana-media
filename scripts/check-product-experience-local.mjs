@@ -443,14 +443,18 @@ note("Tools-native PDP validator/currentness authority is unavailable in this ch
 
 const mainSource = read(join(root, "apps/media-experience-explorer/src/main.ts"));
 const specificationSource = read(join(root, "apps/media-experience-explorer/src/specification.ts"));
-if (!mainSource.includes("data-open-product-screen") || !mainSource.includes("disabled aria-describedby=\"proposal-action-note-")) {
-  fail("Product proposal projection does not visibly disable unconnected proposal actions");
-}
 if (!mainSource.includes("renderTraceMetadata") || !specificationSource.includes("semanticFingerprint") || !specificationSource.includes("currentness")) {
   fail("Explorer source-link metadata fields are not rendered in the source-linked projection");
 }
-if (!mainSource.includes("renderProductContractProjection") || !mainSource.includes("sourceManifestContent") || !mainSource.includes("renderTraceMetadata(artifact, sourceManifest)")) {
-  fail("Product proposal routes do not expose source-linked trace metadata");
+if (!mainSource.includes('if (location.hash.startsWith("#product/view/")) return "specification"')
+    || !mainSource.includes("Read-only view contract preview")
+    || !mainSource.includes("Its actions are not connected to product behavior")
+    || !mainSource.includes("renderScreenContractPreview(activeArtifact, sourceContent ?? \"\")")
+    || mainSource.includes("renderProductContractProjection")) {
+  fail("Legacy screen-contract URLs must remain read-only Specification previews and must not mount Product behavior");
+}
+if (!mainSource.includes("sourceManifestContent") || !mainSource.includes("renderTraceMetadata(activeArtifact, sourceManifestContent)")) {
+  fail("Specification source records do not expose source-linked trace metadata");
 }
 const explorerIndex = JSON.parse(read(join(root, "apps/media-experience-explorer/specification-artifacts.json")));
 if (!explorerIndex.length || explorerIndex.some((artifact) => !artifact.artifactId || !artifact.authorityClass)) {

@@ -96,3 +96,8 @@ fixed-viewport screenshots and `report.json` to
 `/tmp/media-experience-browser-audit` by default. A repeat run must produce
 identical screenshot hashes. It is browser evidence for visual review, not a
 human pixel-perfect approval or Tools-native acceptance receipt.
+# Shared presentation review host
+
+The Explorer mounts the public `@audio-video/ui/screens` exports for four candidate screen bodies through a local review adapter. The Vite aliases resolve those public import specifiers to repository source for local review, with the installed sibling Shared design-system build used only to make the candidate render. This does not admit the screens, qualify the published UI package, or establish a production Web surface. Every mounted screen is labeled **CANDIDATE · NOT ADMITTED** and receives synthetic simulation state and fixture actions.
+
+Legacy Product renderer helpers in the Explorer are not the source for these candidate screens. Source-derived PDP-3 proposals remain read-only Specification previews.

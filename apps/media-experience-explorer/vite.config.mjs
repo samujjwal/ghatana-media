@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 const appRoot = new URL(".", import.meta.url).pathname;
 const mediaRoot = resolve(appRoot, "../..");
+const sharedRoot = resolve(mediaRoot, "../ghatana-shared/platform/typescript");
 const productExperienceRoot = resolve(mediaRoot, ".product-experience");
 const artifactManifest = JSON.parse(readFileSync(resolve(appRoot, "specification-artifacts.json"), "utf8"));
 const specificationFiles = artifactManifest.map((artifact) => artifact.path.replace(".product-experience/", ""));
@@ -64,6 +65,15 @@ export default {
   resolve: {
     alias: {
       "@ghatana/media-experience-simulation": resolve(appRoot, "../../libs/media-experience-simulation/src/index.ts"),
+      // Local review-host aliases consume source/public exports; they do not qualify a published artifact.
+      "@audio-video/ui/screens": resolve(appRoot, "../../libs/audio-video-ui/src/screens/index.ts"),
+      "@audio-video/ui/components": resolve(appRoot, "../../libs/audio-video-ui/src/components/index.ts"),
+      "@audio-video/ui/styles.css": resolve(appRoot, "../../libs/audio-video-ui/src/styles.css"),
+      "@ghatana/design-system": resolve(sharedRoot, "design-system/dist/index.js"),
+      "react/jsx-dev-runtime": resolve(appRoot, "node_modules/react/jsx-dev-runtime.js"),
+      "react/jsx-runtime": resolve(appRoot, "node_modules/react/jsx-runtime.js"),
+      "react-dom/client": resolve(appRoot, "node_modules/react-dom/client.js"),
+      react: resolve(appRoot, "node_modules/react/index.js"),
     },
   },
   server: {
@@ -71,7 +81,7 @@ export default {
     port: 4178,
     strictPort: true,
     headers: { "Content-Security-Policy": contentSecurityPolicy },
-    fs: { allow: [resolve(appRoot, "../.."), resolve(appRoot, "../../../ghatana-tools")] },
+    fs: { allow: [resolve(appRoot, "../.."), resolve(appRoot, "../../../ghatana-tools"), resolve(appRoot, "../../../ghatana-shared")] },
   },
   preview: {
     host: "127.0.0.1",

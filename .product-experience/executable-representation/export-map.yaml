@@ -1,0 +1,74 @@
+schemaVersion: media.executable-representation-export-map.v1
+productId: media
+package: "@audio-video/ui"
+observationRevision: 891ca118872de5888f0dd09c61c2a9f0c6420a12
+observationNote: >-
+  Package exports below reflect the working tree after the initial presentation-boundary implementation. They are inventory/candidate exports, not admissions. Shared package binding and semantic owner review remain pending.
+exports:
+  - subpath: .
+    publicNames: [Badge, Button, Card, Checkbox, Modal, Select, Spinner, Tabs, Tooltip, MediaTaskFlow, MediaTaskScreen, FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen, useSpeechRecognition, useSpeechSynthesis, getAudioVideoPlatformMetrics, normalizeAudioVideoRuntimeConfig]
+    source: libs/audio-video-ui/src/index.tsx
+    layer: package-root
+    status: active-public-api; admission-not-recorded
+  - subpath: ./foundations
+    publicNames: [Badge, Button, Card, Checkbox, Modal, Select, Spinner, Tabs, Tooltip]
+    source: libs/audio-video-ui/src/foundations/index.ts
+    owner: "@ghatana/design-system"
+    layer: shared-foundation-reexports
+    status: re-exported; shared-binding-unverified; admission-not-recorded
+  - subpath: ./components
+    publicNames: [MediaTaskFlow]
+    source: libs/audio-video-ui/src/components/index.ts
+    layer: media-semantic-component
+    status: active-public-api; candidate; admission-not-recorded
+  - subpath: ./screens
+    publicNames: [MediaTaskScreen, FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen]
+    source: libs/audio-video-ui/src/screens/index.ts
+    layer: screen-composition
+    status: active-public-api; candidate; admission-not-recorded
+  - subpath: ./screens/first-use-project
+    publicNames: [FirstUseProjectScreen]
+    source: libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
+    layer: screen-composition
+    status: candidate; admission-not-recorded
+  - subpath: ./screens/artifact-intake
+    publicNames: [ArtifactIntakeScreen]
+    source: libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+    layer: screen-composition
+    status: candidate; admission-not-recorded
+  - subpath: ./screens/job-recovery
+    publicNames: [JobRecoveryScreen]
+    source: libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
+    layer: screen-composition
+    status: candidate; admission-not-recorded
+  - subpath: ./screens/transcript-caption
+    publicNames: [TranscriptCaptionScreen]
+    source: libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+    layer: screen-composition
+    status: candidate; admission-not-recorded
+  - subpath: ./styles.css
+    publicNames: []
+    source: libs/audio-video-ui/src/styles.css
+    layer: structural-accessibility-stylesheet
+    status: active-public-api; Shared-visual-binding-unverified; admission-not-recorded
+  - subpath: ./ports
+    publicNames: [MediaDataPort, MediaActionPort, MediaNavigationPort, MediaContextPort]
+    source: libs/audio-video-ui/src/ports/index.ts
+    layer: typed-host-ports
+    status: active-public-api; candidate; admission-not-recorded
+  - subpath: package-root-token-exports
+    publicNames: [all-named-exports-from-@ghatana/tokens]
+    source: libs/audio-video-ui/src/index.tsx
+    layer: shared-token-compatibility-reexport
+    status: existing-public-api; package-public-subpath-not-separate; Shared-binding-unverified; admission-not-recorded
+  - subpath: ./hooks
+    publicNames: [useSpeechRecognition, useSpeechSynthesis, getAudioVideoPlatformMetrics, normalizeAudioVideoRuntimeConfig]
+    source: libs/audio-video-ui/src/hooks/index.ts
+    layer: browser-runtime-hooks
+    status: existing-public-api; consumer-review-required; admission-not-recorded
+notImplementedLayers:
+  - patterns
+  - layouts
+  - templates
+note: >-
+  No package layer is claimed for which a concrete source export is absent. Token exports remain available from the package root for compatibility; Shared token publication is not qualified here.

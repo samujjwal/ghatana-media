@@ -1,0 +1,96 @@
+schemaVersion: media.gui-semantic-component-bindings.v1
+productId: media
+authority: semantic aliases are defined in ../media-token-aliases.yaml; Shared owns primitive token values and styling behavior
+status: semantic-intent-recorded; shared-consumer-binding-unverified; owner-review-pending
+bindings:
+  - implementationCandidate: libs/audio-video-ui/src/components/MediaTaskFlow.tsx
+    semanticRole: workflow-progress-and-operation-observation
+    stateBindings:
+      available: neutral; text-label-and-ordered-position
+      current: media.token.state.in-progress; accessible-current-step-and-info-badge
+      complete: media.token.state.completed; explicit-complete-label-and-success-badge
+      blocked: media.token.state.blocked; explicit-blocked-label-and-warning-badge
+    operationBindings:
+      determinate: measured-value-and-semantic-progress-role; numeric-value-is-visible-and-announced
+      indeterminate: ongoing-but-unmeasured; never-display-a-percent
+      none: no-meaningful-measurement; explain-absence
+      unknown: remote-outcome-unknown; preserve-check/reconcile-action-from-host
+    forbiddenInference:
+      - canonical action eligibility from operation state spelling
+      - business finality from visual state
+      - retry or cancellation authority from operation state spelling
+      - step navigation eligibility from blocked/current/complete state label
+    navigationEligibility: host-projected-by-step-selectable
+    sharedBindingStatus: unresolved-until-compatible-immutable-shared-package-is-verified
+  - componentRefs: [media.component.identity-context-boundary, media.component.project-browser]
+    implementationCandidate: libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
+    semanticRole: authorized-workspace-and-project-context
+    stateBindings:
+      access-denied: media.token.state.blocked; protected-project-content-remains-hidden
+      access-unknown: media.token.state.needs-review; explicit-unknown-copy
+      loading: media.token.state.in-progress; explicit-status-announcement
+    status: candidate-contract-derived-rendering; not-admitted
+  - componentRefs: [media.component.artifact-browser, media.component.artifact-source-picker, media.component.artifact-transfer-status, media.component.artifact-integrity-summary]
+    implementationCandidate: libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+    semanticRole: artifact-source-integrity-and-verification-observation
+    stateBindings:
+      upload-transfer: measured-only-when-server-acknowledged
+      integrity: recorded-host-fact; unknown-remains-explicit
+      verification: operation-observation; unknown-outcome-does-not-imply-failure-or-success
+    status: candidate-contract-derived-rendering; not-admitted
+  - componentRefs: [media.component.job-status-card, media.component.activity-recovery-feed]
+    implementationCandidate: libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
+    semanticRole: exact-job-identity-and-outcome-reconciliation
+    requiredSignals:
+      - stable-job-identity
+      - observed-finality-distinct-from-requested-finality
+      - unknown-outcome-remains-explicit
+      - detached-observer-does-not-imply-cancellation
+    forbiddenInference: retry-or-cancellation-eligibility-from-status-label
+    status: candidate-contract-derived-rendering; not-admitted
+  - componentRefs: [media.component.transcript-review, media.component.caption-track-editor]
+    implementationCandidate: libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+    semanticRole: source-linked-transcript-review-and-versioned-caption-editing
+    requiredSignals:
+      - exact-source-artifact-version
+      - source-time-and-language-when-known
+      - segment-time-and-provenance-when-provided
+      - caption-draft-version-distinct-from-immutable-version
+    status: candidate-contract-derived-rendering; not-admitted
+  - externalComponentCandidate: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/PhraseTimeline.tsx
+    observedMapping:
+      verse: blue
+      chorus: purple
+      bridge: green
+      intro: yellow
+      outro: orange
+      other: gray
+    classification: UNRESOLVED
+    finding: >-
+      PhraseLabel values are domain categories, while the source assigns a local palette. No PDP-2 semantic alias or
+      reviewed domain visualization palette was found in this inventory. Preserve the category labels as text;
+      treat the colors as implementation styling until the AI Voice and design-system owners decide whether a governed
+      categorical visualization palette exists. Color must not be the only distinction.
+    reviewEvidenceRequired:
+      - map all phrase categories to an owner-reviewed domain visualization contract or remove category color semantics
+      - verify contrast and distinguishability in forced colors and color-vision deficiency conditions
+  - externalComponentCandidate: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/StemTrack.tsx
+    observedMapping:
+      vocals: local-custom-property-with-hex-fallback
+      drums: local-custom-property-with-hex-fallback
+      bass: local-custom-property-with-hex-fallback
+      other: local-custom-property-with-hex-fallback
+    classification: UNRESOLVED
+    finding: >-
+      Stem identity is a domain category and may warrant stable categorical encoding, but the current CSS custom
+      properties and hex fallbacks are not bound to an admitted Shared role or a reviewed Media visualization contract.
+      Keep the stem name and controls as accessible text; do not treat the fallback palette as canonical.
+    reviewEvidenceRequired:
+      - decide whether stem identity needs color encoding in addition to names and labels
+      - bind any retained encoding to an owner-reviewed categorical visualization palette
+      - verify contrast, forced colors, and color-vision deficiency conditions
+principles:
+  - Semantic aliases express product intent and reference Shared semantic roles; they do not assign hex values or invented CSS custom properties.
+  - Shared palette, typography, spacing, focus, forced-colors, and component behavior are unresolved until consumer binding is verified.
+  - Text, icon, shape, and accessible names carry state; color is never the only signal.
+  - Raw values in the Explorer stylesheet are Explorer fixture styling, not Media product authority.

@@ -1,0 +1,29 @@
+schemaVersion: media.executable-representation-migration-ledger.v1
+productId: media
+sourceInventory: ../pdp-2-design-interface-system/executable-ui-inventory.json
+entries:
+  - sourceScope: libs/audio-video-ui/**
+    disposition: FIX
+    state: in-progress
+    targetPackage: "@audio-video/ui"
+    notes: Existing package consolidated as the sole Media presentation boundary; candidate public screens and ports added; no representation admitted.
+  - sourceScope: modules/intelligence/ai-voice/libs/ai-voice-ui-react/**
+    disposition: REUSE
+    state: inventory-only
+    currentPackage: "@ghatana/ai-voice-ui-react"
+    targetPackage: unresolved-pending-owner-and-consumer-review
+    notes: Real product React implementation; preserve the existing package until consumers, workflow semantics and a bounded consolidation path are reviewed.
+  - sourceScope: apps/media-experience-explorer/**
+    disposition: REFACTOR
+    state: integration-in-progress
+    targetPackage: "@audio-video/ui/screens"
+    notes: Explorer mechanics remain host-owned; product page rendering migration is assigned to the Explorer workstream.
+  - sourceScope: archive/media-desktop-apps/**
+    disposition: ARCHIVE_ONLY
+    state: historical-evidence
+    targetPackage: null
+    notes: Archived applications remain evidence only and are not admitted or reactivated.
+unresolved:
+  - package publication and consumer verification for Shared dependencies declared at 0.1.2 while available package source manifests report 0.1.0-SNAPSHOT
+  - independent PDP and human review of candidate screen compositions and all source inventory entries
+  - authoritative consumer/currentness evidence for every package and export

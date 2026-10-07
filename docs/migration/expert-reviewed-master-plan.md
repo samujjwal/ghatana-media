@@ -25,6 +25,27 @@ Migration is a cross-repository workstream, not a numbered product-definition ph
 
 **Reading order:** Sections 1–5 establish decisions and boundaries. Sections 6–17 define the product and runtime contracts. Sections 18–22 specify the four phases and their handoff. Sections 23–25 provide executable task cards, sequencing, and verification. The appendices preserve source coverage, evidence provenance, and unresolved prerequisites.
 
+## Semantic extraction and disposition status (2026-10-07)
+
+This table records the current classification of the plan's content. It does
+not accept proposals. `GAP-MEDIA-MIGRATION-SEMANTICS` remains open because
+unique semantic material has not yet been exhaustively reconciled, assigned to
+an owning PDP record, and reviewed by the relevant owner.
+
+| Classification | Current disposition and evidence |
+| --- | --- |
+| `EXTRACTED_TO_PDP` | Product identity and the bounded migration boundary are recorded in `.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md`, `constitution.yaml`, and accepted decision records. Mission/outcome, requirements, capability inventory, surface proposals, and policy material have PDP-0 counterparts, but their content remains proposal unless explicitly accepted. This classification means a corresponding PDP record exists, not that every plan statement has been reconciled. |
+| `EXECUTION_ONLY` | Ordered migration/cutover procedure, wave/task order, source inventory, validation steps, verification recipes, and completion gates remain execution references in this document and `docs/migration/`. They do not create product semantics. |
+| `IMPLEMENTATION_GUIDANCE` | Suggested source layout, phased migration tactics, typed-port direction, and implementation sequencing remain guidance for downstream work. They do not establish an admitted implementation or override accepted PDP contracts. |
+| `EVIDENCE_REFERENCE` | Repository paths, inventories, upstream owners, external references, and dated observations are provenance. Their presence is not currentness, availability, or acceptance proof. |
+| `OBSOLETE` | No additional plan section is marked obsolete by this update; existing stale observations are retained as dated evidence until reconciled in their owning record. |
+| `UNRESOLVED` | Any unique semantic proposal not demonstrably extracted and reconciled above remains unresolved. In particular, capability-leaf meaning/bounds, PDP-1 object/state/operation decisions, PDP-2 visual/interface semantics, PDP-3 screen/journey behavior, and owner-specific channel/contract decisions stay open under their canonical gaps. |
+
+The classification is intentionally conservative: no section-level match is
+used to claim exhaustive statement-by-statement extraction. Complete inventory,
+record-level reconciliation, and owner review are still required to close the
+gap.
+
 ## Document navigation
 
 - [1. Review result and material corrections](#1-review-result-and-material-corrections)

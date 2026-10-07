@@ -1,0 +1,69 @@
+schemaVersion: media.executable-representation-admission-schema.v1
+productId: media
+recordPath: admissions/<representationId>.yaml
+requiredFields:
+  - representationId
+  - scope
+  - platform
+  - surfaceIds
+  - representationKind
+  - publicExport
+  - package
+  - sourceLocation
+  - implementationRevision
+  - boundPdp0Records
+  - boundPdp1Records
+  - boundPdp2Records
+  - boundPdp3Records
+  - boundSemanticDigests
+  - statesCovered
+  - variantsCovered
+  - responsiveCoverage
+  - accessibilityCoverage
+  - localizationCoverage
+  - dependencies
+  - allowedHostDependencies
+  - forbiddenDependencies
+  - conformanceEvidence
+  - humanReviewEvidence
+  - acceptanceAuthority
+  - acceptanceState
+  - supersedes
+  - migrationState
+fieldTypes:
+  representationId: stable-string
+  scope: non-empty-string
+  platform: string-or-string-list
+  surfaceIds: string-list
+  representationKind: one-of[component-family, pattern, layout, template, screen, workflow, host-adapter]
+  publicExport: package-subpath-and-export-name
+  package: package-name
+  sourceLocation: repository-relative-file-and-symbol
+  implementationRevision: git-revision-or-worktree-digest
+  boundPdp0Records: authority-reference-list
+  boundPdp1Records: authority-reference-list
+  boundPdp2Records: authority-reference-list
+  boundPdp3Records: authority-reference-list
+  boundSemanticDigests: mapping-of-authority-reference-to-digest
+  statesCovered: list-of-state-refs-and-evidence
+  variantsCovered: list-of-variant-refs-and-evidence
+  responsiveCoverage: status-and-viewport-evidence
+  accessibilityCoverage: status-and-check-evidence
+  localizationCoverage: status-and-locale-evidence
+  dependencies: package-and-version-list
+  allowedHostDependencies: typed-port-list
+  forbiddenDependencies: dependency-boundary-list
+  conformanceEvidence: evidence-reference-list
+  humanReviewEvidence: evidence-reference-list
+  acceptanceAuthority: named-owner-or-review-record
+  acceptanceState: one-of[inventory-only, candidate, blocked, admitted, retired]
+  supersedes: representation-reference-list
+  migrationState: one-of[not-started, candidate, in-review, migrated, retired, blocked]
+publicExportEncoding: "<package-name>/<public-subpath>#<NamedExport>; use <package-name>#<NamedExport> for the root export"
+rules:
+  - Existing implementation and public export do not imply admission.
+  - A record with acceptanceState admitted must have non-empty conformanceEvidence, humanReviewEvidence, acceptanceAuthority, and boundSemanticDigests.
+  - Product presentation may depend on Shared public packages and declared typed host ports only.
+  - Product presentation must not depend on Explorer, review fixtures, app roots, or sibling private source paths.
+  - Unknown evidence is recorded as pending or unknown; it is never represented as passed.
+  - Superseded records remain available as historical evidence.

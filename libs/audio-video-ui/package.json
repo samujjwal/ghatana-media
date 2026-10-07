@@ -15,7 +15,8 @@
     "check": "pnpm typecheck && pnpm test && pnpm build"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/styles.css"
   ],
   "exports": {
     ".": {
@@ -25,6 +26,39 @@
     "./hooks": {
       "types": "./dist/hooks/index.d.ts",
       "import": "./dist/hooks/index.js"
+    },
+    "./foundations": {
+      "types": "./dist/foundations/index.d.ts",
+      "import": "./dist/foundations/index.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js"
+    },
+    "./screens": {
+      "types": "./dist/screens/index.d.ts",
+      "import": "./dist/screens/index.js"
+    },
+    "./ports": {
+      "types": "./dist/ports/index.d.ts",
+      "import": "./dist/ports/index.js"
+    },
+    "./styles.css": "./src/styles.css",
+    "./screens/first-use-project": {
+      "types": "./dist/screens/FirstUseProjectScreen.d.ts",
+      "import": "./dist/screens/FirstUseProjectScreen.js"
+    },
+    "./screens/artifact-intake": {
+      "types": "./dist/screens/ArtifactIntakeScreen.d.ts",
+      "import": "./dist/screens/ArtifactIntakeScreen.js"
+    },
+    "./screens/job-recovery": {
+      "types": "./dist/screens/JobRecoveryScreen.d.ts",
+      "import": "./dist/screens/JobRecoveryScreen.js"
+    },
+    "./screens/transcript-caption": {
+      "types": "./dist/screens/TranscriptCaptionScreen.d.ts",
+      "import": "./dist/screens/TranscriptCaptionScreen.js"
     }
   },
   "peerDependencies": {

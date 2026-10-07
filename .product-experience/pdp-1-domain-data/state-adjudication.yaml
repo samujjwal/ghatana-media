@@ -1,0 +1,72 @@
+schemaVersion: media.pdp-1.state-adjudication.v1
+artifactId: media.pdp-1.state-adjudication
+productId: media
+semanticOwner: media
+authority: .product-experience/pdp-0-product-truth/state-models.yaml
+status: canonical-meaning-proposal; independent-owner-acceptance-pending
+machineDimensions:
+  - machineId: media-job
+    dimension: logical-job-outcome-and-observation
+    proposedMeanings:
+      QUEUED: accepted-for-scheduling; does-not-prove-worker-claim-or-dispatch
+      RUNNING: execution-observed-in-progress; does-not-prove-current-worker-lease
+      RETRY_PENDING: prior-attempt-ended-or-was-abandoned-and-another-attempt-may-be-eligible; does-not-mean-retry-dispatched
+      OUTCOME_UNKNOWN: effect-or-commit-may-have-occurred-but-authoritative-outcome-is-not-known
+      RECONCILING: evidence-gathering-to-resolve-an-unknown-outcome; not-a-terminal-result
+      COMPLETED: job-contract-defined-success-finality; exact-success-criteria-remain-operation-specific
+      PARTIALLY_SUCCEEDED: some-declared-sub-effects-succeeded-and-others-did-not-or-remain-unknown; exact-accounting-contract-required
+      FAILED: job-contract-defined-failure-finality; does-not-imply-safe-retry
+      CANCELLED: cancellation-confirmed-under-job-contract; a-request-alone-is-not-confirmation
+    spellingConflict:
+      RETRYING: observed legacy Java/TypeScript spelling; equivalence to RETRY_PENDING unresolved, preserve source spelling
+      ACCEPTED: observed Java/OpenAPI spelling; equivalence to QUEUED unresolved
+  - machineId: media-attempt
+    dimension: one-execution-attempt-and-its-dispatch-evidence
+    proposedMeanings:
+      CLAIMED: worker or scheduler has claimed an attempt under the execution contract
+      DISPATCH_INTENT_RECORDED: durable intent is recorded before external dispatch if persistence guarantee is accepted
+      DISPATCHED: dispatch was recorded; provider effect may still be unknown
+      RUNNING: execution progress has been observed for this attempt
+      CANCEL_REQUESTED: cancellation request was issued; provider cancellation is unconfirmed
+      CANCEL_CONFIRMED: provider or execution authority confirmed cancellation
+      SUCCEEDED: attempt result succeeded; logical job success may still require aggregation
+      FAILED: attempt failed; logical job finality/retry eligibility remains separate
+      OUTCOME_UNKNOWN: attempt effect or completion cannot currently be determined
+      SUPERSEDED: a later fenced attempt or authoritative resolution supersedes this attempt observation
+    spellingConflict:
+      CANCELLING: observed legacy job/UI spelling; machine and mapping unresolved, do not equate with CANCEL_REQUESTED
+  - machineId: media-delivery
+    dimension: external-delivery-effect-and-recipient-evidence
+    proposedMeanings:
+      OUTCOME_UNKNOWN: remote submission or effect is not authoritatively known
+      RECONCILING: destination evidence is being gathered
+      PARTIALLY_DELIVERED: only declared subset of intended delivery is acknowledged
+    separation: same spelling in media-job or media-attempt is not same state identity; retain machine id
+crossProjectionDispositions:
+  - source: Java AvJobLifecycleAdapter.mapStatus
+    observation: OUTCOME_UNKNOWN and RECONCILING project to RUNNING
+    disposition: lossy-implementation-projection; rejected-as-canonical-equivalence
+  - source: libs/audio-video-types/src/contracts.ts#normalizeLegacyMediaJobState
+    observation: CANCELLING projects to RUNNING and RETRYING to RETRY_PENDING
+    disposition: observed-compatibility-code; mappings-not-adopted-as-product-meaning
+  - source: contracts/openapi/media.yaml#/components/schemas/PlatformOperation/properties/state
+    observation: ACCEPTED, QUEUED, RUNNING, SUCCEEDED, FAILED, CANCELLED
+    disposition: narrower-transport-enum; each mapping unresolved
+  - source: inspected active Media protobuf service declarations
+    observation: no matching shared job-lifecycle enum found; engine and health enums represent other dimensions
+    disposition: inventory-absence-only; not a support or exclusion decision
+invariantsProposed:
+  - state-identity-is-machine-plus-state-id; identical spelling-across-machines-does-not-imply-equivalence
+  - request-acceptance-queueing-dispatch-running-and-effect-finality-are-distinct-observations
+  - cancellation-request-and-confirmation-are-distinct
+  - unknown-outcome-and-reconciliation-are-not-success-failure-or-running
+  - partial-success-requires-explicit-sub-effect-accounting
+  - state-alone-does-not-authorize-retry-cancel-delivery-or-other-action
+  - observations-need-source-version-and-observed-at-to-support-freshness
+unresolvedOwnerDecisions:
+  - whether ACCEPTED and QUEUED are equivalent at the logical-job dimension
+  - whether RETRYING is legacy alias, active state, or attempt-level projection
+  - whether CANCELLING is UI-only or a supported domain/transport state
+  - terminality and aggregation contract for PARTIALLY_SUCCEEDED
+  - proof and scope required for CANCELLED and COMPLETED finality
+  - durable intent/attempt history and restart reconciliation guarantees

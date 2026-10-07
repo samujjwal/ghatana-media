@@ -107,7 +107,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 44c5d18ff9b3b10c3c19a20fb0a19d2a8b252f3e3147fdb54d187781cea295b8
+      contentSha256: 6ffc0ddc5cb2873862e488259041f5a3f0d280ee7e08bf7b90c59e6416e680e8
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-GOV-DECISION-LOG
@@ -130,6 +130,138 @@ productArtifactIndex:
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
       contentSha256: 14eb3ed1a247dbd16ece9d899d673fdfa099447b186640380252b5a5cf516753
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-GOV-EXECUTABLE-REPRESENTATION-README
+    title: "README"
+    owner: ghatana-media-product-owners
+    authorityClass: CROSS_PHASE_GOVERNANCE
+    owningPhase: CROSS_PHASE
+    path: .product-experience/executable-representation/README.md
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: cross_phase.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: a74e65a9b09389358de77fc7df63e5c57b1c6bd711f570a5055c96ac25e37daf
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-GOV-EXECUTABLE-REPRESENTATION-ADMISSION-SCHEMA
+    title: "Admission Schema"
+    owner: ghatana-media-product-owners
+    authorityClass: CROSS_PHASE_GOVERNANCE
+    owningPhase: CROSS_PHASE
+    path: .product-experience/executable-representation/admission-schema.yaml
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: cross_phase.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 730eb53ebf472c64062bdf41f48bd18a2038c939cb8b5680f659d0a9bd0416cc
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-GOV-EXECUTABLE-REPRESENTATION-ADMISSIONS-README
+    title: "README"
+    owner: ghatana-media-product-owners
+    authorityClass: CROSS_PHASE_GOVERNANCE
+    owningPhase: CROSS_PHASE
+    path: .product-experience/executable-representation/admissions/README.md
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: cross_phase.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 21f26da5e65317dabd5e8f6b920431706e6f1d6de702e18d7209bf2518760325
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-GOV-EXECUTABLE-REPRESENTATION-EXPORT-MAP
+    title: "Export Map"
+    owner: ghatana-media-product-owners
+    authorityClass: CROSS_PHASE_GOVERNANCE
+    owningPhase: CROSS_PHASE
+    path: .product-experience/executable-representation/export-map.yaml
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: cross_phase.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 23ca0af4861bd7c613d1401caeab524d5169aa3e91f81fde23313d7304f51563
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-GOV-EXECUTABLE-REPRESENTATION-HOST-MAP
+    title: "Host Map"
+    owner: ghatana-media-product-owners
+    authorityClass: CROSS_PHASE_GOVERNANCE
+    owningPhase: CROSS_PHASE
+    path: .product-experience/executable-representation/host-map.yaml
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: cross_phase.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 6c5706774983c9b338c20455881e3d30fbe2c18188c2ed13f03977cf5319c4a6
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-GOV-EXECUTABLE-REPRESENTATION-MIGRATION-LEDGER
+    title: "Migration Ledger"
+    owner: ghatana-media-product-owners
+    authorityClass: CROSS_PHASE_GOVERNANCE
+    owningPhase: CROSS_PHASE
+    path: .product-experience/executable-representation/migration-ledger.yaml
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: cross_phase.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 38acee238febb0610f2173dcf7e0b8d1f1ff86e41a627d3aa1480cf98fe3a904
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P3-PHASE-3-EXPERIENCE-EXPLORER-EXPERIENCE-EXPLORER-MD
@@ -308,6 +440,50 @@ productArtifactIndex:
       contentSha256: ac7e6307606831994800de51e14df15d6e3de88958c496afc1bccfd531e8a28f
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
+  - artifactId: ART-GOV-INTERFACE-PARITY-README
+    title: "README"
+    owner: ghatana-media-product-owners
+    authorityClass: CROSS_PHASE_GOVERNANCE
+    owningPhase: CROSS_PHASE
+    path: .product-experience/interface-parity/README.md
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: cross_phase.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 7268a90e5ffa616df3b0e0b454d1c80ca797c21d9c280f49057a6f3a772ed33a
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-GOV-INTERFACE-OPERATION-PARITY
+    title: "Operation Parity"
+    owner: ghatana-media-product-owners
+    authorityClass: CROSS_PHASE_GOVERNANCE
+    owningPhase: CROSS_PHASE
+    path: .product-experience/interface-parity/operation-parity.yaml
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: cross_phase.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: b3dea5853635922d5ced30d598888e45fbb16e6cca1962742b9e15e1d1eca4be
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
   - artifactId: ART-P2-LANES-TRANSCRIBE-AND-CORRECT-CAPTIONS-YAML
     title: "Transcribe And Correct Captions"
     owner: ghatana-media-product-owners
@@ -438,6 +614,28 @@ productArtifactIndex:
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
       contentSha256: f96e834c22e5b5cea006f7b08aaa2225e88013fc826685c67e0f01fc079c894c
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-P0-CAPABILITY-LEAF-REVIEW
+    title: "Capability Leaf Review"
+    owner: ghatana-media-product-owners
+    authorityClass: PRODUCT_TRUTH_AUTHORITY
+    owningPhase: PDP-0
+    path: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: pdp.0.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 8a921c7507277e976c813647ba323c1e9db4079106179f9d9cd2ce1224b04bef
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-CAPABILITY-CROSSWALK
@@ -658,6 +856,28 @@ productArtifactIndex:
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
       contentSha256: 1122f63808a9b0093601771ca01a7d8458c86439b66c3ba9e5e520d841880d18
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-P0-MIGRATION-SEMANTICS-REVIEW
+    title: "Migration Semantics Review"
+    owner: ghatana-media-product-owners
+    authorityClass: PRODUCT_TRUTH_AUTHORITY
+    owningPhase: PDP-0
+    path: .product-experience/pdp-0-product-truth/migration-semantics-review.yaml
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: pdp.0.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: f767404cd83e8e0623bf831a859f6e642f4c12f575266017b5dd294d483536a1
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-NFR
@@ -921,7 +1141,29 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: f1f9729cca0fcac0eede945a66454998ebd15ec51b0a13672e70698921003f00
+      contentSha256: ef10574670704e5da6aa9c5eff6e4bbb432a8d638226e84d2df1d6ee2e333f77
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-P1-ACTION-CONTRACTS
+    title: "Action Contracts"
+    owner: ghatana-media-product-owners
+    authorityClass: DOMAIN_DATA_AUTHORITY
+    owningPhase: PDP-1
+    path: .product-experience/pdp-1-domain-data/action-contracts.yaml
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: pdp.1.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 9cf50648dc9a0a9bbdfa9e717a174300c1db224f266d8187ad7373faf12ca3a8
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-EF11C75D9B14
@@ -944,6 +1186,28 @@ productArtifactIndex:
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
       contentSha256: d195c36f25fce2e65f7dcbdb90a21a4bb4f8b8dbee5042376d551fe35bd8f85b
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-P1-CANONICAL-RECONCILIATION
+    title: "Canonical Reconciliation"
+    owner: ghatana-media-product-owners
+    authorityClass: DOMAIN_DATA_AUTHORITY
+    owningPhase: PDP-1
+    path: .product-experience/pdp-1-domain-data/canonical-reconciliation.yaml
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: pdp.1.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 6b7d5cbeff3768b3c2621a4a98063d8c3b0472874196a50cd757de6810310f51
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-28AD95DFEFCB
@@ -1097,7 +1361,29 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 3e1532642d6d06a17df54f88d179afc395f6863e548633db13538d7dfd4afd8f
+      contentSha256: 17f8eb0ad05c54c47671c03ecf23978475ed029b03ae8d0b91d05f3ca7f95742
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-P1-PRESENTATION-PROJECTIONS
+    title: "Presentation Projections"
+    owner: ghatana-media-product-owners
+    authorityClass: DOMAIN_DATA_AUTHORITY
+    owningPhase: PDP-1
+    path: .product-experience/pdp-1-domain-data/presentation-projections.yaml
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: pdp.1.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 3658dfcd38b957da70f262fd3d649e9cd663f300702dd4975e72bbf06ad94b5c
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-00087458393C
@@ -1164,6 +1450,28 @@ productArtifactIndex:
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
       contentSha256: 4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-P1-STATE-ADJUDICATION
+    title: "State Adjudication"
+    owner: ghatana-media-product-owners
+    authorityClass: DOMAIN_DATA_AUTHORITY
+    owningPhase: PDP-1
+    path: .product-experience/pdp-1-domain-data/state-adjudication.yaml
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: pdp.1.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 528cd8df36cf3beb86ecc1015a3dc8b4cf596124347e31c84f573adf17cef90f
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-0D44B0159B14
@@ -1760,6 +2068,50 @@ productArtifactIndex:
       contentSha256: e5c127bee5f9550de6a0d9ec35835ea752b274c3ef3576f93a5695c1f97af9fa
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
+  - artifactId: ART-P2-EXECUTABLE-UI-INVENTORY-JSON
+    title: "Executable Ui Inventory"
+    owner: ghatana-media-product-owners
+    authorityClass: DESIGN_INTERFACE_AUTHORITY
+    owningPhase: PDP-2
+    path: .product-experience/pdp-2-design-interface-system/executable-ui-inventory.json
+    surfaceIds: [media.surface.web, media.surface.embedded, media.surface.ui-library]
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: pdp.2.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 26879978f66b6b42e070241e371b9ac42506068508ea9687d7f471a572c89d75
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-P2-EXECUTABLE-UI-INVENTORY-MD
+    title: "Executable Ui Inventory"
+    owner: ghatana-media-product-owners
+    authorityClass: DESIGN_INTERFACE_AUTHORITY
+    owningPhase: PDP-2
+    path: .product-experience/pdp-2-design-interface-system/executable-ui-inventory.md
+    surfaceIds: [media.surface.web, media.surface.embedded, media.surface.ui-library]
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: pdp.2.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: b2e9ee8c77be12007aa81a48fc53b886b1a9102b4170344c63beee5ec0fd423d
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-8B2627A1C5C0
     title: "Layout"
     owner: ghatana-media-product-owners
@@ -1936,6 +2288,28 @@ productArtifactIndex:
       contentSha256: 4ac2d174228458b9de24681da758d8cb949ab3afadb14c6bdcda4a8f6f8187b0
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
+  - artifactId: ART-P2-SEMANTIC-COMPONENT-BINDINGS
+    title: "Semantic Component Bindings"
+    owner: ghatana-media-product-owners
+    authorityClass: DESIGN_INTERFACE_AUTHORITY
+    owningPhase: PDP-2
+    path: .product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml
+    surfaceIds: [media.surface.web, media.surface.embedded, media.surface.ui-library]
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencies: []
+    dependents: []
+    schema: pdp.2.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 97356cfb654cce31fab3c30aeef70cf92142c3f2583fcfbb416fe0fa034d04c8
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-93CBF4320DC2
     title: "Style Authority"
     owner: ghatana-media-product-owners
@@ -1955,7 +2329,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: e2e4fa0608b0c9bf4fc2caa1b73fb188416da8120fd8d3db22f1f873d86ec8b6
+      contentSha256: 4a71061c3e2538a5ce2c76ac64a55568dba4ec9ba53d0d0d1095347140ba7df2
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-644F7F7EE315
@@ -6091,7 +6465,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: e9722e2d08016e73b989d25688cbe3e50fe48d8f6d823e8900cea4cd3fa3fd94
+      contentSha256: 10f2483bbf89471606ce7dd3110f589bb0c3b0cf7a942c249fabdc0ebd1d01ad
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-TRACEABILITY

@@ -15,6 +15,7 @@ denominators:
   fixtureCliCommandsObserved: 12
   explorerRecordsHistorical: 147
 statusVocabulary: [SOURCE_ONLY, PROPOSED, LOCAL_ONLY, COMPATIBILITY_ONLY, PENDING, OBSOLETE]
+applicabilityDispositionVocabulary: [TARGET_PENDING_ADMISSION, TARGET_HOST_CONTRACT_PENDING, COMPATIBILITY_CANONICALIZATION_PENDING, COMPATIBILITY_CONSOLIDATION_PENDING, TARGET_FIXTURE_ONLY, OWNER_DECISION_PENDING, TOOLING_LOCAL_ONLY, NOT_ACTIVE_ARCHIVED]
 surfaces:
   - surfaceId: media.surface.web
     surfaceType: GUI_WEB
@@ -34,6 +35,9 @@ surfaces:
     semanticStatus: PROPOSED
     implementationStatus: LOCAL_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: TARGET_PENDING_ADMISSION
+    applicabilityRationale: >-
+      Intended browser product surface; no production host or admitted executable presentation is established.
   - surfaceId: media.surface.embedded
     surfaceType: GUI_EMBEDDED
     purpose: Embedded Media views consumed by integrating Ghatana products.
@@ -52,6 +56,9 @@ surfaces:
     semanticStatus: PROPOSED
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: TARGET_HOST_CONTRACT_PENDING
+    applicabilityRationale: >-
+      Intended only where an integrating host accepts identity, authority, navigation, and handoff contracts.
   - surfaceId: media.surface.public-http
     surfaceType: PUBLIC_API
     purpose: Public HTTP operations for health and governed Media workflows.
@@ -70,6 +77,9 @@ surfaces:
     semanticStatus: SOURCE_ONLY
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: COMPATIBILITY_CANONICALIZATION_PENDING
+    applicabilityRationale: >-
+      Preserve the observed wire surface while operation semantics, runtime parity, and publication are reconciled.
   - surfaceId: media.surface.service-grpc
     surfaceType: SERVICE_API
     purpose: Provider/service protocol surfaces for speech, vision, multimodal, and voice capabilities.
@@ -88,6 +98,9 @@ surfaces:
     semanticStatus: SOURCE_ONLY
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: COMPATIBILITY_CANONICALIZATION_PENDING
+    applicabilityRationale: >-
+      Preserve observed service contracts while service and operation owners reconcile canonical meanings.
   - surfaceId: media.surface.grpc.stt
     surfaceType: SERVICE_API
     purpose: Speech-to-text gRPC service contract and its 12 observed RPCs.
@@ -106,6 +119,9 @@ surfaces:
     semanticStatus: SOURCE_ONLY
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: COMPATIBILITY_CANONICALIZATION_PENDING
+    applicabilityRationale: >-
+      Observed source contract; compatibility preservation does not establish service availability or acceptance.
   - surfaceId: media.surface.grpc.tts
     surfaceType: SERVICE_API
     purpose: Text-to-speech gRPC service contract and its 11 observed RPCs.
@@ -124,6 +140,9 @@ surfaces:
     semanticStatus: SOURCE_ONLY
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: COMPATIBILITY_CANONICALIZATION_PENDING
+    applicabilityRationale: >-
+      Observed source contract; compatibility preservation does not establish service availability or acceptance.
   - surfaceId: media.surface.grpc.vision
     surfaceType: SERVICE_API
     purpose: Vision gRPC service contract and its 10 observed RPCs.
@@ -142,6 +161,9 @@ surfaces:
     semanticStatus: SOURCE_ONLY
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: COMPATIBILITY_CANONICALIZATION_PENDING
+    applicabilityRationale: >-
+      Observed source contract; compatibility preservation does not establish service availability or acceptance.
   - surfaceId: media.surface.grpc.multimodal
     surfaceType: SERVICE_API
     purpose: Multimodal inference gRPC service contract and its 10 observed RPCs.
@@ -160,6 +182,9 @@ surfaces:
     semanticStatus: SOURCE_ONLY
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: COMPATIBILITY_CANONICALIZATION_PENDING
+    applicabilityRationale: >-
+      Observed source contract; compatibility preservation does not establish service availability or acceptance.
   - surfaceId: media.surface.sdk
     surfaceType: SDK
     purpose: Typed client operations for integrating products and automation.
@@ -178,6 +203,9 @@ surfaces:
     semanticStatus: PROPOSED
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: COMPATIBILITY_CONSOLIDATION_PENDING
+    applicabilityRationale: >-
+      Retain existing identities while public method, wire parity, publication, and consumers are reconciled.
   - surfaceId: media.surface.cli
     surfaceType: CLI
     purpose: Scriptable command surface for batch and operator workflows.
@@ -196,6 +224,9 @@ surfaces:
     semanticStatus: PROPOSED
     implementationStatus: LOCAL_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: TARGET_FIXTURE_ONLY
+    applicabilityRationale: >-
+      CLI is a target surface; current observed CLI entries are deterministic fixture/review infrastructure, not a production command admission.
   - surfaceId: media.surface.agent-tools
     surfaceType: AGENT_TOOL
     purpose: Narrow machine tools for grounded Media operations and inspection.
@@ -214,6 +245,9 @@ surfaces:
     semanticStatus: PROPOSED
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: OWNER_DECISION_PENDING
+    applicabilityRationale: >-
+      Four observed handlers remain compatibility candidates until canonical operation and Tools-owner decisions are recorded.
   - surfaceId: media.surface.events
     surfaceType: EVENT_STREAM
     purpose: Lifecycle and evidence events for observation and downstream projections.
@@ -232,6 +266,9 @@ surfaces:
     semanticStatus: PROPOSED
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: OWNER_DECISION_PENDING
+    applicabilityRationale: >-
+      Event contract and delivery guarantees require owner review before surface admission.
   - surfaceId: media.surface.integrations
     surfaceType: SYSTEM_TO_SYSTEM_SERVICE
     purpose: Product-to-product, storage, identity, provider, and downstream delivery integrations.
@@ -250,6 +287,9 @@ surfaces:
     semanticStatus: PROPOSED
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: OWNER_DECISION_PENDING
+    applicabilityRationale: >-
+      Each external handoff requires its own owner-approved contract and availability evidence.
   - surfaceId: media.surface.types-library
     surfaceType: LIBRARY
     purpose: Public TypeScript domain and wire-facing types consumed by Media clients and integrating products.
@@ -268,6 +308,9 @@ surfaces:
     semanticStatus: SOURCE_ONLY
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: OWNER_DECISION_PENDING
+    applicabilityRationale: >-
+      Source exports exist; public contract, publication, and consumer parity are not established.
   - surfaceId: media.surface.ui-library
     surfaceType: LIBRARY
     purpose: Reusable Media-specific UI composition and embedded experience components.
@@ -286,6 +329,9 @@ surfaces:
     semanticStatus: PROPOSED
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: OWNER_DECISION_PENDING
+    applicabilityRationale: >-
+      Existing UI package is the candidate Media presentation boundary; Shared binding and executable admissions remain open.
   - surfaceId: media.surface.explorer
     surfaceType: EXPLORER_TOOLING
     purpose: Source-linked local projection, simulation, inspection, and verification workspace.
@@ -304,6 +350,9 @@ surfaces:
     semanticStatus: PROPOSED
     implementationStatus: LOCAL_ONLY
     qualificationStatus: PENDING
+    applicabilityDisposition: TOOLING_LOCAL_ONLY
+    applicabilityRationale: >-
+      Local source projection and deterministic review tooling; not a product runtime or acceptance authority.
   - surfaceId: media.surface.desktop-archive
     surfaceType: OBSOLETE
     purpose: Retained historical desktop application material; not an active canonical consumer surface.
@@ -322,6 +371,9 @@ surfaces:
     semanticStatus: OBSOLETE
     implementationStatus: OBSOLETE
     qualificationStatus: OBSOLETE
+    applicabilityDisposition: NOT_ACTIVE_ARCHIVED
+    applicabilityRationale: >-
+      Historical source only; do not infer current support or reactivate from source presence.
 channelSurfaceProposals:
   schemaVersion: media.channel-surface-proposals.v1
   status: owner-reviewed-candidate-crosswalk; channel-admission-and-runtime-support-remain-pending

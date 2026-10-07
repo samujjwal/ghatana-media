@@ -205,6 +205,48 @@ phaseAuthorities:
     role: generated-observation
     authority: generated-coverage-currentness-only; no-manual-readiness-claim
     acceptanceState: not-created; owner-approved-Tools-generation-pending
+  - id: ART-P0-CAPABILITY-LEAF-REVIEW
+    title: Capability leaf review
+    path: pdp-0-product-truth/capability-leaf-review.yaml
+    role: source-pinned-best-effort-review-input
+    authority: per-leaf-source-reconciliation-and-explicit-unknowns; does-not-close-GAP-MEDIA-CAPABILITY-LEAF-DETAIL-or-accept-PDP-0
+    acceptanceState: owner-review-pending; no-PDP-0-acceptance-claimed
+  - id: ART-P0-MIGRATION-SEMANTICS-REVIEW
+    title: Migration semantics review
+    path: pdp-0-product-truth/migration-semantics-review.yaml
+    role: source-pinned-best-effort-semantic-extraction-review
+    authority: plan-content-classification-and-reconciliation-record; GAP-MEDIA-MIGRATION-SEMANTICS-remains-open; not-a-semantic-acceptance-result
+    acceptanceState: owner-review-pending; no-PDP-0-acceptance-claimed
+- phase: PDP-1
+  name: Canonical Domain and Data Model
+  owner: ghatana-media-domain-owners
+  scope: canonical-meaning-proposals-for-domain-objects-operations-states-events-evidence-and-projections
+  acceptance: pending-PDP-0-independent-review-and-domain-owner-acceptance
+  artifacts:
+  - id: ART-P1-ACTION-CONTRACTS
+    title: Action contracts
+    path: pdp-1-domain-data/action-contracts.yaml
+    role: host-neutral-outcome-contract-proposal
+    authority: operation-outcome-meaning-proposal; transport-adapters-unresolved
+    acceptanceState: owner-review-pending; no-PDP-1-acceptance-claimed
+  - id: ART-P1-CANONICAL-RECONCILIATION
+    title: Canonical reconciliation
+    path: pdp-1-domain-data/canonical-reconciliation.yaml
+    role: source-grounded-adjudication-proposal
+    authority: preserves-observed-identities-and-proposed-meaning; no-runtime-or-owner-acceptance-claim
+    acceptanceState: owner-review-pending; no-PDP-1-acceptance-claimed
+  - id: ART-P1-PRESENTATION-PROJECTIONS
+    title: Presentation projections
+    path: pdp-1-domain-data/presentation-projections.yaml
+    role: projection-contract-proposal
+    authority: read-model-proposals-do-not-own-domain-transitions-or-authority
+    acceptanceState: owner-review-pending; no-PDP-1-acceptance-claimed
+  - id: ART-P1-STATE-ADJUDICATION
+    title: State adjudication
+    path: pdp-1-domain-data/state-adjudication.yaml
+    role: canonical-meaning-proposal
+    authority: state-meaning-and-compatibility-proposals-not-runtime-parity-or-acceptance
+    acceptanceState: independent-owner-acceptance-pending; no-PDP-1-acceptance-claimed
 - phase: PDP-2
   name: Design Language
   owner: ghatana-media-design-owners
@@ -295,6 +337,24 @@ phaseAuthorities:
     role: authored-proposal
     authority: canonical-if-and-when-the-PDP-2-scope-is-accepted; selected-lane-material-does-not-accept-the-full-PDP-scope
     acceptanceState: pending-P0-010-and-human-design-owner-review; no-PDP-2-acceptance
+  - id: ART-P2-EXECUTABLE-UI-INVENTORY-JSON
+    title: Executable UI source inventory data
+    path: pdp-2-design-interface-system/executable-ui-inventory.json
+    role: source-pinned-implementation-inventory
+    authority: implementation-observations-and-dispositions-only; not-design-conformance-or-representation-admission
+    acceptanceState: owner-review-pending; no-PDP-2-acceptance-claimed
+  - id: ART-P2-EXECUTABLE-UI-INVENTORY-MD
+    title: Executable UI source inventory report
+    path: pdp-2-design-interface-system/executable-ui-inventory.md
+    role: human-readable-source-inventory
+    authority: summarizes-source-observations; not-design-conformance-or-representation-admission
+    acceptanceState: owner-review-pending; no-PDP-2-acceptance-claimed
+  - id: ART-P2-SEMANTIC-COMPONENT-BINDINGS
+    title: Semantic component bindings
+    path: pdp-2-design-interface-system/gui/semantic-component-bindings.yaml
+    role: candidate-component-semantic-bindings
+    authority: semantic-intent-and-source-candidates; Shared-consumer-binding-unverified; no-component-admission
+    acceptanceState: owner-review-pending; no-PDP-2-acceptance-claimed
 - phase: PDP-3
   name: Complete Product Experience
   owner: ghatana-media-product-and-UX-owners
@@ -1001,6 +1061,54 @@ governanceArtifacts:
     role: authored-cross-phase-coverage-ledger
     authority: authored-cross-phase-alignment-record; not-a-semantic-acceptance-result
     acceptanceState: maintained-governance-record; coverage-reconciliation-pending-owner-review
+  - id: ART-GOV-EXECUTABLE-REPRESENTATION-README
+    title: Executable representation authority guide
+    path: executable-representation/README.md
+    role: authored-cross-phase-representation-governance-guide
+    authority: defines-record-usage-and-boundary-rules; does-not-admit-any-representation
+    acceptanceState: maintained-governance-record; zero-Web-admissions-claimed
+  - id: ART-GOV-EXECUTABLE-REPRESENTATION-ADMISSION-SCHEMA
+    title: Executable representation admission schema
+    path: executable-representation/admission-schema.yaml
+    role: authored-cross-phase-admission-schema-proposal
+    authority: defines-required-admission-fields-and-rules; schema-presence-does-not-admit-implementations
+    acceptanceState: owner-review-pending; no-representation-admission-claimed
+  - id: ART-GOV-EXECUTABLE-REPRESENTATION-ADMISSIONS-README
+    title: Executable representation admissions index
+    path: executable-representation/admissions/README.md
+    role: authored-admissions-directory-index
+    authority: index-only; no-implementation-admission-claimed
+    acceptanceState: maintained-governance-record; zero-Web-admissions-claimed
+  - id: ART-GOV-EXECUTABLE-REPRESENTATION-EXPORT-MAP
+    title: Executable representation export map
+    path: executable-representation/export-map.yaml
+    role: source-observed-package-export-inventory
+    authority: candidate-public-exports-only; Shared-binding-and-semantic-review-pending; no-admission-claimed
+    acceptanceState: owner-review-pending; no-representation-admission-claimed
+  - id: ART-GOV-EXECUTABLE-REPRESENTATION-HOST-MAP
+    title: Executable representation host map
+    path: executable-representation/host-map.yaml
+    role: host-import-and-port-candidate-map
+    authority: Explorer-and-production-host-observations-and-intentions-only; exact-import-identity-not-proven
+    acceptanceState: owner-review-pending; no-host-admission-claimed
+  - id: ART-GOV-EXECUTABLE-REPRESENTATION-MIGRATION-LEDGER
+    title: Executable representation migration ledger
+    path: executable-representation/migration-ledger.yaml
+    role: cross-phase-migration-status-proposal
+    authority: tracks-slice-migration-without-acceptance-or-currentness-claims
+    acceptanceState: owner-review-pending; no-representation-admission-claimed
+  - id: ART-GOV-INTERFACE-PARITY-README
+    title: Interface parity authority guide
+    path: interface-parity/README.md
+    role: authored-cross-phase-parity-guidance
+    authority: explains-evidence-based-parity-dispositions; not-operation-acceptance
+    acceptanceState: maintained-governance-record; no-canonical-bindings-accepted
+  - id: ART-GOV-INTERFACE-OPERATION-PARITY
+    title: Interface operation parity matrix
+    path: interface-parity/operation-parity.yaml
+    role: source-grounded-cross-phase-operation-parity-inventory
+    authority: source-identities-and-proposals-only; no-operation-equivalence-or-runtime-support-accepted
+    acceptanceState: owner-review-pending; zero-canonical-bindings-accepted
 externalAuthorities:
 - id: EXT-SHARED
   owner: samujjwal/ghatana-shared

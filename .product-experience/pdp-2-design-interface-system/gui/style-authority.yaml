@@ -7,15 +7,23 @@ semanticRule: >-
   Media owns semantic names and composition. Shared owns primitive values,
   tokens, themes, accessibility primitives, and generic component behavior.
 currentProjection:
-  source: apps/media-experience-explorer/src/styles.css
-  status: LOCAL_ONLY
-  purpose: deterministic Explorer fixture rendering
-  semanticAuthority: false
-  rawTokenAndGeometryExceptions: true
+  source: libs/audio-video-ui/src/components/MediaTaskFlow.tsx
+  structuralStylesheet: libs/audio-video-ui/src/styles.css
+  status: CANDIDATE_SEMANTIC_BINDINGS_RECORDED
+  purpose: candidate host-neutral workflow composition; not admitted
+  semanticAuthority: .product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml
+  explorerFixtureSource: apps/media-experience-explorer/src/styles.css
+  explorerFixtureSemanticAuthority: false
+  systemColorFallback: true
+  localGeometryValues: candidate-implementation; Shared-spacing-binding-pending
   exceptionPolicy: >-
-    Raw values in the local stylesheet are explicit projection exceptions, not
-    product truth. They must be replaced or bound to a released Shared package
-    before visual conformance or publication is claimed.
+    Raw values in the Explorer fixture stylesheet remain Explorer-owned and
+    carry no Media product meaning. Candidate Media presentation bindings name
+    semantic roles. The package stylesheet provides semantic system-color and
+    structural accessibility defaults for hosts without the Shared CSS pipeline;
+    it is not a Shared theme or a qualified visual binding. No visual conformance
+    or publication is claimed until the declared Shared package is consumer-
+    verified and the bindings are reviewed.
 sharedBinding:
   required: true
   references:
@@ -23,6 +31,9 @@ sharedBinding:
     - .product-experience/pdp-2-design-interface-system/gui/primitives.yaml
     - .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
   status: EXTERNAL_PACKAGE_AND_OWNER_REVIEW_PENDING
+semanticBindings:
+  path: .product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml
+  status: authored-candidate; Shared consumer binding and owner review pending
 conformance:
   requiredChecks:
     - every-semantic-token-resolves-to-Shared-public-export

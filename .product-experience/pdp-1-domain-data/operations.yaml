@@ -8,6 +8,10 @@ sourceRefs:
   - .product-experience/pdp-0-product-truth/state-models.yaml
   - .product-experience/pdp-1-domain-data/domain-objects.yaml
   - .product-experience/pdp-1-domain-data/relationships.yaml
+  - .product-experience/pdp-1-domain-data/state-adjudication.yaml
+  - .product-experience/pdp-1-domain-data/transitions.yaml
+  - .product-experience/pdp-1-domain-data/action-contracts.yaml
+  - .product-experience/pdp-1-domain-data/presentation-projections.yaml
   - .product-experience/pdp-3-product-experience/action-registry.yaml
   - .product-experience/pdp-3-product-experience/api-experience-mapping.yaml
   - .product-experience/pdp-3-product-experience/cli-command-registry.yaml
@@ -149,6 +153,18 @@ mappingRules:
   noInference: absent, ambiguous, or conflicting references stay explicitly unresolved; no route/schema/identity/owner decision/platform guarantee/evidence is inferred
   oneToMany: one proposed logical operation may have multiple projections only after an explicit reviewed crosswalk
   exactIdentity: service and method identities are preserved verbatim; similarly named RPCs are not declared equivalent
+contractCrossReferences:
+  semanticOperationCatalog: .product-experience/pdp-1-domain-data/operations.yaml#/operations
+  machineStateMeanings: .product-experience/pdp-1-domain-data/state-adjudication.yaml#/machineDimensions
+  observedTransitionRelations: .product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords
+  hostNeutralOutcomes: .product-experience/pdp-1-domain-data/action-contracts.yaml#/outcomes
+  presentationReadModels: .product-experience/pdp-1-domain-data/presentation-projections.yaml#/projections
+  disposition: >-
+    These references connect registries without accepting proposed state meanings,
+    transition guards, operation bindings, or presentation eligibility. The
+    transition registry retains pending operation/event/permission/effect
+    bindings; action outcomes are neutral response meanings; projections are
+    read-side contracts and do not supply operation authority.
 operations:
   - id: media.operation.artifact-ingest
     operationId: media.operation.artifact-ingest

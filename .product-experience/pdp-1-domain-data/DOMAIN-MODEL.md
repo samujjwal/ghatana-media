@@ -140,6 +140,38 @@ use separate owners and clocks.
 | `interoperability.yaml` | Interface projections and unresolved mappings |
 | `authority.yaml` | Domain and platform authority boundaries |
 | `decisions.yaml` | PDP-0 rules and owner decisions still required |
+| `canonical-reconciliation.yaml` | Source-grounded identity, version, tenancy, cardinality and history adjudication for material domain concepts; unresolved decisions remain explicit |
+| `state-adjudication.yaml` | Machine-qualified state meaning proposals and exact conflict dispositions; no source spelling is silently normalized |
+| `presentation-projections.yaml` | Host-neutral read projections with freshness, uncertainty, authorization scope and host-supplied actions |
+| `action-contracts.yaml` | Host-neutral operation outcome envelope and finality distinctions; transport mappings remain unresolved |
+
+### PDP1-01 through PDP1-05 reconciliation
+
+`canonical-reconciliation.yaml` adjudicates the identity and lifecycle
+dimensions for projects, artifact versions, uploads, jobs and attempts, stream
+sessions, transcripts and captions, outputs, consent and rights, quality,
+provenance, and delivery. It records implementation keys separately from
+proposed domain identity. Tenant-qualified database keys, digest uniqueness,
+aggregate version counters, and identifier lists are not promoted into global
+identity, immutable artifact version, append-only history, or ancestry rules.
+The unresolved owner decisions at the end of that file are acceptance gates,
+not omissions to fill from whichever projection happens to be newest.
+
+`state-adjudication.yaml` gives provisional meanings for states by machine
+dimension and preserves the exact `RETRY_PENDING`/`RETRYING`,
+`CANCEL_REQUESTED`/`CANCELLING`, and unknown/reconciliation/partial-success
+differences. Its meanings remain proposals pending owner review and the
+independent P0-010 gate. Existing lossy adapter mappings are evidence only.
+
+`operations.yaml` remains the semantic operation center. The added
+`../interface-parity/operation-parity.yaml` records the current source
+denominators across UI actions, HTTP, gRPC, CLI, SDK, Agent Tools, and events.
+It distinguishes proposed family associations from accepted bindings and
+keeps unsupported equivalence unresolved. `action-contracts.yaml` provides
+host-neutral request outcomes; it does not assert that a transport implements
+every outcome. `presentation-projections.yaml` defines read-side fields and
+requires freshness, uncertainty, authorization scope, and safe actions to be
+carried from the host/domain adapter.
 
 ## Uncertainty and finality
 

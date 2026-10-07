@@ -1,0 +1,43 @@
+schemaVersion: media.executable-representation-host-map.v1
+productId: media
+hosts:
+  - hostId: media.host.explorer
+    path: apps/media-experience-explorer
+    role: deterministic-review-host
+    observedImports:
+      - package: "@ghatana/media-experience-simulation"
+        status: observed
+      - package: "@audio-video/ui/screens"
+        source: apps/media-experience-explorer/src/product-review.tsx
+        exports: [FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen]
+        status: working-tree-source-import-observed; candidate-only
+      - package: "@audio-video/ui/components"
+        source: apps/media-experience-explorer/src/product-review.tsx
+        exports: [MediaTaskCurrentProjection, MediaTaskOperationObservation]
+        status: working-tree-source-import-observed; candidate-only
+      - package: "@audio-video/ui/styles.css"
+        source: apps/media-experience-explorer/src/main.ts
+        status: working-tree-source-import-observed; structural-fallback-only
+    intendedImports:
+      - package: "@audio-video/ui/screens"
+        exports: [FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen, MediaTaskScreen]
+        status: source-import-observed; host-adapter-and-review-pending
+    allowedHostDependencies: [MediaDataPort, MediaActionPort, MediaNavigationPort, MediaContextPort]
+    importIdentityWithProduction: not-proven
+    acceptanceState: candidate
+  - hostId: media.host.production-web
+    path: apps/web
+    role: production-web-host
+    observedStatus: not-present-at-baseline
+    intendedImports:
+      - package: "@audio-video/ui/screens"
+        exports: [FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen, MediaTaskScreen]
+        status: target-only
+    allowedHostDependencies: [MediaDataPort, MediaActionPort, MediaNavigationPort, MediaContextPort]
+    importIdentityWithExplorer: not-proven
+    acceptanceState: inventory-only
+rules:
+  - Host imports must resolve through the package's public export map.
+  - Explorer adapters may provide deterministic data and outcomes through typed ports.
+  - Production hosts may not import Explorer, scenario catalogs, or synthetic fixtures.
+  - Exact product/Explorer import identity is only recorded after source-level verification.
