@@ -13,6 +13,7 @@ import React, { useCallback, useId } from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { Phrase, PhraseLabel } from "../types";
+import { useSemanticColors } from "./useSemanticColors";
 
 export interface PhraseTimelineProps {
   readonly phrases: readonly Phrase[];
@@ -25,15 +26,6 @@ export interface PhraseTimelineProps {
   readonly ariaLabel?: string;
   readonly className?: string;
 }
-
-const labelStyles: Record<PhraseLabel, string> = {
-  verse: "bg-blue-600 text-white",
-  chorus: "bg-purple-600 text-white",
-  bridge: "bg-green-700 text-white",
-  intro: "bg-yellow-400 text-gray-950",
-  outro: "bg-orange-600 text-white",
-  other: "bg-gray-600 text-white",
-};
 
 const labels: readonly PhraseLabel[] = [
   "intro",
@@ -66,6 +58,7 @@ export const PhraseTimeline: React.FC<PhraseTimelineProps> = ({
   ariaLabel = "Detected phrase timeline",
   className,
 }) => {
+  const colors = useSemanticColors();
   const descriptionId = useId();
   const seekId = useId();
   const safeDuration = Math.max(0, duration);
@@ -94,6 +87,7 @@ export const PhraseTimeline: React.FC<PhraseTimelineProps> = ({
       className={twMerge("space-y-3", className)}
       aria-label={ariaLabel}
       aria-describedby={descriptionId}
+      style={{ color: colors.content }}
     >
       <p id={descriptionId} className="sr-only">
         Tab to individual phrases and press Enter or Space to select them. Use
@@ -101,10 +95,10 @@ export const PhraseTimeline: React.FC<PhraseTimelineProps> = ({
       </p>
       <div
         className={clsx(
-          "relative overflow-hidden rounded-lg border border-gray-700 bg-gray-900",
+          "relative overflow-hidden rounded-lg border",
           onSeek && "cursor-pointer",
         )}
-        style={{ minHeight: Math.max(64, height) }}
+        style={{ minHeight: Math.max(64, height), borderColor: colors.border, backgroundColor: colors.surface }}
         onClick={handleTimelineClick}
         role="group"
         aria-label={`${ariaLabel} phrases`}
@@ -140,13 +134,19 @@ export const PhraseTimeline: React.FC<PhraseTimelineProps> = ({
                   aria-pressed={selected}
                   className={clsx(
                     "h-full w-full min-w-1 overflow-hidden rounded border-2 px-1 text-left text-[10px] font-medium transition",
-                    labelStyles[label],
                     selected
-                      ? "border-white ring-2 ring-white ring-offset-1 ring-offset-gray-900"
+                      ? "opacity-100"
                       : "border-transparent opacity-80 hover:opacity-100 focus:opacity-100",
-                    takeCount > 0 && "border-b-green-300",
+                    takeCount > 0 && "border-b-4",
                     !onPhraseClick && "cursor-default",
                   )}
+                  style={{
+                    backgroundColor: colors.surfaceElevated,
+                    color: colors.content,
+                    borderColor: selected ? colors.focus : colors.border,
+                    outline: selected ? `2px solid ${colors.focus}` : undefined,
+                    outlineOffset: selected ? 1 : undefined,
+                  }}
                   title={accessibleLabel}
                 >
                   <span className="truncate" aria-hidden="true">
@@ -160,15 +160,16 @@ export const PhraseTimeline: React.FC<PhraseTimelineProps> = ({
 
         {safeDuration > 0 && (
           <div
-            className="pointer-events-none absolute inset-y-0 w-0.5 bg-white shadow"
-            style={{ left: `${(safeCurrentTime / safeDuration) * 100}%` }}
+            className="pointer-events-none absolute inset-y-0 w-0.5 shadow"
+            style={{ left: `${(safeCurrentTime / safeDuration) * 100}%`, backgroundColor: colors.content }}
             aria-hidden="true"
           />
         )}
 
         <div
-          className="absolute inset-x-0 bottom-0 flex h-5 justify-between px-2 text-xs text-gray-400"
+          className="absolute inset-x-0 bottom-0 flex h-5 justify-between px-2 text-xs"
           aria-hidden="true"
+          style={{ color: colors.contentSecondary }}
         >
           <span>0:00</span>
           <span>{formatTime(safeDuration)}</span>
@@ -176,7 +177,7 @@ export const PhraseTimeline: React.FC<PhraseTimelineProps> = ({
       </div>
 
       {onSeek && safeDuration > 0 && (
-        <label htmlFor={seekId} className="grid gap-1 text-xs text-gray-400">
+        <label htmlFor={seekId} className="grid gap-1 text-xs" style={{ color: colors.contentSecondary }}>
           <span className="flex justify-between gap-3">
             <span>Playback position</span>
             <output htmlFor={seekId}>
@@ -191,20 +192,23 @@ export const PhraseTimeline: React.FC<PhraseTimelineProps> = ({
             step={Math.max(0.05, safeDuration / 1_000)}
             value={safeCurrentTime}
             onChange={(event) => seek(Number.parseFloat(event.target.value))}
-            className="min-h-11 w-full cursor-pointer accent-blue-500"
+            className="min-h-11 w-full cursor-pointer"
+            style={{ accentColor: colors.focus }}
             aria-valuetext={`${formatTime(safeCurrentTime)} of ${formatTime(safeDuration)}`}
           />
         </label>
       )}
 
       <ul
-        className="flex flex-wrap gap-3 text-xs text-gray-400"
+        className="flex flex-wrap gap-3 text-xs"
         aria-label="Phrase labels"
+        style={{ color: colors.contentSecondary }}
       >
         {labels.map((label) => (
           <li key={label} className="flex items-center gap-1.5 capitalize">
             <span
-              className={clsx("h-3 w-3 rounded-sm", labelStyles[label])}
+              className="h-3 w-3 rounded-sm"
+              style={{ backgroundColor: colors.surfaceElevated, border: `1px solid ${colors.border}` }}
               aria-hidden="true"
             />
             {label}

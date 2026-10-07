@@ -27,9 +27,15 @@ surfaces:
     denominator: 27
     source: contracts/openapi/media.yaml
     identities: [getMediaHealth, getMediaLiveness, getMediaReadiness, getMediaStartup, getMediaReadyAlias, getMediaMetrics, getMediaInfo, getMediaVersionedHealth, grantMediaConsent, listMediaConsents, getMediaConsent, revokeMediaConsent, beginMediaUpload, getMediaUpload, appendMediaChunk, completeMediaUpload, getMediaArtifact, submitMediaJob, listMediaJobs, getMediaJob, cancelMediaJob, openMediaStream, getMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream, getMediaProviders]
-    dispositionCounts: {unresolved: 27}
+    proposedSemanticCandidates:
+      health-capability: [getMediaHealth, getMediaLiveness, getMediaReadiness, getMediaStartup, getMediaReadyAlias, getMediaMetrics, getMediaInfo, getMediaVersionedHealth, getMediaProviders]
+      consent: [grantMediaConsent, listMediaConsents, getMediaConsent, revokeMediaConsent]
+      artifact-ingest: [beginMediaUpload, getMediaUpload, appendMediaChunk, completeMediaUpload, getMediaArtifact]
+      job-lifecycle: [submitMediaJob, listMediaJobs, getMediaJob, cancelMediaJob]
+      stream-session: [openMediaStream, getMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream]
+    dispositionCounts: {mappedProposal: 27, unresolved: 0}
     canonicalRefs: .product-experience/pdp-1-domain-data/operations.yaml#/observedBindings.httpOperations
-    bindingStatus: route-and-schema-identity-observed; every-route-to-logical-operation-link-unresolved
+    bindingStatus: all-route-families-have-source-name/path-based-candidates; semantic-owner-acceptance-pending
   - surface: gRPC
     denominator: 43
     source:
@@ -54,7 +60,12 @@ surfaces:
     denominator: 11
     source: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
     identities: [media.fixture-cli.upload-inspect, media.fixture-cli.upload-resume, media.fixture-cli.transcribe, media.fixture-cli.transcript-review, media.fixture-cli.job-status, media.fixture-cli.job-cancel, media.fixture-cli.job-check-outcome, media.fixture-cli.caption-correct-text, media.fixture-cli.caption-align-timing, media.fixture-cli.caption-save-version, media.fixture-cli.caption-compare-versions]
-    dispositionCounts: {unresolved: 11}
+    proposedSemanticCandidates:
+      artifact-ingest: [media.fixture-cli.upload-inspect, media.fixture-cli.upload-resume]
+      transcription: [media.fixture-cli.transcribe, media.fixture-cli.transcript-review, media.fixture-cli.caption-correct-text, media.fixture-cli.caption-align-timing]
+      job-lifecycle: [media.fixture-cli.job-status, media.fixture-cli.job-cancel, media.fixture-cli.job-check-outcome]
+    unresolved: [media.fixture-cli.caption-save-version, media.fixture-cli.caption-compare-versions]
+    dispositionCounts: {mappedProposal: 9, unresolved: 2}
     relatedProposalRegistry: .product-experience/pdp-3-product-experience/cli-command-registry.yaml#/commands
     denominatorReconciliation:
       plannedCommandCount: 11
@@ -69,25 +80,43 @@ surfaces:
         proposalRecord: .product-experience/pdp-3-product-experience/cli-command-registry.yaml#/commands/media.cli.job.retry
       helpDisposition: fixture-control-path; parseMediaCommand-returns-help-and-bin/ghatana-media.mjs-handles---help; not-a-command-identity-or-12th-command
       priorTwelveFixtureObservation: unresolved-source-discrepancy; inspected-current-registry-and-parser-evidence-support-eleven-fixture-command-identities-only
-    bindingStatus: 11-fixture-command-identities-observed; proposal-registry-has-12-records-including-retry-proposal; all-exact-fixture-command-bindings-unresolved
+    bindingStatus: nine-proposals-follow-existing-command/action references or operation intent; caption-version commands remain unresolved; acceptance-pending
   - surface: SDK registry
     denominator: 27
     source: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
-    dispositionCounts: {unresolved: 27}
+    proposedSemanticCandidates:
+      job-lifecycle: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.getOperation, media.sdk.cancelOperation]
+      artifact-ingest: [media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact]
+      transcription: [media.sdk.transcribe]
+      synthesis: [media.sdk.synthesize]
+      multimodal-analysis: [media.sdk.analyzeMultimodal]
+    unresolved: [media.sdk.listProviderCapabilities, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.for, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.if, media.sdk.removeEventListener, media.sdk.clearTimeout]
+    dispositionCounts: {mappedProposal: 14, unresolved: 13}
     parserFalsePositivesRetainedAsUnresolved: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
     legacyClientSource: libs/audio-video-client/src/index.ts
-    bindingStatus: registry-identities-and-legacy-client-methods-remain-distinct; no-method-operation-binding-accepted
+    bindingStatus: candidate families follow public method purpose; parser false positives and unclassified methods remain unresolved; semantic-owner-acceptance-pending
   - surface: Agent Tool handlers
     denominator: 4
     source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
     identities: [av.speech-to-text, av.text-to-speech, av.vision-analysis, av.multimodal-inference]
     handlerClasses: [SpeechToTextToolHandler, TextToSpeechToolHandler, VisionAnalysisToolHandler, MultimodalInferenceToolHandler]
-    dispositionCounts: {unresolved: 4}
-    bindingStatus: handler-identity-observed; operation-and-admitted-tool-contract-bindings-unresolved
+    proposedSemanticCandidates:
+      transcription: [av.speech-to-text]
+      synthesis: [av.text-to-speech]
+      vision-analysis: [av.vision-analysis]
+      multimodal-analysis: [av.multimodal-inference]
+    dispositionCounts: {mappedProposal: 4, unresolved: 0}
+    bindingStatus: names align to existing operation family names; handler schema/authority contract and semantic-owner acceptance remain pending
   - surface: lifecycle event names
     denominator: 15
     source: .product-experience/pdp-3-product-experience/events/event-registry.yaml
-    dispositionCounts: {unresolved: 15}
+    proposedSemanticCandidates:
+      transcription: ["stt:transcription:start", "stt:transcription:complete", "stt:transcription:error"]
+      synthesis: ["tts:synthesis:start", "tts:synthesis:complete", "tts:synthesis:error"]
+      vision-analysis: ["vision:process:start", "vision:process:complete", "vision:process:error"]
+      multimodal-analysis: ["multimodal:process:start", "multimodal:process:complete", "multimodal:process:error"]
+    unresolved: ["ai-voice:process:start", "ai-voice:process:complete", "ai-voice:process:error"]
+    dispositionCounts: {mappedProposal: 12, unresolved: 3}
     runtimePublisherObservation: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEventPublisher.java
     bindingStatus: registry-notifications-and-runtime-publisher-events-are-distinct-populations; trigger-operation-and-delivery-bindings-unresolved
   - surface: internal runtime events
@@ -98,6 +127,7 @@ surfaces:
     dispositionCounts: {unresolved: 9}
     bindingStatus: source-callsite-observation-does-not-establish-public-event-contract-or-operation-equivalence
 crossSurfaceRules:
+  - proposedSemanticCandidates-are-source-grounded-crosswalk-inputs-not-owner-accepted-bindings
   - same-name-or-similar-name-is-not-a-binding
   - mappings-do-not-imply-runtime-execution-or-release-support
   - protocol-level-health-readiness-auth-pagination-and-error-mechanics-may-be-classified-transport-only-only-with-explicit-boundary-evidence

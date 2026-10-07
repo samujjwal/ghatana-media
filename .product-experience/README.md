@@ -16,7 +16,7 @@ with the accepted document-intelligence ownership overlay in
 [`MDI-001`](../docs/migration/decisions/MDI-001-document-intelligence-ownership.md).
 This acceptance covers the bounded product identity, ownership, consumer,
 compatibility, and authority-transfer decisions described there. It does not
-accept full PDP-0, cut over source authority, or claim implementation,
+accept full PDP-0 or claim implementation,
 qualification, licensing, production readiness, or runtime availability. The
 canonical four-phase authority model itself received a bounded delegated-owner
 approval under [PXD-003](./decision-log.md#pxd-003--approve-the-canonical-four-phase-authority-model-with-comments);
@@ -125,7 +125,12 @@ may consume the public Document Intelligence API through a bounded adapter.
 
 ## Authoring and acceptance rules
 
-1. Keep one editable authority per concept. A generated projection is not a
+1. Keep one editable authority per concept. Media product meaning is authored
+   in this repository under `.product-experience/`; `ghatana/services/media`
+   owns implementation and runtime contracts, not a competing Product
+   Definition. Moving implementation code does not move semantic authority.
+   Any future authority transfer requires an owner-approved decision and an
+   atomic source-manifest update. A generated projection is not a
    second source of truth.
 2. Use owner contracts for external schemas and lifecycles. Record public
    references and unresolved bindings rather than copying their meaning.

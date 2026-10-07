@@ -36,6 +36,16 @@ required([
   ".product-experience/explorer/tools-binding.yaml",
   "libs/audio-video-client/src/canonical-routes.ts",
 ]);
+const authorityMap = read(".product-experience/authority-map.yaml");
+for (const declaration of [
+  "semanticAuthorityRepository: ghatana-media",
+  "semanticAuthorityPath: .product-experience/",
+  "codeRepository: ghatana/services/media",
+  "codeRepositoryRole: implementation-and-runtime-contract-source-only",
+  "competingProductDefinitionAuthority: prohibited",
+]) {
+  if (!authorityMap.includes(declaration)) fail(`source ownership boundary lacks ${declaration}`);
+}
 const registryCounts = [
   [".product-experience/pdp-3-product-experience/api/api-registry.yaml", /^  - id: media\.http\./gmu, 27],
   [".product-experience/pdp-3-product-experience/grpc/service-registry.yaml", /^  - id: media\.grpc\./gmu, 43],

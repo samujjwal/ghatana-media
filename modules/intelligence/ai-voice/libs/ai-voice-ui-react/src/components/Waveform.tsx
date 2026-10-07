@@ -15,6 +15,7 @@ import React, {
 } from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { useSemanticColors } from "./useSemanticColors";
 
 export interface WaveformProps {
   /** Waveform samples. Values are normalized internally. */
@@ -50,10 +51,10 @@ export const Waveform: React.FC<WaveformProps> = ({
   data,
   position = 0,
   duration,
-  color = "var(--gh-color-audio-waveform, #60a5fa)",
-  progressColor = "var(--gh-color-audio-progress, #2563eb)",
-  backgroundColor = "var(--gh-color-audio-surface, #111827)",
-  playheadColor = "var(--gh-color-audio-playhead, #ffffff)",
+  color,
+  progressColor,
+  backgroundColor,
+  playheadColor,
   height = 80,
   variant = "bars",
   onSeek,
@@ -61,6 +62,11 @@ export const Waveform: React.FC<WaveformProps> = ({
   ariaLabel = "Audio waveform",
   className,
 }) => {
+  const colors = useSemanticColors();
+  const effectiveColor = color ?? colors.info;
+  const effectiveProgressColor = progressColor ?? colors.action;
+  const effectiveBackgroundColor = backgroundColor ?? colors.surface;
+  const effectivePlayheadColor = playheadColor ?? colors.content;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
@@ -105,7 +111,7 @@ export const Waveform: React.FC<WaveformProps> = ({
     canvas.style.height = `${normalizedHeight}px`;
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
     context.clearRect(0, 0, width, normalizedHeight);
-    context.fillStyle = backgroundColor;
+    context.fillStyle = effectiveBackgroundColor;
     context.fillRect(0, 0, width, normalizedHeight);
 
     if (normalizedData.length === 0) return;
@@ -117,7 +123,7 @@ export const Waveform: React.FC<WaveformProps> = ({
       normalizedData.forEach((value, index) => {
         const x = index * sampleWidth;
         const barHeight = Math.max(1, Math.abs(value) * normalizedHeight * 0.8);
-        context.fillStyle = x < progressX ? progressColor : color;
+        context.fillStyle = x < progressX ? effectiveProgressColor : effectiveColor;
         context.fillRect(
           x,
           centerY - barHeight / 2,
@@ -127,7 +133,7 @@ export const Waveform: React.FC<WaveformProps> = ({
       });
     } else {
       context.beginPath();
-      context.strokeStyle = color;
+      context.strokeStyle = effectiveColor;
       context.lineWidth = 1;
       normalizedData.forEach((value, index) => {
         const x = index * sampleWidth;
@@ -141,22 +147,22 @@ export const Waveform: React.FC<WaveformProps> = ({
         context.beginPath();
         context.rect(0, 0, progressX, normalizedHeight);
         context.clip();
-        context.strokeStyle = progressColor;
+        context.strokeStyle = effectiveProgressColor;
         context.stroke();
         context.restore();
       }
     }
 
-    context.fillStyle = playheadColor;
+    context.fillStyle = effectivePlayheadColor;
     context.fillRect(Math.max(0, progressX - 1), 0, 2, normalizedHeight);
   }, [
-    backgroundColor,
-    color,
+    effectiveBackgroundColor,
+    effectiveColor,
+    effectivePlayheadColor,
     normalizedData,
     normalizedHeight,
     normalizedPosition,
-    playheadColor,
-    progressColor,
+    effectiveProgressColor,
     variant,
     width,
   ]);
@@ -212,11 +218,11 @@ export const Waveform: React.FC<WaveformProps> = ({
       className={twMerge(
         clsx(
           "relative w-full overflow-hidden rounded-lg",
-          onSeek && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+          onSeek && "cursor-pointer focus-visible:outline-none focus-visible:ring-2",
         ),
         className,
       )}
-      style={{ minHeight: normalizedHeight }}
+      style={{ minHeight: normalizedHeight, "--tw-ring-color": colors.focus } as React.CSSProperties}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       {...(onSeek
@@ -237,7 +243,7 @@ export const Waveform: React.FC<WaveformProps> = ({
     >
       <canvas ref={canvasRef} className="block w-full" aria-hidden="true" />
       {normalizedData.length === 0 && (
-        <span className="absolute inset-0 flex items-center justify-center text-xs text-gray-400">
+        <span className="absolute inset-0 flex items-center justify-center text-xs" style={{ color: colors.contentSecondary }}>
           No waveform data
         </span>
       )}

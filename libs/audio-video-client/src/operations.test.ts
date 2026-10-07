@@ -182,6 +182,61 @@ describe("MediaOperationClient", () => {
     await expect(handle.cancel()).resolves.toMatchObject({ state: "CANCELLED" });
   });
 
+  it.each(["OUTCOME_UNKNOWN", "RECONCILING"] as const)(
+    "keeps %s nonterminal and never fetches a result while finality is unresolved",
+    async (state) => {
+      const calls: string[] = [];
+      const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+        const url = String(input);
+        calls.push(url);
+        if (url.endsWith("/api/v1/media/transcriptions")) {
+          return jsonResponse({
+            operationId: "operation-1",
+            job: queuedJob(),
+            statusUrl: "/api/v1/media/operations/operation-1",
+            cancelUrl: "/api/v1/media/operations/operation-1:cancel",
+            correlationId: "correlation-1",
+          }, 202);
+        }
+        if (url.endsWith("/api/v1/media/operations/operation-1")) {
+          return jsonResponse({
+            ...queuedJob(),
+            state,
+            ...(state === "OUTCOME_UNKNOWN"
+              ? { outcomeUnknownSince: timestamp }
+              : { reconciliationStartedAt: timestamp }),
+          });
+        }
+        throw new Error(`Unexpected request: ${url}`);
+      }) as unknown as typeof fetch;
+
+      const client = createMediaOperationClient({
+        baseUrl: "https://media.example.test",
+        tenantId: "tenant-1",
+        fetchImpl,
+        pollIntervalMs: 1,
+      });
+      const handle = await client.transcribe({
+        artifactId: "artifact-1",
+        idempotencyKey: "idem-1",
+        punctuation: true,
+        wordTimestamps: true,
+        alternatives: 1,
+        profanityPolicy: "PRESERVE",
+      });
+      const progress: string[] = [];
+
+      await expect(handle.wait({
+        timeoutMs: 15,
+        pollIntervalMs: 1,
+        onProgress: (job) => progress.push(job.state),
+      })).rejects.toMatchObject({ name: "TimeoutError" });
+
+      expect(progress).toContain(state);
+      expect(calls.some((url) => url.endsWith("/result"))).toBe(false);
+    },
+  );
+
   it("preserves canonical retry guidance and correlation identity on errors", async () => {
     const fetchImpl = vi.fn(async (): Promise<Response> =>
       jsonResponse(

@@ -25,3 +25,36 @@ layoutRules:
   dialogs: Use Shared dialog primitives; expose purpose, effect, dismissal, and focus return.
   density: Derive density from task and content complexity; do not encode density as copied token values.
   forbidden: [horizontal-only access to essential content, color-only state, layout implying authorization, hidden unknown-finality warning]
+layouts:
+  - id: media.gui.layout.collection
+    purpose: Search, filter, and navigate an authorized collection with identity, count, empty state, and paging context.
+    order: [workspace-and-project-context, collection-heading, filters, result-count, results, pagination, next-safe-action]
+    responsiveRule: Keep filters and result identity in reading order; do not rely on horizontal scrolling.
+  - id: media.gui.layout.task-setup
+    purpose: Choose inputs and outcome constraints before any separately confirmed submission.
+    order: [workspace-and-project-context, requested-outcome, selected-inputs, capability-and-policy-disposition, validation, next-safe-action]
+    responsiveRule: Keep the requested outcome, selected source identity, eligibility, and next action together.
+  - id: media.gui.layout.media-workbench
+    purpose: Coordinate source media, time-aligned work, selection details, and validation.
+    order: [workspace-and-project-context, source-player, synchronized-work-area, selection-details, validation, save-action]
+    responsiveRule: Reflow media and transcript regions into one keyboard reading order while retaining their time relationship.
+  - id: media.gui.layout.job-observation
+    purpose: Preserve job, attempt, progress, finality, outputs, and safe recovery as separate facts.
+    order: [job-identity, source-version, observed-state-and-finality, measured-progress, outputs, safe-next-action, provenance]
+    responsiveRule: Never hide identity or unknown-finality messaging on narrow screens.
+  - id: media.gui.layout.review
+    purpose: Compare exact identities and scoped evidence before recording a review decision.
+    order: [source-context, compared-identities, comparison-content, quality-and-uncertainty, provenance, decision-actions]
+    responsiveRule: Keep compared version identities adjacent to comparison content at every width.
+  - id: media.gui.layout.consent
+    purpose: Resolve rights, consent, access, and scope before affected work is performed.
+    order: [requested-outcome, affected-material, scope-and-validity, decision, next-safe-action]
+    responsiveRule: Keep affected material, scope, expiry, revocation, and decision controls in one reading sequence.
+  - id: media.gui.layout.render
+    purpose: Prepare a precise composition snapshot, submit it separately, and review verified outputs before delivery.
+    order: [composition-snapshot, profile-and-validation, rights-and-estimates, submission-and-job-finality, output-verification, review-decision, delivery-status]
+    responsiveRule: Preserve the boundary between render submission, output review, and delivery.
+  - id: media.gui.layout.record-detail
+    purpose: Inspect one identified artifact, version, provenance chain, or settings record.
+    order: [workspace-and-project-context, exact-record-identity, observed-state, detail-and-provenance, next-safe-action]
+    responsiveRule: Keep record identity and provenance visible when the detail body reflows.

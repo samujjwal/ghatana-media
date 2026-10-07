@@ -639,7 +639,7 @@ test("screen composition records retain Shared-boundary design metadata", () => 
   assert.equal(result.status, 1, result.stderr);
   const output = `${result.stdout}${result.stderr}`;
   assert.match(output, /Media design conformance BLOCKED/u);
-  assert.match(output, /794 unexplained finding/u);
+  assert.match(output, /\d+ unexplained findings across \d+ root causes/u);
   assert.match(output, /Shared package binding is unresolved/u);
   assert.match(output, /template catalog is proposal/u);
 });

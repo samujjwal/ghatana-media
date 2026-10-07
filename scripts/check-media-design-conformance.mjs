@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 /**
- * Fail-closed, source-observable design-authority gate for the Media Explorer.
- * This gate reports implementation observations separately from accepted PDP-2
- * authority. A proposal, local fixture exception, or source snapshot is not an
- * accepted Shared binding or proof of visual conformance.
+ * Fail-closed design-authority gate for Media product presentation sources.
+ * Explorer chrome is reported as host-only evidence and is never used as
+ * product design authority. Candidate mappings are not PDP-2 acceptance.
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
@@ -18,7 +17,11 @@ const PATHS = Object.freeze({
   components: ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
   states: ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
   screens: ".product-experience/pdp-3-product-experience/screen-contracts",
-  source: "apps/media-experience-explorer/src",
+  productSources: [
+    "libs/audio-video-ui/src",
+    "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src",
+  ],
+  explorerFixtureSource: "apps/media-experience-explorer/src",
 });
 
 const read = (root, path) => {
@@ -41,7 +44,7 @@ const listIds = (source, key) => [...(source?.matchAll(new RegExp(`^\\s*- ${key}
 export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   const findings = [];
   const blockers = [];
-  const add = (kind, path, line, detail, disposition = "unexplained") => findings.push({ kind, path, line, detail, disposition });
+  const add = (kind, path, line, detail, disposition = "unexplained", rootCauseKey = `${kind}:${path}`) => findings.push({ kind, path, line, detail, disposition, rootCauseKey });
   const block = (detail) => blockers.push(detail);
   const style = read(root, PATHS.style);
   const aliases = read(root, PATHS.aliases);
@@ -64,45 +67,58 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   if (templateCatalog && !/^scopeStatus:\s*accepted\b/imu.test(templateCatalog)) block(`template catalog is proposal/pending review, not accepted composition authority (scopeStatus=${scalar(templateCatalog, "scopeStatus") ?? "missing"})`);
   if (layout && !/^\s*status:\s*accepted\b/imu.test(layout)) block("layout rules are proposal/pending review, not accepted layout authority");
 
-  const sourceFiles = filesUnder(root, PATHS.source).filter((file) => [".css", ".scss", ".sass", ".tsx", ".jsx", ".ts", ".js"].includes(extname(file)));
-  const sourceContent = sourceFiles.map((file) => ({ path: relative(root, file), content: readFileSync(file, "utf8") }));
+  const acceptedExtensions = [".css", ".scss", ".sass", ".tsx", ".jsx", ".ts", ".js"];
+  const productSourceFiles = PATHS.productSources.flatMap((directory) => filesUnder(root, directory))
+    .filter((file) => acceptedExtensions.includes(extname(file)));
+  const explorerFixtureFiles = filesUnder(root, PATHS.explorerFixtureSource)
+    .filter((file) => acceptedExtensions.includes(extname(file)));
+  const sourceFiles = [...productSourceFiles, ...explorerFixtureFiles];
+  const productSourceContent = productSourceFiles.map((file) => ({ path: relative(root, file), content: readFileSync(file, "utf8"), scope: "product" }));
+  const fixtureSourceContent = explorerFixtureFiles.map((file) => ({ path: relative(root, file), content: readFileSync(file, "utf8"), scope: "explorer-fixture" }));
+  const sourceContent = [...productSourceContent, ...fixtureSourceContent];
   const cssFiles = sourceContent.filter(({ path }) => [".css", ".scss", ".sass"].includes(extname(path)));
-  const css = cssFiles.map(({ content }) => content).join("\n");
+  const productCssFiles = cssFiles.filter(({ scope }) => scope === "product");
+  const explorerFixtureCssFiles = cssFiles.filter(({ scope }) => scope === "explorer-fixture");
+  const css = productCssFiles.map(({ content }) => content).join("\n");
   const aliasIds = new Set(listIds(aliases, "id"));
   const aliasCssVariables = new Set([...(aliases?.matchAll(/^\s*cssVariable:\s*(--[a-z][a-z0-9-]*)\s*$/gimu) ?? [])].map((match) => match[1]));
   const tokenVars = new Set([...css.matchAll(/(--[a-z][a-z0-9-]*)\s*:/giu)].map((match) => match[1]));
   const declaredTokenRefs = new Set([...css.matchAll(/var\((--[a-z][a-z0-9-]*)/giu)].map((match) => match[1]));
+  const explorerFixturePath = style?.match(/^\s*explorerFixtureSource:\s*([^\s#]+)/mu)?.[1];
   const documentedFixtureException = Boolean(
-    style && scalar(style, "currentProjection") === null &&
-    /currentProjection:\s*\n(?:[^\n]*\n){0,8}\s*status:\s*LOCAL_ONLY/u.test(style) &&
-    /Raw values in the local stylesheet are explicit projection exceptions/u.test(style),
+    style && explorerFixturePath === `${PATHS.explorerFixtureSource}/styles.css` &&
+    /^\s*explorerFixtureSemanticAuthority:\s*false\s*$/mu.test(style) &&
+    /Raw values in the Explorer fixture stylesheet remain Explorer-owned/u.test(style),
   );
 
   const colorLiteralPattern = /#[\da-f]{3,8}\b|rgba?\([^)]*\)|hsla?\([^)]*\)|\b(?:black|white|red|blue|green|gray|grey|orange|purple|transparent)\b/gimu;
   const colorPropertyPattern = /(?:^|[;{\s])(?:color|background(?:-color)?|border(?:-color)?|outline(?:-color)?|fill|stroke)\s*:\s*([^;{}]+)/gimu;
   const customPropertyPattern = /(?:^|[;{\s])(--[a-z][a-z0-9-]*)\s*:\s*([^;{}]+)/gimu;
-  for (const { path, content } of cssFiles) {
+  for (const { path, content, scope } of cssFiles) {
     // Scan values for both ordinary color-bearing declarations and custom
     // properties. Custom properties can carry raw colors just as directly as
-    // `color:`/`background:`; they inherit only the documented exception that
-    // explicitly names this local-only Explorer projection.
+    // `color:`/`background:`. The Explorer stylesheet is reported separately
+    // because its authority record explicitly excludes product meaning.
     for (const declarationPattern of [colorPropertyPattern, customPropertyPattern]) {
       for (const declaration of content.matchAll(declarationPattern)) {
         const value = declaration[declaration.length - 1];
         const valueOffset = declaration.index + declaration[0].lastIndexOf(value);
         for (const color of value.matchAll(colorLiteralPattern)) {
           const offset = valueOffset + color.index;
-          const disposition = documentedFixtureException && path.endsWith("styles.css") ? "documented-local-fixture-exception-not-product-authority" : "unexplained";
-          add("literal-color", path, lineAt(content, offset), `${color[0]} is directly authored in ${declaration[1]?.startsWith("--") ? `custom property ${declaration[1]}` : "CSS"}`, disposition);
+          const disposition = documentedFixtureException && scope === "explorer-fixture" && path === explorerFixturePath
+            ? "explorer-chrome-or-fixture-only-not-product-authority"
+            : "unexplained";
+          const property = declaration[1]?.startsWith("--") ? `custom:${declaration[1]}` : "declaration";
+          add("literal-color", path, lineAt(content, offset), `${color[0]} is directly authored in ${declaration[1]?.startsWith("--") ? `custom property ${declaration[1]}` : "CSS"}`, disposition, `${path}:literal-color:${property}`);
         }
       }
     }
   }
   for (const variable of declaredTokenRefs) {
-    if (!tokenVars.has(variable)) add("unknown-token-provenance", cssFiles[0]?.path ?? PATHS.source, null, `${variable} is referenced but has no local declaration or verified alias binding`);
+    if (!tokenVars.has(variable)) add("unknown-token-provenance", productCssFiles[0]?.path ?? PATHS.productSources[0], null, `${variable} is referenced but has no local declaration or verified alias binding`, "unexplained", `unknown-token:${variable}`);
   }
   for (const variable of tokenVars) {
-    if (!aliasCssVariables.has(variable)) add("unknown-token-provenance", cssFiles[0]?.path ?? PATHS.source, null, `${variable} is locally defined but is not explicitly mapped from a PDP-2 semantic alias`);
+    if (!aliasCssVariables.has(variable)) add("unknown-token-provenance", productCssFiles[0]?.path ?? PATHS.productSources[0], null, `${variable} is locally defined but is not explicitly mapped from a PDP-2 semantic alias`, "unexplained", `unknown-token:${variable}`);
   }
   if (aliases) {
     for (const [index, line] of aliases.split("\n").entries()) {
@@ -112,21 +128,57 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
       }
     }
   }
-  if (tokenVars.size && aliasIds.size === 0) add("unknown-token-provenance", cssFiles[0]?.path ?? PATHS.source, null, "local CSS custom properties exist but no semantic alias registry is available");
+  if (tokenVars.size && aliasIds.size === 0) add("unknown-token-provenance", productCssFiles[0]?.path ?? PATHS.productSources[0], null, "local CSS custom properties exist but no semantic alias registry is available");
 
-  // A local React component implementation is source-observable, but is only
-  // registered when its exported name is explicitly listed by a contract.
+  // Product screen exports and renderer adapters are governed by their
+  // dedicated PDP-3/host contracts. Reusable component implementations need
+  // exact componentRef-to-export bindings in the semantic binding registry.
   const registeredComponentNames = new Set(listIds(componentContracts, "id").map((id) => id.split(".").at(-1).replace(/-([a-z])/gu, (_, c) => c.toUpperCase())));
-  for (const { path, content } of sourceContent.filter(({ path }) => /\.(?:tsx|jsx|ts|js)$/u.test(path))) {
+  const exportMap = read(root, ".product-experience/executable-representation/export-map.yaml") ?? "";
+  const publicExportBlocks = exportMap.split(/(?=^  - subpath:)/mu).slice(1);
+  for (const block of publicExportBlocks) {
+    if (!/^\s+layer:\s*screen-composition\s*$/mu.test(block)) continue;
+    const names = block.match(/^\s+publicNames:\s*\[([^\]]*)\]/mu)?.[1] ?? "";
+    for (const name of names.split(",").map((value) => value.trim()).filter(Boolean)) registeredComponentNames.add(name);
+  }
+  const rendererAdapters = exportMap.split(/(?=^rendererAdapters:)/mu).at(-1) ?? "";
+  for (const match of rendererAdapters.matchAll(/^\s+exportName:\s*([A-Z][A-Za-z0-9_]*)\s*$/gmu)) registeredComponentNames.add(match[1]);
+  const semanticBindings = read(root, ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml") ?? "";
+  const componentIdSet = new Set(listIds(componentContracts, "id"));
+  for (const block of semanticBindings.split(/(?=^  - )/mu).slice(1)) {
+    const exportName = block.match(/^\s+implementationExport:\s*([A-Z][A-Za-z0-9_]*)\s*$/mu)?.[1];
+    const componentRefs = [...block.matchAll(/\b(media\.component\.[A-Za-z0-9._-]+)/gu)].map((match) => match[1]);
+    const sourcePath = block.match(/^\s+(?:implementationCandidate|externalComponentCandidate):\s*([^\s#]+)/mu)?.[1];
+    if (!exportName || !sourcePath || !existsSync(join(root, sourcePath))) continue;
+    if (componentRefs.some((componentRef) => componentIdSet.has(componentRef))) registeredComponentNames.add(exportName);
+  }
+  for (const { path, content } of productSourceContent.filter(({ path }) => /\.(?:tsx|jsx|ts|js)$/u.test(path))) {
     for (const match of content.matchAll(/(?:function\s+([A-Z][A-Za-z0-9_]*)\s*\(|const\s+([A-Z][A-Za-z0-9_]*)\s*=\s*(?:\([^)]*\)\s*=>|function\s*\())/gu)) {
       const name = match[1] ?? match[2];
-      if (!registeredComponentNames.has(name)) add("unregistered-local-component", path, lineAt(content, match.index), `${name} has a local component implementation but no matching PDP-2 component contract`);
+      if (!registeredComponentNames.has(name)) add("unregistered-local-component", path, lineAt(content, match.index), `${name} has a product source implementation but no exact PDP-2 component, PDP-3 screen, or renderer-adapter binding`, "unexplained", `${path}:component:${name}`);
+    }
+  }
+
+  // React styling is also source-visible even when a package keeps it in class
+  // strings rather than a stylesheet. Treat palette utilities and raw values
+  // as candidate design findings, and group repeats by source token.
+  const paletteUtilityPattern = /\b(?:bg|text|border|ring|outline|fill|stroke)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:\d{2,3})(?:\/\d{1,3})?\b/giu;
+  const sourceColorPattern = /#[\da-f]{3,8}\b/giu;
+  for (const { path, content } of productSourceContent.filter(({ path }) => /\.(?:tsx|jsx|ts|js)$/u.test(path))) {
+    const code = content.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    for (const match of code.matchAll(paletteUtilityPattern)) {
+      add("unregistered-palette-utility", path, lineAt(code, match.index), `${match[0]} is a local palette class without a verified Shared semantic binding`, "unexplained", `${path}:palette:${match[0]}`);
+    }
+    for (const match of code.matchAll(sourceColorPattern)) {
+      const line = code.slice(0, match.index).split("\n").at(-1) ?? "";
+      if (!/(?:className|(?:fill|stroke)?Color|color\s*=|fillStyle|strokeStyle|backgroundColor)/iu.test(line)) continue;
+      add("literal-color", path, lineAt(code, match.index), `${match[0]} is directly authored in a product presentation source`, "unexplained", `${path}:literal-color:${match[0].toLowerCase()}`);
     }
   }
 
   const templateIds = new Set(listIds(templateCatalog, "id"));
   const screenDir = join(root, PATHS.screens);
-  const screenFiles = existsSync(screenDir) ? readdirSync(screenDir).filter((name) => name.endsWith(".yaml")) : [];
+  const screenFiles = existsSync(screenDir) ? readdirSync(screenDir).filter((name) => name.endsWith(".yaml") && name !== "artifact-verification-job-family.yaml") : [];
   if (screenFiles.length === 0) block(`screen-contract inventory is missing or empty: ${PATHS.screens}`);
   for (const file of screenFiles) {
     const path = `${PATHS.screens}/${file}`;
@@ -147,10 +199,10 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   // not become product lifecycle states by CSS naming alone.
   const stateRefs = new Set(listIds(stateGrammar, "stateRef").map((value) => value.split(".").at(-1).toLowerCase().replace(/_/gu, "-")));
   const genericUiStates = new Set(["selected", "current", "complete", "open", "closed", "disabled", "active", "expanded", "collapsed", "error", "caution"]);
-  for (const { path, content } of cssFiles) {
+  for (const { path, content } of productCssFiles) {
     for (const match of content.matchAll(/\.((?:is|has)-([a-z][a-z0-9-]*))(?=[\s.:,#>{+~])/giu)) {
       const state = match[2].toLowerCase();
-      if (!genericUiStates.has(state) && !stateRefs.has(state)) add("invalid-semantic-state-styling", path, lineAt(content, match.index), `${match[1]} has no state reference in the PDP-2 semantic-state grammar`);
+      if (!genericUiStates.has(state) && !stateRefs.has(state)) add("invalid-semantic-state-styling", path, lineAt(content, match.index), `${match[1]} has no state reference in the PDP-2 semantic-state grammar`, "unexplained", `${path}:state:${state}`);
     }
   }
   // One-off interactive CSS requires an explicit registered pattern/component
@@ -158,32 +210,47 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   const componentIds = new Set(listIds(componentContracts, "id"));
   const patternCatalog = read(root, ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml");
   const patternIds = new Set(listIds(patternCatalog, "id"));
-  const registeredNames = new Set([...componentIds, ...patternIds].map((id) => id.split(".").at(-1).replace(/-([a-z])/gu, (_, c) => c.toUpperCase()).toLowerCase()));
-  for (const { path, content } of cssFiles) {
+  const kebab = (value) => value.replace(/([a-z0-9])([A-Z])/gu, "$1-$2").toLowerCase();
+  const registeredNames = new Set([
+    ...[...componentIds, ...patternIds].map((id) => id.split(".").at(-1).replace(/-([a-z])/gu, (_, c) => c.toUpperCase()).toLowerCase()),
+    ...[...registeredComponentNames].map(kebab),
+  ]);
+  for (const { path, content } of productCssFiles) {
     for (const match of content.matchAll(/([^{}]+):(hover|active|focus|focus-visible)\s*\{/giu)) {
       const selector = match[1].trim();
       const names = [...selector.matchAll(/\.([a-z][a-z0-9-]*)/giu)].map((item) => item[1].toLowerCase());
-      if (names.length && !names.some((name) => registeredNames.has(name))) add("one-off-interaction-behavior", path, lineAt(content, match.index), `${selector}:${match[2]} has no registered component/pattern binding`);
+      if (names.length && !names.some((name) => registeredNames.has(name))) add("one-off-interaction-behavior", path, lineAt(content, match.index), `${selector}:${match[2]} has no registered component/pattern binding`, "unexplained", `${path}:interaction:${selector}`);
     }
   }
   if (!patternCatalog) block("PDP-2 interaction pattern catalog is missing; one-off behavior cannot be reconciled");
   if (!componentContracts || !stateGrammar) block("semantic styling cannot be accepted without component and state authority");
 
-  // A documented local fixture exception is retained as such, not promoted to
-  // an accepted exemption. All source findings remain visible in the report.
-  const unexplained = findings.filter(({ disposition }) => disposition !== "documented-local-fixture-exception-not-product-authority");
-  if (findings.some(({ disposition }) => disposition === "documented-local-fixture-exception-not-product-authority")) {
-    block("local-only fixture styling exception is documented, but still requires replacement/binding before product conformance");
-  }
+  // Explorer-only CSS observations remain visible for cleanup but cannot add
+  // product blockers because the style-authority source excludes that tree.
+  const unexplained = findings.filter(({ disposition }) => disposition === "unexplained");
   if (unexplained.length) block(`${unexplained.length} source-observable design-authority finding(s) are unexplained`);
-  return { ok: blockers.length === 0 && unexplained.length === 0, findings, blockers, summary: { sourceFiles: sourceFiles.length, cssFiles: cssFiles.length, screenContracts: screenFiles.length, literalColors: findings.filter((item) => item.kind === "literal-color").length, unexplained: unexplained.length, documentedFixtureExceptions: findings.filter((item) => item.disposition === "documented-local-fixture-exception-not-product-authority").length } };
+  const rootCauseCount = new Set(unexplained.map((item) => item.rootCauseKey)).size;
+  return { ok: blockers.length === 0 && unexplained.length === 0, findings, blockers, summary: {
+    sourceFiles: sourceFiles.length,
+    productSourceFiles: productSourceFiles.length,
+    explorerFixtureFiles: explorerFixtureFiles.length,
+    cssFiles: cssFiles.length,
+    productCssFiles: productCssFiles.length,
+    explorerFixtureCssFiles: explorerFixtureCssFiles.length,
+    screenContracts: screenFiles.length,
+    literalColors: findings.filter((item) => item.kind === "literal-color").length,
+    productLiteralColors: findings.filter((item) => item.kind === "literal-color" && item.disposition === "unexplained").length,
+    explorerFixtureObservations: findings.filter((item) => item.disposition === "explorer-chrome-or-fixture-only-not-product-authority").length,
+    unexplained: unexplained.length,
+    unexplainedRootCauses: rootCauseCount,
+  } };
 }
 
 function main() {
   const result = analyzeDesignConformance();
   console.log(`Media design conformance ${result.ok ? "passed" : "BLOCKED"}`);
-  console.log(`  scanned ${result.summary.sourceFiles} source files (${result.summary.cssFiles} stylesheets), ${result.summary.screenContracts} screen contracts`);
-  console.log(`  ${result.summary.literalColors} literal color(s), ${result.summary.documentedFixtureExceptions} documented local-fixture exception(s), ${result.summary.unexplained} unexplained finding(s)`);
+  console.log(`  scanned ${result.summary.productSourceFiles} product source files and ${result.summary.explorerFixtureFiles} Explorer fixture files (${result.summary.productCssFiles} product stylesheets; ${result.summary.explorerFixtureCssFiles} fixture stylesheets), ${result.summary.screenContracts} canonical screen contracts`);
+  console.log(`  ${result.summary.productLiteralColors} product literal color(s), ${result.summary.explorerFixtureObservations} fixture-only observations, ${result.summary.unexplained} unexplained findings across ${result.summary.unexplainedRootCauses} root causes`);
   const byKind = new Map();
   for (const item of result.findings) byKind.set(item.kind, [...(byKind.get(item.kind) ?? []), item]);
   for (const [kind, items] of byKind) {

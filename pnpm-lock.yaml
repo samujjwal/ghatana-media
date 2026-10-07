@@ -103,6 +103,9 @@ importers:
 
   .:
     devDependencies:
+      '@ghatana/evidence-contracts':
+        specifier: 0.1.0-rc.1
+        version: link:../ghatana-lifecycle/libs/evidence-contracts
       playwright:
         specifier: 1.63.0
         version: 1.63.0
@@ -1089,6 +1092,9 @@ importers:
 
   apps/media-experience-explorer:
     dependencies:
+      '@audio-video/ui':
+        specifier: workspace:*
+        version: link:../../libs/audio-video-ui
       '@ghatana/development-traceability':
         specifier: 0.1.0-SNAPSHOT
         version: link:../../../ghatana-tools/libs/product-development/development-traceability
@@ -1133,6 +1139,9 @@ importers:
         specifier: workspace:*
         version: link:../audio-video-types
     devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.4
       typescript:
         specifier: 'catalog:'
         version: 6.0.3

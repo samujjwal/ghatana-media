@@ -1,14 +1,14 @@
 schemaVersion: media.executable-representation-export-map.v1
 productId: media
 package: "@audio-video/ui"
-observationRevision: 25dcc89b04d3810ad126a1c7ea0881191f38edf1
+observationRevision: d4caa874f822e1737a88d0a6056e4f2faaeb78c1
 observationNote: >-
   Package exports below reflect the working tree after the initial presentation-boundary implementation. They are inventory/candidate exports, not admissions. Shared package binding and semantic owner review remain pending.
 generatedPackageExports:
   packageName: "@audio-video/ui"
   packageVersion: "0.1.0-SNAPSHOT"
   packageManifestSha256: 92cdda1b01d1be3f1d31151513eb705afddb54f347065d5da7eec0f5853bd12b
-  sourceRevision: 25dcc89b04d3810ad126a1c7ea0881191f38edf1
+  sourceRevision: d4caa874f822e1737a88d0a6056e4f2faaeb78c1
   exports:
     - subpath: "."
       importTarget: "./dist/index.js"
@@ -29,7 +29,7 @@ generatedPackageExports:
     - subpath: "./screens"
       importTarget: "./dist/screens/index.js"
       source: libs/audio-video-ui/src/screens/index.ts
-      sourceSha256: 044fefd203394c764efa849040bce0fae93fb9e72dc06c45fa94b9848250c37b
+      sourceSha256: ddb48fc9f907bac041b187ffd49ed97cdc46472c765a5154daec6c236cbe2227
     - subpath: "./ports"
       importTarget: "./dist/ports/index.js"
       source: libs/audio-video-ui/src/ports/index.ts
@@ -56,7 +56,7 @@ generatedPackageExports:
       sourceSha256: fb8ae040fdd19e11fc9e4f3ddc4759f6b864e9907f3c23eca1989d049334f043
 exports:
   - subpath: .
-    publicNames: [Badge, Button, Card, Checkbox, Modal, Select, Spinner, Tabs, Tooltip, MediaTaskFlow, MediaTaskScreen, FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen, useSpeechRecognition, useSpeechSynthesis, getAudioVideoPlatformMetrics, normalizeAudioVideoRuntimeConfig]
+    publicNames: [Badge, Button, Card, Checkbox, Modal, Select, Spinner, Tabs, Tooltip, MediaTaskFlow, MediaTaskScreen, MediaProductRenderer, FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen, useSpeechRecognition, useSpeechSynthesis, getAudioVideoPlatformMetrics, normalizeAudioVideoRuntimeConfig]
     source: libs/audio-video-ui/src/index.tsx
     sourceSha256: df2cf417d60952ce134a509cb5378111deb0dac7ed9de8296f52ba1427e5c457
     layer: package-root
@@ -75,9 +75,9 @@ exports:
     layer: media-semantic-component
     status: active-public-api; candidate; admission-not-recorded
   - subpath: ./screens
-    publicNames: [MediaTaskScreen, FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen]
+    publicNames: [MediaTaskScreen, MediaProductRenderer, FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen]
     source: libs/audio-video-ui/src/screens/index.ts
-    sourceSha256: 044fefd203394c764efa849040bce0fae93fb9e72dc06c45fa94b9848250c37b
+    sourceSha256: ddb48fc9f907bac041b187ffd49ed97cdc46472c765a5154daec6c236cbe2227
     layer: screen-composition
     status: active-public-api; candidate; admission-not-recorded
   - subpath: ./screens/first-use-project
@@ -132,5 +132,12 @@ notImplementedLayers:
   - patterns
   - layouts
   - templates
+rendererAdapters:
+  - id: media.adapter.product-renderer
+    package: "@audio-video/ui"
+    subpath: .
+    exportName: MediaProductRenderer
+    source: libs/audio-video-ui/src/screens/MediaProductRenderer.tsx
+    status: candidate-public-product-renderer; production-host-and-owner-acceptance-pending
 note: >-
   No package layer is claimed for which a concrete source export is absent. Token exports remain available from the package root for compatibility; Shared token publication is not qualified here.

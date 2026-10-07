@@ -2,10 +2,10 @@ schemaVersion: media.screen-contract.v2
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-existing-web-channel-surface-inventory; acceptance-pending
-templateId: null
-templateBindingStatus: unresolved; existing-template-ref-does-not-resolve-in-catalog
-layoutIds: []
-layoutBindingStatus: pending-canonical-layout-registry
+templateId: media.gui.template.task-setup
+templateBindingStatus: candidate-by-screen-purpose; owner-review-pending
+layoutIds: [media.gui.layout.task-setup]
+layoutBindingStatus: candidate-by-template-and-screen-purpose; owner-review-pending
 componentIds:
   - media.component.creation-plan-summary
   - media.component.storyboard
@@ -79,8 +79,8 @@ verification:
     accessibility: not-yet-proven
 fieldBindingStatus:
   surfaceId: candidate-pending-acceptance
-  templateId: unresolved-no-catalog-match
-  layoutIds: pending-no-canonical-layout-ids
+  templateId: candidate-template-link-owner-review-pending
+  layoutIds: candidate-layout-link-owner-review-pending
   componentIds: proposal-copy-shared-binding-pending
   patternIds: proposal-copy-PDP-2-acceptance-pending
   tokenDependencies: pending
@@ -158,7 +158,7 @@ surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
 templateContract:
-  templateRef: media.template.create-video
+  templateRef: media.gui.template.task-setup
   kind: owner-defined-template-pending-review
 layoutContract:
   primaryRegion: intent-and-context

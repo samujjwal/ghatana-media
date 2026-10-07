@@ -1,8 +1,10 @@
 schemaVersion: media.screen-contract.v2
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
-templateId: null
-layoutIds: []
+templateId: media.gui.template.review-and-compare
+templateBindingStatus: candidate-by-screen-purpose; owner-review-pending
+layoutIds: [media.gui.layout.review]
+layoutBindingStatus: candidate-by-template-and-screen-purpose; owner-review-pending
 componentIds: [media.component.source-player, media.component.caption-track-editor, media.component.rights-retention-review, media.component.result-comparison, media.component.provenance-summary]
 patternIds: [media.gui.pattern.safe-confirmation-and-unknown-outcome]
 tokenDependencies: []
@@ -40,8 +42,8 @@ verification:
   checks: {structural: not-proven, rendering: not-proven, behavior: not-proven, responsive: not-proven, keyboard: not-proven, accessibility: not-proven}
 fieldBindingStatus:
   surfaceId: candidate-binding-pending-owner-review
-  templateId: unresolved; no existing catalog template ID matches the declared templateRef
-  layoutIds: none-registered
+  templateId: candidate-template-link-owner-review-pending
+  layoutIds: candidate-layout-link-owner-review-pending
   componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
   patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
   tokenDependencies: no-canonical-references-declared
@@ -116,7 +118,7 @@ surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
 templateContract:
-  templateRef: media.template.review-dubbing
+  templateRef: media.gui.template.review-and-compare
   kind: owner-defined-template-pending-review
 layoutContract:
   primaryRegion: intent-and-context

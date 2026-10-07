@@ -58,6 +58,20 @@ test("missing admissions pass with zero exact identities proven", () => run({
   assert.equal(result.summary.exactImportIdentityProven, 0);
 }));
 
+test("the review host imports the exact candidate product-renderer export intended for production", () => run({
+  explorer: `import { MediaProductRenderer } from "@audio-video/ui";`,
+  production: `import { MediaProductRenderer } from "@audio-video/ui";`,
+  exportMap: `exports:\n  - subpath: .\n    publicNames: [MediaProductRenderer]\nrendererAdapters:\n  - id: media.adapter.product-renderer\n    package: "@audio-video/ui"\n    subpath: .\n    exportName: MediaProductRenderer\n    source: libs/audio-video-ui/src/screens/MediaProductRenderer.tsx\n`,
+}, (root) => {
+  write(root, "libs/audio-video-ui/src/screens/MediaProductRenderer.tsx", "export function MediaProductRenderer() { return null; }");
+  const result = analyzeMediaPresentationArchitecture({ repoRoot: root });
+  assert.equal(result.ok, true, JSON.stringify(result.issues));
+  assert.equal(result.summary.candidateProductRendererCount, 1);
+  assert.equal(result.summary.explorerProductRendererImports, 1);
+  assert.equal(result.summary.productionHostsPresent, true);
+  assert.equal(result.summary.productionProductRendererImports, 1);
+}));
+
 test("admitted Web record passes only with identical public export and resolvable PDP-2 provenance", () => run({
   explorer: `import { SampleScreen } from "@audio-video/ui/screens";`,
   production: `import { SampleScreen } from "@audio-video/ui/screens";`,

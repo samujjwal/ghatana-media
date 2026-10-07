@@ -3,6 +3,11 @@ productId: media
 authority: semantic aliases are defined in ../media-token-aliases.yaml; Shared owns primitive token values and styling behavior
 status: semantic-intent-recorded; shared-consumer-binding-unverified; owner-review-pending
 bindings:
+  - componentRefs: [media.component.task-flow]
+    implementationCandidate: libs/audio-video-ui/src/components/MediaTaskFlow.tsx
+    implementationExport: MediaTaskFlow
+    semanticRole: workflow-progress-and-operation-observation
+    status: candidate-contract-derived-rendering; Shared-binding-and-owner-review-pending
   - implementationCandidate: libs/audio-video-ui/src/components/MediaTaskFlow.tsx
     semanticRole: workflow-progress-and-operation-observation
     stateBindings:
@@ -57,7 +62,9 @@ bindings:
       - segment-time-and-provenance-when-provided
       - caption-draft-version-distinct-from-immutable-version
     status: candidate-contract-derived-rendering; not-admitted
-  - externalComponentCandidate: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/PhraseTimeline.tsx
+  - componentRefs: [media.component.timeline-keyframe-editor]
+    externalComponentCandidate: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/PhraseTimeline.tsx
+    implementationExport: PhraseTimeline
     observedMapping:
       verse: blue
       chorus: purple
@@ -74,7 +81,9 @@ bindings:
     reviewEvidenceRequired:
       - map all phrase categories to an owner-reviewed domain visualization contract or remove category color semantics
       - verify contrast and distinguishability in forced colors and color-vision deficiency conditions
-  - externalComponentCandidate: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/StemTrack.tsx
+  - componentRefs: [media.component.audio-mixer]
+    externalComponentCandidate: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/StemTrack.tsx
+    implementationExport: StemTrack
     observedMapping:
       vocals: local-custom-property-with-hex-fallback
       drums: local-custom-property-with-hex-fallback
@@ -89,6 +98,18 @@ bindings:
       - decide whether stem identity needs color encoding in addition to names and labels
       - bind any retained encoding to an owner-reviewed categorical visualization palette
       - verify contrast, forced colors, and color-vision deficiency conditions
+  - componentRefs: [media.component.waveform-spectrogram]
+    externalComponentCandidate: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/Waveform.tsx
+    implementationExport: Waveform
+    status: candidate-export; license-and-accessibility-review-pending
+  - componentRefs: [media.component.job-status-card]
+    externalComponentCandidate: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/TrainingProgress.tsx
+    implementationExport: TrainingProgress
+    status: candidate-export; state-and-finality-conformance-review-pending
+  - componentRefs: [media.component.voice-production-workflow]
+    externalComponentCandidate: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
+    implementationExport: VoiceProductionWorkflow
+    status: candidate-export; Media-and-AI-Voice-owner-review-pending
 principles:
   - Semantic aliases express product intent and reference Shared semantic roles; they do not assign hex values or invented CSS custom properties.
   - Shared palette, typography, spacing, focus, forced-colors, and component behavior are unresolved until consumer binding is verified.

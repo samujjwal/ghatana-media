@@ -110,8 +110,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-      "sha256": "2b25e7b3d4f3ab9661ce8c001b0219442913c5c6e6949926f13aa36bf582f298",
-      "bytes": 3439,
+      "sha256": "bde0f7cdd156fe65a917b3e90bfdee9d79c8ee62a195d761525c00250da2ff9a",
+      "bytes": 3902,
       "format": "yaml",
       "schemaVersion": "media.gui-templates.v1",
       "authority": "Media owns reusable screen-composition templates; Shared owns the primitives used to realize them",
@@ -133,6 +133,7 @@
         "media.gui.template.lifecycle-confirmation",
         "media.gui.template.render-preparation-and-review",
         "media.gui.template.review-and-compare",
+        "media.gui.template.task-setup",
         "media.gui.template.workbench"
       ]
     },
@@ -177,8 +178,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-      "sha256": "97356cfb654cce31fab3c30aeef70cf92142c3f2583fcfbb416fe0fa034d04c8",
-      "bytes": 6360,
+      "sha256": "4494529a1adbf9db3ebb8fecd7ba6047a107bffa444a4a5e23996e758bcd4e7d",
+      "bytes": 7750,
       "format": "yaml",
       "schemaVersion": "media.gui-semantic-component-bindings.v1",
       "authority": "semantic aliases are defined in ../media-token-aliases.yaml; Shared owns primitive token values and styling behavior",
@@ -566,7 +567,7 @@
       ]
     }
   ],
-  "derivationBoundary": "Only explicitly source-backed identifiers and public schema versions are included in candidateModel. Each direct field has a source locator; all unmapped required schema fields remain absent and have an explicit blocker. Source facts remain unmerged observations until approved mappings and owners exist.",
+  "derivationBoundary": "candidateModel is a structurally conformant partial projection. Every required schema property is present; empty collections and blank timestamps represent unresolved mappings, not accepted non-applicability. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
   "knownBlockers": [
     "Required ExperienceLanguage fields without direct source mappings remain absent; exact field-level mapping blockers are listed below."
   ],

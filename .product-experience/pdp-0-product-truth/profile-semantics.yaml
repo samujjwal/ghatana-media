@@ -251,6 +251,28 @@ aliases:
     resolvesTo: RESOURCE-PROFILE-LOW
     grantsQualityDowngrade: false
     independentPolicy: false
+candidateDeliveryProfiles:
+  - id: media.delivery-profile.webm-opus-av1-permissive
+    decision: SELECTED
+    status: candidate-not-runtime-available
+    scope: WebM-oriented workflows using Opus audio and AV1 video, once the complete format path is qualified.
+    codecCandidates:
+      videoEncoder: TECH-SVT-AV1
+      videoDecoder: TECH-DAV1D
+      audioCodec: TECH-LIBOPUS
+    qualificationRequirements:
+      - exact-container-demux-mux-and-metadata-implementation
+      - codec-and-patent-distribution-review-for-the-selected-build-and-profile
+      - subtitle-and-transcript-multiplexing-compatibility
+      - resampling-and-timebase-fidelity
+      - hardware-acceleration-and-fallback-disposition
+      - parser-containment-fuzzing-performance-and-player-compatibility
+    otherRequestedFormats:
+      disposition: requires-a-separately-licensed-and-qualified-provider-or-explicitly-unsupported
+      implicitFallback: forbidden
+    runtimeActivation: forbidden-until-all-profile-qualification-requirements-pass
+    sourceAuthority: .product-experience/pdp-0-product-truth/reuse-decisions.yaml
+    ownerReview: codec-profile-integration-and-patent-distribution-review-pending
 integrationGaps:
   capabilityReferences: pending-P0-003-leaf-integration
   domainFidelityReferences: pending-P0-004-and-domain-owner-integration

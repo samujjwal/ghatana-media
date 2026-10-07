@@ -155,7 +155,19 @@ async function inspectPage(page, scope, { requireMain = true, requireNoHorizonta
 }
 
 async function gotoHash(page, hash) {
-  await page.goto(`${baseUrl.replace(/\/$/u, "")}/${hash}`, { waitUntil: "networkidle" });
+  const destination = new URL(hash, baseUrl);
+  const current = new URL(page.url());
+  if (current.origin !== destination.origin || current.pathname !== destination.pathname) {
+    await page.goto(destination.href, { waitUntil: "networkidle" });
+  } else {
+    // The Explorer routes with history.pushState/popstate. Exercise that same
+    // in-document route path instead of waiting for network idle after each
+    // of the hundreds of hash-only audit navigations.
+    await page.evaluate((nextHash) => {
+      history.pushState({ browserAuditRoute: true }, "", nextHash);
+      window.dispatchEvent(new PopStateEvent("popstate", { state: history.state }));
+    }, destination.hash);
+  }
   await page.waitForTimeout(30);
 }
 
@@ -208,19 +220,27 @@ try {
   const toolsReviewConsoleErrorStart = consoleErrors.length;
   const toolsReviewPageErrorStart = pageErrors.length;
   await gotoHash(page, "#tools-review");
-  await page.getByRole("heading", { name: "Package render, inspection, and dispatch" }).waitFor({ state: "visible", timeout: 10000 });
+  await page.getByRole("heading", { name: "Explorer render, inspection, and dispatch" }).waitFor({ state: "visible", timeout: 10000 });
+  await page.locator("#tools-product-renderer-mount .media-task-flow").waitFor({ state: "visible", timeout: 10000 });
   const toolsReviewText = await page.locator("#explorer-panel").innerText();
   for (const expected of [
-    "LOCAL SNAPSHOT SIMULATION PROOF",
+    "PUBLIC EXPLORER PACKAGE CONSUMER",
     "media.experience.simulation",
     "Lifecycle currentness\nAbsent",
     "Owner acceptance\nNone",
   ]) {
     if (!toolsReviewText.includes(expected)) fail("tools-review", `consumer proof text is missing: ${expected}`);
   }
+  const toolsProductViewportText = await page.locator("#tools-product-renderer-mount").innerText();
+  if (!toolsProductViewportText.includes("Shared presentation mounted in the Explorer review host")) {
+    fail("tools-review", "Tools-hosted Product viewport did not mount the shared Media presentation export");
+  }
+  if (!toolsProductViewportText.includes("CANDIDATE · NOT ADMITTED")) {
+    fail("tools-review", "Tools-hosted Product viewport did not preserve the candidate/non-admission state");
+  }
   if (consoleErrors.length !== toolsReviewConsoleErrorStart) fail("tools-review", `console errors: ${consoleErrors.slice(toolsReviewConsoleErrorStart).join(" | ")}`);
   if (pageErrors.length !== toolsReviewPageErrorStart) fail("tools-review", `page errors: ${pageErrors.slice(toolsReviewPageErrorStart).join(" | ")}`);
-  observations.push("Tools Review route loaded the Media consumer result with local snapshot proof, absent currentness, no owner acceptance, and no route-specific browser errors");
+  observations.push("Tools Review route loaded the local consumer proof and rendered the candidate Product viewport through the shared Media presentation; Lifecycle currentness and owner acceptance remain absent");
 
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });

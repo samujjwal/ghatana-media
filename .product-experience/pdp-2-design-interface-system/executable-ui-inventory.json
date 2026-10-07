@@ -1,7 +1,7 @@
 {
   "schemaVersion": "media.executable-ui-inventory.v1",
   "productId": "media",
-  "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+  "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
   "sourcePinning": "Each inventory path records the SHA-256 of observed workspace bytes and its Git baseline revision; dirty/untracked state is explicit.",
   "scope": [
     "libs/audio-video-ui/**",
@@ -26,8 +26,8 @@
     {
       "sourcePath": "libs/audio-video-ui/package.json",
       "sourceSha256": "92cdda1b01d1be3f1d31151513eb705afddb54f347065d5da7eec0f5853bd12b",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
-      "sourceState": "working-tree-modified",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
+      "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "not-established-or-package-metadata",
       "purpose": "package",
@@ -52,7 +52,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/components/MediaTaskFlow.tsx",
       "sourceSha256": "caea46b428c8e76afebb7b7f961b376f0bdb889ec04c3dd94c63baa52103efda",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "@audio-video/ui/components#MediaTaskFlow",
@@ -78,7 +78,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/components/index.ts",
       "sourceSha256": "0694b5bbfb63965e0d8ad365a3ba749910ef812b77f6dcdeb3a3b7e65ece43f7",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "not-established-or-package-metadata",
@@ -104,7 +104,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/foundations/index.ts",
       "sourceSha256": "38d4dea76caca38dd0f4bf4109e3681afef779ac7fcb0b63be56c4f1c1c69067",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "not-established-or-package-metadata",
@@ -130,7 +130,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/hooks/audioVideoPlatform.test.ts",
       "sourceSha256": "64cfd84403bd5fadb1366eb6f1921b444583ddc4bfc8c8aaa8c825c0cd7e95da",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "not-established-or-package-metadata",
@@ -156,7 +156,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/hooks/audioVideoPlatform.ts",
       "sourceSha256": "28fc93979a99e4d15d1924320a4dd1dbd412bf955fbfc247431ea39e5fa90d6a",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "not-established-or-package-metadata",
@@ -182,7 +182,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/hooks/index.ts",
       "sourceSha256": "ba80771437ed28c5e1c4307bb399e3422755503de06d5c67ebf8cf7895936117",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "not-established-or-package-metadata",
@@ -208,7 +208,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/hooks/useMemoryPressure.ts",
       "sourceSha256": "1c735fabf538b5563c9858e1579222318b27f27e3a05fce6e624040cc0f7fe56",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "@audio-video/ui/hooks; named-export review required",
@@ -234,7 +234,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/hooks/useSpeechRecognition.ts",
       "sourceSha256": "34a099b5f9c81746dbd108bdd74a0a94a6172b1b09835bb17cc4b92a986155f1",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "@audio-video/ui/hooks; named-export review required",
@@ -260,7 +260,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/hooks/useSpeechSynthesis.ts",
       "sourceSha256": "7007f8d564079e6c00c700a501ef53227e58c7784ead8be9098c896a3fbfeeb9",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "@audio-video/ui/hooks; named-export review required",
@@ -286,7 +286,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/index.tsx",
       "sourceSha256": "df2cf417d60952ce134a509cb5378111deb0dac7ed9de8296f52ba1427e5c457",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "not-established-or-package-metadata",
@@ -312,8 +312,8 @@
     {
       "sourcePath": "libs/audio-video-ui/src/ports/index.ts",
       "sourceSha256": "cc04706eb169c4ac5a0527cbbb13397f98ca829f9c55bb2c34c6f5922c5cd823",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
-      "sourceState": "working-tree-modified",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
+      "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "not-established-or-package-metadata",
       "purpose": "index",
@@ -338,7 +338,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx",
       "sourceSha256": "28628ea2e2f9a1e1f43459e5790f18fb43597fd44be97e56bcd4ffda9d0b32c8",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "@audio-video/ui/screens#ArtifactIntakeScreen",
@@ -364,7 +364,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx",
       "sourceSha256": "f8ef1bc58b109525b2917d9b4859268ba9893e7234e3e4ab8fb34c2b6cc2e73f",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "@audio-video/ui/screens#FirstUseProjectScreen",
@@ -390,7 +390,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx",
       "sourceSha256": "4b3a85e15cf64015cc39b24f2a15e29fba236214fed58e2e91725483d2352388",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "@audio-video/ui/screens#JobRecoveryScreen",
@@ -416,7 +416,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/screens/MediaTaskScreen.tsx",
       "sourceSha256": "6577c66b7cee907f2dd0aca6f6cf254d8a802a11db30855aac6ab2686b924563",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "@audio-video/ui/screens#MediaTaskScreen",
@@ -442,7 +442,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx",
       "sourceSha256": "fb8ae040fdd19e11fc9e4f3ddc4759f6b864e9907f3c23eca1989d049334f043",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "@audio-video/ui/screens#TranscriptCaptionScreen",
@@ -467,9 +467,9 @@
     },
     {
       "sourcePath": "libs/audio-video-ui/src/screens/index.ts",
-      "sourceSha256": "044fefd203394c764efa849040bce0fae93fb9e72dc06c45fa94b9848250c37b",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
-      "sourceState": "matches-observed-revision",
+      "sourceSha256": "ddb48fc9f907bac041b187ffd49ed97cdc46472c765a5154daec6c236cbe2227",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
+      "sourceState": "working-tree-modified",
       "kind": "component-or-hook-source",
       "publicExport": "not-established-or-package-metadata",
       "purpose": "index",
@@ -494,7 +494,7 @@
     {
       "sourcePath": "libs/audio-video-ui/src/styles.css",
       "sourceSha256": "5c7789433e421789cdd69643392d3d77988f156763112e2432d928cce6123efb",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "stylesheet",
       "publicExport": "not-established-or-package-metadata",
@@ -520,7 +520,7 @@
     {
       "sourcePath": "libs/audio-video-ui/tsconfig.build.json",
       "sourceSha256": "4cc4df22d88a6b40ff49764bc6cee6af80efa09c4f823f3e356546d4dc9634fb",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "not-established-or-package-metadata",
@@ -546,7 +546,7 @@
     {
       "sourcePath": "libs/audio-video-ui/tsconfig.json",
       "sourceSha256": "eea7f52cc28b3965cbf1e1389635b4f138ec8e033e39ccefdc999bb8db3b76fa",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "not-established-or-package-metadata",
@@ -572,7 +572,7 @@
     {
       "sourcePath": "libs/audio-video-ui/vitest.config.ts",
       "sourceSha256": "340eafc4c70eb91dc035b83f4545064d079fda7b760ec5e776fcffa89022dfa7",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "not-established-or-package-metadata",
@@ -598,8 +598,8 @@
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/package.json",
       "sourceSha256": "a6710ed6cf57a8d32560ea6ab57111acda196de506ff4e991a8b3a147183ad7c",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
-      "sourceState": "working-tree-modified",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
+      "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "not-established-or-package-internal",
       "purpose": "package",
@@ -623,9 +623,9 @@
     },
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/PhraseTimeline.tsx",
-      "sourceSha256": "3157229e2ebcb19087ff8fa2c07bf7480cd16050b2aee9a824cef934d1fe1703",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
-      "sourceState": "matches-observed-revision",
+      "sourceSha256": "ee360fc6c49560ba08312f48399270500e4a1780940131a7b585aed2d865ba6e",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
+      "sourceState": "working-tree-modified",
       "kind": "component-or-hook-source",
       "publicExport": "@ghatana/ai-voice-ui-react#PhraseTimeline",
       "purpose": "PhraseTimeline",
@@ -649,9 +649,9 @@
     },
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/StemTrack.tsx",
-      "sourceSha256": "a97fc0269ada74cd080c544ff800059b82531540dab699bf91e4d1719bbd06d0",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
-      "sourceState": "matches-observed-revision",
+      "sourceSha256": "35760a7c2825351c42b2e1c96c03fdb0b5639c149c9ff6a3b99891abbc6e48c1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
+      "sourceState": "working-tree-modified",
       "kind": "component-or-hook-source",
       "publicExport": "@ghatana/ai-voice-ui-react#StemTrack",
       "purpose": "StemTrack",
@@ -675,9 +675,9 @@
     },
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/TrainingProgress.tsx",
-      "sourceSha256": "bb099700864668528d2883afbb5502bbd9cb503e96e364764f2b9edf6c50a310",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
-      "sourceState": "matches-observed-revision",
+      "sourceSha256": "7a69460fda21f96f8baabe9dad3046e239daeb8944305ab3d83278bdda189dbb",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
+      "sourceState": "working-tree-modified",
       "kind": "component-or-hook-source",
       "publicExport": "@ghatana/ai-voice-ui-react#TrainingProgress",
       "purpose": "TrainingProgress",
@@ -702,7 +702,7 @@
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.test.tsx",
       "sourceSha256": "c00ef36fd0ca0634eee7a563e36ad457f0b0a3e047134b8bfbe2af5c460591f6",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "not-established-or-package-internal",
@@ -727,9 +727,9 @@
     },
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx",
-      "sourceSha256": "90dcf51f4b08fb2e68601371fb8f7f4e7639d8fef4d5539fa2b5bd800f4b89d4",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
-      "sourceState": "matches-observed-revision",
+      "sourceSha256": "7e4084203980ec3d2596ccde5e328f4ba6552fac729b42db4922bd792f7fafa2",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
+      "sourceState": "working-tree-modified",
       "kind": "component-or-hook-source",
       "publicExport": "@ghatana/ai-voice-ui-react#VoiceProductionWorkflow",
       "purpose": "VoiceProductionWorkflow",
@@ -753,9 +753,9 @@
     },
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/Waveform.tsx",
-      "sourceSha256": "f810f12c9834687700164d98180783de953e03455bd083f931674ff13f23880e",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
-      "sourceState": "matches-observed-revision",
+      "sourceSha256": "21a52dfb58c652b603360dcc49e20880bd6811aeb4d4a9ecea9dcf5d46aa1825",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
+      "sourceState": "working-tree-modified",
       "kind": "component-or-hook-source",
       "publicExport": "@ghatana/ai-voice-ui-react#Waveform",
       "purpose": "Waveform",
@@ -780,7 +780,7 @@
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/index.ts",
       "sourceSha256": "8f2e8a6f1e1c3cbfd66d793b1157cade5f5f145692f7f61d27ace913f914877e",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "not-established-or-package-internal",
@@ -805,9 +805,9 @@
     },
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/waveform-element.ts",
-      "sourceSha256": "5f30db0e8ad6880a1d0e1a99b3b978b160f56e450210acdae6577b94ef71b45d",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
-      "sourceState": "matches-observed-revision",
+      "sourceSha256": "75584106c83f8270a656cb82ab3112b8e99d07288ef9b664649b145e27208900",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
+      "sourceState": "working-tree-modified",
       "kind": "component-or-hook-source",
       "publicExport": "@ghatana/ai-voice-ui-react#waveform-element",
       "purpose": "waveform element",
@@ -832,7 +832,7 @@
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/hooks/index.ts",
       "sourceSha256": "bdbf9d32e7682184b7f072012761e5c489cf1e8ade1e9b95c7eaa018ef26ab19",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "not-established-or-package-internal",
@@ -858,7 +858,7 @@
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/hooks/useAudioPlayer.ts",
       "sourceSha256": "6df71d909d12906a60507b57a56009a6eea6152d52261ae688a8d33fd4c800ab",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "not-established-or-package-internal",
@@ -884,7 +884,7 @@
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/hooks/useStemMixer.ts",
       "sourceSha256": "24b2210d0138254931de0ce81e21cd8b0d364e8117c095e640ae15a8209def11",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "not-established-or-package-internal",
@@ -910,7 +910,7 @@
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/index.ts",
       "sourceSha256": "740ada211bf443404f5d54550f34b4d42a23747e73dcd76b0f2c5d37a7ace5b4",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "not-established-or-package-internal",
@@ -936,7 +936,7 @@
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/types/index.ts",
       "sourceSha256": "34b4f16f8942e24c158e804242fd9f365f88a4d2ac41116da71686b596dfc33f",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "implementation-support-source",
       "publicExport": "not-established-or-package-internal",
@@ -962,7 +962,7 @@
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/tsconfig.build.json",
       "sourceSha256": "2bff52b76bac3e23a6d5e43e470fa1a1814d35fa62281de3129345f4ba0f6825",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "not-established-or-package-internal",
@@ -988,7 +988,7 @@
     {
       "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/tsconfig.json",
       "sourceSha256": "4a00c946b3bdb962de9d4b289a60a9eeafb45da77ee1fe96a823727b006c5a17",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "not-established-or-package-internal",
@@ -1013,8 +1013,8 @@
     },
     {
       "sourcePath": "apps/media-experience-explorer/package.json",
-      "sourceSha256": "031b2a3aaf9a52fe5e8b8e6a026cb856d4b95aed3b99d18a199836970d019277",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceSha256": "ded93378c7a69ae520df2c03666f27000778f808ca24fb9110f84243afc83b68",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "working-tree-modified",
       "kind": "package-or-tooling-metadata",
       "publicExport": "Explorer-internal; no admitted product export",
@@ -1034,14 +1034,14 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "UNRESOLVED",
+      "disposition": "REUSE",
       "admissionState": "inventory-only; no automatic admission",
-      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
+      "dispositionEvidence": "Keep the small browser review host and its public package dependencies; it is not a product renderer or admitted experience."
     },
     {
       "sourcePath": "apps/media-experience-explorer/specification-artifacts.json",
-      "sourceSha256": "14bd7c8db49a9ad23b03d29760a72adfa41f54bb0196ea51d4d48c63c969726c",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceSha256": "876e0dec0c5566d63022b16a71debc3cbaa33179e587f0e5996a1bcfcab87797",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "Explorer-internal; no admitted product export",
@@ -1061,14 +1061,14 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "UNRESOLVED",
+      "disposition": "FIX",
       "admissionState": "inventory-only; no automatic admission",
-      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
+      "dispositionEvidence": "Regenerate this source-derived Explorer index when the Product Definition artifact inventory changes; it is a host projection only."
     },
     {
       "sourcePath": "apps/media-experience-explorer/src/main.ts",
-      "sourceSha256": "b6175cde4006690053b32041366620dfbfd927538e8dccd98078e71e576136d3",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceSha256": "3900b9ed95deae51f49101570bb4d7c865db1b68fd1bb8abc05fc7db046c3439",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "working-tree-modified",
       "kind": "component-or-hook-source",
       "publicExport": "Explorer-internal; no admitted product export",
@@ -1088,14 +1088,14 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "UNRESOLVED",
+      "disposition": "FIX",
       "admissionState": "inventory-only; no automatic admission",
-      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
+      "dispositionEvidence": "Retain as Explorer host routing and fixture orchestration; product screen rendering delegates through the public MediaProductRenderer export."
     },
     {
       "sourcePath": "apps/media-experience-explorer/src/product-review.tsx",
-      "sourceSha256": "745dec8fb16a6ffcd896b06865a6a01ac70bb5112e5d9e1123e35f0b60557455",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceSha256": "23d3a7502820704478977bf4590fdf3b203b94b6b56168d3af2a9f1a2ff644e3",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "working-tree-modified",
       "kind": "component-or-hook-source",
       "publicExport": "Explorer-internal; no admitted product export",
@@ -1115,14 +1115,14 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "UNRESOLVED",
+      "disposition": "FIX",
       "admissionState": "inventory-only; no automatic admission",
-      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
+      "dispositionEvidence": "Retain as an Explorer-only domain-to-view/typed-port adapter; it now invokes the same public MediaProductRenderer export intended for compatible hosts."
     },
     {
       "sourcePath": "apps/media-experience-explorer/src/specification.ts",
       "sourceSha256": "ccedaf4b9526e31c01eee8519f5f8bd4d0a1ed77ccbfb49174e144fd565a84c7",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "Explorer-internal; no admitted product export",
@@ -1142,14 +1142,14 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "UNRESOLVED",
+      "disposition": "REUSE",
       "admissionState": "inventory-only; no automatic admission",
-      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
+      "dispositionEvidence": "Keep as a source-only Explorer projection; it does not define Media semantic or presentation authority."
     },
     {
       "sourcePath": "apps/media-experience-explorer/src/styles.css",
       "sourceSha256": "2adb588e5e629685729923a20a7d268a56a86b9f14d77c17efc07e9db0a884a8",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "stylesheet",
       "publicExport": "Explorer-internal; no admitted product export",
@@ -1169,14 +1169,14 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "UNRESOLVED",
+      "disposition": "REUSE",
       "admissionState": "inventory-only; no automatic admission",
-      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
+      "dispositionEvidence": "Keep as Explorer chrome and fixture styling only; its raw values carry no Media product design authority."
     },
     {
       "sourcePath": "apps/media-experience-explorer/src/vite-env.d.ts",
       "sourceSha256": "ffe0b7abd7983283cd8052d45d270e742d8b0c3f6d15b628e1bc3533a7d7195d",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "implementation-support-source",
       "publicExport": "Explorer-internal; no admitted product export",
@@ -1196,15 +1196,15 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "UNRESOLVED",
+      "disposition": "REUSE",
       "admissionState": "inventory-only; no automatic admission",
-      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
+      "dispositionEvidence": "Keep as Vite host type declarations; it has no product UI or semantic authority."
     },
     {
       "sourcePath": "apps/media-experience-explorer/tsconfig.json",
       "sourceSha256": "b3443f3612120a4b669ba7654fe4690a23398cb208d0dc7544d0c16a444cba5d",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
-      "sourceState": "working-tree-modified",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
+      "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "Explorer-internal; no admitted product export",
       "purpose": "tsconfig",
@@ -1223,14 +1223,14 @@
       "tests": [
         "no sibling test observed; package and consumer test coverage review pending"
       ],
-      "disposition": "UNRESOLVED",
+      "disposition": "REUSE",
       "admissionState": "inventory-only; no automatic admission",
-      "unresolvedReason": "Explorer host/specification/rendering mechanics are source evidence, but this inventory does not establish whether each path should be fixed, consolidated, or replaced as the product presentation architecture is integrated; Explorer does not admit a product screen."
+      "dispositionEvidence": "Keep as Explorer-specific TypeScript build configuration; it is not a product contract."
     },
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/package.json",
       "sourceSha256": "725c77c742bd5f4905046d8780ce2eaebf04202b739a1699327c7f2100b13efc",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -1255,7 +1255,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/playwright.config.ts",
       "sourceSha256": "9087a7c24120f4de46cbb9f3f3969029661f20323e18b32f53bc5d693b424c0c",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1280,7 +1280,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/App.example.tsx",
       "sourceSha256": "e377be6f04e6de537842da8c310dc8c8c85bbf7dbb1adfa44069130fb49e8a78",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1305,7 +1305,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/App.tsx",
       "sourceSha256": "dc296a480c5dc82a982938a68b40fba0e7b8a41cf596cd7fd485628631b3ade7",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1330,7 +1330,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/audio/MultiStemWaveform.tsx",
       "sourceSha256": "7135074deb9ac66c0f441e0e23a85379e39f87446963002958acb532f3789774",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1355,7 +1355,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/audio/PhraseEditor.tsx",
       "sourceSha256": "ea85b487bc8ea1accb2c72512b0614074685aef56d81a6dc42629e42e1268672",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1380,7 +1380,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/audio/StemSeparator.tsx",
       "sourceSha256": "028924c6d676ac858fe7e1d29c36f0a1023b22f6010a5196fe6f391f84abbebb",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1405,7 +1405,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/audio/StemTrack.tsx",
       "sourceSha256": "48292bbc83cf0ed5d7ada8ac34b4cb256ed9372a121e0ab2664fc3ee1595b22a",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1430,7 +1430,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/audio/WaveformDisplay.tsx",
       "sourceSha256": "eced291e5dc8a29c00d61925447a8a80a1ba9d5034ab56095d54990f749e3839",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1455,7 +1455,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/effects/EffectControls.tsx",
       "sourceSha256": "e343938687dd993c395e60ebd08b056c0270b86e96313dcd54011c2c4dc443ad",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1480,7 +1480,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/effects/__tests__/EffectControls.test.tsx",
       "sourceSha256": "4a00e4adc3d78ceb89ef04752fef37f2ef1d45795445d3df8a58dcc91f1a70c6",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -1505,7 +1505,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/layout/MainWorkspace.tsx",
       "sourceSha256": "de3b76d4261bbaff9d42dfed9f3ed75d6f69fb125d23d4eaa9f38e082c9fa9ba",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1530,7 +1530,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/layout/Sidebar.tsx",
       "sourceSha256": "2771fe10aba5e042defeabc7806f1682e1a3f5b9de6d3e4bdabc7a30436cdeda",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1555,7 +1555,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/layout/TopBar.tsx",
       "sourceSha256": "dcb6c336472f91bd6ad6a3d41f8f45c1849d7b4c9fa284d80991ce8339fed927",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1580,7 +1580,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/mixer/ChannelStrip.tsx",
       "sourceSha256": "af23ea8a9bf179733d07588868e32fdcaead935709fb26ea9ae7944b349b7341",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1605,7 +1605,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/mixer/MasterChannel.tsx",
       "sourceSha256": "cc2346b9d20d02e89a36227d52c6d65e06cc0e725b4b3da9fa17b57994c90e7a",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1630,7 +1630,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/mixer/MultiTrackTimeline.tsx",
       "sourceSha256": "602c44f2ae008732d2d9ca2cf181c16fe4f1c94eb98651d832e02a54980ec592",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1655,7 +1655,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/mixer/index.ts",
       "sourceSha256": "aa811b549e7783b700ded39ddf46c387da649c81163ff2aec6dd198990c36dc5",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1680,7 +1680,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/models/ModelManager.tsx",
       "sourceSha256": "9350d5dff420f191f6f767b1e7259426fe0670f0a5802e503550b65fb2ffe3f2",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1705,7 +1705,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/models/__tests__/ModelManager.test.tsx",
       "sourceSha256": "c4352925139b1eca93c1c1910efdec9caf9a2e744575162620801a17928ba771",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -1730,7 +1730,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/quality/QualityDashboard.tsx",
       "sourceSha256": "715e5de09f9d2292f6bdae4c169189d253ebf77eaea971314e2935ec92a9a51c",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1755,7 +1755,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/quality/__tests__/QualityDashboard.test.tsx",
       "sourceSha256": "628184483c8434c811e83f6672520e286469585e1aa915ddbc30a598f8916b51",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -1780,7 +1780,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/storage/ProjectManager.tsx",
       "sourceSha256": "569779ad92ca0b7ddb5862ad98572683cc6d81b817b19b1d9df2463a6febd892",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1805,7 +1805,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/storage/__tests__/ProjectManager.test.tsx",
       "sourceSha256": "3fad276bed27a7f34a8a0671290118810a2338816b71bb3a2e7af542edafc390",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -1830,7 +1830,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/training/SampleList.tsx",
       "sourceSha256": "d98c67a552406bb517853f480ab063e859038a7f7933fc91ff4664a78e0d5afa",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1855,7 +1855,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/training/SampleRecorder.tsx",
       "sourceSha256": "05aace263aae2974786b4ff4cf5a9ebeb581cfd0edddd689e144bc8f4c59b5e8",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1880,7 +1880,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/training/TrainingConfig.tsx",
       "sourceSha256": "4e48681996c436f0827ebd02bec7fbad15fdd471cb9683ed404d68d080bd4e65",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1905,7 +1905,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/training/VoiceTraining.tsx",
       "sourceSha256": "82034108da1998596d33883721c65386a5f75799b486259c65a188caa9e846c4",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1930,7 +1930,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/training/index.ts",
       "sourceSha256": "3b7ac5283de3c3bd39d1df3d2fbe386a0f4db174d2c7a57f7c13752645bee3f5",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1955,7 +1955,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/views/LibraryView.tsx",
       "sourceSha256": "f632cfccd85376fd5b7fb5f83885fac7607a717ae264f1716169ac02a052ab34",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -1980,7 +1980,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/views/MixerView.tsx",
       "sourceSha256": "c69b4c086bbd52a7b57411e0732b94cf80526281239568c570563414413766c5",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2005,7 +2005,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/views/ProjectsView.tsx",
       "sourceSha256": "2c33a4afc022a1f1986629f3b8b459fff0d6d8a6bf889b62ad6cfd409ea596e9",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2030,7 +2030,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/views/SettingsView.tsx",
       "sourceSha256": "220afc33575ba27d84c28dd764bf4bec1a4442fa645f3c6386039bd11d6757a6",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2055,7 +2055,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/views/StudioView.tsx",
       "sourceSha256": "bed98bcbeaa16f30103d1569be42b6bce5d6b43661f711900676a6da71915475",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2080,7 +2080,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/views/StudioWorkspace.tsx",
       "sourceSha256": "623c83b84f7a0bb014a72cd1520a3797510bac201c9a9c5fccc6555788377b7f",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2105,7 +2105,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/views/TrainingView.tsx",
       "sourceSha256": "bd2c9ff609cc5dc1268a8a1943edf4a9efec6b0383b8501c36be0bb3108befbd",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2130,7 +2130,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/views/VoiceReplacementView.tsx",
       "sourceSha256": "93f167590110a4e9d079b27270cf1a33f6a4c2d106506d7adfb4e62becb65d0d",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2155,7 +2155,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/views/VoicesView.tsx",
       "sourceSha256": "a0b03ceda841eb72a326a87e45821f6e0eaf3c59524888c51a2fadd92026552f",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2180,7 +2180,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/voice/ConversionProgress.tsx",
       "sourceSha256": "2e310b30f7b5792c8bb5ed01f7d62739f3c045b34c7d01901ea50fbe69277301",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2205,7 +2205,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/voice/ConversionSettings.tsx",
       "sourceSha256": "bedb97372de8fcffe9ec8102cab2060a0d89136676b40a6ea143d95893803c80",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2230,7 +2230,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/voice/PhraseCard.tsx",
       "sourceSha256": "c2546cf56eae40b238e6ac3d8ebefbc137ac75772d94995b073e1151c3e31d29",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2255,7 +2255,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/voice/PhraseList.tsx",
       "sourceSha256": "a6ffba86ace749b5fcc3cb12952595e8535e1cb90dd9d15c0d85612ca6be75c7",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2280,7 +2280,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/voice/VoiceModelSelector.tsx",
       "sourceSha256": "13acd800b0f69cb091cca8911a2f7976910262f6b3e896d247c00c57472f3dc6",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2305,7 +2305,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/components/voice/index.ts",
       "sourceSha256": "7905a38ee21a5075a869a55171cd95e4fa74411f7d3824fc825427d42c1b1dd3",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2330,7 +2330,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/context/ProjectContext.tsx",
       "sourceSha256": "1d9794999e45d695d3e459e84dbde235057255a5f68ce71d25ca4bc3873d0fe0",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2355,7 +2355,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/index.css",
       "sourceSha256": "74c4f4d8fb65f31dec589ca70d9e9377ae2a4d63a57fb72a930b03d55842e787",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "stylesheet",
       "publicExport": "application-internal; no supported package export established",
@@ -2380,7 +2380,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/main.tsx",
       "sourceSha256": "138998a143cbe511b592daa5cdb309da90be245a3c0bcc4def7147e82bc6e2ae",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2405,7 +2405,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/test-utils/index.ts",
       "sourceSha256": "1f1cb10c2ac3fcdf167e1166843e3eaa725652e16f831178014a5014cf36c8a7",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2430,7 +2430,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/types/index.ts",
       "sourceSha256": "061aec93314f8bc79c6b5a621e8447cc4193563e3a77dbfe29341900bfb84ad5",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "implementation-support-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2455,7 +2455,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/utils/logger.ts",
       "sourceSha256": "6b5e962c2b019e0177fa0ec7a6627166dcce0e3d97186b40d7a8b587a080217c",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "implementation-support-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2480,7 +2480,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src/utils/performance.ts",
       "sourceSha256": "2606e97e4230a3bf997b758032224374c7e310925d5d88d9b4e045e63597c391",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "implementation-support-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2505,7 +2505,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src-tauri/capabilities/main.json",
       "sourceSha256": "3f2ea0a9a881c1f7818746decb134bb88e258a002177fb8ffb932fd393a74c88",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -2530,7 +2530,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src-tauri/gen/schemas/acl-manifests.json",
       "sourceSha256": "fec44224719d206cc40dfa9d21d6d5d215d48b7468120d582d60a324be09158e",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -2555,7 +2555,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src-tauri/gen/schemas/capabilities.json",
       "sourceSha256": "aee9a4dea6a5e2293050a91792913d2a0ed0c62ff252dca526b3687ab5e20e8d",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -2580,7 +2580,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src-tauri/gen/schemas/desktop-schema.json",
       "sourceSha256": "201ad3fdd7693cc1a320229845601062cbc23c115ba5438a24e31c2c53926893",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -2605,7 +2605,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src-tauri/gen/schemas/linux-schema.json",
       "sourceSha256": "f8effcbe275c2ddfb87a9e7ccfa97426965902e33aca06d446ab9b6e54d501f1",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -2630,7 +2630,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src-tauri/gen/schemas/macOS-schema.json",
       "sourceSha256": "f8effcbe275c2ddfb87a9e7ccfa97426965902e33aca06d446ab9b6e54d501f1",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -2655,7 +2655,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src-tauri/gen/schemas/windows-schema.json",
       "sourceSha256": "201ad3fdd7693cc1a320229845601062cbc23c115ba5438a24e31c2c53926893",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -2680,7 +2680,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/src-tauri/tauri.conf.json",
       "sourceSha256": "44235a49a39ed053f9b92f9d8ceaeb29902c3faee31dfeb927bab6c2f5208290",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -2705,7 +2705,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/tests/e2e/smoke.spec.ts",
       "sourceSha256": "0cf4c0f304b1dc2c017e0dcf56c89dfedb80cd2df9cc56f965c8f2b313f96b37",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -2730,7 +2730,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/tests/e2e/user-journeys.spec.ts",
       "sourceSha256": "da91489b8329f279de7b2950b6b40b6f81832e4e2ea06363606d76b9f6990f01",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -2755,7 +2755,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/tests/e2e/utils.ts",
       "sourceSha256": "548b47602ce2b5fc51dec13185d63138e7efd6359c7f0704c2f3746302c50628",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2780,7 +2780,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/tests/integration/ml-model-workflow.test.ts",
       "sourceSha256": "f0f46cd65e007e23dab652e98d1b3f2c9de32bce39871ed09717bb3b7d3ca28b",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -2805,7 +2805,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/tests/load/load-test.spec.ts",
       "sourceSha256": "923aaf625005e9c9284e051b86b4448ecc2e52c5934a28ab70c9088dd871841c",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -2830,7 +2830,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/tsconfig.json",
       "sourceSha256": "ef05804827b9635f0f5a18a77fcb6184e37f89e264fbf27584f76ad513d418ca",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -2855,7 +2855,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/vite.config.ts",
       "sourceSha256": "f39a607b399c5e14dd6c6c3a98d8419b93093eafa12dd721d5365478e8f15897",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2880,7 +2880,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/vitest.config.ts",
       "sourceSha256": "9c3f2dfba1b54d08513e723feb261c2468e879291c70a1f21b5b27edb2e1bceb",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -2905,7 +2905,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/ai-voice-desktop/vitest.setup.ts",
       "sourceSha256": "87fa0e5bfc71804180b6aa32edeb34eba7c2009d1a5e544c72ce5ed443cf35e2",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -2930,7 +2930,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/e2e/critical-journeys.e2e.ts",
       "sourceSha256": "257efc0dae65922f4e8edd9498166d000815f91ad1faa079976e4cc7d5240450",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2955,7 +2955,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/e2e/visual-regression.e2e.ts",
       "sourceSha256": "c065bdf460d2fc4542a36e8c1be1ed4a2102100eff32d06321e8a7ce00d1aa69",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -2980,7 +2980,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/package.json",
       "sourceSha256": "153481272ecf518eb95db8e99162bdf3a1733fab3735a27a3c60a59167eb5060",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -3005,7 +3005,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/playwright.config.ts",
       "sourceSha256": "f454ed2b4b547e230d906d7b71f987dbcbaab70dedd7a6c917954986d7228829",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3030,7 +3030,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/App.tsx",
       "sourceSha256": "61152080c9d23dc9dc8c28f6f26c568b24bef62795f40f97cb3f489f7a4b32cd",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3055,7 +3055,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/AIVoicePanel.tsx",
       "sourceSha256": "6f75c800ec90bf49639922cc1e58c7db8f7df53e05450d43a8f8e93865962bd0",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3080,7 +3080,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/AdvancedMonitoringDashboard.tsx",
       "sourceSha256": "30626d7118b3fdcc229568a0fac38b4ff8d99d411a40387764368967160ef311",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3105,7 +3105,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/ContextHelp.tsx",
       "sourceSha256": "e707e5d2e7c3abe13de02fa747ceb5896005bcd6f9840624e573365493a15806",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3130,7 +3130,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/DashboardPanel.tsx",
       "sourceSha256": "000a6237ab8ecf258496f05243355a6c67aa3408824d8498171fbfb0321b0456",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3155,7 +3155,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/ErrorState.tsx",
       "sourceSha256": "c0463cb0f1c05ab8c879379e0c0abfd98e5c69a8de15361535dbc40115b6ae28",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3180,7 +3180,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/GuidedTour.tsx",
       "sourceSha256": "5537f0b7db107f78ec72cef7c50de25000fbf9d0770566ccfa197920785f8bca",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3205,7 +3205,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/MultimodalPanel.tsx",
       "sourceSha256": "4c62d302c96e192eeefd3cf4dd39481dde192b951f130cf5741a9f5cf84e3048",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3230,7 +3230,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/ProgressiveDisclosure.tsx",
       "sourceSha256": "1c9355d7f0efabd449429feccecabf44c11abc4041822d6ec4e915b5cd0a967e",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3255,7 +3255,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/STTPanel.tsx",
       "sourceSha256": "1639c4f53d3aa7d76d25ecaea85b8ea9d418ebea81a5510470db36c406dcda25",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3280,7 +3280,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/SettingsPanel.tsx",
       "sourceSha256": "ec52843158d7f20326ca63a517c0816316f375d9269a3c23a6c34556dc4cfef2",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3305,7 +3305,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/TTSPanel.tsx",
       "sourceSha256": "098549aea9e22aec608c8bd651adfc00ee8d8b305d9b5189e1cbf13cc387a7eb",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3330,7 +3330,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/TestSuite.tsx",
       "sourceSha256": "8affacf47eb8a7a23981dd940f5c4d83af4eab7fdd39a8725838523bde8b6c50",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -3355,7 +3355,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/VisionPanel.tsx",
       "sourceSha256": "5505d278acf4a2467abad3c389dc730b9967e1128b8709293f28bc4bcd092bcb",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3380,7 +3380,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/WorkflowPanel.tsx",
       "sourceSha256": "c4a244ad926e3a8a8ed6dad9ea42e5a2764f0a42ccced815634ff53b1860b3bc",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3405,7 +3405,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/__tests__/ContextHelp.test.tsx",
       "sourceSha256": "5e3b745329806eafb009430f8ab75229370811aa33afaf7d887c60c0277a4c04",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -3430,7 +3430,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/__tests__/ErrorState.test.tsx",
       "sourceSha256": "05d901dbb7528b4c6d33c6bcaa595fbf3c7976ba9e77771b54222c8883d22fb3",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -3455,7 +3455,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/__tests__/GuidedTour.test.tsx",
       "sourceSha256": "be1f863979087f7c576d13f3d9ee56cd209d4d1b513a7632dd587a1250c0cd68",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -3480,7 +3480,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/__tests__/MockServicePanels.test.tsx",
       "sourceSha256": "e984fe05d6108abba013190b8fd42e08526cba235c1866a44307120cc7e55d49",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -3505,7 +3505,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/components/__tests__/ProgressiveDisclosure.test.tsx",
       "sourceSha256": "f27f684d5a82d1bae36ae099aed09987e5a95a6320bc0fdc90fe0f88827bb2f6",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -3530,7 +3530,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/errors/__tests__/errors.test.ts",
       "sourceSha256": "9127734afb2cec4c316e7cdb0b9167bdab0fb5aededd9e12a4661b1bf36c0c64",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -3555,7 +3555,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/errors/errorReporting.ts",
       "sourceSha256": "e9a341a15f5fd5a1b48c3d3ea17b000c92e4b19d972866df418811778a55923a",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3580,7 +3580,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/errors/errorTaxonomy.ts",
       "sourceSha256": "a7c312ee071377ca69033443116cb8e1c53578f767954431bac5b3bf06c62210",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3605,7 +3605,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/hooks/__tests__/useAudioVideoStore.test.ts",
       "sourceSha256": "1b75264e7645c4aa12c4a0419c08ccd1cc7daa6e257b668f195a436be7b528f0",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -3630,7 +3630,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/hooks/useAudioVideoStore.ts",
       "sourceSha256": "1ceddc2d2d7850fad522077196bb9205296c1d0709a00531a7ea99e42efce460",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3655,7 +3655,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/hooks/useWorkflow.ts",
       "sourceSha256": "c698953fafae60e9134b4ad85d32e99b5e1d43c0d9aeacefd94925ffa49048f2",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3680,7 +3680,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/index.css",
       "sourceSha256": "689b5b393375c667b01ad6b8ad46c55cac876a11dd8b2dbf23b2314d15cda544",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "stylesheet",
       "publicExport": "application-internal; no supported package export established",
@@ -3705,7 +3705,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/main.tsx",
       "sourceSha256": "6b885e4590da6a8eafd7cdb2a290ef3ea2dfaca7b8b5b4e9b2e8f636273b25f1",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3730,7 +3730,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src/test-setup.ts",
       "sourceSha256": "952e9162f34dea0f5b8f4d08200e6640fd98767a9817678ae0599090e8f02b84",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "test-evidence",
       "publicExport": "application-internal; no supported package export established",
@@ -3755,7 +3755,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src-tauri/capabilities/main.json",
       "sourceSha256": "6d40f883f2d81a4f6485aaea182b266bd7869cc43b8a9fb862d590572524b2e1",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -3780,7 +3780,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src-tauri/gen/schemas/acl-manifests.json",
       "sourceSha256": "e11865c1c63afcb5cf24ecfcf961d4c37701e80d7665af5c6a3b1cba25f2fece",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -3805,7 +3805,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src-tauri/gen/schemas/capabilities.json",
       "sourceSha256": "092585c99a282cf1de3bba682eaf43b95901b250534f00b09a2f9950441d18ca",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -3830,7 +3830,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src-tauri/gen/schemas/desktop-schema.json",
       "sourceSha256": "bd967a405bc92641c1e959a78f4b16ca3f18ca015c975cb82b325d2ee6b99995",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -3855,7 +3855,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src-tauri/gen/schemas/linux-schema.json",
       "sourceSha256": "390421a9840067d5b6e3e07fccac48bc9fd52fcab915177f81d88f0e04c529dd",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -3880,7 +3880,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src-tauri/gen/schemas/macOS-schema.json",
       "sourceSha256": "bd967a405bc92641c1e959a78f4b16ca3f18ca015c975cb82b325d2ee6b99995",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -3905,7 +3905,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/src-tauri/tauri.conf.json",
       "sourceSha256": "96ce59d7550c5aaf5a83967d17f9346be03e57d470ef989fc4be439b236e88ab",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -3930,7 +3930,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/tailwind.config.ts",
       "sourceSha256": "b468a30dfdc657d6245acbc6db67686cfda5e3b593df0547b5f65bc13bdf0d14",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -3955,7 +3955,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/tsconfig.json",
       "sourceSha256": "1e61a2e6fd7c77e0d3ea9076f1b6ee11d59b6247012eac5f56b9b4188b23f9f7",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "package-or-tooling-metadata",
       "publicExport": "application-internal; no supported package export established",
@@ -3980,7 +3980,7 @@
     {
       "sourcePath": "archive/media-desktop-apps/desktop/vite.config.ts",
       "sourceSha256": "792686c455f4a5a2293a0162c7ecbb156a38340756f1eea57e283edd9059fe2e",
-      "sourceRevision": "25dcc89b04d3810ad126a1c7ea0881191f38edf1",
+      "sourceRevision": "d4caa874f822e1737a88d0a6056e4f2faaeb78c1",
       "sourceState": "matches-observed-revision",
       "kind": "component-or-hook-source",
       "publicExport": "application-internal; no supported package export established",
@@ -4003,5 +4003,5 @@
       "admissionState": "inventory-only; no automatic admission"
     }
   ],
-  "observationFingerprint": "3aa9bc60ea9751d422ca33e94633b66793bee077eb0e97eada5f2c9f1acc9135"
+  "observationFingerprint": "90be3361c2fa8612c801ab69fc65845e28b91553bbe54a9a6b3ebdeefbb69f21"
 }

@@ -17,7 +17,7 @@ externalOwnerObservations:
   repositories:
   - repositoryId: ghatana
     available: true
-    revision: 6c31dc293b6a1210baea960c9b4818720464a3e6
+    revision: 5b364cffd9503d5b021fddd978c5a3aec2ee854d
     workingTree: MODIFIED
     files:
       - path: "config/repo-boundary.json"
@@ -61,7 +61,7 @@ externalOwnerObservations:
         sha256: ea614e2b85ad661034e2e4441f0f2dbf36e3fd0e569e3706595a5b76844faf6e
   - repositoryId: ghatana-lifecycle
     available: true
-    revision: 5495e3547dec8c4f04215b5391a8b9e6e7c00044
+    revision: 8016e809289778618f205ce14e33b2137c677d8b
     workingTree: MODIFIED
     files:
       - path: "package.json"
@@ -69,7 +69,7 @@ externalOwnerObservations:
         version: "0.1.0-rc.1"
         sha256: 6c8eb4c87df76fcaf1001fcbf8ef88205286b2e58e52ba125969c8a9e17ae337
       - path: "scripts/checks/check-pdp-acceptance.mjs"
-        sha256: d191b99fdc47f5d07192fcf295828365c08773aa077432a49c83cff99299236d
+        sha256: 038758449ecc99a1904e36e877c7ef2881493b212c55a21074342f56aa40ac43
   - repositoryId: ghatana-shared
     available: true
     revision: 495663b2d6b61c270367048cec54db8a06f22d69
@@ -142,7 +142,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 8c94867ebecfafd0d12a6606a28a25ac14bb3844a6ed4407e42b5204e7e5500d
+      contentSha256: fd3e7748249c8ea7b672b758ae4bf4b093c99e5c61adc4e7c7083f930ff62bd4
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-ACCEPTANCE-INPUTS
@@ -188,7 +188,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 1cc66baa49ed0a22f0a00175dfebfa7b8e3fe9d341bd93a611db8a1aeece0b6e
+      contentSha256: a1f39fc48c71d90912c5f38f45f536c2d6b4aeae91d2943d5c1cca9680862827
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-GOV-CLOSURE-DASHBOARD
@@ -349,7 +349,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: e1f7a6071bb89d7db9647cb5604e9cba20349828e6a62ef530070a5dd89650a8
+      contentSha256: fe2e061784aaf2329d1a17b4c9352861c585d8745a5b49996fd66f96bcf0f6d2
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-GOV-EXECUTABLE-REPRESENTATION-HOST-MAP
@@ -372,7 +372,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 6c5706774983c9b338c20455881e3d30fbe2c18188c2ed13f03977cf5319c4a6
+      contentSha256: 95a554d016ad82484bee3fbc79b6d2e8dbe4e54b1557d0756f1f884ae8225af7
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-GOV-EXECUTABLE-REPRESENTATION-MIGRATION-LEDGER
@@ -602,7 +602,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 7268a90e5ffa616df3b0e0b454d1c80ca797c21d9c280f49057a6f3a772ed33a
+      contentSha256: 539bf75943c18f8d8c42510ae94275b76f245a4ba0b6764ccad2540376924871
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-GOV-INTERFACE-OPERATION-PARITY
@@ -625,7 +625,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: b3dea5853635922d5ced30d598888e45fbb16e6cca1962742b9e15e1d1eca4be
+      contentSha256: b0256af84c5c998274a877baa158b3df957859e2f2439312f51c2a849eddf98f
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-LANES-TRANSCRIBE-AND-CORRECT-CAPTIONS-YAML
@@ -916,7 +916,7 @@ productArtifactIndex:
     generatedFrom:
     - canonical-source-file
     dependencyBasis: explicit-repository-relative-source-path-mentions; provenance-only
-    dependencies: [ART-MEDIA-D34C3F69B2E2, ART-P0-ACTORS, ART-P0-CAPABILITIES, ART-P0-CONSTITUTION, ART-P0-GOALS, ART-P0-JOURNEYS, ART-P0-POLICY-AUTHORITY, ART-P0-PRODUCT-TRUTH-BOUNDARY, ART-P0-QUALITY-POLICY, ART-P0-REQUIREMENTS]
+    dependencies: [ART-MEDIA-D34C3F69B2E2, ART-P0-ACTORS, ART-P0-CAPABILITIES, ART-P0-CONSTITUTION, ART-P0-GOALS, ART-P0-JOURNEYS, ART-P0-NFR, ART-P0-POLICY-AUTHORITY, ART-P0-PRODUCT-TRUTH-BOUNDARY, ART-P0-QUALITY-POLICY, ART-P0-REQUIREMENTS]
     dependents: [ART-P0-SCHEMA-BINDINGS]
     schema: pdp.0.artifact.v1
     verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
@@ -924,7 +924,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: e1b0577f2adae4663bd7c74e62c2d050ac46a6fab79a112466a56c9e2ec0d986
+      contentSha256: 38bacc594d79e1a378886732064930f932826c82474a20c34cd6e87920012fcd
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-GLOSSARY
@@ -1078,7 +1078,7 @@ productArtifactIndex:
     - canonical-source-file
     dependencyBasis: explicit-repository-relative-source-path-mentions; provenance-only
     dependencies: []
-    dependents: [ART-MEDIA-AFA090EA88CC, ART-MEDIA-B4CD4A667F3C, ART-P0-ACCEPTANCE-INPUTS, ART-P0-SCHEMA-BINDINGS, ART-P0-TRACEABILITY]
+    dependents: [ART-MEDIA-AFA090EA88CC, ART-MEDIA-B4CD4A667F3C, ART-P0-ACCEPTANCE-INPUTS, ART-P0-SCHEMA-BINDINGS, ART-P0-TRACEABILITY, ART-PDP0-PRODUCT-DEFINITION-CANDIDATE]
     schema: pdp.0.artifact.v1
     verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
     acceptanceState: PENDING_OWNER_REVIEW
@@ -1146,7 +1146,7 @@ productArtifactIndex:
     generatedFrom:
     - canonical-source-file
     dependencyBasis: explicit-repository-relative-source-path-mentions; provenance-only
-    dependencies: []
+    dependencies: [ART-P0-REUSE-DECISIONS]
     dependents: [ART-P0-ACCEPTANCE-INPUTS, ART-P0-MIGRATION-SEMANTICS-REVIEW, ART-P0-TRACEABILITY]
     schema: pdp.0.artifact.v1
     verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
@@ -1154,7 +1154,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 99fcc3f5ca415c7889724f00660bd40b7214f40297f375041b728b1c86f7172c
+      contentSha256: 28ba1f0584803976209087dda80b4507283382e1e9632721a3c580eabd05b637
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-QUALIFICATION-POLICY
@@ -1239,14 +1239,14 @@ productArtifactIndex:
     - canonical-source-file
     dependencyBasis: explicit-repository-relative-source-path-mentions; provenance-only
     dependencies: []
-    dependents: [ART-P0-ACCEPTANCE-INPUTS, ART-P0-TRACEABILITY]
+    dependents: [ART-P0-ACCEPTANCE-INPUTS, ART-P0-PROFILE-SEMANTICS, ART-P0-TRACEABILITY]
     schema: pdp.0.artifact.v1
     verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
     acceptanceState: PENDING_OWNER_REVIEW
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 07be345bb105228f2987d03b295dcb7b9afc8fe76ebedbcb736a851a37c685e7
+      contentSha256: ce0109af5a2d41ecaa4bd3d80587f8e34c555cf4e14058458b3d798f020115fc
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-SCHEMA-BINDINGS
@@ -2281,7 +2281,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 92c0e41a0a6deb1c548014474c7ff31a0cfa003fdb8647b3c3edae8c482e55bc
+      contentSha256: 47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-D93AAC60D437
@@ -2327,7 +2327,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 43aac85e485d338c2e0d8ce6adf7739224337989a321276b14285413de813808
+      contentSha256: 2bb753e94414e064daf8020df940a54b4b8057e4d790289234f342f3048c2d62
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-EXECUTABLE-UI-INVENTORY-MD
@@ -2350,7 +2350,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: b7db3bd8cb076259507cf4ed41999e9d257fb15e8db358fbdcc813a12dd3ca69
+      contentSha256: 814534c9f799fbccf439bc3878334092a3799d04666575c630f6f77caef24756
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-PDP2-EXPERIENCE-LANGUAGE-CANDIDATE
@@ -2373,7 +2373,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 28b40e2b73399bb71a471f36d3091b6c287d3d1ba4a02b899241dc62858d469e
+      contentSha256: c7d20263c73315d78fdc988f2fc360d14f7803ecf3f34827b527dd2c3b8ee687
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-8B2627A1C5C0
@@ -2396,7 +2396,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: d1e59d5fb078c771e3e4e4c47eb89c8d5c285f3f26ec961832d5e4ea7e8eb0b0
+      contentSha256: 451259478d78a2ef408327b7e9b2804f80ad9ec87f95696d0cf7e2ed98a5ec40
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-144680451754
@@ -2557,7 +2557,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 3c6c8e48a09e88542602d3a08ccf4c577187d2bca1560edae1a9671cfae7f52b
+      contentSha256: bdcc80508c3f8027e964db02d0d27633413e6eea7429fdb8da0e8ebd9fcff440
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-C46E1B47171F
@@ -2603,7 +2603,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 97356cfb654cce31fab3c30aeef70cf92142c3f2583fcfbb416fe0fa034d04c8
+      contentSha256: 4494529a1adbf9db3ebb8fecd7ba6047a107bffa444a4a5e23996e758bcd4e7d
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-93CBF4320DC2
@@ -2649,7 +2649,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 2b25e7b3d4f3ab9661ce8c001b0219442913c5c6e6949926f13aa36bf582f298
+      contentSha256: bde0f7cdd156fe65a917b3e90bfdee9d79c8ee62a195d761525c00250da2ff9a
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P1-PHASE-1-DESIGN-LANGUAGE-LOCALIZATION-CONTENT-YAML
@@ -3799,7 +3799,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: cc218e359d807c853ff53429308323f87167e462311ff5de116de90a8fb63345
+      contentSha256: f23a5a78ba442b706608f470cab67109984476f3911b969179693d1c2a27ed34
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-96177BF670D050B776EA
@@ -5731,7 +5731,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 3c45b4c8ea7e3482785e1e4d54b509e7fa93779256d44bb272893051d527d783
+      contentSha256: 8a7175687aa2c83e02736451d9995a9a6c34eb2320ac123d28b21e130c403933
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-ANIMATE-MEDIA-YAML
@@ -5754,7 +5754,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 3a05be8fc85a76f50cec294084ce03e65e49a40e6fef2590ccfea160c9d3de90
+      contentSha256: 52a090f849558b9cab144bc3314e428ffa6d7e653c1ff4401fd98ed00c91bc82
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-ARRANGE-SCENES-YAML
@@ -5777,7 +5777,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: eef13e6a0cae8699c9cdec23f1e0c87c9841666a3924054ef409cd42374cde2e
+      contentSha256: 282327d2996fb5bee3038b1c2e08770ebde3a73a9b6d08b4c55951212f7a5024
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOB-FAMILY-ARTIFACT-VERIFICATION-YAML
@@ -5823,7 +5823,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 1cad6937212c6bc3b3f61e4b65d4f2176acc647edaed8894ae92b13c7c55b051
+      contentSha256: 9494f406202c4d6db989d18c677df02c492cac18560dff561460087e9f104849
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-BROWSE-MEDIA-YAML
@@ -5846,7 +5846,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 8f8eec1c5aba734679a062eb231d4c1fd65d7fce0f6b9684006c3bccf3ba9379
+      contentSha256: a1d08e537a93ff04cd46a665863bef4d8bde7560e94c84faa54adc49c51b65af
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-JOB-OUTCOME-YAML
@@ -5869,7 +5869,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 61fa377cbd4212ffc012f503d455d718b0ca05f6688c446b7667730684b4877a
+      contentSha256: 4d3db6f8b35b0304ab8e248ed2d8babe782e51c478aad097d7e48d9ebdf8c7f8
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-PROCESSING-OPTIONS-YAML
@@ -5892,7 +5892,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: c87f528039ac579127ed67fd780c3bf634ac654b4e23a8288c2da347776d56ce
+      contentSha256: 5f11d73487477db362879f1570f93f5842e36dbd712515da3036022a5e7b57b1
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHECK-PROCESSING-READINESS-YAML
@@ -5915,7 +5915,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: fe3e66843e49198ea59ba3cc691f315e477f9ad817e79e42ff3599f463f1b62b
+      contentSha256: 57474d82ea9f51aac9cf97b3e9ea16bbd6e1c343aa58d5f812bdb9c157736ba9
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CHOOSE-ELIGIBLE-PROCESSING-OPTION-YAML
@@ -5938,7 +5938,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 73f0cd61bf897cb63cb3ad95d4b3e9a76cff7e81a7d8531cd8b0db0ee1249f8b
+      contentSha256: 08c3a3333e33508f8f86ba24baa4321c2179925edc68e50ff6db0914910bf2f4
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPARE-CAPTION-VERSIONS-YAML
@@ -5961,7 +5961,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 80767d8810b22f643b0c297c791fcb94963c797e63dfc22870411ace40404028
+      contentSha256: e4ac02fc59ab3aad5d0ac5270523846e0c562d0df1756167253646acdb4e0b08
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPARE-RESULTS-YAML
@@ -5984,7 +5984,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: a5d112aed45e17a21e97cee696e41fc5a58fd74748c7dfe0d3c80d259461fc92
+      contentSha256: 700ea67b2389ff1cab738bfe167212b33d38f668d69d81f888979acea6e05fe5
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPOSE-MEDIA-YAML
@@ -6007,7 +6007,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: e7d8bd1cbc54779bc5d453c9ed66273742f484de3e1121a293c99b87ce68aee9
+      contentSha256: f19963b690c111da6dd4fb8b8be3029acefe62bdae935a82f02f503a84fa4f4b
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-COMPOSE-SCENE-YAML
@@ -6030,7 +6030,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 0745d37e2726c937f9abda77f26961914fd97b7c6923abecd74fea2cff214d87
+      contentSha256: 1d078f133328b7ff95e65ffd1873605b0cdfd485d4bbf48094a2e3d62338f4bf
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CORRECT-CAPTIONS-YAML
@@ -6053,7 +6053,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: a9a28d4ca076e66b0cb17d736ed6b4de4d163e6a9e697452d5410f9e8c77e674
+      contentSha256: 02a2fe7bd5265d0a347d7ee1403f7cdda6328fe8b93dd0fd035d41f17908ddb9
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-AUDIO-YAML
@@ -6076,7 +6076,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 1bbb0ac92e23d2ac37c82563a436b63c4f8e5427e5e588ead421e2d95d17d24d
+      contentSha256: 25b5ef47dc8d3462a859732420d4aea3d9867aa18197ab9c6d7b322845f1b7bb
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-IMAGE-YAML
@@ -6099,7 +6099,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: c60c16217defe44e2fdc1cae064c2f1591f771a0539cb9d4627df9c7ab4f666e
+      contentSha256: d3c2e267b0835058515e2f6a32d634988391dea59bc68c2b24742e4a7fb80a05
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-MEDIA-YAML
@@ -6122,7 +6122,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 61725c35d241912e2b1b5c554501316124e96a2a94e1563f9a443078a7943c1c
+      contentSha256: b48e0ad39833972470a9ab2bdf34c2c2a2306d69d94ad0143627a36d3d23408c
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-CREATE-VIDEO-YAML
@@ -6145,7 +6145,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 0f51d93f4c807b7bd5f807d3f4826f627e289992fcf354f20ace6088a84d467d
+      contentSha256: 35acb2aecefe924167132bf04245be3e612843305e97374a930fe7753e740e38
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-DELIVER-OUTPUT-YAML
@@ -6168,7 +6168,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 73c0d109210f0a992ec0922d09c6d2f4549535c0a1f0ff53bceb9dccbd89bb39
+      contentSha256: 81861457b236fa7ffa144f44776800d3ad5bb3d955ebbd822b5a2bc159dd768c
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-CAPTIONS-YAML
@@ -6191,7 +6191,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 696c08a008e2f5aea87bf321ccbe8382c37040140c858f2e90b79dc66dbbfa41
+      contentSha256: ae214a80952e42cdbc0d10f2b6abc85d1d957e47b263ca41bae65238450c11c4
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-MEDIA-REGION-YAML
@@ -6214,7 +6214,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: c96886c0557de56be11b42ae927f0130ce92f6bdb9dad3e1ed993251fe3bf1cc
+      contentSha256: b873abf1a44026097ce89d453e34f28ecf2c2c8410d6f6b9de67a35acf5fb4da
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EDIT-MEDIA-YAML
@@ -6237,7 +6237,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: a060536045c2f87a99cbb4b48d642adb18fa6911b9ab65bc3ef33cb2e5669417
+      contentSha256: 7c24bade29dca4a95679e0b381242e7489437e4ca56122d5cd7246df056c4a28
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-EXPLORE-SIMULATION-YAML
@@ -6260,7 +6260,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 5eb5dca565de9c53b9f2c4484ab527a7b4be723ae19342d1f824bdcf691ca317
+      contentSha256: a521641729986ef2f4c0d72be4b3e0a02d69e7c669c46da5af177e2d946db9d5
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-FIND-PROJECTS-YAML
@@ -6283,7 +6283,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 250de807cf9acfe822414a0ef031c02be2bea90ba86440df9ccfd4dcfc4400a5
+      contentSha256: fa4f03322f81851abf418555af6698fde0f20913f9524ad1de555f7b55d24148
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-FIND-TASK-GUIDANCE-YAML
@@ -6306,7 +6306,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: fc3f09618f9c7020388390bf2c2a17d67aa70928da32bdafef6d37590685a875
+      contentSha256: 880861b9809ed9be9bca2e06f8dbe0785775f7ace79d6eafc8222cad091b7f28
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-IMPORT-MEDIA-YAML
@@ -6329,7 +6329,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: c1b939fc0c541cd87a278eaa4cfc0ed38e9b8061d82c7dee2148ff689f687111
+      contentSha256: d6d0a1614708a8d1515f13be603e612bf988f1e7bb93edda76303099bab4cfb3
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-IMPROVE-MEDIA-YAML
@@ -6352,7 +6352,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: bba63152b74cb5d3d2c0679209f1c443b2b10ee068d908c2a0e382a963fc1636
+      contentSha256: 60faf99b35180fe6d3189f9a18d8f0abae2543837b7fe1e6e20653a5f8fff453
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-MEDIA-YAML
@@ -6375,7 +6375,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: dc9b2ecae36b22279a1b7f2d9a707bf87cf54c724c7aa3c3248f7bff97233d4e
+      contentSha256: 5c1519ad59f4b9222a6897b656453459ad046ffb69fb8f850ec2d8bfcaec3b2e
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-OUTPUT-YAML
@@ -6398,7 +6398,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 42034928c38076c3e10d00403ec9d717097dbd2252e96fff48ce8a2a25fdfc3b
+      contentSha256: 29b2a113c6585f1bb0c6cace50f70bd8db42087b1a9bbd426543f1ff1fb573bb
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-INSPECT-PROVENANCE-YAML
@@ -6421,7 +6421,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: ec7fbbe32579e49b578e24c1229eda409d3e6fa198182228834978dc9924b867
+      contentSha256: 95ce1fbf837eddf88e0e96f7a2953513e2f6be738c871a984a28c09535c59646
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-JOB-STATUS-YAML
@@ -6444,7 +6444,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 93c539acc735e90f41bbcbd42af121b4eb8cd13fbab603944fa7f7b5c914b8c8
+      contentSha256: 2821aa7be00e8cdb4ac10e356794dbaea95c952b5c2593c0b3a3f44b822b7e86
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-PREPARE-RENDER-YAML
@@ -6467,7 +6467,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: f7d516cbe4ecf9b9c04e2645c8d95d0b470582fc577a146472d04eeeae58efd3
+      contentSha256: c2514ae56d8b136a9e16b4d70facb9fa7476e98b679ca66955118d0d2093592b
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-RESUME-WORK-YAML
@@ -6490,7 +6490,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 6e47f29bdadd212c47638fd4f934b66b61f75b39d918b9806c2872c0f7174bf0
+      contentSha256: 28d02139749c6331729c214d371dd3005385ed3aacf06909ca4deee08818cf37
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-ACTIVITY-YAML
@@ -6513,7 +6513,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 3059be52b52b7155710d9087c981475cb3c5a6b5bf94c2eae5846ee94022980f
+      contentSha256: cb9dfe4db12fb04f3b310ebf68be574cf2950cfb2cf99c9de366a22f65b6bcab
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-CREATION-PLAN-YAML
@@ -6536,7 +6536,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 3d761cd5a22aff1af8711076be51bbd5994422ba5496957db4b9cd8d259c6d85
+      contentSha256: 28e7a44491abfb30d17b9f5a3b2bace0d8e6f4bbd45c3bb3af7b0d468601c23d
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-DUBBING-YAML
@@ -6559,7 +6559,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: c5d0e38f4d749c0c24852e255b7b48681f547b35217a7570232e00a35f2c0d4f
+      contentSha256: 31c4a45ea307f84467ac5627a00abcc389ed887dcd0a53ff03e3f44b128b1e7f
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-EXACT-VERSION-YAML
@@ -6582,7 +6582,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 832a3f799f47377e38c1fd8d58048cc18fb0e8d2c55850972057d6b9ae81e923
+      contentSha256: 60529b4058ae79ec51256f8be2dc668c187397b7536ce756c8a2f7214d749134
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-OUTPUTS-YAML
@@ -6605,7 +6605,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 747b61c7e85d102d570522ad5e69b9e3d1387d874405376ae0f2cf329166ff2a
+      contentSha256: 172f4442679adb9362d0b55a64c1a108a35f6d1e086449f0def9efc1cb98bd63
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-QUALITY-YAML
@@ -6628,7 +6628,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 8157001bc3da2a36a434755e97bb498a864e9e814b97417ed5764759a41bb30f
+      contentSha256: ae7b954da4a97524a2f122ad849ddac62c3fa8e42f72eb7f2c8b337ac54d30c9
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-RIGHTS-AND-CONSENT-YAML
@@ -6651,7 +6651,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 6288deb31072f912b7755af6f4700ccf85250b36a0b4210ad581b84a73a41ec5
+      contentSha256: 8fdccd795bf3a141f1e512c4b82c22096670781623c3c36c68a75768afef2197
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-TRANSCRIPT-YAML
@@ -6674,7 +6674,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 6af3cf8215128a7a43bda90cc710f528f748d0850b9785491ec1f253a56f0c9b
+      contentSha256: 86c7e55e713139394a339efa06c6f67249047f14ba2e5b5b0c3cbdeaedd1274d
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-REVIEW-WORKSPACE-SETTINGS-YAML
@@ -6697,7 +6697,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 6d957276e1529170d8af05dfd81f7967a0e8883ffba1aae781c9ea0af5ec1c51
+      contentSha256: d30681908bb886e945bdedd962a6903373335a3e070c5ae2626d60a6d4f4f4a0
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-SELECT-SOURCE-YAML
@@ -6720,7 +6720,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: e11d356e6a91585a3026deb35ccd77a5ee726e244c931bd248a3f71406e782dc
+      contentSha256: 4b86ae01ee5d4da300a47f0d9359a8efe86c7e0c1a6d59aefb254c10ea739e5c
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-TRANSCRIPTION-PROGRESS-YAML
@@ -6743,7 +6743,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 0cd11af7e49111203714ceba4e5eb429b7d1453cf4ac12bf54955978086096b1
+      contentSha256: c3328131a3ad2067aff490fb3a8e7a08882777e5feabd1368ca8e0c97dceb7a2
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-USE-AUTHORIZED-VOICE-YAML
@@ -6766,7 +6766,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 0794dcb5211ce5cdf733c0e30a67d6105bef91a9cd56d361189a0959b59c2899
+      contentSha256: 43e345a3906438f1e0837889cf68b48b9bbb92efbf5049349fd161b94741237b
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-WORK-IN-PROJECT-YAML
@@ -6789,7 +6789,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: eb6a563e49a3200d8151595527cdcc45dc4214cbbb6e3308e0dd3fe5aaa91d5e
+      contentSha256: 9b73833dbcd338df23e77e75e5325d4c64d1e03a852ec7bbc6b3c6ba8c3d17ce
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-CONTRACTS-WORK-WITH-SPEECH-YAML
@@ -6812,7 +6812,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 10790d641f7112805cd7b70b0e6a7fb2d9ab8ec3982c5442d34bf5890d5ae1e2
+      contentSha256: 2af1ee5004657f54195414b1e732acc23f5f26f5afbe74f447ba5f7613d7f446
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-PHASE-2-PRODUCT-EXPERIENCE-SCREEN-REGISTRY-YAML

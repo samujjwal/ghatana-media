@@ -169,6 +169,7 @@ let selectedProductContract = productContractFromLocation() ?? null;
 let selectedPhase: ExperiencePhase = selectedProductContract?.phase ?? legacyRouteArtifactFromLocation()?.phase ?? "PDP-0";
 let selectedArtifact = selectedProductContract ?? legacyRouteArtifactFromLocation() ?? specificationArtifacts[0]!;
 let presentationRoot: ReactRoot | null = null;
+let toolsPresentationRoot: ReactRoot | null = null;
 let artifactFilter = "";
 let selectedSegmentId = state.captionDraft.segments[0]?.segmentId ?? null;
 let viewportWidth = 1536;
@@ -772,15 +773,31 @@ function render(): void {
   const focusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   const focusAddress = focusAddressFor(focusedElement);
   const retainedPresentation = mode === "product" ? root!.querySelector<HTMLElement>("#shared-presentation-mount") : null;
+  const retainedToolsPresentation = mode === "tools-review" ? root!.querySelector<HTMLElement>("#tools-product-renderer-mount") : null;
   retainedPresentation?.remove();
+  retainedToolsPresentation?.remove();
   if (mode !== "product" && presentationRoot) {
     presentationRoot.unmount();
     presentationRoot = null;
+  }
+  if (mode !== "tools-review" && toolsPresentationRoot) {
+    toolsPresentationRoot.unmount();
+    toolsPresentationRoot = null;
   }
   const content = mode === "product"
     ? mainContent()
     : `${explorerHeader()}<div id="explorer-panel" role="tabpanel" aria-labelledby="mode-${mode}" tabindex="0">${mainContent()}</div>`;
   root!.innerHTML = `${content}<div class="global-announcer" role="status" aria-live="polite">${escapeHtml(transientAnnouncement)}</div>`;
+  if (mode === "tools-review") {
+    root!.querySelector<HTMLElement>("#main-content")?.insertAdjacentHTML("beforeend", `<section class="verify-section" aria-labelledby="tools-product-renderer-title"><div class="verify-section-heading"><div><h2 id="tools-product-renderer-title">Tools-hosted Product viewport</h2><p>The deterministic Tools consumer and Product viewport share the Media-owned public renderer. Current scenario facts remain a fixture projection.</p></div><span class="section-count">CANDIDATE · NOT ADMITTED</span></div><div id="tools-product-renderer-mount"></div></section>`);
+    const placeholder = root!.querySelector<HTMLElement>("#tools-product-renderer-mount");
+    if (placeholder) {
+      if (retainedToolsPresentation) placeholder.replaceWith(retainedToolsPresentation);
+      const mount = retainedToolsPresentation ?? placeholder;
+      toolsPresentationRoot ??= createReactRoot(mount);
+      toolsPresentationRoot.render(createElement(ProductReview, { state, view: productView, onAction: applyAction }));
+    }
+  }
   if (mode === "product") {
     const placeholder = root!.querySelector<HTMLElement>("#shared-presentation-mount");
     if (placeholder) {

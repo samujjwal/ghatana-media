@@ -5,13 +5,13 @@ authority: Source inventory observations and PDP-2 contract/catalog identity cro
 status: audit-recorded; component-owner-review-pending; composition-review-pending; Shared-style-binding-unverified
 sourceInventory:
   path: .product-experience/pdp-2-design-interface-system/executable-ui-inventory.json
-  sourceRevision: 25dcc89b04d3810ad126a1c7ea0881191f38edf1
+  sourceRevision: d4caa874f822e1737a88d0a6056e4f2faaeb78c1
   entryCount: 157
   dispositionCounts:
     ARCHIVE_ONLY: 111
-    FIX: 22
-    REUSE: 16
-    UNRESOLVED: 8
+    FIX: 25
+    REUSE: 21
+    UNRESOLVED: 0
   dispositionRule: Every row uses REUSE, FIX, CONSOLIDATE, REPLACE, ARCHIVE_ONLY, or UNRESOLVED with unresolvedReason.
     Existing observed hashes and working-tree states remain source observations, not freshness or acceptance evidence.
   reviewLimits:
@@ -19,6 +19,22 @@ sourceInventory:
   - No runtime, rendered accessibility, responsive behavior, or visual acceptance is inferred.
   - Explorer rows remain host/proposal evidence and do not admit product screens.
 componentFamilyCrosswalk:
+- componentRef: media.component.task-flow
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.task-flow
+  contractStatus: authored-proposal; shared-binding-and-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/components/MediaTaskFlow.tsx
+  bindingStatus: candidate-public-export-needs-owner-review
+  publicExport: "@audio-video/ui/components#MediaTaskFlow"
+  reviewState: rendered behavior and port regression exist; accessibility, responsive, Shared theme, and owner review remain pending
+- componentRef: media.component.voice-production-workflow
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.voice-production-workflow
+  contractStatus: authored-proposal; Media-and-AI-Voice-owner-review-pending
+  implementationEvidence:
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
+  bindingStatus: candidate-public-export-needs-owner-review
+  publicExport: "@ghatana/ai-voice-ui-react/components#VoiceProductionWorkflow"
+  reviewState: no admission; consent, provider, visual, and accessibility conformance remain pending
 - componentRef: media.component.identity-context-boundary
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.identity-context-boundary
   contractStatus: authored-proposal; bindings-and-review-pending
@@ -40,7 +56,7 @@ componentFamilyCrosswalk:
   implementationEvidence:
   - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
   bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  publicExport: "@ghatana/ai-voice-ui-react/components#PhraseTimeline"
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.project-context-summary
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.project-context-summary
@@ -48,7 +64,7 @@ componentFamilyCrosswalk:
   implementationEvidence:
   - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
   bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  publicExport: "@ghatana/ai-voice-ui-react/components#StemTrack"
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.creation-plan-summary
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.creation-plan-summary
@@ -95,8 +111,9 @@ componentFamilyCrosswalk:
   implementationEvidence:
   - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
   - libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/TrainingProgress.tsx
   bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  publicExport: candidate exports include "@audio-video/ui/screens#JobRecoveryScreen" and "@ghatana/ai-voice-ui-react/components#TrainingProgress"; no admission
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.provenance-summary
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.provenance-summary
@@ -143,7 +160,7 @@ componentFamilyCrosswalk:
   implementationEvidence:
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/Waveform.tsx
   bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  publicExport: "@ghatana/ai-voice-ui-react/components#Waveform"
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.storyboard
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.storyboard
@@ -158,7 +175,7 @@ componentFamilyCrosswalk:
   implementationEvidence:
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/PhraseTimeline.tsx
   bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  publicExport: "@ghatana/ai-voice-ui-react/components#PhraseTimeline"
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.audio-mixer
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.audio-mixer
@@ -167,7 +184,8 @@ componentFamilyCrosswalk:
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/StemTrack.tsx
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
   bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  publicExport: "@ghatana/ai-voice-ui-react/components#StemTrack"
+  crosswalkNote: VoiceProductionWorkflow is separately crosswalked
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.mask-tracking-editor
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.mask-tracking-editor

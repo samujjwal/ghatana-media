@@ -1,11 +1,8 @@
 import React, { useMemo, useState } from "react";
 import {
-  ArtifactIntakeScreen,
-  FirstUseProjectScreen,
-  JobRecoveryScreen,
-  TranscriptCaptionScreen,
-} from "@audio-video/ui/screens";
-import type { MediaScreenAction } from "@audio-video/ui/screens";
+  MediaProductRenderer,
+  type MediaScreenAction,
+} from "@audio-video/ui";
 import type { MediaActionDispatchResult } from "@audio-video/ui/ports";
 import type { MediaTaskCurrentProjection, MediaTaskOperationObservation } from "@audio-video/ui/components";
 import { projectExperience } from "@ghatana/media-experience-simulation";
@@ -135,14 +132,14 @@ export function ProductReview({ state, view, onAction }: { state: MediaExperienc
   let screen: React.ReactNode;
   if (state.workflow === "first-use") {
     const projectView = view === "setup" ? "authenticate-and-select-context" : view === "project" ? "work-in-project" : "find-projects";
-    screen = <FirstUseProjectScreen {...common} project={{ view: projectView, workspaceName: state.firstUse.workspaceId ?? undefined, projectName: state.firstUse.projectId ?? undefined, projectNameDraft, accessState: state.firstUse.workspaceAccess === "ALLOWED" ? "resolved" : state.firstUse.workspaceAccess === "DENIED" ? "denied" : "unknown", message: `${stateText} Project name is a local draft; this fixture action has no project-name field.`, returnDestination: state.firstUse.returnDestination }} onProjectNameDraftChange={setProjectNameDraft} />;
+    screen = <MediaProductRenderer kind="first-use-project" {...common} project={{ view: projectView, workspaceName: state.firstUse.workspaceId ?? undefined, projectName: state.firstUse.projectId ?? undefined, projectNameDraft, accessState: state.firstUse.workspaceAccess === "ALLOWED" ? "resolved" : state.firstUse.workspaceAccess === "DENIED" ? "denied" : "unknown", message: `${stateText} Project name is a local draft; this fixture action has no project-name field.`, returnDestination: state.firstUse.returnDestination }} onProjectNameDraftChange={setProjectNameDraft} />;
   } else if (state.workflow === "artifact-intake") {
     const intakeView = view === "import" ? "import-media" : view === "browse" ? "browse-media" : "inspect-media";
-    screen = <ArtifactIntakeScreen {...common} intake={{ view: intakeView, sourceName: state.artifactIntake.sourceName, uploadId: state.artifactIntake.uploadId, integrity: state.artifactIntake.integrity, verificationState: state.artifactIntake.status, message: stateText, artifacts: state.artifactIntake.artifactVersion ? [{ id: state.artifactIntake.uploadId, name: state.artifactIntake.sourceName, version: state.artifactIntake.artifactVersion, integrity: state.artifactIntake.integrity }] : [] }} />;
+    screen = <MediaProductRenderer kind="artifact-intake" {...common} intake={{ view: intakeView, sourceName: state.artifactIntake.sourceName, uploadId: state.artifactIntake.uploadId, integrity: state.artifactIntake.integrity, verificationState: state.artifactIntake.status, message: stateText, artifacts: state.artifactIntake.artifactVersion ? [{ id: state.artifactIntake.uploadId, name: state.artifactIntake.sourceName, version: state.artifactIntake.artifactVersion, integrity: state.artifactIntake.integrity }] : [] }} />;
   } else if (state.workflow === "artifact-verification") {
-    screen = <JobRecoveryScreen {...common} job={job!} />;
+    screen = <MediaProductRenderer kind="job-recovery" {...common} job={job!} />;
   } else if (view === "job-status" || state.job.state === "OUTCOME_UNKNOWN" || state.job.state === "RECONCILING") {
-    screen = <JobRecoveryScreen {...common} job={job!} />;
+    screen = <MediaProductRenderer kind="job-recovery" {...common} job={job!} />;
   } else {
     const transcriptView = view === "source" ? "select-source" : view === "versions" ? "compare-caption-versions" : view === "captions" ? "correct-captions" : state.job.state === "NOT_SUBMITTED" ? "select-source" : "review-transcript";
     const segments = state.captionDraft.segments.map((segment) => ({
@@ -154,7 +151,7 @@ export function ProductReview({ state, view, onAction }: { state: MediaExperienc
       text: captionDrafts[segment.segmentId] ?? segment.text,
       provenance: segment.origin,
     }));
-    screen = <TranscriptCaptionScreen {...common} transcript={{ view: transcriptView, sourceArtifactVersion: state.source.artifactVersion, sourceTime: `${state.playbackPositionTick} ticks on ${state.source.clockId}`, clockId: state.source.clockId, ticksPerSecond: state.source.ticksPerSecond, durationTicks: state.source.durationTicks, language: state.transcript.languageTag ?? undefined, jobId: state.job.jobId ?? undefined, transcriptVersion: state.transcript.versionId ?? undefined, captionDraftVersion: state.captionDraft.versionId ?? undefined, versionPurpose: purpose, leftCompareVersionId: compareSelection.left, rightCompareVersionId: compareSelection.right, sourceChoices: [{ artifactVersion: state.source.artifactVersion, label: state.source.displayName, availability: state.source.lifecycle }], segments: segments, versions: state.captionHistory.map((v) => ({ id: v.versionId, label: v.purpose ?? v.versionId })), message: stateText }}
+    screen = <MediaProductRenderer kind="transcript-caption" {...common} transcript={{ view: transcriptView, sourceArtifactVersion: state.source.artifactVersion, sourceTime: `${state.playbackPositionTick} ticks on ${state.source.clockId}`, clockId: state.source.clockId, ticksPerSecond: state.source.ticksPerSecond, durationTicks: state.source.durationTicks, language: state.transcript.languageTag ?? undefined, jobId: state.job.jobId ?? undefined, transcriptVersion: state.transcript.versionId ?? undefined, captionDraftVersion: state.captionDraft.versionId ?? undefined, versionPurpose: purpose, leftCompareVersionId: compareSelection.left, rightCompareVersionId: compareSelection.right, sourceChoices: [{ artifactVersion: state.source.artifactVersion, label: state.source.displayName, availability: state.source.lifecycle }], segments: segments, versions: state.captionHistory.map((v) => ({ id: v.versionId, label: v.purpose ?? v.versionId })), message: stateText }}
       onCaptionEdit={(segmentId, text) => setCaptionDrafts((previous) => ({ ...previous, [segmentId]: text }))}
       onCaptionTimingDraftChange={(segmentId, field, value) => setTimingDrafts((previous) => ({ ...previous, [segmentId]: { ...previous[segmentId], [field === "startTick" ? "start" : "end"]: value === null ? "" : String(value) } }))}
       onVersionPurposeChange={setPurpose}

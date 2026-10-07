@@ -4,13 +4,10 @@
  * @doc.layer product
  * @doc.pattern Custom Element
  *
- * Usage (plain HTML / Electron renderer):
+ * Theme-aware defaults (plain HTML / Electron renderer):
  *   <av-waveform
  *     data="[0.1,0.5,0.3,...]"
  *     position="0.4"
- *     color="#3b82f6"
- *     progress-color="#60a5fa"
- *     background-color="#1f2937"
  *     height="80"
  *     variant="bars"
  *   ></av-waveform>
@@ -21,6 +18,8 @@
  *   el.setPosition(0.4);
  *   el.addEventListener('av-seek', (e) => console.log(e.detail.position));
  */
+
+import { semanticColorRoles } from '@ghatana/tokens/semantic-roles';
 
 export type WaveformVariant = 'bars' | 'line';
 
@@ -34,6 +33,7 @@ function paintWaveform(
   color: string,
   progressColor: string,
   backgroundColor: string,
+  playheadColor: string,
   height: number,
   variant: WaveformVariant,
 ): void {
@@ -87,7 +87,7 @@ function paintWaveform(
   }
 
   if (position > 0 && position < 1) {
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = playheadColor;
     ctx.fillRect(progressX - 1, 0, 2, height);
   }
 }
@@ -114,12 +114,14 @@ export class AvWaveformElement extends HTMLElement {
   private _canvas: HTMLCanvasElement;
   private _data: number[] = [];
   private _position: number = 0;
-  private _color: string = '#3b82f6';
-  private _progressColor: string = '#60a5fa';
-  private _backgroundColor: string = '#1f2937';
+  private _color: string = semanticColorRoles.light.info;
+  private _progressColor: string = semanticColorRoles.light.action;
+  private _backgroundColor: string = semanticColorRoles.light.surface;
+  private _playheadColor: string = semanticColorRoles.light.content;
   private _height: number = 80;
   private _variant: WaveformVariant = 'bars';
   private _ro: ResizeObserver | null = null;
+  private _themeObserver: MutationObserver | null = null;
 
   constructor() {
     super();
@@ -129,6 +131,7 @@ export class AvWaveformElement extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this._applySharedSemanticDefaults();
     this.style.display = 'block';
     this.style.cursor = this.onclick ? 'pointer' : 'default';
     this.appendChild(this._canvas);
@@ -137,6 +140,14 @@ export class AvWaveformElement extends HTMLElement {
 
     this._ro = new ResizeObserver(() => this._paint());
     this._ro.observe(this);
+    this._themeObserver = new MutationObserver(() => {
+      this._applySharedSemanticDefaults();
+      this._paint();
+    });
+    this._themeObserver.observe(this.ownerDocument.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme', 'style'],
+    });
     this._paint();
   }
 
@@ -144,6 +155,8 @@ export class AvWaveformElement extends HTMLElement {
     this._canvas.removeEventListener('click', this._handleClick);
     this._ro?.disconnect();
     this._ro = null;
+    this._themeObserver?.disconnect();
+    this._themeObserver = null;
   }
 
   attributeChangedCallback(
@@ -163,13 +176,13 @@ export class AvWaveformElement extends HTMLElement {
         this._position = newValue !== null ? parseFloat(newValue) : 0;
         break;
       case 'color':
-        this._color = newValue ?? '#3b82f6';
+        this._color = newValue ?? this._sharedColors().info;
         break;
       case 'progress-color':
-        this._progressColor = newValue ?? '#60a5fa';
+        this._progressColor = newValue ?? this._sharedColors().action;
         break;
       case 'background-color':
-        this._backgroundColor = newValue ?? '#1f2937';
+        this._backgroundColor = newValue ?? this._sharedColors().surface;
         break;
       case 'height':
         this._height = newValue !== null ? parseInt(newValue, 10) : 80;
@@ -201,9 +214,23 @@ export class AvWaveformElement extends HTMLElement {
       this._color,
       this._progressColor,
       this._backgroundColor,
+      this._playheadColor,
       this._height,
       this._variant,
     );
+  }
+
+  private _sharedColors() {
+    const mode = getComputedStyle(this).colorScheme === 'dark' ? 'dark' : 'light';
+    return semanticColorRoles[mode];
+  }
+
+  private _applySharedSemanticDefaults(): void {
+    const colors = this._sharedColors();
+    if (!this.hasAttribute('color')) this._color = colors.info;
+    if (!this.hasAttribute('progress-color')) this._progressColor = colors.action;
+    if (!this.hasAttribute('background-color')) this._backgroundColor = colors.surface;
+    this._playheadColor = colors.content;
   }
 
   private readonly _handleClick = (e: MouseEvent): void => {

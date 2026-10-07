@@ -17,6 +17,7 @@
     "@ghatana/product-definition": "0.1.0-SNAPSHOT",
     "@ghatana/experience-explorer-contracts": "0.1.0-SNAPSHOT",
     "@ghatana/media-experience-simulation": "workspace:*",
+    "@audio-video/ui": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

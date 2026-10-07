@@ -761,7 +761,7 @@
       ]
     }
   ],
-  "derivationBoundary": "Only explicitly source-backed identifiers and public schema versions are included in candidateModel. Each direct field has a source locator; all unmapped required schema fields remain absent and have an explicit blocker. Source facts remain unmerged observations until approved mappings and owners exist.",
+  "derivationBoundary": "candidateModel is a structurally conformant partial projection. Every required schema property is present; empty collections and blank timestamps represent unresolved mappings, not accepted non-applicability. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
   "knownBlockers": [
     "Required ExperienceDefinition fields without direct source mappings remain absent; exact field-level mapping blockers are listed below."
   ],

@@ -6,9 +6,9 @@ contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-
 surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-web-channel-and-surface-inventory; owner-binding-pending
 templateId: media.gui.template.review-and-compare
-templateBindingStatus: candidate-exact-existing-template-id; owner-binding-pending
-layoutIds: []
-layoutBindingStatus: unresolved-no-canonical-layout-ids-registered
+templateBindingStatus: candidate-by-screen-purpose; owner-review-pending
+layoutIds: [media.gui.layout.review]
+layoutBindingStatus: candidate-by-template-and-screen-purpose; owner-review-pending
 componentIds:
   - media.component.job-status-card
   - media.component.artifact-browser
@@ -86,8 +86,8 @@ verification:
 verificationBindingStatus: not-run-no-behavior-or-accessibility-claim
 fieldBindingStatus:
   surfaceId: candidate; owner-binding-pending
-  templateId: candidate; owner-binding-pending
-  layoutIds: unresolved; no-canonical-layout-ids-registered
+  templateId: candidate-template-link-owner-review-pending
+  layoutIds: candidate-layout-link-owner-review-pending
   componentIds: proposal-copy; Shared-binding-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
   tokenDependencies: unresolved; no-canonical-reference-declared

@@ -13,6 +13,13 @@ with no product operation meaning. `internal-only` is reserved for
 implementation-private behavior. `unresolved` means evidence does not support
 an equivalence. The current inventory has no accepted canonical mappings.
 
+The matrix also records source-grounded candidate crosswalks for HTTP routes,
+fixture CLI commands, SDK methods, Agent Tool names, and lifecycle event names.
+These remain `mappedProposal` inputs for domain-owner review; they do not change
+the zero accepted count or establish runtime reachability, wire compatibility,
+authorization, event delivery, or release support. Entries without direct
+source support remain unresolved.
+
 Do not use the status counts as implementation or support claims. Counts are
 source inventory denominators from PDP-3 registries and active source files.
 

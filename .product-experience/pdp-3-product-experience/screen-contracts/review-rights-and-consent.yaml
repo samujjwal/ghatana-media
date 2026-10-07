@@ -5,10 +5,10 @@ status: proposal; baseline-view-contract-authored; action-state-channel-bindings
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-web-channel-and-surface-inventory; owner-binding-pending
-templateId: null
-templateBindingStatus: unresolved-legacy-template-reference; no-canonical-template-id-match
-layoutIds: []
-layoutBindingStatus: unresolved-no-canonical-layout-ids-registered
+templateId: media.gui.template.consent-gate
+templateBindingStatus: candidate-by-screen-purpose; owner-review-pending
+layoutIds: [media.gui.layout.consent]
+layoutBindingStatus: candidate-by-template-and-screen-purpose; owner-review-pending
 componentIds:
   - media.component.rights-retention-review
   - media.component.provenance-summary
@@ -78,8 +78,8 @@ verification:
 verificationBindingStatus: not-run-no-behavior-or-accessibility-claim
 fieldBindingStatus:
   surfaceId: candidate; owner-binding-pending
-  templateId: unresolved; no-exact-template-catalog-match
-  layoutIds: unresolved; no-canonical-layout-ids-registered
+  templateId: candidate-template-link-owner-review-pending
+  layoutIds: candidate-layout-link-owner-review-pending
   componentIds: proposal-copy; Shared-binding-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
   tokenDependencies: unresolved; no-canonical-reference-declared
@@ -152,7 +152,7 @@ surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
 templateContract:
-  templateRef: media.template.review-rights-and-consent
+  templateRef: media.gui.template.consent-gate
   kind: owner-defined-template-pending-review
 layoutContract:
   primaryRegion: intent-and-context

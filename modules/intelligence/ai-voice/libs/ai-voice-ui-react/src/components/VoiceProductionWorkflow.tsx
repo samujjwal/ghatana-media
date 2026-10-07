@@ -19,6 +19,7 @@ import {
 } from "@audio-video/ui";
 import { Button } from "@ghatana/design-system";
 import React, { useId, useMemo } from "react";
+import { useSemanticColors } from "./useSemanticColors";
 
 export type VoiceCapabilityState =
   | "ACTIVE"
@@ -163,6 +164,7 @@ export function VoiceProductionWorkflow({
   renderStep,
   className,
 }: VoiceProductionWorkflowProps): React.ReactElement {
+  const colors = useSemanticColors();
   const fileInputId = useId();
   const consentReferenceId = useId();
   const completed = useMemo(() => new Set(completedSteps), [completedSteps]);
@@ -317,10 +319,11 @@ export function VoiceProductionWorkflow({
                   const file = event.target.files?.[0];
                   if (file) onSourceSelected?.(file);
                 }}
-                className="min-h-11 rounded-lg border border-gray-300 p-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-blue-700 dark:border-gray-700 dark:file:bg-blue-950 dark:file:text-blue-200"
+                className="min-h-11 rounded-lg border p-2 text-sm file:mr-3 file:rounded-md file:border-0 file:px-3 file:py-2"
+                style={{ borderColor: colors.border, color: colors.content }}
               />
             </label>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs" style={{ color: colors.contentSecondary }}>
               Upload validation must confirm type, size, checksum, classification,
               retention, and tenant ownership before processing begins.
             </p>
@@ -330,17 +333,17 @@ export function VoiceProductionWorkflow({
         return source ? (
           <dl className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-lg border p-3">
-              <dt className="text-xs text-gray-500">Source</dt>
+              <dt className="text-xs" style={{ color: colors.contentSecondary }}>Source</dt>
               <dd className="mt-1 font-medium">{source.fileName}</dd>
             </div>
             <div className="rounded-lg border p-3">
-              <dt className="text-xs text-gray-500">Duration</dt>
+              <dt className="text-xs" style={{ color: colors.contentSecondary }}>Duration</dt>
               <dd className="mt-1 font-medium">
                 {formatDuration(source.durationSeconds)}
               </dd>
             </div>
             <div className="rounded-lg border p-3">
-              <dt className="text-xs text-gray-500">Quality</dt>
+              <dt className="text-xs" style={{ color: colors.contentSecondary }}>Quality</dt>
               <dd className="mt-1 font-medium">
                 {source.qualityScore === undefined
                   ? "Not evaluated"
@@ -348,7 +351,7 @@ export function VoiceProductionWorkflow({
               </dd>
             </div>
             <div className="rounded-lg border p-3">
-              <dt className="text-xs text-gray-500">Classification</dt>
+              <dt className="text-xs" style={{ color: colors.contentSecondary }}>Classification</dt>
               <dd className="mt-1 font-medium">
                 {source.classification ?? "Not reported"}
               </dd>
@@ -380,7 +383,10 @@ export function VoiceProductionWorkflow({
               Compare source and output, listen for artifacts, review phrase and
               timing changes, and confirm that no protected content was introduced.
             </p>
-            <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
+            <p
+              className="rounded-lg border p-3"
+              style={{ borderColor: colors.warning, backgroundColor: colors.warningSubtle, color: colors.warningOn }}
+            >
               Generated audio remains a draft until explicit approval.
             </p>
           </div>
@@ -428,7 +434,8 @@ export function VoiceProductionWorkflow({
                   })
                 }
                 placeholder="Approval, contract, or consent record ID"
-                className="min-h-11 rounded-lg border border-gray-300 px-3 dark:border-gray-700 dark:bg-gray-950"
+                className="min-h-11 rounded-lg border px-3"
+                style={{ borderColor: colors.border, backgroundColor: colors.surface, color: colors.content }}
               />
             </label>
           </fieldset>
@@ -467,15 +474,15 @@ export function VoiceProductionWorkflow({
       summary={
         <dl className="space-y-2">
           <div>
-            <dt className="text-xs text-gray-500">Source</dt>
+            <dt className="text-xs" style={{ color: colors.contentSecondary }}>Source</dt>
             <dd>{source?.fileName ?? "Not selected"}</dd>
           </div>
           <div>
-            <dt className="text-xs text-gray-500">Model</dt>
+            <dt className="text-xs" style={{ color: colors.contentSecondary }}>Model</dt>
             <dd>{selectedModel?.name ?? "Not selected"}</dd>
           </div>
           <div>
-            <dt className="text-xs text-gray-500">Rights evidence</dt>
+            <dt className="text-xs" style={{ color: colors.contentSecondary }}>Rights evidence</dt>
             <dd>{consentComplete ? "Complete" : "Required before approval"}</dd>
           </div>
         </dl>

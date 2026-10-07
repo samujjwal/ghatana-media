@@ -1646,6 +1646,48 @@ components:
     must-not-claim activity completeness when history is partial
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+- id: media.component.task-flow
+  purpose: present a host-projected Media workflow, operation observation, and explicitly supplied safe actions
+  semanticRole: workflow-progress-and-operation-observation
+  anatomy:
+  - workflow-title-and-purpose
+  - ordered-current-step
+  - available-actions
+  - observed-operation-state
+  - measured-or-unknown-progress
+  - host-selected-safe-next-action
+  variants: [first-use, artifact-intake, job-recovery, transcript-and-caption]
+  states: [available, current, complete, blocked, queued, running, outcome-unknown, reconciling, completed, failed]
+  actions: []
+  capabilityRefs: [media.job.view-status]
+  actionBindingState: host-supplied-action-port; presentation-does-not-authorize-or-assert-finality
+  keyboard: preserve-ordered-step-navigation-and-enable-only-host-declared-actions
+  accessibility: expose-current-step-and-observed-finality-in-text; announce-unknown-progress-without-a-percent
+  localization: localize-human-readable-copy; preserve-stable-identifiers-and-raw-measurements
+  prohibitedUse: must-not-infer-cancellation-retry-or-business-completion-from-state-labels
+  status: authored-proposal; independent-render-accessibility-and-Shared-binding-review-pending
+  sourceRef: libs/audio-video-ui/src/components/MediaTaskFlow.tsx
+- id: media.component.voice-production-workflow
+  purpose: coordinate governed voice production while keeping source, consent, model/provider, and output review distinct
+  semanticRole: voice-production-workflow-composition
+  anatomy:
+  - source-and-project-context
+  - consent-and-rights-scope
+  - transcript-and-language-intent
+  - provider-capability-and-policy-disposition
+  - operation-progress-and-finality
+  - output-review-and-provenance
+  variants: [transcription, synthesis, voice-training, voice-conversion, unavailable-provider]
+  states: [draft, needs-consent, blocked, ready, submitting, outcome-unknown, reconciling, review-required, completed]
+  actions: []
+  capabilityRefs: []
+  actionBindingState: proposal; each effect-requires-a-canonical-action-and-host-authority-binding
+  keyboard: preserve-workflow-order-and-return-focus-across-dialogs-and-provider-status-updates
+  accessibility: expose-consent-scope-uncertainty-and-finality-in-text; provider-color-is-never-the-only-signal
+  localization: localize-human-readable-copy; preserve-language-tags-provider-ids-and-source-timebase-values
+  prohibitedUse: must-not-imply-voice-likeness-consent-or-provider-eligibility-from-a-model-or-media-license
+  status: authored-proposal; Media-and-AI-Voice-owner-review-pending
+  sourceRef: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
 - id: media.component.cli-output
   purpose: present stable command results, recovery guidance, and machine-readable output for Media operations
   semanticRole: Presents stable command results, recovery guidance, and machine-readable output for Media operations.

@@ -44,3 +44,7 @@ templates:
     useFor: Present a proposed consequential lifecycle request with exact scope, authority, impact, uncertainty, and safe follow-up.
     regions: [exact-target-and-version, authority-and-preconditions, impact-and-retention, explicit-confirmation, pending-or-unknown-finality, safe-verification-and-recovery]
     patterns: [media.gui.pattern.destructive-lifecycle-action, media.gui.pattern.safe-confirmation-and-unknown-outcome]
+  - id: media.gui.template.task-setup
+    useFor: Select a source or intent, inspect eligibility and constraints, and review a plan before submission.
+    regions: [project-context, requested-outcome, selected-inputs, capability-and-policy-disposition, validation, next-safe-action]
+    patterns: [media.gui.pattern.intent-launcher, media.gui.pattern.creation-plan-review, media.gui.pattern.source-picker, media.gui.pattern.safe-confirmation-and-unknown-outcome]

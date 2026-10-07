@@ -12,6 +12,7 @@ import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { Stem, StemType } from "../types";
 import { Waveform } from "./Waveform";
+import { useSemanticColors } from "./useSemanticColors";
 
 export interface StemTrackProps {
   readonly stem: Stem;
@@ -24,13 +25,6 @@ export interface StemTrackProps {
   readonly disabled?: boolean;
   readonly className?: string;
 }
-
-const stemColors: Record<StemType, string> = {
-  vocals: "var(--gh-color-stem-vocals, #60a5fa)",
-  drums: "var(--gh-color-stem-drums, #4ade80)",
-  bass: "var(--gh-color-stem-bass, #facc15)",
-  other: "var(--gh-color-stem-other, #c084fc)",
-};
 
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.max(minimum, Math.min(maximum, value));
@@ -47,9 +41,10 @@ export const StemTrack: React.FC<StemTrackProps> = ({
   disabled = false,
   className,
 }) => {
+  const colors = useSemanticColors();
   const controlsId = useId();
   const displayName = stem.name || stem.type;
-  const color = stemColors[stem.type];
+  const color = colors.action;
   const volume = clamp(stem.volume, 0, 1);
   const pan = clamp(stem.pan, -1, 1);
 
@@ -58,11 +53,12 @@ export const StemTrack: React.FC<StemTrackProps> = ({
       aria-labelledby={`${controlsId}-title`}
       className={twMerge(
         clsx(
-          "rounded-lg border border-gray-700 bg-gray-800/80 p-3 text-white",
+          "rounded-lg border p-3",
           disabled && "opacity-60",
         ),
         className,
       )}
+      style={{ borderColor: colors.border, backgroundColor: colors.surface, color: colors.content }}
     >
       <div className="grid items-center gap-3 lg:grid-cols-[minmax(8rem,12rem)_1fr_minmax(14rem,18rem)]">
         <div className="flex min-w-0 items-center gap-2">
@@ -106,17 +102,18 @@ export const StemTrack: React.FC<StemTrackProps> = ({
               data={stem.waveformData}
               position={position}
               duration={stem.duration}
-              color={stem.muted ? "var(--gh-color-disabled, #6b7280)" : color}
-              progressColor={stem.muted ? "var(--gh-color-disabled, #6b7280)" : color}
+              color={stem.muted ? colors.contentDisabled : color}
+              progressColor={stem.muted ? colors.contentDisabled : colors.focus}
               height={44}
               onSeek={onSeek}
               ariaLabel={`${displayName} waveform`}
             />
           ) : (
             <div
-              className="flex min-h-11 items-center justify-center rounded border border-dashed border-gray-600 text-xs text-gray-400"
+              className="flex min-h-11 items-center justify-center rounded border border-dashed text-xs"
               role="img"
               aria-label={`${displayName} waveform is not available`}
+              style={{ borderColor: colors.border, color: colors.contentSecondary }}
             >
               Waveform unavailable
             </div>
@@ -124,7 +121,7 @@ export const StemTrack: React.FC<StemTrackProps> = ({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-          <label className="grid gap-1 text-xs text-gray-300">
+          <label className="grid gap-1 text-xs" style={{ color: colors.contentSecondary }}>
             <span className="flex justify-between gap-2">
               <span>Volume</span>
               <output htmlFor={`${controlsId}-volume`}>
@@ -142,12 +139,13 @@ export const StemTrack: React.FC<StemTrackProps> = ({
                 onVolumeChange?.(Number.parseFloat(event.target.value))
               }
               disabled={disabled || !onVolumeChange}
-              className="min-h-11 w-full cursor-pointer accent-blue-500"
+              className="min-h-11 w-full cursor-pointer"
+              style={{ accentColor: colors.focus }}
               aria-valuetext={`${Math.round(volume * 100)} percent`}
             />
           </label>
 
-          <label className="grid gap-1 text-xs text-gray-300">
+          <label className="grid gap-1 text-xs" style={{ color: colors.contentSecondary }}>
             <span className="flex justify-between gap-2">
               <span>Pan</span>
               <output htmlFor={`${controlsId}-pan`}>
@@ -169,7 +167,8 @@ export const StemTrack: React.FC<StemTrackProps> = ({
                 onPanChange?.(Number.parseFloat(event.target.value))
               }
               disabled={disabled || !onPanChange}
-              className="min-h-11 w-full cursor-pointer accent-blue-500"
+              className="min-h-11 w-full cursor-pointer"
+              style={{ accentColor: colors.focus }}
               aria-valuetext={
                 pan === 0
                   ? "center"

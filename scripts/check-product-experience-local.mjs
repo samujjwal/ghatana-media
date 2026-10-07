@@ -274,6 +274,8 @@ const screenRequiredFields = ["schemaVersion", "contractSchemaRef", "surfaceId",
 // particular, no accepted/complete status is authorized by this source tree.
 const allowedScreenBindingStatuses = new Set([
   "candidate-binding-pending-owner-review",
+  "candidate-template-link-owner-review-pending",
+  "candidate-layout-link-owner-review-pending",
   "candidate-pending-acceptance",
   "candidate-pending-owner-binding",
   "candidate; owner-binding-pending",

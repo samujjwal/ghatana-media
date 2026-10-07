@@ -2,9 +2,10 @@ schemaVersion: media.screen-contract.v2
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
 surfaceBindingStatus: candidate; derived-from-web-channel-and-surface-inventory; owner-binding-pending
-templateId: null
-templateBindingStatus: unresolved; no-exact-catalogued-template-reference
-layoutIds: []
+templateId: media.gui.template.job-observation
+templateBindingStatus: candidate-by-screen-purpose; owner-review-pending
+layoutIds: [media.gui.layout.job-observation]
+layoutBindingStatus: candidate-by-template-and-screen-purpose; owner-review-pending
 componentIds: []
 patternIds:
   - media.gui.pattern.job-status-and-recovery
@@ -44,8 +45,8 @@ verification:
     accessibility: not-yet-proven
 fieldBindingStatus:
   surfaceId: candidate-pending-owner-binding
-  templateId: unresolved-no-exact-catalogued-reference
-  layoutIds: unresolved-no-canonical-layout-ids-registered
+  templateId: candidate-template-link-owner-review-pending
+  layoutIds: candidate-layout-link-owner-review-pending
   componentIds: unresolved-no-existing-componentRefs
   patternIds: proposal-copied-from-existing-patternRefs; PDP-2-acceptance-pending
   tokenDependencies: unresolved-no-direct-canonical-reference
@@ -94,7 +95,7 @@ surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
 templateContract:
-  templateRef: media.template.check-job-outcome
+  templateRef: media.gui.template.job-observation
   kind: owner-defined-template-pending-review
 layoutContract:
   primaryRegion: intent-and-context

@@ -24,10 +24,15 @@ canonical folders use these phase labels:
 The complete intended surface denominator and per-surface ownership/contract
 references are in [surface-registry.yaml](../.product-experience/surface-registry.yaml).
 The read-only generated Tool-model candidates are stored under each owning
-phase's `generated/` directory. They contain source observations and partial
-candidate identities, and currently fail the sibling schemas/public validators;
-they are not accepted Product Definition, Experience Language, or Experience
-Specification authorities.
+phase's `generated/` directory. The PDP-0 ProductDefinition now contains a
+schema-valid, public-validator-valid partial projection of source-backed
+actors, outcomes, all 462 capabilities, 38 functional requirements, and 14
+NFRs. Its field mapping review explicitly retains omitted or unresolved
+business intent, multi-actor intent/journey, policy, domain-rule, trust,
+success-measure, ownership, and timestamp decisions. Structural conformance
+does not accept Product Truth or close PDP-0. The PDP-2 and PDP-3 candidates
+remain blocked by their sibling schemas/public validators; none of these
+generated projections is an accepted authority.
 
 ## Vision outcome coverage
 
@@ -49,9 +54,11 @@ or an explicitly classified supporting view:
 | media.goal.apply-permitted-settings | Project/settings requirement group | Supporting M-SETTINGS / media.view.review-workspace-settings; no independent master-plan journey |
 
 The same records also retain the 11 jobs-to-be-done, 19 intents, 30 journey
-denominator, 38 requirement groups, 462 capability leaves, and 13
-non-functional/decision records. The machine-readable ledger is the exact
-checkable form of this table.
+denominator, 38 requirement groups, 462 capability leaves, and 14 NFRs plus
+three open specialist decisions. Every capability leaf has operation-specific
+inputs, outputs, preconditions, constraints, acceptance cases, and unsupported
+cases; 385 leaf-to-journey relationships remain unresolved. The machine-readable
+ledger is the exact checkable form of this table.
 
 ## Required downstream content
 
@@ -77,6 +84,38 @@ The four phases preserve the following content families from the prompt:
   traceability, gaps, dependencies, acceptance, verification, implementation
   comparison, source links, deterministic fixtures, and repeatable checks.
 
+## Capability review matrix
+
+These are mandatory review dimensions, not claims that every listed behavior
+is implemented. The table points to the Media-owned source that must carry the
+requirement or exclusion; the corresponding owner decision remains open unless
+the canonical record says otherwise. Technology choices live in
+[`reuse-decisions.yaml`](../.product-experience/pdp-0-product-truth/reuse-decisions.yaml).
+`SELECTED` or `CONDITIONAL` there records the architectural choice only; it does
+not activate a dependency or qualify its release artifact.
+
+| Review dimension | Canonical source | Review focus and current boundary |
+| --- | --- | --- |
+| Ingestion and source preservation | `pdp-0-product-truth/capabilities.yaml`; `pdp-1-domain-data/domain-objects.yaml`, `operations.yaml`; J-01/J-02 | Upload, resumable transfer, checksums, immutable versions, metadata, quarantine, parser limits, and malicious-media handling; storage/workflow policy stays with Shared. |
+| Time and synchronization | `pdp-0-product-truth/time-units-fidelity.yaml`; `pdp-1-domain-data/value-objects.yaml`, `interoperability.yaml` | Rational time, sample/frame clocks, variable frame rate, drift, source/output mappings, and caption timing; OpenTimelineIO is interchange only and Media retains canonical time semantics. |
+| Audio workflows | `pdp-0-product-truth/requirements.yaml`, `quality-policy.yaml`; `pdp-2-design-interface-system/component-contracts.yaml` | Waveforms, stems, edits, mixing/mastering, loudness, clipping, spatial audio, assessment, and export; WaveSurfer/libebur128 remain unqualified candidates. |
+| Speech workflows | `pdp-0-product-truth/capabilities.yaml`, `policy-authority-model.yaml`; J-03/J-05/J-21/J-22 | ASR, streaming, diarization, alignment, translation, dubbing, voice consent/revocation, language constraints, and provenance; reuse existing STT/TTS modules before considering sherpa-onnx. |
+| Video and image | `pdp-0-product-truth/requirements.yaml`, `quality-policy.yaml`; `pdp-1-domain-data/operations.yaml` | Inspection, regions, keyframes, enhancement, restoration, compositing, color, rendering, encoding, packaging, and review; selected libraries and codec profile require exact build, patent, security, and performance review. |
+| Animation and spatial | `pdp-2-design-interface-system/animation-simulation-grammar.yaml`; `pdp-1-domain-data/interoperability.yaml`; J-09/J-10/J-28 | Scene hierarchy, units, transforms, timelines, physics, fidelity, versioning, preview, and interchange; TutorPutor extraction needs an isolated neutral contract, while Three.js/glTF Transform and Rapier retain their recorded roles. |
+| Generative media | `pdp-0-product-truth/dependency-contracts.yaml`, `qualification-policy.yaml`; `pdp-1-domain-data/authority.yaml` | Intent, references, parameters, provider capability, cost, safety, provenance, comparison, and reproducibility; generic governance routes through AI Inference, while modality semantics remain Media-owned. |
+| Quality and scientific truth | `pdp-0-product-truth/quality-policy.yaml`, `nonfunctional-requirements.yaml`; `pdp-1-domain-data/evidence.yaml` | Ground truth, metric domain, abstention, confidence, calibration, thresholds, reference/no-reference scoring, and provenance; a metric score is not universal truth. |
+| Rights, safety, and audit | `pdp-0-product-truth/policy-authority-model.yaml`; `pdp-1-domain-data/privacy.yaml`, `provenance.yaml`; `pdp-2-design-interface-system/trust-provenance-grammar.yaml` | Consent, likeness, licensed assets/models, sharing, retention/erasure, export permission, provenance, and revocation; C2PA provenance does not establish rights or truth. |
+| Review and collaboration | `pdp-1-domain-data/decisions.yaml`, `versioning.yaml`; J-16/J-18/J-22 | Exact-version review, comments, impact, decision authority, comparison, approval invalidation, handoff, and independently recorded outcomes. |
+| Asynchronous jobs and streaming | `pdp-1-domain-data/states.yaml`, `transitions.yaml`, `operations.yaml`, `events.yaml`; J-20/J-23/J-27/J-29 | Job/attempt identity, progress, partial outcomes, cancellation versus stopping observation, reconciliation, idempotency, backpressure, resource bounds, and durability. |
+| Offline and reconnect | `pdp-1-domain-data/offline-sync.yaml`, `versioning.yaml`; J-26 | Local drafts, stable identities, conflicts, preservation, stale-version warnings, reconnect, and explicit reconciliation; consequential edits must not silently use last-write-wins. |
+| API, SDK, CLI, events, and tools | `pdp-1-domain-data/operations.yaml`, `events.yaml`; `pdp-3-product-experience/api/`, `grpc/`, `sdk/`, `cli/`, `agent-tools/` | Exact operation meaning, errors, versioning, pagination, timeouts, idempotency, cancellation, compatibility, finality, output formats, and events; current bindings remain proposals pending owner adjudication. |
+| Accessibility and internationalization | `pdp-2-design-interface-system/accessibility.yaml`, `localization-content.yaml`, `responsive-adaptive.yaml`, `gui/semantic-component-bindings.yaml` | Keyboard, media controls, captions, reduced motion, forced colors, screen readers, large text, RTL, localization, and non-visual editing; human visual/a11y review and the Shared axe-core license boundary remain open. |
+| Security and operations | `pdp-0-product-truth/qualification-policy.yaml`, `nonfunctional-requirements.yaml`; `pdp-1-domain-data/privacy.yaml` | Tenant isolation, SSRF, untrusted-parser containment, credentials, quotas/cost, telemetry redaction, artifact/model security, crash recovery, load/soak, and deployment compatibility. |
+
+Each dimension must resolve to accepted capability requirements or a
+product-owner-reviewed exclusion. External engine, model, codec, font, fixture,
+and provider qualification remains separate from semantic coverage.
+
 ## Honest remaining coverage gaps
 
 The ledger deliberately records unresolved reachability instead of inventing
@@ -85,6 +124,9 @@ relationships:
 - 385 capability leaves have no explicit leaf-level journeyRefs; their family
   requirement and intent/outcome inheritance is recorded, but P0-010 must
   confirm the per-leaf fit.
+- The migration semantic review retains 349 unresolved blocks, including 123
+  mixed blocks proposed for decomposition. These are not marked owner-reviewed,
+  obsolete, or closed by a structural ProductDefinition projection.
 - 123 proposal actions have no explicit capabilityRefs; their intent, view,
   and component references remain proposal-level until P2 action closure.
 - One component family (identity-context-boundary) still lacks a capability

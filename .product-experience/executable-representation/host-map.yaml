@@ -7,10 +7,10 @@ hosts:
     observedImports:
       - package: "@ghatana/media-experience-simulation"
         status: observed
-      - package: "@audio-video/ui/screens"
+      - package: "@audio-video/ui"
         source: apps/media-experience-explorer/src/product-review.tsx
-        exports: [FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen]
-        status: working-tree-source-import-observed; candidate-only
+        exports: [MediaProductRenderer]
+        status: public-product-renderer-import-observed; candidate-only; source-behavior-test-added
       - package: "@audio-video/ui/components"
         source: apps/media-experience-explorer/src/product-review.tsx
         exports: [MediaTaskCurrentProjection, MediaTaskOperationObservation]
@@ -19,9 +19,9 @@ hosts:
         source: apps/media-experience-explorer/src/main.ts
         status: working-tree-source-import-observed; structural-fallback-only
     intendedImports:
-      - package: "@audio-video/ui/screens"
-        exports: [FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen, MediaTaskScreen]
-        status: source-import-observed; host-adapter-and-review-pending
+      - package: "@audio-video/ui"
+        exports: [MediaProductRenderer]
+        status: candidate-public-renderer; production-host-not-present
     allowedHostDependencies: [MediaDataPort, MediaActionPort, MediaNavigationPort, MediaContextPort]
     importIdentityWithProduction: not-proven
     acceptanceState: candidate
@@ -30,8 +30,8 @@ hosts:
     role: production-web-host
     observedStatus: not-present-at-baseline
     intendedImports:
-      - package: "@audio-video/ui/screens"
-        exports: [FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen, MediaTaskScreen]
+      - package: "@audio-video/ui"
+        exports: [MediaProductRenderer]
         status: target-only
     allowedHostDependencies: [MediaDataPort, MediaActionPort, MediaNavigationPort, MediaContextPort]
     importIdentityWithExplorer: not-proven

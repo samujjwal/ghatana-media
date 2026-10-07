@@ -4,6 +4,15 @@ mode: authored-concept-ownership-map
 status: migration-boundary-accepted; full-PDP-0-and-later-PDP-acceptance-pending
 artifactPathBase: .product-experience/
 externalOwnerPathBase: owner-repository-root-relative
+sourceOwnership:
+  semanticAuthorityRepository: ghatana-media
+  semanticAuthorityPath: .product-experience/
+  scope: all-authored-Media-PDP-0-through-PDP-3-product-meaning-and-acceptance-inputs
+  codeRepository: ghatana/services/media
+  codeRepositoryRole: implementation-and-runtime-contract-source-only
+  competingProductDefinitionAuthority: prohibited
+  migrationStatus: authority-is-declared-here; implementation-source-migration-is-separate-and-does-not-create-a-second-semantic-owner
+  authorityTransferRule: moving-runtime-code-does-not-transfer-product-meaning; transfer-requires-a-versioned-owner-approved-decision-and-atomic-source-manifest-update
 canonicalPdpPhases:
 - id: PDP-0
   path: .product-experience/pdp-0-product-truth/

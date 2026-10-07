@@ -11,6 +11,7 @@ import React, { useMemo } from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { TrainingStatus } from "../types";
+import { useSemanticColors } from "./useSemanticColors";
 
 export interface TrainingProgressProps {
   readonly status: TrainingStatus;
@@ -31,15 +32,6 @@ const statusLabels: Record<TrainingStatus, string> = {
   failed: "Training failed",
 };
 
-const statusStyles: Record<TrainingStatus, string> = {
-  pending: "bg-gray-500",
-  preprocessing: "bg-blue-500",
-  extracting: "bg-purple-500",
-  training: "bg-blue-500",
-  completed: "bg-green-500",
-  failed: "bg-red-500",
-};
-
 const STEPS = [
   "preprocessing",
   "extracting",
@@ -56,6 +48,15 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
   cancelDisabled = false,
   className,
 }) => {
+  const colors = useSemanticColors();
+  const statusColors: Record<TrainingStatus, string> = {
+    pending: colors.contentDisabled,
+    preprocessing: colors.info,
+    extracting: colors.info,
+    training: colors.action,
+    completed: colors.success,
+    failed: colors.error,
+  };
   const boundedProgress = Math.max(0, Math.min(100, progress));
   const active = status !== "completed" && status !== "failed";
   const currentStepIndex = STEPS.indexOf(status as (typeof STEPS)[number]);
@@ -69,10 +70,11 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
     <section
       className={twMerge(
         clsx(
-          "rounded-lg border border-gray-700 bg-gray-900 p-4 text-white",
+          "rounded-lg border p-4",
         ),
         className,
       )}
+      style={{ borderColor: colors.border, backgroundColor: colors.surface, color: colors.content }}
       aria-labelledby="voice-training-title"
       aria-describedby="voice-training-status"
     >
@@ -81,7 +83,7 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
           <h3 id="voice-training-title" className="text-lg font-medium">
             {modelName ? `Training ${modelName}` : "Training voice model"}
           </h3>
-          <p id="voice-training-status" className="text-sm text-gray-300">
+          <p id="voice-training-status" className="text-sm" style={{ color: colors.contentSecondary }}>
             {statusLabels[status]}
           </p>
         </div>
@@ -108,26 +110,23 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
       )}
 
       <div className="mb-3">
-        <div className="mb-1 flex justify-between gap-3 text-sm text-gray-300">
+        <div className="mb-1 flex justify-between gap-3 text-sm" style={{ color: colors.contentSecondary }}>
           <span>{statusLabels[status]}</span>
           <span>{Math.round(boundedProgress)}%</span>
         </div>
         <div
-          className="h-2 overflow-hidden rounded-full bg-gray-700"
+          className="h-2 overflow-hidden rounded-full"
           role="progressbar"
           aria-label="Voice-model training progress"
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={Math.round(boundedProgress)}
           aria-valuetext={`${statusLabels[status]}, ${Math.round(boundedProgress)} percent`}
+          style={{ backgroundColor: colors.surfaceElevated }}
         >
           <div
-            className={clsx(
-              "h-full transition-[width] duration-300 motion-reduce:transition-none",
-              statusStyles[status],
-              active && "animate-pulse motion-reduce:animate-none",
-            )}
-            style={{ width: `${boundedProgress}%` }}
+            className={clsx("h-full transition-[width] duration-300 motion-reduce:transition-none", active && "animate-pulse motion-reduce:animate-none")}
+            style={{ width: `${boundedProgress}%`, backgroundColor: statusColors[status] }}
           />
         </div>
       </div>
@@ -141,21 +140,27 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
           return (
             <li key={step} className="flex min-w-0 flex-col items-center text-center">
               <span
-                className={clsx(
-                  "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium",
-                  complete
-                    ? "bg-green-600 text-white"
-                    : current
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-700 text-gray-300",
-                )}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium"
                 aria-hidden="true"
+                style={{
+                  backgroundColor: complete
+                    ? colors.success
+                    : current
+                      ? colors.action
+                      : colors.surfaceElevated,
+                  color: complete
+                    ? colors.successOn
+                    : current
+                      ? colors.actionOn
+                      : colors.contentSecondary,
+                }}
               >
                 {complete ? "✓" : index + 1}
               </span>
               <span
-                className="mt-1 truncate text-xs capitalize text-gray-300"
+                className="mt-1 truncate text-xs capitalize"
                 aria-current={current ? "step" : undefined}
+                style={{ color: colors.contentSecondary }}
               >
                 {step === "completed" ? "Done" : step}
               </span>
@@ -169,19 +174,21 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
 
       {error && (
         <div
-          className="mt-4 rounded-lg border border-red-500 bg-red-950/40 p-3"
+          className="mt-4 rounded-lg border p-3"
           role="alert"
+          style={{ borderColor: colors.error, backgroundColor: colors.errorSubtle, color: colors.errorOn }}
         >
-          <p className="text-sm text-red-200">{error}</p>
+          <p className="text-sm">{error}</p>
         </div>
       )}
 
       {status === "completed" && (
         <div
-          className="mt-4 rounded-lg border border-green-500 bg-green-950/40 p-3"
+          className="mt-4 rounded-lg border p-3"
           role="status"
+          style={{ borderColor: colors.success, backgroundColor: colors.successSubtle, color: colors.successOn }}
         >
-          <p className="text-sm text-green-200">
+          <p className="text-sm">
             Voice model trained successfully. Review quality and consent evidence
             before using it for conversion.
           </p>

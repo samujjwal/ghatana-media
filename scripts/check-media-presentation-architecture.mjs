@@ -73,12 +73,29 @@ function readExportMap(repoRoot) {
   const path = join(repoRoot, ".product-experience/executable-representation/export-map.yaml");
   if (!existsSync(path)) return null;
   const text = readFileSync(path, "utf8");
+  // The leading generatedPackageExports block documents manifest targets; the
+  // following exports block is the curated public-name inventory. Only the
+  // latter can establish a named export's semantic identity.
+  const exportSection = text.split(/^exports:\s*$/m).at(-1) ?? "";
   const rows = [];
-  for (const block of text.split(/(?=^  - subpath:)/m).slice(1)) {
-    const row = yamlScalars(block);
+  for (const block of exportSection.split(/(?=^  - subpath:)/m).slice(1)) {
+    const row = yamlScalars(block.replace(/^  - /m, "    "));
     if (row.subpath) rows.push({ subpath: row.subpath, publicNames: Array.isArray(row.publicNames) ? row.publicNames : [] });
   }
   return rows;
+}
+function readRendererAdapters(repoRoot) {
+  const path = join(repoRoot, ".product-experience/executable-representation/export-map.yaml");
+  if (!existsSync(path)) return [];
+  const text = readFileSync(path, "utf8");
+  const section = text.match(/^rendererAdapters:\s*\n((?:[ \t].*\n?)*)/mu)?.[1] ?? "";
+  return section.split(/(?=^  - id:)/m).filter((block) => /^  - id:/m.test(block)).map((block) => ({
+    id: block.match(/^  - id:\s*([^\s#]+)/m)?.[1],
+    packageName: block.match(/^\s+package:\s*["']?([^\s"']+)/m)?.[1],
+    subpath: block.match(/^\s+subpath:\s*([^\s#]+)/m)?.[1],
+    exportName: block.match(/^\s+exportName:\s*([^\s#]+)/m)?.[1],
+    source: block.match(/^\s+source:\s*([^\s#]+)/m)?.[1],
+  })).filter((record) => record.id && record.packageName && record.subpath && record.exportName && record.source);
 }
 function walkYaml(dir) {
   if (!existsSync(dir)) return [];
@@ -182,6 +199,7 @@ export function analyzeMediaPresentationArchitecture({ repoRoot = root, admissio
   const exportKeys = new Set(Object.keys(uiPackage.exports ?? {}));
   const packageName = uiPackage.name ?? "@audio-video/ui";
   const exportMap = readExportMap(repoRoot);
+  const rendererAdapters = readRendererAdapters(repoRoot);
   const consumerFiles = walk(join(repoRoot, "apps")).concat(walk(join(repoRoot, "modules")))
     .filter((path) => !path.startsWith(presentationRoot));
   for (const { path, specifier } of code(consumerFiles)) {
@@ -196,6 +214,22 @@ export function analyzeMediaPresentationArchitecture({ repoRoot = root, admissio
   const admittedWeb = admissions.filter((record) => isAdmitted(record) && isWeb(record));
   const explorerImports = code(explorerFiles);
   const productionImports = code(productionFiles);
+  const productRendererResults = rendererAdapters.map((adapter) => {
+    const publicModule = adapter.subpath === "." ? adapter.packageName : `${adapter.packageName}/${adapter.subpath.replace(/^\.\//u, "")}`;
+    const declaration = `${adapter.packageName}${adapter.subpath === "." ? "" : `/${adapter.subpath.replace(/^\.\//u, "")}`}#${adapter.exportName}`;
+    const identity = { declaration, moduleSpecifier: publicModule, exportName: adapter.exportName, packageName: adapter.packageName };
+    const explorerHasIdentity = importsExport(explorerImports, identity);
+    const productionHasIdentity = importsExport(productionImports, identity);
+    const packageSubpath = adapter.subpath === "." ? "." : `.${adapter.subpath.replace(/^\.\//u, "/")}`;
+    const exportedRow = exportMap?.find((item) => item.subpath === packageSubpath);
+    const sourceExists = existsSync(join(repoRoot, adapter.source));
+    if (!sourceExists) issues.push(`${adapter.id} source does not exist: ${adapter.source}`);
+    if (!exportKeys.has(packageSubpath)) issues.push(`${adapter.id} package subpath is not public: ${packageSubpath}`);
+    if (!exportedRow?.publicNames.includes(adapter.exportName)) issues.push(`${adapter.id} exact public export is absent from executable-representation/export-map.yaml`);
+    if (!explorerHasIdentity) issues.push(`Explorer host does not import candidate product renderer identity ${declaration}`);
+    if (productionFiles.length > 0 && !productionHasIdentity) issues.push(`Production Web does not import candidate product renderer identity ${declaration}`);
+    return { ...adapter, ...identity, explorerHasIdentity, productionHasIdentity, sourceExists, publicExportRecorded: Boolean(exportedRow?.publicNames.includes(adapter.exportName)) };
+  });
   for (const record of admittedWeb) {
     const identity = exportIdentity(record, packageName);
     if (!identity.declaration) {
@@ -441,8 +475,13 @@ export function analyzeMediaPresentationArchitecture({ repoRoot = root, admissio
         const identity = exportIdentity(record, packageName);
         return identity.declaration && importsExport(explorerImports, identity) && importsExport(productionImports, identity);
       }).length,
+      candidateProductRendererCount: productRendererResults.length,
+      explorerProductRendererImports: productRendererResults.filter((record) => record.explorerHasIdentity).length,
+      productionHostsPresent: productionFiles.length > 0,
+      productionProductRendererImports: productRendererResults.filter((record) => record.productionHasIdentity).length,
     },
     candidateDesignIssues,
+    productRendererResults,
   };
 }
 

@@ -8,3 +8,5 @@ export { JobRecoveryScreen } from "./JobRecoveryScreen";
 export type { JobRecoveryProjection, JobRecoveryScreenProps } from "./JobRecoveryScreen";
 export { TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
 export type { TranscriptCaptionProjection, TranscriptCaptionScreenProps, TranscriptCaptionView } from "./TranscriptCaptionScreen";
+export { MediaProductRenderer } from "./MediaProductRenderer";
+export type { MediaProductRendererProps } from "./MediaProductRenderer";

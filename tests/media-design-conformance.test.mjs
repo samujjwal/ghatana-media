@@ -12,7 +12,7 @@ const write = (root, path, content) => {
 };
 function fixture({ css = ".sample { color: var(--text); }", extraSource = "", screen = "templateId: media.gui.template.collection\nlayoutIds: [media.gui.layout.standard]\n" } = {}) {
   const root = mkdtempSync(join(tmpdir(), "media-design-gate-"));
-  write(root, ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml", `scopeStatus: ACCEPTED\nsemanticAuthority: true\nsharedBinding:\n  status: VERIFIED\nconformance:\n  status: VERIFIED\n`);
+  write(root, ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml", `scopeStatus: ACCEPTED\nsemanticAuthority: true\nsharedBinding:\n  status: VERIFIED\nconformance:\n  status: VERIFIED\nexplorerFixtureSource: apps/media-experience-explorer/src/styles.css\nexplorerFixtureSemanticAuthority: false\nexceptionPolicy: >-\n  Raw values in the Explorer fixture stylesheet remain Explorer-owned and carry no Media product meaning.\n`);
   write(root, ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml", `status: accepted\naliases:\n  - id: media.token.content.primary\n    cssVariable: --text\n    sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.contentPrimary"\n`);
   write(root, ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml", `scopeStatus: accepted\ntemplates:\n  - id: media.gui.template.collection\n`);
   write(root, ".product-experience/pdp-2-design-interface-system/gui/layout.yaml", `status: accepted\nlayoutRules:\n  standard: columns\n  layouts:\n    - media.gui.layout.standard\n`);
@@ -20,8 +20,9 @@ function fixture({ css = ".sample { color: var(--text); }", extraSource = "", sc
   write(root, ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml", `states:\n  - stateRef: media-job.COMPLETED\n`);
   write(root, ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml", `patterns:\n  - id: media.gui.pattern.sample\n`);
   write(root, ".product-experience/pdp-3-product-experience/screen-contracts/sample.yaml", screen);
-  write(root, "apps/media-experience-explorer/src/styles.css", `:root { --text: var(--text); }\n${css}\n`);
-  if (extraSource) write(root, "apps/media-experience-explorer/src/Local.tsx", extraSource);
+  write(root, "libs/audio-video-ui/src/styles.css", `:root { --text: var(--text); }\n${css}\n`);
+  write(root, "apps/media-experience-explorer/src/styles.css", ".fixture { color: #123456; }\n");
+  if (extraSource) write(root, "libs/audio-video-ui/src/Local.tsx", extraSource);
   return root;
 }
 const withFixture = (options, fn) => {
@@ -38,7 +39,7 @@ test("accepted, fully bound semantic CSS fixture passes", () => withFixture({ sc
 test("literal colors are reported and fail closed", () => withFixture({ css: ".sample { color: #123456; background: rgb(1 2 3); }" }, (root) => {
   const result = analyzeDesignConformance(root);
   assert.equal(result.ok, false);
-  assert.equal(result.findings.filter((item) => item.kind === "literal-color").length, 2);
+  assert.equal(result.findings.filter((item) => item.kind === "literal-color" && item.disposition === "unexplained").length, 2);
   assert.ok(result.blockers.some((item) => item.includes("unexplained")));
 }));
 
@@ -73,13 +74,21 @@ test("unknown semantic state styling and one-off interaction fail", () => withFi
   assert.ok(result.findings.some((item) => item.kind === "one-off-interaction-behavior"));
 }));
 
-test("repository reports observable fixture exceptions but never claims conformance", () => {
+test("Explorer CSS remains visible as fixture-only and does not become product authority", () => withFixture({}, (root) => {
+  const result = analyzeDesignConformance(root);
+  assert.equal(result.summary.productLiteralColors, 0);
+  assert.equal(result.summary.unexplained, 0);
+  assert.ok(result.summary.explorerFixtureObservations > 0);
+  assert.ok(result.findings.some((item) => item.path === "apps/media-experience-explorer/src/styles.css"
+    && item.kind === "literal-color"
+    && item.disposition === "explorer-chrome-or-fixture-only-not-product-authority"));
+}));
+
+test("repository keeps owner-gated blockers separate from source findings", () => {
   const result = analyzeDesignConformance();
   assert.equal(result.ok, false);
-  assert.ok(result.summary.literalColors > 0);
-  assert.ok(result.summary.documentedFixtureExceptions > 0);
-  assert.ok(result.findings.some((item) => item.kind === "literal-color" && item.detail.includes("custom property --canvas") && item.disposition === "documented-local-fixture-exception-not-product-authority"));
+  assert.equal(result.summary.unexplained, 0);
+  assert.ok(result.summary.explorerFixtureObservations > 0);
   assert.ok(result.blockers.some((item) => item.includes("Shared package binding is unresolved")));
   assert.ok(result.blockers.some((item) => item.includes("template catalog is proposal")));
-  assert.ok(result.findings.some((item) => item.kind === "missing-template-binding"));
 });
