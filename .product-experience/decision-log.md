@@ -655,6 +655,17 @@ constitute runtime or phase acceptance.
 - **Excludes:** changing the action contract or reducer semantics; product Web/CLI implementation; Shared package substitution; semantic PDP-2/PDP-3 acceptance; human visual/accessibility approval; Lifecycle-owned currentness or receipts.
 - **Evidence:** the 2026-10-07 `pnpm test:experience-browser` report, which exercised 296 indexed artifacts and 282 route/viewport observations and isolated the three undersized controls after excluding hidden checkbox implementation inputs and resetting focus to a clean viewport.
 
+### PXD-026 — Accept bounded Media owner semantic policies and execution criteria
+
+- **Status:** delegated product-owner approval for the bounded policy decisions in MEDIA-OWNER-2026-10-07. Not full PDP phase acceptance.
+- **Authority:** the user's explicit October 7, 2026 request to review, comment, approve, and resolve owner-selectable decisions.
+- **Approved:** canonical four-phase source-of-truth authority (not a production deployment gate); source- and channel-aware capability disposition; migration normative-content decomposition; the distinct job/attempt/delivery state identity; non-equivalence of ACCEPTED/QUEUED, RETRYING/RETRY_PENDING and legacy CANCELLING/canonical cancellation; explicit output, partial-success and cancellation finality; preserved unknown-outcome; typed operation/transport classifications; the public MediaProductRenderer parity target; candidate-only third-party admission; and the Lifecycle input-ready transition policy.
+- **Comments returned:** the prior 50 parity findings require identity-level reconciliation; 19/17/19 candidate schema-field mapping blockers remain semantic or validator gaps; the seven design authority/review gates are not waived; 47 candidate routes do not become production screens; missing installed-artifact, provider, review, licensing, proof, observer, oracle and owner-domain crosswalks remain real work.
+- **Critical scoping:** one delegated product-owner decision can authorize a rule and its own semantic meaning, but does not create retroactive per-record mapping acceptance, independent P0-010 or specialist findings, license admission, vendor/Shared/Tools/Lifecycle owner consent, or evidence/currentness/closure.
+- **Implementation direction:** use requirement-scoped obligations and admitted independent proof; make the Lifecycle preflight transition-capable rather than hardcoding permanent BLOCKED; validate machine and browser representation through actual public exports and typed ports.
+- **Evidence:** [2026-10-07 owner decision and resolution](./reviews/2026-10-07-owner-decision-and-resolution.md); [state adjudication](./pdp-1-domain-data/state-adjudication.yaml); `ACCEPT-INPUT-MEDIA-OWNER-20261007`; `scripts/lib/media-closure-preflight.mjs`.
+- **Excludes:** PDP phase CLOSED/CURRENT/READY statuses, production deployments, release certification, model or codec activation, independent accessibility or visual review.
+
 ## Governance decisions for this authority root
 
 ### GOV-AUTH-001 — Use authored partial relations for traceability
