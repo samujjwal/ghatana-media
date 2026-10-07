@@ -3,7 +3,7 @@ artifactId: media.pdp-1.state-adjudication
 productId: media
 semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/state-models.yaml
-status: canonical-meaning-proposal; independent-owner-acceptance-pending
+status: bounded-canonical-policy-owner-approved; implementation-and-independent-PDP-1-review-pending
 machineDimensions:
   - machineId: media-job
     dimension: logical-job-outcome-and-observation
@@ -18,8 +18,8 @@ machineDimensions:
       FAILED: job-contract-defined-failure-finality; does-not-imply-safe-retry
       CANCELLED: cancellation-confirmed-under-job-contract; a-request-alone-is-not-confirmation
     spellingConflict:
-      RETRYING: observed legacy Java/TypeScript spelling; equivalence to RETRY_PENDING unresolved, preserve source spelling
-      ACCEPTED: observed Java/OpenAPI spelling; equivalence to QUEUED unresolved
+      RETRYING: legacy attempt-in-progress-or-UI-label; not-equivalent-to-job-RETRY_PENDING; retain-raw-spelling-and-require-observation-evidence
+      ACCEPTED: ingress-request-receipt-only; not-equivalent-to-durable-job-QUEUED
   - machineId: media-attempt
     dimension: one-execution-attempt-and-its-dispatch-evidence
     proposedMeanings:
@@ -34,7 +34,7 @@ machineDimensions:
       OUTCOME_UNKNOWN: attempt effect or completion cannot currently be determined
       SUPERSEDED: a later fenced attempt or authoritative resolution supersedes this attempt observation
     spellingConflict:
-      CANCELLING: observed legacy job/UI spelling; machine and mapping unresolved, do not equate with CANCEL_REQUESTED
+      CANCELLING: legacy-observer-label-only; no-canonical-job-state; attempt-level-CANCEL_REQUESTED-is-distinct-and-unconfirmed
   - machineId: media-delivery
     dimension: external-delivery-effect-and-recipient-evidence
     proposedMeanings:
@@ -63,10 +63,23 @@ invariantsProposed:
   - partial-success-requires-explicit-sub-effect-accounting
   - state-alone-does-not-authorize-retry-cancel-delivery-or-other-action
   - observations-need-source-version-and-observed-at-to-support-freshness
-unresolvedOwnerDecisions:
-  - whether ACCEPTED and QUEUED are equivalent at the logical-job dimension
-  - whether RETRYING is legacy alias, active state, or attempt-level projection
-  - whether CANCELLING is UI-only or a supported domain/transport state
-  - terminality and aggregation contract for PARTIALLY_SUCCEEDED
-  - proof and scope required for CANCELLED and COMPLETED finality
-  - durable intent/attempt history and restart reconciliation guarantees
+ownerAcceptedPolicyDecisions:
+  authorityRef: .product-experience/reviews/2026-10-07-owner-decision-and-resolution.md#3-pdp-1-canonical-behavior-and-state-decisions
+  decisionScope: canonical-product-semantics-only; no-provider-or-runtime-proof
+  requestReceiptIsQueuedJob: false
+  legacyRetryingIsCanonicalJobState: false
+  legacyCancellingIsCanonicalJobState: false
+  machineScopedStateIdentity: true
+  partialSuccessRule: terminal-only-if-declared-sub-effects-have-explicit-closed-dispositions-and-no-consequential-unknown-effect
+  completedRule: exact-output-set-integrity-authority-and-durable-result-commit-required; not-delivery-acknowledgement
+  cancelledRule: authoritative-no-dispatch-or-confirmed-fenced-effects-finality; request-and-observer-detach-insufficient
+  durableAttemptRule: append-only-attempt-history-with-unique-id-monotonic-fencing-and-restart-reconciliation
+  unknownOutcomeRule: never-conflate-with-running-failure-or-safe-retry
+  policyStatus: DELEGATED_OWNER_APPROVED
+unresolvedOwnerDecisions: []
+remainingImplementationAndIndependentProof:
+  - observed-legacy-wire-and-client-projections-must-be-updated-with-loss-reporting-and-tested
+  - storage-and-runtime-durable-command-attempt-history-fencing-and-recovery-must-be-proven
+  - cancellation-and-finality-provider-observer-oracles-must-be-reconciled
+  - full-PDP-1-semantic-and-independent-acceptance-remains-open
+
