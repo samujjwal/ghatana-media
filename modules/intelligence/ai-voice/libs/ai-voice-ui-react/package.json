@@ -1,7 +1,7 @@
 {
   "name": "@ghatana/ai-voice-ui-react",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0-SNAPSHOT",
   "description": "Accessible React components and hooks for governed AI Voice production workflows",
   "type": "module",
   "main": "./dist/index.js",
@@ -33,9 +33,9 @@
   },
   "dependencies": {
     "@audio-video/ui": "workspace:*",
-    "@ghatana/design-system": "0.1.2",
-    "@ghatana/theme": "0.1.2",
-    "@ghatana/tokens": "0.1.2",
+    "@ghatana/design-system": "0.1.0-SNAPSHOT",
+    "@ghatana/theme": "0.1.0-SNAPSHOT",
+    "@ghatana/tokens": "0.1.0-SNAPSHOT",
     "clsx": "catalog:",
     "tailwind-merge": "catalog:"
   },

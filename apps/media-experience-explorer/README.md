@@ -2,11 +2,12 @@
 
 This Media-owned browser client reviews deterministic first-use,
 artifact-intake, verification-job, transcription-job, and transcript/caption simulations. It
-provides Product, Explore, Specification, and Verify modes for these slices.
+provides Product, Explore, Specification, Verify, and Tools Review modes for these slices.
 The in-browser terminal runs the registered synthetic `ghatana-media`
 commands against the same fixture state and reducer. It is not the generic
-`ghatana-tools` Explorer host and does not connect to the Media runtime, Shared
-identity, a project service, or a processing provider.
+`ghatana-tools` Explorer host for its Product and Explore modes, and it does not
+connect to the Media runtime, Shared identity, a project service, or a processing
+provider.
 
 ## Run locally
 
@@ -64,23 +65,31 @@ as not executable, and the source YAML remains available below each preview.
 The record search filters by title and filename. Each selected record also
 exposes a deterministic Explorer projection ID, owning phase and authority
 class, canonical location, semantic-fingerprint/currentness status, declared
-relation authority, and verification status. Tools-generated fingerprints and
-currentness remain explicitly pending until their owner binding is available.
+relation authority, and verification status. Lifecycle-generated fingerprints
+and currentness remain explicitly pending until their owner binding is available.
 These previews make the source contracts inspectable without implementing their
 views or closing PDP-2 or PDP-3 acceptance.
-The browser client does not constitute
-full Phase 3 acceptance or a `ghatana-tools` host binding. The current Tools
-source contracts are recorded in
+
+The Tools Review tab (`#tools-review`) runs the Media consumer bridge through public Tools package exports
+at `0.1.0-SNAPSHOT`. It validates clearly labeled synthetic Product Definition
+and Media ProductExperiencePackage fixtures, exercises public trace projection,
+and loads, renders, inspects, and dispatches the Media package through
+`createExplorer`. The route labels itself as local snapshot simulation proof;
+currentness is absent and owner acceptance is none. The existing Product and
+Explore modes remain Media-owned review surfaces, not a generic Tools-hosted
+product runtime. This route does not establish full Phase 3 acceptance, registry
+publication, normal workspace lockfile resolution, or Lifecycle currentness.
+The current Tools source contracts are recorded in
 [`tools-binding.yaml`](../../.product-experience/explorer/tools-binding.yaml):
 Product Definition, Experience Language, Experience Specification, Experience
 Package, Explorer Contracts, the headless Product Dev Explorer library, and
-Development Traceability. These package roles are source-verified only; a
-published package artifact and isolated Media consumer installation have not
-been verified. In particular, the headless Explorer library is not this
-Media-owned Vite host, Development Traceability projects source models but does
-not construct or resolve the graph, and the named contracts do not prove Media
-phase-verification support or host admission. The Tools-owned runtime support
-gap therefore remains open. See the
+Development Traceability. The packed consumer proof and dedicated browser review
+route verify local source-snapshot consumption only. In particular, the headless
+Explorer library is not itself this Media-owned Vite host, Development
+Traceability projects source models but does not construct or resolve the graph,
+and the named contracts do not prove Media phase-verification support or host
+admission. Tools owner review and the Tools-owned runtime support gap remain
+open. See the
 [verification matrix](../../.product-experience/explorer/verification-matrix.yaml)
 and [open gaps](../../.product-experience/gaps.yaml) for current evidence and
 remaining owner reviews.
@@ -90,12 +99,12 @@ read-only local invariant check that backs the closure matrix.
 
 Run `pnpm test:experience-browser` with the Vite preview active on port 4179 to
 exercise all 29 scenarios, the generated source index, 47 valid Product proposal
-routes, Verify, the inline artifact-verification specialization, keyboard
-navigation, accessible names, and six responsive viewports. The audit writes
+routes, Verify, the inline artifact-verification specialization, the Tools Review
+route, keyboard navigation, accessible names, and six responsive viewports. The audit writes
 fixed-viewport screenshots and `report.json` to
 `/tmp/media-experience-browser-audit` by default. A repeat run must produce
 identical screenshot hashes. It is browser evidence for visual review, not a
-human pixel-perfect approval or Tools-native acceptance receipt.
+human pixel-perfect approval or Lifecycle-owned acceptance receipt.
 # Shared presentation review host
 
 The Explorer mounts the public `@audio-video/ui/screens` exports for four candidate screen bodies through a local review adapter. The Vite aliases resolve those public import specifiers to repository source for local review, with the installed sibling Shared design-system build used only to make the candidate render. This does not admit the screens, qualify the published UI package, or establish a production Web surface. Every mounted screen is labeled **CANDIDATE · NOT ADMITTED** and receives synthetic simulation state and fixture actions.

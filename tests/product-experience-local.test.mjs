@@ -41,7 +41,7 @@ test("Product Definition local invariant check covers all phase denominators", (
   assert.match(output, /28 baseline plus J-29\/J-30 extensions/u);
   assert.match(output, /currentness\.yaml is absent/u);
   assert.match(output, /47 required shapes/u);
-  assert.match(output, /currentness authority is unavailable/u);
+  assert.match(output, /Tools Product Definition\/Experience validation and lifecycle currentness outputs are not bound in this checkout/u);
 });
 
 test("missing required screen refs/shapes fail closed", () => {

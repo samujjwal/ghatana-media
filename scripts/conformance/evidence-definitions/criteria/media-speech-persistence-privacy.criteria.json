@@ -36,22 +36,22 @@
     {
       "id": "canonical-proof-is-shared-java-owned",
       "level": "MUST",
-      "description": "Canonical execution, scoring, storage, freshness, and release interpretation remain owned by the Ghatana Tools Evidence Generator.",
+      "description": "Canonical execution, scoring, storage, freshness, and release interpretation remain owned by the ghatana-lifecycle Evidence Generator.",
       "impact": "BLOCKING",
       "measurement": {
         "type": "boundary-validation",
         "target": "config/evidence/runtime-production-readiness-map.json",
         "validation": {
-          "canonicalOutputOwner": "java-evidence-generator",
-          "providerRepo": "samujjwal/ghatana-tools"
+          "canonicalOutputOwner": "ghatana-lifecycle",
+          "providerRepo": "samujjwal/ghatana-lifecycle"
         }
       }
     }
   ],
   "acceptanceCriteria": {
-    "pass": "Speech persistence privacy authority and module verification pass, and Shared records the canonical producer result.",
+    "pass": "Speech persistence privacy authority and module verification pass, and Lifecycle records the canonical producer result.",
     "fail": "TTS metadata derives names from source text, speech failure logs/audit/status retain raw exception messages, source filenames leak into STT logs, module verification fails, or canonical ownership is violated.",
-    "reviewGate": "The Ghatana Tools Evidence Generator executes and scores this producer; GitHub Actions is provenance only."
+    "reviewGate": "The ghatana-lifecycle Evidence Generator executes and scores this producer; GitHub Actions is provenance only."
   },
   "governance": {
     "owner": "Media Engineering",

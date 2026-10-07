@@ -1,6 +1,6 @@
 {
   "name": "@audio-video/types",
-  "version": "0.0.1",
+  "version": "0.1.0-SNAPSHOT",
   "description": "Canonical TypeScript contracts for media artifacts, jobs, providers, and audio-video operations",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

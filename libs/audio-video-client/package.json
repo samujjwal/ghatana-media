@@ -1,6 +1,6 @@
 {
   "name": "@audio-video/client",
-  "version": "0.0.1",
+  "version": "0.1.0-SNAPSHOT",
   "description": "Operation-oriented TypeScript client for governed media artifacts and processing jobs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

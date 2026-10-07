@@ -68,7 +68,7 @@ decisions:
     sourceRevision: 6f35f2aa4193479fe4cce3d7e9f913cf6e611308
     version: 0.1.0-SNAPSHOT
     publication: not-verified
-    phaseUse: phase-2-shape-only-until-tools-owner-verifies-full-lifecycle-schema-bindings
+    phaseUse: phase-2-shape-only-until-Tools-owner-verifies-Experience-contract-fit
     sourceCouplingAllowed: false
     blocker: GAP-02
   - id: REUSE-TOOLS-PRODUCT-DEFINITION
@@ -104,6 +104,14 @@ decisions:
     phaseUse: phase-3-only-after-Phase2-acceptance
     sourceCouplingAllowed: false
     blockers: [GAP-02, GAP-11, GAP-12]
+  - id: REUSE-LIFECYCLE-CLOSURE-AND-EVIDENCE
+    need: cross-repository-evidence-admission-currentness-receipts-and-convergence
+    owner: ghatana-lifecycle
+    contract: lifecycle-owned-closure-and-evidence-workflows
+    decision: consume-owner-generated-outputs-after-binding; Media-authored applicability audits provide inputs only
+    publication: contract-and-Media-consumer-binding-not-yet-completed
+    sourceCouplingAllowed: false
+    blocker: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
   - id: REUSE-TUTORPUTOR-SIMULATION
     need: animation, rendering, physics, simulation and AEF
     owner: ghatana-products/products/tutorputor
@@ -151,6 +159,8 @@ notAdmittedByThisRecord:
   - local-copy-of-Tools-ProductDefinition-ExperienceLanguage-or-ExperienceSpecification-schema
   - broad-TutorPutor-barrel-import-or-unreviewed-physics-renderer-AEF-adapter
   - new-engine-or-model-purchase-download-install-or-production-activation
+  - Media-local-generic-Product-Definition-Experience-or-Explorer-mechanics
+  - Media-local-closure-currentness-readiness-receipt-or-convergence-engine
 ownerRequests:
   - requestId: REQ-TOOLS-PUBLIC-PRODUCT-DEFINITION
     owner: ghatana-tools

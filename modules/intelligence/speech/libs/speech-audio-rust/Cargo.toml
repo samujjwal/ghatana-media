@@ -1,6 +1,6 @@
 [package]
 name = "speech-audio-rust"
-version = "0.1.0"
+version = "0.1.0-SNAPSHOT"
 edition = "2021"
 description = "Shared audio primitives and file utilities for Ghatana speech products"
 

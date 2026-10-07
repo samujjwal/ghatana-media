@@ -1,6 +1,6 @@
 # Executable UI source inventory
 
-The source-pinned row inventory is [`executable-ui-inventory.json`](./executable-ui-inventory.json). It contains 157 source records from the current workspace observation at Git baseline `891ca118872de5888f0dd09c61c2a9f0c6420a12`. Every entry carries a SHA-256 of observed bytes and a dirty/untracked marker so the baseline does not hide working-tree edits.
+The source-pinned row inventory is [`executable-ui-inventory.json`](./executable-ui-inventory.json). It contains 157 source records from the current workspace observation at Git baseline `25dcc89b04d3810ad126a1c7ea0881191f38edf1`. Every entry carries a SHA-256 of observed bytes and a dirty/untracked marker so the baseline does not hide working-tree edits.
 
 | Source scope | Records | First disposition | Main consumers/runtime |
 |---|---:|---|---|
@@ -22,4 +22,4 @@ The inventory records public-export observations, purpose, applicable PDP review
 
 ## Review limitations
 
-Static source inventory does not establish exhaustive state/variant coverage, rendered accessibility, responsive behavior, full consumers, or complete test coverage. Those remain review tasks for each representation slice. Shared dependency publication and consumer binding also remain unresolved: the Media package declares `0.1.2`, while the inspected Shared source packages are `0.1.0-SNAPSHOT`. The local structural stylesheet is not a qualified Shared theme.
+Static source inventory does not establish exhaustive state/variant coverage, rendered accessibility, responsive behavior, full consumers, or complete test coverage. Those remain review tasks for each representation slice. Media's frozen pnpm composite install and Explorer dependency-closure build/typecheck pass using local Shared and Tools sources. The Media UI also passed isolated TypeScript and Vite consumer checks against nine locally packed Shared `0.1.0-SNAPSHOT` artifacts. Public registry resolution and immutable release binding remain unverified. The former `0.1.2` mismatch is corrected. The local structural stylesheet is not a qualified Shared theme.

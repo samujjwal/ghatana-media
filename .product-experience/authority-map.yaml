@@ -40,6 +40,14 @@ authorityRules:
 - id: AUTH-RULE-ACCEPTANCE
   rule: Only the P0-001 boundary slice is currently accepted; all other PDP-0 records are proposals pending owner
     review and P0-010.
+- id: AUTH-RULE-REUSABLE-PRODUCT-MECHANICS
+  rule: ghatana-tools owns reusable Product Definition, Experience, and generic Explorer mechanics; Media owns its
+    product-specific declarations, facts, state, actions, effects, and fixtures. Media is a consumer and does not
+    create a parallel generic host, schema, validator, or lifecycle engine.
+- id: AUTH-RULE-CLOSURE-AND-EVIDENCE
+  rule: ghatana-lifecycle owns cross-repository closure, evidence admission, semantic currentness, receipts, and
+    convergence outputs. Tools may supply reusable product/experience mechanics and inputs; Media-authored audits
+    are applicability/input records and cannot assign CLOSED, CURRENT, READY, receipt, or distance results.
 phaseAuthorities:
 - phase: PDP-0
   name: Product Truth
@@ -200,11 +208,11 @@ phaseAuthorities:
     acceptanceState: independent-P0-010-review-pending
   - id: ART-P0-CURRENTNESS
     path: currentness.yaml
-    owner: ghatana-tools-product-definition-owner
+    owner: ghatana-lifecycle
     authorityClass: owner-generated-coverage-and-currentness-observation
     role: generated-observation
-    authority: generated-coverage-currentness-only; no-manual-readiness-claim
-    acceptanceState: not-created; owner-approved-Tools-generation-pending
+    authority: lifecycle-generated-coverage-currentness-only; no-manual-readiness-claim
+    acceptanceState: not-created; lifecycle-owner-approved-generation-pending
   - id: ART-P0-CAPABILITY-LEAF-REVIEW
     title: Capability leaf review
     path: pdp-0-product-truth/capability-leaf-review.yaml
@@ -969,7 +977,9 @@ phaseAuthorities:
 - phase: EXPLORER
   name: Experience Explorer
   owner: ghatana-media-experience-explorer-owners
-  scope: deterministic projection of accepted PDP definitions outside the PDP phases for exploration and verification
+  scope: Media-owned product declarations, facts, state, actions, effects, and fixtures projected outside the PDP phases through reusable Tools Explorer mechanics
+  genericHostAndPackageOwner: ghatana-tools
+  closureEvidenceCurrentnessReceiptsAndConvergenceOwner: ghatana-lifecycle
   acceptance: not-accepted; prerequisite-PDP-3-pending
   artifacts:
   - id: ART-P3-PHASE-3-EXPERIENCE-EXPLORER-EXPERIENCE-EXPLORER-MD
@@ -1013,8 +1023,8 @@ phaseAuthorities:
     path: ../libs/media-experience-simulation
     role: deterministic-product-simulation-implementation
     authority: implements-the-selected-lane-simulation-proposal; not-product-definition-runtime-evidence-or-generic-Explorer-host
-    acceptanceState: TypeScript-6.0.3-typecheck-and-11-reducer-CLI-checks-passed; Tools-adapter-verification-pending;
-      no-Explorer-acceptance
+    acceptanceState: TypeScript-6.0.3-typecheck-and-11-reducer-CLI-checks-passed; local-packed-Tools-adapter-verification-passed;
+      Tools-owner-acceptance-and-generic-host-admission-pending
 governanceArtifacts:
   owner: ghatana-media-product-owners
   authorityClass: cross-phase-governance-records; these-records-do-not-accept-product-semantics
@@ -1047,7 +1057,7 @@ governanceArtifacts:
     title: Generated product artifact manifest
     path: source-manifest.yaml
     role: generated-portable-product-artifact-index
-    authority: phase-and-location-projection-only; Tools-owns-semantic-fingerprints-and-currentness; not-a-semantic-acceptance-result
+    authority: phase-and-location-projection-only; lifecycle-owns-semantic-fingerprints-and-currentness; not-a-semantic-acceptance-result
     acceptanceState: generated-index; phase-acceptance-remains-explicit-per-artifact
   - id: ART-GOV-MIGRATION-EXECUTION-PLAN
     title: Expert-reviewed master plan
@@ -1148,9 +1158,19 @@ externalAuthorities:
 - id: EXT-TOOLS
   owner: samujjwal/ghatana-tools
   owns:
-  - generic-product-development-schemas-validators-and-experience-definition-mechanics
-  MediaRule: Bind to published owner contracts; current PDP-0-3 schema/validator acceptance binding remains open
-    under GAP-MEDIA-TOOLS-SCHEMA-BINDING.
+  - reusable-Product-Definition-and-Experience-contract-mechanics
+  - generic-Experience-Explorer-host-and-package-mechanics
+  MediaRule: Bind to published owner contracts for product-definition/experience mechanics and generic Explorer;
+    current PDP-0-3 schema and validator binding remains open under GAP-MEDIA-TOOLS-SCHEMA-BINDING. Tools mechanics
+    do not compute lifecycle closure or evidence results.
+- id: EXT-LIFECYCLE
+  owner: samujjwal/ghatana-lifecycle
+  owns:
+  - cross-repository-closure-and-convergence
+  - evidence-admission-and-receipt-generation
+  - semantic-currentness-and-readiness-results
+  MediaRule: Media declares product facts and applicability inputs; lifecycle outputs require the owner workflow and
+    accepted bindings. Media records do not mint closure states, receipts, currentness, readiness, or distance.
 - id: EXT-KERNEL
   owner: samujjwal/ghatana-kernel
   owns:
@@ -1176,11 +1196,16 @@ generatedObservations:
   currentness:
     path: currentness.yaml
     status: not-created
-    authority: generated-only; no manual readiness/currentness claim
+    owner: samujjwal/ghatana-lifecycle
+    authority: lifecycle-generated-only; no manual readiness/currentness claim
     blockerRefs:
     - GAP-MEDIA-TOOLS-SCHEMA-BINDING
     - GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
   acceptanceResults:
-    authority: generated-by-owner-accepted-validation-workflow
-    status: no-generator-bound
-    rule: This map records ownership and inputs, not computed phase closure.
+    semanticDecisionOwner: ghatana-media-product-owners
+    closureEvidenceGeneratorOwner: samujjwal/ghatana-lifecycle
+    authority: lifecycle-generates-evidence-and-closure-observations; Media-owners-record-semantic-acceptance
+    status: no-lifecycle-output-bound
+    rule: Lifecycle may generate evidence, coverage, currentness, readiness, receipt, and convergence outputs from
+      accepted inputs; it does not make Media semantic acceptance decisions. This map records applicability inputs,
+      not computed closure or currentness.

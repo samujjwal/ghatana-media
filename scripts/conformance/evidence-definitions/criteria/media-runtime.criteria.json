@@ -79,7 +79,7 @@
   "acceptanceCriteria": {
     "pass": "Upload ordering, bounds, checksum, artifacts, jobs, request-fenced cancellation, session-close-fenced streaming, conservative provider fallback semantics, provider routing, terminal frame interoperability, and lifecycle are proven.",
     "fail": "Any artifact, upload, checksum, tenant, provider effect fence, fallback-safety contract, remote-failure classification, job, stream framing, route, or lifecycle proof fails.",
-    "reviewGate": "The Ghatana Tools Evidence Generator produces canonical Media Runtime evidence; GitHub Actions status is non-scoring provenance only."
+    "reviewGate": "The ghatana-lifecycle Evidence Generator produces canonical Media Runtime evidence; GitHub Actions status is non-scoring provenance only."
   },
   "governance": {
     "owner": "Media Engineering",
@@ -90,7 +90,7 @@
   "toolBinding": {
     "toolId": "evidence-generator",
     "operationId": "run",
-    "provider": "samujjwal/ghatana-tools",
+    "provider": "samujjwal/ghatana-lifecycle",
     "lifecycleState": "active"
   },
   "verificationTier": "tier-0",

@@ -89,7 +89,7 @@ relationships:
   runtime or owner acceptance evidence.
 - Explorer implements local Overview/Truth/Domain/Design System/Experience/
   Interfaces/Journeys/States-Data/Traceability/Dependencies projections and
-  exposes trace metadata; independent accessibility review, Tools-native
+  exposes trace metadata; independent accessibility review, lifecycle-owned
   rendering, and generated currentness remain open.
 
 These are current-state coverage/acceptance gaps, not missing vision ideas.

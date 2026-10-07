@@ -72,23 +72,26 @@ map.
   index. It records artifact paths, phase/authority classification, proposal and
   acceptance labels, and content hashes for provenance. Its dependency lists
   are currently empty; path-derived artifact IDs are not semantic stable IDs,
-  and content hashes are not Tools currentness or semantic fingerprints. Edit
+  and content hashes are not lifecycle currentness or semantic fingerprints. Edit
   the authored records, then rerun the generator; do not hand-edit either
   generated output.
-- Media is registered with all four Tools lifecycle stages in
+- Media is registered with all four Tools product-development stages in
   [`../config/development-subject-authorities.v1.json`](../config/development-subject-authorities.v1.json).
   [`../.ghatana/development-subject-catalog.yaml`](../.ghatana/development-subject-catalog.yaml)
   is a generated index of those authority files; it is not a phase validator or
-  acceptance result. Tools-owned plan binding, currentness, receipts, and phase
-  verification remain pending. Historical catalog or candidate-plan
+  acceptance result. Tools-owned Product Definition/Experience mechanics and
+  lifecycle-owned currentness, receipts, and phase verification remain pending.
+  Historical catalog or candidate-plan
   observations do not establish current owner acceptance.
 - [`gaps.yaml`](./gaps.yaml) is the single editable cross-phase gap register.
 - [`surface-registry.yaml`](./surface-registry.yaml) is the canonical consumer
   surface inventory and preserves fixed GUI, API, CLI, SDK, event, and Agent
   Tool denominators.
 - [`mandatory-surface-closure-matrix.yaml`](./mandatory-surface-closure-matrix.yaml)
-  is the current 33-area local convergence audit. It records exact local
-  repairs and external/native blockers; it is not a phase acceptance result.
+  is the current 33-area Media-authored applicability/input audit. It records
+  local facts, expected evidence inputs, repairs, and external/native blockers;
+  it does not assign closure, currentness, readiness, receipts, convergence
+  distance, or acceptance.
 - [`vision-requirements-coverage.yaml`](./vision-requirements-coverage.yaml)
   is the machine-readable cross-phase alignment ledger. It maps the
   master-prompt authority hierarchy and Media's ten P0 outcomes through
@@ -127,16 +130,22 @@ may consume the public Document Intelligence API through a bounded adapter.
 
 `currentness.yaml` is intentionally absent. The plan requires currentness and
 coverage results to be generated observations, not hand-maintained readiness
-claims. The Tools-owned schema/validator binding and generation path are still
-open under `GAP-MEDIA-TOOLS-SCHEMA-BINDING`; no local closure engine is defined
-here. The distinct generated coverage/currentness output remains open under
-`GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION`, which depends on that published
-validator binding. PDP-0 through PDP-2 projection targets and the PDP-3 package
+claims. The Tools-owned Product Definition/Experience schema and validator
+binding remains open under `GAP-MEDIA-TOOLS-SCHEMA-BINDING`; no local closure
+engine is defined here. Lifecycle-owned coverage/currentness generation
+remains open under `GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION` and depends on
+the applicable owner-approved contracts. PDP-0 through PDP-2 projection targets and the PDP-3 package
 path are recorded in `pdp-0-product-truth/schema-bindings.yaml`; those paths
 identify planned outputs, not generated artifacts or owner validation.
 
 The repeatable local source-of-truth check is `pnpm check:product-experience-local`.
 It validates the bundled Explorer index, source-linked cross-phase coverage,
 screen/action/journey denominators, proposal-only action guards, matrix
-coverage, and the intentional absence of Tools-generated currentness. It does
+coverage, and the intentional absence of lifecycle-generated currentness. It does
 not issue receipts or acceptance.
+
+Active Media packages and development coordinates follow the
+`0.1.0-SNAPSHOT` policy checked by `pnpm check:development-version-policy`.
+Release qualification can run `pnpm check:release-version-policy`, which
+rejects active SNAPSHOT package and dependency coordinates; archived historical
+manifests are excluded from both checks.

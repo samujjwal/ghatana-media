@@ -650,5 +650,7 @@ export function projectJson(state: MediaExperienceState): string {
   return JSON.stringify(projectExperience(state));
 }
 
+export { createMediaProductExperiencePackage, MEDIA_EXPERIENCE_SOURCE_REFS } from "./product-experience-package.js";
+
 export { formatMediaCliError, formatMediaCliHumanResult, mediaCliHelp, parseMediaCommand, requestedMediaCliFormat } from "./cli.js";
 export type { MediaCliFormat, MediaCliHumanReport, MediaCliParseResult } from "./cli.js";

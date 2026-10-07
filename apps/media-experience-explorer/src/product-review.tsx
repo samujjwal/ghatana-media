@@ -6,9 +6,10 @@ import {
   TranscriptCaptionScreen,
 } from "@audio-video/ui/screens";
 import type { MediaScreenAction } from "@audio-video/ui/screens";
+import type { MediaActionDispatchResult } from "@audio-video/ui/ports";
 import type { MediaTaskCurrentProjection, MediaTaskOperationObservation } from "@audio-video/ui/components";
 import { projectExperience } from "@ghatana/media-experience-simulation";
-import type { MediaAction, MediaExperienceState } from "@ghatana/media-experience-simulation";
+import type { MediaAction, MediaExperienceState, TransitionResult } from "@ghatana/media-experience-simulation";
 
 export type ReviewView = "setup" | "projects" | "project" | "source" | "transcript" | "captions" | "versions" | "browse" | "import" | "artifact" | "review-activity" | "job-status";
 
@@ -48,7 +49,7 @@ function operation(state: MediaExperienceState): MediaTaskOperationObservation |
   return { state: stateMap[state.job.state], progress: state.job.state === "OUTCOME_UNKNOWN" ? { kind: "unknown" } : { kind: "none" }, finality: state.job.finality };
 }
 
-export function ProductReview({ state, view, onAction }: { state: MediaExperienceState; view: ReviewView; onAction: (action: MediaAction) => void }): React.ReactElement {
+export function ProductReview({ state, view, onAction }: { state: MediaExperienceState; view: ReviewView; onAction: (action: MediaAction) => TransitionResult }): React.ReactElement {
   const [captionDrafts, setCaptionDrafts] = useState<Record<string, string>>({});
   const [timingDrafts, setTimingDrafts] = useState<Record<string, { start: string; end: string }>>({});
   const [purpose, setPurpose] = useState("");
@@ -75,48 +76,52 @@ export function ProductReview({ state, view, onAction }: { state: MediaExperienc
     });
     return visible.map((id): MediaScreenAction => ({ id, label: labels[id] ?? id, enabled: safeIds.includes(id) }));
   }, [state, safeIds]);
-  const dispatch = (id: string, payload: Readonly<Record<string, string | number | boolean | null>> = {}) => {
-    if (id === "media.action.create-project") onAction({ type: id });
-    else if (id === "media.action.inspect-project-creation") onAction({ type: id });
-    else if (id === "media.action.inspect-artifact") onAction({ type: id });
-    else if (id === "media.action.resume-artifact-upload") onAction({ type: id });
-    else if (id === "media.action.view-job-status") onAction({ type: id });
-    else if (id === "media.action.check-job-outcome") onAction({ type: id });
-    else if (id === "media.action.request-cancellation") onAction({ type: id });
-    else if (id === "media.action.inspect-source") onAction({ type: id });
-    else if (id === "media.action.choose-source") onAction({ type: id });
-    else if (id === "media.action.seek-source") onAction({ type: id, timeTick: state.workflow === "transcription" ? state.playbackPositionTick : 0 });
-    else if (id === "media.action.request-transcription") onAction({ type: id, languageTag: state.workflow === "transcription" ? state.transcript.languageTag ?? "und" : "und" });
-    else if (id === "media.action.review-transcript") onAction({ type: id });
-    else if (id === "media.action.inspect-provenance") onAction({ type: id });
+  const dispatch = (id: string, payload: Readonly<Record<string, string | number | boolean | null>> = {}): MediaActionDispatchResult => {
+    let lastResult: TransitionResult | undefined;
+    const emit = (action: MediaAction) => { lastResult = onAction(action); };
+    if (id === "media.action.create-project") emit({ type: id });
+    else if (id === "media.action.inspect-project-creation") emit({ type: id });
+    else if (id === "media.action.inspect-artifact") emit({ type: id });
+    else if (id === "media.action.resume-artifact-upload") emit({ type: id });
+    else if (id === "media.action.view-job-status") emit({ type: id });
+    else if (id === "media.action.check-job-outcome") emit({ type: id });
+    else if (id === "media.action.request-cancellation") emit({ type: id });
+    else if (id === "media.action.inspect-source") emit({ type: id });
+    else if (id === "media.action.choose-source") emit({ type: id });
+    else if (id === "media.action.seek-source") emit({ type: id, timeTick: state.workflow === "transcription" ? state.playbackPositionTick : 0 });
+    else if (id === "media.action.request-transcription") emit({ type: id, languageTag: state.workflow === "transcription" ? state.transcript.languageTag ?? "und" : "und" });
+    else if (id === "media.action.review-transcript") emit({ type: id });
+    else if (id === "media.action.inspect-provenance") emit({ type: id });
     else if (id === "media.action.save-caption-version") {
       if (state.workflow === "transcription") {
         for (const segment of state.captionDraft.segments) {
           const editedText = captionDrafts[segment.segmentId];
-          if (editedText !== undefined && editedText !== segment.text) onAction({ type: "media.action.correct-caption", segmentId: segment.segmentId, text: editedText });
+          if (editedText !== undefined && editedText !== segment.text) emit({ type: "media.action.correct-caption", segmentId: segment.segmentId, text: editedText });
           const timing = timingDrafts[segment.segmentId];
           const startTick = timing?.start !== undefined && timing.start !== "" ? Number(timing.start) : segment.startTick;
           const endTick = timing?.end !== undefined && timing.end !== "" ? Number(timing.end) : segment.endTick;
           if (startTick !== segment.startTick || endTick !== segment.endTick) {
             if (startTick !== null && startTick !== undefined && endTick !== null && endTick !== undefined) {
-              onAction({ type: "media.action.align-caption-timing", segmentId: segment.segmentId, startTick, endTick });
+              emit({ type: "media.action.align-caption-timing", segmentId: segment.segmentId, startTick, endTick });
             }
           }
         }
       }
       const savePurpose = typeof payload.purpose === "string" && payload.purpose.trim() ? payload.purpose.trim() : purpose.trim();
-      onAction({ type: id, ...(savePurpose ? { purpose: savePurpose } : {}) });
+      emit({ type: id, ...(savePurpose ? { purpose: savePurpose } : {}) });
     }
-    else if (id === "media.action.correct-caption" && typeof payload.segmentId === "string" && typeof payload.text === "string") onAction({ type: id, segmentId: payload.segmentId, text: payload.text });
-    else if (id === "media.action.align-caption-timing" && typeof payload.segmentId === "string" && typeof payload.startTick === "number" && typeof payload.endTick === "number") onAction({ type: id, segmentId: payload.segmentId, startTick: payload.startTick, endTick: payload.endTick });
-    else if (id === "media.action.compare-caption-versions" && state.workflow === "transcription" && typeof payload.leftVersionId === "string" && typeof payload.rightVersionId === "string") onAction({ type: id, leftVersionId: payload.leftVersionId, rightVersionId: payload.rightVersionId });
-    else if (id === "media.action.resolve-caption-conflict") onAction({ type: id, resolution: "keep-local" });
+    else if (id === "media.action.correct-caption" && typeof payload.segmentId === "string" && typeof payload.text === "string") emit({ type: id, segmentId: payload.segmentId, text: payload.text });
+    else if (id === "media.action.align-caption-timing" && typeof payload.segmentId === "string" && typeof payload.startTick === "number" && typeof payload.endTick === "number") emit({ type: id, segmentId: payload.segmentId, startTick: payload.startTick, endTick: payload.endTick });
+    else if (id === "media.action.compare-caption-versions" && state.workflow === "transcription" && typeof payload.leftVersionId === "string" && typeof payload.rightVersionId === "string") emit({ type: id, leftVersionId: payload.leftVersionId, rightVersionId: payload.rightVersionId });
+    else if (id === "media.action.resolve-caption-conflict") emit({ type: id, resolution: "keep-local" });
+    if (!lastResult) return { status: "unavailable", reason: `No deterministic fixture handler for ${id}.` };
+    return lastResult.applied ? { status: "intent-accepted" } : { status: "denied", reason: lastResult.reasonCode ?? lastResult.message };
   };
   const common = {
     data: { currentProjection: projection, operationObservation: operation(state) },
     actions: actionIds,
     nextSafeActionIds: safeIds,
-    actionPort: { invoke: (id: string, payload?: Readonly<Record<string, string | number | boolean | null>>) => dispatch(id, payload) },
+    actionPort: { invoke: async (id: string, payload?: Readonly<Record<string, string | number | boolean | null>>) => dispatch(id, payload) },
     context: { locale: "en-US" },
   };
   const stateText = state.workflow === "first-use" ? `${state.firstUse.identityResolved ? "Identity resolved in fixture" : "Identity not established"}; workspace access ${state.firstUse.workspaceAccess}; project creation ${state.firstUse.creationStatus}.`

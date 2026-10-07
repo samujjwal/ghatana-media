@@ -6,10 +6,10 @@ package com.ghatana.audiovideo.adapter.ledger;
 
 import com.ghatana.core.lifecycle.ExecutionOutcome;
 import com.ghatana.core.lifecycle.JobExecutionState;
-import com.ghatana.workflow.ledger.InputSnapshot;
-import com.ghatana.workflow.ledger.OutputSnapshot;
-import com.ghatana.workflow.ledger.RunLedger;
-import com.ghatana.workflow.ledger.WorkflowPolicySnapshot;
+import com.ghatana.datacloud.delivery.ledger.InputSnapshot;
+import com.ghatana.datacloud.delivery.ledger.OutputSnapshot;
+import com.ghatana.datacloud.delivery.ledger.RunLedger;
+import com.ghatana.datacloud.delivery.ledger.WorkflowPolicySnapshot;
 
 import java.util.*;
 

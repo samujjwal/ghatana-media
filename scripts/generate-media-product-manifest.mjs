@@ -3,7 +3,7 @@
  * Purpose: generate the portable Media Product Definition artifact manifest
  * and Explorer source index from the canonical four-PDP tree.
  * Consumers: local authority checks and the Media Explorer adapter.
- * Non-goals: Tools-native semantic fingerprints, currentness, acceptance,
+ * Non-goals: lifecycle-generated semantic fingerprints, currentness, acceptance,
  * qualification, release evidence, or manual readiness claims.
  * Change policy: update canonical source files first, then run this generator;
  * never hand-edit generated manifest/index output.
@@ -276,8 +276,8 @@ const lines = [
   "  canonicalPdpPhases: [PDP-0, PDP-1, PDP-2, PDP-3]",
   "  explorerOutsidePdpPhases: true",
   "  canonicalLocationPolicy: repository-relative-only",
-  "  semanticFingerprintAuthority: ghatana-tools-owner-generated",
-  "  currentnessAuthority: ghatana-tools-owner-generated",
+  "  semanticFingerprintAuthority: ghatana-lifecycle-owner-generated",
+  "  currentnessAuthority: ghatana-lifecycle-owner-generated",
   "migrationReference:",
   "  title: Ghatana Media — Expert-Reviewed Master Plan",
   "  path: docs/migration/expert-reviewed-master-plan.md",

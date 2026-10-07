@@ -3,7 +3,7 @@
  * Purpose: enforce the four-PDP source layout, manifest portability, registry
  * presence, and scope-status rules locally.
  * Consumers: focused local verification and pre-review checks.
- * Non-goals: Tools-native Evidence Generator receipts, semantic acceptance,
+ * Non-goals: Lifecycle-owned Evidence Generator receipts, semantic acceptance,
  * qualification, release state, or currentness generation.
  */
 

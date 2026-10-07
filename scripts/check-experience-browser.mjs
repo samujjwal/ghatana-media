@@ -203,6 +203,25 @@ try {
   if (await page.locator("#phase-tab-pdp-1").getAttribute("aria-checked") !== "true") fail("keyboard/phase-tabs", "ArrowDown did not select PDP-1");
   observations.push("keyboard mode-tab and phase-radio navigation exercised");
 
+  // Focused proof that the review-only route invokes the existing Media Tools
+  // consumer and preserves its deliberately local, non-acceptance scope.
+  const toolsReviewConsoleErrorStart = consoleErrors.length;
+  const toolsReviewPageErrorStart = pageErrors.length;
+  await gotoHash(page, "#tools-review");
+  await page.getByRole("heading", { name: "Package render, inspection, and dispatch" }).waitFor({ state: "visible", timeout: 10000 });
+  const toolsReviewText = await page.locator("#explorer-panel").innerText();
+  for (const expected of [
+    "LOCAL SNAPSHOT SIMULATION PROOF",
+    "media.experience.simulation",
+    "Lifecycle currentness\nAbsent",
+    "Owner acceptance\nNone",
+  ]) {
+    if (!toolsReviewText.includes(expected)) fail("tools-review", `consumer proof text is missing: ${expected}`);
+  }
+  if (consoleErrors.length !== toolsReviewConsoleErrorStart) fail("tools-review", `console errors: ${consoleErrors.slice(toolsReviewConsoleErrorStart).join(" | ")}`);
+  if (pageErrors.length !== toolsReviewPageErrorStart) fail("tools-review", `page errors: ${pageErrors.slice(toolsReviewPageErrorStart).join(" | ")}`);
+  observations.push("Tools Review route loaded the Media consumer result with local snapshot proof, absent currentness, no owner acceptance, and no route-specific browser errors");
+
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await gotoHash(page, "#specification");

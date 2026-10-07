@@ -37,22 +37,22 @@
     {
       "id": "canonical-proof-is-shared-java-owned",
       "level": "MUST",
-      "description": "Canonical orchestration, storage, scoring, freshness, and release interpretation remain owned by the Ghatana Tools Evidence Generator.",
+      "description": "Canonical orchestration, storage, scoring, freshness, and release interpretation remain owned by the ghatana-lifecycle Evidence Generator.",
       "impact": "BLOCKING",
       "measurement": {
         "type": "boundary-validation",
         "target": "scripts/conformance/evidence-definitions/producers/media-grpc-transport-security.producer.json",
         "validation": {
-          "canonicalOutputOwner": "java-evidence-generator",
-          "providerRepo": "samujjwal/ghatana-tools"
+          "canonicalOutputOwner": "ghatana-lifecycle",
+          "providerRepo": "samujjwal/ghatana-lifecycle"
         }
       }
     }
   ],
   "acceptanceCriteria": {
-    "pass": "All four standalone Media gRPC services share one TLS policy, production/staging/sovereign cannot bind plaintext, TLS material is validated before binding, and Shared records canonical evidence.",
+    "pass": "All four standalone Media gRPC services share one TLS policy, production/staging/sovereign cannot bind plaintext, TLS material is validated before binding, and Lifecycle records canonical evidence.",
     "fail": "Any standalone Media gRPC service bypasses the shared policy, a production-like profile can bind plaintext, TLS pairs can be partially/mixed configured, unsafe TLS paths are accepted, focused tests fail, or canonical ownership is violated.",
-    "reviewGate": "The Ghatana Tools Evidence Generator executes and scores this producer; GitHub Actions is provenance only."
+    "reviewGate": "The ghatana-lifecycle Evidence Generator executes and scores this producer; GitHub Actions is provenance only."
   },
   "governance": {
     "owner": "Media Engineering",

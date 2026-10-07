@@ -3,7 +3,7 @@
  * Purpose: validate the Media Product Definition source tree and its local
  * Explorer projection without becoming a second semantic authority.
  * Consumers: local development, focused verification, and the closure matrix.
- * Non-goals: phase acceptance, Tools Evidence Generator receipts, runtime
+ * Non-goals: phase acceptance, lifecycle Evidence Generator receipts, runtime
  * qualification, owner review, or currentness generation.
  * Change policy: derive checks from canonical paths and registries; never
  * write .evidence artifacts or promote observations to acceptance.
@@ -67,7 +67,7 @@ for (const path of [
 ]) assertExists(path);
 
 if (existsSync(join(productRoot, "currentness.yaml"))) {
-  fail("currentness.yaml exists even though owner-approved Tools currentness generation is unresolved");
+  fail("currentness.yaml exists even though owner-approved lifecycle currentness generation is unresolved");
 } else {
   note("currentness.yaml is absent as required by the unresolved owner-approved generation gate");
 }
@@ -439,7 +439,7 @@ for (const block of eventRegistry.split(/(?=^\s+- id: media\.event\.)/mu).filter
 }
 note(`Structural references checked against ${operationIds.size} PDP-1 operations, ${domainObjectIds.size} domain-object IDs, ${machineIds.size} state machines, ${httpIds.length} HTTP APIs, ${grpcIds.length} gRPC APIs, and ${eventIds.length} event IDs`);
 note("Requirement→domain/object semantics, action→operation bindings, and PDP-2 surface/layout authority remain unselected or proposal-only in local source; no inferred bindings are accepted");
-note("Tools-native PDP validator/currentness authority is unavailable in this checkout; local structural checks do not establish semantic acceptance or currentness");
+note("Tools Product Definition/Experience validation and lifecycle currentness outputs are not bound in this checkout; local structural checks do not establish semantic acceptance or currentness");
 
 const mainSource = read(join(root, "apps/media-experience-explorer/src/main.ts"));
 const specificationSource = read(join(root, "apps/media-experience-explorer/src/specification.ts"));

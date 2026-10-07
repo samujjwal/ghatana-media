@@ -10,6 +10,7 @@
     "noEmit": true,
     "paths": {
       "@ghatana/media-experience-simulation": ["../../libs/media-experience-simulation/src/index.ts"],
+      "@audio-video/ui/ports": ["../../libs/audio-video-ui/src/ports/index.ts"],
       "@audio-video/ui/screens": ["../../libs/audio-video-ui/src/screens/index.ts"],
       "@audio-video/ui/components": ["../../libs/audio-video-ui/src/components/index.ts"],
       "@ghatana/design-system": ["../../../ghatana-shared/platform/typescript/design-system/dist/index.d.ts"],

@@ -81,15 +81,16 @@ constitute runtime or phase acceptance.
      handlers and 15 event names lack complete canonical bindings. Keep each
      identity and count source-scoped; resolve mappings with relevant owners
      rather than inferring parity.
-  3. PDP-2 GUI and interface registries are proposals. `libs/audio-video-ui`
-     declares `@ghatana/tokens`, `@ghatana/theme`, and
-     `@ghatana/design-system` at `0.1.2`, but the lockfile has no resolutions
-     and consumer verification is unavailable; public-registry requests
-     returned 404. Explorer consumes none of the named Shared packages. The
-     `media-token-aliases.yaml` observation of `0.1.0-SNAPSHOT` must not be
-     replaced by the declared `0.1.2` until the intended Shared version is
-     available and the consumer is verified. Do not guess a version, copy
-     Shared tokens, or create a local substitute.
+  3. PDP-2 GUI and interface registries are proposals. At the time of this
+     decision, `libs/audio-video-ui` declared `@ghatana/tokens`,
+     `@ghatana/theme`, and `@ghatana/design-system` at `0.1.2`, while the
+     inspected Shared source used `0.1.0-SNAPSHOT`; public-registry requests
+     for the then-declared version returned 404. Media's active declarations
+     have since been normalized to `0.1.0-SNAPSHOT`. The former version drift
+     is historical, not the current blocker: lockfile resolution and isolated
+     Media consumer verification remain open for the private development
+     artifacts. Explorer consumes none of the named Shared packages. Do not
+     copy Shared tokens or create a local substitute.
   4. PDP-3's 47 screen proposals (plus one separately indexed job-family
      specialization) and observed machine interfaces are not complete
      contracts merely because they are indexed. PDP3-001 found all 47 have
@@ -104,7 +105,7 @@ constitute runtime or phase acceptance.
   5. Superseded for artifact identity and display classification only by
      PXD-024: the authored identity registry preserves committed IDs and pins
      added IDs across relocation. This metadata is not semantic authority.
-  6. Keep Tools-native schema binding, currentness, receipts, owner acceptance,
+  6. Keep Tools-native schema binding, Lifecycle-owned currentness and receipts, owner acceptance,
      independent P0-010 review, specialist appointments, publication, and
      qualification explicitly pending. Do not generate local substitutes.
   7. PDP2-002/003 are not complete because registries exist. The GUI pattern
@@ -247,11 +248,11 @@ constitute runtime or phase acceptance.
   class.
 - **Comments returned:** this is a structural migration of the Media-owned
   input ledger only. It does not make any phase accepted, satisfy P0-010, appoint
-  specialists, authorize Tools/Shared decisions, generate currentness/receipts,
+  specialists, authorize Tools/Shared decisions, generate Lifecycle-owned currentness/receipts,
   publish packages, qualify runtime behavior, or change implementation gates.
   The Tools-owned schema/validator binding remains pending; compatibility is
   preserved locally through explicit legacy-ID metadata and a regression test.
-- **Excludes:** all product semantics and phase acceptance; native Tools
+- **Excludes:** all product semantics and phase acceptance; Lifecycle-owned
   admission/currentness/receipts; publication, qualification, source cutover,
   release readiness, and production IMP-05.
 - **Evidence:** the plan's canonical phase definitions and Explorer boundary
@@ -353,17 +354,18 @@ constitute runtime or phase acceptance.
   decision that any phase's definitions are semantically correct or accepted.
   The browser audit proves local projection/rendering and route assertions
   only; it is not pixel-reference conformance, independent human visual or
-  accessibility review, Tools currentness/receipts, or publication. Shared
+  accessibility review, Lifecycle-owned currentness/receipts, or publication. Shared
   package resolution and external owner gates remain pending.
 - **Excludes:** changing task/artifact/gap/requirement identities; accepting
   PDP-0 through PDP-3 or Explorer; owner decisions, runtime qualification,
-  Tools-native evidence/currentness, package publication, cutover, or release
+  Lifecycle-owned evidence/currentness, package publication, cutover, or release
   readiness.
 - **Evidence:** `ACCEPT-INPUT-HARDENING-PHASE-TAXONOMY-009`; canonical phase
   ledger v2; focused active-label regression; 202 generated manifest records
-  and 203 Explorer projection records; `pnpm test:experience-browser`
-  (29 scenarios, 203 indexed artifacts, 47 routes × six viewports, no failed
-  checks); authority/local checks; and `git diff --check`.
+  and 203 Explorer projection records at the original decision review;
+  `pnpm test:experience-browser` (2026-10-07: 29 scenarios, 296 indexed
+  artifacts, 47 routes × six viewports, no failed checks); authority/local
+  checks; and `git diff --check`.
 
 ### PXD-010 — Approve PDP1-004 source inventory structure, with comments
 
@@ -391,7 +393,7 @@ constitute runtime or phase acceptance.
 - **Excludes:** canonical event names/meanings, producer authority, causal or
   ordering guarantees, retry/replay/retention/deduplication semantics,
   privacy/disclosure policy, event-specific evidence bindings, full PDP-1 or
-  PDP-0 acceptance, Event Plane owner decisions, Tools receipts/currentness,
+  PDP-0 acceptance, Event Plane owner decisions, Lifecycle-owned receipts/currentness,
   publication, qualification, or release readiness.
 - **Evidence:** `ACCEPT-INPUT-HARDENING-PDP1-004`; `events.yaml`,
   `evidence.yaml`, and `provenance.yaml`; runtime and client source census;
@@ -426,7 +428,7 @@ constitute runtime or phase acceptance.
   version keys, immutability, attempt history, cancellation finality,
   offline/replay/reconciliation rules, compatibility, or cross-product
   consumers; specialist or independent P0-010 acceptance; external owner
-  decisions; Tools currentness/receipts, publication, qualification, or
+  decisions; Lifecycle-owned currentness/receipts, publication, qualification, or
   release readiness.
 - **Evidence:** `ACCEPT-INPUT-HARDENING-PDP1-005`; the six PDP1-005 registries
   and `DOMAIN-MODEL.md`; duplicate-key-safe parsing; source audit of runtime,
@@ -455,7 +457,7 @@ constitute runtime or phase acceptance.
   of F16 is implemented; the broader architecture/event-contract gap remains.
 - **Excludes:** event semantic or policy acceptance; Event Plane/runtime
   delivery guarantees; canonical artifact version or ancestry; publication,
-  qualification, native Tools evidence/currentness, or PDP-1 phase acceptance.
+  qualification, Lifecycle-owned evidence/currentness, or PDP-1 phase acceptance.
 - **Evidence:** `ACCEPT-INPUT-HARDENING-PDP1-004-F16`; the nine event mappings
   in all three registries; focused exact-source regression in
   `tests/product-definition-authority.test.mjs`; duplicate-key-safe parsing;
@@ -479,12 +481,18 @@ constitute runtime or phase acceptance.
   publication followed by consumer verification; no compatibility claim is
   accepted here.
 - **Excludes:** Shared owner acceptance, publication, package installation,
-  consumer compatibility/binding, full PDP-2 acceptance, Tools-native
+  consumer compatibility/binding, full PDP-2 acceptance, Lifecycle-owned
   receipts/currentness, qualification, or release readiness.
 - **Evidence:** `ACCEPT-INPUT-PDP2-001`; the exact source inventory in
   `media-token-aliases.yaml`; inspected clean Shared HEAD and package
   manifests; and the Media dependency declarations in
   `libs/audio-video-ui/package.json`.
+- **Subsequent observation (2026-10-07):** Media's active dependencies now
+  match the Shared `0.1.0-SNAPSHOT` packages. `pnpm test:shared-media-consumer`
+  passed against locally packed Shared artifacts; normal workspace lockfile
+  resolution, immutable release binding, design review, and Shared owner
+  acceptance remain open. This does not expand PXD-013's source-inventory-only
+  approval.
 
 ### PXD-014 — Approve PDP2-002 GUI registry coverage structure, with comments
 
@@ -511,7 +519,7 @@ constitute runtime or phase acceptance.
   immutable-byte guarantees that are not accepted.
 - **Excludes:** full PDP-2 acceptance; PDP2-003 visual-authority migration;
   canonical PDP-1 semantics; Shared owner acceptance or package binding;
-  accessibility or visual qualification; Tools-native currentness/receipts,
+  accessibility or visual qualification; Lifecycle-owned currentness/receipts,
   publication, production readiness, or release readiness.
 - **Evidence:** `ACCEPT-INPUT-PDP2-002`; all 13 required category IDs in
   `gui/patterns/catalog.yaml`; four standalone pattern proposals; template and
@@ -536,7 +544,7 @@ constitute runtime or phase acceptance.
   wire/domain binding, OpenAPI parity, persistence, idempotency, retry,
   cancellation, authorization, or versioning guarantee is established.
 - **Excludes:** API semantic or runtime acceptance; OpenAPI conformance; API,
-  identity, or platform owner decisions; full PDP-2 acceptance; Tools-native
+  identity, or platform owner decisions; full PDP-2 acceptance; Lifecycle-owned
   receipts/currentness, qualification, publication, or release readiness.
 - **Evidence:** `ACCEPT-INPUT-PDP2-004`; all fourteen files under `api/`;
   duplicate-key-safe parsing and internal-reference audit; independent
@@ -563,7 +571,7 @@ constitute runtime or phase acceptance.
   accountable owners and evidence.
 - **Excludes:** production CLI/SDK or Agent Tool admission; canonical event
   semantics or delivery guarantees; runtime qualification; API/CLI/SDK/Event/
-  Shared owner decisions; full PDP-2 acceptance; Tools-native
+  Shared owner decisions; full PDP-2 acceptance; Lifecycle-owned
   receipts/currentness, publication, or release readiness.
 - **Evidence:** `ACCEPT-INPUT-PDP2-005`; all four convention files; the
   observed event and handler source inventories; the focused regression;
@@ -576,7 +584,7 @@ constitute runtime or phase acceptance.
 - **Authority:** the user's explicit 2026-10-06 delegation to act as Media product owner and disposition the supplied four-phase hardening plan.
 - **Approved:** all 47 canonical screens reference `media.screen-contract.v2` and the proposal schema; required surface/template/layout/component/pattern/token/domain/operation/state/entry/exit/action/responsive/fixture/verification fields are present. Existing component/pattern refs and the three exact catalogued templates are candidates, not accepted bindings. Action consequences have null operation/effect refs and explicit unresolved status.
 - **Comments returned:** `surfaceId: media.surface.web` remains a candidate because the channel-to-surface mapping is not accepted. No canonical layout IDs are registered; 44 template IDs remain null; token/package, domain, operation, state/transition, entry/exit, fixture, behavior, responsive, visual, keyboard, and accessibility proof remain open. Existing inline anatomy/template/layout fields remain proposal provenance and have not been centralized; the no-screen-local-design-rule target is not fully achieved.
-- **Excludes:** full screen or PDP-3 acceptance; PDP-1/PDP-2 semantics; Shared package binding; Web availability; behavior, visual/accessibility, or localization acceptance; Tools-native receipts/currentness, qualification, publication, or release readiness.
+- **Excludes:** full screen or PDP-3 acceptance; PDP-1/PDP-2 semantics; Shared package binding; Web availability; behavior, visual/accessibility, or localization acceptance; Lifecycle-owned receipts/currentness, qualification, publication, or release readiness.
 - **Evidence:** `ACCEPT-INPUT-PDP3-001`; the 47 canonical v2 screen contracts; `.product-experience/pdp-3-product-experience/screen-contract-schema.yaml`; the 47-screen regression in `tests/product-definition-authority.test.mjs`; exact template-catalog match count; structural test pass.
 
 ### PXD-018 — Approve PDP3-002 machine-interface source registries, with comments
@@ -625,8 +633,8 @@ constitute runtime or phase acceptance.
 - **Status:** approved for repository contract disposition and identity preservation only; no external Tools acceptance or production Agent Tool admission.
 - **Authority:** the user's explicit 2026-10-06 instruction to review the hardening plan as owner and approve or comment on its proposed changes.
 - **Approved:** CLEAN-2 selects source-specific contract authorities rather than restoring an aggregate `service-contract.yaml`: OpenAPI, protobuf, and provider-manifest records remain distinct contract surfaces, while PDP-1 owns product semantics. Historical migration references remain historical. Preserve the four observed `av.*` handler IDs as-is; do not silently rename them to `media.*` or claim they are final canonical Tool IDs.
-- **Comments returned:** the Tools Explorer's standalone proof is no longer an open Tools-side gap: `pnpm check:product-dev-explorer-standalone` passed in `ghatana-tools` on 2026-10-06 with the declared flag matching the live proof. The library is headless; this does not prove a published Media consumer dependency, isolated Media loading, Media render/inspect/dispatch integration, or browser-host admission. Canonical Agent Tool naming remains subject to the accountable Tools/tool-registry owner.
-- **Excludes:** semantic acceptance of PDP-1/PDP-3; aggregate contract generation; Agent Tool renaming or production admission; Media consumer/package publication; Tools-native Media currentness, receipts, publication, qualification, or release readiness.
+- **Comments returned:** the Tools Explorer's standalone proof is no longer an open Tools-side gap: `pnpm check:product-dev-explorer-standalone` passed in `ghatana-tools` on 2026-10-06 with the declared flag matching the live proof. A later local packed Media consumer passed Tools validators, package loading, render, inspect, dispatch, and proposal-only trace projection. The Vite client now exposes a dedicated Tools Review route for that bridge, but the route does not establish generic Tools hosting of Product/Explore workflows, registry publication, normal Media workspace lockfile installation, or full browser-host admission. Canonical Agent Tool naming remains subject to the accountable Tools/tool-registry owner.
+- **Excludes:** semantic acceptance of PDP-1/PDP-3; aggregate contract generation; Agent Tool renaming or production admission; Media consumer/package publication; Lifecycle-owned Media currentness and receipts, publication, qualification, or release readiness.
 - **Evidence:** the supplied plan's CLEAN-2, Agent Tool, and EXP-001 sections; `docs/README.md`, `docs/ARCHITECTURE.md`, `docs/DESIGN.md`, `docs/TESTING.md`, `config/provider-manifest.json`; `.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml`; `.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml`; and the read-only `ghatana-tools` standalone check.
 
 ### PXD-024 — Approve pinned artifact identity and display-class metadata, with comments
@@ -644,8 +652,8 @@ constitute runtime or phase acceptance.
 - **Authority:** the user's explicit 2026-10-06 instruction to review the hardening plan as owner and approve or comment on its proposed changes.
 - **Approved:** the synthetic Explorer source-position range and timestamp seek buttons may receive a minimum 24 CSS-pixel hit area while preserving their existing action semantics and visible track/label content.
 - **Comments returned:** the approval is limited to the local Explorer projection and is grounded in the post-normalization browser audit's measured 280×10px enabled range and two approximately 25×9px enabled seek buttons. It does not establish conformance with Shared tokens, accepted PDP-2 composition, or production Media surfaces; those gates remain open.
-- **Excludes:** changing the action contract or reducer semantics; product Web/CLI implementation; Shared package substitution; semantic PDP-2/PDP-3 acceptance; human visual/accessibility approval; Tools-native currentness or receipts.
-- **Evidence:** post-normalization `pnpm test:experience-browser` report, which exercised 279 indexed artifacts and 282 route/viewport observations and isolated the three undersized controls after excluding hidden checkbox implementation inputs and resetting focus to a clean viewport.
+- **Excludes:** changing the action contract or reducer semantics; product Web/CLI implementation; Shared package substitution; semantic PDP-2/PDP-3 acceptance; human visual/accessibility approval; Lifecycle-owned currentness or receipts.
+- **Evidence:** the 2026-10-07 `pnpm test:experience-browser` report, which exercised 296 indexed artifacts and 282 route/viewport observations and isolated the three undersized controls after excluding hidden checkbox implementation inputs and resetting focus to a clean viewport.
 
 ## Governance decisions for this authority root
 
@@ -666,13 +674,14 @@ constitute runtime or phase acceptance.
 - **Decision:** [`acceptance.yaml`](./acceptance.yaml) stores explicit human
   decision inputs, required owner review, and evidence needs. It contains no
   generated closure/currentness result.
-- **Limit:** The Tools-owned schema/validator binding and generated observation
-  workflow remain open under `GAP-MEDIA-TOOLS-SCHEMA-BINDING`.
+- **Limit:** The Tools-owned schema/validator binding remains open under
+  `GAP-MEDIA-TOOLS-SCHEMA-BINDING`; Lifecycle-owned generated observations
+  remain open under `GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION`.
 
 ### GOV-AUTH-003 — Do not hand-maintain currentness
 
 - **Status:** required by the master plan; generation path unresolved.
-- **Decision:** No `currentness.yaml` is created until the owner-approved Tools
+- **Decision:** No `currentness.yaml` is created until the owner-approved Lifecycle
   binding can generate a reproducible observation. This repository does not
   introduce a generic closure engine or manually assert that artifacts are
   current.

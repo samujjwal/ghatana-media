@@ -168,7 +168,7 @@ planTaskDependencies:
     dependsOnPlanTaskRefs:
     - P2-008
     - GOV-002
-    localStatus: Media-specific-package-proposal-and-reducer-authored; public-Tools-binding-and-host-load-pending-GAP-11
+    localStatus: Media-specific-package-proposal-and-reducer-authored; local-packed-Tools-consumer-and-dedicated-review-route-passed; published-binding-and-generic-host-admission-pending-GAP-11
   - taskRef: P3-002
     dependsOnPlanTaskRefs:
     - P3-001
@@ -178,7 +178,7 @@ planTaskDependencies:
     dependsOnPlanTaskRefs:
     - P3-002
     localStatus: three-J-01-first-use-routes-three-J-02-artifact-intake-views-activity-and-shared-J-02-J-20-job-detail-J-20-job-recovery-commands-and-four-J-03-Product-view-labels-rendered-in-Media-owned-Vite-client;
-      generic-Tools-browser-host-and-published-binding-pending-GAP-11
+      dedicated-Tools-Review-route-consumes-local-bridge; generic-Product-Explore-host-and-published-binding-pending-GAP-11
   - taskRef: P3-004
     dependsOnPlanTaskRefs:
     - P3-002
@@ -496,7 +496,7 @@ taskArtifactLinks:
   artifactRefs:
   - .product-experience/explorer/EXPERIENCE-EXPLORER.md
   - .product-experience/explorer/media-experience-package.yaml
-  acceptanceState: Media-specific-package-proposal-and-reducer-authored; public-Tools-binding-and-host-load-pending-GAP-11
+  acceptanceState: Media-specific-package-proposal-and-reducer-authored; local-packed-Tools-consumer-and-dedicated-review-route-passed; published-binding-and-generic-host-admission-pending-GAP-11
 - id: TRACE-P3-002
   taskRef: P3-002
   relation: authors-deterministic-simulation-and-Explorer-evidence-contracts-with-host-gaps-explicit
@@ -520,7 +520,7 @@ taskArtifactLinks:
   - .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
   - apps/media-experience-explorer/src/main.ts
   acceptanceState: three-J-01-first-use-routes-three-J-02-artifact-intake-views-plus-activity-and-shared-J-02-J-20-job-status-views-and-four-J-03-Product-view-labels-rendered-in-Media-owned-Vite-client;
-    generic-Tools-host-and-published-binding-pending-GAP-11
+    dedicated-Tools-Review-route-consumes-local-bridge; generic-Product-Explore-host-and-published-binding-pending-GAP-11
 - id: TRACE-P3-004
   taskRef: P3-004
   relation: authors-deterministic-simulation-and-Explorer-evidence-contracts-with-host-gaps-explicit
@@ -637,7 +637,7 @@ crossArtifactRelations:
   - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
   - .product-experience/pdp-3-product-experience/screen-registry.yaml
   referenceField: package-authorityRefs-fixtureRefs-and-viewRefs
-  status: J-01-J-02-and-J-03-Media-reducer-and-fixture-relations-authored; public-Tools-host-and-P2-008-acceptance-pending
+  status: J-01-J-02-and-J-03-Media-reducer-and-fixture-relations-authored; dedicated-local-Tools-Review-route-passed; generic-Tools-host-and-P2-008-acceptance-pending
 phaseGates:
 - id: TRACE-GATE-P0-001
   gate: P0-001 boundary acceptance

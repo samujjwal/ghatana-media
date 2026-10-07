@@ -1,6 +1,6 @@
 {
   "name": "@audio-video/ui",
-  "version": "0.0.1",
+  "version": "0.1.0-SNAPSHOT",
   "description": "Accessible media-specific React hooks and UI composition over the canonical Ghatana design system",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -73,9 +73,9 @@
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@ghatana/design-system": "0.1.2",
-    "@ghatana/theme": "0.1.2",
-    "@ghatana/tokens": "0.1.2"
+    "@ghatana/design-system": "0.1.0-SNAPSHOT",
+    "@ghatana/theme": "0.1.0-SNAPSHOT",
+    "@ghatana/tokens": "0.1.0-SNAPSHOT"
   },
   "publishConfig": {
     "access": "restricted"

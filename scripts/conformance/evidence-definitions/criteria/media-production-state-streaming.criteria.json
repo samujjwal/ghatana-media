@@ -37,7 +37,7 @@
   "acceptanceCriteria": {
     "pass": "Artifact, governed concurrent deduplication, job, stream, reconnect, backpressure, and provider-security tests pass.",
     "fail": "Any size, checksum, encryption, tenant, metadata compatibility, retention, concurrent uniqueness, idempotency, token, lease, sequence, backpressure, credential, or HTTPS invariant fails.",
-    "reviewGate": "Evidence Generator owns the canonical results and gate decision."
+    "reviewGate": "The ghatana-lifecycle Evidence Generator owns the canonical results and gate decision."
   },
   "governance": {
     "owner": "Media Engineering",
@@ -48,7 +48,7 @@
   "toolBinding": {
     "toolId": "evidence-generator",
     "operationId": "run",
-    "provider": "samujjwal/ghatana-tools",
+    "provider": "samujjwal/ghatana-lifecycle",
     "lifecycleState": "active"
   },
   "verificationTier": "tier-0",

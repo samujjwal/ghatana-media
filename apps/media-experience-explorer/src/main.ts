@@ -16,8 +16,9 @@ import { createRoot as createReactRoot, type Root as ReactRoot } from "react-dom
 import { ProductReview, type ReviewView } from "./product-review.js";
 import "@audio-video/ui/styles.css";
 import { specificationArtifacts, traceMetadataForArtifact, type ExperiencePhase, type SpecificationArtifact } from "./specification.js";
+import { exerciseMediaToolsConsumer } from "./tools-consumer.js";
 
-type ExplorerMode = "product" | "explore" | "specification" | "verify" | "overview" | "truth" | "domain" | "design-system" | "experience" | "interfaces" | "journeys" | "states-data" | "traceability" | "dependencies";
+type ExplorerMode = "product" | "explore" | "specification" | "verify" | "overview" | "truth" | "domain" | "design-system" | "experience" | "interfaces" | "journeys" | "states-data" | "traceability" | "dependencies" | "tools-review";
 type ExplorerChannel = "web" | "cli";
 type ProductView = ReviewView;
 
@@ -56,7 +57,7 @@ function reviewStatusForArtifact(artifact: SpecificationArtifact): string {
       return "PDP-2 proposal · design/interface review pending";
     }
     case "PDP-3": return "PDP-3 proposal · experience acceptance pending";
-    case "EXPLORER": return "Local projection · Tools binding and review pending";
+    case "EXPLORER": return "Local Tools consumer verified · owner and full-host review pending";
     case "CROSS_PHASE": return "Governance record · current owner and acceptance status";
     default: return "Reference/projection record · owner status applies";
   }
@@ -77,6 +78,7 @@ const supportedModes: readonly { readonly id: ExplorerMode; readonly label: stri
   { id: "states-data", label: "States/Data", shortcut: "b" },
   { id: "traceability", label: "Traceability", shortcut: "c" },
   { id: "dependencies", label: "Dependencies", shortcut: "d" },
+  { id: "tools-review", label: "Tools Review", shortcut: "e" },
 ];
 // Artifact verification specializes the shared job-status view, so it is not a separate Product screen route.
 const screenContractArtifacts = specificationArtifacts.filter((artifact) =>
@@ -177,6 +179,10 @@ let lastResult: TransitionResult | null = null;
 let versionPurpose = "";
 let detailsVisible = true;
 let transientAnnouncement = "";
+type ToolsConsumerResult = Awaited<ReturnType<typeof exerciseMediaToolsConsumer>>;
+let toolsConsumerResult: ToolsConsumerResult | null = null;
+let toolsConsumerError: string | null = null;
+let toolsConsumerRun = 0;
 const specificationContents = new Map<string, string>();
 const specificationErrors = new Map<string, string>();
 const specificationLoads = new Set<string>();
@@ -550,7 +556,7 @@ function renderTraceMetadata(artifact: SpecificationArtifact, sourceManifest: st
       <div><dt>Verification status</dt><dd>${escapeHtml(metadata.verificationStatus)}</dd></div>
     </dl>
     <div class="trace-relations"><div><span>Dependencies</span><ul>${list(metadata.dependencies)}</ul></div><div><span>Dependents</span><ul>${list(metadata.dependents)}</ul></div></div>
-    <p class="trace-honesty-note">The Explorer exposes the canonical path and declared relation authority. It does not generate semantic fingerprints, currentness, acceptance, or Tools receipts.</p>
+    <p class="trace-honesty-note">The Explorer exposes the canonical path and declared relation authority. It does not generate semantic fingerprints, currentness, acceptance, or Lifecycle receipts.</p>
   </section>`;
 }
 
@@ -594,7 +600,7 @@ function verificationSurface(): string {
     artifact.path.endsWith("/mandatory-surface-closure-matrix.yaml") || artifact.path.endsWith("/source-manifest.yaml"));
   const links = sourceArtifacts.length ? sourceArtifacts.map((artifact) => `<button type="button" class="artifact-link" data-artifact="${escapeHtml(artifact.path)}" data-mode="specification"><span class="file-glyph" aria-hidden="true">${artifact.path.endsWith(".md") ? "M" : "Y"}</span><span><strong>${escapeHtml(artifact.title)}</strong><small>${escapeHtml(artifact.phase)} · ${escapeHtml(reviewStatusForArtifact(artifact))} · ${escapeHtml(artifact.path)}</small></span></button>`).join("") : `<p class="artifact-filter-empty">No verification-source records are present in the current index.</p>`;
   return `<main class="verify-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">VERIFICATION SOURCES & EVIDENCE AVAILABILITY</div><h1>Verify experience</h1><p>Results are shown only when a durable run report is available from indexed sources.</p></div><span class="proposal-chip"><span></span> LOCAL PROJECTION</span></header>
-    <section class="verify-section"><div class="verify-section-heading"><div><h2>Run-result availability</h2><p>No task-local command output is persisted here as current evidence.</p></div><span class="section-count">NOT SUPPLIED</span></div><div class="pending-list"><article class="pending-card"><span class="pending-status neutral">NOT AVAILABLE</span><div><h3>No durable run report is indexed</h3><p>Verification result, timestamp, command provenance, and artifact reference have not been supplied to this view. Consult the indexed source records below; their presence does not mean a check passed.</p></div></article><article class="pending-card"><span class="pending-status neutral">NOT SUPPLIED</span><div><h3>Tools currentness and owner acceptance</h3><p>No native receipt or owner acceptance is asserted by this local projection.</p></div></article></div></section>
+    <section class="verify-section"><div class="verify-section-heading"><div><h2>Run-result availability</h2><p>No task-local command output is persisted here as current evidence.</p></div><span class="section-count">NOT SUPPLIED</span></div><div class="pending-list"><article class="pending-card"><span class="pending-status neutral">NOT AVAILABLE</span><div><h3>No durable run report is indexed</h3><p>Verification result, timestamp, command provenance, and artifact reference have not been supplied to this view. Consult the indexed source records below; their presence does not mean a check passed.</p></div></article><article class="pending-card"><span class="pending-status neutral">NOT SUPPLIED</span><div><h3>Lifecycle currentness and owner acceptance</h3><p>No native receipt or owner acceptance is asserted by this local projection.</p></div></article></div></section>
     <section class="verify-section"><div class="verify-section-heading"><div><h2>Indexed verification sources</h2><p>Open the canonical source record; source presence alone is not a run result.</p></div><span class="section-count">${sourceArtifacts.length} records</span></div><div class="semantic-card-grid">${links}</div></section>
   </main>`;
 }
@@ -692,7 +698,7 @@ function indexedInterfaceRows(artifact: SpecificationArtifact, source: string): 
 }
 
 function semanticModeSurface(): string {
-  type SemanticMode = Exclude<ExplorerMode, "product" | "explore" | "specification" | "verify">;
+  type SemanticMode = Exclude<ExplorerMode, "product" | "explore" | "specification" | "verify" | "tools-review">;
   type ModeDefinition = { readonly title: string; readonly summary: string; readonly predicate: (artifact: SpecificationArtifact) => boolean; readonly groups: readonly { readonly label: string; readonly predicate: (artifact: SpecificationArtifact) => boolean }[] };
   const has = (artifact: SpecificationArtifact, ...terms: string[]): boolean => terms.some((term) => artifact.path.toLocaleLowerCase().includes(term));
   const phase = (value: ExperiencePhase) => (artifact: SpecificationArtifact): boolean => artifact.phase === value;
@@ -726,7 +732,29 @@ function semanticModeSurface(): string {
   const interfaceMarkup = mode === "interfaces" ? `<section class="verify-section"><div class="verify-section-heading"><div><h2>Indexed interface registry entries</h2><p>${interfaceRows.length} registry entries; direct-scalar extraction is partial and is not a complete interface projection.</p></div><span class="section-count">REGISTRY VIEW ONLY</span></div>${interfaceRows.length ? `<div class="pending-list">${interfaceRows.map((row) => `<article class="pending-card"><span class="pending-status ${row.contractPath ? "caution" : "neutral"}">${row.contractPath ? "REGISTRY SUMMARY · CONTRACT LINKED" : "REGISTRY VIEW ONLY"}</span><div><h3>${escapeHtml(row.id)}</h3><p>${escapeHtml(row.status)}</p><details><summary>Partial registry scalar observations (not a full contract)</summary><p>${escapeHtml(row.fields)}</p></details>${row.contractPath ? `<button type="button" class="text-button" data-artifact="${escapeHtml(row.contractPath)}" data-mode="specification">Open matching indexed operation contract →</button>` : `<button type="button" class="text-button" data-artifact="${escapeHtml(row.path)}" data-mode="specification">Open owning indexed registry · registry view only →</button>`}</div></article>`).join("")}</div>` : `<p class="artifact-filter-empty">Loading indexed interface registries, or no operation entries are present in them.</p>`}<p class="trace-honesty-note">HTTP/gRPC rows link to the matching per-operation artifact only when the registry’s contractFile resolves to that exact indexed artifact; otherwise its exact contractFile value remains visible in the partial registry record. SDK, CLI, event, and Agent Tool rows without a per-operation contract remain registry-only. Missing semantics are not inferred.</p></section>` : "";
   const countSummary = mode === "overview" ? `<div class="phase-status-grid">${(["PDP-0", "PDP-1", "PDP-2", "PDP-3", "EXPLORER"] as ExperiencePhase[]).map((p) => `<article class="phase-status-card"><div class="phase-status-heading"><span>${escapeHtml(p)}</span><strong>INDEXED</strong></div><h3>${specificationArtifacts.filter((a) => a.phase === p).length} source records</h3><p>Generated index count only; not a completeness or acceptance measure.</p></article>`).join("")}</div>` : "";
   const empty = candidates.length ? "" : `<p class="artifact-filter-empty">No matching indexed records are available. This view does not substitute unindexed or inferred content.</p>`;
-  return `<main class="semantic-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">SOURCE-LINKED SEMANTIC PROJECTION</div><h1>${escapeHtml(definition.title)}</h1><p>${escapeHtml(definition.summary)}</p></div><span class="proposal-chip"><span></span> INDEXED · LOCAL ONLY</span></header>${countSummary}<section class="semantic-summary"><strong>${candidates.length} indexed source records</strong><span>Cards open their canonical source record. Proposal status, unresolved bindings, and local verification scope remain visible; semantic fingerprints, Tools currentness, and owner acceptance are not generated here.</span></section>${groupMarkup}${interfaceMarkup}${empty}</main>`;
+  return `<main class="semantic-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">SOURCE-LINKED SEMANTIC PROJECTION</div><h1>${escapeHtml(definition.title)}</h1><p>${escapeHtml(definition.summary)}</p></div><span class="proposal-chip"><span></span> INDEXED · LOCAL ONLY</span></header>${countSummary}<section class="semantic-summary"><strong>${candidates.length} indexed source records</strong><span>Cards open their canonical source record. Proposal status, unresolved bindings, and local verification scope remain visible; semantic fingerprints, Lifecycle currentness, and owner acceptance are not generated here.</span></section>${groupMarkup}${interfaceMarkup}${empty}</main>`;
+}
+
+function runToolsConsumerReview(): void {
+  const run = ++toolsConsumerRun;
+  toolsConsumerResult = null;
+  toolsConsumerError = null;
+  render();
+  void exerciseMediaToolsConsumer().then((result) => {
+    if (run !== toolsConsumerRun || mode !== "tools-review") return;
+    toolsConsumerResult = result;
+    render();
+  }).catch((error: unknown) => {
+    if (run !== toolsConsumerRun || mode !== "tools-review") return;
+    toolsConsumerError = error instanceof Error ? error.message : String(error);
+    render();
+  });
+}
+
+function toolsReviewSurface(): string {
+  const result = toolsConsumerResult;
+  const detail = (label: string, value: unknown): string => `<div class="trace-card"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value ?? "Not reported")}</strong></div>`;
+  return `<main class="semantic-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">LOCAL PACKAGE CONSUMER</div><h1>Media Tools consumer review</h1><p>Read-only proof that the Media Tools Explorer package can render, inspect, and dispatch against the synthetic Media package.</p></div><span class="proposal-chip"><span></span> REVIEW ONLY</span></header><section class="semantic-summary"><strong>LOCAL SNAPSHOT SIMULATION PROOF</strong><span>This is a deterministic local package exercise. It does not establish semantic truth, Lifecycle currentness, or owner acceptance.</span></section>${toolsConsumerError ? `<section class="verify-section" role="alert"><h2>Consumer exercise failed</h2><p>${escapeHtml(toolsConsumerError)}</p></section>` : !result ? `<p class="artifact-filter-empty" role="status">Running the Media Tools consumer exercise…</p>` : `<section class="verify-section" aria-labelledby="tools-proof-heading"><div class="verify-section-heading"><div><h2 id="tools-proof-heading">Package render, inspection, and dispatch</h2><p>Consumer result from the current local snapshot.</p></div><span class="section-count">${result.dispatchProducedResult ? "DISPATCHED" : "NO RESULT"}</span></div><div class="phase-status-grid">${detail("Active package", result.activePackageId)}${detail("Initial render", result.initialRenderKind)}${detail("Initial source status", result.initialSourceStatus)}${detail("Initial inspected state", result.initialStateRef)}${detail("Dispatch finality", result.dispatchFinalityKind)}${detail("Updated render", result.updatedRenderKind)}${detail("Updated source status", result.updatedSourceStatus)}${detail("Updated inspected state", result.updatedStateRef)}${detail("Authority status", result.authorityStatus)}${detail("Lifecycle currentness", "Absent")}${detail("Owner acceptance", "None")}</div><h3>Available actions after dispatch</h3><p>${result.updatedAvailableActions.length ? result.updatedAvailableActions.map(escapeHtml).join(" · ") : "None reported"}</p><h3>Structural validator checks</h3><p>${result.toolsValidatorsPassed ? "Passed as package structure checks only; not semantic acceptance." : "Not passed."}</p><h3>Trace projection</h3><pre>${escapeHtml(JSON.stringify(result.traceProjection, null, 2))}</pre><h3>Package diagnostics</h3><pre>${escapeHtml(JSON.stringify(result.diagnostics, null, 2))}</pre></section>`}</main>`;
 }
 
 function mainContent(): string {
@@ -735,6 +763,7 @@ function mainContent(): string {
     case "explore": return exploreSurface();
     case "specification": return specificationSurface();
     case "verify": return verificationSurface();
+    case "tools-review": return toolsReviewSurface();
     default: return semanticModeSurface();
   }
 }
@@ -854,6 +883,7 @@ function updateMode(nextMode: ExplorerMode, restoreTabFocus = false): void {
   selectedProductContract = null;
   transientAnnouncement = "";
   render();
+  if (nextMode === "tools-review") runToolsConsumerReview();
   if (restoreTabFocus) root!.querySelector<HTMLButtonElement>(`#mode-${nextMode}`)?.focus();
   else if (nextMode === "product") root!.querySelector<HTMLElement>("#main-content")?.focus();
 }
@@ -868,6 +898,7 @@ window.addEventListener("popstate", () => {
   }
   transientAnnouncement = "";
   render();
+  if (mode === "tools-review") runToolsConsumerReview();
   if (mode !== "product") root!.querySelector<HTMLButtonElement>(`#mode-${mode}`)?.focus();
 });
 
@@ -1142,3 +1173,4 @@ root.addEventListener("keydown", (event) => {
 });
 
 render();
+if (mode === "tools-review") runToolsConsumerReview();

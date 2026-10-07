@@ -219,7 +219,8 @@ Suitability includes API stability, published packaging, security, tests, perfor
 |---|---|---|
 | `ghatana-media` | Media meaning, projects/assets, processing specifications, media-job policy/state, timeline, animation/simulation presentation, media quality, rights and delivery intent | Own its domain, stores and adapters; remain a Ghatana product consumer, not a generic platform |
 | `ghatana-shared` | Reusable security, identity, audit, observability, workflow, messaging, schema, config, HTTP, async/lifecycle, testing and UI primitives | Consume published contracts. Request owner improvements rather than copying implementations |
-| `ghatana-tools` | Product-development/experience contract mechanics, work planning, validation, engineering verification/currentness and closure tooling | Use public tooling during development. Never run the development closure engine as the end-user media-job runtime |
+| `ghatana-tools` | Reusable Product Definition and Experience contract mechanics; generic Experience Explorer host and package mechanics | Media declares its product meaning and binds to published owner contracts. Tools mechanics do not decide Media meaning or produce cross-repository closure/evidence results |
+| `ghatana-lifecycle` | Cross-repository closure and convergence workflows, evidence admission, semantic currentness, readiness, and receipt generation | Media supplies declarations, source facts, applicability, and evidence inputs. Lifecycle owns computed closure states and outputs; Media must not implement a parallel closure engine |
 | `ghatana-kernel` | Kernel-specific lifecycle, composition, UI/page/resource/action contracts, and extension runtime | Consume where deliberately adopted; do not recreate Kernel schemas or claim Kernel-native materialization from a dependency alone |
 | `ghatana/services/ai-inference` | Generic inference contracts, model/provider eligibility, routing, credentials, policy, quota, health and failover | Call public boundary; request long-running media inference extensions at that owner, not a Media model router |
 | `ghatana/services/agents` | Bounded agent execution and dynamic tool/reasoning coordination | Consume only for genuinely agentic work; ordinary media recipes are not agent graphs |
@@ -1185,7 +1186,7 @@ All paths below are under `.product-experience/phase-0-product-truth/`; use an e
 | `profile-semantics.yaml`, `quality-policy.yaml` | Orthogonal profile axes, preservation, qualified measurements and bounded refinement/fallback |
 | `content-intent.yaml`, `qualification-policy.yaml` | Realistic fixture/content needs and separate definition/implementation/licensing/qualification/runtime dispositions |
 
-Reuse the Tools-owned schema/model shapes. Media extensions specify media semantics; no local copy of a generic ProductSpec, experience or lifecycle schema. Source-manifest classifies authored inputs, generated views, external references, runtime references and evidence distinctly.
+Use the published Tools-owned Product Definition/Experience schema and model shapes. Media extensions specify Media semantics; do not copy those generic schemas locally. Lifecycle owns cross-repository closure/evidence/currentness/receipt contracts and outputs; Media references them without creating local copies. Source-manifest classifies authored inputs, generated views, external references, runtime references and evidence distinctly.
 
 ## 18.3 Requirement record and acceptance
 
@@ -1384,7 +1385,7 @@ After accepted definitions, generate `implementation-contract.yaml`, `implementa
 
 Implement vertical slices in dependency order: public contract/admission/artifact foundation; durable jobs/outbox/audit; SDK/CLI; deterministic processing/composition; existing Ghatana animation/simulation reuse; AI Inference capability additions; generation/continuity; bounded quality; Web parity; advanced families and delivery; then profile/deployment qualification. Security, audit, observability and privacy are part of each slice, not an end-of-project hardening sprint.
 
-Keep definition complete across full intended scope while runtime implementation/qualification advances by admitted lane. A lane’s incompleteness cannot remove its requirement, but unqualified work must not be advertised as usable. Tests and native checks run directly through their underlying tooling; Tools closure/evidence can consume the same operations without becoming a prerequisite for ordinary development.
+Keep definition complete across full intended scope while runtime implementation/qualification advances by admitted lane. A lane’s incompleteness cannot remove its requirement, but unqualified work must not be advertised as usable. Tests and native checks run directly through their underlying tooling; lifecycle closure/evidence may consume the same operations without becoming a prerequisite for ordinary development.
 
 ---
 # 23. Prescriptive work packages and task dependency graph
@@ -1508,7 +1509,7 @@ A task may be split into tracked subtasks without changing its acceptance or hid
 
 **Problem / basis:** The plan could create duplicate schema, gap and acceptance authorities. Evidence: U2; R11,R14; §5.
 
-**Procedure:** Bind the four phases to current Tools-owned public schemas and lifecycle inputs. Register one gap ledger and source manifest; make coverage/currentness/filtered views derived. Add thin local definition checks invoking public validators plus Media-specific semantic assertions.
+**Procedure:** Bind the four phases to current Tools-owned public schemas and Experience contracts, and bind lifecycle-owned evidence/closure outputs separately. Register one gap ledger and source manifest; keep coverage/currentness/filtered views derived by their owning workflows. Add thin local definition checks invoking public validators plus Media-specific semantic assertions.
 
 **Acceptance:** No copied generic schema or locally invented acceptance engine; authored/generated roles and phase prerequisites are explicit.
 
@@ -2447,7 +2448,7 @@ Do not merge these into a single percentage. A migration can pass while new Medi
 
 ## 24.2 Direct tests and reusable evidence
 
-Use ordinary unit/contract/component/integration/browser/native tests through the repository’s actual Gradle/pnpm/Python/Cargo runners. Tools may plan and adopt results from the same operations; no second test implementation or changed semantics for closure execution. Framework schema tests verify schemas, not real provider behavior. A mocked successful render is not a native render proof.
+Use ordinary unit/contract/component/integration/browser/native tests through the repository’s actual Gradle/pnpm/Python/Cargo runners. Tools may plan and project results from the same operations; Lifecycle owns cross-repository evidence admission, closure, and receipt generation. Do not add a second test implementation or change test semantics for closure execution. Framework schema tests verify schemas, not real provider behavior. A mocked successful render is not a native render proof.
 
 For every operation record discovered cases, selected cases, executed terminal observations, failures/skips/blockers and exact environment. No process exit 0 without reconciled assertions. Infrastructure-required cases fail or report blocked under their explicit qualification profile; normal offline unit runs do not masquerade as infrastructure qualification.
 
@@ -2613,7 +2614,7 @@ This table documents where the supplied plan’s sections are retained. It is no
 | 23 Phase3 | §21; P3-001–007 |
 | 24 Implementation handoff | §22; HAND-001–002; not an authority phase |
 | 25 I-001–018 production sequence | §22 and IMP-001–015/OPS-001; protections included from first slice |
-| 26 Testing | §24 cases/experiments; direct/native and Tools evidence parity |
+| 26 Testing | §24 cases/experiments; direct/native and lifecycle evidence parity |
 | 27 Target structure | §16; behavior-preserving initial path map in §13 |
 | 28 Order | §§23,25; boundary acceptance before cutover, no circular full-product prerequisite |
 | 29 Progress | §§2.3,24.5; separate dimensions and immutable material-bound evidence |
@@ -2739,7 +2740,7 @@ Read date is October 4, 2026. Git blob hashes below identify inspected file cont
 | R11 | `samujjwal/ghatana-tools:libs/product-development/experience-specification/README.md` | `664ef0bcb59a5756c889d01d1674d364f4cdda03`; document | Neutral experience shape, public schema/validator and explicit absence of runtime execution/Explorer implementation |
 | R12 | `samujjwal/ghatana:services/media/service-contract.yaml` | `6e5a06f7f13ede612b6dc11af6247a1088002e86`; lines1–70 | Generated source/overlay ownership, internal-preview status and qualification/production prohibition language |
 | R13 | `samujjwal/ghatana:services/media/libs/audio-video-client/src/operations.ts` | `00e825035902cfee773da7d5783ff98ed2e6c8cb`; lines251–295 | Operation client upload path, idempotency header and part-number validation; needs runtime/facade reconciliation |
-| R14 | `samujjwal/ghatana-tools:tools/gtool/README.md` | `9a25c099c1ff23655554c08e00693bd3aea1b798`; lines1–150 | Public catalog/work/development/verification facade and output rules; owning tools retain acceptance/evidence authority |
+| R14 | `samujjwal/ghatana-tools:tools/gtool/README.md` | `9a25c099c1ff23655554c08e00693bd3aea1b798`; lines1–150 | Public catalog/work/development/verification facade and output rules; product-domain owners retain semantic acceptance, while Lifecycle owns cross-repository evidence and closure outputs |
 | R15 | `samujjwal/ghatana:services/media/modules/intelligence/document-intelligence-worker/README.md` | `bf23b66aa35dbbc33d89481435f5e9b9787c730d`; lines1–110 | Frozen Shared extraction boundary, bounded local worker, generation-token cancellation and explicit non-activation/qualification restrictions |
 | R16 | `samujjwal/ghatana-products:products/digital-marketing/docs/canonical/12-MARKETING_OPERATING_MODEL.md` | Search excerpt at repository ref `98e1f46c121800138d0775a4fb3290a9991198ec`, J14 | Brand/claim/disclosure/approval product semantics; not proof of a reusable published brand API |
 | R17 | `samujjwal/ghatana-products:config/product-extraction-policy.json` | `e6ad691511661d290f6d0ffda4f9c11a54ac9271`; file | Single-authority extraction policy and default product location; inbound graduation guard compatibility still requires verification |

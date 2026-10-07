@@ -1,7 +1,7 @@
 schemaVersion: media.design-token-aliases.v1
 productId: media
 authority: media-semantic-aliases; Shared owns token values and primitive tokens
-status: source-inventory-current; consumer-binding-blocked; design-review-pending
+status: local-development-consumer-pass; release-binding-unverified; design-review-pending
 dependencies:
   pdp0: .product-experience/pdp-0-product-truth/glossary.yaml
   sharedOwner: ghatana-shared
@@ -17,15 +17,15 @@ sharedPublicContract:
   sourceRevision: 495663b2d6b61c270367048cec54db8a06f22d69
   sourceObservation: clean-at-inspected-head
   resolvedRoleApi: semanticColorRoles.light-and-dark
-  mediaDeclaredDependency: 0.1.2
+  mediaDeclaredDependency: 0.1.0-SNAPSHOT
   mediaDependencyManifest: libs/audio-video-ui/package.json
   mediaDeclaredPackages:
     - "@ghatana/tokens"
     - "@ghatana/theme"
     - "@ghatana/design-system"
-  sourceAvailability: local-sibling-source-only; all-inventoried-packages-0.1.0-SNAPSHOT
-  verifiedConsumption: not-established
-  consumerBinding: blocked-pending-authorized-immutable-package-publication-and-consumer-verification
+  sourceAvailability: local-sibling-built-tarballs; all-nine-consumer-packages-0.1.0-SNAPSHOT
+  verifiedConsumption: isolated-Media-UI-TypeScript-and-Vite-public-export-consumer-pass; see-explorer-verification-matrix
+  consumerBinding: local-development-source-snapshot-proven; ordinary-workspace-lockfile-and-registry-resolution-unverified; design-review-pending
 
 sharedPackageInventory:
   observation: package-manifest-source-versions-at-inspected-head; not-publication-or-consumption-evidence
@@ -62,8 +62,8 @@ sharedPackageInventory:
       sourceVersion: 0.1.0-SNAPSHOT
 rules:
   - A Media alias may name semantic intent but may not assign a hex color, font file, spacing scale, or shadow value.
-  - The role paths are present in the inspected Shared source export; this does not establish that Media consumes a compatible published package.
-  - Every alias must resolve through an authorized immutable Shared package and pass consumer verification before visual acceptance.
+  - The role paths were verified through Media's isolated consumer of locally packed Shared SNAPSHOT artifacts; this does not establish registry publication or immutable release binding.
+  - Visual acceptance still requires Shared owner acceptance, design review, and the intended immutable Shared package binding.
   - Text, icon, shape, and accessible name carry state; color is never the only signal.
 aliases:
   - id: media.token.state.completed

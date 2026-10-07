@@ -3,14 +3,17 @@ productId: media
 status: EXTERNAL_PACKAGE_AND_OWNER_REVIEW_PENDING
 owner: ghatana-tools
 purpose: >-
-  Declare the external Tools host and contract boundary for the Media Explorer
-  without copying Tools schemas or treating local browser behavior as native
-  Explorer evidence.
+  Declare the reusable Tools Product/Experience mechanics and generic Explorer
+  host boundary for Media without copying their contracts or treating local
+  browser behavior as native Explorer evidence. Cross-repository closure,
+  evidence admission, currentness, receipts, and convergence belong to
+  ghatana-lifecycle.
 hostPackage: '@ghatana/product-dev-explorer'
 sourceContracts:
   sourceReview: VERIFIED
-  packageArtifactResolution: NOT_VERIFIED
-  isolatedMediaConsumer: NOT_VERIFIED
+  packageArtifactResolution: LOCAL_PACKED_ARTIFACTS_TESTED; registry-publication-not-verified
+  mediaPackageConsumer: LOCAL_PACKED_API_TESTED
+  cleanMediaInstall: NOT_VERIFIED
   packages:
     - packageId: '@ghatana/product-definition'
       version: 0.1.0-SNAPSHOT
@@ -44,13 +47,19 @@ localProjection:
   path: apps/media-experience-explorer/
   status: LOCAL_ONLY
   semanticAuthority: false
-  receiptAuthority: ghatana-tools-native-evidence-generator
-  currentnessAuthority: ghatana-tools-owned-generated-currentness
+  mediaPackageAdapter: libs/media-experience-simulation/src/product-experience-package.ts
+  toolsConsumerBridge: apps/media-experience-explorer/src/tools-consumer.ts
+  packedArtifactProof: tests/tools-media-consumer.test.mjs
+  browserHostIntegration: DEDICATED_TOOLS_REVIEW_ROUTE; PRODUCT_AND_EXPLORE_HOST_REMAINS_MEDIA_OWNED
+  receiptAuthority: ghatana-lifecycle-owner-workflow
+  currentnessAuthority: ghatana-lifecycle-owner-generated-currentness
 explicitNonClaims:
-  - source inspection does not verify a published artifact or isolated Media consumer installation
+  - local packed-artifact API testing does not verify registry publication, normal Media workspace lockfile resolution, or installation from the configured registry
+  - the Vite client exposes a dedicated Tools Review route that runs the consumer bridge; the existing Product/Explore modes are still Media-owned and are not admitted through the generic Tools host
+  - the local Tools API proof does not claim owner acceptance or a completed Lifecycle binding
   - the headless product-dev-explorer library is not the Media-owned Vite browser host
   - development-traceability projects source models and does not implement graph construction or resolution
   - named source packages do not establish Media phase-verification support or host admission
-  - local browser routes do not prove Tools host binding
+  - the local Tools Review route does not establish production host integration, canonical presentation identity, or representation admission
   - deterministic simulation does not prove runtime qualification
   - pending currentness is not a generated receipt

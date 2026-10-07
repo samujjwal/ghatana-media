@@ -10,7 +10,7 @@ const write = (root, path, content) => {
   mkdirSync(join(target, ".."), { recursive: true });
   writeFileSync(target, content);
 };
-function fixture({ presentation = "export const Screen = () => null;", explorer = "", production = "", consumer = "", admission = "", pdp2 = "", exportMap = "" } = {}) {
+function fixture({ presentation = "export const Screen = () => null;", explorer = "", production = "", consumer = "", admission = "", pdp2 = "", exportMap = "", screenContract = "", templateCatalog = "", patternCatalog = "", componentCatalog = "", semanticBindings = "" } = {}) {
   const root = mkdtempSync(join(tmpdir(), "media-presentation-architecture-"));
   write(root, "libs/audio-video-ui/package.json", JSON.stringify({ name: "@audio-video/ui", exports: { ".": "./dist/index.js", "./screens": "./dist/screens/index.js" } }));
   write(root, "libs/audio-video-ui/src/index.ts", presentation);
@@ -18,8 +18,19 @@ function fixture({ presentation = "export const Screen = () => null;", explorer 
   write(root, "apps/web/src/routes/screen.ts", production);
   if (consumer) write(root, "modules/consumer/src/index.ts", consumer);
   if (admission) write(root, ".product-experience/executable-representation/admissions/screen.yaml", admission);
-  if (pdp2) write(root, ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml", pdp2);
+  if (pdp2) {
+    write(root, ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml", pdp2);
+    write(root, ".product-experience/pdp-2-design-interface-system/gui/layout.yaml", pdp2);
+    write(root, ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml", pdp2);
+    write(root, ".product-experience/pdp-2-design-interface-system/component-contracts.yaml", pdp2);
+    write(root, ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml", pdp2);
+  }
+  if (templateCatalog) write(root, ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml", templateCatalog);
+  if (patternCatalog) write(root, ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml", patternCatalog);
+  if (componentCatalog) write(root, ".product-experience/pdp-2-design-interface-system/component-contracts.yaml", componentCatalog);
+  if (semanticBindings) write(root, ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml", semanticBindings);
   if (exportMap) write(root, ".product-experience/executable-representation/export-map.yaml", exportMap);
+  if (screenContract) write(root, ".product-experience/pdp-3-product-experience/screen-contracts/sample.yaml", screenContract);
   return root;
 }
 const run = (options, fn) => {
@@ -123,3 +134,99 @@ test("validates declared screen-to-token design links and reports broken candida
   assert.equal(broken.length, 1);
   assert.match(broken[0], /components link does not resolve/);
 });
+
+const admittedScreen = `representationId: media.representation.screen.sample
+scope: media.view.sample
+representationKind: screen
+acceptanceState: admitted
+boundPdp3Records:
+  - .product-experience/pdp-3-product-experience/screen-contracts/sample.yaml#media.view.sample
+`;
+const resolvedScreenContract = `screenId: media.view.sample
+templateId: media.gui.template.sample
+layoutIds:
+  - media.gui.layout.sample
+patternIds:
+  - media.gui.pattern.sample
+componentIds:
+  - media.component.sample
+tokenDependencies:
+  - media.token.state.completed
+`;
+const completePdp2 = `- id: media.gui.template.sample
+- id: media.gui.layout.sample
+- id: media.gui.pattern.sample
+- id: media.component.sample
+- id: media.token.state.completed
+`;
+
+test("counts a resolved admitted screen design chain", () => run({
+  admission: admittedScreen,
+  screenContract: resolvedScreenContract,
+  pdp2: completePdp2,
+  templateCatalog: `templates:\n  - id: media.gui.template.sample\n    patterns: [media.gui.pattern.sample]\n`,
+  patternCatalog: `patterns:\n  - id: media.gui.pattern.sample\n    sourceRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.sample\n`,
+  componentCatalog: `components:\n  - id: media.component.sample\n`,
+  semanticBindings: `bindings:\n  - componentRefs: [media.component.sample]\n    semanticTokenRef: media.token.state.completed\n`,
+}, (root) => {
+  const result = analyzeMediaPresentationArchitecture({ repoRoot: root });
+  assert.equal(result.ok, true, JSON.stringify(result.issues));
+  assert.equal(result.summary.admittedScreenDesignChainsProven, 1);
+}));
+
+test("an unresolved admitted screen design link is a hard failure", () => run({
+  admission: admittedScreen,
+  screenContract: resolvedScreenContract.replace("media.gui.pattern.sample", "media.gui.pattern.missing"),
+  pdp2: completePdp2,
+}, (root) => {
+  const result = analyzeMediaPresentationArchitecture({ repoRoot: root });
+  assert.equal(result.ok, false);
+  assert.equal(result.summary.admittedScreenDesignChainsProven, 0);
+  assert.ok(result.issues.some((issue) => issue.includes("patterns link does not resolve")));
+}));
+
+test("unresolved candidate screen design links remain nonfatal", () => run({
+  screenContract: resolvedScreenContract.replace("media.gui.pattern.sample", "media.gui.pattern.missing"),
+  pdp2: completePdp2,
+}, (root) => {
+  const result = analyzeMediaPresentationArchitecture({ repoRoot: root });
+  assert.equal(result.ok, true, JSON.stringify(result.issues));
+  assert.equal(result.summary.admittedScreenDesignChainsProven, 0);
+  assert.ok(result.candidateDesignIssues.some((issue) => issue.includes("patterns link does not resolve")));
+}));
+
+const templateOnlyScreenContract = `screenId: media.view.sample\ntemplateId: media.gui.template.sample\n`;
+const templateWithMissingPattern = `templates:\n  - id: media.gui.template.sample\n    patterns: [media.gui.pattern.missing]\n`;
+
+test("a missing pattern nested under an admitted screen template is a hard failure", () => run({
+  admission: admittedScreen,
+  screenContract: templateOnlyScreenContract,
+  templateCatalog: templateWithMissingPattern,
+}, (root) => {
+  const result = analyzeMediaPresentationArchitecture({ repoRoot: root });
+  assert.equal(result.ok, false);
+  assert.equal(result.summary.admittedScreenDesignChainsProven, 0);
+  assert.ok(result.issues.some((issue) => issue.includes("patterns link does not resolve: media.gui.pattern.missing")));
+}));
+
+test("a missing pattern nested under a candidate screen template stays nonfatal", () => run({
+  screenContract: templateOnlyScreenContract,
+  templateCatalog: templateWithMissingPattern,
+}, (root) => {
+  const result = analyzeMediaPresentationArchitecture({ repoRoot: root });
+  assert.equal(result.ok, true, JSON.stringify(result.issues));
+  assert.ok(result.candidateDesignIssues.some((issue) => issue.includes("patterns link does not resolve: media.gui.pattern.missing")));
+}));
+
+test("a template pattern with an unresolved component source fails only when admitted", () => run({
+  admission: admittedScreen,
+  screenContract: templateOnlyScreenContract,
+  templateCatalog: `templates:\n  - id: media.gui.template.sample\n    patterns: [media.gui.pattern.sample]\n`,
+  patternCatalog: `patterns:\n  - id: media.gui.pattern.sample\n    sourceRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.missing\n`,
+  componentCatalog: "components: []\n",
+}, (root) => {
+  const result = analyzeMediaPresentationArchitecture({ repoRoot: root });
+  assert.equal(result.ok, false);
+  assert.ok(result.issues.some((issue) => issue.includes("component source link does not resolve: media.component.missing")));
+  assert.ok(result.candidateDesignIssues.some((issue) => issue.includes("component source link does not resolve: media.component.missing")));
+}));

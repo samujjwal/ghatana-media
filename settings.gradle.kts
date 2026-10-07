@@ -157,9 +157,60 @@ if (isStandaloneBuild && ghatanaSharedPath.exists()) {
     logger.lifecycle("Including ghatana-shared composite build from: $ghatanaSharedPath")
     includeBuild(ghatanaSharedPath) {
         name = "ghatana-shared"
+        // Keep Media's declared Maven coordinates while compiling the canonical
+        // Shared projects directly from the sibling checkout. These paths and
+        // coordinates are verified against ghatana-shared/settings.gradle.kts.
+        dependencySubstitution {
+            val sharedProjects = mapOf(
+                "contracts" to ":platform:contracts",
+                "core" to ":platform:java:core",
+                "config" to ":platform:java:config",
+                "database" to ":platform:java:database",
+                "http" to ":platform:java:http",
+                "grpc-client" to ":platform:java:grpc-client",
+                "observability" to ":platform:java:observability",
+                "runtime" to ":platform:java:runtime",
+                "security" to ":platform:java:security",
+                "audit" to ":platform:java:audit",
+                "cache" to ":platform:java:cache",
+                "messaging" to ":platform:java:messaging",
+                "schema" to ":platform:java:schema",
+                "agent-core" to ":platform:java:agent-core",
+                "agent-runtime" to ":platform:java:agent-runtime",
+                "workflow" to ":platform:java:workflow",
+                "platform-bom" to ":platform:java:platform-bom",
+                "governance" to ":platform:java:governance",
+                "testing" to ":platform:java:testing",
+                "testing-activej" to ":platform:java:testing-activej",
+                "testing-integration" to ":platform:java:testing-integration"
+            )
+            sharedProjects.forEach { (artifact, projectPath) ->
+                substitute(module("com.ghatana.platform:$artifact"))
+                    .using(project(projectPath))
+            }
+        }
     }
 } else if (isStandaloneBuild) {
     logger.lifecycle("WARNING: ghatana-shared not found at $ghatanaSharedPath — standalone build requires immutable published artifacts")
+}
+
+// Kernel's published product API currently uses a stable 0.1.0 coordinate,
+// unlike the sibling Shared and Tools workspaces which are at SNAPSHOT versions.
+val ghatanaKernelPath = providers.gradleProperty("ghatana.kernel.path")
+    .map { file(it) }
+    .orElse(File(monorepoRoot.parentFile, "ghatana-kernel"))
+    .get()
+if (isStandaloneBuild && ghatanaKernelPath.exists()) {
+    logger.lifecycle("Including ghatana-kernel composite build from: $ghatanaKernelPath")
+    includeBuild(ghatanaKernelPath) {
+        name = "ghatana-kernel"
+        dependencySubstitution {
+            substitute(module("com.ghatana.kernel:kernel-product-api"))
+                .using(project(":platform-kernel:kernel-product-api"))
+        }
+    }
+} else if (isStandaloneBuild) {
+    logger.lifecycle("WARNING: ghatana-kernel not found at $ghatanaKernelPath — kernel API requires published artifacts")
 }
 
 // ============================================================================
@@ -195,6 +246,26 @@ if (isStandaloneBuild && ghatanaToolsPath.exists()) {
     }
 } else if (isStandaloneBuild) {
     logger.lifecycle("WARNING: ghatana-tools not found at $ghatanaToolsPath — tool-runtime consumers require the canonical sibling checkout")
+}
+
+// ============================================================================
+// Composite Build — ghatana-lifecycle
+// ============================================================================
+// Lifecycle is an independent sibling repository (not part of Tools). Media
+// currently has no direct Lifecycle dependency; including its source build
+// makes Lifecycle projects available to local development without introducing
+// a product dependency or changing Lifecycle's published coordinates.
+val ghatanaLifecyclePath = providers.gradleProperty("ghatana.lifecycle.path")
+    .map { file(it) }
+    .orElse(File(monorepoRoot.parentFile, "ghatana-lifecycle"))
+    .get()
+if (isStandaloneBuild && ghatanaLifecyclePath.exists()) {
+    logger.lifecycle("Including ghatana-lifecycle composite build from: $ghatanaLifecyclePath")
+    includeBuild(ghatanaLifecyclePath) {
+        name = "ghatana-lifecycle"
+    }
+} else if (isStandaloneBuild) {
+    logger.lifecycle("Lifecycle sibling not found at $ghatanaLifecyclePath — no Lifecycle composite build included")
 }
 
 // Standalone media sources still use a small set of platform/Data Cloud

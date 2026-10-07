@@ -7,13 +7,13 @@ checks:
   implementation: scripts/check-product-experience-local.mjs
   command: node scripts/check-product-experience-local.mjs
   observation: PASS
-  detail: The current read-only local check found 200 generated source records, 462 PDP-0 capability leaves with the required definition shape, 38 capability families, 38 requirement IDs, 10 vision outcomes with journey/supporting-view coverage, 28 PDP-2 component contracts with required fields, 47 PDP-3 screen proposal contracts with required fields, 43 journey view references and 16 journey action references resolving, 30 indexed journeys with 28 baseline proposal files plus J-29/J-30 extensions, complete 33-area matrix coverage, proposal actions disabled in the Product projection, and no generated currentness.yaml while Tools generation remains unresolved. This is local invariant evidence only; it is not native Tools admission or phase acceptance.
+  detail: The current read-only local check found 200 generated source records, 462 PDP-0 capability leaves with the required definition shape, 38 capability families, 38 requirement IDs, 10 vision outcomes with journey/supporting-view coverage, 28 PDP-2 component contracts with required fields, 47 PDP-3 screen proposal contracts with required fields, 43 journey view references and 16 journey action references resolving, 30 indexed journeys with 28 baseline proposal files plus J-29/J-30 extensions, complete 33-area matrix coverage, proposal actions disabled in the Product projection, and no generated currentness.yaml while Lifecycle generation remains unresolved. This is local invariant evidence only; it is not Lifecycle owner admission or phase acceptance.
 - id: media.explorer.check.vision-requirements-phase-alignment
   scope: master-prompt-vision-outcome-requirement-journey-view-and-phase-crosswalk
   implementation: .product-experience/vision-requirements-coverage.yaml; docs/PRODUCT-DEFINITION-COVERAGE.md
   command: node scripts/check-product-experience-local.mjs
   observation: PASS
-  detail: The alignment ledger captures the pasted master prompt's eight auditable section bands, the PDP-0 through PDP-3 crosswalk, all 10 vision outcomes, all 38 requirement groups, all 13 NFR and decision records, 462 capability leaves, 28 components, 47 screen contracts, 30 journeys, 146 actions, and the generated Explorer source index. The permitted-settings outcome is explicitly covered by the supporting settings view and project requirement. This is a source-coverage and traceability observation, not owner acceptance or native Tools evidence.
+  detail: The alignment ledger captures the pasted master prompt's eight auditable section bands, the PDP-0 through PDP-3 crosswalk, all 10 vision outcomes, all 38 requirement groups, all 13 NFR and decision records, 462 capability leaves, 28 components, 47 screen contracts, 30 journeys, 146 actions, and the generated Explorer source index. The permitted-settings outcome is explicitly covered by the supporting settings view and project requirement. This is a source-coverage and traceability observation, not owner acceptance or Lifecycle-owned evidence.
 - id: media.explorer.check.product-definition-local-invariant-regression
   scope: regression-test-for-the-cross-phase-local-invariant-check
   implementation: tests/product-experience-local.test.mjs
@@ -26,14 +26,14 @@ checks:
   environment: Chromium via Playwright 1.63.0; local Vite preview at 127.0.0.1:4179
   command: pnpm test:experience-browser
   observation: HISTORICAL_PASS_SUPERSEDED
-  detail: A prior browser audit exercised the synthetic Explore scenarios, the then-current Specification index, all 47 valid Product proposal routes, the inline artifact-verification job-family specialization, Verify, keyboard navigation, visible control accessible names, and six viewports. It produced no console errors, page errors, enabled proposal actions, or horizontal overflow, with repeatable screenshot hashes. The source index and route contracts were subsequently normalized; the post-normalization rerun is recorded by media.explorer.check.browser-experience-post-normalization below. This historical observation is not pixel-reference conformance, independent human review, assistive-technology certification, or Tools-native acceptance.
+  detail: A prior browser audit exercised the synthetic Explore scenarios, the then-current Specification index, all 47 valid Product proposal routes, the inline artifact-verification job-family specialization, Verify, keyboard navigation, visible control accessible names, and six viewports. It produced no console errors, page errors, enabled proposal actions, or horizontal overflow, with repeatable screenshot hashes. The source index and route contracts were subsequently normalized; the post-normalization rerun is recorded by media.explorer.check.browser-experience-post-normalization below. This historical observation is not pixel-reference conformance, independent human review, assistive-technology certification, or lifecycle-owned acceptance evidence.
 - id: media.explorer.check.browser-experience-post-normalization
   scope: all-normalized-Explorer-scenarios-source-artifacts-Product-proposal-routes-Verify-keyboard-and-responsive-geometry
   implementation: scripts/check-experience-browser.mjs; apps/media-experience-explorer/src/styles.css
-  environment: Chromium via Playwright 1.63.0; local Vite preview at 127.0.0.1:4179; 2026-10-06
+  environment: Chromium via Playwright 1.63.0; local Vite preview at 127.0.0.1:4179; 2026-10-07
   command: pnpm test:experience-browser
   observation: PASS
-  detail: After rebuilding the Explorer and starting its documented Vite preview on 127.0.0.1:4179, the 2026-10-06 rerun exercised all 29 Explore scenarios, 203 indexed specification artifacts, all 47 Product proposal routes at six viewports (282 route/viewport observations), the inline artifact-verification job-family specialization, Verify, and keyboard mode-tab and phase-radio navigation. It reported no console errors, page errors, failed checks, or horizontal overflow. Screenshots were emitted under /tmp/media-experience-browser-audit. This is current local browser evidence only; it is not pixel-reference conformance, independent human review, full assistive-technology certification, or Tools-native acceptance.
+  detail: After regenerating the manifest/index and rebuilding the Explorer, the 2026-10-07 audit exercised all 29 Explore scenarios, 296 indexed specification artifacts, all 47 Product proposal routes at six viewports, the inline artifact-verification job-family specialization, Verify, keyboard mode-tab and phase-radio navigation, 100%/200% text sizing, 200% browser zoom, forced colors, reduced motion, and long-label stress. It reported no console errors, page errors, assertion failures, or overflow failures. Screenshots were emitted under /tmp/media-experience-browser-audit. This is current local browser evidence only; it is not pixel-reference conformance, independent human review, full assistive-technology certification, or lifecycle-owned acceptance evidence.
 - id: media.explorer.check.tools-explorer-shared-projection
   scope: native-Tools-Explorer-picker-and-shared-traceability-graph
   implementation: Ghatana-Tools product-dev explore and workspace graph
@@ -41,12 +41,33 @@ checks:
   command: node tools/product-development/cli/dist/bin/product-dev.js explore --root &lt;media-root&gt; --root &lt;tools-root&gt; --coordinate ghatana.product/media --json; node tools/product-development/cli/dist/bin/product-dev.js workspace graph --root &lt;media-root&gt; --root &lt;tools-root&gt; --json
   observation: PASS_WITH_SYNTHETIC_RENDERER
   detail: Tools Explorer selected ghatana.product/media and loaded media-conformance-package with rendererId=default, source=synthetic, locale=en, and no diagnostics. The shared traceability graph resolved 147 nodes and 141 relations, including 132 Media nodes, six shared-framework-contract nodes, and two product-dev-explorer nodes. The native Explorer returned no product renderResult or inspection projection, so this proves picker/graph projection only; it does not prove a connected browser host or native phase acceptance.
+- id: media.explorer.check.tools-packed-media-consumer-api
+  scope: Media-ProductExperiencePackage-load-render-inspect-and-dispatch-through-public-Tools-Explorer-API
+  implementation: libs/media-experience-simulation/src/product-experience-package.ts; apps/media-experience-explorer/src/tools-consumer.ts; tests/tools-media-consumer.test.mjs
+  environment: Node.js consumer with Tools 0.1.0-SNAPSHOT packages packed from the sibling checkout and temporarily extracted under /tmp; 2026-10-07
+  command: pnpm test:tools-media-consumer
+  observation: PASS_LOCAL_PACKED_API_CONSUMER
+  detail: The Media adapter registered with Tools createExplorer, loaded successfully, rendered a proposal-status projection, exposed source-linked inspection data, and dispatched a deterministic fixture transition with no diagnostics. The consumer validates synthetic Product Definition and Media ProductExperiencePackage fixtures through public Tools validators, checks packed JSON schema exports, and projects the synthetic Product Definition through public Development Traceability. It asserts that inspection/render output contains no currentness claim; Lifecycle currentness remains unbound and absent. The Media frozen pnpm composite install and Explorer dependency-closure build/typecheck pass using local Shared and Tools sources. These local checks do not establish public registry resolution, immutable release binding, owner acceptance, production runtime behavior, Lifecycle currentness, or Lifecycle receipts.
+- id: media.explorer.check.tools-review-browser-route
+  scope: dedicated-Vite-Tools-Review-route-runs-the-Media-consumer-bridge
+  implementation: apps/media-experience-explorer/src/main.ts; scripts/check-experience-browser.mjs
+  environment: Chromium via Playwright; local Vite preview at 127.0.0.1:4179; 2026-10-07
+  command: pnpm test:experience-browser
+  observation: PASS_LOCAL_SNAPSHOT_REVIEW_ROUTE
+  detail: The browser audit opened #tools-review, waited for the consumer result, and verified the local SNAPSHOT simulation label, active Media package, Lifecycle currentness marked absent, owner acceptance marked none, and no route-specific console/page errors. The route presents the headless Tools bridge as a review-only result; it does not make the existing Product/Explore modes a generic Tools host or admit a production representation.
+- id: media.pdp2.check.shared-packed-media-consumer
+  scope: Media-UI-and-Shared-public-artifact-consumption-at-0.1.0-SNAPSHOT
+  implementation: scripts/verify-media-shared-artifact-consumer.mjs
+  environment: isolated temporary consumers using the adjacent Shared source checkout and locally packed artifacts; 2026-10-07
+  command: pnpm test:shared-media-consumer
+  observation: PASS_LOCAL_SOURCE_SNAPSHOT_CONSUMER
+  detail: The check packed the nine-package Shared transitive dependency closure at 0.1.0-SNAPSHOT, compiled and packed Media UI against those tarballs, then installed Media and the Shared tarballs into a second temporary consumer. TypeScript imports and Vite runtime checks of public exports passed. Media's frozen pnpm composite install and Explorer dependency-closure build/typecheck also pass from local Shared and Tools sources. Public registry resolution and immutable release binding remain unverified; packed local and composite source checks do not prove publication.
 - id: media.explorer.check.source-linked-trace-context
   scope: Specification-mode-source-link-metadata-and-phase-coverage
   implementation: apps/media-experience-explorer/src/specification.ts; apps/media-experience-explorer/src/main.ts
   environment: local-browser-127.0.0.1:4179
   observation: PASS
-  detail: On 2026-10-05, the local production preview rendered the selected PDP-0, PDP-2, and PDP-3 records and a direct P2 Product proposal route with stable Explorer projection ID, owning phase and authority class, canonical source path, pending Tools semantic fingerprint, intentionally ungenerated currentness, relation authority, and verification status. The phase coverage controls switched between 24 PDP-0, 94 PDP-2, and 6 PDP-3 records without losing the trace panel. This proves local source-linked presentation only; it does not prove Tools currentness or acceptance.
+  detail: On 2026-10-05, the local production preview rendered the selected PDP-0, PDP-2, and PDP-3 records and a direct P2 Product proposal route with stable Explorer projection ID, owning phase and authority class, canonical source path, pending lifecycle semantic fingerprint, intentionally ungenerated currentness, relation authority, and verification status. The phase coverage controls switched between 24 PDP-0, 94 PDP-2, and 6 PDP-3 records without losing the trace panel. This proves local source-linked presentation only; it does not prove lifecycle currentness or acceptance.
 - id: media.explorer.check.phase-selector-keyboard
   scope: Specification-mode-roving-phase-radio-navigation
   implementation: apps/media-experience-explorer/src/main.ts
@@ -373,26 +394,42 @@ checks:
   observation: REVIEW_REQUIRED
   detail: Local inspection is implementation evidence only; no independent reviewer decision is recorded.
 - id: media.explorer.check.tools-native-currentness-post-audit
-  scope: Tools-owned-Media-surface-status-plan-currentness-and-receipt-admission
-  implementation: ghatana-tools/tools/surface-convergence
-  environment: Media root supplied to the Tools surface-convergence CLI; 2026-10-06
+  scope: Tools-owned-Product-Definition-Experience-mechanics-and-lifecycle-owned-Media-evidence-currentness-and-receipt-admission
+  implementation: "historical-ghatana-tools-surface-convergence-prototype; canonical-owner: ghatana-lifecycle"
+  environment: Media root supplied to the historical Tools prototype; 2026-10-06; not a Lifecycle consumer proof
   command: surface list; surface status ts-media-experience-explorer; surface plan ts-media-experience-explorer
   observation: BLOCKED_NO_CANONICAL_CONSUMER_OR_PERSISTED_SURFACE
-  detail: Media-root physical discovery listed 21 units. Status for ts-media-experience-explorer returned SURFACE_NOT_FOUND and the plan returned CLOSURE_CANONICAL_CONSUMER_OR_REGISTRY_MISSING. The recorded phase binding remains PLANNER_BINDING_OWNER_AMBIGUOUS with structuralFallback=true and no selected operations. No currentness was revalidated and no receipt or publication was created.
+  detail: Media-root physical discovery listed 21 units. Status for ts-media-experience-explorer returned SURFACE_NOT_FOUND and the plan returned CLOSURE_CANONICAL_CONSUMER_OR_REGISTRY_MISSING. The recorded phase binding remains PLANNER_BINDING_OWNER_AMBIGUOUS with structuralFallback=true and no selected operations. No Lifecycle currentness was revalidated and no Lifecycle receipt or publication was created; this historical prototype invocation is not a Lifecycle consumer proof.
 - id: media.gradle.check.stt-service-compile
   scope: Media-STT-service-Java-compile-with-declared-sibling-contracts
   implementation: modules/speech/stt-service; sibling services/event-plane/contracts
   environment: Gradle 9.7.1; 2026-10-06
   command: ./gradlew :services:media:modules:speech:stt-service:compileJava --no-daemon
   observation: BLOCKED_SIBLING_EVENT_PLANE_SOURCE_CONTRACT
-  detail: The Media version catalog now resolves jackson-dataformat-yaml and the other aliases required by the explicitly included sibling projects. Compilation advances into services:event-plane:contracts, then fails with 73 unresolved event-store symbols because the current shared messaging source no longer contains EventLogStore or EventStoreTenantScope, although sibling contracts still import them. This blocks the requested Media compile; no sibling sources were changed.
+  detail: >-
+    Historical 2026-10-06 Gradle compile result: Media settings map
+    services:event-plane:contracts to the sibling ghatana repository at
+    ../ghatana/services/event-plane/contracts. Compilation reaches that
+    Ghatana-owned project and fails with 73 unresolved event-store symbols; its
+    contracts import EventLogStore and EventStoreTenantScope, which are absent
+    from the current Shared messaging APIs. This Gradle source-contract
+    mismatch is separate from Media's pnpm composite, whose frozen install and
+    Explorer dependency-closure build/typecheck pass. No Ghatana or Shared
+    sources were changed.
 - id: media.pdp2.check.shared-design-system-package-resolution
   scope: Resolve-the-pinned-Shared-design-system-package-for-the-Media-workspace
   implementation: libs/audio-video-ui/package.json; adjacent Shared TypeScript package sources
   environment: pnpm 10.33.0; configured registry https://registry.npmjs.org/; 2026-10-06
   command: pnpm view @ghatana/design-system@0.1.2 version
   observation: BLOCKED_PRIVATE_PACKAGE_UNAVAILABLE
-  detail: The configured registry returned E404 for @ghatana/design-system@0.1.2. The adjacent canonical Shared source manifest is version 0.1.0-SNAPSHOT, so it is not the pinned immutable package and was not substituted into the workspace.
+  detail: >-
+    Historical 2026-10-06 lookup: the configured registry returned E404 for
+    @ghatana/design-system@0.1.2 while Media still declared that version. Media
+    declarations have since been normalized to the adjacent Shared
+    0.1.0-SNAPSHOT development version. Current public registry resolution and
+    immutable release binding remain unverified; the later local
+    packed-consumer and composite-source proofs are recorded separately and do
+    not establish publication or release binding.
 acceptanceRule: PDP-3 definitions cannot pass until all 41 PDP-3 baseline views, lane specializations, all 28 plan-baseline journeys plus active J-29/J-30 extensions (30 total),
   and CLI/API channel dispositions are realizable in the admitted host; observations are current; required variants
   pass; and human review is recorded.

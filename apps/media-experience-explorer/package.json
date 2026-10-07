@@ -1,6 +1,6 @@
 {
   "name": "@ghatana/media-experience-explorer",
-  "version": "0.1.0",
+  "version": "0.1.0-SNAPSHOT",
   "private": true,
   "description": "Browser review client for Media first-use, artifact-intake and verification, and transcription and caption simulations",
   "type": "module",
@@ -11,6 +11,11 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@ghatana/development-traceability": "0.1.0-SNAPSHOT",
+    "@ghatana/experience-package": "0.1.0-SNAPSHOT",
+    "@ghatana/product-dev-explorer": "0.1.0-SNAPSHOT",
+    "@ghatana/product-definition": "0.1.0-SNAPSHOT",
+    "@ghatana/experience-explorer-contracts": "0.1.0-SNAPSHOT",
     "@ghatana/media-experience-simulation": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:"

@@ -33,10 +33,10 @@
   },
   "outputs": {
     "artifactType": "media-production-state-streaming-proof",
-    "canonicalOutputOwner": "java-evidence-generator",
+    "canonicalOutputOwner": "ghatana-lifecycle",
     "localDiagnosticPath": "build/proofs/media-production-state-streaming/proof.json",
     "format": "json",
-    "evidenceGeneratorRepository": "ghatana-tools",
+    "evidenceGeneratorRepository": "ghatana-lifecycle",
     "evidenceGeneratorCoordinate": "evidence-generator"
   },
   "governance": {
@@ -48,7 +48,7 @@
   "toolBinding": {
     "toolId": "evidence-generator",
     "operationId": "run",
-    "provider": "samujjwal/ghatana-tools",
+    "provider": "samujjwal/ghatana-lifecycle",
     "lifecycleState": "active"
   },
   "verificationTier": "tier-0",

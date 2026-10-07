@@ -15,8 +15,8 @@ requirements are enforced by current executable source.
 
 A requirement in this document is **not** production evidence merely because it is written here.
 Implementation claims must point to the canonical runtime contract/provider/launcher path and remain
-subject to repository-native verification and the canonical Java/ActiveJ Evidence Generator owned by
-`ghatana-shared`.
+subject to repository-native verification and the canonical Java/ActiveJ
+Evidence Generator owned by `ghatana-lifecycle`.
 
 The Media runtime owns media artifacts, processing jobs, stream sessions, provider routing, and
 media-specific consent enforcement. Data Cloud may own governed metadata integrations; AI Inference

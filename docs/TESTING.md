@@ -17,6 +17,13 @@ availability, and the canonical PDP-1/PDP-3 registries for semantic and
 experience parity. Do not recreate an aggregate file as a second source of
 truth.
 
+Media tests and structural checkers produce local observations only.
+`ghatana-tools` supplies reusable Product Definition/Experience validation and
+generic Explorer mechanics; `ghatana-lifecycle` owns cross-repository evidence
+admission, currentness, receipts, readiness, and convergence outputs. A passing
+Media test or applicability audit does not assign `CLOSED`, `CURRENT`, or
+`READY` and does not issue receipts or calculate convergence distance.
+
 ## Test layers
 
 | Layer | Intent | External dependencies | Primary locations | Applicability |
@@ -59,6 +66,11 @@ external provider.
 
 Run from the repository root:
 
+    pnpm check:development-version-policy
+    pnpm test:presentation-architecture
+    pnpm check:presentation-architecture
+    pnpm test:tools-media-consumer
+    pnpm test:shared-media-consumer
     pnpm check:product-experience-local
     pnpm test:product-experience-local
     pnpm test:experience-browser
@@ -98,13 +110,87 @@ accessible names, console/page errors, and horizontal overflow at six recorded
 viewports. It writes screenshots and a JSON report to
 `/tmp/media-experience-browser-audit` by default. This is deterministic browser
 evidence and visual-review input; it is not independent human approval,
-pixel-reference conformance, or Tools-native acceptance.
+pixel-reference conformance, or lifecycle-owned acceptance evidence.
 
-The prior browser report predates the canonical phase-path and generated-index
-normalization. Rerun the audit against the current generated index and current
-dependency set before using any browser observations as current evidence. The
-workspace install is currently blocked by unavailable private package
-`@ghatana/design-system@0.1.2`; an unavailable audit run is not a pass.
+The 2026-10-07 rerun against the regenerated 296-record index passed across all
+29 scenarios, 47 Product proposal routes, the dedicated `#tools-review` route,
+and six viewports, with no assertion, console, or page errors. The Tools Review
+assertion verifies the consumer result, local SNAPSHOT label, absent Lifecycle
+currentness, and no owner acceptance. The report is stored under
+`/tmp/media-experience-browser-audit`.
+
+The Media manifests request Shared and Tools packages at `0.1.0-SNAPSHOT`.
+The Media pnpm workspace now resolves these from sibling source packages, and
+the workspace install plus the Explorer dependency-closure build and typecheck
+pass. The lockfile records those dependencies as local workspace links. This
+does not prove public registry resolution or immutable release binding. The
+`test:shared-media-consumer` script remains a separate isolated consumer check
+that packs local Shared development artifacts, compiles and packs Media UI
+against those tarballs, then checks public exports in an isolated TypeScript and
+Vite consumer.
+
+The current Media Vite build passes but still reports browser-build warnings for
+externalized `fs/promises` and `node:path` imports from Shared's
+`AccessibilityAuditorEngine.js`, ignored `use client` directives in the
+`lucide-react` dependency tree, Zod annotations, and a chunk above 500 KB. These
+remain part of GAP-02.
+
+The `test:tools-media-consumer` harness builds and packs the Tools Product
+Development dependency closure in a fresh temporary directory, stages only the
+Media experience package and consumer bridge, imports Tools validators, checks
+schema exports, projects a synthetic Product Definition through public
+Development Traceability, and exercises public exports via `createExplorer`
+for load, render, inspect, and dispatch. It also checks that no Lifecycle
+currentness is claimed. The Vite Tools Review route runs this same bridge; the
+Product and Explore modes remain Media-owned. The harness requires the adjacent
+`ghatana-tools` checkout and its installed build dependencies; it does not prove
+registry publication, Tools owner acceptance, production host integration, or
+Lifecycle currentness/receipts.
+
+`pnpm check:release-version-policy` is intended for release qualification
+source/artifact state; it rejects active SNAPSHOT versions and is expected to
+fail on the normal development branch.
+
+## Development composite builds
+
+In a standalone checkout, `./gradlew` includes the Media Gradle projects plus
+available sibling `ghatana-shared`, `ghatana-tools`, and `ghatana-kernel` builds.
+Declared Shared and Tools dependencies resolve to their canonical source
+projects through dependency substitution. The verified versions are Shared
+`0.1.0-SNAPSHOT`, Tools Java runtime `0.1.0-rc.1`, Tools Product Development
+TypeScript packages `0.1.0-SNAPSHOT`, and Kernel `0.1.0` (stable, without a
+SNAPSHOT suffix). The version-policy checker enforces these Gradle coordinates
+and the included Shared, Tools, and Lifecycle TypeScript package trains. The
+composite is optional when a sibling checkout is absent; in that case Gradle
+uses the declared published coordinates. The sibling `ghatana-lifecycle` is
+also included as a separate composite and pnpm workspace source; Lifecycle
+remains independently owned from Tools. Its root and TypeScript package
+versions are `0.1.0-rc.1`; the Evidence Generator embeds
+`0.1.0-rc.1` in its package and Gradle artifact coordinates. Its
+`tool-product.json` and checked-in resource template carry `0.1.0-SNAPSHOT`
+metadata; the Evidence Generator `processResources` rule rewrites the generated
+JAR resource identity from the Gradle project version, verified as
+`0.1.0-rc.1`. Media currently has no direct Lifecycle dependencies, so this
+makes Lifecycle source projects available to local development without adding
+a Media product dependency or substituting an artifact that Media does not
+consume. Lifecycle's tarball overrides stay in Lifecycle's standalone
+workspace configuration; this description does not assert those overrides
+apply when Media is the workspace root.
+
+`./gradlew projects` lists the included builds. Use Gradle `dependencyInsight`
+for `com.ghatana.platform:core`, `com.ghatana.platform:tool-runtime`, or
+`com.ghatana.kernel:kernel-product-api` to confirm source substitution. Media's
+pnpm composite workspace includes the Media packages, all Shared TypeScript
+packages, and the 11 Tools Product Development packages in the Media app's
+dependency closure, plus Lifecycle's `libs/*` and `tools/*` packages. Named
+`shared`, `tools`, and `lifecycle` catalogs keep sibling toolchain ranges
+isolated, and exact SNAPSHOT dependencies
+resolve to local source. From Media, `pnpm install` prepares that graph and
+`pnpm --filter @ghatana/media-experience-explorer... run build` or `run typecheck`
+builds/checks its dependency closure. The Tools Product Development source set
+excludes Lifecycle-owned closure and evidence packages; they resolve from the
+separate `ghatana-lifecycle` sibling. Tools and Shared packages outside this
+Media consumer closure retain their own workspace setup.
 
 ## Failure, recovery, and concurrency coverage
 

@@ -23,6 +23,16 @@ privileged effects, or Agents execution. It must not mutate another service's
 database or become a general effect authority. Generic model work delegated by
 a selected Media provider crosses the AI Inference contract.
 
+Product Definition and Experience declarations for Media belong in the
+Media-owned `.product-experience` records. `ghatana-tools` owns reusable
+Product Definition/Experience mechanics and the generic Explorer host; Media
+provides domain facts, state, actions, effects, and fixtures through those
+contracts. `ghatana-lifecycle` owns cross-repository closure, evidence
+admission, semantic currentness, readiness, receipts, and convergence outputs.
+Media checkers and applicability audits report local structure and source facts
+only; they do not assign `CLOSED`, `CURRENT`, or `READY`, issue receipts, or
+compute convergence distance.
+
 The standalone HTTP composition root is launcher and its main class is
 `com.ghatana.media.launcher.MediaLauncher`. The current wire/availability
 projection is split deliberately across [OpenAPI](../contracts/openapi/media.yaml),
@@ -218,3 +228,7 @@ recovery, real external processing, durable Event Plane queueing, or
 production-eligible privacy/storage guarantees. Use the focused tests in
 TESTING.md and the local runbook in OPERATIONS.md to validate what is actually
 available on a developer host.
+
+Here, “local closure” describes the bounded set of runtime checks exercised by
+Media tests. Cross-repository product/evidence closure remains a lifecycle-owned
+workflow and is not reported by this runtime architecture document.

@@ -43,7 +43,7 @@ to supported or qualified.
 - Unique semantic extraction from the master plan remains incomplete.
   `GAP-MEDIA-MIGRATION-SEMANTICS` stays open; the plan's new disposition index
   classifies known content without claiming exhaustive extraction.
-- Tools-native currentness, immutable published Shared bindings, owner-approved
+- Lifecycle-owned currentness, immutable published Shared bindings, owner-approved
   machine contracts, independent visual/accessibility review, and runtime
   qualification remain unverified or blocked by their recorded gaps.
 - Explorer is a local source projection and deterministic review environment,

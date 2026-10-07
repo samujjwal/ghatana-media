@@ -24,6 +24,6 @@ entries:
     targetPackage: null
     notes: Archived applications remain evidence only and are not admitted or reactivated.
 unresolved:
-  - package publication and consumer verification for Shared dependencies declared at 0.1.2 while available package source manifests report 0.1.0-SNAPSHOT
+  - authorized development artifact resolution for normal Media workspace lockfile/install; isolated Media UI consumption against locally packed Shared 0.1.0-SNAPSHOT artifacts now passes; the former 0.1.2 version drift is corrected
   - independent PDP and human review of candidate screen compositions and all source inventory entries
   - authoritative consumer/currentness evidence for every package and export

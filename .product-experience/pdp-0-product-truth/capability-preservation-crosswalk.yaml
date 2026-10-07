@@ -10,7 +10,7 @@ productDefinitionContract:
   owner: ghatana-tools
   sourceObservation: package manifest/schema/source exist in local Tools checkout; this establishes local source availability
     only
-  consumerVerification: not performed for this Media repository; packed artifact/publication and consumer import remain unverified
+  consumerVerification: synthetic Product Definition validator smoke passed through locally packed Tools artifacts on 2026-10-07; canonical Media ProductDefinition instance and YAML record validation remain unverified, as do registry publication and normal workspace installation
   projectionPolicy: The productDefinition core instance is generated read-only from canonical Product Truth authorities once
     they are complete; do not create or edit a second projection authority. Media-specific leaves/qualification remain in
     capabilities.yaml and requirements.yaml as their distinct plan-defined artifacts.

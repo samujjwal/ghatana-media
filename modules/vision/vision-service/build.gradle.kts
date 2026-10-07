@@ -12,7 +12,7 @@ val libsCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 dependencies {
     // Public Kernel Product API. Media owns the OCR model; this module only adapts
     // the model-backed service to the accepted provider contract.
-    implementation("com.ghatana.kernel:kernel-product-api:0.1.0")
+    implementation("com.ghatana.kernel:kernel-product-api:${providers.gradleProperty("ghatana.kernel.version").get()}")
 
     // Audio-Video common (health/metrics server, gRPC interceptor chain, security)
     implementation(project(":services:media:libs:java:common"))

@@ -1,6 +1,6 @@
 schemaVersion: media.experience-package-binding.v1
 productId: media
-status: first-use-artifact-intake-and-selected-caption-projection-proposal; Tools-host-and-public-binding-pending
+status: first-use-artifact-intake-and-selected-caption-projection-proposal; local-Tools-API-consumer-pass; browser-host-and-registry-binding-pending
 packageId: media.experience.simulation
 laneRef: .product-experience/lanes/transcribe-and-correct-captions.yaml
 journeyRefs: [J-01, J-02, J-03, J-20]
@@ -17,7 +17,7 @@ externalContracts:
   experiencePackage: '@ghatana/experience-package'
   explorerContracts: '@ghatana/experience-explorer-contracts'
   explorerHost: '@ghatana/product-dev-explorer'
-  bindings: source-observed; public-artifact-and-isolated-consumer-not-verified
+  bindings: local-packed-public-artifact-consumer-pass; registry-publication-and-normal-workspace-resolution-not-verified
 hostModes: [product, explore, specification, verify]
 separationRules:
   productModeContainsExplorerChrome: false

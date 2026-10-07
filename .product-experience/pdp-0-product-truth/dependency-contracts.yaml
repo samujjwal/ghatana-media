@@ -38,9 +38,15 @@ dependencies:
     boundary: only-explicitly-adopted-public-contracts
   - owner: ghatana-tools
     surfaces:
-      - product-development lifecycle and experience-specification contracts
-      - developer verification facade
+      - reusable Product Definition and Experience mechanics
+      - generic Experience Explorer host and package mechanics
     boundary: public-packages-and-commands-only
+  - owner: ghatana-lifecycle
+    surfaces:
+      - cross-repository closure and convergence
+      - evidence admission and receipt generation
+      - semantic currentness and readiness outputs
+    boundary: owner-operated lifecycle workflows; Media supplies product declarations and applicability inputs
   - owner: ghatana-products
     surfaces:
       - canonical product portfolio and extraction registry
@@ -172,6 +178,15 @@ dependencyContracts:
     failureAndFinality: missing-host-capability-is-requested-from-Tools-not-implemented-as-a-parallel-generic-host
     sourceCouplingAllowed: false
     blocker: GAP-11
+  - dependencyId: DEP-LIFECYCLE-CLOSURE-EVIDENCE
+    owner: ghatana-lifecycle
+    surface: cross-repository-evidence-closure-currentness-and-receipts
+    usedFor: [owner-generated-evidence-admission-currentness-receipts-and-convergence]
+    mediaAuthority: product-facts-scope-applicability-and-source-evidence-inputs
+    bindingStatus: lifecycle-output-contract-and-Media-consumer-binding-not-yet-completed
+    failureAndFinality: local-structure-or-applicability-audit-does-not-imply-CLOSED-CURRENT-READY-receipt-or-convergence
+    sourceCouplingAllowed: false
+    blocker: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
   - dependencyId: DEP-KERNEL-SHELL
     owner: ghatana-kernel
     surface: product-lifecycle-and-shell-integration-contracts

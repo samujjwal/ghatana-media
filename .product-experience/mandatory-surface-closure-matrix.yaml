@@ -1,14 +1,20 @@
 schemaVersion: media.mandatory-surface-closure-matrix.v1
 productId: media
-scope: Product Definition authorities, Explorer, simulation, SDK/types/UI, HTTP/gRPC contracts, runtime adapters, OCR, Gradle, and deployment configuration
-mode: harden-source-of-truth
-authority: local audit matrix; not Product Definition acceptance, Tools evidence, or release evidence
+scope: applicability and evidence-input inventory for Product Definition authorities, Explorer, simulation, SDK/types/UI, HTTP/gRPC contracts, runtime adapters, OCR, Gradle, and deployment configuration
+mode: media-authored-applicability-and-input-audit
+authority: Media-authored applicability/input audit only; not closure, currentness, readiness, receipt, convergence-distance, Product Definition acceptance, or release evidence
+artifactClass: applicability-and-evidence-input-audit
+outputBoundary:
+  mayRecord: [applicability, source-facts, expected-owner-evidence-inputs, open-questions]
+  mustNotEmit: [CLOSED, CURRENT, READY, receipts, convergence-distance]
+  reusableMechanicsOwner: ghatana-tools
+  closureAndEvidenceOwner: ghatana-lifecycle
 promptContext:
   source: codex-attachment:10664bd3-994e-4c79-b28c-97a01a9b0937/Pasted text.txt
   governingRequirements:
   - one canonical Product Definition root with explicit authority ownership
   - complete PDP-0 through PDP-3 projections for applicable GUI, CLI, API, SDK, event, and service surfaces
-  - deterministic source links, currentness, traceability, simulation, and verification without fabricated acceptance
+  - deterministic source links and traceability; identify currentness/evidence as owner-generated inputs without computing or claiming them here
   - complete GUI design-system and accessibility/localization obligations where applicable
   - preserve task IDs, wave ordering, gates, exclusions, and evidence boundaries from the supplied plan
 repoGuidance:
@@ -104,10 +110,10 @@ ownerReview:
   approvedModelTerms: [PDP-0-Product-Truth, PDP-1-Canonical-Domain-and-Data-Model, PDP-2-Design-Language-and-Interface-System, PDP-3-Complete-Product-Experience, Explorer-outside-PDP-phases]
   notAccepted: [full-PDP-0, full-PDP-1, full-PDP-2, full-PDP-3, Tools-or-Shared-owner-decisions, native-currentness-or-receipts, publication, qualification, release-readiness, IMP-01, IMP-02, IMP-03, IMP-04, IMP-05]
   comments:
-  - PDP-0 references, capability bounds, and proposal-action reachability require source-grounded reconciliation before semantic acceptance. The malformed capabilities.yaml families sequence and requirements.yaml indentation are repaired and parse locally with PyYAML; portable Node parser-backed CI coverage remains blocked because pnpm cannot resolve private @ghatana/tokens from the configured unauthenticated registry. The 445-bound, 385-reference, and 123-action gaps remain open.
+  - PDP-0 references, capability bounds, and proposal-action reachability require source-grounded reconciliation before semantic acceptance. The malformed capabilities.yaml families sequence and requirements.yaml indentation are repaired and parse locally with PyYAML. Media's frozen pnpm composite install resolves Shared packages from local source, while public registry resolution remains unverified and standalone CI without sibling source checkouts is not established. The 445-bound, 385-reference, and 123-action gaps remain open.
   - PDP-1 observed interfaces are projections, not canonical meaning. PXD-007 approves nine PDP1 logical-operation proposals with the required 22-field shape and source inventory only. Their 146 UI actions partition into 11 single proposed links, one ambiguous link, and 134 unresolved. PDP3-002 found 27 HTTP operation IDs match OpenAPI and runtime-route inventories, while all 15 API/action mappings remain unresolved and no per-operation contracts exist. All 43 gRPC registry entries match active proto declarations; PDP1 proposes family links for 24 and leaves 19 unresolved, while all PDP3 experience bindings remain pending. The stale “26 active” count label was corrected to the 43-RPC source census with a focused regression; this does not resolve wire authority or semantic mappings. CLI remains 11 fixture commands versus 12 broader proposals (including unbound `media.cli.job.retry`). The 27-entry SDK registry remains unbound, with apparent parser false positives unresolved. Four Agent Tool handlers and 15 event names still lack complete canonical bindings. Do not infer semantic, wire, or runtime parity from inventory matches.
-  - PDP-2 Shared binding remains blocked: the UI declares tokens/theme/design-system 0.1.2 without lockfile resolution or consumer verification, public registry lookups returned 404, and Explorer consumes none of the listed Shared packages. Keep the 0.1.0-SNAPSHOT observation until authorized package publication and verification; do not guess or copy.
-  - PXD-013 approves PDP2-001 source inventory only: all ten plan-named Shared package paths and their inspected 0.1.0-SNAPSHOT manifests are tied to clean revision 495663b2d6b61c270367048cec54db8a06f22d69, separately from Media's declared 0.1.2 dependencies. No compatible publication or consumer binding is established; retain the blocker and do not substitute the sibling snapshot.
+  - PDP-2 local Shared development consumer binding now passes: the Media UI was compiled and packed against nine locally packed Shared 0.1.0-SNAPSHOT artifacts; an isolated TypeScript and Vite consumer resolved Media and Shared public exports. Media's frozen pnpm composite install and Explorer dependency-closure build/typecheck pass using local Shared and Tools source. Public registry resolution and immutable release binding remain unverified. The former 0.1.2 mismatch is historical; release binding and design review remain separate.
+  - PXD-013 is a historical approval of PDP2-001 source inventory only: its 2026-10-06 observation records the then-current 0.1.2 Media declarations separately from the inspected 0.1.0-SNAPSHOT Shared manifests at revision 495663b2d6b61c270367048cec54db8a06f22d69. Media declarations have since been normalized. This approval does not establish publication, current consumer binding, or release qualification.
   - PXD-014 approves PDP2-002 pattern coverage and reference structure only: all thirteen required categories are catalogued, four standalone proposals are linked through templates, and three relevant screen contracts now resolve their GUI template and pattern refs. Canonical state/action/operation meaning, Shared package binding, screen behavior, accessibility, responsive/localization review, and visual evidence remain pending; no artifact-delete operation is claimed.
   - PXD-015 approves all fourteen PDP2-004 API convention files as proposals and confirms OpenAPI is only a projection of approved rules/bindings. API semantics, operation-specific wire bindings, API/identity/platform owner decisions, and runtime verification remain pending.
   - PXD-016 approves PDP2-005 CLI/SDK/Event/Agent Tool convention structure only. The four Agent Tool records include all required fields but are not admitted; runtime events remain separate from local client notifications; production interfaces, owner bindings, SDK status mapping, transport/finality, and delivery guarantees remain unresolved.
@@ -117,11 +123,11 @@ ownerReview:
   - PXD-020 approves PDP3-004 registry structure only: 11 fixture CLI commands, 27 SDK source entries, nine runtime event types separate from 15 local notifications, four non-admitted Agent Tool handlers, and 25 service implementation observations. No production interface or delivery guarantee is admitted.
   - PXD-021 approves only a source-grounded candidate channel-to-surface crosswalk for reference normalization. It does not admit any channel or infer deployment/runtime support; media.channel.api remains an abstract layer with no direct surface.
   - PXD-022 approves PDP3-005's structure only: 30 journey contracts and 130 structured ordered steps, with J-29/J-30 source step IDs preserved and 148 candidate surface refs normalized. Seven PDP-1 operation refs remain proposals; at least 123 operation bindings plus object/state/authority/decision/transition/handoff/requirements and step-specific outcomes remain unresolved; all verification is not-run.
-  - PXD-023 approves CLEAN-2's source-specific contract disposition and preserves the four observed av.* handler IDs. Tools' standalone explorer check passed, but Media package publication, isolated consumer loading/integration, canonical Tool identity, and Tools-native currentness/receipts remain pending.
+  - PXD-023 approves CLEAN-2's source-specific contract disposition and preserves the four observed av.* handler IDs. Tools' standalone Explorer check passed, and the later packed Media consumer exercises public validators, trace projection, and createExplorer load/render/inspect/dispatch. The Vite client now exposes a dedicated Tools Review route for that bridge; it does not host the existing Product/Explore workflows through generic Tools mechanics. Media's frozen composite install and Explorer dependency-closure build/typecheck pass using local Shared/Tools source; public registry resolution, immutable release binding, canonical Tool identity, owner acceptance, and Lifecycle-owned currentness/receipts remain unverified or pending.
   - PXD-024 approves artifact identity and six display-class metadata only: all 206 IDs in the reviewed committed baseline remain exact, 72 additions are explicit pinned literals, and 60 legacy path-digest-shaped values are disclosed and never recomputed. The strict constrained registry parser, class taxonomy, relocation invariant, projection-collision check, and deterministic generation are locally tested; none conveys product-semantic authority or currentness.
   - PXD-025 approves only 24 CSS-pixel minimum hit areas for the synthetic Explorer source scrubber and timestamp seek buttons. It changes no action semantics and does not accept Shared/PDP-2 styling or production UI design.
   - EXP-003/006 now provide source-linked semantic-mode projections and registry-only interface views; Verify no longer stores transient pass/fail results. These views remain partial projections, not complete accepted semantics or machine-interface contracts.
-  - Wave 6 validators are implemented with focused regressions: VER-001 local structural closure passes while semantic/currentness findings remain; VER-002 fails closed with 143 unexplained design-authority findings and unresolved Shared/PDP-2 bindings; VER-003 preserves 27/27 OpenAPI/runtime/PDP-3 HTTP and 43/43 gRPC/protobuf identities but reports 50 contract/client/semantic gaps across 20 SDK HTTP call sites and unresolved registry bindings; VER-004 post-normalization browser automation passes with no console/page/assertion failures, while manual screen-reader and independent visual review remain open.
+  - Wave 6 validators are implemented with focused regressions: VER-001 local structural closure passes while semantic/currentness findings remain; VER-002 fails closed with 794 unexplained design-authority findings in the current source audit and unresolved Shared/PDP-2 bindings; VER-003 preserves 27/27 OpenAPI/runtime/PDP-3 HTTP and 43/43 gRPC/protobuf identities but reports 50 contract/client/semantic gaps across 20 SDK HTTP call sites and unresolved registry bindings; VER-004 post-normalization browser automation passes with no console/page/assertion failures, while manual screen-reader and independent visual review remain open.
   - PXD-005 approves PDP1-001 source-reconciliation/proposal structure only: 37 domain-object, 13 value-object, and 11 relationship records; seven observed-only candidate crosswalks; per-relationship source/proposal bases and non-storage caveats; explicit proposed/unaccepted sample-position context; and exact PDP-0 fragments. The five composite fragments were corrected, and the documented PyYAML check plus local authority/local checks pass. Domain meanings, identities, values, cardinalities, and projections remain unaccepted.
   - PDP3-001 now has a v2 structural regression over all 47 canonical screen proposals plus the separate job-family specialization. Three template IDs resolve to catalog entries, 44 remain null, and canonical layout IDs are absent. Screen refs, component/pattern refs, the candidate Web surface, and action consequence records remain proposals; token/domain/operation/state/entry/exit bindings, design centralization, fixtures, behavior, accessibility, responsive review, and verification remain open.
   - PDP3-004 inventories 11 fixture commands, 12 broader CLI proposals, 27 SDK method entries (with apparent false positives), 15 event names, four handlers, and 25 service implementation entries. Production CLI wiring, event semantics/delivery, per-tool authority/input/result/finality contracts, and product-to-product consumer contracts remain open.
@@ -129,12 +135,12 @@ ownerReview:
   - PXD-006 authorizes a structural migration of phase acceptance inputs: canonical PDP-0..PDP-3 only, an explicit pending PDP-1 aggregate gate, prior P1/P2 IDs preserved as legacy crosswalks after remapping to PDP-2/PDP-3, and Explorer moved to projection acceptance outside the phase list. No acceptance state changes are authorized.
   - PXD-007 approves PDP1-002's nine-operation proposal schema and source-denominator inventory only. All projection semantics and owner bindings remain pending; local duplicate-key-safe parsing and text regression do not constitute portable parser CI or phase acceptance.
   - PXD-008 approves PDP1-003 source-exact extraction structure only: 11 machine IDs/dimensions, 75 state spellings, and 49 ordered transition relations. Rights/consent remains empty where the PDP-0 source is empty; all semantic conflicts and lossy projection mappings remain unresolved. Duplicate-key-safe local reconciliation is not phase acceptance or runtime parity.
-  - Owner review found active legacy phase-meaning metadata remaining after ledger normalization, including PDP-3 journey/action/view references and Explorer projection metadata. F15 tracks the source-aware label/field migration; stable work-item and ART-* identifiers remain preserved, acceptance states stay pending, and the browser sweep must be rerun after the normalization settles.
-  - PXD-009 approves the active phase-label/metadata normalization only. The local browser rerun now passes after manifest generation and a fresh Vite build; this does not replace human visual/accessibility review or Tools-native evidence.
+  - Owner review found active legacy phase-meaning metadata remaining after ledger normalization, including PDP-3 journey/action/view references and Explorer projection metadata. F15 tracks the source-aware label/field migration; stable work-item and ART-* identifiers remain preserved and acceptance states stay pending. The 2026-10-07 browser sweep against the regenerated index passed locally; human review remains pending.
+  - PXD-009 approves the active phase-label/metadata normalization only. The local browser rerun now passes after manifest generation and a fresh Vite build; this does not replace human visual/accessibility review or Lifecycle-owned evidence.
   - PXD-010 approves PDP1-004 source-inventory structure; PXD-012 approves per-event source-observation/evidence/provenance candidate links for seven runtime publisher call sites/nine concrete event types, distinct from 15 local client notifications. Actual event records, receipts/finality, canonical taxonomy, producer authority, object/version meaning, ordering, replay/deduplication, compatibility, privacy, and recovery remain unresolved; the F16 source-inventory subfinding is addressed, while the broader architecture/event-contract gap remains.
   - PXD-011 approves PDP1-005 registry structure only. Job version/fencing, checksums, sourceArtifactIds, purge mechanisms, and restart handling remain observations rather than proof of durable attempts, immutable bytes/version identity, complete ancestry, all-store erasure, or provider outcome reconciliation; privacy, offline/replay, retention, and cross-product owner decisions remain pending.
   - Independent Luna security/privacy/operability review confirms that consent checks, sanitizer allowlists, purge interfaces, lifecycle HTTP publication, logs, and cancellation states are implementation observations only. Production identity and consent-revocation coverage, provider-purpose disclosure bounds, storage/provider-wide erasure, durable event delivery and telemetry, and restart/reconciliation safety need owner bindings and runtime evidence; retain the existing gap-found/blocked classifications.
-  - Independent specialist source review is complete; P0-010, specialist owner disposition/runtime evidence, Tools currentness/receipts, and external owner acceptance remain pending.
+  - Independent specialist source review is complete; P0-010, specialist owner disposition/runtime evidence, lifecycle currentness/receipts, and external owner acceptance remain pending.
   decisionRecords:
   - .product-experience/decision-log.md#pxd-003
   - .product-experience/decision-log.md#pxd-004--approve-pdp0-004-scope-status-normalization-with-comments
@@ -166,20 +172,20 @@ evidencePlan:
   - node --test tests/product-experience-local.test.mjs
   - pnpm test:experience-browser
   intentionallyNotRun:
-  - aggregate PDP phase acceptance because independent P0-010 review, required specialist appointments/reviews, and the owner-approved Tools schema/currentness binding remain pending despite the bounded delegated-owner review recorded in PXD-003
-  - Tools-native admission because Media-root surface status returns SURFACE_NOT_FOUND and plan returns CLOSURE_CANONICAL_CONSUMER_OR_REGISTRY_MISSING; the recorded phase binding also remains PLANNER_BINDING_OWNER_AMBIGUOUS with structuralFallback=true and no selected operations
+  - aggregate PDP phase acceptance because independent P0-010 review, required specialist appointments/reviews, and the owner-approved Tools schema binding remain pending despite the bounded delegated-owner review recorded in PXD-003
+  - lifecycle evidence admission because the recorded Media-root lookup returned SURFACE_NOT_FOUND and plan returned CLOSURE_CANONICAL_CONSUMER_OR_REGISTRY_MISSING; the phase binding also remains PLANNER_BINDING_OWNER_AMBIGUOUS with structuralFallback=true and no selected operations
   - live API, SDK, event, provider, upload, worker, and runtime qualification because contracts/runtime are unbound
   - independent visual, pixel-reference, and assistive-technology review because browser automation is not human review
   externalObservations:
-  - blocker: tools-native-currentness-and-receipts
+  - blocker: lifecycle-native-currentness-and-receipts
     result: BLOCKED
     evidence: surface list discovers 21 physical Media-root units; surface status ts-media-experience-explorer returns SURFACE_NOT_FOUND; surface plan returns CLOSURE_CANONICAL_CONSUMER_OR_REGISTRY_MISSING; no currentness or receipt was created
   - blocker: standalone-gradle
     result: BLOCKED_SIBLING_EVENT_PLANE_SOURCE_CONTRACT
-    evidence: Media catalog now resolves libs.jackson.dataformat.yaml and the other explicitly required sibling aliases; the requested STT compile advances to services:event-plane:contracts and fails with 73 unresolved event-store symbols absent from the current Shared source.
+    evidence: Media settings map services:event-plane:contracts to ../ghatana/services/event-plane/contracts in the sibling ghatana repo. The requested STT compile reaches that Ghatana-owned project and fails with 73 unresolved event-store symbols; its imports of EventLogStore and EventStoreTenantScope do not match the current Shared messaging APIs.
   - blocker: ghatana-design-system-package
-    result: BLOCKED
-    evidence: registry lookup for @ghatana/design-system@0.1.2 returns E404 on the configured public registry; adjacent Shared source manifests report 0.1.0-SNAPSHOT, not 0.1.2
+    result: LOCAL_SNAPSHOT_CONSUMER_PASS; REGISTRY_AND_RELEASE_BINDING_BLOCKED
+    evidence: scripts/verify-media-shared-artifact-consumer.mjs compiled and packed Media UI against nine Shared 0.1.0-SNAPSHOT tarballs, then passed isolated TypeScript and Vite public-export checks. Media's frozen pnpm composite install and Explorer dependency-closure build/typecheck pass using local Shared/Tools source; public registry resolution and immutable release binding remain unverified.
   - blocker: imp-01-ocr-cutover
     result: OWNER_AND_PACKAGE_GATE_PENDING
     evidence: MDI-001 records the intended ownership boundary, but the public Document Intelligence client is not published/consumer-verified and runtime/provider cutover remains unaccepted.
@@ -191,7 +197,7 @@ evidencePlan:
     evidence: extracted state-machine and transition inventories remain proposal-only; no downstream language or runtime is authorized to adopt unaccepted transition semantics.
   - blocker: imp-04-standalone-build-cleanup
     result: MIGRATION_CUTOVER_AND_SIBLING_BUILD_GATE_PENDING
-    evidence: the targeted Media STT compile resolves the Jackson YAML alias and reaches the included Event Plane contracts, then fails on 73 unresolved event-store symbols absent from the current Shared source; old Gradle/Docker paths remain gated on migration/cutover decisions.
+    evidence: the targeted Media STT compile reaches the Ghatana-owned services:event-plane:contracts project included from ../ghatana, then fails because that project imports EventLogStore and EventStoreTenantScope absent from the current Shared messaging APIs; old Gradle/Docker paths remain gated on migration/cutover decisions.
   - blocker: accepted-pdp3-and-imp05
     result: OWNER_GATE_PENDING
     evidence: Web/CLI production implementation remains prohibited until those surfaces are admitted and PDP-3 definitions are owner-accepted
@@ -267,7 +273,7 @@ rows:
   - id: correctness
     status: gap-found
     classification: current-state gap
-    evidence: VER-001 adds fail-closed checks for required PDP-3 v2 screen shapes, journey-step shape, duplicate identifiers, and selected screen/operation/domain/state/requirement/API/event references. Mutation tests reject missing shapes, unresolved schema refs, unknown binding statuses, and misleading accepted/complete statuses. Currentness remains pending Tools authority.
+    evidence: VER-001 adds fail-closed checks for required PDP-3 v2 screen shapes, journey-step shape, duplicate identifiers, and selected screen/operation/domain/state/requirement/API/event references. Mutation tests reject missing shapes, unresolved schema refs, unknown binding statuses, and misleading accepted/complete statuses. Currentness remains pending Lifecycle authority.
     change: retain repeatable invariant checks, fail closed on missing required structure or dangling references, and keep semantic/native status separate from local structure
     verification: pnpm check:product-experience-local; pnpm test:product-experience-local; node --test tests/product-experience-local.test.mjs
   - id: api-contracts-config
@@ -335,14 +341,15 @@ rows:
     status: gap-found
     classification: current-state gap
     evidence: >-
-      after two byte-identical manifest generations and a fresh Vite 7.3.1 production build/preview,
-      `pnpm test:experience-browser` exercised 29 Explore scenarios, 279 indexed artifacts, 282 Product route/viewport
+      after two byte-identical manifest generations and a fresh local Vite production build/preview,
+      `pnpm test:experience-browser` exercised 29 Explore scenarios, 296 indexed artifacts, 282 Product route/viewport
       observations across six viewports, keyboard navigation, 100%/200% text scaling, zoom/reflow, forced colors, and
-      reduced motion with zero console/page errors and zero automated failures. The audit checks 28 enabled visible targets,
-      represents two visually-hidden toggle inputs by their adequate visible labels, and excludes ten disabled/hidden/non-rendered
+      reduced motion with zero console/page errors and zero automated failures. The audit checks the dedicated Tools Review route,
+      25 enabled visible touch targets against 24 CSS px, represents two visually-hidden controls by their visible associated labels,
+      and excludes five disabled/hidden/non-rendered
       controls. Screenshots and JSON report are in /tmp/media-experience-browser-audit. Screen-reader, canonical visual references,
       and independent visual review remain manual/unverified.
-    change: complete manual screen-reader and independent visual-review gates; keep local browser evidence separate from human review and Tools-native evidence.
+    change: complete manual screen-reader and independent visual-review gates; keep local browser evidence separate from human review and lifecycle-owned evidence.
     verification: >-
       `pnpm dlx vite@7.3.1 build --config apps/media-experience-explorer/vite.config.mjs`; run the documented
       Vite preview on port 4179; `pnpm test:experience-browser`; `pnpm check:product-experience-local`
@@ -350,20 +357,20 @@ rows:
     status: blocked
     classification: current-state gap
     location: .product-experience/explorer/verification-matrix.yaml and GAP-MEDIA-TOOLS-SCHEMA-BINDING
-    rootCause: the Tools Evidence Generator authority is unavailable and published isolated bindings are not verified.
-    fix: obtain owner-resolved package/schema/validator bindings and run the native planner, collector, gate, and receipt workflow.
+    rootCause: the lifecycle evidence-generation authority is not bound to this Media consumer, and published isolated Tools bindings are not verified.
+    fix: obtain owner-resolved Tools mechanics and lifecycle output bindings, then run the lifecycle-owned planner, collector, gate, and receipt workflow.
     acceptance: native artifacts are current, schema-valid, repeatable, and admitted by Tools; local observations remain separate.
-    tests: Tools-native verification after binding publication
+    tests: lifecycle-native verification after binding publication
     evidence: Media-root discovery lists physical packages, but status returns SURFACE_NOT_FOUND and plan returns CLOSURE_CANONICAL_CONSUMER_OR_REGISTRY_MISSING; the existing phase binding remains PLANNER_BINDING_OWNER_AMBIGUOUS with structuralFallback=true and no selected operations
     impact: blocks numeric convergence, phase acceptance, and currentness generation.
   - id: missing-evidence-generator-capabilities
     status: gap-found
     classification: current-state gap
     location: GAP-MEDIA-TOOLS-SCHEMA-BINDING and GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
-    rootCause: no owner-approved collector/validator/output contract is available to generate currentness and coverage.
-    fix: implement or publish the Tools-owned collector/schema/gate path; Media must consume it rather than copy it.
+    rootCause: no lifecycle-owner-approved collector/validator/output contract is available to generate currentness and coverage.
+    fix: bind the lifecycle-owned collector/schema/gate path; Media must supply product declarations and applicability inputs rather than copy the mechanics.
     acceptance: coverage/currentness output includes scope fingerprint, provenance, repeatability, and owner acceptance.
-    tests: Tools schema and repeatability tests
+    tests: lifecycle schema and repeatability tests
     evidence: .product-experience/README.md intentionally leaves currentness.yaml absent.
     impact: blocks P0-010 and all phase certification.
   - id: security
@@ -429,10 +436,10 @@ rows:
   - id: build-dependency-release-readiness
     status: blocked
     classification: current-state gap
-    rootCause: the Media catalog now defines the aliases used by included sibling builds, but compilation reaches an Event Plane contract/source mismatch (73 unresolved event-store symbols absent from current Shared source); public npm returns E404 for @ghatana/design-system@0.1.2 and the adjacent Shared source is version 0.1.0-SNAPSHOT.
-    fix: obtain sibling Event Plane/Shared source-contract alignment and authorized immutable package publication after the migration/cutover gate; do not silently substitute a snapshot for the pinned package.
+    rootCause: Media's frozen pnpm composite install and Explorer dependency-closure build/typecheck pass using local Shared/Tools source. Public registry resolution and immutable release binding remain unverified. Separately, the isolated Gradle compile reaches Ghatana-owned services:event-plane:contracts via ../ghatana and fails because it imports EventLogStore and EventStoreTenantScope absent from the current Shared messaging APIs.
+    fix: obtain sibling Event Plane/Shared source-contract alignment and the authorized development artifact route for local consumer verification; obtain immutable package publication after the migration/cutover gate.
     acceptance: clean isolated Gradle build and lockfile-consistent install of the intended immutable package versions.
-    tests: focused local TypeScript, simulation, browser, and invariant checks; full Gradle and workspace-install blockers remain recorded
+    tests: focused local TypeScript, simulation, browser, and invariant checks; the frozen pnpm composite install and Explorer dependency-closure build/typecheck pass, while the separate Gradle source-contract mismatch and public registry/release-binding gates remain open
   - id: dependency-supply-chain-licensing
     status: blocked
     classification: current-state gap
@@ -454,8 +461,8 @@ rows:
     classification: current-state gap
     location: .product-experience/acceptance.yaml, gaps.yaml, and verification-matrix.yaml
     rootCause: native evidence authority, owner acceptance, and external bindings remain unavailable.
-    fix: rerun the current Tools assessor after each owner-bound change; preserve the local/native distinction.
+    fix: rerun the lifecycle-owned evidence workflow through its supported Tools facade after each owner-bound change; preserve the local/native distinction.
     acceptance: all local invariants pass, native artifacts are current and admitted, owner gates are recorded, and no open blocker is hidden.
-    tests: full evidence plan plus native Tools run
+    tests: full evidence plan plus lifecycle-owned native evidence run through the supported Tools facade
     evidence: current local result is partial and fail-closed by design.
     impact: prevents reporting complete convergence.

@@ -60,7 +60,7 @@ recordedHumanDecisionInputs:
   exclusions:
   - Full semantic acceptance of PDP-0, PDP-1, PDP-2, or PDP-3
   - Acceptance of missing bounds, unresolved references, interface mappings, or unreviewed specialist semantics
-  - Tools or Shared owner acceptance, native receipts/currentness, publication, qualification, or release readiness
+  - Tools or Shared owner acceptance, Lifecycle-owned receipts/currentness, publication, qualification, or release readiness
   - Production Web/CLI implementation or any other derived implementation gated on accepted PDP-3 definitions
 - id: ACCEPT-INPUT-HARDENING-PDP0-004
   phaseTask: HARDENING-PDP0-004
@@ -107,7 +107,7 @@ recordedHumanDecisionInputs:
   exclusions:
   - Semantic acceptance of PDP-1 or PDP-0, including operation/state/event/privacy/version/offline/interoperability semantics
   - Specialist or independent P0-010 review and all relevant external owner decisions
-  - Tools-native currentness or receipts, publication, qualification, source cutover, or release readiness
+  - lifecycle-owned currentness or receipts, publication, qualification, source cutover, or release readiness
 - id: ACCEPT-INPUT-HARDENING-LEDGER-PHASE-NORMALIZATION
   phaseTask: HARDENING-ACCEPTANCE-LEDGER-006
   decisionInput: accepted
@@ -123,11 +123,11 @@ recordedHumanDecisionInputs:
   decisionDate: '2026-10-06'
   comments:
   - This approves input-ledger structure and prerequisite labels only. All PDP-0 through PDP-3 phase decisions remain pending, as does Explorer projection acceptance.
-  - The schema is v2; Tools-native schema/validator compatibility is unverified because the owner-approved Tools binding remains unavailable.
+  - The schema is v2; an owner-approved Tools binding for validating this Media acceptance schema remains pending. The local Tools consumer smoke validates synthetic Product Definition and ProductExperiencePackage fixtures only; it does not validate this ledger or establish phase acceptance.
   exclusions:
   - Semantic acceptance of any PDP phase or the Explorer projection
   - Changes to P0-010, specialist appointments, owner-review results, or evidence/currentness status
-  - Tools-native receipts, publication, qualification, source cutover, release readiness, or production implementation
+  - lifecycle-owned receipts, publication, qualification, source cutover, release readiness, or production implementation
 - id: ACCEPT-INPUT-HARDENING-PDP1-002
   phaseTask: HARDENING-PDP1-002
   decisionInput: accepted
@@ -147,7 +147,7 @@ recordedHumanDecisionInputs:
   exclusions:
   - Semantic acceptance of any PDP-1 operation or projection, or full PDP-1 phase acceptance
   - API/protobuf/SDK/CLI/Agent Tool/event/platform/consumer owner decisions or runtime qualification
-  - Tools-native receipts/currentness, publication, source cutover, or release readiness
+  - lifecycle-owned receipts/currentness, publication, source cutover, or release readiness
 - id: ACCEPT-INPUT-HARDENING-PDP1-003
   phaseTask: HARDENING-PDP1-003
   decisionInput: accepted
@@ -170,7 +170,7 @@ recordedHumanDecisionInputs:
   exclusions:
   - Semantic acceptance of PDP-1/PDP-0 or any state/transition
   - Runtime, API, UI, TypeScript, protobuf, Java, event, permission, and effect owner decisions
-  - Specialist or independent P0-010 review, Tools-native evidence/currentness, publication, qualification, source cutover, or release readiness
+  - Specialist or independent P0-010 review, lifecycle-owned evidence/currentness, publication, qualification, source cutover, or release readiness
 - id: ACCEPT-INPUT-HARDENING-PDP1-004
   phaseTask: HARDENING-PDP1-004
   decisionInput: accepted
@@ -190,11 +190,11 @@ recordedHumanDecisionInputs:
   comments:
   - This approves source inventory and proposal structure only. The runtime idempotency header, event version, HTTP status, metadata sanitizer, and publication logs do not prove durable delivery, event-specific evidence, semantic redaction, replay, ordering, compatibility, or recovery.
   - Dynamic media.job.<status> is bounded to the current COMPLETED and FAILED source assignments; canonical taxonomy, producer authority, object/version mapping, and Event Plane consumer semantics remain owner-unresolved.
-  - Focused local checks do not constitute portable YAML CI, runtime parity, native Tools evidence, or PDP-1 semantic/phase acceptance.
+  - Focused local checks do not constitute portable YAML CI, runtime parity, Lifecycle-owned evidence, or PDP-1 semantic/phase acceptance.
   exclusions:
   - Canonical event semantics or event-specific evidence/provenance acceptance
   - Event Plane, platform, privacy, or consumer owner decisions; runtime qualification
-  - Full PDP-1/PDP-0 acceptance, P0-010, Tools-native receipts/currentness, publication, or release readiness
+  - Full PDP-1/PDP-0 acceptance, P0-010, lifecycle-owned receipts/currentness, publication, or release readiness
 - id: ACCEPT-INPUT-HARDENING-PDP1-004-F16
   phaseTask: HARDENING-PDP1-004
   decisionInput: accepted
@@ -212,7 +212,7 @@ recordedHumanDecisionInputs:
   comments:
   - Approves proposed source mappings only; actual event records, durable receipts, authoritative finality, canonical identity/version bindings, delivery guarantees, privacy policy, and Event Plane consumer contracts remain unresolved.
   exclusions:
-  - Event semantic/policy acceptance, Event Plane/runtime delivery guarantees, native Tools evidence/currentness, and full PDP-1/PDP-0 acceptance
+  - Event semantic/policy acceptance, Event Plane/runtime delivery guarantees, lifecycle-owned evidence/currentness, and full PDP-1/PDP-0 acceptance
 - id: ACCEPT-INPUT-HARDENING-PDP1-005
   phaseTask: HARDENING-PDP1-005
   decisionInput: accepted
@@ -234,13 +234,13 @@ recordedHumanDecisionInputs:
   comments:
   - This approves registry/proposal structure only. Privacy/consent meaning, retention periods, all-store erasure, artifact-version keys, attempt history, cancellation finality, offline queue/replay/conflict behavior, cross-product compatibility, and external owner bindings remain pending.
   exclusions:
-  - Full semantic acceptance of PDP-1 or PDP-0/P0-010; implementation or qualification; Tools-native receipts/currentness; publication; release readiness
+  - Full semantic acceptance of PDP-1 or PDP-0/P0-010; implementation or qualification; lifecycle-owned receipts/currentness; publication; release readiness
 - id: ACCEPT-INPUT-PDP2-001
   phase: PDP-2
   phaseTask: PDP2-001
   decisionInput: accepted
   acceptedScope:
-  - media-token-aliases.yaml records the inspected clean Shared source revision, exact paths and source versions for the ten plan-named packages, and Media's three declared 0.1.2 dependencies.
+  - media-token-aliases.yaml records the inspected clean Shared source revision, exact paths and source versions for the ten plan-named packages, and the three Media dependency versions observed when this decision was recorded; those active declarations have since been normalized to 0.1.0-SNAPSHOT.
   - Local sibling source availability is distinguished from immutable package publication and verified Media consumption; the registry does not copy Shared tokens or claim consumer compatibility.
   evidenceRefs:
   - .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
@@ -249,9 +249,9 @@ recordedHumanDecisionInputs:
   sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
   decisionDate: '2026-10-06'
   comments:
-  - This approves source inventory and provenance structure only. PDP2-001 binding remains blocked until the intended immutable Shared package versions are authorized, published, and verified by the Media consumer; the inspected 0.1.0-SNAPSHOT source is not a substitute for the declared 0.1.2 dependency.
+  - This approves source inventory and provenance structure only. The former 0.1.2 version drift is historical and has been corrected. A later isolated Media consumer passed against locally packed Shared SNAPSHOT artifacts; normal workspace lockfile resolution, immutable release binding, design review, and Shared owner acceptance remain separate gates.
   exclusions:
-  - Shared owner acceptance, compatibility, package publication or installation, verified consumer binding, full PDP-2 acceptance, Tools-native receipts/currentness, qualification, or release readiness
+  - Shared owner acceptance, compatibility, package publication or installation, verified consumer binding, full PDP-2 acceptance, lifecycle-owned receipts/currentness, qualification, or release readiness
 - id: ACCEPT-INPUT-PDP2-002
   phase: PDP-2
   phaseTask: PDP2-002
@@ -282,7 +282,7 @@ recordedHumanDecisionInputs:
   - No artifact-delete operation is established. The consent-revocation action remains a proposed reference without an owner-approved capability mapping; scene removal is not artifact deletion or revocation.
   - The independent audit found legacy template IDs on the three linked screens; those refs now resolve to catalogued media.gui.template IDs and are covered by the focused regression. This structural repair does not establish screen behavior.
   exclusions:
-  - Full PDP-2 acceptance; PDP2-003 visual-authority migration; Shared owner acceptance or immutable package binding; canonical PDP-1 semantics; accessibility or visual qualification; Tools-native receipts/currentness; publication, production readiness, or release readiness
+  - Full PDP-2 acceptance; PDP2-003 visual-authority migration; Shared owner acceptance or immutable package binding; canonical PDP-1 semantics; accessibility or visual qualification; lifecycle-owned receipts/currentness; publication, production readiness, or release readiness
 - id: ACCEPT-INPUT-PDP2-004
   phase: PDP-2
   phaseTask: PDP2-004
@@ -313,7 +313,7 @@ recordedHumanDecisionInputs:
   comments:
   - This approves convention-file structure only. Per-operation API/domain bindings, OpenAPI projection parity, wire schemas, identity and platform decisions, runtime behavior, and API-owner acceptance remain pending.
   exclusions:
-  - API semantic or runtime acceptance; OpenAPI conformance; API/platform/identity owner decisions; full PDP-2 acceptance; Tools-native receipts/currentness, qualification, publication, or release readiness
+  - API semantic or runtime acceptance; OpenAPI conformance; API/platform/identity owner decisions; full PDP-2 acceptance; lifecycle-owned receipts/currentness, qualification, publication, or release readiness
 - id: ACCEPT-INPUT-PDP2-005
   phase: PDP-2
   phaseTask: PDP2-005
@@ -336,7 +336,7 @@ recordedHumanDecisionInputs:
   - This approves convention proposal structure and observed inventories only. Production CLI/SDK consumers, SDK status mapping, event owners/transport/delivery/finality, Agent Tool schemas/capabilities/runtime bindings, adversarial verification, and relevant owner decisions remain pending.
   - A post-dispatch timeout or cancellation race is outcome-unknown; it does not establish that an effect did or did not occur.
   exclusions:
-  - Production CLI/SDK or Agent Tool admission; canonical event semantics or delivery guarantees; runtime qualification; API/CLI/SDK/Event/Shared owner decisions; full PDP-2 acceptance; Tools-native receipts/currentness, publication, or release readiness
+  - Production CLI/SDK or Agent Tool admission; canonical event semantics or delivery guarantees; runtime qualification; API/CLI/SDK/Event/Shared owner decisions; full PDP-2 acceptance; lifecycle-owned receipts/currentness, publication, or release readiness
 - id: ACCEPT-INPUT-PDP3-001
   phase: PDP-3
   phaseTask: PDP3-001
@@ -360,7 +360,7 @@ recordedHumanDecisionInputs:
   exclusions:
   - Semantic acceptance of PDP-1, PDP-2, PDP-3, or Web surface availability
   - Full screen behavior, operation/state/effect/finality, visual/accessibility, localization, or production acceptance
-  - Shared owner acceptance/package publication, Tools-native receipts/currentness, qualification, or release readiness
+  - Shared owner acceptance/package publication, lifecycle-owned receipts/currentness, qualification, or release readiness
 - id: ACCEPT-INPUT-PDP3-002
   phase: PDP-3
   phaseTask: PDP3-002
@@ -470,7 +470,7 @@ recordedHumanDecisionInputs:
   - This approves step-contract structure and proposal-reference normalization only. At least 123 canonical operation bindings remain unresolved; object/state/authority/decision/transition/handoff/requirements, step allocation of outcomes/recovery, degraded behavior, and postconditions remain incomplete or proposal-only. All step verification remains not-run with no evidence.
   - The structure regression does not establish journey behavior, wire parity, owner acceptance, capability bounds, accessibility, localization, scenario execution, runtime support, or complete PDP-3 coverage.
   exclusions:
-  - Full journey semantics or PDP-3 acceptance; production channel/interface admission; runtime, visual/accessibility, or behavior qualification; Tools-native receipts/currentness or release readiness
+  - Full journey semantics or PDP-3 acceptance; production channel/interface admission; runtime, visual/accessibility, or behavior qualification; lifecycle-owned receipts/currentness or release readiness
 - id: ACCEPT-INPUT-HARDENING-PHASE-TAXONOMY-009
   phaseTask: HARDENING-PHASE-TAXONOMY-009
   decisionInput: accepted
@@ -490,17 +490,17 @@ recordedHumanDecisionInputs:
   decisionDate: '2026-10-06'
   comments:
   - This approves terminology and owned metadata alignment only. It does not accept any PDP phase or Explorer semantic contract.
-  - The browser sweep passed on the local normalized projection, but does not establish visual/accessibility owner review, Tools currentness/receipts, publication, qualification, or release readiness.
+  - The browser sweep passed on the local normalized projection, but does not establish visual/accessibility owner review, lifecycle currentness/receipts, publication, qualification, or release readiness.
   exclusions:
   - Renaming stable task, ART-*, GAP-*, or requirement IDs; accepting PDP-0 through PDP-3 or Explorer
-  - Shared/Tools owner decisions, native evidence/currentness, package publication, cutover, runtime qualification, or release readiness
+  - Shared/Tools owner decisions, Lifecycle-owned evidence/currentness, package publication, cutover, runtime qualification, or release readiness
 - id: ACCEPT-INPUT-HARDENING-PLAN-OWNER-REVIEW
   phaseTask: HARDENING-PLAN-OWNER-REVIEW
   decisionInput: accepted
   acceptedScope:
   - CLEAN-2 uses source-specific OpenAPI, protobuf, and provider-manifest contract surfaces; PDP-1 remains the owner of product semantics and no aggregate service-contract.yaml authority is restored.
   - The four observed av.* Agent Tool handler IDs are preserved without renaming or production admission until their accountable Tools/tool-registry owner settles canonical identity.
-  - The Tools product-dev-explorer standalone proof is distinguished from Media package resolution, isolated consumer loading, Media host admission, render/inspect/dispatch behavior, and Media-specific native currentness or receipts.
+  - The Tools product-dev-explorer standalone proof is distinguished from registry publication, normal Media workspace installation, Media host admission, canonical Tool identity, and Lifecycle-owned Media currentness or receipts. A later isolated packed consumer exercised Media load/render/inspect/dispatch through `createExplorer`.
   evidenceRefs:
   - docs/README.md
   - docs/ARCHITECTURE.md
@@ -515,11 +515,12 @@ recordedHumanDecisionInputs:
   sourceOfDecision: explicit-user-delegation-to-act-as-media-product-owner-on-2026-10-06
   decisionDate: '2026-10-06'
   comments:
-  - The standalone check passed in the Tools repository; it is not a Media consumer receipt or publication proof. Package source observations remain 0.1.0-SNAPSHOT and do not validate the declared Media 0.1.2 consumer resolution.
+  - The standalone check passed in the Tools repository; it is not a Media consumer receipt or publication proof. At the 2026-10-06 review, package source observations were 0.1.0-SNAPSHOT and did not validate the then-declared Media 0.1.2 consumer resolution; Media declarations have since been normalized. A 2026-10-07 isolated Shared artifact consumer also passed with packed 0.1.0-SNAPSHOT artifacts; it does not establish registry or immutable release binding.
+  - A later 2026-10-07 packed Tools consumer exercised validators, trace projection, and `createExplorer` load/render/inspect/dispatch. The Vite client now exposes a dedicated Tools Review route for that bridge. Normal workspace lockfile installation, registry publication, generic Tools hosting of Product/Explore, Tools owner acceptance, and Lifecycle currentness/receipts remain open.
   - av.* remains the observed identity only. Canonical Tool identity and consumer migration require the accountable Tools/tool-registry owner.
   exclusions:
   - Full semantic acceptance of PDP-1/PDP-3 or any other PDP phase
-  - Tools owner acceptance of Media bindings, private package publication, native Media currentness/receipts, or release readiness
+  - Tools owner acceptance of Media bindings, private package publication, Lifecycle-owned Media currentness/receipts, or release readiness
   - Agent Tool ID rename, runtime admission, or production Web/CLI implementation
 - id: ACCEPT-INPUT-HARDENING-ARTIFACT-IDENTITIES
   phaseTask: ARTIFACT-IDENTITY-AND-CLASSIFICATION-METADATA
@@ -543,7 +544,7 @@ recordedHumanDecisionInputs:
   - Seventy-two added IDs are pinned values only; neither identity metadata nor display classes confer product-semantic authority.
   exclusions:
   - Product semantics or PDP phase acceptance
-  - Tools-native currentness, receipts, qualification, publication, or release readiness
+  - lifecycle-owned currentness, receipts, qualification, publication, or release readiness
 - id: ACCEPT-INPUT-EXPLORER-TOUCH-TARGET-BASELINE
   phaseTask: VER004-LOCAL-EXPLORER-TOUCH-TARGETS
   decisionInput: accepted
@@ -560,7 +561,7 @@ recordedHumanDecisionInputs:
   - This is a local Explorer accessibility affordance, not accepted PDP-2 composition, Shared token conformance, or a production Media design decision.
   exclusions:
   - Action semantics or reducer behavior changes
-  - Semantic PDP-2/PDP-3 acceptance, production UI implementation, Tools-native currentness/receipts, or release readiness
+  - Semantic PDP-2/PDP-3 acceptance, production UI implementation, lifecycle-owned currentness/receipts, or release readiness
 phaseAcceptanceInputs:
 - id: ACCEPT-INPUT-P0-002
   phase: PDP-0
@@ -733,7 +734,7 @@ phaseAcceptanceInputs:
   - Independently walk all PDP-0 outcomes, capabilities, actors, states, authorities, failures, and dependencies.
   - Validate owner-bound schemas, IDs, aliases, references, source roles, and semantic invariants.
   - Reconcile competing documentation at the owning layer and record accepted material fingerprints.
-  - Obtain generated PDP-0 coverage/currentness observations from the owner-approved Tools workflow.
+  - Obtain generated PDP-0 coverage/currentness observations from the owner-approved Lifecycle workflow.
   - Record unresolved runtime and external-owner gaps without treating them as product-definition acceptance blockers
     unless meaning is unresolved.
   decisionOwnerAppointments: pending

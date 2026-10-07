@@ -104,7 +104,7 @@ the PDP-3 view and action identifiers under the PDP-0 naming policy.
   scenario, Specification record, valid Product proposal route, inline
   artifact-verification specialization, Verify surface, keyboard path, and
   responsive viewport. It emits deterministic browser diagnostics and review
-  screenshots without writing Evidence Generator artifacts.
+  screenshots without writing lifecycle-owned Evidence Generator artifacts.
 - Specification trace context exposes the manifest artifact ID, phase and
   authority class, canonical source location, pending Tools semantic
   fingerprint/currentness, declared relation fields, and verification status.
@@ -119,7 +119,7 @@ the PDP-3 view and action identifiers under the PDP-0 naming policy.
 - `pnpm check:product-experience-local` is the repeatable local invariant check
   for indexed source existence, screen/action/journey denominators, proposal
   action disabling, closure-matrix coverage, and the intentional absence of
-  generated `currentness.yaml`. It cannot replace Tools-native evidence or
+  generated `currentness.yaml`. It cannot replace lifecycle-native evidence or
   owner acceptance.
 - Earlier local runs reported a simulation typecheck, 31 simulation tests, and
   a Vite browser build. Those observations predate the latest source-path and

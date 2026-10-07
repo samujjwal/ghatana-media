@@ -342,7 +342,7 @@ surfaces:
     interactionModel: .product-experience/explorer/EXPERIENCE-EXPLORER.md
     contractAuthority: apps/media-experience-explorer/specification-artifacts.json
     securityAuthorityModel: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
-    availabilityExpectations: local-only when Tools binding/currentness is unavailable; never imply native acceptance
+    availabilityExpectations: local-only when Tools product/experience binding or lifecycle currentness is unavailable; never imply native acceptance
     versioningExpectations: generated projection follows source manifest and never owns semantic IDs
     compatibilityExpectations: historical 147-record index is retained only as migration context
     applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]

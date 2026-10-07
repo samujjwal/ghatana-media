@@ -1,69 +1,131 @@
 schemaVersion: media.executable-representation-export-map.v1
 productId: media
 package: "@audio-video/ui"
-observationRevision: 891ca118872de5888f0dd09c61c2a9f0c6420a12
+observationRevision: 25dcc89b04d3810ad126a1c7ea0881191f38edf1
 observationNote: >-
   Package exports below reflect the working tree after the initial presentation-boundary implementation. They are inventory/candidate exports, not admissions. Shared package binding and semantic owner review remain pending.
+generatedPackageExports:
+  packageName: "@audio-video/ui"
+  packageVersion: "0.1.0-SNAPSHOT"
+  packageManifestSha256: 92cdda1b01d1be3f1d31151513eb705afddb54f347065d5da7eec0f5853bd12b
+  sourceRevision: 25dcc89b04d3810ad126a1c7ea0881191f38edf1
+  exports:
+    - subpath: "."
+      importTarget: "./dist/index.js"
+      source: libs/audio-video-ui/src/index.tsx
+      sourceSha256: df2cf417d60952ce134a509cb5378111deb0dac7ed9de8296f52ba1427e5c457
+    - subpath: "./hooks"
+      importTarget: "./dist/hooks/index.js"
+      source: libs/audio-video-ui/src/hooks/index.ts
+      sourceSha256: ba80771437ed28c5e1c4307bb399e3422755503de06d5c67ebf8cf7895936117
+    - subpath: "./foundations"
+      importTarget: "./dist/foundations/index.js"
+      source: libs/audio-video-ui/src/foundations/index.ts
+      sourceSha256: 38d4dea76caca38dd0f4bf4109e3681afef779ac7fcb0b63be56c4f1c1c69067
+    - subpath: "./components"
+      importTarget: "./dist/components/index.js"
+      source: libs/audio-video-ui/src/components/index.ts
+      sourceSha256: 0694b5bbfb63965e0d8ad365a3ba749910ef812b77f6dcdeb3a3b7e65ece43f7
+    - subpath: "./screens"
+      importTarget: "./dist/screens/index.js"
+      source: libs/audio-video-ui/src/screens/index.ts
+      sourceSha256: 044fefd203394c764efa849040bce0fae93fb9e72dc06c45fa94b9848250c37b
+    - subpath: "./ports"
+      importTarget: "./dist/ports/index.js"
+      source: libs/audio-video-ui/src/ports/index.ts
+      sourceSha256: cc04706eb169c4ac5a0527cbbb13397f98ca829f9c55bb2c34c6f5922c5cd823
+    - subpath: "./styles.css"
+      importTarget: "./src/styles.css"
+      source: libs/audio-video-ui/src/styles.css
+      sourceSha256: 5c7789433e421789cdd69643392d3d77988f156763112e2432d928cce6123efb
+    - subpath: "./screens/first-use-project"
+      importTarget: "./dist/screens/FirstUseProjectScreen.js"
+      source: libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
+      sourceSha256: f8ef1bc58b109525b2917d9b4859268ba9893e7234e3e4ab8fb34c2b6cc2e73f
+    - subpath: "./screens/artifact-intake"
+      importTarget: "./dist/screens/ArtifactIntakeScreen.js"
+      source: libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+      sourceSha256: 28628ea2e2f9a1e1f43459e5790f18fb43597fd44be97e56bcd4ffda9d0b32c8
+    - subpath: "./screens/job-recovery"
+      importTarget: "./dist/screens/JobRecoveryScreen.js"
+      source: libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
+      sourceSha256: 4b3a85e15cf64015cc39b24f2a15e29fba236214fed58e2e91725483d2352388
+    - subpath: "./screens/transcript-caption"
+      importTarget: "./dist/screens/TranscriptCaptionScreen.js"
+      source: libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+      sourceSha256: fb8ae040fdd19e11fc9e4f3ddc4759f6b864e9907f3c23eca1989d049334f043
 exports:
   - subpath: .
     publicNames: [Badge, Button, Card, Checkbox, Modal, Select, Spinner, Tabs, Tooltip, MediaTaskFlow, MediaTaskScreen, FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen, useSpeechRecognition, useSpeechSynthesis, getAudioVideoPlatformMetrics, normalizeAudioVideoRuntimeConfig]
     source: libs/audio-video-ui/src/index.tsx
+    sourceSha256: df2cf417d60952ce134a509cb5378111deb0dac7ed9de8296f52ba1427e5c457
     layer: package-root
     status: active-public-api; admission-not-recorded
   - subpath: ./foundations
     publicNames: [Badge, Button, Card, Checkbox, Modal, Select, Spinner, Tabs, Tooltip]
     source: libs/audio-video-ui/src/foundations/index.ts
+    sourceSha256: 38d4dea76caca38dd0f4bf4109e3681afef779ac7fcb0b63be56c4f1c1c69067
     owner: "@ghatana/design-system"
     layer: shared-foundation-reexports
     status: re-exported; shared-binding-unverified; admission-not-recorded
   - subpath: ./components
     publicNames: [MediaTaskFlow]
     source: libs/audio-video-ui/src/components/index.ts
+    sourceSha256: 0694b5bbfb63965e0d8ad365a3ba749910ef812b77f6dcdeb3a3b7e65ece43f7
     layer: media-semantic-component
     status: active-public-api; candidate; admission-not-recorded
   - subpath: ./screens
     publicNames: [MediaTaskScreen, FirstUseProjectScreen, ArtifactIntakeScreen, JobRecoveryScreen, TranscriptCaptionScreen]
     source: libs/audio-video-ui/src/screens/index.ts
+    sourceSha256: 044fefd203394c764efa849040bce0fae93fb9e72dc06c45fa94b9848250c37b
     layer: screen-composition
     status: active-public-api; candidate; admission-not-recorded
   - subpath: ./screens/first-use-project
     publicNames: [FirstUseProjectScreen]
     source: libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
+    sourceSha256: f8ef1bc58b109525b2917d9b4859268ba9893e7234e3e4ab8fb34c2b6cc2e73f
     layer: screen-composition
     status: candidate; admission-not-recorded
   - subpath: ./screens/artifact-intake
     publicNames: [ArtifactIntakeScreen]
     source: libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+    sourceSha256: 28628ea2e2f9a1e1f43459e5790f18fb43597fd44be97e56bcd4ffda9d0b32c8
     layer: screen-composition
     status: candidate; admission-not-recorded
   - subpath: ./screens/job-recovery
     publicNames: [JobRecoveryScreen]
     source: libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
+    sourceSha256: 4b3a85e15cf64015cc39b24f2a15e29fba236214fed58e2e91725483d2352388
     layer: screen-composition
     status: candidate; admission-not-recorded
   - subpath: ./screens/transcript-caption
     publicNames: [TranscriptCaptionScreen]
     source: libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+    sourceSha256: fb8ae040fdd19e11fc9e4f3ddc4759f6b864e9907f3c23eca1989d049334f043
     layer: screen-composition
     status: candidate; admission-not-recorded
   - subpath: ./styles.css
     publicNames: []
     source: libs/audio-video-ui/src/styles.css
+    sourceSha256: 5c7789433e421789cdd69643392d3d77988f156763112e2432d928cce6123efb
     layer: structural-accessibility-stylesheet
     status: active-public-api; Shared-visual-binding-unverified; admission-not-recorded
   - subpath: ./ports
     publicNames: [MediaDataPort, MediaActionPort, MediaNavigationPort, MediaContextPort]
     source: libs/audio-video-ui/src/ports/index.ts
+    sourceSha256: cc04706eb169c4ac5a0527cbbb13397f98ca829f9c55bb2c34c6f5922c5cd823
     layer: typed-host-ports
     status: active-public-api; candidate; admission-not-recorded
   - subpath: package-root-token-exports
     publicNames: [all-named-exports-from-@ghatana/tokens]
     source: libs/audio-video-ui/src/index.tsx
+    sourceSha256: df2cf417d60952ce134a509cb5378111deb0dac7ed9de8296f52ba1427e5c457
     layer: shared-token-compatibility-reexport
     status: existing-public-api; package-public-subpath-not-separate; Shared-binding-unverified; admission-not-recorded
   - subpath: ./hooks
     publicNames: [useSpeechRecognition, useSpeechSynthesis, getAudioVideoPlatformMetrics, normalizeAudioVideoRuntimeConfig]
     source: libs/audio-video-ui/src/hooks/index.ts
+    sourceSha256: ba80771437ed28c5e1c4307bb399e3422755503de06d5c67ebf8cf7895936117
     layer: browser-runtime-hooks
     status: existing-public-api; consumer-review-required; admission-not-recorded
 notImplementedLayers:

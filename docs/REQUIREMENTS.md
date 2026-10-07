@@ -24,7 +24,8 @@ otherwise. The repository currently contains:
   Explore, Specification, Verify, Overview, and semantic views.
 - A generated source manifest and Explorer index. The generator derives IDs
   from repository paths for newly indexed records; those IDs are not semantic
-  stable identities. Tools semantic fingerprints and currentness remain absent.
+  stable identities. Lifecycle-generated semantic fingerprints/currentness are
+  not bound or present.
 - A local checker for structural completeness and selected cross-phase
   references. It does not evaluate semantic acceptance or production behavior.
 
@@ -62,7 +63,7 @@ repository valid; do not copy active authorities and retain both generations.
 | 2 — Canonical semantics | PDP1-001, PDP1-002, PDP1-003, PDP1-004, PDP1-005 | Own objects/value objects/relationships; consequential operations; state machines/transitions; events/evidence/provenance; privacy/version/history/offline/interoperability/authority/decisions |
 | 3 — Representation | PDP2-001, PDP2-002, PDP2-003, PDP2-004, PDP2-005 | Verify Shared versions/consumption; register GUI primitives/patterns/layouts/templates/composition; remove unexplained local visual authority; define API and CLI/SDK/event/agent interface languages |
 | 4 — Experience | PDP3-001, PDP3-002, PDP3-003, PDP3-004, PDP3-005 | Expand all 47 screens; contract every HTTP/gRPC operation; settle SDK architecture; complete CLI/SDK/event/agent/system-service registries; contract or explicitly disposition every journey, including J-29/J-30 |
-| 5 — Explorer | EXP-001, EXP-002, EXP-003, EXP-004, EXP-005, EXP-006, EXP-007 | Bind published Tools contracts; use manifest phase/IDs; implement all semantic modes; render accepted composition for 47 screens; simulate canonical operations; inspect every machine interface; consume generated currentness/fingerprints |
+| 5 — Explorer | EXP-001, EXP-002, EXP-003, EXP-004, EXP-005, EXP-006, EXP-007 | Bind published Tools contracts; use manifest phase/IDs; implement all semantic modes; render accepted composition for 47 screens; simulate canonical operations; inspect every machine interface; consume lifecycle-generated currentness/fingerprints when the owner binding exists |
 | 6 — Reconciliation | VER-001, VER-002, VER-003, VER-004 | Validate four-phase authority/reference/reachability; design provenance; canonical operation/wire/client/agent parity; full visual/accessibility matrix with independent review |
 | 7 — Derived implementation | IMP-01, IMP-02, IMP-03, IMP-04, IMP-05 | After owning definitions are accepted: correct OCR adapters, consolidate SDK, align runtime states, prove isolated builds, implement admitted production Web/CLI |
 
@@ -92,14 +93,16 @@ checker. All material states, authority/guards, action consequences, design
 composition, entry/exit/handoffs, fixtures, traceability, and verification must be
 bound; machine operations need equivalent complete behavior contracts.
 
-Completion requires one owner per concept, no active old phase directories or
-duplicate authorities, no canonical workstation-local paths, complete semantic
-traceability, and generated currentness. The canonical phase directories,
+Product Definition completion requires one owner per concept, no active old
+phase directories or duplicate authorities, no canonical workstation-local
+paths, and complete semantic traceability. Lifecycle owns generated currentness
+and evidence-backed closure outputs; Media records only their inputs and does
+not claim a closure state. The canonical phase directories,
 source manifest, surface registry, and primary domain/design/interface/experience
 registries are now present locally. The Explorer uses manifest artifact IDs and
 exposes Truth/Domain/Design/Experience/Interfaces and the other semantic views,
 but newly indexed IDs are path-derived and are not stable semantic identities;
-the generated index also does not provide Tools currentness. Browser
+the generated index also does not provide lifecycle currentness. Browser
 determinism alone does not satisfy pixel-reference or design-quality acceptance.
 
 ## Vision and downstream coverage
@@ -136,7 +139,7 @@ current-state gaps include:
 - PDP-3 complete behavioral contracts and parity across all registered machine
   operations and every screen/journey state. The existing structural checks do
   not accept those semantics.
-- Stable semantic artifact identity and generated Tools fingerprints/currentness.
+- Stable semantic artifact identity and lifecycle-generated fingerprints/currentness.
   The local manifest generator derives IDs from repository paths for new paths;
   its content hashes are provenance only and its dependency lists are empty.
 
@@ -152,12 +155,25 @@ adapter maps unknown/reconciling states through the sibling status enum while
 retaining the Media state in metadata; complete cross-runtime parity still needs
 verification. Documentation does not choose an SDK transport model.
 
-The local token-alias record observes Shared source `0.1.0-SNAPSHOT`; Media UI
-declares `@ghatana/tokens`, `@ghatana/theme`, and `@ghatana/design-system` `0.1.2`.
-Published package availability and consumer conformance must be verified before
-rebinding the authored record. GAP-11 covers Media's isolated loading,
-render/inspect/dispatch, and browser presentation against published Tools
-contracts; generic host standalone capability is not a Media acceptance claim.
+Media UI and AI Voice declare Shared packages at `0.1.0-SNAPSHOT`, matching the
+inspected Shared package manifests. The Shared token, theme, and design-system
+packages pass their packed public-consumer checks. Media's pnpm composite
+workspace now resolves Shared source packages locally; frozen installation and
+the Explorer dependency-closure build/typecheck pass. A Media UI package also
+compiled and packed against nine local Shared SNAPSHOT artifacts, and an
+isolated TypeScript/Vite consumer passed public-export checks. The former
+`0.1.2` mismatch is corrected. Public registry resolution and immutable release
+binding remain open.
+For the separate Tools binding, the Media consumer test exercised public
+`createExplorer`, Product Definition/Experience validators, and Development
+Traceability projection using locally packed Tools artifacts and a
+Media-owned ProductExperiencePackage adapter. Load, render, inspect, and dispatch
+passed. A dedicated Tools Review route in the Vite client runs that same bridge
+and displays its result. The Media frozen workspace install passes, while these
+proofs do not verify registry publication or generic Tools hosting of the
+existing Product/Explore workflows. GAP-11 remains open for those bindings and
+Tools owner acceptance. Lifecycle currentness and receipt generation remain
+separate unbound owner workflows.
 
 ## Hard blockers requiring human decision or owner evidence
 
@@ -166,17 +182,26 @@ read-only audit of the now-explicit definition:
 
 - P0-010 independent semantic review and owner appointment for affected domain
   capability and quality decisions.
-- Published Tools schema, validator, Evidence Generator, currentness, and
+- Published Tools Product Definition/Experience schemas, validators, and
+  generic Explorer contracts, plus separate lifecycle evidence/currentness/
   receipt bindings.
 - Released Shared design-token/component bindings and independent
   accessibility, localization, visual, and human review.
 - Owner-approved API/SDK/event contracts, consumer parity, runtime
   qualification, privacy/erasure/SLO evidence, and supply-chain admission.
-- Isolated JVM build proof is blocked before project compilation by the sibling
-  composite's missing `libs.jackson.dataformat.yaml` catalog entry. Workspace
-  dependency installation is also blocked by unavailable private package
-  `@ghatana/design-system@0.1.2`; browser evidence must be rerun after dependency
-  resolution and the latest source/index normalization.
+- Isolated JVM build proof currently reaches the `ghatana` repository's included
+  `services/event-plane/contracts` project and fails on unresolved event-store
+  symbols in that Ghatana-owned project: it imports `EventLogStore` and
+  `EventStoreTenantScope`, which are absent from the current Shared messaging
+  APIs. Media maps the included project to the sibling `ghatana` checkout.
+  The Media pnpm composite
+  frozen install and Explorer dependency-closure build/typecheck now pass with
+  local Shared and Tools sources; public registry resolution and immutable
+  release binding remain unverified. The local Tools Review route does not prove
+  generic host integration of the Product/Explore workflows or owner acceptance.
+  The 2026-10-07 browser audit passed against the regenerated index; it remains
+  local evidence and does not replace human visual/accessibility review or
+  owner acceptance.
 - PDP0-003 / IMP-01: MDI-001 ownership and the local OCR classification are
   recorded. The DI public binding and runtime adapter correction remain pending;
   the `media.ocr` provider adapter still assigns generic models/confidence to

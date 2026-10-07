@@ -50,18 +50,32 @@ for keys/defaults, startup, shutdown, and diagnostics.
 Shared owns generic tokens/components/themes/accessibility/i18n. Media may own
 semantic aliases and media-specific composition; responsive/layout or locale
 variants cannot change product effects, authority, or finality. Media UI metadata
-declares Shared `0.1.2` dependencies, while the local Explorer package declares
-the simulation package. PDP-2 now contains primitive, pattern, layout, template,
-and screen-composition registries; published version bindings, component/token
-provenance, and rendered conformance remain unverified. Registry presence alone
-does not establish Explorer conformance.
+declares Shared `0.1.0-SNAPSHOT` dependencies, while the local Explorer package
+declares the simulation package. Shared packages pass their packed
+public-consumer checks, but the Media lockfile has no resolution for those
+private SNAPSHOT artifacts and a clean Media package install is not yet
+verified. A local packed-artifact test now exercises the Media Product
+Experience Package through Tools' public `createExplorer` API, including
+render, inspect, and dispatch; the Vite shell does not yet consume that bridge.
+PDP-2 now contains primitive, pattern, layout, template, and screen-composition
+registries; Shared consumer resolution, component/token provenance, and
+rendered conformance remain unverified. Registry presence alone does not
+establish Explorer conformance.
+
+`ghatana-tools` owns reusable Product Definition/Experience mechanics and the
+generic Explorer host and package contracts. Media owns declarations of its
+domain facts and product-specific state, actions, effects, and fixtures.
+`ghatana-lifecycle` owns cross-repository closure, evidence admission,
+currentness, receipts, readiness, and convergence outputs. Media projections and
+local audits supply inputs; they do not emit those results.
 
 ## Definition layers and generated ownership
 
 PDP-0 owns product truth; PDP-1 owns canonical objects, operations, states,
 events, evidence, provenance, authority, and history; PDP-2 owns design and
 interface language; PDP-3 owns complete surface experiences. Explorer projects
-those layers and uses synthetic fixtures. The directory tree now follows this
+those layers and uses synthetic fixtures through Tools-owned generic host
+mechanics when bound. The directory tree now follows this
 four-phase model; the records remain proposals except for the accepted P0-001
 boundary slice.
 
@@ -73,16 +87,18 @@ either generated file manually. The generator preserves IDs for unchanged paths
 and derives IDs from repository paths for newly indexed paths, so these artifact
 IDs are not semantic stable IDs. Its content hashes are provenance only, its
 dependency lists are not populated, and it does not generate owner-approved
-semantic fingerprints or currentness. Those remain Tools-owned contracts and
-observations.
+semantic fingerprints or currentness. Product/Experience contract mechanics
+belong to Tools; generated cross-repository currentness and evidence outputs
+belong to lifecycle.
 
 The legacy feature-completeness report is retired. The local authority checker
 provides structural denominator and reference observations only; it is not a
 semantic completeness assessment or an acceptance report.
 
-Route-manifest regeneration is owned by the launcher; Tools owns generic
-schema/validator/fingerprint/currentness contracts. Never hand-author generated
-receipts/currentness or infer readiness from a package description. CLEAN-2 /
+Route-manifest regeneration is owned by the launcher; Tools owns reusable
+Product Definition/Experience schemas and generic Explorer contracts, while
+lifecycle owns cross-repository evidence/currentness workflows. Never
+hand-author generated receipts/currentness or infer readiness from a package description. CLEAN-2 /
 GAP-06 records the selected source-specific OpenAPI, route-manifest, protobuf,
 and provider-manifest authorities. No aggregate `service-contract.yaml` is an
 active design authority.

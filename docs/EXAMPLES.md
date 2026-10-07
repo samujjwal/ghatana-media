@@ -49,5 +49,5 @@ pnpm dlx vite@7.3.1 --config apps/media-experience-explorer/vite.config.mjs
 
 Use Specification mode to inspect source-linked phase records and Product mode
 to inspect a disabled proposal route. The Explorer displays canonical paths,
-relations, and pending Tools currentness without generating acceptance or
+relations, and pending lifecycle currentness without generating acceptance or
 runtime evidence.

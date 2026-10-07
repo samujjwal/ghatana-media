@@ -144,9 +144,15 @@ function declaredRefs(text, key, pattern) {
   }
   return [...new Set(values)];
 }
+function scalarField(text, key) {
+  const match = text.match(new RegExp(`^\\s*${key}:\\s*([^\\r\\n]+)`, "m"));
+  return match?.[1]?.replace(/\s+#.*$/, "").trim().replace(/^(['"])(.*)\1$/, "$2");
+}
 function recordsById(text) {
   return text.split(/(?=^\s*- id:)/m).slice(1);
 }
+function recordId(block) { return block.match(/^\s*- id:\s*([^\s#]+)/m)?.[1]; }
+function refsFrom(block, keys, pattern) { return [...new Set(keys.flatMap((key) => declaredRefs(block, key, pattern)))]; }
 
 export function analyzeMediaPresentationArchitecture({ repoRoot = root, admissions = readAdmissions(repoRoot) } = {}) {
   const issues = [];
@@ -220,6 +226,7 @@ export function analyzeMediaPresentationArchitecture({ repoRoot = root, admissio
     tokens: idsFrom(readPdp2(".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"), "media.token."),
   };
   const screenFiles = walkYaml(join(repoRoot, ".product-experience/pdp-3-product-experience/screen-contracts"));
+  const screenContracts = screenFiles.map((path) => ({ path, source: readFileSync(path, "utf8"), screenId: scalarField(readFileSync(path, "utf8"), "screenId") }));
   const candidateDesignIssues = [];
   const templateText = readPdp2(".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml");
   for (const block of recordsById(templateText)) {
@@ -230,7 +237,7 @@ export function analyzeMediaPresentationArchitecture({ repoRoot = root, admissio
   const patternText = readPdp2(".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml");
   for (const block of recordsById(patternText)) {
     const patternRef = block.match(/^\s*- id:\s*([^\s#]+)/m)?.[1];
-    const sourceRef = block.match(/^\s*sourceRef:\s*([^\s#]+)/m)?.[1];
+    const sourceRef = block.match(/^\s*sourceRef:\s*([^\s]+)/m)?.[1];
     if (!sourceRef?.startsWith(".product-experience/")) continue;
     const [sourcePath, sourceId] = sourceRef.split("#");
     if (!existsSync(join(repoRoot, sourcePath))) candidateDesignIssues.push(`${patternRef} source record does not resolve: ${sourcePath}`);
@@ -239,14 +246,27 @@ export function analyzeMediaPresentationArchitecture({ repoRoot = root, admissio
   let screensWithDeclaredDesignLinks = 0;
   for (const path of screenFiles) {
     const source = readFileSync(path, "utf8");
-    const templateRefs = declaredRefs(source, "templateRef", /media\.(?:gui\.)?template\.[A-Za-z0-9._-]+/g);
+    const templateRefs = [
+      ...declaredRefs(source, "templateId", /media\.(?:gui\.)?template\.[A-Za-z0-9._-]+/g),
+      ...declaredRefs(source, "templateRef", /media\.(?:gui\.)?template\.[A-Za-z0-9._-]+/g),
+    ];
     const layoutRefs = [
+      ...declaredRefs(source, "layoutIds", /media\.gui\.layout\.[A-Za-z0-9._-]+/g),
       ...declaredRefs(source, "layoutRef", /media\.gui\.layout\.[A-Za-z0-9._-]+/g),
       ...declaredRefs(source, "layoutRefs", /media\.gui\.layout\.[A-Za-z0-9._-]+/g),
     ];
-    const patternRefs = declaredRefs(source, "patternRefs", /media\.gui\.pattern\.[A-Za-z0-9._-]+/g);
-    const componentRefs = declaredRefs(source, "componentRefs", /media\.component\.[A-Za-z0-9._-]+/g);
-    const tokenRefs = declaredRefs(source, "tokenRefs", /media\.token\.[A-Za-z0-9._-]+/g);
+    const patternRefs = [
+      ...declaredRefs(source, "patternIds", /media\.gui\.pattern\.[A-Za-z0-9._-]+/g),
+      ...declaredRefs(source, "patternRefs", /media\.gui\.pattern\.[A-Za-z0-9._-]+/g),
+    ];
+    const componentRefs = [
+      ...declaredRefs(source, "componentIds", /media\.component\.[A-Za-z0-9._-]+/g),
+      ...declaredRefs(source, "componentRefs", /media\.component\.[A-Za-z0-9._-]+/g),
+    ];
+    const tokenRefs = [
+      ...declaredRefs(source, "tokenDependencies", /media\.token\.[A-Za-z0-9._-]+/g),
+      ...declaredRefs(source, "tokenRefs", /media\.token\.[A-Za-z0-9._-]+/g),
+    ];
     if (templateRefs.length || layoutRefs.length || patternRefs.length || componentRefs.length || tokenRefs.length) screensWithDeclaredDesignLinks += 1;
     const screenRef = source.match(/^screenId:\s*([^\s#]+)/m)?.[1] ?? relFrom(repoRoot, path);
     candidateDesignIssues.push(...validateDesignChain({ screenRef, templateRefs, layoutRefs, patternRefs, componentRefs, tokenRefs }, inventories));
@@ -278,6 +298,134 @@ export function analyzeMediaPresentationArchitecture({ repoRoot = root, admissio
     for (const ref of refs) if (!pdp2Text.includes(ref)) issues.push(`${record.representationId ?? record.path} design provenance reference not found in PDP-2: ${ref}`);
   }
 
+  const templateRecords = new Map(recordsById(templateText).map((block) => [recordId(block), block]).filter(([id]) => id));
+  const patternRecords = new Map(recordsById(patternText).map((block) => [recordId(block), block]).filter(([id]) => id));
+  const componentText = readPdp2(".product-experience/pdp-2-design-interface-system/component-contracts.yaml");
+  const componentRecords = new Map(recordsById(componentText).map((block) => [recordId(block), block]).filter(([id]) => id));
+  const semanticBindingsIndexPath = join(repoRoot, ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml");
+  const semanticBindingByComponent = new Map();
+  if (existsSync(semanticBindingsIndexPath)) {
+    const bindingsText = readFileSync(semanticBindingsIndexPath, "utf8");
+    for (const block of bindingsText.split(/(?=^  - )/m).slice(1)) {
+      const componentRefs = [...new Set([...block.matchAll(/\b(media\.component\.[A-Za-z0-9._-]+)/g)].map((match) => match[1]))];
+      const tokenRefs = [...new Set([...block.matchAll(/\b(media\.token\.[A-Za-z0-9._-]+)/g)].map((match) => match[1]))];
+      for (const componentRef of componentRefs) semanticBindingByComponent.set(componentRef, tokenRefs);
+    }
+  }
+
+  let admittedScreenDesignChainsProven = 0;
+  const admittedScreens = admissions.filter((record) => isAdmitted(record) && String(record.representationKind ?? "").toLowerCase() === "screen");
+  for (const record of admittedScreens) {
+    const boundPdp3 = Array.isArray(record.boundPdp3Records) ? record.boundPdp3Records : String(record.boundPdp3Records ?? "").split(/[ ,]+/).filter(Boolean);
+    const matching = screenContracts.filter((contract) =>
+      (contract.screenId && (boundPdp3.some((ref) => ref.endsWith(`#${contract.screenId}`)) || record.scope === contract.screenId)) ||
+      boundPdp3.some((ref) => ref.split("#")[0] === relFrom(repoRoot, contract.path))
+    );
+    const recordName = record.representationId ?? record.path ?? "admitted screen representation";
+    if (matching.length === 0) {
+      issues.push(`${recordName} has no resolved bound PDP-3 screen contract`);
+      continue;
+    }
+    let chainProven = true;
+    for (const contract of matching) {
+      const screenRef = contract.screenId ?? relFrom(repoRoot, contract.path);
+      const templateRefs = [
+        ...declaredRefs(contract.source, "templateId", /media\.gui\.template\.[A-Za-z0-9._-]+/g),
+        ...declaredRefs(contract.source, "templateRef", /media\.(?:gui\.)?template\.[A-Za-z0-9._-]+/g),
+      ];
+      const layoutRefs = [
+        ...declaredRefs(contract.source, "layoutIds", /media\.gui\.layout\.[A-Za-z0-9._-]+/g),
+        ...declaredRefs(contract.source, "layoutRefs", /media\.gui\.layout\.[A-Za-z0-9._-]+/g),
+        ...declaredRefs(contract.source, "layoutRef", /media\.gui\.layout\.[A-Za-z0-9._-]+/g),
+      ];
+      const patternRefs = [
+        ...declaredRefs(contract.source, "patternIds", /media\.gui\.pattern\.[A-Za-z0-9._-]+/g),
+        ...declaredRefs(contract.source, "patternRefs", /media\.gui\.pattern\.[A-Za-z0-9._-]+/g),
+      ];
+      const componentRefs = [
+        ...declaredRefs(contract.source, "componentIds", /media\.component\.[A-Za-z0-9._-]+/g),
+        ...declaredRefs(contract.source, "componentRefs", /media\.component\.[A-Za-z0-9._-]+/g),
+      ];
+      const tokenRefs = [
+        ...declaredRefs(contract.source, "tokenDependencies", /media\.token\.[A-Za-z0-9._-]+/g),
+        ...declaredRefs(contract.source, "tokenRefs", /media\.token\.[A-Za-z0-9._-]+/g),
+      ];
+      const templateValue = scalarField(contract.source, "templateId") ?? scalarField(contract.source, "templateRef");
+      if (!templateRefs.length || !templateValue || /^(?:null|unresolved|unknown|)$/i.test(templateValue)) {
+        issues.push(`${screenRef} admitted screen design chain has unresolved template link`);
+        chainProven = false;
+      }
+      const resolvedPatternRefs = new Set(patternRefs);
+      const resolvedComponentRefs = new Set(componentRefs);
+      const resolvedLayoutRefs = new Set(layoutRefs);
+      const resolvedTokenRefs = new Set(tokenRefs);
+      for (const templateRef of templateRefs) {
+        const templateBlock = templateRecords.get(templateRef);
+        if (!templateBlock) continue;
+        for (const ref of refsFrom(templateBlock, ["patterns", "patternRefs"], /media\.gui\.pattern\.[A-Za-z0-9._-]+/g)) resolvedPatternRefs.add(ref);
+        for (const ref of refsFrom(templateBlock, ["layoutIds", "layoutRefs", "layoutRef"], /media\.gui\.layout\.[A-Za-z0-9._-]+/g)) resolvedLayoutRefs.add(ref);
+        for (const ref of refsFrom(templateBlock, ["componentIds", "componentRefs", "components"], /media\.component\.[A-Za-z0-9._-]+/g)) resolvedComponentRefs.add(ref);
+        for (const ref of refsFrom(templateBlock, ["tokenDependencies", "tokenRefs", "tokens"], /media\.token\.[A-Za-z0-9._-]+/g)) resolvedTokenRefs.add(ref);
+      }
+
+      for (const patternRef of resolvedPatternRefs) {
+        const patternBlock = patternRecords.get(patternRef);
+        if (!patternBlock) continue;
+        for (const ref of refsFrom(patternBlock, ["layoutIds", "layoutRefs", "layoutRef"], /media\.gui\.layout\.[A-Za-z0-9._-]+/g)) resolvedLayoutRefs.add(ref);
+        for (const ref of refsFrom(patternBlock, ["componentIds", "componentRefs", "components"], /media\.component\.[A-Za-z0-9._-]+/g)) resolvedComponentRefs.add(ref);
+        for (const ref of refsFrom(patternBlock, ["tokenDependencies", "tokenRefs", "tokens"], /media\.token\.[A-Za-z0-9._-]+/g)) resolvedTokenRefs.add(ref);
+        const sourceRef = scalarField(patternBlock, "sourceRef");
+        if (!sourceRef) {
+          issues.push(`${patternRef} admitted design chain has unresolved sourceRef`);
+          chainProven = false;
+          continue;
+        }
+        const [sourcePath, sourceId] = sourceRef.split("#");
+        if (sourcePath && !existsSync(join(repoRoot, sourcePath))) {
+          issues.push(`${patternRef} source record does not resolve: ${sourcePath}`);
+          chainProven = false;
+        }
+        if (sourceId?.startsWith("media.component.")) {
+          resolvedComponentRefs.add(sourceId);
+          if (!inventories.components.has(sourceId)) {
+            issues.push(`${patternRef} component source link does not resolve: ${sourceId}`);
+            chainProven = false;
+          }
+        }
+        if (sourceId?.startsWith("media.gui.pattern.")) resolvedPatternRefs.add(sourceId);
+        if (sourceId?.startsWith("media.gui.layout.")) resolvedLayoutRefs.add(sourceId);
+        if (sourceId?.startsWith("media.token.")) resolvedTokenRefs.add(sourceId);
+      }
+
+      for (const componentRef of resolvedComponentRefs) {
+        const componentBlock = componentRecords.get(componentRef);
+        if (componentBlock) {
+          for (const token of [...componentBlock.matchAll(/\b(media\.token\.[A-Za-z0-9._-]+)/g)].map((match) => match[1])) resolvedTokenRefs.add(token);
+        }
+        if (!semanticBindingByComponent.has(componentRef)) {
+          issues.push(`${screenRef} admitted component has no semantic-component-bindings entry: ${componentRef}`);
+          chainProven = false;
+          continue;
+        }
+        for (const token of semanticBindingByComponent.get(componentRef)) resolvedTokenRefs.add(token);
+      }
+
+      const chainIssues = validateDesignChain({
+        screenRef,
+        templateRefs,
+        layoutRefs: [...resolvedLayoutRefs],
+        patternRefs: [...resolvedPatternRefs],
+        componentRefs: [...resolvedComponentRefs],
+        tokenRefs: [...resolvedTokenRefs],
+      }, inventories);
+      if (chainIssues.length) {
+        issues.push(...chainIssues);
+        chainProven = false;
+      }
+    }
+    if (chainProven) admittedScreenDesignChainsProven += 1;
+  }
+
   return {
     ok: issues.length === 0,
     issues,
@@ -287,7 +435,7 @@ export function analyzeMediaPresentationArchitecture({ repoRoot = root, admissio
       explorerSourceFiles: explorerFiles.length,
       admittedWebRecords: admittedWeb.length,
       screensWithDeclaredDesignLinks,
-      admittedScreenDesignChainsProven: 0,
+      admittedScreenDesignChainsProven,
       candidateDesignLinkIssues: candidateDesignIssues.length,
       exactImportIdentityProven: admittedWeb.length === 0 ? 0 : admittedWeb.filter((record) => {
         const identity = exportIdentity(record, packageName);
