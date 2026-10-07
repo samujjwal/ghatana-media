@@ -29,7 +29,7 @@ function fixture() {
     closureSurfaceId: surface.id,
     programId: program.programId,
     phases: Object.fromEntries(program.phases.map((p) => [p.id, {
-      applicability: 'APPLICABLE', obligationIds: p.obligationIds,
+      applicability: 'APPLICABLE', obligationIds: [...p.obligationIds],
     }])),
   };
   const consumer = {
