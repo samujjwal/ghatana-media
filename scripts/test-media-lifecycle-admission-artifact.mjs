@@ -23,12 +23,14 @@ try {
   fs.mkdirSync(path.join(consumerRoot, 'scripts'), { recursive: true });
   fs.cpSync(path.join(mediaRoot, 'config/closure'), path.join(consumerRoot, 'config/closure'), { recursive: true });
   fs.copyFileSync(path.join(mediaRoot, 'scripts/check-media-lifecycle-closure-inputs.mjs'), path.join(consumerRoot, 'scripts/check-media-lifecycle-closure-inputs.mjs'));
+  fs.mkdirSync(path.join(consumerRoot, 'scripts/lib'), { recursive: true });
+  fs.copyFileSync(path.join(mediaRoot, 'scripts/lib/media-closure-preflight.mjs'), path.join(consumerRoot, 'scripts/lib/media-closure-preflight.mjs'));
   fs.symlinkSync(path.join(deployRoot, 'node_modules'), path.join(consumerRoot, 'node_modules'), 'dir');
 
   run('git', ['init', '-q'], consumerRoot);
   run('git', ['config', 'user.email', 'media-consumer-test@example.invalid'], consumerRoot);
   run('git', ['config', 'user.name', 'Media isolated consumer test'], consumerRoot);
-  run('git', ['add', 'config/closure', 'scripts/check-media-lifecycle-closure-inputs.mjs'], consumerRoot);
+  run('git', ['add', 'config/closure', 'scripts/check-media-lifecycle-closure-inputs.mjs', 'scripts/lib/media-closure-preflight.mjs'], consumerRoot);
   run('git', ['commit', '-qm', 'isolated consumer fixture'], consumerRoot);
 
   run(process.execPath, ['scripts/check-media-lifecycle-closure-inputs.mjs'], consumerRoot, {
