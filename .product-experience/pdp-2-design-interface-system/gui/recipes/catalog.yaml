@@ -1,0 +1,70 @@
+schemaVersion: media.gui-recipes.v1
+productId: media
+authority: Media-defined UI composition recipes; distinct from Media processing recipes and Shared primitive implementations
+status: OWNER_APPROVED_AS_DEFINITION_RECIPES; SHARED_COMPONENT_AND_SCREEN_INSTANCE_ADMISSION_PENDING
+sourceTemplates: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+sourcePatterns: .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml
+ownership:
+  media: Semantic recipe identities, template linkage and product interaction intent
+  shared: Generic components, accessibility primitives and token values
+  lifecycle: Evidence and independently accepted closure only
+nonClaims:
+  - This catalog is not executable product UI, a product runtime processing recipe, or an admitted Shared package export.
+  - Defining recipes does not accept the 47 downstream screen instances or independent visual and screen-reader review.
+recipes:
+  - id: media.gui.recipe.collection
+    label: Searchable, authorized collection
+    templateRef: media.gui.template.collection
+    semanticPattern: media.gui.pattern.project-browser
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Assemble Media-specific semantics only from public Shared primitives and accepted components; never infer runtime permission from view state.
+  - id: media.gui.recipe.workbench
+    label: Time-aligned editing workbench
+    templateRef: media.gui.template.workbench
+    semanticPattern: media.gui.pattern.transcript-and-playback
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Assemble Media-specific semantics only from public Shared primitives and accepted components; never infer runtime permission from view state.
+  - id: media.gui.recipe.job-observation
+    label: Asynchronous job observation and safe recovery
+    templateRef: media.gui.template.job-observation
+    semanticPattern: media.gui.pattern.job-status-and-recovery
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Assemble Media-specific semantics only from public Shared primitives and accepted components; never infer runtime permission from view state.
+  - id: media.gui.recipe.review-and-compare
+    label: Exact-version evidence review and comparison
+    templateRef: media.gui.template.review-and-compare
+    semanticPattern: media.gui.pattern.version-comparison
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Assemble Media-specific semantics only from public Shared primitives and accepted components; never infer runtime permission from view state.
+  - id: media.gui.recipe.consent-gate
+    label: Rights, consent and capability gate
+    templateRef: media.gui.template.consent-gate
+    semanticPattern: media.gui.pattern.rights-and-consent-review
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Assemble Media-specific semantics only from public Shared primitives and accepted components; never infer runtime permission from view state.
+  - id: media.gui.recipe.render-preparation-and-review
+    label: Separate render submission, output review and delivery
+    templateRef: media.gui.template.render-preparation-and-review
+    semanticPattern: media.gui.pattern.rendering
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Assemble Media-specific semantics only from public Shared primitives and accepted components; never infer runtime permission from view state.
+  - id: media.gui.recipe.lifecycle-confirmation
+    label: Consequential lifecycle confirmation with unknown finality
+    templateRef: media.gui.template.lifecycle-confirmation
+    semanticPattern: media.gui.pattern.destructive-lifecycle-action
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Assemble Media-specific semantics only from public Shared primitives and accepted components; never infer runtime permission from view state.
+  - id: media.gui.recipe.task-setup
+    label: Task setup with explicit eligibility
+    templateRef: media.gui.template.task-setup
+    semanticPattern: media.gui.pattern.intent-launcher
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Assemble Media-specific semantics only from public Shared primitives and accepted components; never infer runtime permission from view state.
