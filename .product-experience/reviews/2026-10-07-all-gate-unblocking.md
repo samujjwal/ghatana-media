@@ -55,10 +55,12 @@ The generator must project six fields directly: densityProfiles, presentationPro
 | recovery | Join exact failure/uncertainty classification to permitted observation, retry prerequisites and preserved state; never blind replay. |
 | scenarios | Link each happy, denied, stale, conflicted, offline, partial, unknown, cancel-racing and corrupted-input scenario to a canonical starting context/state and expected oracle. |
 | fixtures | Version synthetic inputs and outcomes by source fingerprint, rights/trust context and provider absence; map to scenarios without presenting simulation as live qualification. |
-| search | Define product-owned searchable entity, authorization/filter/sort/pagination/error/staleness behavior in PDP-3; Tools Explorer only projects the accepted semantics. |
-| inspections | Define product-owned inspectable request/result/state/provenance/approval contracts for API/CLI/SDK/Agent and GUI surfaces; Tools inspector is host mechanics, never canonical Media meaning. |
+| search | **Media owner source selected** in `pdp-3-product-experience/search-inspection-contracts.yaml`: three tenant/rights-scoped project/artifact/job queries with registered PDP-1 domain IDs, bounded pagination and explicit stale/denied/empty behavior. Generator now projects them; runtime admission remains `NOT_ADMITTED` and schema/provenance checks must be run. |
+| inspections | **Media owner source selected** in the same PDP-3 catalog: five specification, authority, evidence, trace and synthetic simulation inspectors with exact sources and required context. Generator now projects them without treating Tools Explorer as the owner or implying runtime support. |
 
 A 47-route × six-viewport clean console audit and Tools/Product same-renderer DOM parity are useful verified smoke evidence; neither is an independent full interaction/assistive review. Production-host parity moves to *actual product adoption readiness*: the public `MediaProductRenderer` interface and identical fixture behavior are sufficient definition-level requirements. An absent production host is **NOT_RUN/NOT_APPLICABLE_TO_DEFINITION_HOST**, not a fabricated pass.
+
+The additional PDP-3 search/inspection source now supplies two of the original 14 ExperienceSpecification semantic fields. Its bounded query types and five inspector categories are selected as **definition contracts only**, not production implementation or independent phase acceptance.
 
 ## E. Parity: 47 findings, 44 dispositioned, three previously open
 
