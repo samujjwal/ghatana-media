@@ -258,6 +258,7 @@ const definitions = [
       ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
       ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
       ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
+      ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
       ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
       ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
       ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
@@ -276,6 +277,8 @@ const definitions = [
       const layout = content(".product-experience/pdp-2-design-interface-system/gui/layout.yaml");
       const patterns = content(".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml");
       const componentBindings = content(".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml");
+      const recipeCatalog = content(".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml");
+      const templateCatalog = content(".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml");
       const componentContracts = content(".product-experience/pdp-2-design-interface-system/component-contracts.yaml");
       const navigation = content(".product-experience/pdp-3-product-experience/navigation-contracts.yaml");
       const domainStates = new Set((content(".product-experience/pdp-0-product-truth/state-models.yaml").models ?? [])
@@ -320,8 +323,8 @@ const definitions = [
             description: `Proposed reading-order level ${index + 1} from typography-layout.yaml.`,
           })),
         },
-        densityProfiles: [],
-        presentationProfiles: [],
+        densityProfiles: (typography.densityProfiles ?? []).map(({id,name,density,description}) => ({id,name,density,description})),
+        presentationProfiles: (typography.presentationProfiles ?? []).map(({id,name,densityRef,description}) => ({id,name,densityRef,description})),
         semanticStates: (states.states ?? []).map((state) => ({
           id: state.stateRef,
           name: state.label,
@@ -344,14 +347,14 @@ const definitions = [
           description: consequentialRule,
           consequential: true,
         }] : [],
-        recoveryPatterns: [],
-        progressiveDisclosureRules: [],
+        recoveryPatterns: (finality.recoveryPatterns ?? []).map(({id,name,description,automaticRecovery}) => ({id,name,description,automaticRecovery})),
+        progressiveDisclosureRules: (typography.progressiveDisclosureRules ?? []).map(({id,trigger,reveals,conceals}) => ({id,trigger,reveals,conceals})),
         responsiveRules: Object.entries(responsive.variants ?? {}).map(([breakpoint, variant]) => ({
           id: `media.language.responsive.${breakpoint}`,
           breakpoint: (variant.viewports ?? []).join(", "),
           behavior: variant.workMode,
         })),
-        accessibilityRules: [],
+        accessibilityRules: (accessibility.accessibilityRules ?? []).map(({id,standard,requirement,level}) => ({id,standard,requirement,level})),
         localizationRules: (localization.rules ?? []).map((rule, index) => ({
           id: `media.language.localization.${index + 1}`,
           concern: `Localization rule ${index + 1}`,
@@ -362,7 +365,7 @@ const definitions = [
           description: "Media owns semantic aliases and composition; Shared owns primitive token values and styling behavior.",
         },
         componentBindings: bindings,
-        recipeBindings: [],
+        recipeBindings: (recipeCatalog.recipes ?? []).map(({id,semanticPattern}) => ({id:`media.language.recipe-binding.${id.slice("media.gui.recipe.".length)}`,semanticPattern,recipeRef:id})),
         domainStatePresentationMappings,
         createdAt: generatedAt,
         updatedAt: generatedAt,
