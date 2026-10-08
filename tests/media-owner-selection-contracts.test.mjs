@@ -20,6 +20,8 @@ const paths = {
   toolConventions: ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
   toolRegistry: ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml",
   operations: ".product-experience/pdp-1-domain-data/operations.yaml",
+  searchInspection: ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
+  domainObjects: ".product-experience/pdp-1-domain-data/domain-objects.yaml",
 };
 const unique = (items, field = "id") => new Set(items.map(x => x[field])).size === items.length;
 
@@ -117,4 +119,24 @@ test("all four Agent Tool semantic selections resolve existing observed IDs and 
     assert.ok(tool.inputBoundary && tool.effectSemantics);
   }
   assert.match(selections.status, /CONTRACT_AND_EXECUTION_ADMISSION_PENDING/);
+});
+
+test("PDP-3 search and inspection contracts are source-owned, typed and fail closed", () => {
+  const catalog = source(paths.searchInspection);
+  const domainIds = new Set(source(paths.domainObjects).objects.map(x => x.id));
+  assert.equal(catalog.searches.length, 3);
+  assert.equal(catalog.inspections.length, 5);
+  assert.ok(unique(catalog.searches) && unique(catalog.inspections));
+  for (const item of catalog.searches) {
+    assert.ok(item.searchableTypes?.length > 0);
+    assert.ok(item.searchableTypes.every(id => domainIds.has(id)), `unknown searchable domain type for ${item.id}`);
+    assert.ok(item.authorization && item.pagination && item.absentResults);
+    assert.equal(item.runtimeBinding, "NOT_ADMITTED");
+  }
+  for (const item of catalog.inspections) {
+    assert.ok(["specification", "authority", "evidence", "trace", "simulation"].includes(item.projectionKind));
+    assert.ok(item.authorityRefs?.length > 0 && item.requiredContext?.length > 0);
+    assert.ok(["NOT_ADMITTED", "DEFINITION_ONLY"].includes(item.runtimeBinding));
+  }
+  assert.ok(catalog.policy.some(rule => /alternate authorization side channels/u.test(rule)));
 });
