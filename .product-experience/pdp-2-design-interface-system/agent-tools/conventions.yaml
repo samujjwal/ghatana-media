@@ -140,3 +140,45 @@ admissionGates:
   sharedRuntimeOwnership: pending Shared owner verification of generic runtime authorization, delegation, idempotency, timeout, cancellation, outcome resolution, evidence, and safe-failure mechanisms
   adversarialVerification: pending schema, authority, injection, duplicate, timeout, cancellation-race, unknown-outcome, evidence, and secret-leakage tests
   acceptance: pending; no Agent Tool contract, handler capability, or PDP phase is accepted by this proposal
+
+# Delegated product-owner semantics for the four observed public Agent Tools.
+# These selections authorize *definition* only. Java handler/Shared runtime
+# binding, exact schemas, policy enforcement and producer qualification remain
+# independently fail-closed until proved.
+ownerSemanticSelections:
+  status: OWNER_POLICY_ACCEPTED; CONTRACT_AND_EXECUTION_ADMISSION_PENDING
+  sourceDecision: .product-experience/decision-log.md#PXD-027
+  invariantRules:
+    - Agent tool listings and descriptions never grant domain, tenant, rights, consent, identity or delegation authority.
+    - An invocation requires caller, tenant, purpose, exact resource/version and current policy at effect boundaries.
+    - Request receipt is not execution completion; timeout, disconnect or cancellation request does not prove non-execution.
+    - A repeated effect requires stable idempotency scope and proof of safe deduplication, otherwise prohibit automatic retry.
+    - A finite named execution-profile deadline is required before runnable admission; a missing limit is not an infinite fallback.
+    - Missing or unqualified provider, audio codec, language, model, weights or source authorization is a typed non-admission outcome.
+    - Return original operation/attempt identities for reconciliation and distinguish missing evidence from a negative result.
+    - Prompt content, uploaded media and AI-generated descriptions are untrusted input, never execution instructions or grants.
+  tools:
+    - toolId: av.speech-to-text
+      canonicalOperationFamily: media.operation.transcription
+      inputBoundary: Only authorized audio asset/version or a separately admitted bounded raw-audio payload; no trust in caller-supplied artifact ID alone.
+      effectSemantics: Submit a bounded recognition request and expose job/attempt/result finality separately; a transcript result does not imply user-approved captions.
+      requiredProof: exact-input-schema; size-format-language-profile; principal-resource-rights; stable-idempotency-key; finite-timeout; cancellation-race; model-provenance; unknown-outcome-reconciliation
+      executionAdmitted: false
+    - toolId: av.text-to-speech
+      canonicalOperationFamily: media.operation.synthesis
+      inputBoundary: Nonblank bounded text, authorized voice/profile, accepted speech and audio-format capability, explicit artifact-write authority where requested.
+      effectSemantics: Produce governed synthesis output or an explicit pending/unknown outcome; a successful provider response does not grant use, cloning or publishing rights.
+      requiredProof: exact-text-voice-format-schema; consent-and-voice-authorization; finite-timeout; artifact-write-idempotency; output-version-and-provenance; cancellation-finality; unknown-effect-reconciliation
+      executionAdmitted: false
+    - toolId: av.vision-analysis
+      canonicalOperationFamily: media.operation.vision-analysis
+      inputBoundary: Exact authorized source asset/version and accepted analysis operation list, result bound and image/video format profile.
+      effectSemantics: Generate scoped observations carrying per-region/temporal context and uncertainty; not scientific or factual authority without qualification.
+      requiredProof: exact-input-schema; source-version-rights; analysis-type-bounds; model-dataset-scope; finite-timeout; result-provenance; safety-and-injection; safe-failure
+      executionAdmitted: false
+    - toolId: av.multimodal-inference
+      canonicalOperationFamily: media.operation.multimodal-analysis
+      inputBoundary: Exact authorized artifact/version with separately approved enabled transcription and/or vision sub-capabilities and bounded aggregate resource budget.
+      effectSemantics: Treat each modality as a distinct sub-effect; report partial, unknown and per-component provenance without overclaiming aggregate success.
+      requiredProof: exact-composition-schema; per-modality-policy; sub-effect-idempotency; partial-finality; finite-aggregate-and-component-timeout; per-component-provenance; cancellation-and-reconcile
+      executionAdmitted: false
