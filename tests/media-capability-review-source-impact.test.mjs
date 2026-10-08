@@ -34,7 +34,10 @@ test("capability review source pin changes are reconciled to the reviewed goal s
   assert.ok(goalPin, "goals remain an explicit capability-review source");
   assert.ok(impact, "the changed goal pin has a semantic impact record");
   assert.equal(hash(goalsText), goalPin.sha256);
-  assert.equal(goalPin.sha256, impact.currentSha256);
+  const definitionDelta = review.definitionOnlySourceReconciliations.find(({ path }) => path === goalPath);
+  assert.equal(definitionDelta.previousSha256, impact.currentSha256);
+  assert.equal(goalPin.sha256, definitionDelta.currentSha256);
+  assert.equal(definitionDelta.ownerDecisionRef, ".product-experience/decision-log.md#PXD-048");
   assert.notEqual(impact.previousSha256, impact.currentSha256);
   assert.match(impact.result, /source-pin-reconciled/u);
 
@@ -85,7 +88,9 @@ test("operation source changes reconcile affected leaf links without promoting c
   assert.ok(sourcePin, "canonical operation families remain an explicit capability-review source");
   assert.ok(impact, "the changed canonical operation source has a semantic reconciliation");
   assert.equal(hash(sourceText), sourcePin.sha256);
-  assert.equal(sourcePin.sha256, review.uploadOwnerDefinitionSourceReconciliation.currentSha256);
+  const definitionDelta = review.definitionOnlySourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
+  assert.equal(definitionDelta.previousSha256, review.uploadOwnerDefinitionSourceReconciliation.currentSha256);
+  assert.equal(sourcePin.sha256, definitionDelta.currentSha256);
   assert.equal(review.canonicalReadSourceReconciliation.previousSha256, impact.sceneTextAdapterSourceDelta.currentSha256);
   assert.deepEqual(review.canonicalReadSourceReconciliation.exactChangedRecords, [
     'media.operation-slice.inspect-upload', 'media.operation-slice.inspect-artifact',
@@ -97,7 +102,7 @@ test("operation source changes reconcile affected leaf links without promoting c
   const uploadDelta = review.uploadMutationSourceReconciliation;
   assert.equal(uploadDelta.previousSha256, review.canonicalReadSourceReconciliation.currentSha256);
   assert.equal(uploadDelta.currentSha256, review.uploadOwnerDefinitionSourceReconciliation.previousSha256);
-  assert.equal(review.uploadOwnerDefinitionSourceReconciliation.currentSha256, hash(sourceText));
+  assert.equal(definitionDelta.currentSha256, hash(sourceText));
   assert.equal(review.uploadOwnerDefinitionSourceReconciliation.ownerDecisionRef, ".product-experience/decision-log.md#PXD-046");
   assert.deepEqual(uploadDelta.exactChangedRecords, [
     "media.operation-slice.begin-upload",
@@ -269,7 +274,9 @@ test("domain catalog identity changes reconcile to zero capability leaf referenc
   assert.ok(sourcePin, "the canonical domain-object catalog remains an explicit capability-review source");
   assert.ok(impact, "the changed domain-object source pin has a semantic impact record");
   assert.equal(hash(sourceText), sourcePin.sha256);
-  assert.equal(sourcePin.sha256, impact.currentSha256);
+  const definitionDelta = review.definitionOnlySourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
+  assert.equal(definitionDelta.previousSha256, impact.currentSha256);
+  assert.equal(sourcePin.sha256, definitionDelta.currentSha256);
   assert.equal(impact.previousSha256, "b958fc9c56449d87b0113d17eb97838801cbe7d4ec73bf4dc8f1a21d04bc173f");
   assert.notEqual(impact.previousSha256, impact.currentSha256);
   assert.match(impact.result, /semantic-source-change-reconciled/u);

@@ -82,7 +82,11 @@ test("PDP-1 state inventory preserves the PDP-0 proposal without accepting its s
     const sourceStateIds = (sourceMachine.states ?? []).map(stateId);
     assert.deepEqual(machine.stateIds, sourceStateIds, `${machine.machineId} state spelling/order drift`);
     assert.equal(machine.stateCount, sourceStateIds.length);
-    assert.match(machine.meaningDisposition, /pending-owner-review|owner decision required/u);
+    if (machine.machineId === "media-upload-and-artifact") {
+      assert.match(machine.meaningDisposition, /bounded-RECEIVING-VERIFYING-AVAILABLE-QUARANTINED-REJECTED-meanings-and-T01-T02-guards-defined-under-PXD-049; EXPIRED-and-remaining-lifecycle-guards-open; runtime-NOT_ADMITTED/u);
+    } else {
+      assert.match(machine.meaningDisposition, /pending-owner-review|owner decision required/u);
+    }
   }
   assert.equal(extracted.inventory.sourceMachinesWithoutEnumeratedStates, source.models.filter(({ states }) => !states?.length).length);
 });
@@ -110,8 +114,20 @@ test("PDP-1 transition extraction preserves every source edge and leaves guards 
     assert.equal(transition.sourceRef, `${sourcePath}#${sourceTransition.machineId}`);
     assert.deepEqual(transition.from, sourceTransition.from);
     assert.deepEqual(transition.to, sourceTransition.to);
-    assert.match(transition.guardDisposition, /pending-owner-review/u);
-    assert.match(transition.operationBinding, /unresolved/u);
+    if (transition.id === "media-upload-and-artifact/T01") {
+      assert.match(transition.guardDisposition, /bounded-owner-definition-under-PXD-049/u);
+      assert.deepEqual(transition.operationRefs, ["media.operation-slice.complete-upload"]);
+      assert.match(transition.operationBinding, /only-RECEIVING-to-VERIFYING-on-successful-upload-finalization/u);
+      assert.deepEqual(transition.operationEdgeBounds.excludedEdges, ["RECEIVING-to-REJECTED", "RECEIVING-to-EXPIRED"]);
+    } else if (transition.id === "media-upload-and-artifact/T02") {
+      assert.match(transition.guardDisposition, /bounded-owner-definition-under-PXD-049/u);
+      assert.deepEqual(transition.operationRefs, []);
+      assert.match(transition.operationBinding, /no-existing-verification-operation-identity/u);
+      assert.equal(transition.evidenceGuards.outcomeRules.AVAILABLE, "all-applicable-records-current-positive-and-bound-to-the-same-exact-subject");
+    } else {
+      assert.match(transition.guardDisposition, /pending-owner-review/u);
+      assert.match(transition.operationBinding, /unresolved/u);
+    }
     assert.match(transition.eventTriggers, /pending-PDP1-004/u);
     assert.match(transition.permissions, /pending-owner-contracts/u);
     assert.match(transition.executionEffects, /pending-runtime-and-platform-owner-contracts/u);

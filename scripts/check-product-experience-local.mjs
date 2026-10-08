@@ -288,6 +288,10 @@ const allowedScreenBindingStatuses = new Set([
   "missing-no-existing-fixtureRefs",
   "missing; no-existing-fixtureRefs-declared",
   "no-PDP1-state-references-declared",
+  "PDP-1-identities-defined; runtime-admission-pending",
+  "PDP-1-exact-slices-defined; runtime-admission-pending",
+  "PDP-0-states-defined-for-observation; lifecycle-transition-acceptance-pending",
+  "owner-defined-action-semantics; runtime-admission-pending",
   "no-canonical-entry-contract-declared",
   "no-canonical-exit-contract-declared",
   "no-canonical-references-declared",
@@ -493,7 +497,7 @@ note(`${journeyIds.size} journeys are indexed and ${journeyFiles.length} journey
 // provide an unambiguous shape. Semantic equivalence/acceptance remains owner
 // authority and is deliberately not inferred from these structural links.
 const operationSource = read(join(productRoot, "pdp-1-domain-data/operations.yaml"));
-const operationIds = new Set(idsFrom(operationSource, /^\s*- id: (media\.operation\.[A-Za-z0-9._-]+)$/gmu));
+const operationIds = new Set(idsFrom(operationSource, /^\s*- id: (media\.operation(?:-slice)?\.[A-Za-z0-9._-]+)$/gmu));
 unique([...operationIds], "PDP-1 operation ID");
 const domainObjectSource = read(join(productRoot, "pdp-1-domain-data/domain-objects.yaml"));
 const domainObjectIds = new Set(idsFrom(domainObjectSource, /^\s*- id: (media\.[A-Za-z0-9._-]+)$/gmu));
@@ -511,7 +515,8 @@ for (const transition of transitionBlocks) {
   for (const ref of refs.matchAll(/media\.operation\.[A-Za-z0-9._-]+/gu)) assertKnown(new Set([ref[0]]), operationIds, `Transition ${id} operation reference`);
 }
 for (const source of journeySources) {
-  for (const ref of source.matchAll(/^\s*canonicalOperationRef:\s*(media\.operation\.[A-Za-z0-9._-]+)/gmu)) assertKnown(new Set([ref[1]]), operationIds, "Journey canonical operation reference");
+  for (const ref of source.matchAll(/^\s*(?:canonicalOperationRef|operationRef):\s*(media\.operation(?:-slice)?\.[A-Za-z0-9._-]+)/gmu)) assertKnown(new Set([ref[1]]), operationIds, "Journey canonical operation reference");
+  for (const ref of source.matchAll(/media\.operation-slice\.[A-Za-z0-9._-]+/gu)) assertKnown(new Set([ref[0]]), operationIds, "Journey required operation reference");
   for (const ref of source.matchAll(/^\s*objectRefs:\s*\n((?:\s+- [^\n]+\n?)*)/gmu)) {
     for (const id of ref[1].matchAll(/media\.[A-Za-z0-9._-]+/gu)) assertKnown(new Set([id[0]]), domainObjectIds, "Journey domain object reference");
   }

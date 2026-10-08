@@ -120,7 +120,9 @@ test("repository keeps owner-gated blockers separate from source findings", () =
   assert.ok(result.summary.explorerFixtureObservations > 0);
   assert.ok(result.blockers.some((item) => item.includes("shared-artifact-binding remains EXTERNAL_PENDING")));
   assert.ok(result.blockers.some((item) => item.includes("conformance-and-specialist-review remains INDEPENDENT_PENDING")));
-  assert.ok(result.blockers.some((item) => item.includes("concrete-component-bindings remains SOURCE_INCOMPLETE")));
+  assert.equal(result.summary.resolvedOwnerGates, 5);
+  assert.equal(result.summary.openGovernanceGates.length, 2);
+  assert.ok(!result.blockers.some((item) => item.includes("concrete-component-bindings")), result.blockers.join("\n"));
 });
 
 test("style authority must reference actual canonical Media alias and component sources", () => withFixture({}, (root) => {

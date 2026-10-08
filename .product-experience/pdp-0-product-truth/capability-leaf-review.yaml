@@ -14,15 +14,15 @@ sourceInventory:
 - path: .product-experience/pdp-0-product-truth/journey-catalog.yaml
   sha256: fd955e1b4b038c42806a514a1a3e24466b8f6a339cf30b3b15060eb32860fa75
 - path: .product-experience/pdp-0-product-truth/goals-jtbd.yaml
-  sha256: 0a2430d80830b717d1a9725c3ee499b1ce862ee4cedb8e111e46478035f05667
+  sha256: 74f9a10de4e959d1874e7e83d42fb6ff04b25b5a427230e1bf343c6ece8520d2
 - path: .product-experience/pdp-0-product-truth/applications-channels.yaml
   sha256: e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d
 - path: .product-experience/pdp-1-domain-data/operations.yaml
-  sha256: 073f43e1c74950889de080cb64279d08927e5144385ba02b01f3c205482b81eb
+  sha256: a7e653096364252f388bee5d06361b2a0472e088ef426b2c3602d80a4a71b8b6
 - path: .product-experience/pdp-3-product-experience/action-registry.yaml
-  sha256: a0e67cb434c5a8af867a1667f5ded9c57fe613170e877db347a845b339fea118
+  sha256: 0b1a5af2848a6bca767e94aff0363dbc045d470eec8090ebc5a50f8d96d88f98
 - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
-  sha256: 5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a
+  sha256: 348d755cad07ba1fd88976088191c06602d023593ad4cb5b0b818b8a2725185f
 denominatorReconciliation:
   capabilityFamilies: 38
   capabilityLeaves: 462
@@ -61728,3 +61728,45 @@ uploadOwnerDefinitionSourceReconciliation:
   capabilityImpact: No leaf-level operation association or accepted coverage changed; 462 leaves remain 383 unresolved with zero machine-operation dispositions.
   qualificationImpact: Store recreation does not prove process-kill, fsync, cross-process storage or production qualification. Runtime admission, trusted host, rights/consent and independent reviews remain open.
   acceptanceEffect: Three bounded owner definitions only; no operation family, capability leaf, whole interface, PDP phase or Lifecycle proof accepted.
+
+# Preserve prior source review chains; this batch changes definitions, not activation.
+definitionOnlySourceReconciliations:
+- path: .product-experience/pdp-0-product-truth/goals-jtbd.yaml
+  previousSha256: 0a2430d80830b717d1a9725c3ee499b1ce862ee4cedb8e111e46478035f05667
+  currentSha256: 74f9a10de4e959d1874e7e83d42fb6ff04b25b5a427230e1bf343c6ece8520d2
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-048
+  semanticImpact: Four existing measurement definitions acquire exact source traces, frozen-population and percentage
+    grammar; actual baseline, target, population and qualification remain unevaluated.
+  capabilityImpact: Existing 462 leaves and all leaf-to-operation/domain associations remain unchanged; 383 unresolved
+    applicability decisions, zero machine-operation coverage dispositions.
+  acceptanceEffect: Bounded definition source reconciliation only; no leaf, full interface, phase, runtime or Lifecycle
+    admission.
+- path: .product-experience/pdp-1-domain-data/operations.yaml
+  previousSha256: 073f43e1c74950889de080cb64279d08927e5144385ba02b01f3c205482b81eb
+  currentSha256: a7e653096364252f388bee5d06361b2a0472e088ef426b2c3602d80a4a71b8b6
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-049
+  semanticImpact: Five existing upload/artifact slices acquire exact bounded objects, actions, state/effect scope and
+    guarded same-identity recovery; no new operation, runtime admission or complete leaf coverage.
+  capabilityImpact: Existing 462 leaves and all leaf-to-operation/domain associations remain unchanged; 383 unresolved
+    applicability decisions, zero machine-operation coverage dispositions.
+  acceptanceEffect: Bounded definition source reconciliation only; no leaf, full interface, phase, runtime or Lifecycle
+    admission.
+- path: .product-experience/pdp-1-domain-data/domain-objects.yaml
+  previousSha256: 5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a
+  currentSha256: 348d755cad07ba1fd88976088191c06602d023593ad4cb5b0b818b8a2725185f
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-049
+  semanticImpact: Existing upload/artifact/version identities are defined separately; opaque immutable versionId is not
+    a digest alias and is not present in the observed runtime receipt.
+  capabilityImpact: Existing 462 leaves and all leaf-to-operation/domain associations remain unchanged; 383 unresolved
+    applicability decisions, zero machine-operation coverage dispositions.
+  acceptanceEffect: Bounded definition source reconciliation only; no leaf, full interface, phase, runtime or Lifecycle
+    admission.
+- path: .product-experience/pdp-3-product-experience/action-registry.yaml
+  previousSha256: a0e67cb434c5a8af867a1667f5ded9c57fe613170e877db347a845b339fea118
+  currentSha256: 0b1a5af2848a6bca767e94aff0363dbc045d470eec8090ebc5a50f8d96d88f98
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-049
+  semanticImpact: Existing resume action is an ordered same-identity inspect/guard/confirm/append/complete workflow;
+    inspection alone causes no mutation and unknown or terminal states do not authorize new parts.
+  capabilityImpact: All existing leaf/action associations remain unchanged; no accepted leaf population or runtime availability
+    is inferred.
+  acceptanceEffect: Selected J-02 definition only; no full action registry, phase, runtime or Lifecycle admission.

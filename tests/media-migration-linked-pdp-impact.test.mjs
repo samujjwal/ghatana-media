@@ -112,11 +112,13 @@ test("the stale pin impact describes the exact newly added PDP claims", () => {
 
   const goalImpact = records.get(".product-experience/pdp-0-product-truth/goals-jtbd.yaml");
   assert.equal(goalImpact.additionalCurrentBlocks[0].span[0], 477);
-  assert.equal(goalImpact.additionalCurrentBlocks[0].span[1], 539);
+  assert.equal(goalImpact.additionalCurrentBlocks[0].span[1], 626);
+  assert.deepEqual(goalImpact.additionalCurrentBlocks[0].previousReviewedSpan, [477, 539]);
   assert.equal(goalImpact.additionalCurrentBlocks[0].header, "successMeasureContracts:");
   const goalLines = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/goals-jtbd.yaml"), "utf8").split("\n");
   assert.equal(goalLines[476], "successMeasureContracts:");
-  assert.equal(goalImpact.additionalCurrentBlocks[0].lineCount, 63);
+  assert.equal(goalImpact.additionalCurrentBlocks[0].lineCount, 150);
+  assert.equal(goalImpact.additionalCurrentBlocks[0].previousReviewedLineCount, 63);
   assert.match(goalImpact.changedClaims, /NOT_EVALUATED baseline\/qualification/u);
   assert.match(goalImpact.changedClaims, /NOT_SET target/u);
 });

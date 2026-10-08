@@ -36,3 +36,25 @@ export function resolveAcceptedDomainRuleRecords(records, ownerDecisions) {
 
   return mapped;
 }
+
+/** Mechanical closure of authored business measurement definitions, never a measured result. */
+export function validateBusinessMeasureDefinitions(goals, capabilities, profiles) {
+  const review = goals.successMeasureContracts;
+  if (review?.ownerDecisionRef !== '.product-experience/decision-log.md#PXD-048') throw new Error('Measurement definition lacks the exact bounded owner decision');
+  const records = review.records;
+  const intents = goals.businessIntents.filter((record) => record.measuredBy);
+  if (!Array.isArray(records) || records.length !== 4 || intents.length !== 4) throw new Error('Business measure population changed or incomplete');
+  const ids = new Set();
+  const populations = { outcomeRefs: new Set(goals.outcomes.map(({ id }) => id)), capabilityRefs: new Set(capabilities.capabilities.map(({ id }) => id)), profileAxisRefs: new Set(profiles.profileAxes.map(({ id }) => id)) };
+  for (const record of records) {
+    if (ids.has(record.id) || record.id !== `${record.businessIntentRef}.measure` || !intents.some((intent) => intent.id === record.businessIntentRef && intent.measuredBy === record.description)) throw new Error('Duplicate or stale business measure identity');
+    ids.add(record.id);
+    for (const [field, population] of Object.entries(populations)) {
+      if (!Array.isArray(record[field]) || !record[field].length || new Set(record[field]).size !== record[field].length || record[field].some((id) => !population.has(id))) throw new Error(`Invalid exact measurement ${field}`);
+    }
+    for (const field of ['metric', 'unit', 'numerator', 'denominator', 'calculation', 'profileBinding', 'applicability', 'acceptanceCriterion', 'evidenceMethod', 'baselinePolicy', 'targetPolicy', 'capabilityCrosswalkStatus', 'populationEnumeration']) if (typeof record[field] !== 'string' || !record[field].trim()) throw new Error(`Missing measurement definition ${field}`);
+    if (!record.calculation.includes('100 * numerator / denominator') || !record.calculation.includes('zero denominator is NOT_APPLICABLE') || !record.calculation.includes('NOT_EVALUATED')) throw new Error('Invalid percentage or zero-denominator measurement meaning');
+    if (!record.baseline.startsWith('NOT_EVALUATED') || !record.target.startsWith('NOT_SET') || record.qualification !== 'NOT_EVALUATED' || !record.populationEnumeration.startsWith('NOT_EVALUATED') || !record.capabilityCrosswalkStatus.startsWith('exact-source-trace-only')) throw new Error('Definition projection invents measurement, target, population or qualification');
+  }
+  return records;
+}

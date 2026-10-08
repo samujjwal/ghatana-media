@@ -1,7 +1,7 @@
 schemaVersion: media.gui-semantic-component-bindings.v1
 productId: media
 authority: semantic aliases are defined in ../media-token-aliases.yaml; Shared owns primitive token values and styling behavior
-status: SOURCE_INCOMPLETE
+status: MEDIA_OWNER_ACCEPTED_DEFINITION_BINDINGS
 bindings:
   - componentRefs: [media.component.progress-indicator]
     implementationCandidate: libs/audio-video-ui/src/components/MediaProgress.tsx
@@ -31,7 +31,7 @@ bindings:
       mediaFacade: libs/audio-video-ui/src/foundations/index.ts
       installedArtifactVerification: pending
       progressBinding: native-html-progress; Shared Progress excluded because inline style attributes are blocked by Explorer style-src-attr 'none'; unknown and no-measurement remain text-only
-      stepControlBinding: native-button; Shared Button emits an inline style attribute blocked by Explorer style-src-attr 'none' and wraps children in a label span incompatible with current direct-child navigation CSS; host-projected selectable still gates the callback
+      stepControlBinding: native-button; Shared Button defaults are now class-based and CSP-compatible, but its label span and generic interaction contract do not establish the Media workflow step-navigation binding; host-projected selectable gates the callback
   - implementationCandidate: libs/audio-video-ui/src/components/MediaTaskFlow.tsx
     semanticRole: workflow-progress-and-operation-observation
     stateBindings:
@@ -159,3 +159,427 @@ principles:
   - Shared palette, typography, spacing, focus, forced-colors, and component behavior are unresolved until consumer binding is verified.
   - Text, icon, shape, and accessible names carry state; color is never the only signal.
   - Raw values in the Explorer stylesheet are Explorer fixture styling, not Media product authority.
+
+# Complete source classification for the existing 31 definitions. A contract-only
+# classification retains the required component; it never excludes its capability
+# or asserts an implementation. Exact runtime props remain separate observations.
+definitionBindingReview:
+  decisionRef: .product-experience/decision-log.md#PXD-047
+  authority: User-delegated Media owner decision
+  scope: source-complete component role and reuse disposition; independent conformance and public package admission remain open
+  componentDenominator: 31
+  implementationAdmission: NOT_ADMITTED
+  independentConformance: NOT_RUN
+definitionBindings:
+- componentRef: media.component.identity-context-boundary
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.identity-context-boundary
+  disposition: CONTRACT_ONLY
+  role: Returns a person to the same Media destination after the upstream identity and workspace context are resolved.
+  anatomySource: component-contracts.yaml#media.component.identity-context-boundary.anatomy
+  interactionSource: component-contracts.yaml#media.component.identity-context-boundary.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.identity-context-boundary.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
+- componentRef: media.component.intent-launcher
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.intent-launcher
+  disposition: CONTRACT_ONLY
+  role: Lets a person choose a Media outcome without choosing an implementation provider.
+  anatomySource: component-contracts.yaml#media.component.intent-launcher.anatomy
+  interactionSource: component-contracts.yaml#media.component.intent-launcher.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.intent-launcher.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []
+- componentRef: media.component.project-browser
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.project-browser
+  disposition: CONTRACT_ONLY
+  role: Finds, creates, and opens projects within the current authorized workspace.
+  anatomySource: component-contracts.yaml#media.component.project-browser.anatomy
+  interactionSource: component-contracts.yaml#media.component.project-browser.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.project-browser.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
+- componentRef: media.component.project-context-summary
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.project-context-summary
+  disposition: CONTRACT_ONLY
+  role: Keeps the selected workspace, project identity, and exact revision visible while a person chooses the next task.
+  anatomySource: component-contracts.yaml#media.component.project-context-summary.anatomy
+  interactionSource: component-contracts.yaml#media.component.project-context-summary.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.project-context-summary.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
+- componentRef: media.component.creation-plan-summary
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.creation-plan-summary
+  disposition: CONTRACT_ONLY
+  role: Explains the proposed outcome, material choices, support state, and safe next step before consequential work.
+  anatomySource: component-contracts.yaml#media.component.creation-plan-summary.anatomy
+  interactionSource: component-contracts.yaml#media.component.creation-plan-summary.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.creation-plan-summary.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []
+- componentRef: media.component.source-picker
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.source-picker
+  disposition: CONTRACT_ONLY
+  role: Selects an authorized source artifact and version for an admitted Media workflow.
+  anatomySource: component-contracts.yaml#media.component.source-picker.anatomy
+  interactionSource: component-contracts.yaml#media.component.source-picker.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.source-picker.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+  - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+- componentRef: media.component.source-player
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.source-player
+  disposition: CONTRACT_ONLY
+  role: Plays and seeks within the exact selected source version while retaining the current review selection.
+  anatomySource: component-contracts.yaml#media.component.source-player.anatomy
+  interactionSource: component-contracts.yaml#media.component.source-player.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.source-player.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []
+- componentRef: media.component.transcript-review
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.transcript-review
+  disposition: CONTRACT_ONLY
+  role: Reviews recognized words and timing while keeping source time and recognition uncertainty visible.
+  anatomySource: component-contracts.yaml#media.component.transcript-review.anatomy
+  interactionSource: component-contracts.yaml#media.component.transcript-review.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.transcript-review.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+- componentRef: media.component.caption-track-editor
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.caption-track-editor
+  disposition: CONTRACT_ONLY
+  role: Edits a reviewable caption version with explicit text, timing, alignment, and revision state.
+  anatomySource: component-contracts.yaml#media.component.caption-track-editor.anatomy
+  interactionSource: component-contracts.yaml#media.component.caption-track-editor.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.caption-track-editor.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+- componentRef: media.component.job-status-card
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.job-status-card
+  disposition: CONTRACT_ONLY
+  role: Shows one processing job, its authoritative state and finality, and the safe next action.
+  anatomySource: component-contracts.yaml#media.component.job-status-card.anatomy
+  interactionSource: component-contracts.yaml#media.component.job-status-card.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.job-status-card.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+  - libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/TrainingProgress.tsx
+- componentRef: media.component.provenance-summary
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.provenance-summary
+  disposition: CONTRACT_ONLY
+  role: Shows the source version, operation origin, result lineage, timing basis, and limitations.
+  anatomySource: component-contracts.yaml#media.component.provenance-summary.anatomy
+  interactionSource: component-contracts.yaml#media.component.provenance-summary.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.provenance-summary.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []
+- componentRef: media.component.artifact-source-picker
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-source-picker
+  disposition: CONTRACT_ONLY
+  role: Selects a local file or admitted source reference for governed artifact intake.
+  anatomySource: component-contracts.yaml#media.component.artifact-source-picker.anatomy
+  interactionSource: component-contracts.yaml#media.component.artifact-source-picker.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.artifact-source-picker.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+- componentRef: media.component.artifact-transfer-status
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-transfer-status
+  disposition: CONTRACT_ONLY
+  role: Shows acknowledged transfer progress, integrity stage, upload identity, and safe recovery for one upload.
+  anatomySource: component-contracts.yaml#media.component.artifact-transfer-status.anatomy
+  interactionSource: component-contracts.yaml#media.component.artifact-transfer-status.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.artifact-transfer-status.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+- componentRef: media.component.artifact-integrity-summary
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-integrity-summary
+  disposition: CONTRACT_ONLY
+  role: Summarizes one immutable artifact version and its recorded integrity, rights, and retention dispositions.
+  anatomySource: component-contracts.yaml#media.component.artifact-integrity-summary.anatomy
+  interactionSource: component-contracts.yaml#media.component.artifact-integrity-summary.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.artifact-integrity-summary.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+- componentRef: media.component.artifact-browser
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-browser
+  disposition: CONTRACT_ONLY
+  role: Finds and inspects authorized media artifacts and immutable versions in the selected workspace.
+  anatomySource: component-contracts.yaml#media.component.artifact-browser.anatomy
+  interactionSource: component-contracts.yaml#media.component.artifact-browser.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.artifact-browser.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+- componentRef: media.component.waveform-spectrogram
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.waveform-spectrogram
+  disposition: CONTRACT_ONLY
+  role: Inspects source audio over time through waveform or spectral visualization and structured measurements.
+  anatomySource: component-contracts.yaml#media.component.waveform-spectrogram.anatomy
+  interactionSource: component-contracts.yaml#media.component.waveform-spectrogram.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.waveform-spectrogram.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/Waveform.tsx
+- componentRef: media.component.storyboard
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.storyboard
+  disposition: CONTRACT_ONLY
+  role: Organizes a versioned sequence of scenes, references, timing, and transitions before composition.
+  anatomySource: component-contracts.yaml#media.component.storyboard.anatomy
+  interactionSource: component-contracts.yaml#media.component.storyboard.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.storyboard.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []
+- componentRef: media.component.timeline-keyframe-editor
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.timeline-keyframe-editor
+  disposition: CONTRACT_ONLY
+  role: Edits synchronized media tracks, keyframes, and curves with explicit time and revision state.
+  anatomySource: component-contracts.yaml#media.component.timeline-keyframe-editor.anatomy
+  interactionSource: component-contracts.yaml#media.component.timeline-keyframe-editor.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.timeline-keyframe-editor.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/PhraseTimeline.tsx
+- componentRef: media.component.audio-mixer
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.audio-mixer
+  disposition: CONTRACT_ONLY
+  role: Adjusts and reviews routed audio levels and processing alongside measured output state.
+  anatomySource: component-contracts.yaml#media.component.audio-mixer.anatomy
+  interactionSource: component-contracts.yaml#media.component.audio-mixer.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.audio-mixer.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/StemTrack.tsx
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
+- componentRef: media.component.mask-tracking-editor
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.mask-tracking-editor
+  disposition: CONTRACT_ONLY
+  role: Inspects and edits spatial or temporal masks with explicit tracking confidence and propagation scope.
+  anatomySource: component-contracts.yaml#media.component.mask-tracking-editor.anatomy
+  interactionSource: component-contracts.yaml#media.component.mask-tracking-editor.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.mask-tracking-editor.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []
+- componentRef: media.component.scene-inspector
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.scene-inspector
+  disposition: CONTRACT_ONLY
+  role: Inspects source-grounded scene observations and their exact source intervals, origin, and uncertainty.
+  anatomySource: component-contracts.yaml#media.component.scene-inspector.anatomy
+  interactionSource: component-contracts.yaml#media.component.scene-inspector.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.scene-inspector.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []
+- componentRef: media.component.simulation-instruments
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.simulation-instruments
+  disposition: CONTRACT_ONLY
+  role: Controls declared simulation inputs and inspects timestamped measurements and output passes.
+  anatomySource: component-contracts.yaml#media.component.simulation-instruments.anatomy
+  interactionSource: component-contracts.yaml#media.component.simulation-instruments.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.simulation-instruments.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []
+- componentRef: media.component.result-comparison
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.result-comparison
+  disposition: CONTRACT_ONLY
+  role: Compares source, candidate, and revised outputs with aligned evidence and explicit provenance.
+  anatomySource: component-contracts.yaml#media.component.result-comparison.anatomy
+  interactionSource: component-contracts.yaml#media.component.result-comparison.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.result-comparison.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []
+- componentRef: media.component.quality-inspector
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.quality-inspector
+  disposition: CONTRACT_ONLY
+  role: Inspects quality observations, metric basis, evidence, limitations, and bounded recommendations for a specific
+    version.
+  anatomySource: component-contracts.yaml#media.component.quality-inspector.anatomy
+  interactionSource: component-contracts.yaml#media.component.quality-inspector.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.quality-inspector.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []
+- componentRef: media.component.delivery-profile-picker
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.delivery-profile-picker
+  disposition: CONTRACT_ONLY
+  role: Selects and validates a named output profile against the requested delivery outcome.
+  anatomySource: component-contracts.yaml#media.component.delivery-profile-picker.anatomy
+  interactionSource: component-contracts.yaml#media.component.delivery-profile-picker.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.delivery-profile-picker.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []
+- componentRef: media.component.rights-retention-review
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.rights-retention-review
+  disposition: CONTRACT_ONLY
+  role: Reviews permitted use, consent, retention, and provenance evidence before consequential work.
+  anatomySource: component-contracts.yaml#media.component.rights-retention-review.anatomy
+  interactionSource: component-contracts.yaml#media.component.rights-retention-review.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.rights-retention-review.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []
+- componentRef: media.component.activity-recovery-feed
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.activity-recovery-feed
+  disposition: CONTRACT_ONLY
+  role: Finds recent authorized work and recovers a specific job or upload without losing its identity or finality.
+  anatomySource: component-contracts.yaml#media.component.activity-recovery-feed.anatomy
+  interactionSource: component-contracts.yaml#media.component.activity-recovery-feed.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.activity-recovery-feed.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence:
+  - libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
+- componentRef: media.component.progress-indicator
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.progress-indicator
+  disposition: PUBLIC_COMPONENT_CONTRACT
+  role: Accessible progress presentation for Media and cross-product workflow consumers.
+  anatomySource: component-contracts.yaml#media.component.progress-indicator.anatomy
+  interactionSource: component-contracts.yaml#media.component.progress-indicator.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.progress-indicator.accessibility
+  implementationAdmission: NOT_ADMITTED
+  publicExport: '@audio-video/ui/components#MediaProgress'
+  propsSourceRef: libs/audio-video-ui/src/components/MediaProgress.tsx#MediaProgressProps
+  requiredProps:
+  - label
+  publicExportEvidence:
+  - libs/audio-video-ui/package.json#./components
+  - libs/audio-video-ui/src/index.tsx#export*from-components
+  - libs/audio-video-ui/src/components/index.ts#MediaProgress
+  rationale: Use the exact observed public contract for this role; its export and prop identity do not admit the renderer,
+    host effects, external package, or independent conformance.
+- componentRef: media.component.task-flow
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.task-flow
+  disposition: PUBLIC_COMPONENT_CONTRACT
+  role: workflow-progress-and-operation-observation
+  anatomySource: component-contracts.yaml#media.component.task-flow.anatomy
+  interactionSource: component-contracts.yaml#media.component.task-flow.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.task-flow.accessibility
+  implementationAdmission: NOT_ADMITTED
+  publicExport: '@audio-video/ui/components#MediaTaskFlow'
+  propsSourceRef: libs/audio-video-ui/src/components/MediaTaskFlow.tsx#MediaTaskFlowProps
+  requiredProps:
+  - children
+  publicExportEvidence:
+  - libs/audio-video-ui/package.json#./components
+  - libs/audio-video-ui/src/index.tsx#export*from-components
+  - libs/audio-video-ui/src/components/index.ts#MediaTaskFlow
+  rationale: Use the exact observed public contract for this role; its export and prop identity do not admit the renderer,
+    host effects, external package, or independent conformance.
+- componentRef: media.component.voice-production-workflow
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.voice-production-workflow
+  disposition: PUBLIC_COMPONENT_CONTRACT
+  role: voice-production-workflow-composition
+  anatomySource: component-contracts.yaml#media.component.voice-production-workflow.anatomy
+  interactionSource: component-contracts.yaml#media.component.voice-production-workflow.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.voice-production-workflow.accessibility
+  implementationAdmission: NOT_ADMITTED
+  publicExport: '@ghatana/ai-voice-ui-react/components#VoiceProductionWorkflow'
+  propsSourceRef: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx#VoiceProductionWorkflowProps
+  requiredProps:
+  - capabilities
+  - consent
+  - currentStep
+  - projectName
+  publicExportEvidence:
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/package.json#./components
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/index.ts#VoiceProductionWorkflow
+  rationale: Use the exact observed public contract for this role; its export and prop identity do not admit the renderer,
+    host effects, external package, or independent conformance.
+- componentRef: media.component.cli-output
+  contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.cli-output
+  disposition: CONTRACT_ONLY
+  role: Presents stable command results, recovery guidance, and machine-readable output for Media operations.
+  anatomySource: component-contracts.yaml#media.component.cli-output.anatomy
+  interactionSource: component-contracts.yaml#media.component.cli-output.keyboard
+  accessibilitySource: component-contracts.yaml#media.component.cli-output.accessibility
+  implementationAdmission: NOT_ADMITTED
+  rationale: Keep this existing Media-specific composition contract. No source proves a reusable public export with the
+    complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
+    substitutes.
+  candidateEvidence: []

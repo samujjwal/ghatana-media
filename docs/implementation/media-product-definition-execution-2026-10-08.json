@@ -1,0 +1,358 @@
+{
+  "schemaVersion": "media.product-definition-execution.v1",
+  "date": "2026-10-08",
+  "scope": "PDP-0 through PDP-3 definition-only, following latest direct user correction; runtime/SDK/UI/host implementation deferred",
+  "baseMain": "2badb1937b04c5225f36cbbd5e7eded997886ef0",
+  "branch": "main",
+  "snapshotBoundary": "Precommit reviewed definition worktree; final source commit recorded in subsequent checkpoint; no Lifecycle currentness inferred",
+  "pendingImplementationPreserved": {
+    "stashCommit": "dd69e97b095b7ef5abc9b8b157e1a0d2561736da",
+    "action": "not applied; previous committed implementation preserved"
+  },
+  "originalTaskStatuses": {
+    "total": 71,
+    "complete": 6,
+    "partial": 51,
+    "blockedExternalIndependent": 14,
+    "newlyComplete": 0,
+    "criterion": "Original IDs and full Done predicates unchanged; bounded definition prerequisites are not full task acceptance"
+  },
+  "definitionDecisions": [
+    "PXD-047",
+    "PXD-048",
+    "PXD-049"
+  ],
+  "changedFiles": [
+    ".product-experience/acceptance.yaml",
+    ".product-experience/closure-dashboard.yaml",
+    ".product-experience/decision-log.md",
+    ".product-experience/gaps.yaml",
+    ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+    ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json",
+    ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+    ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+    ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml",
+    ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+    ".product-experience/pdp-1-domain-data/operations.yaml",
+    ".product-experience/pdp-1-domain-data/state-adjudication.yaml",
+    ".product-experience/pdp-1-domain-data/states.yaml",
+    ".product-experience/pdp-1-domain-data/transitions.yaml",
+    ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
+    ".product-experience/pdp-2-design-interface-system/design-governance.json",
+    ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json",
+    ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
+    ".product-experience/pdp-3-product-experience/action-registry.yaml",
+    ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
+    ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
+    ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml",
+    ".product-experience/source-manifest.yaml",
+    "config/closure/media-product-definition/obligations.json",
+    "docs/EXAMPLES.md",
+    "docs/implementation/media-product-definition-execution-2026-10-08.json",
+    "scripts/check-media-design-conformance.mjs",
+    "scripts/check-product-experience-local.mjs",
+    "scripts/generate-media-phase-projections.mjs",
+    "scripts/lib/product-definition-domain-rule-mapping.mjs",
+    "tests/media-capability-review-source-impact.test.mjs",
+    "tests/media-component-definition-bindings.test.mjs",
+    "tests/media-design-conformance.test.mjs",
+    "tests/media-domain-identity-reconciliation.test.mjs",
+    "tests/media-experience-specification-projection.test.mjs",
+    "tests/media-migration-j02-source-claim.test.mjs",
+    "tests/media-migration-linked-pdp-impact.test.mjs",
+    "tests/media-migration-semantics-ledger.test.mjs",
+    "tests/media-product-definition-residuals.test.mjs",
+    "tests/media-state-machine-extraction.test.mjs",
+    "tests/media-upload-operation-contracts.test.mjs",
+    "tests/pdp-0-06-measures-provenance.test.mjs",
+    "tests/pdp-0-final.test.mjs",
+    "tests/pdp-3-examples.test.mjs",
+    "tests/pdp-3-screen-journey-crosslinks.test.mjs",
+    "tests/pdp-overview-currentness.test.mjs",
+    "tests/product-definition-authority.test.mjs"
+  ],
+  "applicationImplementationFilesChanged": [],
+  "beforeAfter": {
+    "projectionFieldBlockers": {
+      "before": [
+        1,
+        0,
+        10
+      ],
+      "after": [
+        0,
+        0,
+        10
+      ],
+      "phaseOrder": [
+        "PDP-0",
+        "PDP-2",
+        "PDP-3"
+      ]
+    },
+    "capabilities": {
+      "total": [
+        462,
+        462
+      ],
+      "unresolvedTargets": [
+        383,
+        383
+      ],
+      "unboundedOperations": [
+        445,
+        445
+      ],
+      "acceptedCoverage": [
+        0,
+        0
+      ]
+    },
+    "migration": {
+      "originalStructuralUnresolved": [
+        349,
+        349
+      ],
+      "nonNormativeClassifications": [
+        89,
+        89
+      ],
+      "semanticItemsUnresolved": [
+        260,
+        260
+      ],
+      "mixedItems": [
+        124,
+        124
+      ],
+      "newBoundedSlice": "MPSEM-0560-J02-OUTCOME-AND-RECOVERY; no parent-item completion"
+    },
+    "interfaceParity": {
+      "observedIdentities": [
+        286,
+        286
+      ],
+      "unresolvedIdentities": [
+        190,
+        190
+      ],
+      "ownerAcceptedFullBindings": [
+        0,
+        0
+      ],
+      "historicalOpenFindings": [
+        2,
+        2
+      ]
+    },
+    "design": {
+      "totalGates": [
+        7,
+        7
+      ],
+      "resolvedOwnerGates": [
+        4,
+        5
+      ],
+      "openGates": [
+        3,
+        2
+      ],
+      "componentDefinitions": 31,
+      "publicInterfaceSources": 3,
+      "contractOnlyCompositions": 28,
+      "implementationAdmission": "NOT_ADMITTED"
+    },
+    "experience": {
+      "journeys": [
+        30,
+        30
+      ],
+      "steps": [
+        130,
+        130
+      ],
+      "screenLinkedSteps": [
+        130,
+        130
+      ],
+      "actionLinkedSteps": [
+        18,
+        18
+      ],
+      "missingActions": [
+        112,
+        112
+      ],
+      "sourceNullTransitionRefs": [
+        130,
+        128
+      ],
+      "explicitNoMutationReasons": 3,
+      "publicTransitionProjection": "UNRESOLVED; source null counts do not establish semantic unresolved count",
+      "selectedJourneyDefinedSteps": 5,
+      "selectedJourney": "J-02",
+      "emptyObjectAndStateRefs": [
+        130,
+        125
+      ],
+      "nullAuthorityRefs": [
+        130,
+        125
+      ],
+      "authoredStepIds": [
+        8,
+        13
+      ],
+      "runtimeVerificationNotRunSteps": [
+        130,
+        130
+      ]
+    },
+    "lifecycle": {
+      "obligations": [
+        344,
+        344
+      ],
+      "withoutAuthoredCases": [
+        282,
+        282
+      ],
+      "candidateLinks": [
+        28,
+        28
+      ],
+      "linkedObligations": [
+        7,
+        7
+      ],
+      "withoutCandidateLinks": [
+        337,
+        337
+      ],
+      "admittedProvidersObserversOracles": 0,
+      "boundNativeReceipts": 0,
+      "authoritativeReceiptAndCurrentnessEvaluation": "NOT_EVALUATED"
+    }
+  },
+  "verification": {
+    "fullNode": {
+      "command": "node --test tests/*.test.mjs",
+      "pass": 362,
+      "fail": 0,
+      "skip": 0,
+      "log": "/tmp/media-execution/definition-node-final2.log",
+      "scope": "Definition changes and existing Node suites, not runtime implementation qualification"
+    },
+    "checks": [
+      {
+        "command": "node scripts/check-product-definition-authority.mjs",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/definition-check-product-definition-authority.log",
+        "tail": "Media Product Definition authority check passed\n  316 portable manifest records parsed\n  .product-experience/pdp-0-product-truth/requirements.yaml: 38 scoped records checked\n  .product-experience/pdp-0-product-truth/capabilities.yaml: 500 scoped records checked\n  .product-experience/pdp-0-product-truth/journey-catalog.yaml: 30 scoped records checked\n"
+      },
+      {
+        "command": "node scripts/check-product-experience-local.mjs",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/definition-check-product-experience-local.log",
+        "tail": "hecked against 24 PDP-1 operations, 38 domain-object IDs, 11 state machines, 27 HTTP APIs, 43 gRPC APIs, and 15 event IDs\n  Requirement\u2192domain/object semantics, action\u2192operation bindings, and PDP-2 surface/layout authority remain unselected or proposal-only in local source; no inferred bindings are accepted\n  Tools Product Definition/Experience validation and lifecycle currentness outputs are not bound in this checkout; local structural checks do not establish semantic acceptance or currentness\n"
+      },
+      {
+        "command": "node scripts/generate-media-phase-projections.mjs --check --strict",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/definition-generate-media-phase-projections.log",
+        "tail": "product-definition: .product-experience/pdp-0-product-truth/generated/product-definition.candidate.json\n  schema: VALID\n  public validator: PASS\nexperience-language: .product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json\n  schema: VALID\n  public validator: PASS\nexperience-specification: .product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json\n  schema: VALID\n  public validator: PASS\n"
+      },
+      {
+        "command": "node scripts/check-media-lifecycle-closure-inputs.mjs",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/definition-check-media-lifecycle-closure-inputs.log",
+        "tail": "Evidence Contracts consumer admission passed (5 source files, zero errors) for PDP-0 through PDP-3; Media inputs=PENDING, obligations=344, consumer provider bindings=0, recorded blockers=3; Lifecycle provider admission, receipts, currentness, and closure remain external.\n"
+      },
+      {
+        "command": "node scripts/audit-media-obligation-denominator.mjs",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/definition-audit-media-obligation-denominator.log",
+        "tail": "4bca0336\"\n    },\n    \"comparison\": {\n      \"present\": 344,\n      \"matching\": 344,\n      \"stale\": 0,\n      \"absent\": 0\n    },\n    \"note\": \"Persisted sourceDigest values are compared with the current source file hashes.\"\n  },\n  \"traceability\": {\n    \"status\": \"partial-authored-links; independent-P0-010-semantic-closure-pending\",\n    \"completeness\": \"partial\",\n    \"independentReviewRequired\": true\n  },\n  \"authoritativeObserverAssignments\": 0,\n  \"authoritativeOracleAssignments\": 0,\n  \"issues\": []\n}\n"
+      },
+      {
+        "command": "node scripts/check-media-presentation-architecture.mjs",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/definition-check-media-presentation-architecture.log",
+        "tail": "rResults\": [\n    {\n      \"id\": \"media.adapter.product-renderer\",\n      \"packageName\": \"@audio-video/ui\",\n      \"subpath\": \".\",\n      \"exportName\": \"MediaProductRenderer\",\n      \"source\": \"libs/audio-video-ui/src/screens/MediaProductRenderer.tsx\",\n      \"declaration\": \"@audio-video/ui#MediaProductRenderer\",\n      \"moduleSpecifier\": \"@audio-video/ui\",\n      \"explorerHasIdentity\": true,\n      \"productionHasIdentity\": false,\n      \"sourceExists\": true,\n      \"publicExportRecorded\": true\n    }\n  ]\n}\n"
+      },
+      {
+        "command": "node scripts/check-media-design-conformance.mjs",
+        "exitCode": 1,
+        "log": "/tmp/media-execution/definition-check-media-design-conformance.log",
+        "tail": "-experience-explorer/src/styles.css:10 \u2014 #f5f6f8 is directly authored in CSS (explorer-chrome-or-fixture-only-not-product-authority)\n    apps/media-experience-explorer/src/styles.css:48 \u2014 #0d3f73 is directly authored in CSS (explorer-chrome-or-fixture-only-not-product-authority)\n    \u2026 663 additional source observation(s)\n  BLOCKER design-governance gate shared-artifact-binding remains EXTERNAL_PENDING\n  BLOCKER design-governance gate conformance-and-specialist-review remains INDEPENDENT_PENDING\n"
+      },
+      {
+        "command": "node scripts/check-media-contract-parity.mjs",
+        "exitCode": 1,
+        "log": "/tmp/media-execution/definition-check-media-contract-parity.log",
+        "tail": "storical source findings: 52 (50 dispositioned; 2 unresolved; 5 retired routes)\n  source-dispositioned findings: 45\n  explicit gaps (2):\n  - Agent Tool structural inventory found 4 tools; operation bindings and complete input/result contract parity remain pending\n  - semantic binding unresolved: PDP-1 operations remain proposal-only; nine-organizational-families-with-distinct-operation-identities; cross-interface-bindings-and-owner-review-pending; structural identities are not accepted mappings\n"
+      }
+    ],
+    "residualDiagnostics": [],
+    "strictRepeatedChecks": {
+      "command": "node scripts/generate-media-phase-projections.mjs --check --strict",
+      "runs": 2,
+      "result": "PASS",
+      "logs": [
+        "/tmp/media-execution/definition-strict-final1.log",
+        "/tmp/media-execution/definition-strict-final2.log"
+      ]
+    },
+    "failedProbes": "Initial definition integration full suite 357/362; five stale source expectations corrected and current suite rerun 362/362. No negative authority gates bypassed.",
+    "finalSourceChecks": {
+      "command": "node --test tests/product-definition-authority.test.mjs tests/media-product-definition-residuals.test.mjs tests/media-lifecycle-source-generator.test.mjs tests/pdp-overview-currentness.test.mjs",
+      "pass": 33,
+      "fail": 0,
+      "log": "/tmp/media-execution/definition-final-source-checks.log"
+    },
+    "originalLedgerIntegrity": "71 original IDs, titles, statuses and Done predicates compared with base main and unchanged",
+    "gitDiffCheck": "PASS"
+  },
+  "publicDependencyVersions": {
+    "Tools": "0.1.0-rc.1",
+    "Lifecycle": "0.1.0-rc.1",
+    "Shared": "0.1.0-SNAPSHOT",
+    "DocumentIntelligence": "0.1.0",
+    "AIInference": "1.1.0",
+    "DataCloud": "1.2.1",
+    "ActionPlane": "1.2.0",
+    "EventPlane": "1.3.0",
+    "NetworkNT": "3.0.6"
+  },
+  "dependencyBoundary": "Source-observed development/public contract bytes; no immutable publisher, licensing or independent admission claimed",
+  "phaseAcceptance": {
+    "PDP-0": "OPEN",
+    "PDP-1": "OPEN",
+    "PDP-2": "OPEN",
+    "PDP-3": "OPEN"
+  },
+  "remainingIndependentAuthorities": [
+    {
+      "authority": "Shared publisher",
+      "condition": "Immutable qualified public artifact and applicable compatibility acceptance",
+      "artifact": ".product-experience/pdp-2-design-interface-system/design-governance.json#shared-artifact-binding"
+    },
+    {
+      "authority": "Independent visual/accessibility and task/machine-channel semantic reviewers",
+      "condition": "Attributable independent conformance acceptance over complete phase source",
+      "artifact": ".product-experience/acceptance.yaml"
+    },
+    {
+      "authority": "Lifecycle evidence issuer",
+      "condition": "Registered and admitted proof routes/results and four real native current phase receipts",
+      "artifact": "config/closure/media-product-definition/obligations.json"
+    }
+  ],
+  "nextDefinitionBatch": "Complete the remaining selected upload/artifact definition constraints and cross-phase action/effect/recovery projections, then the next existing canonical journey; no new runtime implementation or production activation."
+}

@@ -1142,7 +1142,7 @@ test("MSC-07 erasure routing is crosswalked while proposed state and effect sema
   assert.ok(erasureStateIds.every((stateId) => stateRecord.stateIds.includes(stateId)));
   assert.ok(erasureStateIds.every((stateId) => policy.productPolicy.dataHandling.deletion.states.includes(stateId)));
   assert.match(states.authorityStatus, /proposal-only/u);
-  assert.match(stateRecord.meaningDisposition, /pending-owner-review/u);
+  assert.match(stateRecord.meaningDisposition, /EXPIRED-and-remaining-lifecycle-guards-open; runtime-NOT_ADMITTED/u);
   assert.match(policy.productPolicy.authorityStatus, /authored-proposal/u);
   assert.match(claim.mappingBasis, /supports only the source's owner-boundary distinction/u);
   assert.equal(claim.acceptanceEffect, "none");

@@ -69,7 +69,7 @@ test("ProductDefinition mapping coverage is explicit, source-pinned, and rejects
   for (const field of schema.required) assert.ok(Object.hasOwn(projection.candidateModel, field), `${field} is required by the public schema`);
   for (const field of ["createdAt", "updatedAt"]) assert.equal(Object.hasOwn(projection.candidateModel, field), false, `${field} stays omitted without authored timestamp provenance`);
   assert.ok(!projection.fieldMappingBlockers.some(({ field }) => field === "domainRules"), "bounded owner-decided rules have a direct PDP-1 source mapping");
-  assert.ok(projection.fieldMappingBlockers.some(({ field }) => field === "successMeasures"), "the exact capability crosswalk and independent calibration remain open");
+  assert.ok(!projection.fieldMappingBlockers.some(({ field }) => field === "successMeasures"), "PXD-048 accepts definition mapping without asserting measured calibration");
   assert.equal(projection.candidateModel.domainRules.length, 6, "only bounded accepted PDP-1 policy decisions are projected");
   assert.equal(projection.candidateModel.successMeasures.length, 4, "all source-defined business-intent measurement contracts are projected");
   assert.ok(projection.candidateModel.successMeasures.every((measure) => Object.keys(measure).sort().join(",") === "baseline,description,id,metric,target"), "the candidate maps defined criteria while preserving unknown baseline and unset target");
@@ -194,7 +194,7 @@ test("PDP-0 quality and NFR records retain measurement limits and unresolved spe
   assert.match(nfr.authorityStatus, /pending-P0-010/iu);
   const goals = readYaml(".product-experience/pdp-0-product-truth/goals-jtbd.yaml");
   const measures = goals.successMeasureContracts;
-  assert.match(measures.status, /baseline-and-qualification-not-evaluated/u);
+  assert.match(measures.status, /baseline-target-and-qualification-not-evaluated/u);
   assert.equal(measures.records.length, 4);
   assert.deepEqual(measures.records.map(({ businessIntentRef }) => businessIntentRef), goals.businessIntents.map(({ id }) => id));
   assert.ok(measures.records.every(({ metric, unit, denominator, applicability, acceptanceCriterion, evidenceMethod, baseline, target, qualification }) =>

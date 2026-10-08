@@ -23,17 +23,17 @@ objects:
   - id: media.domain.artifact
     name: MediaArtifact
     kind: entity
-    identity: Java-store-lookup-tenantId-plus-artifactId; TypeScript-tenantId-and-id-fields; SQL-primary-key-(tenant_id,artifact_id); cross-interface-canonical-key-unbound
+    identity: bounded-canonical-key-(tenantId,artifactId); Java-store-and-PostgreSQL-use-that-pair; TypeScript-and-OpenAPI-observations-retain-tenantId-and-artifactId; caller-scope-also-requires-owning-principal
     lifecycle: immutable-content-identity; policy-and-erasure-state-separate
     observedProjection: Java MediaArtifact; TypeScript MediaArtifact; OpenAPI MediaArtifact
-    scopeStatus: proposed-semantics-with-observed-projections; pending-owner-review
+    scopeStatus: bounded-owner-identity-and-immutability-semantics-accepted; availability-rights-content-retrieval-and-cross-interface-type-equivalence-remain-unresolved
     sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, libs/audio-video-types/src/contracts.ts, contracts/openapi/media.yaml]
   - id: media.domain.artifact-version
     name: ArtifactVersion
     kind: immutable-versioned-entity
-    identity: artifact-id-plus-version-or-content-digest; canonical-key-unbound
+    identity: bounded-owner-key-(tenantId,artifactId,versionId); versionId-is-a-stable-opaque-immutable-version-identity-separate-from-content-digest; same-bytes-or-digest-do-not-alias-a-version-identity
     lifecycle: immutable
-    scopeStatus: proposed; separate-runtime-record-not-observed; pending-owner-review
+    scopeStatus: bounded-version-identity-semantics-defined-under-PXD-049; separate-runtime-record-and-wire-versionId-not-observed; runtime-NOT_ADMITTED; independent-PDP1-review-open
     sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion]
   - id: media.domain.media-asset
     name: MediaAsset
@@ -222,9 +222,9 @@ objects:
   - id: media.domain.upload-session
     name: UploadSession
     kind: observed-upload-lifecycle-record
-    identity: Java-uploadId; TypeScript-id-and-artifactId; persisted-tenantId-and-uploadId; canonical-identity-unbound
-    lifecycle: runtime-and-storage-state-vocabularies-differ
-    scopeStatus: observed-implementation-projections; domain-boundary-and-owner-review-pending
+    identity: bounded-canonical-key-(tenantId,uploadId); owner-scope-adds-principalId; client-request-key-is-separately-scoped-by-(tenantId,principalId,idempotencyKey)
+    lifecycle: mutable-upload-session-is-distinct-from-resulting-immutable-artifact; runtime-upload-status-does-not-assert-artifact-availability
+    scopeStatus: bounded-owner-identity-and-lifecycle-separation-accepted; storage-durability-and-cross-interface-type-equivalence-remain-unresolved
     sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#UploadSession, libs/audio-video-types/src/contracts.ts#UploadSession, contracts/openapi/media.yaml#/components/schemas/UploadSession, providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_upload_sessions]
   - id: media.domain.upload-chunk
     name: UploadChunk

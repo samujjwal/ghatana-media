@@ -91,10 +91,14 @@ test("artifact, job, and lease identities preserve the source-specific keys with
   const artifactSchema = readFileSync("providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql", "utf8");
   const jobStore = readFileSync("providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java", "utf8");
   const artifact = blockForId(domainObjects, "media.domain.artifact");
+  const artifactVersion = blockForId(domainObjects, "media.domain.artifact-version");
   const job = blockForId(domainObjects, "media.domain.processing-job");
   const lease = blockForId(domainObjects, "media.domain.job-lease");
 
-  assert.match(artifact, /identity: Java-store-lookup-tenantId-plus-artifactId; TypeScript-tenantId-and-id-fields; SQL-primary-key-\(tenant_id,artifact_id\); cross-interface-canonical-key-unbound/u);
+  assert.match(artifact, /identity: bounded-canonical-key-\(tenantId,artifactId\); Java-store-and-PostgreSQL-use-that-pair; TypeScript-and-OpenAPI-observations-retain-tenantId-and-artifactId; caller-scope-also-requires-owning-principal/u);
+  assert.match(artifactVersion, /identity: bounded-owner-key-\(tenantId,artifactId,versionId\); versionId-is-a-stable-opaque-immutable-version-identity-separate-from-content-digest/u);
+  assert.match(artifactVersion, /separate-runtime-record-and-wire-versionId-not-observed; runtime-NOT_ADMITTED/u);
+  assert.match(blockForId(domainObjects, "media.domain.upload-session"), /identity: bounded-canonical-key-\(tenantId,uploadId\); owner-scope-adds-principalId; client-request-key-is-separately-scoped-by-\(tenantId,principalId,idempotencyKey\)/u);
   assert.match(job, /identity: Java-store-key-tenantId-plus-jobId; TypeScript-tenantId-and-id-fields; SQL-primary-key-\(tenant_id,job_id\); cross-interface-canonical-key-unbound/u);
   assert.match(lease, /identity: Java-record-tenantId-plus-jobId-plus-ownerId-plus-fencingToken; PostgreSQL-lease-columns-on-job-row; no-standalone-lease-id/u);
   assert.match(typeScript, /id: IdentifierSchema,[\s\S]*?tenantId: IdentifierSchema,[\s\S]*?checksumSha256/u);

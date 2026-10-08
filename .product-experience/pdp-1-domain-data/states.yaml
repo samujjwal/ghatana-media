@@ -40,7 +40,7 @@ stateMachines:
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
     stateIds: [RECEIVING, VERIFYING, AVAILABLE, QUARANTINED, REJECTED, EXPIRED, ERASURE_REQUESTED, ACCESS_REVOKED, PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD, ERASURE_CONFIRMED, EXTERNAL_ERASURE_UNCONFIRMED]
     stateCount: 12
-    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+    meaningDisposition: bounded-RECEIVING-VERIFYING-AVAILABLE-QUARANTINED-REJECTED-meanings-and-T01-T02-guards-defined-under-PXD-049; EXPIRED-and-remaining-lifecycle-guards-open; runtime-NOT_ADMITTED
   - machineId: media-stream-session
     sourceMachineId: media-stream-session
     statusDimension: stream-session-state

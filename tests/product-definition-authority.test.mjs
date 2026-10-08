@@ -53,9 +53,10 @@ test("PDP3 screen registry has 47 structurally complete v2 canonical screen prop
       if (value.trim()) assert.match(value.trim(), /^\[[^\n]*\]$/u, `${screenId} ${field} must use YAML array syntax`);
       else assert.match(contract, new RegExp(`^${field}:\\n(?:(?:  - [^\\n]*|    \\[\\])\\n)*`, "mu"), `${screenId} ${field} must be a YAML list`);
     }
-    const actions = [...(contract.match(/^actions:\n((?:- [^\n]*\n)*)/mu)?.[1] ?? "").matchAll(/^- ([^\n]+)$/gmu)].map(([, id]) => id);
+    const actionsBody = contract.match(/^actions:\n([\s\S]*?)(?=^[A-Za-z][A-Za-z0-9]*:|$(?![\s\S]))/mu)?.[1] ?? "";
+    const actions = [...actionsBody.matchAll(/^\s*- ([^\n]+)$/gmu)].map(([, id]) => id);
     const consequencesBody = contract.match(/^actionConsequences:\n([\s\S]*?)(?=^[A-Za-z][A-Za-z0-9]*:|$(?![\s\S]))/mu)?.[1] ?? "";
-    const consequenceIds = [...consequencesBody.matchAll(/^  - actionId: ([^\n]+)$/gmu)].map(([, id]) => id);
+    const consequenceIds = [...consequencesBody.matchAll(/^\s*- actionId: ([^\n]+)$/gmu)].map(([, id]) => id);
     assert.equal(consequenceIds.length, actions.length, `${screenId} consequence count must match actions`);
     assert.deepEqual(consequenceIds, actions, `${screenId} consequence refs must match action IDs and order`);
     if (actions.length) {
@@ -293,7 +294,7 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
       assert.ok(emptyEvidenceField(hasActualEvidence ? "actualEvidence" : "evidenceRefs"),
         `${journeyId}/${stepId} verification evidence list must be exactly empty`);
       const operation = block.match(new RegExp(`^${fieldIndent}canonicalOperationRef:\\s*(.+)$`, "mu"))?.[1].trim();
-      assert.ok(operation === "null" || /^media\.operation\.[a-z0-9.-]+$/u.test(operation),
+      assert.ok(operation === "null" || /^media\.operation(?:-slice)?\.[a-z0-9.-]+$/u.test(operation),
         `${journeyId}/${stepId} canonicalOperationRef must be null or a logical operation ID, never a transport route`);
       const screenRef = block.match(new RegExp(`^${fieldIndent}screenContractRef:\\s*([^\\s]+)$`, "mu"))?.[1];
       if (screenRef) {
@@ -731,7 +732,7 @@ test("screen composition records retain Shared-boundary design metadata", () => 
   assert.match(output, /\d+ unexplained findings across \d+ root causes/u);
   assert.match(output, /design-governance gate shared-artifact-binding remains EXTERNAL_PENDING/u);
   assert.match(output, /design-governance gate conformance-and-specialist-review remains INDEPENDENT_PENDING/u);
-  assert.match(output, /design-governance gate concrete-component-bindings remains SOURCE_INCOMPLETE/u);
+  assert.doesNotMatch(output, /design-governance gate concrete-component-bindings remains SOURCE_INCOMPLETE/u);
 });
 
 test("PDP2-002 GUI pattern registry covers every required category without inventing destructive semantics", () => {

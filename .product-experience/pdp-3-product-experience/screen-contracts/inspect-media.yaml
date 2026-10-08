@@ -8,11 +8,11 @@ layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pen
 componentIds: [media.component.artifact-integrity-summary, media.component.provenance-summary]
 patternIds: [media.gui.pattern.provenance-and-lineage, media.gui.pattern.quality-and-uncertainty]
 tokenDependencies: []
-domainObjectRefs: []
-operationRefs: []
+domainObjectRefs: [media.domain.artifact, media.domain.artifact-version]
+operationRefs: [media.operation-slice.inspect-artifact]
 requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-PROJECT]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
-stateRefs: []
+stateRefs: [media-upload-and-artifact/VERIFYING, media-upload-and-artifact/AVAILABLE, media-upload-and-artifact/QUARANTINED, media-upload-and-artifact/REJECTED]
 entry: []
 exit: []
 actionConsequences:
@@ -20,7 +20,7 @@ actionConsequences:
     capabilityRefs: [media.artifact.inspect]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
+    operationRef: media.operation-slice.inspect-artifact
     effectRef: null
     consequence: unresolved
     status: pending-owner-binding
@@ -45,13 +45,13 @@ fieldBindingStatus:
   componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
   patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
   tokenDependencies: no-canonical-references-declared
-  domainObjectRefs: no-canonical-references-declared
-  operationRefs: no-canonical-references-declared
+  domainObjectRefs: PDP-1-identities-defined; runtime-admission-pending
+  operationRefs: PDP-1-exact-slices-defined; runtime-admission-pending
   requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
-  stateRefs: no-PDP1-state-references-declared
+  stateRefs: PDP-0-states-defined-for-observation; lifecycle-transition-acceptance-pending
   entry: no-canonical-entry-contract-declared
   exit: no-canonical-exit-contract-declared
-  actionConsequences: unresolved; owner-effect-binding-pending
+  actionConsequences: owner-defined-action-semantics; runtime-admission-pending
   responsiveBehavior: proposal-only; unverified
   fixtures: missing
   verification: not-run

@@ -100,6 +100,39 @@ reviewedClaimSlices:
   basis: This sentence directs readers through document sections; it does not assert product behavior or accept the referenced material.
   authorityEffect: The containing MPSEM item remains UNRESOLVED; the navigation text does not classify or accept the sections it describes.
   acceptanceEffect: none
+- sliceId: MPSEM-0560-J02-OUTCOME-AND-RECOVERY
+  itemId: MPSEM-0560
+  reviewStatus: BOUNDED_SOURCE_REVIEWED
+  reviewMethod: exact-text-comparison-to-historical-pin-and-current-source-plus-existing-PDP-reference-check
+  sourcePinRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+  sourceLines: [1298, 1298]
+  currentSourceLines: [1312, 1312]
+  exactText: '| J-02 | Upload/import → inspect → usable artifact; interrupted parts, checksum mismatch and quarantine recovery |'
+  classification: MIXED_PRODUCT_JOURNEY_INTENT_AND_EXECUTION_RECOVERY
+  disposition: map-only-the-existing-J02-outcome-and-exceptional-path-claims-to-current-proposals
+  productSemanticClaims:
+    - sourcePhrase: Upload/import → inspect → usable artifact
+      target: .product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/J-02
+      targetField: title
+    - sourcePhrase: interrupted parts, checksum mismatch and quarantine recovery
+      target: .product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/J-02
+      targetFields: [criticalNonhappy, recovery]
+  existingExperienceProposal: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/journeyId=J-02
+  basis: >-
+    The exact current and pinned row contains both a user-visible journey
+    outcome and its critical exception/recovery path, so the whole item is not
+    execution-only. PDP-0 J-02 carries the same title, outcomeRefs,
+    criticalNonhappy, and recovery fields. PDP-3 contains an explicitly
+    proposal-status J-02 contract that expands the same upload/inspect path.
+    These are exact references for claim routing, not accepted semantic
+    equivalence, accepted operation bindings, or execution evidence.
+  authorityEffect: >-
+    The original MPSEM item classification and historical pin remain unchanged.
+    This bounded slice corrects only the whole-row execution-only disposition;
+    its two source claims map to existing proposals, which remain pending owner
+    and phase review. It does not accept upload policy, artifact availability,
+    integrity, quarantine, operation transitions, or runtime behavior.
+  acceptanceEffect: none
 claimDecompositions:
 - claimId: MPSEM-0118-C01
   itemId: MPSEM-0118
@@ -32623,14 +32656,16 @@ sourceChangeLedger:
       - id: LPI-01
         path: .product-experience/pdp-0-product-truth/goals-jtbd.yaml
         pinnedSha256: f5d2cc3112fded0c46f811fdc4604ffb85d0d780f22883771f7181ac1faedc40
-        observedCurrentSha256: 0a2430d80830b717d1a9725c3ee499b1ce862ee4cedb8e111e46478035f05667
+        observedCurrentSha256: 74f9a10de4e959d1874e7e83d42fb6ff04b25b5a427230e1bf343c6ece8520d2
         addedCurrentLineSpan: [17, 38]
         addedBlockHeader: 'authorityMapping:'
         addedLines: 22
         additionalCurrentBlocks:
-          - span: [477, 539]
+          - span: [477, 626]
+            previousReviewedSpan: [477, 539]
+            previousReviewedLineCount: 63
             header: "successMeasureContracts:"
-            lineCount: 63
+            lineCount: 150
             meaning: four source-defined measurement definition contracts; profile calibration and qualification remain open
         changedClaims: >-
           Adds actorRefs-versus-principal/permission/accountability rules and four
@@ -32712,3 +32747,11 @@ sourceChangeLedger:
           equivalence. Keep this historical pin stale; the bounded rule disposition
           does not constitute owner acceptance of all 34 items, does not demonstrate
           semantic equivalence, and does not accept the phase.
+
+definitionOnlyLinkedSourceDelta:
+  path: .product-experience/pdp-0-product-truth/goals-jtbd.yaml
+  previousObservedSha256: 0a2430d80830b717d1a9725c3ee499b1ce862ee4cedb8e111e46478035f05667
+  currentObservedSha256: 74f9a10de4e959d1874e7e83d42fb6ff04b25b5a427230e1bf343c6ece8520d2
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-048
+  semanticImpact: Four existing measurement contracts acquire exact source trace and calculation grammar. This does not accept whole historic migration items, enumerate qualified profile populations or alter the historic master-plan or linked PDP pin.
+  acceptanceEffect: bounded measurement definition only; migration semantic equivalence and independent review remain open

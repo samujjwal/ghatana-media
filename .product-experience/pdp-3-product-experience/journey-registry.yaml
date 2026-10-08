@@ -202,23 +202,23 @@ coverageObservation:
       unresolved: 112
       blocker: remaining-steps-have-no-exact-step-level-action-allocation; screen-action-candidates-are-not-equivalent-to-journey-step-actions
     objectRefs:
-      empty: 130
+      empty: 125
       blocker: canonical-domain-semantics-and-step-object-allocation-remain-unresolved
     stateRefs:
-      empty: 130
+      empty: 125
       blocker: accepted-state-machine-binding-and-step-transition-allocation-remain-unresolved
     canonicalOperationRef:
       null: 114
       nonNullCandidateRefs: 16
       acceptance: pending; non-null-proposal-references-do-not-establish-operation-equivalence
     authorityRef:
-      null: 130
+      null: 125
       blocker: step-level-authority-allocation-remains-unresolved
     transitionRef:
-      null: 130
+      null: 128
       blocker: canonical-legal-transition-allocation-remains-unresolved
     requirementRefs:
-      empty: 130
+      empty: 112
       blocker: requirement-to-step-crosswalk-remains-unresolved
     verification:
       notRun: 130
@@ -229,3 +229,11 @@ coverageObservation:
     journeysWithoutRefs: 27
     status: deterministic-seed-payloads-exist-for-J-01-through-J-03-only; remaining-journey-scenarios-uncovered
   evidenceBasis: parsed-journey-contract-directory-and-scenario-fixture-registry; J-29-and-J-30-views-are-bounded-Media-owner-selections-from-exact-PDP-0-view-intents-and-PDP-3-screen-contracts; counts-are-proposal-inventory-and-do-not-establish-behavior-acceptance-or-currentness
+
+selectedDefinitionReviewObservation:
+  sourceRef: journey-contracts/upload-import-and-verify-artifact.yaml#definitionReview
+  decisionRef: .product-experience/decision-log.md#PXD-049
+  journeyId: J-02
+  existingStepsWithBoundedDefinition: 5
+  phaseAcceptance: NOT_CLAIMED
+  runtimeAdmission: NOT_ADMITTED

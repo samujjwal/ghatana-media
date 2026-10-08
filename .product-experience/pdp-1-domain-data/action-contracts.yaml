@@ -67,6 +67,22 @@ operationFamilyBindings:
   media.operation.stream-session: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome-cancelled-observation
   media.operation.consent: request-started-acknowledged-completed-denied-conflict-failed-unavailable-unknown-outcome
   media.operation.health-capability: processing-completed-unavailable-unknown-outcome
+operationSliceBindings:
+  media.operation-slice.begin-upload:
+    actionIntentRefs: [media.action.begin-artifact-upload]
+    disposition: exact-bounded-command-intent; not-cross-interface-or-runtime-admission
+  media.operation-slice.append-upload-chunk:
+    actionIntentRefs: [media.action.begin-artifact-upload, media.action.resume-artifact-upload]
+    disposition: guarded-resume-phase-after-inspecting-the-same-upload-rechecking-current-authority-source-and-state-and-explicit-user-confirmation; append-only-remaining-contiguous-parts; unknown-result-requires-inspection-before-any-command
+  media.operation-slice.complete-upload:
+    actionIntentRefs: [media.action.begin-artifact-upload, media.action.resume-artifact-upload]
+    disposition: guarded-resume-phase-after-inspection-current-authority-source-state-and-explicit-user-confirmation; finalize-only-an-unexpired-complete-session-with-verified-size-and-digest; enters-VERIFYING-only; no-availability-rights-or-project-attachment-claim
+  media.operation-slice.inspect-upload:
+    actionIntentRefs: [media.action.resume-artifact-upload]
+    disposition: first-read-and-reconcile-step-in-ordered-resume-workflow; not-the-resume-mutation
+  media.operation-slice.inspect-artifact:
+    actionIntentRefs: [media.action.inspect-artifact]
+    disposition: exact-bounded-read-intent; no-bytes-rights-or-project-attachment
 bindingRules:
   - above-family-lists-are-allowed-result-shapes-not-guaranteed-result-support
   - each-HTTP-gRPC-SDK-CLI-Agent-tool-and-event-adapter-must-declare-its-actual-supported-subset

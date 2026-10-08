@@ -32,9 +32,9 @@ test('PDP overview pages link current authority, acceptance, and source inventor
 
 test('PDP overview blocker summaries match generated candidate projections', () => {
   const p0 = projections.pdp0;
-  assert.deepEqual(p0.fieldMappingBlockers.map(({ field }) => field), ['successMeasures']);
+  assert.deepEqual(p0.fieldMappingBlockers.map(({ field }) => field), []);
   assert.equal(p0.candidateModel.userIntents.length, 19);
-  assert.match(contents.pdp0, /one\s+semantic field blocker/);
+  assert.match(contents.pdp0, /zero\s+semantic field projection blockers/);
   assert.match(contents.pdp0, /all 19\s+source intents and\s+30 journeys with representative initiators selected by PXD-030/);
   assert.equal(p0.acceptance, 'NOT_CLAIMED');
 

@@ -140,9 +140,15 @@ transitionRecords:
     from: [RECEIVING]
     to: [VERIFYING, REJECTED, EXPIRED]
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
-    guardDisposition: pending-owner-review; source guard not promoted
-    operationRefs: []
-    operationBinding: unresolved
+    guardDisposition: bounded-owner-definition-under-PXD-049; runtime-and-independent-qualification-not-admitted
+    operationRefs: [media.operation-slice.complete-upload]
+    operationBinding: only-RECEIVING-to-VERIFYING-on-successful-upload-finalization; 409-or-unknown-does-not-transition-to-REJECTED-or-EXPIRED; not-full-transition-or-runtime-admission
+    operationEdgeBounds:
+      operationRef: media.operation-slice.complete-upload
+      acceptedEdge: RECEIVING-to-VERIFYING-after-required-upload-bytes-and-SHA-256-are-verified
+      excludedEdges: [RECEIVING-to-REJECTED, RECEIVING-to-EXPIRED]
+      decisionRef: .product-experience/decision-log.md#PXD-049
+      authority: Media product semantics only; runtimeAdmission remains NOT_ADMITTED
     eventTriggers: pending-PDP1-004
     permissions: pending-owner-contracts
     executionEffects: pending-runtime-and-platform-owner-contracts
@@ -152,9 +158,27 @@ transitionRecords:
     from: [VERIFYING]
     to: [AVAILABLE, QUARANTINED, REJECTED]
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
-    guardDisposition: pending-owner-review; source guard not promoted
+    guardDisposition: bounded-owner-definition-under-PXD-049; runtime-and-independent-qualification-not-admitted
     operationRefs: []
-    operationBinding: unresolved
+    operationBinding: no-existing-verification-operation-identity; definition-does-not-create-a-route-or-runtime-admission
+    ownerDecisionRef: .product-experience/decision-log.md#PXD-049
+    evidenceGuards:
+      subjectBinding: exact-tenantId-artifactId-stable-opaque-immutable-versionId-byte-size-and-full-content-sha256-lowercase-64-hex-digits
+      requiredCheckRecords:
+        - {check: detected-format-and-format-policy, authority: existing-format-validation-and-policy-authority}
+        - {check: parser-and-security, authority: existing-security-scanning-and-isolated-parser-policy}
+        - {check: rights-for-intended-use, authority: existing-rights-authority}
+        - {check: consent-where-required, authority: existing-tenant-and-principal-scoped-consent-authority}
+        - {check: applicable-policy-and-retention, authority: existing-media-policy-and-retention-authority}
+      recordFields: [tenantId, subjectArtifactId, subjectArtifactVersionId, byteSize, fullContentDigest, intendedUseOrNotApplicable, evaluatedPrincipalIdOrNotApplicable, checkKind, authorityRef, decision, observedAt, policyOrMethodVersion, evidenceRef, expiresAtOrNotApplicable]
+      freshness: all-records-must-be-current-at-disposition-and-rechecked-at-use; expiry-is-authority-supplied
+      outcomeRules:
+        AVAILABLE: all-applicable-records-current-positive-and-bound-to-the-same-exact-subject
+        VERIFYING: required-check-running-or-awaiting-authoritative-result
+        QUARANTINED: missing-stale-unsupported-ambiguous-or-unverifiable-evidence; deny-use-pending-reconciliation
+        REJECTED: authoritative-format-security-rights-consent-or-policy-denial
+      expiryBoundary: EXPIRED-is-outside-this-transition-and-requires-the-separate-authoritative-retention-lifecycle-disposition; expired-check-evidence-cannot-establish-AVAILABLE
+      exclusions: [no-new-operation, no-self-issued-verification-authority, no-availability-from-upload-completion, no-runtime-or-independent-qualification-claim]
     eventTriggers: pending-PDP1-004
     permissions: pending-owner-contracts
     executionEffects: pending-runtime-and-platform-owner-contracts

@@ -51,6 +51,13 @@ sourceDenominators:
       media.action.compare-caption-versions: media.operation.caption-version-read
     unresolvedActionIds: [media.action.select-artifact-source, media.action.choose-intent, media.action.create-project, media.action.inspect-project-creation, media.action.open-project, media.action.choose-source, media.action.inspect-source, media.action.play-source, media.action.seek-source, media.action.resolve-caption-conflict, media.action.inspect-provenance, media.action.add-scene-entity, media.action.add-storyboard-scene, media.action.apply-admitted-edit, media.action.apply-authorized-rights-restriction, media.action.associate-authorized-reference, media.action.change-interpolation-curve, media.action.change-permitted-preference, media.action.choose-admitted-audio-operation, media.action.choose-alignment-basis, media.action.choose-media-improvement-intent, media.action.choose-named-destination, media.action.compare-candidate-on-metric, media.action.compare-media-versions, media.action.continue-within-recorded-scope, media.action.deliver-exact-version, media.action.edit-admitted-adjustment, media.action.edit-audio-mix-controls, media.action.edit-keyframe, media.action.edit-mask-boundary, media.action.edit-requested-outcome-and-admitted-controls, media.action.edit-scene-timing-or-transition, media.action.edit-transition-or-caption-alignment, media.action.edit-unresolved-plan-decision, media.action.edit-video-temporal-plan, media.action.enter-exact-edit-constraints, media.action.export-authorized-provenance, media.action.inspect-consent-and-permitted-use, media.action.inspect-driver-or-constraint, media.action.inspect-effective-processing-constraints, media.action.inspect-generated-candidates, media.action.inspect-governing-evidence, media.action.inspect-input-output-color-interpretation, media.action.inspect-operation-contract, media.action.inspect-operation-readiness, media.action.inspect-output-preview-and-version, media.action.inspect-quality-evidence, media.action.inspect-scene-binding, media.action.inspect-setting-owner, media.action.inspect-simulation-domain-and-fidelity, media.action.inspect-simulation-result, media.action.inspect-source-measurements, media.action.inspect-version-and-review-scope, media.action.inspect-voice-authorization, media.action.limit-tracking-propagation-range, media.action.open-admitted-delivery-action, media.action.open-approval-view, media.action.open-authorized-recovery-instruction, media.action.open-qualification-evidence, media.action.open-related-view, media.action.prepare-redacted-diagnostics, media.action.preview-current-revision, media.action.preview-motion, media.action.reconcile-delivery-acknowledgment, media.action.record-authorized-attestation, media.action.record-candidate-for-review, media.action.record-review-comment, media.action.record-review-follow-up, media.action.record-version-review-decision, media.action.refresh-operation-readiness, media.action.remove-storyboard-scene, media.action.reorder-storyboard-scenes, media.action.reorder-track, media.action.request-admitted-speech-operation, media.action.request-authorized-review, media.action.request-plan-validation, media.action.request-rights-review, media.action.restore-prior-setting-preference, media.action.return-to-requested-destination-after-identity-confirmation, media.action.review-bounded-repair-proposal, media.action.review-estimates-and-rights-effects, media.action.review-output-evidence, media.action.review-recognized-or-synthesized-content, media.action.review-repair-bounds, media.action.review-rights-approval-and-format-effects, media.action.review-translated-segment, media.action.review-uncertain-tracking, media.action.revise-dubbing-segment, media.action.revoke-authorized-consent, media.action.save-dubbing-version, media.action.save-new-revision, media.action.save-setting-preference, media.action.save-storyboard-revision, media.action.save-versioned-edit, media.action.search-by-user-outcome, media.action.search-named-profiles, media.action.search-product-guidance, media.action.select-authorized-reference, media.action.select-eligible-processing-profile, media.action.select-exact-candidates, media.action.select-identity-confirmed-workspace, media.action.select-keyframe, media.action.select-region-or-point, media.action.select-scene-entity, media.action.select-shot-or-region, media.action.select-track-or-region, media.action.set-simulation-initial-condition, media.action.share-diagnostics-after-explicit-choice, media.action.start-upstream-identity-handoff, media.action.stop-authorized-voice-use, media.action.submit-admitted-plan, media.action.submit-render, media.action.submit-simulation, media.action.submit-validated-request, media.action.trim-track, media.action.undo-or-redo-versioned-change, media.action.update-repair-bounds, media.action.update-scene-binding, media.action.validate-composition, media.action.validate-exact-snapshot, media.action.validate-processing-profile, media.action.validate-scene-references, media.action.validate-simulation-plan, media.action.align-source-time-interval, media.action.inspect-source-grounded-observation, media.action.review-processing-parameters, media.action.review-scene-timing-and-transitions, media.action.search-authorized-artifacts, media.action.select-simulation-output-pass, media.action.select-source-time-interval, media.action.set-declared-simulation-input, media.action.switch-measurement-presentation]
     bindingStatus: 14 source actions have exact proposed operation refs; remaining 132 lack direct canonical bindings; source-action type dispositions are recorded in interface-parity/operation-parity.yaml
+    exactOwnerReviewedSliceBindings:
+      decisionRefs: [.product-experience/decision-log.md#PXD-040, .product-experience/decision-log.md#PXD-046, .product-experience/decision-log.md#PXD-049]
+      media.action.begin-artifact-upload: media.operation-slice.begin-upload
+      media.action.resume-artifact-upload: media.operation-slice.inspect-upload
+      media.action.inspect-artifact: media.operation-slice.inspect-artifact
+      resumeWorkflow: [media.operation-slice.inspect-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+      boundary: intent-and-guarded-ordered-workflow-bindings-only; inspect-first; recheck-authority-source-and-state; require-explicit-user-confirmation-before-append; inspect-after-unknown; inspect-artifact-does-not-bind-byte-retrieval-or-project-attachment
   httpOperations:
     count: 27
     source: contracts/openapi/media.yaml
@@ -756,7 +763,31 @@ individualOperationContracts:
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1uploads/post
       runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.begin
       requestFields: [tenantId, principalId, fileName, contentType, expectedSizeBytes, expectedSha256, classification, retention, metadata]
+      requestHeaders: [X-Tenant-Id, X-Principal-Id, Idempotency-Key]
       contractVersion: 1
+      operationKind: COMMAND
+      resourceScope: tenant-and-owning-principal-scoped-upload-session
+      requestIdentity: header-Idempotency-Key-scoped-by-tenantId-principalId-and-bound-to-canonical-full-upload-request-v1
+      actionIntentRefs: [media.action.begin-artifact-upload]
+      actionBindingDisposition: exact-intent-for-begin-command-only
+      stateBinding:
+        uploadSession: new-identity-enters-OPEN; existing-equal-replay-returns-current-persisted-upload-session-projection
+        productLifecycle: RECEIVING-while-bounded-upload-is-open; upload-session-receipt-does-not-establish-an-artifact
+        transitionRefs: []
+        projectionLoss: runtime-OPEN-is-upload-session-state-not-proof-of-product-artifact-availability
+      outcomes:
+        success: HTTP-201-upload-session-receipt-only
+        declaredErrors: [HTTP-400-invalid-request-or-idempotency-payload-mismatch, HTTP-403-auth-or-policy-denial]
+        unknownOutcome: reconcile-the-same-tenant-principal-idempotency-key-before-any-new-upload-identity
+      wireBinding:
+        method: POST
+        path: /api/v1/artifacts/uploads
+        operationId: beginMediaUpload
+        requestContentType: application/json
+        responseContentType: application/json
+        successStatus: 201
+        responseSchema: UploadSession
+        declaredErrorStatuses: [400, 403]
       ownerSemantics:
         reviewStatus: media-owner-accepted-bounded-definition; implementation-and-independent-qualification-open
         replay:
@@ -792,7 +823,33 @@ individualOperationContracts:
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1uploads~1{uploadId}~1chunks~1{chunkIndex}/put
       runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.append
       requestFields: [tenantId, principalId, uploadId, chunkIndex, bytes]
+      requestHeaders: [X-Tenant-Id, X-Principal-Id]
       contractVersion: 1
+      operationKind: COMMAND
+      resourceScope: tenant-and-owning-principal-scoped-upload-session
+      requestIdentity: tenantId-principalId-uploadId-and-zero-based-chunkIndex; no-replay-safe-request-key
+      actionIntentRefs: [media.action.begin-artifact-upload, media.action.resume-artifact-upload]
+      actionBindingDisposition: guarded-compound-resume-phase; inspect-same-upload-recheck-authority-source-and-state-confirm-then-append-only-remaining-parts; no-automatic-replay-after-unknown
+      stateBinding:
+        uploadSession: OPEN-accepts-only-current-nextChunkIndex; persisted-matching-duplicate-does-not-advance-progress
+        productLifecycle: remains-RECEIVING; chunk-acknowledgement-does-not-enter-VERIFYING-or-AVAILABLE
+        transitionRefs: []
+        projectionLoss: bytesReceived-and-nextChunkIndex-are-progress-observations-not-artifact-state-or-completeness
+      outcomes:
+        success: HTTP-200-upload-session-progress-observation
+        declaredErrors: [HTTP-400-invalid-chunk-index-or-request, HTTP-409-upload-state-or-conflicting-chunk]
+        runtimeObservedErrorsNotDeclaredByOpenAPI: [HTTP-404-UPLOAD_NOT_FOUND-within-caller-scope]
+        unknownOutcome: preserve-unknown-and-inspect-the-same-upload-before-any-command; never-automatically-replay
+      wireBinding:
+        method: PUT
+        path: /api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}
+        operationId: appendMediaChunk
+        requestContentType: application/octet-stream
+        responseContentType: application/json
+        successStatus: 200
+        responseSchema: UploadSession
+        declaredErrorStatuses: [400, 409]
+        runtimeObservedButUndeclared: {status: 404, code: UPLOAD_NOT_FOUND, scope: tenant-and-owning-principal}
       ownerSemantics:
         reviewStatus: media-owner-accepted-bounded-definition; implementation-and-independent-qualification-open
         ordering: new-chunks-accept-only-the-current-nextChunkIndex; zero-based-and-contiguous; prior-index-replay-requires-persisted-payload-receipt
@@ -826,7 +883,33 @@ individualOperationContracts:
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1uploads~1{uploadId}~1complete/post
       runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.complete
       requestFields: [tenantId, principalId, uploadId]
+      requestHeaders: [X-Tenant-Id, X-Principal-Id]
       contractVersion: 1
+      operationKind: COMMAND
+      resourceScope: tenant-and-owning-principal-scoped-upload-session
+      requestIdentity: tenantId-principalId-uploadId; bodyless-and-no-caller-request-key
+      actionIntentRefs: [media.action.begin-artifact-upload, media.action.resume-artifact-upload]
+      actionBindingDisposition: guarded-compound-resume-phase; only-after-same-upload-inspection-current-authority-source-state-and-explicit-user-confirmation
+      stateBinding:
+        uploadSession: successful-finalization-produces-COMPLETED-and-preserves-original-artifact-identity-on-replay
+        productLifecycle: completed-upload-enters-VERIFYING-only; integrity-check-does-not-claim-security-rights-format-or-policy-disposition
+        transitionRefs: [media-upload-and-artifact/T01]
+        projectionLoss: UploadSession-COMPLETED-and-MediaArtifact-receipt-are-not-AVAILABLE; verification-evidence-and-disposition-remain-separate
+      outcomes:
+        success: HTTP-201-checksum-verified-artifact-receipt; stable-upload-to-artifact-association-is-required-for-repeat
+        declaredErrors: [HTTP-409-upload-not-completable-or-integrity-conflict]
+        runtimeObservedErrorsNotDeclaredByOpenAPI: [HTTP-404-UPLOAD_NOT_FOUND-within-caller-scope]
+        unknownOutcome: inspect-the-same-upload-and-artifact-identities; no-second-artifact-creation-or-inferred-availability
+      wireBinding:
+        method: POST
+        path: /api/v1/artifacts/uploads/{uploadId}/complete
+        operationId: completeMediaUpload
+        requestBody: absent
+        callerRequestKey: absent
+        successStatus: 201
+        responseSchema: MediaArtifact
+        declaredErrorStatuses: [409]
+        runtimeObservedButUndeclared: {status: 404, code: UPLOAD_NOT_FOUND, scope: tenant-and-owning-principal}
       ownerSemantics:
         reviewStatus: media-owner-accepted-bounded-definition; implementation-and-independent-qualification-open
         commandIdentity: tenant-and-owning-principal-scoped-uploadId; no-request-body-or-request-idempotency-key-exists-on-this-wire-operation
@@ -862,6 +945,20 @@ individualOperationContracts:
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1uploads~1{uploadId}/get
       runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.upload
       requestFields: [tenantId, principalId, uploadId]
+      operationKind: QUERY
+      resourceScope: tenant-and-owning-principal
+      requestIdentity: tenantId-principalId-uploadId
+      actionIntentRefs: [media.action.resume-artifact-upload]
+      actionBindingDisposition: first-read-and-reconcile-step-in-ordered-resume-workflow; not-the-resume-mutation
+      stateBinding:
+        uploadSession: returns-stored-upload-session-state-without-mutation
+        productLifecycle: observation-only; does-not-promote-or-finalize-the-artifact
+        transitionRefs: []
+        projectionLoss: runtime-upload-status-is-not-a-freshness-currentness-or-external-effect-receipt
+      outcomes:
+        success: HTTP-200-upload-session-observation
+        declaredErrors: [HTTP-404-absent-or-inaccessible-within-caller-scope-UPLOAD_NOT_FOUND]
+        unknownOutcome: unavailable-read-does-not-prove-global-absence-or-safe-replay
       sourceBounds: HTTP authenticated OPERATOR and tenant context; read-only governance metadata says no policy check and no audit; 200 returns UploadSession, 404 error. Runtime lookup is Optional and tenant-scoped.
       authority: Media defines tenant/owning-principal read semantics; runtime filters by principal after tenant-scoped store lookup. Trusted transport identity remains Shared/host-owned and production-unqualified.
       preconditions: caller supplies upload identity under current tenant context.
@@ -869,9 +966,7 @@ individualOperationContracts:
       negativeCases: [cross-tenant-lookup, treat-stale-session-as-current, infer-artifact-existence-from-session, treat-404-as-global-nonexistence]
       status: accepted-bounded-read-semantics; independent-phase-review-and-runtime-qualification-open
       ownerDecisionRef: .product-experience/decision-log.md#PXD-040
-      operationKind: QUERY
       contractVersion: 1
-      resourceScope: tenant-and-owning-principal
       wireBinding:
         method: GET
         operationId: getMediaUpload
@@ -899,6 +994,20 @@ individualOperationContracts:
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1{artifactId}/get
       runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.artifact
       requestFields: [tenantId, principalId, artifactId]
+      operationKind: QUERY
+      resourceScope: tenant-and-owning-principal
+      requestIdentity: tenantId-principalId-artifactId
+      actionIntentRefs: [media.action.inspect-artifact]
+      actionBindingDisposition: exact-read-intent; no-content-retrieval-or-availability-implied
+      stateBinding:
+        artifact: returns-stored-immutable-artifact-metadata-and-opaque-object-reference-without-mutation
+        productLifecycle: state-is-not-present-in-the-wire-observation; metadata-or-objectReference-does-not-establish-AVAILABLE
+        transitionRefs: []
+        projectionLoss: opaque-object-reference-is-not-a-byte-retrieval-url-or-current-rights-and-availability-proof
+      outcomes:
+        success: HTTP-200-artifact-metadata-observation
+        declaredErrors: [HTTP-404-absent-or-inaccessible-within-caller-scope-ARTIFACT_NOT_FOUND]
+        unknownOutcome: unavailable-read-does-not-prove-global-absence-or-prior-effect
       sourceBounds: HTTP authenticated OPERATOR and tenant context; read-only governance metadata says no policy check and no audit; 200 returns artifact metadata and opaque object reference, 404 error. Runtime lookup is Optional and tenant-scoped.
       authority: Media defines tenant/owning-principal read semantics; runtime filters by principal after tenant-scoped store lookup. Trusted transport identity remains Shared/host-owned and production-unqualified.
       preconditions: caller supplies artifact identity within current tenant context.
@@ -906,9 +1015,7 @@ individualOperationContracts:
       negativeCases: [cross-tenant-lookup, dereference-opaque-object-reference-as-public-url, infer-rights-or-availability-from-metadata, treat-404-as-global-nonexistence]
       status: accepted-bounded-read-semantics; independent-phase-review-and-runtime-qualification-open
       ownerDecisionRef: .product-experience/decision-log.md#PXD-040
-      operationKind: QUERY
       contractVersion: 1
-      resourceScope: tenant-and-owning-principal
       wireBinding:
         method: GET
         operationId: getMediaArtifact

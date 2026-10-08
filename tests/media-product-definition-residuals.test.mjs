@@ -24,9 +24,9 @@ test("residual report validates exact projection dispositions and pinned sources
     limitation: "These checks detect top-level omissions and unreported empty collections; they do not infer nested record completeness, mapping semantics, owner decisions, or acceptance.",
   });
   assert.deepEqual(report.projections.map(({ phase }) => phase), ["PDP-0", "PDP-2", "PDP-3"]);
-  assert.deepEqual(report.projections.map(({ unresolvedFieldCount }) => unresolvedFieldCount), [1, 0, 10]);
+  assert.deepEqual(report.projections.map(({ unresolvedFieldCount }) => unresolvedFieldCount), [0, 0, 10]);
   assert.deepEqual(report.projections.map(({ unresolvedFields }) => unresolvedFields.map(({ field }) => field)), [
-    ["successMeasures"],
+    [],
     [],
     ["actions", "componentContracts", "effects", "finality", "fixtures", "journeys", "recovery", "scenarios", "transitions", "views"],
   ]);
@@ -96,14 +96,13 @@ test("residual report validates exact projection dispositions and pinned sources
     "media.sdk.removeEventListener",
   ]);
   assert.equal(report.designConformance.gateCount, 7);
-  assert.equal(report.designConformance.resolvedOwnerGateCount, 4);
-  assert.equal(report.designConformance.openGateCount, 3);
+  assert.equal(report.designConformance.resolvedOwnerGateCount, 5);
+  assert.equal(report.designConformance.openGateCount, 2);
   assert.deepEqual(report.designConformance.gates
     .filter((gate) => gate.status !== "RESOLVED_OWNER")
     .map(({ id, status }) => ({ id, status })), [
     { id: "shared-artifact-binding", status: "EXTERNAL_PENDING" },
     { id: "conformance-and-specialist-review", status: "INDEPENDENT_PENDING" },
-    { id: "concrete-component-bindings", status: "SOURCE_INCOMPLETE" },
   ]);
   assert.equal(report.lifecycle.obligationCount, 344);
   assert.equal(report.lifecycle.totalProofRoutes, 344);

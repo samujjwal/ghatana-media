@@ -13,11 +13,11 @@ componentIds:
 patternIds:
   - media.gui.pattern.safe-confirmation-and-unknown-outcome
 tokenDependencies: []
-domainObjectRefs: []
-operationRefs: []
+domainObjectRefs: [media.domain.artifact, media.domain.artifact-version]
+operationRefs: [media.operation-slice.inspect-artifact]
 requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
-stateRefs: []
+stateRefs: [media-upload-and-artifact/AVAILABLE, media-upload-and-artifact/VERIFYING, media-upload-and-artifact/QUARANTINED, media-upload-and-artifact/REJECTED]
 entry: []
 exit: []
 actionConsequences:
@@ -25,7 +25,7 @@ actionConsequences:
     capabilityRefs: [media.artifact.inspect]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
+    operationRef: media.operation-slice.inspect-artifact
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
@@ -33,7 +33,8 @@ actionConsequences:
     capabilityRefs: [media.artifact.upload, media.artifact.import]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
+    operationRef: media.operation-slice.begin-upload
+    requiredOperationRefs: [media.operation-slice.begin-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding

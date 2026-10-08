@@ -19,6 +19,33 @@ acceptanceAuthority:
   blockerRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
   currentnessGenerationGapRef: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
 recordedHumanDecisionInputs:
+- id: ACCEPT-INPUT-MEDIA-COMPONENT-DEFINITIONS-20261008
+  phase: PDP-2
+  phaseTask: P2-03
+  decisionInput: accepted
+  sourceOfDecision: explicit-user-delegated-media-owner-product-definition-only
+  decisionDate: '2026-10-08'
+  acceptedScope: [Exact source and reuse dispositions for 31 existing component definitions; three public contracts and 28 retained contract-only compositions.]
+  evidenceRefs: [.product-experience/decision-log.md#PXD-047, .product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#definitionBindings, tests/media-component-definition-bindings.test.mjs]
+  exclusions: [Implementation admission, Shared package approval, independent visual or assistive review, Lifecycle receipts and phase closure.]
+- id: ACCEPT-INPUT-MEDIA-MEASUREMENT-DEFINITIONS-20261008
+  phase: PDP-0
+  phaseTask: P0-06
+  decisionInput: accepted
+  sourceOfDecision: explicit-user-delegated-media-owner-product-definition-only
+  decisionDate: '2026-10-08'
+  acceptedScope: [Four existing measure definitions with exact source trace and profile-scoped calculation grammar; unknown baseline and unset target are explicit.]
+  evidenceRefs: [.product-experience/decision-log.md#PXD-048, .product-experience/pdp-0-product-truth/goals-jtbd.yaml#successMeasureContracts, tests/pdp-0-06-measures-provenance.test.mjs]
+  exclusions: [Measured profile population, scientific calibration, full capability and quality crosswalk, independent PDP-0 acceptance, Lifecycle receipts and phase closure.]
+- id: ACCEPT-INPUT-MEDIA-J02-DEFINITIONS-20261008
+  phase: PDP-1
+  phaseTask: P1-03
+  decisionInput: accepted
+  sourceOfDecision: explicit-user-delegated-media-owner-product-definition-only
+  decisionDate: '2026-10-08'
+  acceptedScope: [Bounded upload and artifact identity, guarded upload and verification edges, and explicit same-identity compound recovery grammar supporting J-02.]
+  evidenceRefs: [.product-experience/decision-log.md#PXD-049, .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts, .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml]
+  exclusions: [Actual governing authority decisions, runtime implementation or admission, independent phase acceptance, Lifecycle receipts and release.]
 - id: ACCEPT-INPUT-MEDIA-REQUEST-FINGERPRINT-20261008
   phase: PDP-1
   phaseTask: P1-04

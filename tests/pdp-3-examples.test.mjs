@@ -18,7 +18,7 @@ const assertStepBinding = (contract, actionRef, expectedOperationRef) => {
   return step;
 };
 const assertDocumentedActionOperationIdsResolve = (doc, actionIds, operationIds) => {
-  for (const [, identity, kind] of doc.matchAll(/(media\.(action|operation)\.[A-Za-z0-9._-]+)/gu)) {
+  for (const [, identity, kind] of doc.matchAll(/(media\.(action|operation(?:-slice)?)\.[A-Za-z0-9._-]+)/gu)) {
     const known = kind === "action" ? actionIds.has(identity) : operationIds.has(identity);
     assert.ok(known, `documentation names stale ${kind} ${identity}`);
   }
@@ -169,7 +169,7 @@ test("P3-08 documented action and operation identities are source-backed", () =>
   const actions = readYaml(`${experience}/action-registry.yaml`);
   const actionIds = new Set(actions.actions.map((action) => action.id));
   const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
-  const operationsById = new Map(operations.operations.map((operation) => [operation.id, operation]));
+  const operationsById = new Map([...operations.operations, ...operations.individualOperationContracts.records].map((operation) => [operation.id, operation]));
 
   const operationIds = new Set(operationsById.keys());
   assertDocumentedActionOperationIdsResolve(doc, actionIds, operationIds);
@@ -181,10 +181,10 @@ test("P3-08 documented action and operation identities are source-backed", () =>
   const journey02 = readYaml(`${experience}/journey-contracts/upload-import-and-verify-artifact.yaml`);
   const terminalStep = journey02.steps.at(-1);
   assert.equal(terminalStep.action, "media.action.inspect-artifact");
-  assert.equal(terminalStep.canonicalOperationRef, "media.operation.artifact-ingest");
-  assert.ok(operationsById.get(terminalStep.canonicalOperationRef).actionRefs.includes(terminalStep.action),
+  assert.equal(terminalStep.canonicalOperationRef, "media.operation-slice.inspect-artifact");
+  assert.ok(operations.sourceDenominators.uiProductActions.exactOwnerReviewedSliceBindings[terminalStep.action] === terminalStep.canonicalOperationRef,
     "J-02 terminal action must match the PDP-1 action/operation crosswalk");
-  assert.match(doc, /terminal step is `media\.action\.inspect-artifact`[\s\S]*?`media\.operation\.artifact-ingest`/u);
+  assert.match(doc, /terminal step is `media\.action\.inspect-artifact`[\s\S]*?`media\.operation-slice\.inspect-artifact`/u);
   assert.doesNotMatch(doc, /terminal action is `media\.action\.attach-source-asset`/u,
     "an earlier J-02 action must not be misreported as its terminal action");
 

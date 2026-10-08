@@ -5,8 +5,8 @@
   "sourceAuthorities": [
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-      "sha256": "c5173af99e6aa5769084a6ab5c73e9cb3165b70d463bb43a07df41eb9426aa1a",
-      "bytes": 12698,
+      "sha256": "273d14484565534b8e14e71146fd07ec11c4a7ead3e5175b4b6bf15811a41c1b",
+      "bytes": 12862,
       "format": "markdown"
     },
     {
@@ -80,8 +80,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/state-adjudication.yaml",
-      "sha256": "89b110fa8010e672a0065af07c4480bb4aac3598f3a464187eed95ab8c4085ea",
-      "bytes": 9764,
+      "sha256": "06c987fcc9e6e420f37cbdb483e47c4916ac22660fe88a322df9698f3253839d",
+      "bytes": 15467,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.state-adjudication.v1",
       "authority": ".product-experience/pdp-0-product-truth/state-models.yaml",
@@ -114,8 +114,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-      "sha256": "0a2430d80830b717d1a9725c3ee499b1ce862ee4cedb8e111e46478035f05667",
-      "bytes": 34675,
+      "sha256": "74f9a10de4e959d1874e7e83d42fb6ff04b25b5a427230e1bf343c6ece8520d2",
+      "bytes": 45273,
       "format": "yaml",
       "schemaVersion": "media.goals-jtbd.v1",
       "authority": null,
@@ -200,6 +200,77 @@
         "media.non-goal.generic-product-tooling",
         "media.non-goal.universal-unqualified-provider-support",
         "media.non-goal.unqualified-scientific-authority"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+      "sha256": "28ba1f0584803976209087dda80b4507283382e1e9632721a3c580eabd05b637",
+      "bytes": 13020,
+      "format": "yaml",
+      "schemaVersion": "media.profile-semantics.v1",
+      "authority": "prospective-Phase-0-semantics; not runtime binding or qualification evidence",
+      "status": "proposed-for-specialist-review",
+      "topLevelFields": [
+        "aliases",
+        "authority",
+        "bindingProfileRule",
+        "candidateDeliveryProfiles",
+        "fallbackSemantics",
+        "integrationGaps",
+        "orthogonalityRules",
+        "phaseTask",
+        "productId",
+        "profileAxes",
+        "profileResolutionRecord",
+        "schemaVersion",
+        "scopeNote",
+        "sourceRefs",
+        "status"
+      ],
+      "declaredIds": [
+        "DELIVERY-PROFILE-ARCHIVAL",
+        "DELIVERY-PROFILE-BROADCAST",
+        "DELIVERY-PROFILE-CINEMATIC",
+        "DELIVERY-PROFILE-INTERACTIVE",
+        "DELIVERY-PROFILE-NAMED",
+        "DELIVERY-PROFILE-PODCAST",
+        "DELIVERY-PROFILE-SOCIAL",
+        "DELIVERY-PROFILE-WEB",
+        "EXECUTION-LOCATION-HYBRID",
+        "EXECUTION-LOCATION-LOCAL",
+        "EXECUTION-LOCATION-REMOTE",
+        "FALLBACK-PERMISSION-RECORD",
+        "PRESERVATION-MODE-CREATIVE",
+        "PRESERVATION-MODE-ENHANCE",
+        "PRESERVATION-MODE-PRESERVE",
+        "PROFILE-ALIAS-CINEMATIC",
+        "PROFILE-ALIAS-LOW-VRAM",
+        "PROFILE-AXIS-DELIVERY",
+        "PROFILE-AXIS-EXECUTION-LOCATION",
+        "PROFILE-AXIS-PRESERVATION",
+        "PROFILE-AXIS-QUALITY-INTENT",
+        "PROFILE-AXIS-REPRODUCIBILITY",
+        "PROFILE-AXIS-RESOURCE",
+        "PROFILE-RESOLUTION-RECORD",
+        "PROFILE-RULE-CINEMATIC-ALIAS",
+        "PROFILE-RULE-DELIVERY-NOT-RIGHTS",
+        "PROFILE-RULE-INDEPENDENT-AXES",
+        "PROFILE-RULE-LOCATION-NOT-PRIVACY",
+        "PROFILE-RULE-PRESERVATION-NOT-REPRODUCIBILITY",
+        "PROFILE-RULE-QUALITY-NOT-FIDELITY",
+        "PROFILE-RULE-RESOURCE-NOT-QUALITY",
+        "PROFILE-RULE-TEST-ONLY",
+        "QUALITY-INTENT-BALANCED",
+        "QUALITY-INTENT-HIGH-QUALITY",
+        "QUALITY-INTENT-MASTER",
+        "QUALITY-INTENT-PREVIEW",
+        "REPRODUCIBILITY-EXACT-ENVIRONMENT",
+        "REPRODUCIBILITY-REPLAY-UNAVAILABLE",
+        "REPRODUCIBILITY-STATISTICAL",
+        "REPRODUCIBILITY-TOLERANCE-BOUND",
+        "RESOURCE-PROFILE-LOW",
+        "RESOURCE-PROFILE-STANDARD",
+        "media.delivery-profile.webm-opus-av1-permissive"
       ]
     },
     {
@@ -6481,28 +6552,28 @@
       {
         "id": "media.business.reuse-media-capabilities.measure",
         "description": "Eligible consumer workflows using versioned public contracts and preserved domain finality.",
-        "metric": "distinct-consumer-workflows-with-an-admitted-versioned-public-contract-and-passing-domain-finality-conformance (unit: consumer-workflow; denominator: Media consumer workflows selected for the measured release profile; applicability: Only workflows admitted for the named release profile and public contract version; internal fixtures alone do not count as admitted consumers.; acceptance: Every counted workflow identifies its contract version and has evidence that the consumer preserves the bound Media operation's finality distinctions.; evidence: versioned-consumer-inventory-plus-consumer-contract-conformance-result)",
+        "metric": "distinct-consumer-workflows-with-an-admitted-versioned-public-contract-and-passing-domain-finality-conformance (unit: consumer-workflow; denominator: Count distinct consumer workflows declared in the frozen release-profile cohort that invoke at least one bound public Media capability; retain failed, blocked, and untested workflows in the denominator. Exclude a workflow only when it is outside the declared cohort or no bound public capability applies, and record that reason.; applicability: Only workflows admitted for the named release profile and public contract version; internal fixtures alone do not count as admitted consumers.; acceptance: Every counted workflow identifies its contract version and has evidence that the consumer preserves the bound Media operation's finality distinctions.; evidence: versioned-consumer-inventory-plus-consumer-contract-conformance-result; numerator: Count denominator workflows with a current public contract version and passing consumer conformance for every bound operation, including preserved idempotency, cancellation, status, and finality distinctions.; calculation: 100 * numerator / denominator; report percent and raw numerator/denominator integers. A zero denominator is NOT_APPLICABLE, never 100 percent; incomplete inventory or evidence is NOT_EVALUATED.; value unit: percent; retain raw integer numerator and denominator with each observation.; outcomes: media.goal.integrate-repeatably; capability trace: media.capability.discover, media.capability.check-declared-options, media.capability.execution.compatibility, media.job.submit, media.job.view-status, media.job.cancel, media.job.retry, media.job.check-outcome; profile axes: PROFILE-AXIS-EXECUTION-LOCATION, PROFILE-AXIS-REPRODUCIBILITY; profile binding: Freeze the release-profile ID and contract versions, selected exact capability leaves, deployment/region, tenant-policy scope, observation interval, and consumer cohort before counting. A fixture, candidate profile, or unversioned integration is not an admitted workflow.; baseline policy: Establish only from a complete frozen cohort and observation interval using the same conformance oracle for every workflow; include failures and abstentions, preserve versioned evidence, and do not extrapolate from fixtures or request volume.; target policy: NOT_SET until Media owners select an explicit release-profile threshold after a qualified baseline and calibration review; do not assume 100 percent or transfer a target between profiles.; population: NOT_EVALUATED; a complete named-profile consumer cohort and per-capability consumer inventory are not yet recorded.)",
         "baseline": "NOT_EVALUATED; no admitted consumer inventory is recorded by this product definition.",
         "target": "NOT_SET; set only after a named release profile and qualified baseline are selected."
       },
       {
         "id": "media.business.trustworthy-versioned-outputs.measure",
         "description": "Applicable output contracts specifying exact identity, provenance, rights state and delivery acknowledgment.",
-        "metric": "applicable-output-contracts-that-specify-exact-version-identity-provenance-current-rights-state-and-delivery-acknowledgment-semantics (unit: output-contract; denominator: Output-producing operation contracts applicable to the named profile; applicability: An output is counted only when its operation can produce or deliver an output under the named profile; read-only and non-output operations are outside the denominator with an explicit rationale.; acceptance: Each counted contract defines immutable output identity and lineage, represents rights state separately from user attestation, and distinguishes result completion from recipient acknowledgment.; evidence: source-contract-audit-plus-applicable-version-lineage-and-delivery-contract-conformance)",
+        "metric": "applicable-output-contracts-that-specify-exact-version-identity-provenance-current-rights-state-and-delivery-acknowledgment-semantics (unit: output-operation-contract-profile-pair; denominator: Count every output-producing operation-contract/profile pair selected in the frozen release profile, including pairs with missing, rejected, or incomplete contracts. Exclude read-only operations only with a source-linked non-output rationale recorded per pair.; applicability: An output is counted only when its operation can produce or deliver an output under the named profile; read-only and non-output operations are outside the denominator with an explicit rationale.; acceptance: Each counted contract defines immutable output identity and lineage, represents rights state separately from user attestation, and distinguishes result completion from recipient acknowledgment.; evidence: source-contract-audit-plus-applicable-version-lineage-and-delivery-contract-conformance; numerator: Count applicable output-operation-contract/profile pairs whose versioned contract defines immutable output identity and lineage, current rights state separately from user attestation, and completion separately from recipient acknowledgment.; calculation: 100 * numerator / denominator; report percent and raw numerator/denominator integers. A zero denominator is NOT_APPLICABLE, never complete; an unenumerated applicable output population is NOT_EVALUATED.; value unit: percent; retain raw integer numerator and denominator with each observation.; outcomes: media.goal.preserve-source, media.goal.review-trustworthy-output, media.goal.deliver-approved-output; capability trace: media.artifact.inspect, media.artifact.derive, media.artifact.output.register, media.artifact.provenance.export, media.provenance.source-lineage.inspect, media.provenance.execution-lineage.inspect, media.rights.permitted-use.evaluate; profile axes: PROFILE-AXIS-PRESERVATION, PROFILE-AXIS-DELIVERY; profile binding: Freeze the named release-profile ID, exact output-producing capability operation contract versions, delivery profile, preservation mode, jurisdiction/ policy scope, and observation interval. Evaluate each applicable capability/profile pair once.; baseline policy: Establish only from a complete frozen output-capability/profile inventory and versioned contract audit; retain failed, missing, blocked, and unassessed pairs, and do not infer current coverage from generated artifacts.; target policy: NOT_SET until owners choose a profile-specific threshold after qualified baseline review; do not treat all contracts as a target or waive identity, rights, provenance, or acknowledgment criteria to meet one.; population: NOT_EVALUATED; the complete named-profile output-operation contract inventory is not yet enumerated.)",
         "baseline": "NOT_EVALUATED; applicable operations and runtime evidence have not been qualified as a complete population.",
         "target": "NOT_SET; no numeric target is asserted before profile applicability and a qualified baseline are established."
       },
       {
         "id": "media.business.bounded-provider-execution.measure",
         "description": "Admitted execution profiles with qualified bounds and classified unsupported cases.",
-        "metric": "selected-execution-profiles-with-owner-defined-input-resource-policy-and-failure-bounds-and-qualified-unsupported-case-dispositions (unit: execution-profile; denominator: Profiles selected for the named release profile; applicability: A profile is counted only after its provider, model or codec dependencies and exact execution environment are selected; unselected profiles are not implicitly supported.; acceptance: Each counted profile has explicit input and resource bounds, rights and policy preconditions, failure/finality behavior, and source-backed unsupported cases, with qualification evidence for every claimed runtime bound.; evidence: profile-contract-review-plus-versioned-provider-qualification-record)",
+        "metric": "selected-execution-profiles-with-owner-defined-input-resource-policy-and-failure-bounds-and-qualified-unsupported-case-dispositions (unit: execution-capability-profile-pair; denominator: Count every execution capability/profile pair declared in the frozen release profile, including unavailable, unsupported, unqualified, and failed pairs. Exclude a pair only when it is explicitly outside the frozen profile and retain the disposition.; applicability: A profile is counted only after its provider, model or codec dependencies and exact execution environment are selected; unselected profiles are not implicitly supported.; acceptance: Each counted profile has explicit input and resource bounds, rights and policy preconditions, failure/finality behavior, and source-backed unsupported cases, with qualification evidence for every claimed runtime bound.; evidence: profile-contract-review-plus-versioned-provider-qualification-record; numerator: Count selected capability/profile pairs with an admitted dependency set, explicit input/resource/policy/failure bounds, and qualified observations covering each claimed bound and declared unsupported case.; calculation: 100 * numerator / denominator; report percent and raw numerator/denominator integers. A zero denominator is NOT_APPLICABLE, never full coverage; absent capability inventory or qualification evidence is NOT_EVALUATED.; value unit: percent; retain raw integer numerator and denominator with each observation.; outcomes: media.goal.finished-asset, media.goal.understand-media; capability trace: media.capability.execution.compatibility, media.profile.validate; profile axes: PROFILE-AXIS-QUALITY-INTENT, PROFILE-AXIS-RESOURCE, PROFILE-AXIS-EXECUTION-LOCATION, PROFILE-AXIS-REPRODUCIBILITY; profile binding: Freeze the exact Media execution-profile ID/version, capability leaf, provider/model/codec versions, deployment/hardware, region, policy and rights scope, input envelope, and observation interval. Profile axes are independent dimensions; no axis value implies another.; baseline policy: Establish only with the exact pinned capability/dependency/environment and input envelope; include unsupported and failed selected pairs, and retain separate qualification records for each claimed bound.; target policy: NOT_SET until the owner selects profile-specific bound coverage after qualified observations; no throughput, latency, quality, or availability threshold is inferred here.; population: NOT_EVALUATED; exact selected execution profiles and their per-capability bindings have not been enumerated.)",
         "baseline": "NOT_EVALUATED; no complete set of admitted execution profiles is recorded.",
         "target": "NOT_SET; profile selection and qualified observations are prerequisites to a numeric target."
       },
       {
         "id": "media.business.safe-recoverable-operations.measure",
         "description": "Applicable job operations with stable identity, idempotency/fencing, recovery and unknown-finality proof.",
-        "metric": "applicable-long-running-job-operations-with-stable-logical-and-attempt-identities-fenced-effects-defined-recovery-and-unknown-outcome-reconciliation (unit: job-operation; denominator: Long-running job operations exposed by the named release profile; applicability: Include only operations that can outlive the initiating request; synchronous read-only queries and operations excluded by the selected profile are not counted.; acceptance: Each counted operation defines stable job and attempt identity, duplicate/retry behavior, stale-worker fencing, cancellation finality, recovery actions, and an authoritative unknown-outcome reconciliation path.; evidence: operation-contract-audit-plus-failure-injection-and-reconciliation-results)",
+        "metric": "applicable-long-running-job-operations-with-stable-logical-and-attempt-identities-fenced-effects-defined-recovery-and-unknown-outcome-reconciliation (unit: job-operation; denominator: Count every asynchronous operation-contract/profile pair exposed by the frozen release profile, including operations with missing or failed recovery evidence. A synchronous operation is excluded only after the exact source contract establishes it cannot outlive the initiating request.; applicability: Include only operations that can outlive the initiating request; synchronous read-only queries and operations excluded by the selected profile are not counted.; acceptance: Each counted operation defines stable job and attempt identity, duplicate/retry behavior, stale-worker fencing, cancellation finality, recovery actions, and an authoritative unknown-outcome reconciliation path.; evidence: operation-contract-audit-plus-failure-injection-and-reconciliation-results; numerator: Count denominator asynchronous operation/profile pairs whose contracts and executable evidence establish stable logical and attempt identity, idempotent/fenced retry behavior, cancellation finality, recoverable state, and authoritative unknown-outcome reconciliation.; calculation: 100 * numerator / denominator; report percent and raw numerator/denominator integers. A zero denominator is NOT_APPLICABLE, never fully recoverable; incomplete operation inventory or missing proof is NOT_EVALUATED.; value unit: percent; retain raw integer numerator and denominator with each observation.; outcomes: media.goal.integrate-repeatably, media.goal.resolve-safely; capability trace: media.job.submit, media.job.view-status, media.job.watch, media.job.cancel, media.job.retry, media.job.check-outcome; profile axes: PROFILE-AXIS-EXECUTION-LOCATION, PROFILE-AXIS-REPRODUCIBILITY; profile binding: Freeze the release-profile ID, exact asynchronous job capability leaves and versions, persistence/deployment scope, retry and effect policy, and observation interval. Operation identity is the logical job capability/version, not an HTTP route or SDK method alias.; baseline policy: Establish only from the complete asynchronous operation inventory for the frozen release profile and versioned reconciliation evidence; include failed or unproved operations and preserve unknown outcomes as unresolved.; target policy: NOT_SET until owners select a profile-specific recovery threshold after qualified failure-injection and reconciliation observations; a request or cancellation acknowledgment is not terminal completion evidence.; population: NOT_EVALUATED; the complete per-operation asynchronous submission population for a named profile has not been enumerated.)",
         "baseline": "NOT_EVALUATED; current proposals do not constitute runtime proof.",
         "target": "NOT_SET; establish after the applicable operation set and qualified runtime profile are selected."
       }
@@ -6549,7 +6620,7 @@
       "userIntents": "19 of 19 source intents have exact actor/priority decisions; P0-010 independent review pending.",
       "journeys": "30 of 30 source journeys have exact representative initiators; all source collaborator actors remain projected; P0-010 independent review pending.",
       "businessIntentMeasures": "4 source businessIntent.measuredBy statements are projected as exact description-only proposals with deterministic IDs; no metric, profile applicability, target, baseline, qualitative acceptance criterion, or qualification is asserted.",
-      "successMeasures": "4 source-bound measures project their authored metric, unit, denominator, applicability, acceptance criterion, evidence method, and explicit NOT_EVALUATED/NOT_SET baseline/target fields. No numeric result or qualification is asserted; coordinator projection review, exact outcome/capability crosswalk, independent calibration, and qualification remain open."
+      "successMeasures": "4 source-bound measures project their authored metric, unit, denominator, applicability, acceptance criterion, evidence method, and explicit NOT_EVALUATED/NOT_SET baseline/target fields. No numeric result or qualification is asserted; PXD-048 accepts the source crosswalk and calculation definition; measured population, independent calibration, and qualification remain NOT_EVALUATED."
     },
     "businessIntentMeasureProposals": [
       {
@@ -6565,9 +6636,35 @@
           "description": "Eligible consumer workflows using versioned public contracts and preserved domain finality.",
           "metric": "distinct-consumer-workflows-with-an-admitted-versioned-public-contract-and-passing-domain-finality-conformance",
           "unit": "consumer-workflow",
-          "denominator": "Media consumer workflows selected for the measured release profile",
+          "outcomeRefs": [
+            "media.goal.integrate-repeatably"
+          ],
+          "capabilityRefs": [
+            "media.capability.discover",
+            "media.capability.check-declared-options",
+            "media.capability.execution.compatibility",
+            "media.job.submit",
+            "media.job.view-status",
+            "media.job.cancel",
+            "media.job.retry",
+            "media.job.check-outcome"
+          ],
+          "profileAxisRefs": [
+            "PROFILE-AXIS-EXECUTION-LOCATION",
+            "PROFILE-AXIS-REPRODUCIBILITY"
+          ],
+          "capabilityCrosswalkStatus": "exact-source-trace-only; not-an-exhaustive-or-admitted-runtime-population",
+          "populationEnumeration": "NOT_EVALUATED; a complete named-profile consumer cohort and per-capability consumer inventory are not yet recorded.",
+          "profileBinding": "Freeze the release-profile ID and contract versions, selected exact capability leaves, deployment/region, tenant-policy scope, observation interval, and consumer cohort before counting. A fixture, candidate profile, or unversioned integration is not an admitted workflow.",
+          "numerator": "Count denominator workflows with a current public contract version and passing consumer conformance for every bound operation, including preserved idempotency, cancellation, status, and finality distinctions.",
+          "denominator": "Count distinct consumer workflows declared in the frozen release-profile cohort that invoke at least one bound public Media capability; retain failed, blocked, and untested workflows in the denominator. Exclude a workflow only when it is outside the declared cohort or no bound public capability applies, and record that reason.",
+          "calculation": "100 * numerator / denominator; report percent and raw numerator/denominator integers. A zero denominator is NOT_APPLICABLE, never 100 percent; incomplete inventory or evidence is NOT_EVALUATED.",
+          "valueUnit": "percent; retain raw integer numerator and denominator with each observation.",
+          "baselinePolicy": "Establish only from a complete frozen cohort and observation interval using the same conformance oracle for every workflow; include failures and abstentions, preserve versioned evidence, and do not extrapolate from fixtures or request volume.",
+          "targetPolicy": "NOT_SET until Media owners select an explicit release-profile threshold after a qualified baseline and calibration review; do not assume 100 percent or transfer a target between profiles.",
           "applicability": "Only workflows admitted for the named release profile and public contract version; internal fixtures alone do not count as admitted consumers.",
           "acceptanceCriterion": "Every counted workflow identifies its contract version and has evidence that the consumer preserves the bound Media operation's finality distinctions.",
+          "ownerRecommendation": "Measure adoption as a distinct consumer-workflow conformance ratio, not call volume; repeated requests do not create additional workflows and a workflow with any failing bound operation does not enter the numerator.",
           "evidenceMethod": "versioned-consumer-inventory-plus-consumer-contract-conformance-result",
           "baseline": "NOT_EVALUATED; no admitted consumer inventory is recorded by this product definition.",
           "target": "NOT_SET; set only after a named release profile and qualified baseline are selected.",
@@ -6591,11 +6688,38 @@
           "businessIntentRef": "media.business.trustworthy-versioned-outputs",
           "description": "Applicable output contracts specifying exact identity, provenance, rights state and delivery acknowledgment.",
           "metric": "applicable-output-contracts-that-specify-exact-version-identity-provenance-current-rights-state-and-delivery-acknowledgment-semantics",
-          "unit": "output-contract",
-          "denominator": "Output-producing operation contracts applicable to the named profile",
+          "unit": "output-operation-contract-profile-pair",
+          "outcomeRefs": [
+            "media.goal.preserve-source",
+            "media.goal.review-trustworthy-output",
+            "media.goal.deliver-approved-output"
+          ],
+          "capabilityRefs": [
+            "media.artifact.inspect",
+            "media.artifact.derive",
+            "media.artifact.output.register",
+            "media.artifact.provenance.export",
+            "media.provenance.source-lineage.inspect",
+            "media.provenance.execution-lineage.inspect",
+            "media.rights.permitted-use.evaluate"
+          ],
+          "profileAxisRefs": [
+            "PROFILE-AXIS-PRESERVATION",
+            "PROFILE-AXIS-DELIVERY"
+          ],
+          "capabilityCrosswalkStatus": "exact-source-trace-only; not-an-exhaustive-or-admitted-runtime-population",
+          "populationEnumeration": "NOT_EVALUATED; the complete named-profile output-operation contract inventory is not yet enumerated.",
+          "profileBinding": "Freeze the named release-profile ID, exact output-producing capability operation contract versions, delivery profile, preservation mode, jurisdiction/ policy scope, and observation interval. Evaluate each applicable capability/profile pair once.",
+          "numerator": "Count applicable output-operation-contract/profile pairs whose versioned contract defines immutable output identity and lineage, current rights state separately from user attestation, and completion separately from recipient acknowledgment.",
+          "denominator": "Count every output-producing operation-contract/profile pair selected in the frozen release profile, including pairs with missing, rejected, or incomplete contracts. Exclude read-only operations only with a source-linked non-output rationale recorded per pair.",
+          "calculation": "100 * numerator / denominator; report percent and raw numerator/denominator integers. A zero denominator is NOT_APPLICABLE, never complete; an unenumerated applicable output population is NOT_EVALUATED.",
+          "valueUnit": "percent; retain raw integer numerator and denominator with each observation.",
+          "baselinePolicy": "Establish only from a complete frozen output-capability/profile inventory and versioned contract audit; retain failed, missing, blocked, and unassessed pairs, and do not infer current coverage from generated artifacts.",
+          "targetPolicy": "NOT_SET until owners choose a profile-specific threshold after qualified baseline review; do not treat all contracts as a target or waive identity, rights, provenance, or acknowledgment criteria to meet one.",
           "applicability": "An output is counted only when its operation can produce or deliver an output under the named profile; read-only and non-output operations are outside the denominator with an explicit rationale.",
           "acceptanceCriterion": "Each counted contract defines immutable output identity and lineage, represents rights state separately from user attestation, and distinguishes result completion from recipient acknowledgment.",
           "evidenceMethod": "source-contract-audit-plus-applicable-version-lineage-and-delivery-contract-conformance",
+          "ownerRecommendation": "Use the operation-contract/profile pair as the stable unit; one operation exposed in two delivery profiles is two units, while multiple output artifacts from one invocation are not extra units. Capability references are source traces only and do not substitute for the not-yet-enumerated operation population.",
           "baseline": "NOT_EVALUATED; applicable operations and runtime evidence have not been qualified as a complete population.",
           "target": "NOT_SET; no numeric target is asserted before profile applicability and a qualified baseline are established.",
           "qualification": "NOT_EVALUATED",
@@ -6618,11 +6742,34 @@
           "businessIntentRef": "media.business.bounded-provider-execution",
           "description": "Admitted execution profiles with qualified bounds and classified unsupported cases.",
           "metric": "selected-execution-profiles-with-owner-defined-input-resource-policy-and-failure-bounds-and-qualified-unsupported-case-dispositions",
-          "unit": "execution-profile",
-          "denominator": "Profiles selected for the named release profile",
+          "unit": "execution-capability-profile-pair",
+          "outcomeRefs": [
+            "media.goal.finished-asset",
+            "media.goal.understand-media"
+          ],
+          "capabilityRefs": [
+            "media.capability.execution.compatibility",
+            "media.profile.validate"
+          ],
+          "profileAxisRefs": [
+            "PROFILE-AXIS-QUALITY-INTENT",
+            "PROFILE-AXIS-RESOURCE",
+            "PROFILE-AXIS-EXECUTION-LOCATION",
+            "PROFILE-AXIS-REPRODUCIBILITY"
+          ],
+          "capabilityCrosswalkStatus": "exact-source-trace-only; not-an-exhaustive-or-admitted-runtime-population",
+          "populationEnumeration": "NOT_EVALUATED; exact selected execution profiles and their per-capability bindings have not been enumerated.",
+          "profileBinding": "Freeze the exact Media execution-profile ID/version, capability leaf, provider/model/codec versions, deployment/hardware, region, policy and rights scope, input envelope, and observation interval. Profile axes are independent dimensions; no axis value implies another.",
+          "numerator": "Count selected capability/profile pairs with an admitted dependency set, explicit input/resource/policy/failure bounds, and qualified observations covering each claimed bound and declared unsupported case.",
+          "denominator": "Count every execution capability/profile pair declared in the frozen release profile, including unavailable, unsupported, unqualified, and failed pairs. Exclude a pair only when it is explicitly outside the frozen profile and retain the disposition.",
+          "calculation": "100 * numerator / denominator; report percent and raw numerator/denominator integers. A zero denominator is NOT_APPLICABLE, never full coverage; absent capability inventory or qualification evidence is NOT_EVALUATED.",
+          "valueUnit": "percent; retain raw integer numerator and denominator with each observation.",
+          "baselinePolicy": "Establish only with the exact pinned capability/dependency/environment and input envelope; include unsupported and failed selected pairs, and retain separate qualification records for each claimed bound.",
+          "targetPolicy": "NOT_SET until the owner selects profile-specific bound coverage after qualified observations; no throughput, latency, quality, or availability threshold is inferred here.",
           "applicability": "A profile is counted only after its provider, model or codec dependencies and exact execution environment are selected; unselected profiles are not implicitly supported.",
           "acceptanceCriterion": "Each counted profile has explicit input and resource bounds, rights and policy preconditions, failure/finality behavior, and source-backed unsupported cases, with qualification evidence for every claimed runtime bound.",
           "evidenceMethod": "profile-contract-review-plus-versioned-provider-qualification-record",
+          "ownerRecommendation": "Count exact capability/profile combinations, not provider names or profile labels; a claimed resource or latency bound requires a measurement under the same pinned environment and input envelope.",
           "baseline": "NOT_EVALUATED; no complete set of admitted execution profiles is recorded.",
           "target": "NOT_SET; profile selection and qualified observations are prerequisites to a numeric target.",
           "qualification": "NOT_EVALUATED",
@@ -6646,10 +6793,36 @@
           "description": "Applicable job operations with stable identity, idempotency/fencing, recovery and unknown-finality proof.",
           "metric": "applicable-long-running-job-operations-with-stable-logical-and-attempt-identities-fenced-effects-defined-recovery-and-unknown-outcome-reconciliation",
           "unit": "job-operation",
-          "denominator": "Long-running job operations exposed by the named release profile",
+          "outcomeRefs": [
+            "media.goal.integrate-repeatably",
+            "media.goal.resolve-safely"
+          ],
+          "capabilityRefs": [
+            "media.job.submit",
+            "media.job.view-status",
+            "media.job.watch",
+            "media.job.cancel",
+            "media.job.retry",
+            "media.job.check-outcome"
+          ],
+          "profileAxisRefs": [
+            "PROFILE-AXIS-EXECUTION-LOCATION",
+            "PROFILE-AXIS-REPRODUCIBILITY"
+          ],
+          "capabilityCrosswalkStatus": "exact-source-trace-only; not-an-exhaustive-or-admitted-runtime-population",
+          "populationEnumeration": "NOT_EVALUATED; the complete per-operation asynchronous submission population for a named profile has not been enumerated.",
+          "profileBinding": "Freeze the release-profile ID, exact asynchronous job capability leaves and versions, persistence/deployment scope, retry and effect policy, and observation interval. Operation identity is the logical job capability/version, not an HTTP route or SDK method alias.",
+          "applicabilityRule": "Include one population unit only when the exact operation contract states that its submitted work can outlive the initiating request or returns a stable job reference for asynchronous execution. Status, watch, cancel, and retry commands are evidence inputs for that submission's recovery contract; they are not separate long-running-operation units by name alone. Record a per-operation inclusion or exclusion rationale.",
+          "numerator": "Count denominator asynchronous operation/profile pairs whose contracts and executable evidence establish stable logical and attempt identity, idempotent/fenced retry behavior, cancellation finality, recoverable state, and authoritative unknown-outcome reconciliation.",
+          "denominator": "Count every asynchronous operation-contract/profile pair exposed by the frozen release profile, including operations with missing or failed recovery evidence. A synchronous operation is excluded only after the exact source contract establishes it cannot outlive the initiating request.",
+          "calculation": "100 * numerator / denominator; report percent and raw numerator/denominator integers. A zero denominator is NOT_APPLICABLE, never fully recoverable; incomplete operation inventory or missing proof is NOT_EVALUATED.",
+          "valueUnit": "percent; retain raw integer numerator and denominator with each observation.",
+          "baselinePolicy": "Establish only from the complete asynchronous operation inventory for the frozen release profile and versioned reconciliation evidence; include failed or unproved operations and preserve unknown outcomes as unresolved.",
+          "targetPolicy": "NOT_SET until owners select a profile-specific recovery threshold after qualified failure-injection and reconciliation observations; a request or cancellation acknowledgment is not terminal completion evidence.",
           "applicability": "Include only operations that can outlive the initiating request; synchronous read-only queries and operations excluded by the selected profile are not counted.",
           "acceptanceCriterion": "Each counted operation defines stable job and attempt identity, duplicate/retry behavior, stale-worker fencing, cancellation finality, recovery actions, and an authoritative unknown-outcome reconciliation path.",
           "evidenceMethod": "operation-contract-audit-plus-failure-injection-and-reconciliation-results",
+          "ownerRecommendation": "Treat unknown outcomes and cancellation requests as unresolved until authoritative reconciliation; do not count retries or user-visible status labels as proof of recovery. Derive the denominator from per-operation asynchronous submission semantics, not command-family membership or similarly named transport methods.",
           "baseline": "NOT_EVALUATED; current proposals do not constitute runtime proof.",
           "target": "NOT_SET; establish after the applicable operation set and qualified runtime profile are selected.",
           "qualification": "NOT_EVALUATED",
@@ -6787,7 +6960,7 @@
         "source": "actors-responsibilities.yaml#trustContexts.contexts"
       },
       "successMeasures": {
-        "status": "4_SOURCE_DEFINED_MEASUREMENT_CONTRACTS_PROJECTED; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; EXACT_CAPABILITY_CROSSWALK_AND_INDEPENDENT_CALIBRATION_OPEN",
+        "status": "4_SOURCE_DEFINED_MEASUREMENT_CONTRACTS_PROJECTED; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; OWNER_ACCEPTED_DEFINITION_SOURCE_CROSSWALK; MEASURED_POPULATION_AND_INDEPENDENT_CALIBRATION_NOT_EVALUATED",
         "source": "goals-jtbd.yaml#businessIntents[].measuredBy joined by exact successMeasure ID to goals-jtbd.yaml#successMeasureContracts.records; no numeric results inferred"
       },
       "ownershipRules": {
@@ -6965,7 +7138,7 @@
     "businessIntents": {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
       "sourcePath": "businessIntents[].id/description/measuredBy",
-      "mapping": "direct business intent text; measuredBy links to a deterministic description-only successMeasure proposal derived from the exact source business intent ID"
+      "mapping": "direct business intent text; measuredBy links to the exact source-defined measurement contract by deterministic measure ID"
     },
     "desiredOutcomes": {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
@@ -7010,7 +7183,7 @@
     "successMeasures": {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
       "sourcePath": "businessIntents[].measuredBy joined by exact deterministic measure ID to successMeasureContracts.records",
-      "mapping": "project source-authored metric, unit, denominator, applicability, criterion, evidence method, and explicit NOT_EVALUATED baseline/qualification plus NOT_SET target; no measurement result or qualification is inferred; exact capability crosswalk, coordinator review, and independent calibration remain pending"
+      "mapping": "project source-authored metric, unit, denominator, applicability, criterion, evidence method, and explicit NOT_EVALUATED baseline/qualification plus NOT_SET target; no measurement result or qualification is inferred; PXD-048 accepts exact definition source crosswalk and percentage/unknown-value semantics; measured profile population and independent calibration remain NOT_EVALUATED"
     },
     "ownershipRules": {
       "sourceRef": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
@@ -7028,32 +7201,7 @@
       "mapping": "optional authored metadata omitted intentionally because no source timestamp provenance exists"
     }
   },
-  "fieldMappingBlockers": [
-    {
-      "field": "successMeasures",
-      "status": "4_SOURCE_DEFINED_MEASUREMENT_CONTRACTS_PROJECTED; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; EXACT_CAPABILITY_CROSSWALK_AND_INDEPENDENT_CALIBRATION_OPEN",
-      "sourceDisposition": "goals-jtbd.yaml#businessIntents[].measuredBy joined by exact successMeasure ID to goals-jtbd.yaml#successMeasureContracts.records; no numeric results inferred",
-      "reasons": [
-        "The four source-defined measurement contracts are projected with explicit unknown baseline/target and no qualification claim; exact outcome/capability crosswalk and independent calibration remain open and must not be inferred."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-1-domain-data/state-adjudication.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    }
-  ],
+  "fieldMappingBlockers": [],
   "derivationBoundary": "candidateModel is a structurally conformant partial projection populated from direct source records where mappings exist. Empty collections represent unresolved mappings, never accepted non-applicability. Where a contract requires generated timestamps, they are projection-build metadata rather than canonical product timestamps; optional ProductDefinition timestamps are omitted when source provenance is absent. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
   "knownBlockers": [
     "The source-backed ProductDefinition shape is structurally complete; omitted collection meanings, narrowed references, and unavailable source facts remain explicitly open in the field mapping review."

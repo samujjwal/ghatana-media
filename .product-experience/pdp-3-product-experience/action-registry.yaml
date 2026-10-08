@@ -27,11 +27,18 @@ actions:
   label: Resume this upload
   actorRefs: [media.creator, media.editor]
   capabilityRefs: [media.artifact.upload.resume]
-  preconditions: [existing-stable-upload-identity, matching-source-metadata, current-workspace, current-authority-and-retention-policy]
-  effect: continue-only-the-matching-upload-from-its-owner-acknowledged-transfer-state
+  preconditions: [existing-stable-upload-identity, current-tenant-and-owning-principal-scope, matching-source-metadata-and-immutable-request-binding, current-authority-and-retention-policy, observed-state-permits-continuation]
+  effect: inspect-the-same-upload-first; recheck-current-authority-source-and-state; require-explicit-user-confirmation; append-only-remaining-contiguous-parts; complete-only-the-same-unexpired-complete-session
   reversible: not-after-accepted-parts-without-an-explicit-owner-policy-and-recorded-disposition
-  finality: remains-receiving-or-interrupted-until-server-receipt-and-integrity-state-are-recorded
-  failure: keep-the-same-upload-identity-and-partial-state; do-not-create-a-duplicate-or-claim-local-bytes-were-received
+  finality: inspection-is-read-only; append-remains-RECEIVING; completion-enters-VERIFYING-only-after-exact-size-and-full-digest-checks; no-AVAILABLE-rights-or-attachment-claim
+  failure: unknown-inspection-does-not-authorize-mutation; inspect-after-unknown-before-any-command; never-append-in-FINALIZING-COMPLETED-ABORTED-EXPIRED; preserve-same-identity
+  compoundWorkflow:
+    status: SOURCE_DEFINED_OWNER_ACCEPTED
+    decisionRef: .product-experience/decision-log.md#PXD-049
+    sourceRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#operationSliceBindings
+    orderedOperationRefs: [media.operation-slice.inspect-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+    guards: [inspect-same-upload, recheck-authority-source-and-state, require-explicit-user-confirmation, append-only-remaining-contiguous-parts, inspect-after-unknown-never-auto-replay, never-append-finalizing-or-terminal-state]
+    runtimeAdmission: NOT_ADMITTED
   componentRefs:
   - media.component.activity-recovery-feed
   - media.component.artifact-transfer-status

@@ -121,7 +121,7 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   }, {
     resolvedActorCount: 30,
     unresolvedActorCount: 0,
-    authoredStepIds: 8,
+    authoredStepIds: 13,
     authoredIntents: 8,
     authoredViewIntents: 98,
     authoredLabels: 4,
@@ -164,7 +164,7 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   assert.ok(journeyBlocker.reasons.join(' ').includes('partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 130/130 steps'));
   assert.match(journeyBlocker.reasons.join(' '), /step-view 130 linked\/0 unresolved/iu);
   assert.match(journeyBlocker.reasons.join(' '), /step-action 18 linked\/112 unresolved/iu);
-  assert.match(journeyBlocker.reasons.join(' '), /130 source transitionRef values are null and remain unresolved/u);
+  assert.match(journeyBlocker.reasons.join(' '), /128 source transitionRef values are null/u);
   assert.match(journeyBlocker.reasons.join(' '), /empty arrays are schema placeholders only|empty arrays are schema placeholders/iu);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.resolvedCount, 30);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.sourceCount, 30);
@@ -174,9 +174,10 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.explicitSourceIntentCount, 106);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.linkedViewPurposeProposalOnlyCount, 24);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.omitted.length, 0);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNullCount, 130);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNullCount, 128);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNoMutationReasonCount, 3);
   assert.match(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.disposition, /required schema placeholder/u);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.transitionRefsNull, 130);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.transitionRefsNull, 128);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.stepViewUnresolved, 0);
 
   const resolvedJourney = journeyRegistry.journeys.find((entry) =>

@@ -1,4 +1,5 @@
 import test from "node:test";
+import { validateBusinessMeasureDefinitions } from "../scripts/lib/product-definition-domain-rule-mapping.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -14,12 +15,13 @@ const paths = {
   quality: ".product-experience/pdp-0-product-truth/quality-policy.yaml",
   profiles: ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
   qualification: ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
+  capabilities: ".product-experience/pdp-0-product-truth/capabilities.yaml",
   policy: ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
   nfr: ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
   candidate: ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json",
 };
 
-test("P0-06 maps exact business-intent measure descriptions while keeping metric, profile, and qualification gaps open", () => {
+test("P0-06 projects accepted measurement definitions while keeping actual profile measurement and qualification unevaluated", () => {
   const goals = readYaml(paths.goals);
   const quality = readYaml(paths.quality);
   const candidate = JSON.parse(readFileSync(resolve(root, paths.candidate), "utf8"));
@@ -57,13 +59,60 @@ test("P0-06 maps exact business-intent measure descriptions while keeping metric
   assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /4_SOURCE_DEFINED_MEASUREMENT_CONTRACTS_PROJECTED/u);
   assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /TARGET_NOT_SET/u);
   assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /BASELINE_AND_QUALIFICATION_NOT_EVALUATED/u);
-  assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /EXACT_CAPABILITY_CROSSWALK_AND_INDEPENDENT_CALIBRATION_OPEN/u);
+  assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /OWNER_ACCEPTED_DEFINITION_SOURCE_CROSSWALK/u);
   assert.equal(candidate.candidateMappingReview.businessIntentMeasureProposals.length, 4);
   assert.ok(candidate.candidateMappingReview.businessIntentMeasureProposals.every(({ disposition }) => /SOURCE_DEFINED_MEASUREMENT_CONTRACT/u.test(disposition)));
   const blocker = candidate.fieldMappingBlockers.find(({ field }) => field === "successMeasures");
-  assert.ok(blocker, "partial direct mapping retains the unresolved P0-06 blocker");
-  assert.match(blocker.reasons.join(" "), /exact outcome\/capability crosswalk and independent calibration remain open/u);
-  assert.match(blocker.reasons.join(" "), /explicit unknown baseline\/target and no qualification claim/u);
+  assert.equal(blocker, undefined, "PXD-048 accepts the exact measurement definition mapping; measured admission remains unevaluated");
+});
+
+test("P0-06 defines exact outcome/capability crosswalks and deterministic profile-scoped numerators and denominators", () => {
+  const goals = readYaml(paths.goals);
+  const capabilities = readYaml(paths.capabilities);
+  const capabilityIds = new Set(capabilities.capabilities.map(({ id }) => id));
+  const outcomeIds = new Set(goals.outcomes.map(({ id }) => id));
+  const profileAxisIds = new Set(readYaml(paths.profiles).profileAxes.map(({ id }) => id));
+
+  assert.equal(goals.successMeasureContracts.records.length, 4);
+  for (const measure of goals.successMeasureContracts.records) {
+    assert.ok(measure.outcomeRefs.length > 0, `${measure.id} must map to an exact outcome`);
+    assert.ok(measure.capabilityRefs.length > 0, `${measure.id} must map to exact capability leaves`);
+    assert.ok(measure.profileAxisRefs.length > 0, `${measure.id} must declare applicable profile dimensions`);
+    assert.equal(new Set(measure.outcomeRefs).size, measure.outcomeRefs.length);
+    assert.equal(new Set(measure.capabilityRefs).size, measure.capabilityRefs.length);
+    assert.ok(measure.outcomeRefs.every((id) => outcomeIds.has(id)), `${measure.id} has no inferred or stale outcome IDs`);
+    assert.ok(measure.capabilityRefs.every((id) => capabilityIds.has(id)), `${measure.id} uses finite canonical capability leaf IDs`);
+    assert.ok(measure.profileAxisRefs.every((id) => profileAxisIds.has(id)), `${measure.id} uses declared profile axes`);
+    assert.match(measure.numerator, /Count /u);
+    assert.match(measure.denominator, /Count /u);
+    assert.match(measure.calculation, /100 \* numerator \/ denominator/u);
+    assert.match(measure.calculation, /zero denominator is NOT_APPLICABLE/u);
+    assert.match(measure.calculation, /NOT_EVALUATED/u);
+    assert.equal(measure.valueUnit, "percent; retain raw integer numerator and denominator with each observation.");
+    assert.match(measure.profileBinding, /Freeze/u);
+    assert.match(measure.capabilityCrosswalkStatus, /source-trace-only/u);
+    assert.match(measure.populationEnumeration, /^NOT_EVALUATED/u);
+    assert.ok(measure.ownerRecommendation.length > 40);
+    assert.match(measure.baseline, /^NOT_EVALUATED/u);
+    assert.match(measure.target, /^NOT_SET/u);
+    assert.equal(measure.qualification, "NOT_EVALUATED");
+  }
+
+  const invalid = structuredClone(goals.successMeasureContracts.records[0]);
+  invalid.capabilityRefs.push("media.capability.family-wildcard");
+  const validateCapabilityCrosswalk = (record) => {
+    for (const id of record.capabilityRefs) assert.ok(capabilityIds.has(id), `unresolved capability leaf: ${id}`);
+  };
+  assert.throws(() => validateCapabilityCrosswalk(invalid), /unresolved capability leaf: media\.capability\.family-wildcard/u,
+    "unknown names and family wildcards cannot silently expand a source-defined denominator");
+
+  const outputs = goals.successMeasureContracts.records.find(({ id }) => id === "media.business.trustworthy-versioned-outputs.measure");
+  assert.equal(outputs.unit, "output-operation-contract-profile-pair");
+  assert.match(outputs.denominator, /operation-contract\/profile pair/u);
+  const recovery = goals.successMeasureContracts.records.find(({ id }) => id === "media.business.safe-recoverable-operations.measure");
+  assert.match(recovery.applicabilityRule, /exact operation contract states/u);
+  assert.match(recovery.applicabilityRule, /not separate long-running-operation units by name alone/u);
+  assert.match(recovery.denominator, /asynchronous operation-contract\/profile pair/u);
 });
 
 test("P0-06 retains source-defined measurement applicability without turning it into a pass or target", () => {
@@ -142,4 +191,20 @@ test("P0-06 omits authored ProductDefinition timestamps when Media has no timest
   }
   assert.equal(candidate.candidateMappingReview.fieldDispositions.timestamps.status, "OPTIONAL_AUTHORED_METADATA_OMITTED_INTENTIONALLY");
   assert.match(candidate.candidateMappingReview.fieldDispositions.timestamps.source, /generation time is not authored metadata/u);
+});
+
+
+test("measurement projection rejects stale identity, guessed scope, empty grammar and forged qualified values", () => {
+  const goals = readYaml(paths.goals), capabilities = readYaml(paths.capabilities), profiles = readYaml(paths.profiles);
+  assert.equal(validateBusinessMeasureDefinitions(goals, capabilities, profiles).length, 4);
+  for (const change of [
+    (copy) => copy.successMeasureContracts.records.pop(),
+    (copy) => { copy.successMeasureContracts.records[1].id = copy.successMeasureContracts.records[0].id; },
+    (copy) => { copy.successMeasureContracts.records[0].capabilityRefs = ["media.artifact.guessed"]; },
+    (copy) => { copy.successMeasureContracts.records[0].profileAxisRefs = ["PROFILE-GUESSED"]; },
+    (copy) => { copy.successMeasureContracts.records[0].numerator = ""; },
+    (copy) => { copy.successMeasureContracts.records[0].calculation = "numerator / denominator"; },
+    (copy) => { copy.successMeasureContracts.records[0].qualification = "PASS"; },
+    (copy) => { copy.successMeasureContracts.records[0].populationEnumeration = "COMPLETE"; },
+  ]) { const copy = structuredClone(goals); change(copy); assert.throws(() => validateBusinessMeasureDefinitions(copy, capabilities, profiles)); }
 });

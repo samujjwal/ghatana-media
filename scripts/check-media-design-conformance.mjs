@@ -7,8 +7,10 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 
 const DEFAULT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const { parse: parseYaml } = createRequire(resolve(DEFAULT_ROOT, "../ghatana-tools/package.json"))("yaml");
 const PATHS = Object.freeze({
   style: ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
   governance: ".product-experience/pdp-2-design-interface-system/design-governance.json",
@@ -62,6 +64,57 @@ const GOVERNANCE_GATES = Object.freeze({
   "layout-admission": { source: PATHS.layout, field: "scopeStatus", sourceStatus: "MEDIA_OWNER_ACCEPTED", disposition: "RESOLVED_OWNER" },
 });
 
+/** Validate definition source completeness without admitting any implementation. */
+export function validateComponentDefinitionBindings(bindings, contracts, root = DEFAULT_ROOT) {
+  const errors = [];
+  const review = bindings?.definitionBindingReview;
+  const records = bindings?.definitionBindings;
+  const components = contracts?.components;
+  if (!Array.isArray(records) || !Array.isArray(components)) return ["missing exact component definition population"];
+  if (review?.componentDenominator !== components.length || components.length !== 31 || records.length !== components.length) errors.push("component definition denominator changed or incomplete");
+  if (review?.authority !== "User-delegated Media owner decision" || review?.decisionRef !== ".product-experience/decision-log.md#PXD-047") errors.push("definition binding review lacks its exact owner decision");
+  if (review?.implementationAdmission !== "NOT_ADMITTED" || review?.independentConformance !== "NOT_RUN") errors.push("definition review invents implementation or independent admission");
+  const byId = new Map(components.map((component) => [component.id, component]));
+  const reuseText = read(root, ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml");
+  const reuse = new Map((reuseText ? parseYaml(reuseText).componentFamilyCrosswalk ?? [] : []).map((item) => [item.componentRef, item]));
+  const ids = new Set();
+  let publicContracts = 0;
+  for (const record of records) {
+    const component = byId.get(record.componentRef);
+    if (!component || ids.has(record.componentRef)) { errors.push(`unknown or duplicate component definition: ${record.componentRef}`); continue; }
+    ids.add(record.componentRef);
+    if (record.contractRef !== `${PATHS.components}#${component.id}`) errors.push(`stale component contract: ${component.id}`);
+    if (record.role !== (component.semanticRole ?? component.purpose) || !record.role) errors.push(`stale component role: ${component.id}`);
+    for (const [field, sourceField] of [["anatomySource", "anatomy"], ["interactionSource", "keyboard"], ["accessibilitySource", "accessibility"]]) {
+      if (record[field] !== `component-contracts.yaml#${component.id}.${sourceField}` || !component[sourceField]?.length) errors.push(`missing exact ${sourceField} definition: ${component.id}`);
+    }
+    if (record.implementationAdmission !== "NOT_ADMITTED" || typeof record.rationale !== "string" || record.rationale.length < 40) errors.push(`unqualified component disposition: ${component.id}`);
+    if (record.disposition === "PUBLIC_COMPONENT_CONTRACT") {
+      publicContracts++;
+      const observed = reuse.get(component.id);
+      if (!observed || record.publicExport !== observed.publicExport || JSON.stringify(record.publicExportEvidence) !== JSON.stringify(observed.publicExportEvidence)) errors.push(`stale public export identity: ${component.id}`);
+      if (!record.publicExport || record.propsSourceRef !== component.propsSourceRef || JSON.stringify(record.requiredProps) !== JSON.stringify(component.requiredProps) || !Array.isArray(record.requiredProps)) errors.push(`stale public props binding: ${component.id}`);
+      const [sourcePath, interfaceName] = (record.propsSourceRef ?? "").split("#");
+      const source = sourcePath ? read(root, sourcePath) : null;
+      const body = source?.match(new RegExp(`export interface ${interfaceName} \\{([\\s\\S]*?)\\n\\}`, "u"))?.[1];
+      const actual = [...(body?.matchAll(/^\s*readonly\s+([A-Za-z_$][\w$]*)(\?)?\s*:/gmu) ?? [])].filter((field) => !field[2]).map((field) => field[1]).sort();
+      if (!body || JSON.stringify(actual) !== JSON.stringify([...record.requiredProps].sort())) errors.push(`public prop source drift: ${component.id}`);
+      const exportName = record.publicExport?.split("#")[1];
+      if (!exportName || !source?.includes(`export function ${exportName}(`)) errors.push(`public component export source drift: ${component.id}`);
+      if (!Array.isArray(record.publicExportEvidence) || !record.publicExportEvidence.length || !exportName) errors.push(`missing public export evidence: ${component.id}`);
+      else for (const ref of record.publicExportEvidence) {
+        const evidence = read(root, ref.split("#")[0]);
+        if (!evidence) errors.push(`missing public export source: ${ref}`);
+      }
+    } else if (record.disposition === "CONTRACT_ONLY") {
+      if (record.publicExport || record.requiredProps || record.propsSourceRef) errors.push(`contract-only component invents public props/export: ${component.id}`);
+    } else errors.push(`unrecognized component definition disposition: ${component.id}`);
+  }
+  if (publicContracts !== 3) errors.push("observed public component subset changed without source review");
+  for (const id of byId.keys()) if (!ids.has(id)) errors.push(`unbound component definition: ${id}`);
+  return errors;
+}
+
 function sourceStatusValue(source, field) {
   const [section, key] = field.split(".");
   return key ? sectionScalar(source, section, key) : scalar(source, section);
@@ -85,7 +138,15 @@ function validateDesignGovernance(governance, sourceByPath, root) {
   for (const id of ids) if (!Object.hasOwn(GOVERNANCE_GATES, id)) errors.push(`stale design-governance gate: ${id}`);
 
   for (const record of records) {
-    const expected = GOVERNANCE_GATES[record.id];
+    let expected = GOVERNANCE_GATES[record.id];
+    if (record.id === "concrete-component-bindings" && record.sourceStatus === "MEDIA_OWNER_ACCEPTED_DEFINITION_BINDINGS") {
+      expected = { ...expected, sourceStatus: "MEDIA_OWNER_ACCEPTED_DEFINITION_BINDINGS", disposition: "RESOLVED_OWNER" };
+      try {
+        const bindings = parseYaml(sourceByPath[PATHS.semanticBindings]);
+        const contracts = parseYaml(read(root, PATHS.components));
+        errors.push(...validateComponentDefinitionBindings(bindings, contracts, root));
+      } catch (error) { errors.push(`invalid component definition source: ${error.message}`); }
+    }
     if (!expected) continue;
     if (record.source !== expected.source) errors.push(`${record.id}: stale governance source path`);
     if (record.sourceField !== expected.field) errors.push(`${record.id}: stale governance source field`);

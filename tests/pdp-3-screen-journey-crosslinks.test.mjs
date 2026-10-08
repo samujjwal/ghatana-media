@@ -49,7 +49,7 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
   const viewIds = uniqueIds(views, "screen registry");
   const journeyIds = new Set(journeys.journeys.map((journey) => journey.id));
   const actionIds = new Set(actions.actions.map((action) => action.id));
-  const operationIds = new Set(operations.operations.map((operation) => operation.id));
+  const operationIds = new Set([...operations.operations.map((operation) => operation.id), ...(operations.individualOperationContracts?.records ?? []).map((operation) => operation.id)]);
   const requirementIds = new Set(requirements.requirements.map((item) => item.id));
   const capabilityIds = new Set(capabilities.capabilities.map((item) => item.id));
   const goalIds = new Set(goals.outcomes.map((item) => item.id));
@@ -139,6 +139,7 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
         assert.ok(operationIds.has(step.canonicalOperationRef), `${journey.id} has stale operation ${step.canonicalOperationRef}`);
         operationLinks++;
       }
+      assertUniqueKnownRefs(step.requiredOperationRefs ?? [], operationIds, `${journey.id}.requiredOperationRefs`);
       assertOperationRequiresAction(step, `${journey.id} step ${step.view}`);
     }
   }
@@ -255,6 +256,24 @@ test("PDP-3 J-29/J-30 step views use exact owner-selected source contracts and p
     undefined, "source mapping does not imply screen admission or behavior acceptance");
 });
 
+test("J-02 upload workflow binds exact slices and preserves verification authority", () => {
+  const c=readYaml(`${experience}/journey-contracts/upload-import-and-verify-artifact.yaml`);
+  const records=readYaml(".product-experience/pdp-1-domain-data/operations.yaml").individualOperationContracts.records;
+  const ids=new Set(records.map(x=>x.id));
+  assert.equal(c.runtimeAdmission,"NOT_ADMITTED");
+  assert.equal(c.definitionReview.status,"SOURCE_DEFINED_OWNER_ACCEPTED");
+  assert.match(c.definitionReview.boundary,/phase acceptance and runtime admission remain separate/u);
+  assert.deepEqual(c.steps[1].requiredOperationRefs,["media.operation-slice.begin-upload","media.operation-slice.append-upload-chunk","media.operation-slice.complete-upload"]);
+  assert.deepEqual(c.steps[2].resumeWorkflow.orderedOperationRefs,["media.operation-slice.inspect-upload","media.operation-slice.append-upload-chunk","media.operation-slice.complete-upload"]);
+  assert.ok(c.steps[2].resumeWorkflow.guards.some(x=>x.includes("unknown")&&x.includes("never-authorizes")));
+  assert.ok(c.steps[2].resumeWorkflow.guards.some(x=>x.includes("never-authorizes-append")&&x.includes("FINALIZING")));
+  assert.deepEqual(c.steps.map(x=>x.actorRefs),Array(5).fill(["media.creator","media.editor"]));
+  assert.deepEqual(c.steps.map(x=>x.transitionDisposition.status),["NOT_APPLICABLE_WITH_REASON","APPLICABLE_WITH_BOUNDS","APPLICABLE_WITH_BOUNDS","NOT_APPLICABLE_WITH_REASON","NOT_APPLICABLE_WITH_REASON"]);
+  for(const step of c.steps)for(const ref of step.requiredOperationRefs??[])assert.ok(ids.has(ref),`unknown operation slice ${ref}`);
+  assert.match(c.terminalSuccess,/T02/u); assert.match(c.terminalSuccess,/AVAILABLE only when verification authority records current positive evidence/u);
+  assert.ok(c.steps[3].postconditions.some(x=>x.includes("Verification-authority evidence")));
+});
+
 test("PDP-3 navigation-only steps reject operation placeholders", () => {
   const navigationOnlyStep = { action: null, actionRef: null, canonicalOperationRef: null };
   assert.doesNotThrow(() => assertOperationRequiresAction(navigationOnlyStep, "J-test step 1"));
@@ -269,6 +288,7 @@ test("PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk
   const journeys = readYaml(`${experience}/journey-registry.yaml`);
   const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
   const explicit = operations.sourceDenominators.uiProductActions.explicitOperationIds;
+  const exact = operations.sourceDenominators.uiProductActions.exactOwnerReviewedSliceBindings;
   const selectedCandidateActions = new Set(Object.keys(explicit));
   let mappedOccurrences = 0;
   const mappedActionIds = new Set();
@@ -276,11 +296,9 @@ test("PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk
     const contract = readYaml(`${experience}/${journey.contract}`);
     for (const step of contract.steps ?? []) {
       if (!selectedCandidateActions.has(step.action)) continue;
-      assert.equal(step.canonicalOperationRef, explicit[step.action],
-        `${journey.id}/${step.action} must match the explicit PDP-1 proposed crosswalk`);
-      assert.equal(step.bindingStatus?.canonicalOperationRef,
-        "candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending",
-        `${journey.id}/${step.action} must remain owner-review pending`);
+      const exactCandidate = journey.id === "J-02" ? exact[step.action] : undefined;
+      assert.equal(step.canonicalOperationRef, exactCandidate ?? explicit[step.action], `${journey.id}/${step.action} must match the exact PDP-1 crosswalk`);
+      assert.match(step.bindingStatus?.canonicalOperationRef ?? "", /pending/u, `${journey.id}/${step.action} remains runtime-admission pending`);
       mappedOccurrences++;
       mappedActionIds.add(step.action);
     }

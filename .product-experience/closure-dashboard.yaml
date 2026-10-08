@@ -390,3 +390,21 @@ pdp3ExplicitTargets:
 closureRule: A phase can be considered closed only when every applicable dimension is owner-reviewed and accepted, required
   verification evidence is admitted, and Lifecycle reports current closure; each not-applicable dimension also requires reviewed
   justification.
+
+activeExecutionScope:
+  instruction: User correction on 2026-10-08; complete PDP-0 through PDP-3 product definition before implementation.
+  allowedWork: Normative definition sources, validation tooling/tests, source projections, and acceptance inputs.
+  runtimeImplementation: DEFERRED
+  preservedPendingImplementationStash: dd69e97b095b7ef5abc9b8b157e1a0d2561736da
+  originalTaskDenominator: 71
+  phaseClosure: NOT_CLAIMED
+definitionBatchObservation20261008:
+  decisionRefs: [PXD-047, PXD-048, PXD-049]
+  projectionFieldBlockers: {PDP-0: 0, PDP-2: 0, PDP-3: 10}
+  designOwnerGatesResolved: 5
+  designGatesOpen: 2
+  selectedJourney: J-02
+  selectedJourneyDefinedSteps: 5
+  selectedJourneyScope: Bounded identity, authority, transition applicability, recovery, and verification definitions; independent acceptance and runtime admission excluded.
+  evidenceReport: docs/implementation/media-product-definition-execution-2026-10-08.json
+  lifecycleReceipts: NOT_EVALUATED; no receipt bound

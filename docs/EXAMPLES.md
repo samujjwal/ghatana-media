@@ -38,7 +38,9 @@ full video-transcription path are not established.
 - **Trace:** [J-02 upload/import/verify](../.product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml)
   orders source selection/import, upload/job observation, and artifact
   inspection. Its terminal step is `media.action.inspect-artifact`, bound in
-  J-02 to candidate `media.operation.artifact-ingest`; the earlier
+  J-02 to the bounded query definition `media.operation-slice.inspect-artifact`;
+  this reads a scoped stored observation and does not itself verify or promote
+  the artifact. PXD-049 separately defines the required verification gate; the earlier
   `media.action.attach-source-asset` action is not the terminal step.
   [J-03 transcription/correction](../.product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml)
   continues through `select-source`, `monitor-transcription`, `review-transcript`,

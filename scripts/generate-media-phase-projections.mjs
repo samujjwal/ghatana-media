@@ -14,7 +14,7 @@ import { createRequire } from "node:module";
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { resolve, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveAcceptedDomainRuleRecords } from "./lib/product-definition-domain-rule-mapping.mjs";
+import { validateBusinessMeasureDefinitions, resolveAcceptedDomainRuleRecords } from "./lib/product-definition-domain-rule-mapping.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const toolsRequire = createRequire(resolve(root, "../ghatana-tools/package.json"));
@@ -67,6 +67,7 @@ const definitions = [
       ".product-experience/pdp-0-product-truth/constitution.yaml",
       ".product-experience/pdp-1-domain-data/state-adjudication.yaml",
       ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+      ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
       ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
       ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
       ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -147,6 +148,7 @@ const definitions = [
         }));
       const businessIntentMeasureIdById = new Map(businessIntentMeasureProposals
         .map(({ businessIntentId, successMeasureId }) => [businessIntentId, successMeasureId]));
+      validateBusinessMeasureDefinitions(goals, capabilities, source("profile-semantics.yaml"));
       const businessMeasureContracts = new Map((goals.successMeasureContracts?.records ?? [])
         .map((record) => [record.id, record]));
       const domainRuleRecords = resolveAcceptedDomainRuleRecords(
@@ -238,7 +240,7 @@ const definitions = [
             id: successMeasureId,
             description,
             ...(contract ? {
-              metric: `${contract.metric} (unit: ${contract.unit}; denominator: ${contract.denominator}; applicability: ${contract.applicability}; acceptance: ${contract.acceptanceCriterion}; evidence: ${contract.evidenceMethod})`,
+              metric: `${contract.metric} (unit: ${contract.unit}; denominator: ${contract.denominator}; applicability: ${contract.applicability}; acceptance: ${contract.acceptanceCriterion}; evidence: ${contract.evidenceMethod}; numerator: ${contract.numerator}; calculation: ${contract.calculation}; value unit: ${contract.valueUnit}; outcomes: ${contract.outcomeRefs.join(", ")}; capability trace: ${contract.capabilityRefs.join(", ")}; profile axes: ${contract.profileAxisRefs.join(", ")}; profile binding: ${contract.profileBinding}; baseline policy: ${contract.baselinePolicy}; target policy: ${contract.targetPolicy}; population: ${contract.populationEnumeration})`,
               baseline: contract.baseline,
               target: contract.target,
             } : {}),
@@ -265,7 +267,7 @@ const definitions = [
             userIntents: `${resolvedUserIntents.length} of ${(goals.intents ?? []).length} source intents have exact actor/priority decisions; P0-010 independent review pending.`,
             journeys: `${projectedJourneys.length} of ${(journeys.journeys ?? []).length} source journeys have exact representative initiators; all source collaborator actors remain projected; P0-010 independent review pending.`,
             businessIntentMeasures: `${businessIntentMeasureProposals.length} source businessIntent.measuredBy statements are projected as exact description-only proposals with deterministic IDs; no metric, profile applicability, target, baseline, qualitative acceptance criterion, or qualification is asserted.`,
-            successMeasures: `${businessIntentMeasureProposals.length} source-bound measures project their authored metric, unit, denominator, applicability, acceptance criterion, evidence method, and explicit NOT_EVALUATED/NOT_SET baseline/target fields. No numeric result or qualification is asserted; coordinator projection review, exact outcome/capability crosswalk, independent calibration, and qualification remain open.`,
+            successMeasures: `${businessIntentMeasureProposals.length} source-bound measures project their authored metric, unit, denominator, applicability, acceptance criterion, evidence method, and explicit NOT_EVALUATED/NOT_SET baseline/target fields. No numeric result or qualification is asserted; PXD-048 accepts the source crosswalk and calculation definition; measured population, independent calibration, and qualification remain NOT_EVALUATED.`,
           },
           businessIntentMeasureProposals: businessIntentMeasureProposals.map((proposal) => ({
             ...proposal,
@@ -301,7 +303,7 @@ const definitions = [
             invariants: { status: "DIRECT_STATEMENT_AND_VIOLATION_MAPPING; P0-010_REVIEW_PENDING", source: "constitution.yaml#invariants.records" },
             journeys: { status: `DIRECT_MULTI_ACTOR_MAPPING; ${unresolvedJourneyIds.length}_OPTIONAL_INITIATING_ACTORS_UNRESOLVED; INDEPENDENT_REVIEW_PENDING`, source: "journey-catalog.yaml#journeys joined by exact id to journey-actor-resolutions.yaml#journeys#collaboratorActorRefs; actorRef only when initiatingActorRef is resolved" },
             trustContexts: { status: "DIRECT_LEVEL_SENSITIVITY_EFFECT_AND_AUDIT_MAPPING; P0-010_REVIEW_PENDING", source: "actors-responsibilities.yaml#trustContexts.contexts" },
-            successMeasures: { status: `${businessIntentMeasureProposals.length}_SOURCE_DEFINED_MEASUREMENT_CONTRACTS_PROJECTED; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; EXACT_CAPABILITY_CROSSWALK_AND_INDEPENDENT_CALIBRATION_OPEN`, source: "goals-jtbd.yaml#businessIntents[].measuredBy joined by exact successMeasure ID to goals-jtbd.yaml#successMeasureContracts.records; no numeric results inferred" },
+            successMeasures: { status: `${businessIntentMeasureProposals.length}_SOURCE_DEFINED_MEASUREMENT_CONTRACTS_PROJECTED; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; OWNER_ACCEPTED_DEFINITION_SOURCE_CROSSWALK; MEASURED_POPULATION_AND_INDEPENDENT_CALIBRATION_NOT_EVALUATED`, source: "goals-jtbd.yaml#businessIntents[].measuredBy joined by exact successMeasure ID to goals-jtbd.yaml#successMeasureContracts.records; no numeric results inferred" },
             ownershipRules: { status: "DIRECT_ACCOUNTABLE_ROLE_TO_OWNER_MAPPING; CONTRACT_OWNER_AND_EXECUTION_AUTHORITY_RETAINED_SEPARATELY; P0-010_REVIEW_PENDING", source: "actors-responsibilities.yaml#ownershipRules.rules" },
             timestamps: { status: "OPTIONAL_AUTHORED_METADATA_OMITTED_INTENTIONALLY", source: "No source timestamp provenance is available; generation time is not authored metadata" },
           },
@@ -326,7 +328,7 @@ const definitions = [
       actors: { sourceRef: ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml", sourcePath: "actors and principals", mapping: "direct actor projection with human-to-person kind normalization" },
       responsibilities: { sourceRef: ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml", sourcePath: "actors[].responsibilities", mapping: "actor-assigned responsibility statements with direct actor ownerRef" },
       userIntents: { sourceRef: ".product-experience/pdp-0-product-truth/intent-resolutions.yaml", sourcePath: "intents joined by exact id to goals-jtbd.yaml#intents", mapping: "project only exact resolved actor and priority records; unresolved actor targets remain outside the candidate" },
-      businessIntents: { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: "businessIntents[].id/description/measuredBy", mapping: "direct business intent text; measuredBy links to a deterministic description-only successMeasure proposal derived from the exact source business intent ID" },
+      businessIntents: { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: "businessIntents[].id/description/measuredBy", mapping: "direct business intent text; measuredBy links to the exact source-defined measurement contract by deterministic measure ID" },
       desiredOutcomes: { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: "outcomes", mapping: "direct IDs/outcome text and actorRef only when the source declares one actor" },
       capabilities: { sourceRef: ".product-experience/pdp-0-product-truth/capabilities.yaml", sourcePath: "capabilities", mapping: "all 462 leaf identities, outcomes, and requirementRefs" },
       requirements: { sourceRef: ".product-experience/pdp-0-product-truth/requirements.yaml", sourcePath: "requirements[].traceToIntentIds; goals-jtbd.yaml#intents; intent-resolutions.yaml#intents", mapping: "retain exact refs only for target userIntents resolved to a schema actor and priority; unresolved targets are listed in mapping review" },
@@ -335,7 +337,7 @@ const definitions = [
       invariants: { sourceRef: ".product-experience/pdp-0-product-truth/constitution.yaml", sourcePath: "invariants.records", mapping: "direct statement/violation pairs; source-bound proposal, P0-010 review pending" },
       journeys: { sourceRef: ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml", sourcePath: "journeys[].collaboratorActorRefs joined by exact id to journey-catalog.yaml#journeys; initiatingActorRef only when resolved", mapping: "project all exact source collaborator actorRefs; omit actorRef for unresolved initiators" },
       trustContexts: { sourceRef: ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml", sourcePath: "trustContexts.contexts", mapping: "direct trustLevel, sensitivity/effect description and auditRequired" },
-      successMeasures: { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: "businessIntents[].measuredBy joined by exact deterministic measure ID to successMeasureContracts.records", mapping: "project source-authored metric, unit, denominator, applicability, criterion, evidence method, and explicit NOT_EVALUATED baseline/qualification plus NOT_SET target; no measurement result or qualification is inferred; exact capability crosswalk, coordinator review, and independent calibration remain pending" },
+      successMeasures: { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: "businessIntents[].measuredBy joined by exact deterministic measure ID to successMeasureContracts.records", mapping: "project source-authored metric, unit, denominator, applicability, criterion, evidence method, and explicit NOT_EVALUATED baseline/qualification plus NOT_SET target; no measurement result or qualification is inferred; PXD-048 accepts exact definition source crosswalk and percentage/unknown-value semantics; measured profile population and independent calibration remain NOT_EVALUATED" },
       ownershipRules: { sourceRef: ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml", sourcePath: "ownershipRules.rules", mapping: "accountableRoleRef becomes schema owner; contractOwner and executionAuthority are preserved separately in mapping review" },
       createdAt: { sourceRef: null, sourcePath: null, mapping: "optional authored metadata omitted intentionally because no source timestamp provenance exists" },
       updatedAt: { sourceRef: null, sourcePath: null, mapping: "optional authored metadata omitted intentionally because no source timestamp provenance exists" },
@@ -344,7 +346,7 @@ const definitions = [
       requirements: ["Some requirement rows retain partially resolved or unresolved intent targets. Only exact resolved targets are projected; unresolved rows and refs remain recorded in mapping review."],
       userIntents: ["Only exact P0-04 actor and priority resolutions are projected. Unresolved actor targets remain omitted; P0-010 independent review remains pending."],
       domainRules: [],
-      successMeasures: ["The four source-defined measurement contracts are projected with explicit unknown baseline/target and no qualification claim; exact outcome/capability crosswalk and independent calibration remain open and must not be inferred."],
+      successMeasures: [],
     },
     blocker: "The source-backed ProductDefinition shape is structurally complete; omitted collection meanings, narrowed references, and unavailable source facts remain explicitly open in the field mapping review.",
   },
@@ -760,7 +762,7 @@ const definitions = [
           const transitionRefs = [];
           if (explicitIntent) projectedExplicitIntentCount += 1;
           else projectedViewPurposeIntentCount += 1;
-          journeyProjectionAudit.sourceNullTransitions.push({ journeyId: journey.id, stepOrdinal: index + 1, sourceStepId: step.stepId ?? null, projectedStepId: stepId, sourceTransitionRef: step.transitionRef ?? null, projectedTransitionRefs: transitionRefs, disposition: step.transitionRef == null ? "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY" : "SOURCE_TRANSITION_NOT_MAPPED" });
+          journeyProjectionAudit.sourceNullTransitions.push({ journeyId: journey.id, stepOrdinal: index + 1, sourceStepId: step.stepId ?? null, projectedStepId: stepId, sourceTransitionRef: step.transitionRef ?? null, sourceTransitionDisposition: step.transitionDisposition ?? null, projectedTransitionRefs: transitionRefs, disposition: step.transitionRef == null ? "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY" : "SOURCE_TRANSITION_NOT_MAPPED" });
           projectedSteps.push({ stepId, intent, ...(view ? { viewRef: view.id } : {}), transitionRefs });
         }
         const projected = { id: journey.id, name: journey.title, actorRef: actorResolution.initiatingActorRef, steps: projectedSteps, ...(desiredOutcomeRef ? { desiredOutcomeRef } : {}) };
@@ -768,7 +770,7 @@ const definitions = [
         return [projected];
       });
       const projectedJourneyIds = new Set(projectedJourneys.map((journey) => journey.id));
-      const journeyProjectionBlocker = `A partial source-grounded PDP-3 journey projection now includes ${projectedJourneys.length}/${(journeys.journeys ?? []).length} journeys and ${projectedJourneys.reduce((count, journey) => count + journey.steps.length, 0)}/${p3Steps} steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view ${journeyStepGapCounts.stepViewLinked} linked/${journeyStepGapCounts.stepViewUnresolved} unresolved; step-action ${journeyStepGapCounts.stepActionLinked} linked/${journeyStepGapCounts.stepActionUnresolved} unresolved. Remaining gaps: ${journeyProjectionAudit.omitted.length} step rows lack an exact intent source (including J-29's four rows); ${journeyStepGapCounts.transitionRefsNull} source transitionRef values are null and remain unresolved. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty ${journeyStepGapCounts.stepObjectRefsEmpty}, stateRefs empty ${journeyStepGapCounts.stepStateRefsEmpty}, authorityRef null ${journeyStepGapCounts.authorityRefsNull}, requirementRefs empty ${journeyStepGapCounts.requirementRefsEmpty}, verification not-run ${journeyStepGapCounts.verificationNotRun}. ${p3JourneysWithScenarioRefs}/${(journeys.journeys ?? []).length} journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending.`;
+      const journeyProjectionBlocker = `A partial source-grounded PDP-3 journey projection now includes ${projectedJourneys.length}/${(journeys.journeys ?? []).length} journeys and ${projectedJourneys.reduce((count, journey) => count + journey.steps.length, 0)}/${p3Steps} steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view ${journeyStepGapCounts.stepViewLinked} linked/${journeyStepGapCounts.stepViewUnresolved} unresolved; step-action ${journeyStepGapCounts.stepActionLinked} linked/${journeyStepGapCounts.stepActionUnresolved} unresolved. Remaining gaps: ${journeyProjectionAudit.omitted.length} step rows lack an exact intent source (including J-29's four rows); ${journeyStepGapCounts.transitionRefsNull} source transitionRef values are null; ${journeyProjectionAudit.sourceNullTransitions.filter((step) => step.sourceTransitionRef == null && step.sourceTransitionDisposition?.status === "NOT_APPLICABLE_WITH_REASON").length} have explicit source no-mutation reasons. These source dispositions do not resolve the public transition projection. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty ${journeyStepGapCounts.stepObjectRefsEmpty}, stateRefs empty ${journeyStepGapCounts.stepStateRefsEmpty}, authorityRef null ${journeyStepGapCounts.authorityRefsNull}, requirementRefs empty ${journeyStepGapCounts.requirementRefsEmpty}, verification not-run ${journeyStepGapCounts.verificationNotRun}. ${p3JourneysWithScenarioRefs}/${(journeys.journeys ?? []).length} journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending.`;
       const componentIds = new Set((componentContracts.components ?? []).map((component) => component.id));
       const renderKind = (channelRef) => ({
         "media.channel.web": "web",
@@ -978,8 +980,9 @@ const definitions = [
             },
             transitionProjection: {
               sourceNullCount: journeyProjectionAudit.sourceNullTransitions.filter((step) => step.sourceTransitionRef == null).length,
+              sourceNoMutationReasonCount: journeyProjectionAudit.sourceNullTransitions.filter((step) => step.sourceTransitionRef == null && step.sourceTransitionDisposition?.status === "NOT_APPLICABLE_WITH_REASON").length,
               rows: journeyProjectionAudit.sourceNullTransitions,
-              disposition: "Source transitionRef null means unresolved metadata. Public transitionRefs: [] is only a required schema placeholder and is not evidence that no transitions exist.",
+              disposition: "Source transitionRef null requires separate source applicability review; explicit no-mutation reasons are retained without inferring public transition mapping. Public transitionRefs: [] is only a required schema placeholder and is not evidence that no transitions exist.",
             },
             projectedSourceRows: journeyProjectionAudit.projected,
             omittedJourneys: journeyProjectionAudit.omitted.filter((entry) => !entry.stepOrdinal),

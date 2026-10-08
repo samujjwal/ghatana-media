@@ -77,8 +77,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-      "sha256": "3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183",
-      "bytes": 12278,
+      "sha256": "23ede0177a836c7685a03de5dd4cb696df720273d4f54b4c9f20425c8da116e5",
+      "bytes": 12584,
       "format": "yaml",
       "schemaVersion": "media.journey-registry.v1",
       "authority": null,
@@ -93,6 +93,7 @@
         "productId",
         "requiredMasterPlanJourneyCount",
         "schemaVersion",
+        "selectedDefinitionReviewObservation",
         "status"
       ],
       "declaredIds": [
@@ -130,8 +131,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml",
-      "sha256": "a0e67cb434c5a8af867a1667f5ded9c57fe613170e877db347a845b339fea118",
-      "bytes": 252828,
+      "sha256": "0b1a5af2848a6bca767e94aff0363dbc045d470eec8090ebc5a50f8d96d88f98",
+      "bytes": 253811,
       "format": "yaml",
       "schemaVersion": "media.action-registry.v1",
       "authority": null,
@@ -712,8 +713,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-      "sha256": "0a2430d80830b717d1a9725c3ee499b1ce862ee4cedb8e111e46478035f05667",
-      "bytes": 34675,
+      "sha256": "74f9a10de4e959d1874e7e83d42fb6ff04b25b5a427230e1bf343c6ece8520d2",
+      "bytes": 45273,
       "format": "yaml",
       "schemaVersion": "media.goals-jtbd.v1",
       "authority": null,
@@ -921,8 +922,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-      "sha256": "5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a",
-      "bytes": 18107,
+      "sha256": "348d755cad07ba1fd88976088191c06602d023593ad4cb5b0b818b8a2725185f",
+      "bytes": 18641,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.domain-objects.v1",
       "authority": ".product-experience/pdp-0-product-truth/domain-model.yaml",
@@ -980,8 +981,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml",
-      "sha256": "85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880",
-      "bytes": 16602,
+      "sha256": "2e3576c6ef7f27ca64da3de86f66890a1c119cc015184cc9369878ce40ee9348",
+      "bytes": 16705,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.states.v1",
       "authority": null,
@@ -1273,8 +1274,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml",
-      "sha256": "95b4680e7026fbab91dae7f6789b364721d0fc20a3b86ffd8617016da1d64260",
-      "bytes": 5682,
+      "sha256": "95f2a2628bda58fb9e8fc5eb4ae86f4b8cd9afca270249e3731b3fc91eed85d9",
+      "bytes": 6129,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2631,8 +2632,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml",
-      "sha256": "7d8609b97ea5ea884cac7ddcde6fcb4870822f79f8b2eb533f7a86d3a946bb68",
-      "bytes": 6162,
+      "sha256": "f02262ce4fa4b271dd392d6485c0d28cebdd9ee7ba099900e836a50b389fbe90",
+      "bytes": 7552,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2748,8 +2749,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml",
-      "sha256": "36977dc5e47961c50881ddabd971e46f9196cf71007537f8704549a2f34ff138",
-      "bytes": 5476,
+      "sha256": "56b99cc08b3a820dd0f65d807b2e68b07540b0c690e6e9646bf4938a12a243ee",
+      "bytes": 5848,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -5166,8 +5167,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
-      "sha256": "8e9c1ae09a5e3fb54d3244f1fe924068666785fc0ffdd287a7344138181dab4b",
-      "bytes": 27232,
+      "sha256": "0a30f10688764a037617fb4e5574c3de880eabc58ef94453386f69fbfd1b4079",
+      "bytes": 33113,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -5179,6 +5180,7 @@
         "channels",
         "contextPreserved",
         "criticalNonhappyPaths",
+        "definitionReview",
         "intent",
         "journeyId",
         "optionalContinuation",
@@ -5187,6 +5189,7 @@
         "productId",
         "recovery",
         "requiredScenarioBehaviors",
+        "runtimeAdmission",
         "scenarioRefs",
         "schemaVersion",
         "scope",
@@ -6266,31 +6269,31 @@
         "actorRef": "media.creator",
         "steps": [
           {
-            "stepId": "J-02.step-01",
+            "stepId": "J02-1",
             "intent": "Governed library, import/upload/search/filter",
             "viewRef": "media.view.browse-media",
             "transitionRefs": []
           },
           {
-            "stepId": "J-02.step-02",
+            "stepId": "J02-2",
             "intent": "Progress/resume/integrity/quarantine/permission recovery",
             "viewRef": "media.view.import-media",
             "transitionRefs": []
           },
           {
-            "stepId": "J-02.step-03",
+            "stepId": "J02-3",
             "intent": "Progress/resume/integrity/quarantine/permission recovery",
             "viewRef": "media.view.import-media",
             "transitionRefs": []
           },
           {
-            "stepId": "J-02.step-04",
+            "stepId": "J02-4",
             "intent": "View progress and outputs, request a stop, retry eligible work, or check an uncertain outcome",
             "viewRef": "media.view.job-status",
             "transitionRefs": []
           },
           {
-            "stepId": "J-02.step-05",
+            "stepId": "J02-5",
             "intent": "Playback/technical metadata, versions, rights and actions",
             "viewRef": "media.view.inspect-media",
             "transitionRefs": []
@@ -7254,9 +7257,10 @@
         "trigger": "explicit-resume-of-the-same-matching-upload",
         "preconditions": [
           "existing-stable-upload-identity",
-          "matching-source-metadata",
-          "current-workspace",
-          "current-authority-and-retention-policy"
+          "current-tenant-and-owning-principal-scope",
+          "matching-source-metadata-and-immutable-request-binding",
+          "current-authority-and-retention-policy",
+          "observed-state-permits-continuation"
         ],
         "actionRef": "media.action.resume-artifact-upload"
       },
@@ -8017,12 +8021,13 @@
         "id": "media.action.resume-artifact-upload",
         "name": "Resume this upload",
         "kind": "user",
-        "description": "continue-only-the-matching-upload-from-its-owner-acknowledged-transfer-state",
+        "description": "inspect-the-same-upload-first; recheck-current-authority-source-and-state; require-explicit-user-confirmation; append-only-remaining-contiguous-parts; complete-only-the-same-unexpired-complete-session",
         "preconditions": [
           "existing-stable-upload-identity",
-          "matching-source-metadata",
-          "current-workspace",
-          "current-authority-and-retention-policy"
+          "current-tenant-and-owning-principal-scope",
+          "matching-source-metadata-and-immutable-request-binding",
+          "current-authority-and-retention-policy",
+          "observed-state-permits-continuation"
         ],
         "producesEffectRefs": []
       },
@@ -10186,8 +10191,8 @@
         "description": "Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification."
       }
     ],
-    "createdAt": "2026-10-08T23:16:32.812Z",
-    "updatedAt": "2026-10-08T23:16:32.812Z"
+    "createdAt": "2026-10-08T23:49:18.478Z",
+    "updatedAt": "2026-10-08T23:49:18.478Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
@@ -10335,7 +10340,8 @@
         "idTransformation": "Preserve unique source-authored stepId; otherwise use <journeyId>.step-<two-digit source ordinal> as deterministic projection-only ID, including missing or repeated IDs."
       },
       "transitionProjection": {
-        "sourceNullCount": 130,
+        "sourceNullCount": 128,
+        "sourceNoMutationReasonCount": 3,
         "rows": [
           {
             "journeyId": "J-01",
@@ -10343,6 +10349,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-01.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10352,6 +10359,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-01.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10361,6 +10369,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-01.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10370,51 +10379,82 @@
             "sourceStepId": null,
             "projectedStepId": "J-01.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
           {
             "journeyId": "J-02",
             "stepOrdinal": 1,
-            "sourceStepId": null,
-            "projectedStepId": "J-02.step-01",
+            "sourceStepId": "J02-1",
+            "projectedStepId": "J02-1",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": {
+              "status": "NOT_APPLICABLE_WITH_REASON",
+              "transitionRef": null,
+              "decisionRef": null,
+              "reason": "Authorized artifact-list/navigation observation only; no lifecycle mutation or state edge."
+            },
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
           {
             "journeyId": "J-02",
             "stepOrdinal": 2,
-            "sourceStepId": null,
-            "projectedStepId": "J-02.step-02",
-            "sourceTransitionRef": null,
+            "sourceStepId": "J02-2",
+            "projectedStepId": "J02-2",
+            "sourceTransitionRef": "media-upload-and-artifact/T01",
+            "sourceTransitionDisposition": {
+              "status": "APPLICABLE_WITH_BOUNDS",
+              "transitionRef": "media-upload-and-artifact/T01",
+              "decisionRef": ".product-experience/decision-log.md#PXD-049",
+              "reason": "Only the subordinate successful complete-upload phase enters RECEIVING→VERIFYING after exact expected bytes and full digest checks; begin and append do not traverse T01, and no other edge is claimed."
+            },
             "projectedTransitionRefs": [],
-            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+            "disposition": "SOURCE_TRANSITION_NOT_MAPPED"
           },
           {
             "journeyId": "J-02",
             "stepOrdinal": 3,
-            "sourceStepId": null,
-            "projectedStepId": "J-02.step-03",
-            "sourceTransitionRef": null,
+            "sourceStepId": "J02-3",
+            "projectedStepId": "J02-3",
+            "sourceTransitionRef": "media-upload-and-artifact/T01",
+            "sourceTransitionDisposition": {
+              "status": "APPLICABLE_WITH_BOUNDS",
+              "transitionRef": "media-upload-and-artifact/T01",
+              "decisionRef": ".product-experience/decision-log.md#PXD-049",
+              "reason": "Only successful complete-upload after the guarded resume workflow enters RECEIVING→VERIFYING; this compound action does not claim T02 or AVAILABLE."
+            },
             "projectedTransitionRefs": [],
-            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+            "disposition": "SOURCE_TRANSITION_NOT_MAPPED"
           },
           {
             "journeyId": "J-02",
             "stepOrdinal": 4,
-            "sourceStepId": null,
-            "projectedStepId": "J-02.step-04",
+            "sourceStepId": "J02-4",
+            "projectedStepId": "J02-4",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": {
+              "status": "NOT_APPLICABLE_WITH_REASON",
+              "transitionRef": null,
+              "decisionRef": null,
+              "reason": "Conditional observation of an owner-issued job only; no transition pending or lifecycle mutation is claimed."
+            },
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
           {
             "journeyId": "J-02",
             "stepOrdinal": 5,
-            "sourceStepId": null,
-            "projectedStepId": "J-02.step-05",
+            "sourceStepId": "J02-5",
+            "projectedStepId": "J02-5",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": {
+              "status": "NOT_APPLICABLE_WITH_REASON",
+              "transitionRef": null,
+              "decisionRef": null,
+              "reason": "Artifact metadata inspection is a read; T02 is verification-authority-owned and no screen transition is claimed."
+            },
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10424,6 +10464,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-03.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10433,6 +10474,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-03.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10442,6 +10484,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-03.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10451,6 +10494,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-03.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10460,6 +10504,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-03.step-05",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10469,6 +10514,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-03.step-06",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10478,6 +10524,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-03.step-07",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10487,6 +10534,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-03.step-08",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10496,6 +10544,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-04.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10505,6 +10554,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-04.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10514,6 +10564,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-04.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10523,6 +10574,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-04.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10532,6 +10584,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-05.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10541,6 +10594,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-05.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10550,6 +10604,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-05.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10559,6 +10614,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-05.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10568,6 +10624,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-06.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10577,6 +10634,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-06.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10586,6 +10644,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-06.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10595,6 +10654,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-07.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10604,6 +10664,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-07.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10613,6 +10674,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-07.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10622,6 +10684,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-07.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10631,6 +10694,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-08.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10640,6 +10704,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-08.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10649,6 +10714,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-08.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10658,6 +10724,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-08.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10667,6 +10734,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-09.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10676,6 +10744,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-09.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10685,6 +10754,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-09.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10694,6 +10764,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-09.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10703,6 +10774,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-09.step-05",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10712,6 +10784,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-09.step-06",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10721,6 +10794,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-09.step-07",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10730,6 +10804,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-09.step-08",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10739,6 +10814,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-09.step-09",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10748,6 +10824,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-10.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10757,6 +10834,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-10.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10766,6 +10844,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-10.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10775,6 +10854,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-10.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10784,6 +10864,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-10.step-05",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10793,6 +10874,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-11.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10802,6 +10884,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-11.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10811,6 +10894,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-11.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10820,6 +10904,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-12.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10829,6 +10914,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-12.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10838,6 +10924,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-12.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10847,6 +10934,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-13.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10856,6 +10944,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-13.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10865,6 +10954,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-13.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10874,6 +10964,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-13.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10883,6 +10974,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-14.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10892,6 +10984,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-14.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10901,6 +10994,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-14.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10910,6 +11004,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-14.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10919,6 +11014,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-15.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10928,6 +11024,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-15.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10937,6 +11034,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-15.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10946,6 +11044,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-15.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10955,6 +11054,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-16.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10964,6 +11064,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-16.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10973,6 +11074,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-16.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10982,6 +11084,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-16.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -10991,6 +11094,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-16.step-05",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11000,6 +11104,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-17.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11009,6 +11114,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-17.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11018,6 +11124,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-17.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11027,6 +11134,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-17.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11036,6 +11144,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-18.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11045,6 +11154,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-18.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11054,6 +11164,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-18.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11063,6 +11174,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-18.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11072,6 +11184,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-18.step-05",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11081,6 +11194,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-18.step-06",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11090,6 +11204,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-19.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11099,6 +11214,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-19.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11108,6 +11224,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-19.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11117,6 +11234,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-19.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11126,6 +11244,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-20.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11135,6 +11254,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-20.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11144,6 +11264,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-20.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11153,6 +11274,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-20.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11162,6 +11284,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-20.step-05",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11171,6 +11294,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-20.step-06",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11180,6 +11304,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-20.step-07",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11189,6 +11314,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-21.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11198,6 +11324,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-21.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11207,6 +11334,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-21.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11216,6 +11344,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-22.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11225,6 +11354,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-22.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11234,6 +11364,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-22.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11243,6 +11374,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-23.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11252,6 +11384,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-23.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11261,6 +11394,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-23.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11270,6 +11404,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-23.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11279,6 +11414,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-24.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11288,6 +11424,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-24.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11297,6 +11434,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-24.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11306,6 +11444,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-24.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11315,6 +11454,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-25.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11324,6 +11464,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-25.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11333,6 +11474,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-25.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11342,6 +11484,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-26.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11351,6 +11494,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-26.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11360,6 +11504,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-26.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11369,6 +11514,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-27.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11378,6 +11524,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-27.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11387,6 +11534,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-27.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11396,6 +11544,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-27.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11405,6 +11554,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-28.step-01",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11414,6 +11564,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-28.step-02",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11423,6 +11574,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-28.step-03",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11432,6 +11584,7 @@
             "sourceStepId": null,
             "projectedStepId": "J-28.step-04",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11441,6 +11594,7 @@
             "sourceStepId": "detect-loss-or-consent-change",
             "projectedStepId": "detect-loss-or-consent-change",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11450,6 +11604,7 @@
             "sourceStepId": "fence-new-frame-submission",
             "projectedStepId": "fence-new-frame-submission",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11459,6 +11614,7 @@
             "sourceStepId": "reconcile-dispatched-frame-effects",
             "projectedStepId": "reconcile-dispatched-frame-effects",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11468,6 +11624,7 @@
             "sourceStepId": "present-bounded-return-state",
             "projectedStepId": "present-bounded-return-state",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11477,6 +11634,7 @@
             "sourceStepId": "establish-scope-and-permissions",
             "projectedStepId": "establish-scope-and-permissions",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11486,6 +11644,7 @@
             "sourceStepId": "inspect-profile-and-provider-dimensions",
             "projectedStepId": "inspect-profile-and-provider-dimensions",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11495,6 +11654,7 @@
             "sourceStepId": "preserve-unknown-or-unavailable-reasons",
             "projectedStepId": "preserve-unknown-or-unavailable-reasons",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11504,11 +11664,12 @@
             "sourceStepId": "return-eligible-options-with-provenance",
             "projectedStepId": "return-eligible-options-with-provenance",
             "sourceTransitionRef": null,
+            "sourceTransitionDisposition": null,
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           }
         ],
-        "disposition": "Source transitionRef null means unresolved metadata. Public transitionRefs: [] is only a required schema placeholder and is not evidence that no transitions exist."
+        "disposition": "Source transitionRef null requires separate source applicability review; explicit no-mutation reasons are retained without inferring public transition mapping. Public transitionRefs: [] is only a required schema placeholder and is not evidence that no transitions exist."
       },
       "projectedSourceRows": [
         {
@@ -11980,13 +12141,13 @@
         "stepViewUnresolved": 0,
         "stepActionLinked": 18,
         "stepActionUnresolved": 112,
-        "stepObjectRefsEmpty": 130,
-        "stepStateRefsEmpty": 130,
+        "stepObjectRefsEmpty": 125,
+        "stepStateRefsEmpty": 125,
         "canonicalOperationRefsNull": 114,
         "canonicalOperationCandidateRefs": 16,
-        "authorityRefsNull": 130,
-        "transitionRefsNull": 130,
-        "requirementRefsEmpty": 130,
+        "authorityRefsNull": 125,
+        "transitionRefsNull": 128,
+        "requirementRefsEmpty": 112,
         "verificationNotRun": 130,
         "verificationEvidencePresent": 0,
         "verificationAccepted": 0
@@ -12000,7 +12161,7 @@
         "withRefs": 3,
         "withoutRefs": 27
       },
-      "remainingGap": "A partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 130/130 steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view 130 linked/0 unresolved; step-action 18 linked/112 unresolved. Remaining gaps: 0 step rows lack an exact intent source (including J-29's four rows); 130 source transitionRef values are null and remain unresolved. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty 130, stateRefs empty 130, authorityRef null 130, requirementRefs empty 130, verification not-run 130. 3/30 journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending."
+      "remainingGap": "A partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 130/130 steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view 130 linked/0 unresolved; step-action 18 linked/112 unresolved. Remaining gaps: 0 step rows lack an exact intent source (including J-29's four rows); 128 source transitionRef values are null; 3 have explicit source no-mutation reasons. These source dispositions do not resolve the public transition projection. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty 125, stateRefs empty 125, authorityRef null 125, requirementRefs empty 112, verification not-run 130. 3/30 journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending."
     },
     "ownerDecisionStatus": "PENDING; directly projected records and schema validation do not establish semantic acceptance or phase closure.",
     "recoverySourceProposals": [
@@ -12509,7 +12670,7 @@
       "status": "PARTIAL_SOURCE_PROJECTION_30_OF_30_JOURNEYS_130_OF_130_STEPS; OWNER_REVIEW_PENDING",
       "sourceDisposition": "journey-registry.yaml#journeys; journey-contracts/*.yaml#steps; pdp-0-product-truth/journey-actor-resolutions.yaml#journeys; journey-catalog.yaml#journeys; goals-jtbd.yaml#outcomes; screen-registry.yaml#screens,laneViews",
       "reasons": [
-        "A partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 130/130 steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view 130 linked/0 unresolved; step-action 18 linked/112 unresolved. Remaining gaps: 0 step rows lack an exact intent source (including J-29's four rows); 130 source transitionRef values are null and remain unresolved. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty 130, stateRefs empty 130, authorityRef null 130, requirementRefs empty 130, verification not-run 130. 3/30 journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending."
+        "A partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 130/130 steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view 130 linked/0 unresolved; step-action 18 linked/112 unresolved. Remaining gaps: 0 step rows lack an exact intent source (including J-29's four rows); 128 source transitionRef values are null; 3 have explicit source no-mutation reasons. These source dispositions do not resolve the public transition projection. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty 125, stateRefs empty 125, authorityRef null 125, requirementRefs empty 112, verification not-run 130. 3/30 journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",

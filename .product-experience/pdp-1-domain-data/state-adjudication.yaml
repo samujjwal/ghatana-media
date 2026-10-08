@@ -35,6 +35,61 @@ machineDimensions:
       SUPERSEDED: a later fenced attempt or authoritative resolution supersedes this attempt observation
     spellingConflict:
       CANCELLING: legacy-observer-label-only; no-canonical-job-state; attempt-level-CANCEL_REQUESTED-is-distinct-and-unconfirmed
+  - machineId: media-upload-and-artifact
+    dimension: product-artifact-lifecycle-not-upload-session-transport-state
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    boundedDecisionRef: .product-experience/decision-log.md#PXD-049
+    acceptedBoundedMeanings:
+      RECEIVING: bounded-upload-session-is-accepting-ordered-parts; does-not-establish-an-artifact-or-availability
+      VERIFYING: completed-upload-is-being-checked-for-required-integrity-format-security-rights-and-policy-dispositions
+      AVAILABLE: all-applicable-verification-checks-currently-positive-for-the-exact-artifact-version-and-current-use-scope
+      QUARANTINED: required-evidence-is-missing-stale-unsupported-or-ambiguous; use-is-denied-pending-reconciliation
+      REJECTED: an-authoritative-format-security-rights-consent-or-policy-check-denied-the-artifact-or-intended-use
+    remainingStateIds: [EXPIRED, ERASURE_REQUESTED, ACCESS_REVOKED, PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD, ERASURE_CONFIRMED, EXTERNAL_ERASURE_UNCONFIRMED]
+    remainingStateDisposition: source-proposal-retained; only-RECEIVING-VERIFYING-AVAILABLE-QUARANTINED-REJECTED-meaning-guards-accepted-bounded-by-PXD-049
+    uploadSessionProjection:
+      source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#UploadStatus
+      runtimeStates:
+        OPEN: receiving-session; progress-observation-only
+        FINALIZING: completion-is-being-reconciled; does-not-prove-artifact-availability
+        COMPLETED: session-finalization-and-artifact-identity-observed; product-artifact-remains-VERIFYING-until-separate-required-disposition
+        ABORTED: upload-session-stopped; no-equivalent-artifact-REJECTED-transition-is-inferred
+        EXPIRED: upload-session-expired; no-artifact-expiry-or-erasure-is-inferred-without-artifact-identity-and-retention-evidence
+      explicitNonMappings:
+        - UploadSession-COMPLETED-is-not-artifact-AVAILABLE
+        - UploadSession-EXPIRED-is-not-physical-erasure
+        - UploadSession-ABORTED-is-not-verification-REJECTED
+        - metadata-or-opaque-objectReference-is-not-rights-approval-or-byte-access
+    verificationGate:
+      decisionRef: .product-experience/decision-log.md#PXD-049
+      admissionState: definition-only
+      runtimeAdmission: NOT_ADMITTED
+      availableRequiresAll:
+        - exact-tenantId-artifactId-and-stable-opaque-immutable-versionId-match
+        - exact-byte-size-and-full-content-digest-match-for-that-version; sha256-lowercase-64-hex-digits
+        - detected-format-and-required-format-policy-check-record
+        - security-scan-and-parser-validation-check-record
+        - current-tenant-and-principal-scoped-rights-decision-for-intended-use
+        - current-consent-decision-where-required
+        - applicable-policy-decision-and-retention-disposition
+      checkRecordFields: [tenantId, subjectArtifactId, subjectArtifactVersionId, byteSize, fullContentDigest, intendedUseOrNotApplicable, evaluatedPrincipalIdOrNotApplicable, checkKind, authorityRef, decision, observedAt, policyOrMethodVersion, evidenceRef, expiresAtOrNotApplicable]
+      digestFormat: sha256-lowercase-64-hex-digits; compared-as-full-digest-not-prefix-or-sampled-content
+      policySourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints, .product-experience/pdp-0-product-truth/qualification-policy.yaml#securityAndRightsBaseline, docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md#41-mandatory-consent, docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md#5-retention-and-physical-erasure]
+      policyCheckSourceRecords:
+        formatAndAdmission: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints[point=upload-and-import-admission]
+        securityAndRights: .product-experience/pdp-0-product-truth/qualification-policy.yaml#securityAndRightsBaseline
+        currentAccessRightsAndConsent: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints[point=artifact-fetch-and-cache-reuse]
+        consentAuthorityAndScope: docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md#41-mandatory-consent
+        retentionExpiryAuthority: docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md#5-retention-and-physical-erasure
+      dispositionRules:
+        AVAILABLE: every-applicable-check-has-current-positive-authority-record-bound-to-exact-tenant-artifact-versionId-size-and-full-digest
+        VERIFYING: required-check-is-in-progress-or-authoritative-result-is-not-yet-available
+        QUARANTINED: evidence-is-missing-stale-unsupported-ambiguous-or-cannot-be-safely-evaluated; deny-use-pending-reconciliation
+        REJECTED: authoritative-format-security-rights-consent-or-policy-decision-denies-the-artifact-or-intended-use
+      expiryBoundary: EXPIRED-is-a-separate-authoritative-retention-lifecycle-disposition-outside-T02; expired-check-evidence-leaves-artifact-QUARANTINED-or-REJECTED-until-the-governed-lifecycle-action-is-recorded
+      expiryAndFreshness: every-currentness-check-is-revalidated-at-use; expiresAt-is-authority-supplied; no-self-issued-or-inferred-verification-authority
+      issuerBoundary: use-existing-format-security-rights-consent-retention-and-policy-authorities-referenced-by-pdp0-and-MEDIA_PRIVACY_AND_RETENTION_POLICY; no-new-issuer-or-operation-is-defined
+    boundedStatus: bounded-upload-admission-verification-availability-and-quarantine-disposition-meanings-under-PXD-049; implementation-independent-qualification-and-all-other-lifecycle-state-meanings-remain-open
   - machineId: media-delivery
     dimension: external-delivery-effect-and-recipient-evidence
     proposedMeanings:
