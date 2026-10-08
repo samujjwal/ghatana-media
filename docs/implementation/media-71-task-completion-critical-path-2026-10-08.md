@@ -115,3 +115,14 @@ git diff --check
 ```
 
 **Priority decision:** The next implementation batch after B00 must target B01/B02 exact artifact/job/action/SDK operation semantics and associated typed tests, not add new 71-task planning prose. After source changes regenerate source/phase projections. Report counts only after observing their actual output.
+
+## 4. Active implementation tickets (execute source changes, do not close on proposal counts)
+
+- [B01 / Media #5 — upload, artifact, consent and job canonical operation vertical slice](https://github.com/samujjwal/ghatana-media/issues/5)
+- [B02 / Media #6 — three checker gaps and exact cross-interface operation binding](https://github.com/samujjwal/ghatana-media/issues/6)
+- [B03+B05 / Media #8 — PDP-0 leaves, migration, and all 130 experience steps](https://github.com/samujjwal/ghatana-media/issues/8)
+- [B06 / Media #7 — first real Lifecycle proof route, then 344 obligations](https://github.com/samujjwal/ghatana-media/issues/7)
+- [Existing Media #3 — 71-task original work-order status](https://github.com/samujjwal/ghatana-media/issues/3)
+- [Media #4 — independent reviewers and accessible interaction acceptance](https://github.com/samujjwal/ghatana-media/issues/4)
+
+**Execution order:** run B00 verification *first*; B01 and external Shared/Tools/Lifecycle owner contracts can proceed in parallel; B02 consumes admitted B01 identities; B05 consumes B01/B02 domain and P2 design interfaces; B06 may immediately admit already existing independent test cases while other case definitions continue. User-delegated product owner can accept source semantics only when actual source mappings and negative tests justify them. Every task's status remains unchanged until its original Done criterion is met.
