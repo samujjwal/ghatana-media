@@ -413,3 +413,36 @@ scope:
   - Intended scope is not implementation, qualification, license admission, or runtime availability.
   - Media simulation presentation is not automatically a qualified scientific simulator.
   - Product experience simulation and production runtime execution are distinct.
+
+# Delegated Media product-owner decisions. These are exclusions from Media's
+# semantic ownership, not exclusions of reusable downstream integrations.
+nonGoals:
+  - id: media.non-goal.generic-document-intelligence
+    description: Media will not implement or own generic document OCR, extraction, parser or document-management engines.
+    reason: MDI-001 assigns their public contracts to Shared and runtime execution to Document Intelligence; Media owns temporal scene-text mappings only.
+  - id: media.non-goal.generic-platform-control-plane
+    description: Media will not create competing identity, authorization, workflow, event, audit, observability, governance or generic AI routing frameworks.
+    reason: Public Ghatana Shared and platform contracts own these mechanics; Media supplies domain-specific intent and adapters.
+  - id: media.non-goal.generic-product-tooling
+    description: Media will not own a competing product-definition, Explorer, evidence or Lifecycle closure framework.
+    reason: Ghatana Tools and Lifecycle own the public schemas, generic host mechanics, proof admission and receipts.
+  - id: media.non-goal.unqualified-scientific-authority
+    description: Media presentation and simulation will not claim independent clinical, pedagogical, scientific or rights adjudication.
+    reason: Specialized domain owners and verified external authorities retain the meaning and approval of such claims.
+  - id: media.non-goal.universal-unqualified-provider-support
+    description: Media will not promise every codec, model, voice, hardware profile, provider or format to be universally licensed, qualified or available.
+    reason: Implementation, model or asset licensing, technical qualification and profile availability are independent admission dimensions.
+
+businessIntents:
+  - id: media.business.reuse-media-capabilities
+    description: Integrating products reuse public governed Media capabilities without creating incompatible per-product media execution authorities.
+    measuredBy: Eligible consumer workflows using versioned public contracts and preserved domain finality.
+  - id: media.business.trustworthy-versioned-outputs
+    description: Reviewers and integrating products can distinguish originals, exact derived versions, uncertainty and authorized delivery.
+    measuredBy: Applicable output contracts specifying exact identity, provenance, rights state and delivery acknowledgment.
+  - id: media.business.bounded-provider-execution
+    description: Processing execution has declared supported profiles with controlled policy, budget, resource and failure behavior.
+    measuredBy: Admitted execution profiles with qualified bounds and classified unsupported cases.
+  - id: media.business.safe-recoverable-operations
+    description: Long-running jobs remain observable and safely reconcilable without blind replay or misleading cancellation outcomes.
+    measuredBy: Applicable job operations with stable identity, idempotency/fencing, recovery and unknown-finality proof.

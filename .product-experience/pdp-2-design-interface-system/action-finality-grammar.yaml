@@ -10,6 +10,33 @@ rules:
   - An unknown remote outcome disables resubmission until checking the existing job provides a safe next action.
   - Retry creates a new attempt under the same logical job only after the prior attempt is classified as retryable and current authority, policy, and remaining budget are confirmed.
   - Preserve completed artifacts and drafts when a later step fails.
+# Explicit Tools-compatible recovery semantics; automatic means observer-safe only.
+# No automatic recovery pattern below replays an external effect.
+recoveryPatterns:
+  - id: media.recovery.unknown-outcome
+    name: Reconcile an uncertain external effect
+    description: Preserve original job and attempt identities and query authoritative status before any retry or duplicate effect.
+    automaticRecovery: false
+  - id: media.recovery.observer-reconnect
+    name: Reattach to existing observation
+    description: A client may reconnect and resume bounded read-only observation using a stable job identity and current authorization.
+    automaticRecovery: true
+  - id: media.recovery.policy-blocked
+    name: Resolve an unmet rights or capability prerequisite
+    description: Explain denied or missing rights, consent, owner or provider qualifications; require a fresh authorized decision.
+    automaticRecovery: false
+  - id: media.recovery.partial-output
+    name: Inspect partial output and preserve known completed effects
+    description: Show exact completed and uncertain sub-effects; do not automatically submit replacement operations.
+    automaticRecovery: false
+  - id: media.recovery.cancel-requested
+    name: Observe cancellation finality
+    description: Observe attempt or provider cancellation acknowledgment without changing logical job finality before confirmed.
+    automaticRecovery: true
+  - id: media.recovery.conflicted-offline-edit
+    name: Reconcile concurrent or stale revisions
+    description: Preserve both identities and edits, display the conflicting changes and require an explicit approved merge.
+    automaticRecovery: false
 outcomes:
   - id: media.action-outcome.applied
     label: Request recorded

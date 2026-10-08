@@ -1,0 +1,82 @@
+schemaVersion: media.experience-search-inspection.v1
+productId: media
+authority: PDP-3 owns searchable and inspectable Media experience semantics; Tools Explorer owns only its generic host and visual inspection mechanics
+status: OWNER_POLICY_SELECTED; IMPLEMENTATION_AND_INDEPENDENT_ACCEPTANCE_PENDING
+sourceRefs:
+  - .product-experience/pdp-1-domain-data/domain-objects.yaml
+  - .product-experience/pdp-1-domain-data/operations.yaml
+  - .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+  - .product-experience/pdp-3-product-experience/screen-registry.yaml
+  - .product-experience/pdp-3-product-experience/application-channel-registry.yaml
+  - .product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml
+searches:
+  - id: media.search.authorized-projects
+    name: Find authorized projects
+    searchableTypes: [media.domain.project, media.domain.project-revision]
+    description: Find only current-tenant authorized projects and their visible revisions, with exact stable identity and stale-index disclosure.
+    filters: [workspace-or-tenant, project-visibility, updated-at, ownership]
+    ordering: [updated-at-descending-stable-id, project-label-then-id]
+    pagination: bounded-cursor; stable-order-and-explicit-resume-token
+    authorization: Filter by current trusted identity, tenant and project permissions before matching or counting; no leak through counts or suggestions.
+    absentResults: Separate no-match, no-read-permission, unavailable index and stale-index observations.
+    availableChannels: [media.channel.web, media.channel.http-api, media.channel.sdk]
+    runtimeBinding: NOT_ADMITTED
+  - id: media.search.authorized-artifacts
+    name: Find authorized artifact versions
+    searchableTypes: [media.domain.artifact, media.domain.artifact-version]
+    description: Search media by type, verified integrity, authorization, declared provenance and exact version without implying publication or deletion state.
+    filters: [tenant-project-scope, media-kind, integrity-status, owner, version, time-range]
+    ordering: [created-at-descending-stable-id, media-kind-then-id]
+    pagination: bounded-cursor; no-unbounded-cross-tenant-list
+    authorization: Rights, consent, retention, quarantine and tenant/project read policy apply before discovery; missing grants return no content.
+    absentResults: Distinguish empty, filtered, forbidden, quarantined and index-unavailable results where disclosure is allowed.
+    availableChannels: [media.channel.web, media.channel.http-api, media.channel.sdk, media.channel.cli]
+    runtimeBinding: NOT_ADMITTED
+  - id: media.search.authorized-jobs
+    name: Find processing jobs and attempt outcomes
+    searchableTypes: [media.domain.processing-job, media.domain.job-attempt]
+    description: Find exact authorized jobs with current authoritative state and separately measured observation freshness; never equate request receipt with job finality.
+    filters: [job-kind, status, created-at, source-version, attempt, owner]
+    ordering: [updated-at-descending-stable-job-id]
+    pagination: bounded-cursor; preserve-stable-job-and-attempt-identities
+    authorization: Resolve identity, tenant, job and artifact scope before returning state, progress, cost or provenance.
+    absentResults: Distinguish no-match, policy-denied, unknown-outcome and stale-observation where permitted.
+    availableChannels: [media.channel.web, media.channel.http-api, media.channel.sdk, media.channel.cli]
+    runtimeBinding: NOT_ADMITTED
+inspections:
+  - id: media.inspection.product-contract
+    projectionKind: specification
+    description: Inspect the currently authored and versioned Media interface, screen, CLI, SDK, Agent Tool or event contract; proposal and admitted implementation must be visibly distinct.
+    authorityRefs: [.product-experience/pdp-0-product-truth/, .product-experience/pdp-1-domain-data/, .product-experience/pdp-2-design-interface-system/, .product-experience/pdp-3-product-experience/]
+    requiredContext: [contract-id, source-revision, channel, authority-status]
+    runtimeBinding: DEFINITION_ONLY
+  - id: media.inspection.resource-authority
+    projectionKind: authority
+    description: Inspect the exact artifact, project, version, rights/consent and caller scope without revealing content outside current policy.
+    authorityRefs: [.product-experience/pdp-1-domain-data/authority.yaml, .product-experience/pdp-1-domain-data/versioning.yaml, .product-experience/pdp-1-domain-data/privacy.yaml]
+    requiredContext: [tenant-project-context, exact-resource-version, current-principal, policy-issuer]
+    runtimeBinding: NOT_ADMITTED
+  - id: media.inspection.quality-and-effect-proof
+    projectionKind: evidence
+    description: Inspect available quality, provenance, result and external delivery evidence with metric domains, sources and UNKNOWN/NOT_QUALIFIED distinguished from measured failure.
+    authorityRefs: [.product-experience/pdp-0-product-truth/quality-policy.yaml, .product-experience/pdp-1-domain-data/evidence.yaml, .product-experience/pdp-1-domain-data/provenance.yaml]
+    requiredContext: [source-version, output-version, assessment-profile, evidence-issuer, observation-time]
+    runtimeBinding: NOT_ADMITTED
+  - id: media.inspection.job-effect-trace
+    projectionKind: trace
+    description: Inspect causal job, attempt, dispatch, provider and delivery statuses across observations without manufacturing finality or permissions.
+    authorityRefs: [.product-experience/pdp-1-domain-data/states.yaml, .product-experience/pdp-1-domain-data/events.yaml, .product-experience/pdp-1-domain-data/state-adjudication.yaml]
+    requiredContext: [logical-job-id, attempt-ids, source-version, evidence-fingerprint]
+    runtimeBinding: NOT_ADMITTED
+  - id: media.inspection.scenario-fixture
+    projectionKind: simulation
+    description: Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification.
+    authorityRefs: [.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml, .product-experience/explorer/scenario-fixtures.yaml]
+    requiredContext: [fixture-id, scenario-id, source-revision, synthetic-status]
+    runtimeBinding: DEFINITION_ONLY
+policy:
+  - All searches and inspections must be usable through semantic text and machine-readable contracts; non-GUI apps do not require synthetic GUI screens.
+  - Unqualified runtime surfaces remain documented experience definitions and cannot be invoked as production actions.
+  - Search suggestions, counts, filtering and inspection must not become alternate authorization side channels.
+  - An exact job result and an evidentiary observation carry separate currentness and finality.
+  - The Tools Explorer may present these contracts but may not own or redefine their Media semantics.

@@ -16,6 +16,54 @@ density:
   simple: one primary task, essential source context, and the next safe action
   guided: decision inputs, timing details, rights status, and review evidence
   expert: typed media parameters and provenance; no hidden change to action meaning
+# Delegated Media owner selection over the existing simple/guided/expert behaviors.
+# Tools controls the public enum; Shared owns the actual typographic values.
+densityProfiles:
+  - id: media.density.minimal
+    name: Simple
+    density: minimal
+    description: The current task, affected exact source/version, critical status and next safe action stay visible.
+    sourceMode: simple
+  - id: media.density.standard
+    name: Guided
+    density: standard
+    description: Adds decision inputs, timing, rights and review evidence without hiding critical safety context.
+    sourceMode: guided
+  - id: media.density.rich
+    name: Expert
+    density: rich
+    description: Adds typed parameters, measurements and provenance without changing domain meaning or permissions.
+    sourceMode: expert
+presentationProfiles:
+  - id: media.presentation.task
+    name: Task focused
+    densityRef: media.density.minimal
+    description: Default for first use and consequential decisions; advanced detail available explicitly.
+  - id: media.presentation.review
+    name: Guided review
+    densityRef: media.density.standard
+    description: Compare source, generated output, status, uncertainty and rights with safe decisions.
+  - id: media.presentation.engineering
+    name: Expert inspection
+    densityRef: media.density.rich
+    description: Detailed time, codec, quality, state and provenance parameters for qualified roles.
+progressiveDisclosureRules:
+  - id: media.disclosure.advanced-parameters
+    trigger: Explicit user expansion of Advanced parameters in the current operation.
+    reveals: Typed engine, codec, timebase, accuracy, sampling and provider constraints when supported.
+    conceals: Technical choices not required to understand the next safe action.
+  - id: media.disclosure.provenance
+    trigger: Explicit inspection of source and result provenance.
+    reveals: Exact version ancestry, model/provider/config and evidence identity plus uncertainty.
+    conceals: Long lineage internals without changing access to required rights and consent state.
+  - id: media.disclosure.technical-diagnostics
+    trigger: Explicit request for detailed diagnostics or assistive inspector navigation.
+    reveals: Job, attempt, delivery and reconciliation observations with stable code and explanation.
+    conceals: Internal low-level trace content unnecessary for basic task completion.
+disclosureInvariants:
+  - Never conceal identity, active rights/consent, destructive effect, uncertainty, or safe recovery.
+  - Density affects presentation only; it cannot alter domain permission, effect, or finality.
+  - Keyboard and screen-reader equivalents expose advanced detail without pointer-only actions.
 proposedResponsiveViewports:
   source: docs/migration/expert-reviewed-master-plan.md#19-3-canonical-responsive-and-terminal-variants
   widths: [1536, 1280, 1024, 768, 390, 320]
