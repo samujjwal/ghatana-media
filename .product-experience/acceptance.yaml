@@ -584,6 +584,34 @@ recordedHumanDecisionInputs:
     - Public owner acceptance, license/codec/model authorization, provider operation or production deployment
     - Independent visual, screen-reader, security, legal or accessibility signoff
     - Lifecycle-admitted proof/currentness/receipts or production release readiness
+- id: ACCEPT-INPUT-MEDIA-OWNER-GATES-20261007
+  phaseTask: CROSS-PDP-REMAINING-GATE-OWNER-POLICIES-20261007
+  decisionInput: accepted
+  acceptedScope:
+    - Explicit Media non-goals and four business intents grounded in Product Truth.
+    - Source-role catalog for observed TypeScript types and schema declarations; no runtime or wire equivalence acceptance.
+    - Three Tools-compatible density profiles, three presentation profiles and source-authored progressive disclosure.
+    - WCAG 2.2 AA graphical/Web normative accessibility target without conformance certification.
+    - Six safe-recovery semantic patterns and eight Media GUI composition recipe identities.
+    - Source-level applicability, actor-and-intent resolution, canonical operation and PDP-3 mapping acceptance criteria.
+    - Lifecycle requirement-scoped evidence routes and accurate physical post-split provider ownership.
+  evidenceRefs:
+    - .product-experience/decision-log.md#PXD-027
+    - .product-experience/reviews/2026-10-07-all-gate-unblocking.md
+    - .product-experience/pdp-0-product-truth/goals-jtbd.yaml
+    - .product-experience/pdp-2-design-interface-system/typography-layout.yaml
+    - .product-experience/pdp-2-design-interface-system/accessibility.yaml
+    - .product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml
+    - .product-experience/interface-parity/typed-contract-bindings.json
+  sourceOfDecision: explicit-2026-10-07-delegation-to-adjudicate-remaining-owner-level-decisions
+  decisionDate: '2026-10-07'
+  exclusions:
+    - Bulk acceptance of all unclassified capability leaves or mixed migration-plan normative claims
+    - Acceptance of unresolved actor, action, operation, journey, state, effect or cross-source equivalence
+    - Full PDP-0, PDP-1, PDP-2 or PDP-3 phase acceptance or independent P0-010 review
+    - Unverified package/schema artifact publication or external Tools/Shared/DI/Lifecycle owner approval
+    - Independent domain/visual/screen-reader/security/licensing signoff or codec/model/provider activation
+    - Lifecycle admitted proof or generated closure/currentness/receipts
 phaseAcceptanceInputs:
 - id: ACCEPT-INPUT-P0-002
   phase: PDP-0
