@@ -3027,7 +3027,25 @@
       "plan_section_line": 407,
       "changed_files": [
         "docs/qualification/R-01-codec-profile-observations.md"
-      ]
+      ],
+      "pcm_integrity_correction_2026_10_08": {
+        "commit": "8b448ff",
+        "files": [
+          "libs/java/common/src/main/java/com/ghatana/media/common/validation/MediaFormatValidator.java",
+          "libs/java/common/src/test/java/com/ghatana/media/common/validation/MediaFormatValidatorQualificationTest.java",
+          "docs/qualification/R-01-codec-profile-observations.md"
+        ],
+        "verification": {
+          "command": "./gradlew :services:media:libs:java:common:test --continue",
+          "tests": 203,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "targetedCases": 12,
+          "log": "/tmp/media-execution/wav-container-integrity.log"
+        },
+        "acceptanceBoundary": "Complete container/basic PCM metadata validation only; all deployment codec profiles remain NOT_EVALUATED, with decode, corpus, specialist security/scientific, hardware/performance and distribution/license/patent qualification unproved."
+      }
     },
     {
       "id": "R-02",
