@@ -85,6 +85,22 @@ test("external contract source is unchanged from the pinned Git revision, regard
   }
 });
 
+test("external freshness audit covers the selected X-04/X-05/X-06 public source contract identities", () => {
+  const required = [
+    "services/document-intelligence/clients/typescript/package.json",
+    "services/document-intelligence/contracts/protocol-v1.md",
+    "services/document-intelligence/contracts/shared-contract.lock.json",
+    "services/ai-inference/contracts/openapi/ai-inference.yaml",
+    "services/data-cloud/contracts/openapi/data-cloud-lifecycle.yaml",
+    "services/action-plane/contracts/openapi/action-plane.yaml",
+    "services/event-plane/contracts/openapi/event-plane.yaml",
+  ];
+  const paths = [...new Set(observation.gates.flatMap(({ sourceEvidence }) =>
+    (sourceEvidence ?? []).filter(({ repository }) => repository === "samujjwal/ghatana")
+      .map(({ path }) => path)))].sort();
+  assert.deepEqual(paths, required.sort(), "review source coverage when a public contract is added, removed or renamed");
+});
+
 test("available sibling source still matches the recorded contract facts", (t) => {
   const diPackage = source("samujjwal/ghatana", "services/document-intelligence/clients/typescript/package.json");
   const aiContract = source("samujjwal/ghatana", "services/ai-inference/contracts/openapi/ai-inference.yaml");
