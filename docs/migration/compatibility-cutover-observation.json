@@ -1,0 +1,183 @@
+{
+  "schemaVersion": "media.compatibility-cutover-observation.v1",
+  "productId": "media",
+  "recordedOn": "2026-10-07",
+  "authority": "SOURCE_OBSERVATION_ONLY",
+  "cutover": {
+    "status": "NOT_VERIFIED",
+    "releaseOwnerApproval": "UNKNOWN",
+    "productionCutover": "UNKNOWN",
+    "rollbackRehearsal": "UNKNOWN",
+    "remoteReleaseAndBranchCoverage": "UNKNOWN",
+    "rule": "Do not delete or move legacy source, change import direction, or retire compatibility paths until owner-authorized versioned cutover evidence is recorded."
+  },
+  "localRepositorySnapshots": [
+    {
+      "repository": "samujjwal/ghatana-media",
+      "path": "/home/samujjwal/Developments/ghatana-media",
+      "head": "996181731a5017caaf6156b797953104682dd414",
+      "branch": "codex/owner-resolution-20261007",
+      "scope": "checked-out working tree; source paths below inspected directly"
+    },
+    {
+      "repository": "samujjwal/ghatana",
+      "path": "/home/samujjwal/Developments/ghatana",
+      "head": "f824aae85a5fdc55a2423dd4fe620d6d29bcbdf1",
+      "branch": "main",
+      "scope": "tracked HEAD grep and current worktree list; not every available ref"
+    },
+    {
+      "repository": "samujjwal/ghatana",
+      "path": "/tmp/ghatana-media-x04-06",
+      "head": "918d585240821da90ad8ed97de708f746ab6db78",
+      "branch": "codex/media-pdp-x04-06",
+      "scope": "registered local worktree; HEAD inspected, not every available ref"
+    },
+    {
+      "repository": "samujjwal/ghatana-products",
+      "path": "/home/samujjwal/Developments/ghatana-products",
+      "head": "5c8edd468a7bbc5f1c8d9c72d1e7638e0aa04ca5",
+      "branch": "main",
+      "scope": "current working tree searched for services/media and Media package references"
+    },
+    {
+      "repository": "samujjwal/ghatana-shared",
+      "path": "/home/samujjwal/Developments/ghatana-shared",
+      "head": "495663b2d6b61c270367048cec54db8a06f22d69",
+      "branch": "main",
+      "scope": "consumer path catalog searched"
+    },
+    {
+      "repository": "samujjwal/ghatana-kernel",
+      "path": "/home/samujjwal/Developments/ghatana-kernel",
+      "head": "9d6b0a9730b7cfb374af61e90650ff042b1e6b8d",
+      "branch": "main",
+      "scope": "platform tree searched for direct source/package references"
+    },
+    {
+      "repository": "samujjwal/ghatana-tools",
+      "path": "/home/samujjwal/Developments/ghatana-tools",
+      "head": "f35e02910a17e3d268cc255efeb4da4cafb1308b",
+      "branch": "main",
+      "scope": "working tree searched for direct source/package references"
+    },
+    {
+      "repository": "samujjwal/ghatana-yappc",
+      "path": "/home/samujjwal/Developments/ghatana-yappc",
+      "head": "bedc3fa608b6808a51f820f209fffb36c7a374c8",
+      "branch": "main",
+      "scope": "working tree searched for direct source/package references"
+    },
+    {
+      "repository": "gharbatai",
+      "path": "/home/samujjwal/Developments/gharbatai",
+      "head": "5b4f248580177789ffe4fc9ffb866cc8ec104de8",
+      "branch": "main",
+      "scope": "products tree searched for legacy source/package references"
+    }
+  ],
+  "observations": [
+    {
+      "id": "legacy-source-authority",
+      "owner": "Ghatana Media and Ghatana source owner; authority transition requires named owner approval",
+      "status": "CANONICAL_SOURCE_RETAINED_CUTOVER_NOT_EXECUTED",
+      "evidence": [
+        { "path": "BOUNDARY.md", "lines": [5, 6, 15, 20, 55] },
+        { "path": "config/repo-boundary.json", "lines": [14, 15, 42] },
+        { "path": "migration/transfer-receipt.yaml", "lines": [128, 129, 130, 131, 132, 133, 134] }
+      ],
+      "dependency": "Versioned cutover manifest, source and target owner approval, exact consumer parity, and release/rollback evidence are not present in this observation."
+    },
+    {
+      "id": "existing-consumer-and-contract-ledgers",
+      "owner": "Media migration coordination; each named consuming repository retains its contract and deployment decisions",
+      "status": "BOUNDED_LOCAL_INVENTORY_WITH_OPEN_OWNER_CONFIRMATION",
+      "evidence": [
+        { "path": "migration/consumer-inventory.yaml", "lines": [1, 14, 23, 28, 30, 31, 32, 37, 60, 111, 159, 237, 252, 298, 337] },
+        { "path": "migration/contract-compatibility.yaml", "lines": [1, 3, 8, 19, 26, 37, 52, 63, 71] }
+      ],
+      "observedConsumers": [
+        { "repository": "samujjwal/ghatana", "surface": "Data Cloud media metadata/read-model and compatibility routes", "status": "RETAINED_NON_AUTHORITATIVE_CONSUMER; owner cutover confirmation pending" },
+        { "repository": "samujjwal/ghatana-products", "surface": "TutorPutor TP-GHATANA-MEDIA-001 public contract", "status": "CONTRACT_ACCEPTED_FULFILLMENT_UNFULFILLED" },
+        { "repository": "samujjwal/ghatana-shared", "surface": "Auth Gateway consumer-path catalog", "status": "SOURCE_PATH_RECORDED_UPDATE_AFTER_CUTOVER" },
+        { "repository": "gharbatai", "surface": "Org API Document Intelligence TypeScript client", "status": "CURRENT_PACKAGE_LINK_TARGETS_GHATANA_SERVICES_DOCUMENT_INTELLIGENCE; VERIFY_QUALIFICATION_AND_RELEASE_BINDING" },
+        { "repository": "samujjwal/ghatana-products", "surface": "PHR package references", "status": "DOCUMENTATION_ONLY_CURRENT_IMPORT_NOT_OBSERVED" }
+      ],
+      "currentTreeSourceReferences": [
+        { "repository": "samujjwal/ghatana", "path": "services/data-cloud/config/route-boundaries.v1.json", "observation": "Route owner remains services/media in checked-out main working tree." },
+        { "repository": "samujjwal/ghatana", "path": "services/data-cloud/service-contract.yaml", "observation": "Contract still describes Media lifecycle semantics and points to services/media contract paths." },
+        { "repository": "samujjwal/ghatana", "path": "services/data-cloud/scripts/check-wave13-media-artifacts.mjs", "observation": "Verification script names multiple services/media implementation paths." },
+        { "repository": "samujjwal/ghatana-products", "path": "products/tutorputor/config/dependency-requests/TP-GHATANA-MEDIA-001.json", "observation": "Current tree retains legacy source and contract fixture paths in the open consumer request." },
+        { "repository": "samujjwal/ghatana-shared", "path": "config/consumers.json", "observation": "Current tree retains the AuthGatewayClient consumer path under services/media." },
+        { "repository": "samujjwal/ghatana", "path": "services/ai-inference/service-contract.yaml", "observation": "Ownership prose references services/media; no runtime import is implied." },
+        { "repository": "samujjwal/ghatana", "path": "services/document-intelligence/docs/evidence/proof-inventory.v2.json", "observation": "Generated/historical evidence records still contain absolute artifact references to the former services/media worker path; these are evidence references, not proof of a live source import." }
+      ],
+      "limitations": [
+        "The existing consumer inventory records a bounded checked-out-main-branch scan, not an exhaustive scan of all branches, releases, deployments, or untracked content.",
+        "Current local ghatana main and one registered feature worktree were inspected for this update; no absence claim is made for other branches or remote releases."
+      ],
+      "dependency": "Confirm consumer bindings, package/API versions, deployments, compatibility proxy requirements, and owner signoff with each repository owner before cutover."
+    },
+    {
+      "id": "gradle-coordinate-compatibility",
+      "owner": "Media build owner",
+      "status": "LEGACY_COORDINATE_IS_EXPLICITLY_SUPPORTED_IN_STANDALONE_SETTINGS",
+      "evidence": [
+        { "path": "settings.gradle.kts", "lines": [7, 11, 25, 27, 29, 32, 61, 62] },
+        { "path": "launcher/build.gradle.kts", "lines": [17, 28] },
+        { "path": "integration-tests/build.gradle.kts", "lines": [20, 20] },
+        { "path": "providers/aws-postgresql/build.gradle.kts", "lines": [18, 18] }
+      ],
+      "finding": "The root settings select the :services:media project prefix for standalone mode and map that synthetic aggregator to the local checkout. Existing :services:media project references therefore have a local compatibility implementation; their presence alone is not evidence of a stale path.",
+      "dependency": "Keep compatibility until all build consumers and published coordinates are version-qualified and migrated; no retirement decision is evidenced."
+    },
+    {
+      "id": "docker-build-context-paths",
+      "owner": "Media build/release owner",
+      "status": "CONTEXT_UNRESOLVED_WITH_OBSERVED_MISSING_INPUTS",
+      "evidence": [
+        { "path": "docker/Dockerfile.stt-service", "lines": [11, 15, 19, 22] },
+        { "path": "docker/Dockerfile.tts-service", "lines": [10, 14, 16, 19] },
+        { "path": "docker/Dockerfile.vision-service", "lines": [11, 15, 19, 22] },
+        { "path": "docker/Dockerfile.multimodal-service", "lines": [11, 15, 17, 20] },
+        { "path": "docker/Dockerfile.ai-voice", "lines": [15] }
+      ],
+      "findings": [
+        { "path": "docker/Dockerfile.stt-service", "reference": "COPY buildSrc/ buildSrc/", "checkoutPath": "buildSrc/", "checkoutPresence": "ABSENT", "status": "REVIEW_REQUIRED_CONTEXT_OR_SOURCE_MISSING" },
+        { "path": "docker/Dockerfile.tts-service", "reference": "COPY buildSrc/ buildSrc/", "checkoutPath": "buildSrc/", "checkoutPresence": "ABSENT", "status": "REVIEW_REQUIRED_CONTEXT_OR_SOURCE_MISSING" },
+        { "path": "docker/Dockerfile.vision-service", "reference": "COPY buildSrc/ buildSrc/", "checkoutPath": "buildSrc/", "checkoutPresence": "ABSENT", "status": "REVIEW_REQUIRED_CONTEXT_OR_SOURCE_MISSING" },
+        { "path": "docker/Dockerfile.multimodal-service", "reference": "COPY buildSrc/ buildSrc/", "checkoutPath": "buildSrc/", "checkoutPresence": "ABSENT", "status": "REVIEW_REQUIRED_CONTEXT_OR_SOURCE_MISSING" },
+        { "path": "docker/Dockerfile.ai-voice", "reference": "COPY modules/intelligence/ai-voice/requirements.txt ./requirements.txt", "checkoutPath": "modules/intelligence/ai-voice/requirements.txt", "checkoutPresence": "ABSENT", "status": "REVIEW_REQUIRED_CONTEXT_OR_SOURCE_MISSING" }
+      ],
+      "findingLimit": "Docker build invocation/context and CI execution were not established for these active Dockerfiles. Missing-at-repository-root is an observed path mismatch, not proof that every intended build context is invalid."
+    },
+    {
+      "id": "quarantined-workflow-docker-paths",
+      "owner": "Media migration/release owner",
+      "status": "QUARANTINED_CANDIDATE_CONTAINS_OBSOLETE_PATHS",
+      "evidence": [
+        { "path": "migration/transfer-receipt.yaml", "lines": [62, 70, 71, 72, 73, 74, 75] },
+        { "path": "migration/candidates/root-media/audio-video-ci.yml", "lines": [262, 265, 268, 271] },
+        { "path": "migration/candidates/root-media/gitea-audio-video-ci.yml", "lines": [118, 130, 142, 154, 166] }
+      ],
+      "finding": "The quarantined root workflow candidate references products/audio-video/docker paths, while the target tree stores Dockerfiles under docker/. The Gitea candidate points to docker/ paths. These are inactive migration candidates, not evidence of an active build.",
+      "dependency": "Reconcile candidate workflow contexts and source ownership before activation; no workflow activation or release was observed."
+    },
+    {
+      "id": "local-legacy-repository-checkouts",
+      "owner": "Ghatana source/release owner",
+      "status": "LEGACY_SOURCE_PRESENT_IN_OBSERVED_LOCAL_CHECKOUTS",
+      "evidence": [
+        { "repository": "samujjwal/ghatana", "revision": "f824aae85a5fdc55a2423dd4fe620d6d29bcbdf1", "path": "services/media", "observation": "tracked source path present at local main HEAD" },
+        { "repository": "samujjwal/ghatana", "revision": "918d585240821da90ad8ed97de708f746ab6db78", "path": "services/media", "observation": "registered local codex/media-pdp-x04-06 worktree inspected" }
+      ],
+      "dependency": "No evidence here determines deployment state, remote branch/release coverage, or whether the legacy source is safe to retire."
+    }
+  ],
+  "externalGates": [
+    { "id": "X-04", "owner": "Document Intelligence", "dependency": "publish and qualify public client; rebind/requalify Gharbatai worker consumer" },
+    { "id": "X-05", "owner": "AI Inference", "dependency": "version and qualify typed modality/provider contract" },
+    { "id": "X-06", "owner": "Data Cloud / Action Plane / Event Plane", "dependency": "version public operations and preserve Media lifecycle authority" },
+    { "id": "X-09", "owner": "Media plus each consumer/release owner", "dependency": "release-branch and deployment inventory, versioned cutover, compatibility, rollback rehearsal, and approval" }
+  ]
+}

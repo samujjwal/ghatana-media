@@ -6,13 +6,13 @@ sourceRefs:
   - .product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml
   - .product-experience/pdp-2-design-interface-system/accessibility.yaml
   - primitives.yaml
-scopeStatus: proposal; viewport values and Shared layout bindings require validation
+scopeStatus: MEDIA_OWNER_ACCEPTED
 acceptance:
   criteria:
     - Reading order preserves source, derived output, state, finality, and next action relationships at every width.
     - Narrow layouts retain critical identity, consent, provenance, and recovery information.
     - No product-local token values or generic layout implementation are introduced.
-  status: pending-review
+  status: governed-by-design-governance.json#layout-admission
 verification:
   method: Review representative project, upload, job, transcript, and review layouts at narrow, standard, and wide viewports with keyboard and zoom.
   status: not-run

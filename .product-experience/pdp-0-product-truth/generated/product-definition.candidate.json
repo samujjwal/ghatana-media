@@ -5,14 +5,14 @@
   "sourceAuthorities": [
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-      "sha256": "ec72ef709ac46093a61b1ca262190b3eb59e3576f862429cb2e273ac67355e25",
-      "bytes": 10212,
+      "sha256": "6dcb842c0332cd4bb1ea17d6fd4ccdd59e574bca796b65a9235ac7c4ea3f8a2b",
+      "bytes": 12090,
       "format": "markdown"
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/constitution.yaml",
-      "sha256": "c725a9b76563d1209420b8dbefc4f6df95e4265ca2f66f1f218babf97d6dfe7d",
-      "bytes": 13648,
+      "sha256": "fe7a6f5d402192981e2f02a9c094d480f769e623493241b229cbd9cd37c43b74",
+      "bytes": 18714,
       "format": "yaml",
       "schemaVersion": "media.product-constitution.v1",
       "authority": "pdp-0-product-truth",
@@ -20,6 +20,8 @@
       "topLevelFields": [
         "acceptancePolicy",
         "authority",
+        "domainRules",
+        "invariants",
         "normativeRecordContract",
         "productId",
         "requirements",
@@ -60,22 +62,32 @@
         "MEDIA-CONST-029",
         "MEDIA-CONST-030",
         "MEDIA-CONST-031",
-        "MEDIA-CONST-032"
+        "MEDIA-CONST-032",
+        "MEDIA-INV-001",
+        "MEDIA-INV-002",
+        "MEDIA-INV-003",
+        "MEDIA-INV-004",
+        "MEDIA-INV-005",
+        "MEDIA-INV-006",
+        "MEDIA-INV-007"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-      "sha256": "f5d2cc3112fded0c46f811fdc4604ffb85d0d780f22883771f7181ac1faedc40",
-      "bytes": 23472,
+      "sha256": "c09396068115f86bae21addc69520d0529c6ba48a4d08eda246e7d75430f0711",
+      "bytes": 28386,
       "format": "yaml",
       "schemaVersion": "media.goals-jtbd.v1",
       "authority": null,
       "status": "proposed-for-phase-0-review",
       "topLevelFields": [
+        "authorityMapping",
+        "businessIntents",
         "disclosureLevels",
         "firstUse",
         "intents",
         "jobs",
+        "nonGoals",
         "outcomes",
         "productId",
         "schemaVersion",
@@ -85,6 +97,10 @@
         "status"
       ],
       "declaredIds": [
+        "media.business.bounded-provider-execution",
+        "media.business.reuse-media-capabilities",
+        "media.business.safe-recoverable-operations",
+        "media.business.trustworthy-versioned-outputs",
         "media.disclosure.expert",
         "media.disclosure.guided",
         "media.disclosure.simple",
@@ -133,13 +149,57 @@
         "media.job.review-exact-version",
         "media.job.simulate",
         "media.job.start-from-intent",
-        "media.journey.first-use"
+        "media.journey.first-use",
+        "media.non-goal.generic-document-intelligence",
+        "media.non-goal.generic-platform-control-plane",
+        "media.non-goal.generic-product-tooling",
+        "media.non-goal.universal-unqualified-provider-support",
+        "media.non-goal.unqualified-scientific-authority"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
+      "sha256": "f12ee77fc2b8e350f8e53365db4e5e337dae65dfacea9c81f8a5e3c5a6cf29d8",
+      "bytes": 13272,
+      "format": "yaml",
+      "schemaVersion": "media.intent-resolutions.v1",
+      "authority": "User-delegated Media product-owner decisions for P0-04",
+      "status": "Media-owner-decisions-recorded; P0-010-independent-semantic-review-pending",
+      "topLevelFields": [
+        "authority",
+        "intents",
+        "productId",
+        "resolutionPolicy",
+        "schemaVersion",
+        "sourceRefs",
+        "status"
+      ],
+      "declaredIds": [
+        "media.intent.animate",
+        "media.intent.check-processing-options",
+        "media.intent.check-processing-readiness",
+        "media.intent.choose-eligible-processing-option",
+        "media.intent.create",
+        "media.intent.deliver",
+        "media.intent.edit",
+        "media.intent.find-task-guidance",
+        "media.intent.improve",
+        "media.intent.inspect-provenance",
+        "media.intent.manage-artifact-lifecycle",
+        "media.intent.recover-live-session",
+        "media.intent.resolve-job",
+        "media.intent.restore-project",
+        "media.intent.review-exact-version",
+        "media.intent.review-rights-and-consent",
+        "media.intent.review-workspace-settings",
+        "media.intent.simulate",
+        "media.intent.understand"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-      "sha256": "76f66242b91c1401baaf85f70d1ff87dc2a06ed1728d8832f30d8c58e5ae5056",
-      "bytes": 15624,
+      "sha256": "9f077be079a1815ea15988fd0a01a142351ab8137f299d24d1be7b72c8bd2af1",
+      "bytes": 22353,
       "format": "yaml",
       "schemaVersion": "media.actors-responsibilities.v1",
       "authority": null,
@@ -148,13 +208,15 @@
         "accountability",
         "actors",
         "interpretation",
+        "ownershipRules",
         "personas",
         "principals",
         "productId",
         "responsibilityRoles",
         "schemaVersion",
         "sourceRefs",
-        "status"
+        "status",
+        "trustContexts"
       ],
       "declaredIds": [
         "media.administrator",
@@ -165,6 +227,11 @@
         "media.editor",
         "media.external-provider",
         "media.operator",
+        "media.ownership.audit",
+        "media.ownership.domain-state",
+        "media.ownership.identity",
+        "media.ownership.privileged-effects",
+        "media.ownership.product-semantics",
         "media.persona.archive-restorer",
         "media.persona.campaign-producer",
         "media.persona.educator-or-researcher",
@@ -197,6 +264,10 @@
         "media.role.sre",
         "media.role.ux-architect",
         "media.role.worker",
+        "media.trust.admin",
+        "media.trust.authenticated",
+        "media.trust.privileged",
+        "media.trust.public",
         "media.worker"
       ]
     },
@@ -919,6 +990,56 @@
       ]
     },
     {
+      "sourceRef": ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+      "sha256": "6a392dd703ccfc74a867010bd971b9dffbe6deab9d39c17fb64cecf3407820f1",
+      "bytes": 15335,
+      "format": "yaml",
+      "schemaVersion": "media.journey-actor-resolutions.v1",
+      "authority": "User-delegated Media product-owner decisions for P0-04",
+      "status": "Media-owner-initiator-decisions-recorded; P0-010-independent-semantic-review-pending",
+      "topLevelFields": [
+        "authority",
+        "journeys",
+        "policy",
+        "productId",
+        "schemaVersion",
+        "sourceRefs",
+        "status"
+      ],
+      "declaredIds": [
+        "J-01",
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-06",
+        "J-07",
+        "J-08",
+        "J-09",
+        "J-10",
+        "J-11",
+        "J-12",
+        "J-13",
+        "J-14",
+        "J-15",
+        "J-16",
+        "J-17",
+        "J-18",
+        "J-19",
+        "J-20",
+        "J-21",
+        "J-22",
+        "J-23",
+        "J-24",
+        "J-25",
+        "J-26",
+        "J-27",
+        "J-28",
+        "J-29",
+        "J-30"
+      ]
+    },
+    {
       "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
       "sha256": "e13c6b622e47feb0fb8195cc05a9cc19c8a3761606a5208dcaa810a0c4a4f427",
       "bytes": 30127,
@@ -1111,7 +1232,33 @@
         "Explorer simulations as evidence of production runtime behavior"
       ]
     },
-    "nonGoals": [],
+    "nonGoals": [
+      {
+        "id": "media.non-goal.generic-document-intelligence",
+        "description": "Media will not implement or own generic document OCR, extraction, parser or document-management engines.",
+        "reason": "MDI-001 assigns their public contracts to Shared and runtime execution to Document Intelligence; Media owns temporal scene-text mappings only."
+      },
+      {
+        "id": "media.non-goal.generic-platform-control-plane",
+        "description": "Media will not create competing identity, authorization, workflow, event, audit, observability, governance or generic AI routing frameworks.",
+        "reason": "Public Ghatana Shared and platform contracts own these mechanics; Media supplies domain-specific intent and adapters."
+      },
+      {
+        "id": "media.non-goal.generic-product-tooling",
+        "description": "Media will not own a competing product-definition, Explorer, evidence or Lifecycle closure framework.",
+        "reason": "Ghatana Tools and Lifecycle own the public schemas, generic host mechanics, proof admission and receipts."
+      },
+      {
+        "id": "media.non-goal.unqualified-scientific-authority",
+        "description": "Media presentation and simulation will not claim independent clinical, pedagogical, scientific or rights adjudication.",
+        "reason": "Specialized domain owners and verified external authorities retain the meaning and approval of such claims."
+      },
+      {
+        "id": "media.non-goal.universal-unqualified-provider-support",
+        "description": "Media will not promise every codec, model, voice, hardware profile, provider or format to be universally licensed, qualified or available.",
+        "reason": "Implementation, model or asset licensing, technical qualification and profile availability are independent admission dimensions."
+      }
+    ],
     "actors": [
       {
         "id": "media.creator",
@@ -1348,8 +1495,74 @@
         "owner": "media.domain-reviewer"
       }
     ],
-    "userIntents": [],
-    "businessIntents": [],
+    "userIntents": [
+      {
+        "id": "media.intent.create",
+        "actor": "media.creator",
+        "intent": "Create a new governed media result from intent, a brief, source material, or an admitted recipe.",
+        "priority": "must"
+      },
+      {
+        "id": "media.intent.edit",
+        "actor": "media.editor",
+        "intent": "Change media through versioned, reviewable operations.",
+        "priority": "must"
+      },
+      {
+        "id": "media.intent.simulate",
+        "actor": "media.creator",
+        "intent": "Run or present a declared simulation/procedural workflow with explicit fidelity boundaries.",
+        "priority": "must"
+      },
+      {
+        "id": "media.intent.deliver",
+        "actor": "media.creator",
+        "intent": "Prepare, export, or publish an authorized output to a declared destination.",
+        "priority": "must"
+      },
+      {
+        "id": "media.intent.review-exact-version",
+        "actor": "media.reviewer",
+        "intent": "Review, comment on, approve, reject, or request changes for an immutable version within an explicit scope and assigned authority.",
+        "priority": "must"
+      },
+      {
+        "id": "media.intent.find-task-guidance",
+        "actor": "media.developer-integrator",
+        "intent": "Find task-specific Media guidance and safe next steps; preview and redact diagnostics before explicitly sharing them.",
+        "priority": "should"
+      },
+      {
+        "id": "media.intent.check-processing-readiness",
+        "actor": "media.operator",
+        "intent": "Check scoped service readiness and degradation using bounded, authorized diagnostics without exposing unrelated tenant or content details.",
+        "priority": "should"
+      },
+      {
+        "id": "media.intent.review-rights-and-consent",
+        "actor": "media.privacy-rights-reviewer",
+        "intent": "Review purpose-bound rights and consent evidence, including revocation and expiry, with the responsible authority; do not treat user assertion as verification.",
+        "priority": "must"
+      }
+    ],
+    "businessIntents": [
+      {
+        "id": "media.business.reuse-media-capabilities",
+        "description": "Integrating products reuse public governed Media capabilities without creating incompatible per-product media execution authorities."
+      },
+      {
+        "id": "media.business.trustworthy-versioned-outputs",
+        "description": "Reviewers and integrating products can distinguish originals, exact derived versions, uncertainty and authorized delivery."
+      },
+      {
+        "id": "media.business.bounded-provider-execution",
+        "description": "Processing execution has declared supported profiles with controlled policy, budget, resource and failure behavior."
+      },
+      {
+        "id": "media.business.safe-recoverable-operations",
+        "description": "Long-running jobs remain observable and safely reconcilable without blind replay or misleading cancellation outcomes."
+      }
+    ],
     "desiredOutcomes": [
       {
         "id": "media.goal.finished-asset",
@@ -5096,28 +5309,42 @@
         "statement": "Every operation in media.project retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.create",
+          "media.intent.edit"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-ARTIFACT",
         "statement": "Every operation in media.artifact retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.create",
+          "media.intent.edit",
+          "media.intent.deliver"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-JOB",
         "statement": "Every operation in media.job retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.create",
+          "media.intent.edit",
+          "media.intent.simulate",
+          "media.intent.deliver"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-STREAM",
         "statement": "Every operation in media.stream retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.create"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-PROFILE",
@@ -5138,21 +5365,28 @@
         "statement": "Every operation in media.health retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.check-processing-readiness"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-RIGHTS",
         "statement": "Every operation in media.rights retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.deliver",
+          "media.intent.review-rights-and-consent"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-PROVENANCE",
         "statement": "Every operation in media.provenance retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.deliver"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-VISION-SCENE-TEXT",
@@ -5194,35 +5428,45 @@
         "statement": "Every operation in media.generate.image retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.create"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-GENERATE-VIDEO",
         "statement": "Every operation in media.generate.video retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.create"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-GENERATE-AUDIO",
         "statement": "Every operation in media.generate.audio retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.create"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
         "statement": "Every operation in media.speech.synthesis retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.create"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
         "statement": "Every operation in media.generate.spatial retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.create"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-ANIMATION",
@@ -5250,21 +5494,28 @@
         "statement": "Every operation in media.simulation retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.simulate"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
         "statement": "Every operation in media.simulation.output retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.simulate"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
         "statement": "Every operation in media.recipe.template retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.create",
+          "media.intent.simulate"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
@@ -5292,35 +5543,47 @@
         "statement": "Every operation in media.edit retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.edit"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-SYNC",
         "statement": "Every operation in media.sync retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.edit",
+          "media.intent.create"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-COMPOSE",
         "statement": "Every operation in media.compose retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.create",
+          "media.intent.edit"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-COLOR",
         "statement": "Every operation in media.color retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.edit"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-MASTER-AUDIO",
         "statement": "Every operation in media.master.audio retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.edit"
+        ]
       },
       {
         "id": "MEDIA-REQ-CAP-QUALITY",
@@ -5355,7 +5618,9 @@
         "statement": "Every operation in media.deliver retains the intended semantic outcome in the full product definition and is invocable only through an explicit, authorized, compatible binding whose current implementation, license admission, qualification, and runtime availability are separately established.",
         "kind": "functional",
         "priority": "must",
-        "traceToIntentIds": []
+        "traceToIntentIds": [
+          "media.intent.deliver"
+        ]
       },
       {
         "id": "NFR-SEC-001",
@@ -5513,27 +5778,608 @@
         "enforcement": "strict"
       }
     ],
-    "invariants": [],
-    "journeys": [],
-    "trustContexts": [],
+    "invariants": [
+      {
+        "id": "MEDIA-INV-001",
+        "statement": "A private context does not imply local processing, and local processing does not imply authorized use.",
+        "violation": "If processing locality or authorization is missing or conflicting, return blocked or review-required; make no locality claim without a binding and observation."
+      },
+      {
+        "id": "MEDIA-INV-002",
+        "statement": "User attestation is not verified consent or license.",
+        "violation": "Do not admit governed processing or distribution when required consent or license evidence is absent, expired, revoked, or unverified; return blocked or review-required with the reason."
+      },
+      {
+        "id": "MEDIA-INV-003",
+        "statement": "Source classification is a floor for derived data until an authorized deidentification promotion.",
+        "violation": "Do not persist or promote metadata whose classification, tenant ownership, retention, or provenance checks fail."
+      },
+      {
+        "id": "MEDIA-INV-004",
+        "statement": "Model-generated content or assertions cannot authorize themselves.",
+        "violation": "Reject model output as approval or privileged authority; require current policy and a separately authorized decision at the effect boundary."
+      },
+      {
+        "id": "MEDIA-INV-005",
+        "statement": "Required audit intent must be recorded before crossing an external effect boundary.",
+        "violation": "Do not dispatch or publish when required audit intent cannot be recorded; if an effect may already have occurred, preserve outcome uncertainty and do not replay to repair the audit record."
+      },
+      {
+        "id": "MEDIA-INV-006",
+        "statement": "Policy revocation stops future dispatch and restricts outputs at the next enforcement point.",
+        "violation": "Re-check current authority at effect boundaries; stop future dispatch and restrict outputs when policy has been revoked, without claiming an in-flight effect was terminated."
+      },
+      {
+        "id": "MEDIA-INV-007",
+        "statement": "Cross-tenant access and reuse are denied.",
+        "violation": "Deny read, reuse, or effect when tenant ownership does not match the verified request context, even when content digests match."
+      }
+    ],
+    "journeys": [
+      {
+        "id": "J-01",
+        "name": "First use, authentication, context, and project creation",
+        "actorRef": "media.creator",
+        "actorRefs": [
+          "media.creator",
+          "media.administrator",
+          "media.editor",
+          "media.operator"
+        ],
+        "steps": [
+          "Authenticate through the admitted identity contract and select an authorized tenant/workspace.",
+          "A versioned empty project exists and the creator sees a safe next action without selecting a provider/model/engine."
+        ]
+      },
+      {
+        "id": "J-02",
+        "name": "Upload/import, inspect, and produce a usable artifact",
+        "actorRefs": [
+          "media.creator",
+          "media.editor"
+        ],
+        "steps": [
+          "Source selection and upload are authorized; current consent/retention rules are checked.",
+          "Original bytes remain identifiable and an artifact version has integrity and available technical metadata recorded."
+        ]
+      },
+      {
+        "id": "J-03",
+        "name": "Audio/video transcription through corrected captions",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Audio/video access, language intent, and required consent/processing policy are available.",
+          "Timestamped transcript/caption draft is reviewable with language, timing, provenance, uncertainty, and exact source version."
+        ]
+      },
+      {
+        "id": "J-04",
+        "name": "Authorized text-to-speech to approved audio",
+        "actorRef": "media.creator",
+        "actorRefs": [
+          "media.creator",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Text, voice rights/consent, language and output intent are admitted.",
+          "A reviewable audio artifact records selected voice/version, format/rate, provenance, and approval status where required."
+        ],
+        "desiredOutcomeRef": "media.goal.finished-asset"
+      },
+      {
+        "id": "J-05",
+        "name": "Image/video analysis, geometry, and tracks",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Source and analysis purpose are authorized; technical input limits are explicit.",
+          "Observations retain source artifact, timestamp/frame/region, model provenance, and confidence/uncertainty."
+        ]
+      },
+      {
+        "id": "J-06",
+        "name": "Multimodal or document consumer request to grounded typed result",
+        "actorRefs": [
+          "media.developer-integrator",
+          "media.automation-client"
+        ],
+        "steps": [
+          "Consumer purpose and artifact access are authorized; Media-specific scene-text intent is distinguished from document extraction.",
+          "A typed result returns source/time/region/provenance and explicit uncertainty; generic document parsing remains with Document Intelligence."
+        ]
+      },
+      {
+        "id": "J-07",
+        "name": "Noisy/clipped interview cleanup with preservation and comparison",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Source and requested preservation profile are admitted.",
+          "A derived output and before/after comparison disclose processing and reconstruction limits."
+        ]
+      },
+      {
+        "id": "J-08",
+        "name": "Low-quality video repair with measured comparison",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Repair operation, input envelope, and budget are admitted by P0-003/P0-007.",
+          "Eligible stabilized/upscaled/repaired output is compared under applicable metrics with limitations visible."
+        ]
+      },
+      {
+        "id": "J-09",
+        "name": "Prompt/brief to storyboard, composition, render, review, and delivery",
+        "actorRef": "media.creator",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Intent, source/reference rights, budget, quality/preservation choices, and required reviewers are explicit.",
+          "Exact output version is reviewed, approved as required, and delivered with an accurate external-effect status."
+        ]
+      },
+      {
+        "id": "J-10",
+        "name": "Controlled generation with references and continuity review",
+        "actorRef": "media.creator",
+        "actorRefs": [
+          "media.creator",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Reference/control uses are rights-checked; protected identity and geometry constraints are explicit.",
+          "Candidate sequence is reviewed for continuity with uncertainty/provenance exposed."
+        ]
+      },
+      {
+        "id": "J-11",
+        "name": "Region mask/tracking edit with comparison and undo",
+        "actorRef": "media.editor",
+        "actorRefs": [
+          "media.editor",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Edit is bound to an exact artifact version, frame/time range, and authorized operation.",
+          "Region edit is versioned and reviewable; source and prior edit remain recoverable."
+        ]
+      },
+      {
+        "id": "J-12",
+        "name": "Deterministic 2D/vector/procedural animation",
+        "actorRefs": [
+          "media.creator",
+          "media.editor"
+        ],
+        "steps": [
+          "Animation controls and exact timing/export subset are declared.",
+          "Accessible preview and export preserve declared curve/time semantics."
+        ]
+      },
+      {
+        "id": "J-13",
+        "name": "3D character, rig, path, or control animation",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Scene/rig assets, coordinate convention, rights, and supported interchange subset are identified.",
+          "Render/export binds animation to a declared rig/scene version and reports conversion loss."
+        ]
+      },
+      {
+        "id": "J-14",
+        "name": "Explore a domain simulation and its measurements",
+        "actorRef": "media.creator",
+        "actorRefs": [
+          "media.creator",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Domain owner/model, equations, unit-bearing conditions, validity range, solver envelope, and fidelity tier are referenced.",
+          "Measurements/passes and any animation/render remain traceable to domain model and declared fidelity."
+        ]
+      },
+      {
+        "id": "J-15",
+        "name": "Simulation/procedural passes with protected semantic validation",
+        "actorRef": "media.creator",
+        "actorRefs": [
+          "media.creator",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Domain truth and protected semantic properties are identified before any generative refinement.",
+          "Refinement preserves accepted domain measurements or reports the exact failed validation and fidelity consequence."
+        ]
+      },
+      {
+        "id": "J-16",
+        "name": "Existing-video translation/dubbing and voice/timing review",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Source, translation intent, voice authority, subtitle/voice locales, and destination are independently specified.",
+          "Mastered version is synchronized, reviewed for meaning and timing, and delivered only with required approval."
+        ]
+      },
+      {
+        "id": "J-17",
+        "name": "Music, effects, Foley, stems, mix, and mastering",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Source/license scope, target profile, channel layout, and mastering intent are explicit.",
+          "Mix/master output records profile, loudness/peak measurements where applicable, and source lineage."
+        ]
+      },
+      {
+        "id": "J-18",
+        "name": "Compose clips, captions, exact graphics, color, and audio master",
+        "actorRef": "media.editor",
+        "actorRefs": [
+          "media.editor",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Exact assets/fonts/brand claims, timeline mapping, color profile, and output destination are authorized.",
+          "Versioned composition renders with deterministic exact graphics and declared audiovisual/color profile."
+        ]
+      },
+      {
+        "id": "J-19",
+        "name": "Review media quality and improve it within declared limits",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Applicable metrics, thresholds, budget, stop conditions, and protected properties are defined.",
+          "User selects or declines a measurable successor candidate with estimated/reconstructed properties disclosed."
+        ]
+      },
+      {
+        "id": "J-20",
+        "name": "Observe a long-running job and check its outcome safely",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.operator",
+          "media.automation-client",
+          "media.worker"
+        ],
+        "steps": [
+          "Job has stable request/attempt identity and durable status contract.",
+          "User observes completion or known uncertainty; cancellation/retry/reconciliation preserves completed work."
+        ],
+        "desiredOutcomeRef": "media.goal.resolve-safely"
+      },
+      {
+        "id": "J-21",
+        "name": "Review/comment/approve exact version and re-review changed material",
+        "actorRef": "media.reviewer",
+        "actorRefs": [
+          "media.reviewer",
+          "media.privacy-rights-reviewer",
+          "media.administrator",
+          "media.creator",
+          "media.editor"
+        ],
+        "steps": [
+          "Review purpose, exact artifact version, reviewer authority, and scope/expiry are explicit.",
+          "Decision attaches to the reviewed version and required approval state."
+        ]
+      },
+      {
+        "id": "J-22",
+        "name": "Export/download/publish with destination acknowledgement",
+        "actorRef": "media.creator",
+        "actorRefs": [
+          "media.creator",
+          "media.reviewer",
+          "media.operator"
+        ],
+        "steps": [
+          "Exact output, destination, rights, approval, and external-effect authority are current.",
+          "Package validity, transport, and external publication are reported as distinct finality outcomes."
+        ]
+      },
+      {
+        "id": "J-23",
+        "name": "Private/local workflow while disconnected and reconnect",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.administrator"
+        ],
+        "steps": [
+          "An admitted local capability, offline mode, cached asset permission, and storage policy are explicitly established.",
+          "Only work allowed in the admitted disconnected mode is completed; reconnect reconciles versions and jobs without remote fallback."
+        ],
+        "desiredOutcomeRef": "media.goal.resolve-safely"
+      },
+      {
+        "id": "J-24",
+        "name": "CLI batch/JSON plan through verified outputs",
+        "actorRefs": [
+          "media.developer-integrator",
+          "media.automation-client"
+        ],
+        "steps": [
+          "Public command/request schema, explicit approval/policy input, client keys, and per-item budgets are accepted.",
+          "Each item reports its terminal/partial/unknown outcome and output refs using the same semantics as other channels."
+        ]
+      },
+      {
+        "id": "J-25",
+        "name": "Agent or product integration with bounded delegated Media action",
+        "actorRef": "media.automation-client",
+        "actorRefs": [
+          "media.automation-client",
+          "media.developer-integrator",
+          "media.operator"
+        ],
+        "steps": [
+          "Public Media action, bounded authority/delegation, recursion/cost limits, and return contract are admitted.",
+          "Caller receives an opaque job/result reference and truthful status; any consequential effect has separate authority."
+        ],
+        "desiredOutcomeRef": "media.goal.integrate-repeatably"
+      },
+      {
+        "id": "J-26",
+        "name": "Delete/revoke/retention/hold and visible lifecycle",
+        "actorRefs": [
+          "media.administrator",
+          "media.privacy-rights-reviewer",
+          "media.operator",
+          "media.creator",
+          "media.editor",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Identity, deletion/revocation authority, retention/hold state, and affected artifact/derivative scope are resolved.",
+          "Product lifecycle reflects completion/partial/blocked status without claiming remote copies were recalled."
+        ]
+      },
+      {
+        "id": "J-27",
+        "name": "Continue safely when processing is unavailable",
+        "actorRefs": [
+          "media.creator",
+          "media.operator",
+          "media.worker",
+          "media.editor",
+          "media.automation-client",
+          "media.administrator"
+        ],
+        "steps": [
+          "Capability qualification, license, runtime availability, and fallback policy are checked independently.",
+          "User receives an admitted equivalent fallback with material differences disclosed or a clear blocked result."
+        ]
+      },
+      {
+        "id": "J-28",
+        "name": "Spatial/360/interactive/synthetic-data export to declared consumer",
+        "actorRefs": [
+          "media.creator",
+          "media.developer-integrator",
+          "media.reviewer"
+        ],
+        "steps": [
+          "Destination subset, coordinate/time conventions, synthetic-data labeling, and licensing are declared.",
+          "Consumer receives an identified package and conversion report with unsupported/lossy features disclosed."
+        ]
+      },
+      {
+        "id": "J-29",
+        "name": "Live session loss, consent change, and bounded recovery",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.operator",
+          "media.automation-client"
+        ],
+        "steps": [
+          "A live session has stable session/frame identity, bounded buffers, a current lease, and authoritative consent scope.",
+          "The session is confirmed closed/drained or its in-flight external effects remain explicitly unknown; no new frame crosses the boundary after revocation or fencing."
+        ],
+        "desiredOutcomeRef": "media.goal.resolve-safely"
+      },
+      {
+        "id": "J-30",
+        "name": "Check which processing options are eligible",
+        "actorRefs": [
+          "media.creator",
+          "media.editor",
+          "media.developer-integrator",
+          "media.operator",
+          "media.administrator",
+          "media.automation-client"
+        ],
+        "steps": [
+          "Identity, tenant/workspace scope, and diagnostic permissions are verified; profile, capability, provider, license, qualification, and runtime dimensions are represented separately.",
+          "The caller receives a bounded, current observation with provenance and explicit unknown/unsupported dimensions; an observation does not promise future availability."
+        ]
+      }
+    ],
+    "trustContexts": [
+      {
+        "id": "media.trust.public",
+        "level": "public",
+        "description": "public-nonsensitive; read-only-public-material-with-no-consequential-effect. No customer-sensitive data or state-changing/external effect is in scope for this context.",
+        "auditRequired": false
+      },
+      {
+        "id": "media.trust.authenticated",
+        "level": "authenticated",
+        "description": "private-tenant-scoped-content-or-metadata; read-or-process-within-current-verified-tenant-and-delegation. Private media and derived metadata are sensitive; access and processing require attributable current authority.",
+        "auditRequired": true
+      },
+      {
+        "id": "media.trust.privileged",
+        "level": "privileged",
+        "description": "governed-content-with-consequential-external-effect; provider-dispatch-sharing-export-publication-or-other-privileged-effect. An external effect requires durable audit intent before dispatch and truthful finality afterward.",
+        "auditRequired": true
+      },
+      {
+        "id": "media.trust.admin",
+        "level": "admin",
+        "description": "tenant-or-workspace-policy-and-identity-configuration; scoped-configuration-or-identity-setting-change. Configuration and identity changes alter effective access or policy and must remain attributable and auditable.",
+        "auditRequired": true
+      }
+    ],
     "successMeasures": [],
-    "ownershipRules": [],
-    "createdAt": "",
-    "updatedAt": ""
+    "ownershipRules": [
+      {
+        "id": "media.ownership.product-semantics",
+        "concern": "product-scope-and-constitution",
+        "owner": "media.role.product-manager"
+      },
+      {
+        "id": "media.ownership.identity",
+        "concern": "authentication-tenant-and-delegation-mechanics",
+        "owner": "media.role.security-privacy-lead"
+      },
+      {
+        "id": "media.ownership.audit",
+        "concern": "audit-mechanics-and-required-media-action-facts",
+        "owner": "media.role.security-privacy-lead"
+      },
+      {
+        "id": "media.ownership.privileged-effects",
+        "concern": "privileged-external-effect-mechanics",
+        "owner": "media.role.security-privacy-lead"
+      },
+      {
+        "id": "media.ownership.domain-state",
+        "concern": "canonical-media-domain-states-and-transitions",
+        "owner": "media.role.media-domain-lead"
+      }
+    ]
   },
   "candidateMappingReview": {
     "omittedCollections": {
-      "businessIntents": "No source collection is classified as business intents under ProductDefinition semantics.",
       "domainRules": "PDP-0 does not classify rules as ProductDefinition domain rules; canonical domain authority is PDP-1.",
-      "invariants": "No source record provides both invariant statement and violation semantics without inference.",
-      "journeys": "30 journeys have multiple actors; ProductDefinition requires one actorRef and no reviewed primary-actor mapping exists.",
-      "trustContexts": "Principal kinds do not map directly to ProductDefinition trust levels.",
+      "journeys": "19 initiating actorRefs remain omitted because P0-04 did not select one; all collaborator actorRefs are directly projected. Independent review remains pending.",
       "successMeasures": "Quality dimensions and outcomes have no accepted ProductDefinition measure targets or baselines.",
-      "ownershipRules": "Owner roles are proposals; assignment of each concern to a ProductDefinition owner is pending.",
-      "timestamps": "No source authority records creation/update timestamps; generation time is not a source fact.",
-      "userIntents": "All 19 intents are omitted because the source does not assign ProductDefinition priority values; 17 are also multi-actor and have no approved primary actor."
+      "timestamps": "createdAt and updatedAt are optional authored metadata; omitted intentionally because no Media source provides timestamp provenance.",
+      "userIntents": "8 of 19 intents map from explicit P0-04 actor/priority decisions; 11 actor resolutions remain unresolved. Independent review is pending."
     },
+    "mappedCollections": {
+      "invariants": "7 exact statement/violation records from constitution.yaml; P0-010 review pending.",
+      "trustContexts": "4 contexts directly map trustLevel, dataSensitivity, effectScope, and auditRequired; P0-010 review pending.",
+      "ownershipRules": "5 concerns map to exact accountableRoleRef owner IDs; contractOwner and executionAuthority remain separate source evidence and are not folded into owner/delegatedTo.",
+      "businessIntentMeasures": "Source measuredBy prose is retained below as a proposal; it is not emitted because the public ProductDefinition validator requires measuredBy to reference an emitted successMeasure ID."
+    },
+    "businessIntentMeasureProposals": [
+      {
+        "id": "media.business.reuse-media-capabilities",
+        "measuredBy": "Eligible consumer workflows using versioned public contracts and preserved domain finality."
+      },
+      {
+        "id": "media.business.trustworthy-versioned-outputs",
+        "measuredBy": "Applicable output contracts specifying exact identity, provenance, rights state and delivery acknowledgment."
+      },
+      {
+        "id": "media.business.bounded-provider-execution",
+        "measuredBy": "Admitted execution profiles with qualified bounds and classified unsupported cases."
+      },
+      {
+        "id": "media.business.safe-recoverable-operations",
+        "measuredBy": "Applicable job operations with stable identity, idempotency/fencing, recovery and unknown-finality proof."
+      }
+    ],
+    "ownershipRuleDetails": [
+      {
+        "id": "media.ownership.product-semantics",
+        "accountableRoleRef": "media.role.product-manager",
+        "executionAuthority": "current-authenticated-policy-and-operation-contract",
+        "contractOwner": {
+          "repository": "samujjwal/ghatana-media",
+          "path": ".product-experience/pdp-0-product-truth/constitution.yaml"
+        },
+        "bindingStatus": null
+      },
+      {
+        "id": "media.ownership.identity",
+        "accountableRoleRef": "media.role.security-privacy-lead",
+        "executionAuthority": "external-identity-owner-contract; no-local-media-identity-authority",
+        "contractOwner": {
+          "repository": "ghatana-shared",
+          "publicSurface": "identity-and-authentication-public-contracts"
+        },
+        "bindingStatus": "owner-surface-identified; exact-public-package-and-deployed-provider-unverified"
+      },
+      {
+        "id": "media.ownership.audit",
+        "accountableRoleRef": "media.role.security-privacy-lead",
+        "executionAuthority": "shared-audit-contract; Media-owns-event-vocabulary-and-required-durability-policy",
+        "contractOwner": {
+          "repository": "ghatana-shared",
+          "publicSurface": "platform/java/audit"
+        },
+        "bindingStatus": "public-surface-identified; public-version-and-required-audit-durability-unverified"
+      },
+      {
+        "id": "media.ownership.privileged-effects",
+        "accountableRoleRef": "media.role.security-privacy-lead",
+        "executionAuthority": "current-Media-preconditions-plus-Action-Plane-public-contract",
+        "contractOwner": {
+          "repository": "ghatana",
+          "publicSurface": "services/action-plane/api"
+        },
+        "bindingStatus": "owner-surface-identified; public-contract-and-isolated-consumer-unverified"
+      },
+      {
+        "id": "media.ownership.domain-state",
+        "accountableRoleRef": "media.role.media-domain-lead",
+        "executionAuthority": "pending-PDP-1-owner-reviewed-operation-and-transition-contracts",
+        "contractOwner": {
+          "repository": "samujjwal/ghatana-media",
+          "path": ".product-experience/pdp-1-domain-data"
+        },
+        "bindingStatus": "PDP-1-records-are-proposal-only; owner-review-pending"
+      }
+    ],
     "fieldDispositions": {
+      "id": {
+        "status": "DETERMINISTIC_CANDIDATE_IDENTIFIER",
+        "source": "projection generator; no canonical ProductDefinition ID source"
+      },
+      "subjectId": {
+        "status": "DIRECT_SOURCE_COPY",
+        "source": "capabilities.yaml#productId"
+      },
+      "schemaVersion": {
+        "status": "PUBLIC_CONTRACT_CONSTANT",
+        "source": "@ghatana/product-definition#PRODUCT_DEFINITION_SCHEMA_VERSION"
+      },
       "purpose": {
         "status": "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING",
         "source": "PRODUCT-TRUTH.md mission paragraph and actors-responsibilities.yaml actors"
@@ -5543,8 +6389,8 @@
         "source": "goals-jtbd.yaml scopeStatement, includedFamilies, exclusionsFromMediaAuthority"
       },
       "nonGoals": {
-        "status": "NO_DIRECT_PRODUCT_NON_GOAL_SOURCE; OWNER_DECISION_OPEN",
-        "source": "goals-jtbd.yaml scope exclusions are authority boundaries and are not assumed to be product non-goals"
+        "status": "OWNER_SELECTED_DIRECT_MAPPING; P0-010_REVIEW_PENDING",
+        "source": "goals-jtbd.yaml#nonGoals explicit Media product-owner decisions with schema reason fields"
       },
       "actors": {
         "status": "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING",
@@ -5555,12 +6401,12 @@
         "source": "actors-responsibilities.yaml actors[].responsibilities"
       },
       "userIntents": {
-        "status": "PRIORITY_AND_ACTOR_MAPPING_OPEN",
-        "source": "goals-jtbd.yaml intents do not declare ProductDefinition priority; multi-actor intents have no approved primary actor"
+        "status": "PARTIAL_DIRECT_MAPPING; 11_ACTOR_RESOLUTIONS_OPEN; INDEPENDENT_REVIEW_PENDING",
+        "source": "goals-jtbd.yaml#intents joined by exact id to intent-resolutions.yaml#intents"
       },
       "businessIntents": {
-        "status": "NO_SOURCE_CLASSIFICATION; OWNER_DECISION_OPEN",
-        "source": "No business-intent collection in canonical PDP-0"
+        "status": "OWNER_SELECTED_DIRECT_MAPPING; P0-010_REVIEW_PENDING",
+        "source": "goals-jtbd.yaml#businessIntents explicit owner-selected business outcomes and measures"
       },
       "desiredOutcomes": {
         "status": "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING",
@@ -5571,8 +6417,8 @@
         "source": "capabilities.yaml capability leaves and exact requirementRefs"
       },
       "requirements": {
-        "status": "PARTIAL_DIRECT_MAPPING; INTENT_TARGETS_UNRESOLVED",
-        "source": "requirements.yaml has exact intent traces, but ProductDefinition validation requires target userIntents with a resolved singular actor and priority"
+        "status": "PARTIAL_DIRECT_MAPPING; 26_REQUIREMENTS_HAVE_UNRESOLVED_INTENT_TARGETS",
+        "source": "requirements.yaml#requirements[].traceToIntentIds filtered to the exact resolved ProductDefinition userIntents"
       },
       "domainRules": {
         "status": "PDP-1_OWNER_DECISION_OPEN",
@@ -5583,32 +6429,28 @@
         "source": "policy-authority-model.yaml productPolicy.enforcementPoints requiredChecks and explicit failure behavior"
       },
       "invariants": {
-        "status": "VIOLATION_MAPPING_OPEN",
-        "source": "constitution.yaml and policy-authority-model.yaml do not pair every invariant with violation behavior"
+        "status": "DIRECT_STATEMENT_AND_VIOLATION_MAPPING; P0-010_REVIEW_PENDING",
+        "source": "constitution.yaml#invariants.records"
       },
       "journeys": {
-        "status": "PARTIAL; PRIMARY_ACTOR_DECISION_OPEN",
-        "source": "journey-catalog.yaml; every journey has multiple actors"
+        "status": "DIRECT_MULTI_ACTOR_MAPPING; 19_OPTIONAL_INITIATING_ACTORS_UNRESOLVED; INDEPENDENT_REVIEW_PENDING",
+        "source": "journey-catalog.yaml#journeys joined by exact id to journey-actor-resolutions.yaml#journeys#collaboratorActorRefs; actorRef only when initiatingActorRef is resolved"
       },
       "trustContexts": {
-        "status": "TRUST_LEVEL_MAPPING_OPEN",
-        "source": "actors-responsibilities.yaml principals; no accepted trust-level crosswalk"
+        "status": "DIRECT_LEVEL_SENSITIVITY_EFFECT_AND_AUDIT_MAPPING; P0-010_REVIEW_PENDING",
+        "source": "actors-responsibilities.yaml#trustContexts.contexts"
       },
       "successMeasures": {
         "status": "TARGETS_AND_BASELINES_OPEN",
         "source": "quality-policy.yaml dimensions and metricDefinitions; ProductDefinition targets are not assigned"
       },
       "ownershipRules": {
-        "status": "OWNER_ASSIGNMENT_OPEN",
-        "source": "actors-responsibilities.yaml accountability and responsibility roles"
+        "status": "DIRECT_ACCOUNTABLE_ROLE_TO_OWNER_MAPPING; CONTRACT_OWNER_AND_EXECUTION_AUTHORITY_RETAINED_SEPARATELY; P0-010_REVIEW_PENDING",
+        "source": "actors-responsibilities.yaml#ownershipRules.rules"
       },
-      "createdAt": {
-        "status": "NO_SOURCE_FACT",
-        "source": "No canonical creation timestamp"
-      },
-      "updatedAt": {
-        "status": "NO_SOURCE_FACT",
-        "source": "No canonical update timestamp"
+      "timestamps": {
+        "status": "OPTIONAL_AUTHORED_METADATA_OMITTED_INTENTIONALLY",
+        "source": "No source timestamp provenance is available; generation time is not authored metadata"
       }
     },
     "requirementCapabilityMap": "No singular capabilityRef is emitted because each requirement may cover multiple leaves/families while the public schema accepts only one; capability requirementRefs preserve exact source links.",
@@ -5628,7 +6470,209 @@
       "NFR-DEPLOY-001",
       "NFR-SLO-001"
     ],
+    "unresolvedUserIntentIds": [
+      "media.intent.improve",
+      "media.intent.animate",
+      "media.intent.understand",
+      "media.intent.review-workspace-settings",
+      "media.intent.restore-project",
+      "media.intent.manage-artifact-lifecycle",
+      "media.intent.resolve-job",
+      "media.intent.recover-live-session",
+      "media.intent.choose-eligible-processing-option",
+      "media.intent.check-processing-options",
+      "media.intent.inspect-provenance"
+    ],
+    "intentTracesWithUnresolvedTargets": [
+      {
+        "requirementId": "MEDIA-REQ-CAP-PROJECT",
+        "unresolvedIntentRefs": [
+          "media.intent.restore-project"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-ARTIFACT",
+        "unresolvedIntentRefs": [
+          "media.intent.understand",
+          "media.intent.improve",
+          "media.intent.manage-artifact-lifecycle"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-JOB",
+        "unresolvedIntentRefs": [
+          "media.intent.understand",
+          "media.intent.improve",
+          "media.intent.animate",
+          "media.intent.resolve-job"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-STREAM",
+        "unresolvedIntentRefs": [
+          "media.intent.understand",
+          "media.intent.recover-live-session"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-PROFILE",
+        "unresolvedIntentRefs": [
+          "media.intent.choose-eligible-processing-option"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-CAPABILITY",
+        "unresolvedIntentRefs": [
+          "media.intent.check-processing-options"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-PROVENANCE",
+        "unresolvedIntentRefs": [
+          "media.intent.understand",
+          "media.intent.improve",
+          "media.intent.inspect-provenance"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-VISION-SCENE-TEXT",
+        "unresolvedIntentRefs": [
+          "media.intent.understand"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+        "unresolvedIntentRefs": [
+          "media.intent.understand"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-VISION",
+        "unresolvedIntentRefs": [
+          "media.intent.understand"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-MULTIMODAL",
+        "unresolvedIntentRefs": [
+          "media.intent.understand"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+        "unresolvedIntentRefs": [
+          "media.intent.understand"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-ANIMATION",
+        "unresolvedIntentRefs": [
+          "media.intent.animate"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+        "unresolvedIntentRefs": [
+          "media.intent.animate"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+        "unresolvedIntentRefs": [
+          "media.intent.animate"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+        "unresolvedIntentRefs": [
+          "media.intent.animate"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+        "unresolvedIntentRefs": [
+          "media.intent.improve"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+        "unresolvedIntentRefs": [
+          "media.intent.improve"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+        "unresolvedIntentRefs": [
+          "media.intent.improve"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-EDIT",
+        "unresolvedIntentRefs": [
+          "media.intent.improve"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-COLOR",
+        "unresolvedIntentRefs": [
+          "media.intent.improve"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+        "unresolvedIntentRefs": [
+          "media.intent.improve"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-QUALITY",
+        "unresolvedIntentRefs": [
+          "media.intent.understand",
+          "media.intent.improve"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-QUALITY-IMAGE",
+        "unresolvedIntentRefs": [
+          "media.intent.improve"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+        "unresolvedIntentRefs": [
+          "media.intent.improve"
+        ]
+      },
+      {
+        "requirementId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+        "unresolvedIntentRefs": [
+          "media.intent.improve"
+        ]
+      }
+    ],
+    "unresolvedJourneyIds": [
+      "J-02",
+      "J-03",
+      "J-05",
+      "J-06",
+      "J-07",
+      "J-08",
+      "J-12",
+      "J-13",
+      "J-16",
+      "J-17",
+      "J-19",
+      "J-20",
+      "J-23",
+      "J-24",
+      "J-26",
+      "J-27",
+      "J-28",
+      "J-29",
+      "J-30"
+    ],
     "ownerDecisionStatus": "PENDING; structural validity does not establish semantic acceptance or closure.",
+    "contractPublicationStatus": "PENDING; local public source validated, package publication and isolated installed-artifact verification not performed.",
     "policyAuthoritySourceObserved": true
   },
   "candidateFieldSources": {
@@ -5658,9 +6702,9 @@
       "mapping": "direct source projection"
     },
     "nonGoals": {
-      "sourceRef": null,
-      "sourcePath": null,
-      "mapping": "scope exclusions are authority boundaries, not established product non-goals"
+      "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+      "sourcePath": "nonGoals",
+      "mapping": "explicit bounded product non-goals with source-authored reasons"
     },
     "actors": {
       "sourceRef": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
@@ -5673,14 +6717,14 @@
       "mapping": "actor-assigned responsibility statements with direct actor ownerRef"
     },
     "userIntents": {
-      "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-      "sourcePath": "intents",
-      "mapping": "not projected; priority enum is absent and multiple actorRefs have no accepted primary actor mapping"
+      "sourceRef": ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
+      "sourcePath": "intents joined by exact id to goals-jtbd.yaml#intents",
+      "mapping": "project only exact resolved actor and priority records; unresolved actor targets remain outside the candidate"
     },
     "businessIntents": {
-      "sourceRef": null,
-      "sourcePath": null,
-      "mapping": "no classified source; unresolved owner decision"
+      "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+      "sourcePath": "businessIntents[].id/description; measuredBy retained in mapping review because validator requires successMeasure ID refs",
+      "mapping": "direct owner-selected business outcomes; unbound measure prose is not emitted"
     },
     "desiredOutcomes": {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
@@ -5694,8 +6738,8 @@
     },
     "requirements": {
       "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
-      "sourcePath": "requirements plus nonfunctional-requirements.yaml",
-      "mapping": "direct statement/kind/priority; source traceToIntentIds are held out until target userIntent actor and priority mappings resolve"
+      "sourcePath": "requirements[].traceToIntentIds; goals-jtbd.yaml#intents; intent-resolutions.yaml#intents",
+      "mapping": "retain exact refs only for target userIntents resolved to a schema actor and priority; unresolved targets are listed in mapping review"
     },
     "domainRules": {
       "sourceRef": null,
@@ -5709,18 +6753,18 @@
     },
     "invariants": {
       "sourceRef": ".product-experience/pdp-0-product-truth/constitution.yaml",
-      "sourcePath": "requirements",
-      "mapping": "violation behavior not supplied for all records"
+      "sourcePath": "invariants.records",
+      "mapping": "direct statement/violation pairs; source-bound proposal, P0-010 review pending"
     },
     "journeys": {
-      "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-      "sourcePath": "journeys",
-      "mapping": "no primary actor mapping; all 30 multi-actor journeys omitted"
+      "sourceRef": ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+      "sourcePath": "journeys[].collaboratorActorRefs joined by exact id to journey-catalog.yaml#journeys; initiatingActorRef only when resolved",
+      "mapping": "project all exact source collaborator actorRefs; omit actorRef for unresolved initiators"
     },
     "trustContexts": {
       "sourceRef": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-      "sourcePath": "principals",
-      "mapping": "no accepted trust-level crosswalk"
+      "sourcePath": "trustContexts.contexts",
+      "mapping": "direct trustLevel, sensitivity/effect description and auditRequired"
     },
     "successMeasures": {
       "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
@@ -5729,57 +6773,38 @@
     },
     "ownershipRules": {
       "sourceRef": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-      "sourcePath": "accountability and responsibilityRoles",
-      "mapping": "concern-to-owner assignment remains pending"
+      "sourcePath": "ownershipRules.rules",
+      "mapping": "accountableRoleRef becomes schema owner; contractOwner and executionAuthority are preserved separately in mapping review"
     },
     "createdAt": {
       "sourceRef": null,
       "sourcePath": null,
-      "mapping": "not supplied; empty schema field is explicitly unresolved"
+      "mapping": "optional authored metadata omitted intentionally because no source timestamp provenance exists"
     },
     "updatedAt": {
       "sourceRef": null,
       "sourcePath": null,
-      "mapping": "not supplied; empty schema field is explicitly unresolved"
+      "mapping": "optional authored metadata omitted intentionally because no source timestamp provenance exists"
     }
   },
   "fieldMappingBlockers": [
     {
-      "field": "nonGoals",
-      "status": "NO_DIRECT_PRODUCT_NON_GOAL_SOURCE; OWNER_DECISION_OPEN",
-      "sourceDisposition": "goals-jtbd.yaml scope exclusions are authority boundaries and are not assumed to be product non-goals",
-      "reasons": [
-        "goals-jtbd.yaml scope exclusions are authority boundaries and are not assumed to be product non-goals"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
       "field": "requirements",
-      "status": "PARTIAL_DIRECT_MAPPING; INTENT_TARGETS_UNRESOLVED",
-      "sourceDisposition": "requirements.yaml has exact intent traces, but ProductDefinition validation requires target userIntents with a resolved singular actor and priority",
+      "status": "PARTIAL_DIRECT_MAPPING; 26_REQUIREMENTS_HAVE_UNRESOLVED_INTENT_TARGETS",
+      "sourceDisposition": "requirements.yaml#requirements[].traceToIntentIds filtered to the exact resolved ProductDefinition userIntents",
       "reasons": [
-        "requirements.yaml has exact intent traces, but ProductDefinition validation requires target userIntents with a resolved singular actor and priority"
+        "Some requirement rows retain partially resolved or unresolved intent targets. Only exact resolved targets are projected; unresolved rows and refs remain recorded in mapping review."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
         ".product-experience/pdp-0-product-truth/constitution.yaml",
         ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
         ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         ".product-experience/pdp-0-product-truth/requirements.yaml",
         ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
         ".product-experience/pdp-0-product-truth/quality-policy.yaml",
         ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
         ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
@@ -5788,40 +6813,21 @@
     },
     {
       "field": "userIntents",
-      "status": "PRIORITY_AND_ACTOR_MAPPING_OPEN",
-      "sourceDisposition": "goals-jtbd.yaml intents do not declare ProductDefinition priority; multi-actor intents have no approved primary actor",
+      "status": "PARTIAL_DIRECT_MAPPING; 11_ACTOR_RESOLUTIONS_OPEN; INDEPENDENT_REVIEW_PENDING",
+      "sourceDisposition": "goals-jtbd.yaml#intents joined by exact id to intent-resolutions.yaml#intents",
       "reasons": [
-        "goals-jtbd.yaml intents do not declare ProductDefinition priority; multi-actor intents have no approved primary actor"
+        "Only exact P0-04 actor and priority resolutions are projected. Unresolved actor targets remain omitted; P0-010 independent review remains pending."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
         ".product-experience/pdp-0-product-truth/constitution.yaml",
         ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
         ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         ".product-experience/pdp-0-product-truth/requirements.yaml",
         ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
-      "field": "businessIntents",
-      "status": "NO_SOURCE_CLASSIFICATION; OWNER_DECISION_OPEN",
-      "sourceDisposition": "No business-intent collection in canonical PDP-0",
-      "reasons": [
-        "No business-intent collection in canonical PDP-0"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
         ".product-experience/pdp-0-product-truth/quality-policy.yaml",
         ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
         ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
@@ -5833,79 +6839,18 @@
       "status": "PDP-1_OWNER_DECISION_OPEN",
       "sourceDisposition": "No PDP-0 records classified as ProductDefinition domainRules",
       "reasons": [
-        "No PDP-0 records classified as ProductDefinition domainRules"
+        "No owner-approved mapping selects source records as ProductDefinition domain rules with schema rule fields."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
         ".product-experience/pdp-0-product-truth/constitution.yaml",
         ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
         ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         ".product-experience/pdp-0-product-truth/requirements.yaml",
         ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
-      "field": "invariants",
-      "status": "VIOLATION_MAPPING_OPEN",
-      "sourceDisposition": "constitution.yaml and policy-authority-model.yaml do not pair every invariant with violation behavior",
-      "reasons": [
-        "constitution.yaml and policy-authority-model.yaml do not pair every invariant with violation behavior"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
-      "field": "journeys",
-      "status": "PARTIAL; PRIMARY_ACTOR_DECISION_OPEN",
-      "sourceDisposition": "journey-catalog.yaml; every journey has multiple actors",
-      "reasons": [
-        "journey-catalog.yaml; every journey has multiple actors"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
-      "field": "trustContexts",
-      "status": "TRUST_LEVEL_MAPPING_OPEN",
-      "sourceDisposition": "actors-responsibilities.yaml principals; no accepted trust-level crosswalk",
-      "reasons": [
-        "actors-responsibilities.yaml principals; no accepted trust-level crosswalk"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
         ".product-experience/pdp-0-product-truth/quality-policy.yaml",
         ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
         ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
@@ -5917,79 +6862,18 @@
       "status": "TARGETS_AND_BASELINES_OPEN",
       "sourceDisposition": "quality-policy.yaml dimensions and metricDefinitions; ProductDefinition targets are not assigned",
       "reasons": [
-        "quality-policy.yaml dimensions and metricDefinitions; ProductDefinition targets are not assigned"
+        "Quality measures and outcomes lack an owner-approved mapping to ProductDefinition success measures and their targets."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
         ".product-experience/pdp-0-product-truth/constitution.yaml",
         ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
         ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         ".product-experience/pdp-0-product-truth/requirements.yaml",
         ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
-      "field": "ownershipRules",
-      "status": "OWNER_ASSIGNMENT_OPEN",
-      "sourceDisposition": "actors-responsibilities.yaml accountability and responsibility roles",
-      "reasons": [
-        "actors-responsibilities.yaml accountability and responsibility roles"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
-      "field": "createdAt",
-      "status": "NO_SOURCE_FACT",
-      "sourceDisposition": "No canonical creation timestamp",
-      "reasons": [
-        "No canonical creation timestamp"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
-      "field": "updatedAt",
-      "status": "NO_SOURCE_FACT",
-      "sourceDisposition": "No canonical update timestamp",
-      "reasons": [
-        "No canonical update timestamp"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
         ".product-experience/pdp-0-product-truth/quality-policy.yaml",
         ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
         ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
@@ -5997,7 +6881,7 @@
       ]
     }
   ],
-  "derivationBoundary": "candidateModel is a structurally conformant partial projection populated from direct source records where mappings exist. Empty collections represent unresolved mappings, never accepted non-applicability. createdAt/updatedAt are projection-build timestamps only; they are not canonical product timestamps. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
+  "derivationBoundary": "candidateModel is a structurally conformant partial projection populated from direct source records where mappings exist. Empty collections represent unresolved mappings, never accepted non-applicability. Where a contract requires generated timestamps, they are projection-build metadata rather than canonical product timestamps; optional ProductDefinition timestamps are omitted when source provenance is absent. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
   "knownBlockers": [
     "The source-backed ProductDefinition shape is structurally complete; omitted collection meanings, narrowed references, and unavailable source facts remain explicitly open in the field mapping review."
   ],
@@ -6007,10 +6891,11 @@
     "schemaId": "urn:ghatana:product-definition:v1",
     "schemaValid": true,
     "schemaBlockers": [],
-    "publicValidator": "installed-public-package-export",
+    "publicValidator": "sibling public source entrypoint; package publication and installed-artifact verification pending",
     "publicValidatorPassed": true,
     "publicValidatorBlockers": []
   },
+  "installedArtifactVerification": "PENDING; candidate validated against sibling public source entrypoint; installed package publication and isolated consumer verification remain open.",
   "acceptance": "NOT_CLAIMED",
   "currentness": "NOT_GENERATED; Lifecycle authority required"
 }

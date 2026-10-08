@@ -1,13 +1,21 @@
 schemaVersion: media.gui-semantic-component-bindings.v1
 productId: media
 authority: semantic aliases are defined in ../media-token-aliases.yaml; Shared owns primitive token values and styling behavior
-status: semantic-intent-recorded; shared-consumer-binding-unverified; owner-review-pending
+status: SOURCE_INCOMPLETE
 bindings:
   - componentRefs: [media.component.task-flow]
     implementationCandidate: libs/audio-video-ui/src/components/MediaTaskFlow.tsx
     implementationExport: MediaTaskFlow
     semanticRole: workflow-progress-and-operation-observation
     status: candidate-contract-derived-rendering; Shared-binding-and-owner-review-pending
+    sharedReuseCandidate:
+      package: "@ghatana/design-system"
+      publicExport: "."
+      components: [Badge, Button]
+      mediaFacade: libs/audio-video-ui/src/foundations/index.ts
+      installedArtifactVerification: pending
+      progressBinding: native-html-progress; Shared Progress excluded because inline style attributes are blocked by Explorer style-src-attr 'none'; unknown and no-measurement remain text-only
+      stepControlBinding: native-button; Shared Button emits an inline style attribute blocked by Explorer style-src-attr 'none' and wraps children in a label span incompatible with current direct-child navigation CSS; host-projected selectable still gates the callback
   - implementationCandidate: libs/audio-video-ui/src/components/MediaTaskFlow.tsx
     semanticRole: workflow-progress-and-operation-observation
     stateBindings:
@@ -30,6 +38,13 @@ bindings:
   - componentRefs: [media.component.identity-context-boundary, media.component.project-browser]
     implementationCandidate: libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
     semanticRole: authorized-workspace-and-project-context
+    sharedReuseCandidate:
+      package: "@ghatana/design-system"
+      publicExport: "."
+      components: [Button, EmptyState, TextField]
+      mediaFacade: libs/audio-video-ui/src/foundations/index.ts
+      installedArtifactVerification: pending
+      emptyState: title-only empty-list status; Shared source is class-based and emits no inline style attributes under Explorer CSP
     stateBindings:
       access-denied: media.token.state.blocked; protected-project-content-remains-hidden
       access-unknown: media.token.state.needs-review; explicit-unknown-copy
@@ -38,6 +53,13 @@ bindings:
   - componentRefs: [media.component.artifact-browser, media.component.artifact-source-picker, media.component.artifact-transfer-status, media.component.artifact-integrity-summary]
     implementationCandidate: libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
     semanticRole: artifact-source-integrity-and-verification-observation
+    sharedReuseCandidate:
+      package: "@ghatana/design-system"
+      publicExport: "."
+      components: [EmptyState]
+      mediaFacade: libs/audio-video-ui/src/foundations/index.ts
+      installedArtifactVerification: pending
+      csp: source implementation emits class attributes without inline style attributes
     stateBindings:
       upload-transfer: measured-only-when-server-acknowledged
       integrity: recorded-host-fact; unknown-remains-explicit
@@ -56,6 +78,12 @@ bindings:
   - componentRefs: [media.component.transcript-review, media.component.caption-track-editor]
     implementationCandidate: libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
     semanticRole: source-linked-transcript-review-and-versioned-caption-editing
+    sharedReuseCandidate:
+      package: "@ghatana/design-system"
+      publicExport: "."
+      components: [Button, Select, TextArea, TextField]
+      mediaFacade: libs/audio-video-ui/src/foundations/index.ts
+      installedArtifactVerification: pending
     requiredSignals:
       - exact-source-artifact-version
       - source-time-and-language-when-known

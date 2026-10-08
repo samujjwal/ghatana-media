@@ -1,0 +1,169 @@
+schemaVersion: media.intent-resolutions.v1
+productId: media
+status: Media-owner-decisions-recorded; P0-010-independent-semantic-review-pending
+authority: User-delegated Media product-owner decisions for P0-04
+sourceRefs:
+  intentCatalog: .product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents
+  jobCatalog: .product-experience/pdp-0-product-truth/goals-jtbd.yaml#/jobs
+  journeyCatalog: .product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys
+  missionScope: .product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope
+resolutionPolicy:
+  actor: Select one initiating actor only where the intent/job/journey semantics identify that actor; retain all collaborator actorRefs in the source catalog. Do not infer authorization from the selected actor.
+  priority: must means the intent is part of the stated core Media mission; should means it supports a core intent or governance/operations without defining a primary media outcome. No in-scope intent is marked wont.
+  splitting: Do not split mixed-looking intent descriptions unless the source establishes separate actions with stable references.
+  acceptance: These are Media-owner decisions only; independent P0-010 review remains pending.
+intents:
+  - id: media.intent.create
+    actorRef: media.creator
+    actorStatus: resolved
+    actorRationale: The source intent names only the creator as actor; the create-from-intent job also names the creator as its initiating actor.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/0, goals-jtbd.yaml#/jobs/0]
+    priority: must
+    priorityRationale: Creating governed media is a primary outcome in the stated product scope and is covered by the included creation families.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/0]
+  - id: media.intent.improve
+    actorRef: null
+    actorStatus: unresolved
+    actorRationale: Creator and editor both appear in the intent and improvement job; neither is identified as the initiating actor.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/1, goals-jtbd.yaml#/jobs/6]
+    priority: must
+    priorityRationale: Restoration and enhancement are explicit included Media families and must preserve source material with disclosed tradeoffs.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/1]
+  - id: media.intent.edit
+    actorRef: media.editor
+    actorStatus: resolved
+    actorRationale: The source intent names only the editor, and the versioned-edit job independently identifies the editor.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/2, goals-jtbd.yaml#/jobs/3]
+    priority: must
+    priorityRationale: Versioned editing is a primary included Media capability and supports the mission to create useful governed results.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/2]
+  - id: media.intent.animate
+    actorRef: null
+    actorStatus: unresolved
+    actorRationale: Creator and editor are both listed for the animation job; the source does not select which initiates this intent.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/3, goals-jtbd.yaml#/jobs/4]
+    priority: must
+    priorityRationale: Animation is explicitly an included first-class Media workflow, not merely a generation implementation detail.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/3]
+  - id: media.intent.simulate
+    actorRef: media.creator
+    actorStatus: resolved
+    actorRationale: The simulation job describes selecting and running a declared model for a result; the reviewer evaluates fidelity but does not initiate the simulation outcome.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/4, goals-jtbd.yaml#/jobs/5]
+    priority: must
+    priorityRationale: Simulation and procedural workflows are explicit included scope, with fidelity boundaries required by the mission.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/4]
+  - id: media.intent.understand
+    actorRef: null
+    actorStatus: unresolved
+    actorRationale: Creator/editor users and developer-integrator consumers are all listed; the intent does not distinguish human inspection from integration requests.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/5, goals-jtbd.yaml#/jobs/1]
+    priority: must
+    priorityRationale: Media understanding, speech, and scene observations are explicit included scope and support declared downstream purposes.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/5]
+  - id: media.intent.deliver
+    actorRef: media.creator
+    actorStatus: resolved
+    actorRationale: The delivery job is initiated by the person delivering or publishing; the reviewer is a required approver where policy requires, not the default initiator.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/6, goals-jtbd.yaml#/jobs/8]
+    priority: must
+    priorityRationale: Authorized delivery is an explicit included product outcome and its effect boundary is central to the governed-media mission.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/6]
+  - id: media.intent.review-workspace-settings
+    actorRef: null
+    actorStatus: unresolved
+    actorRationale: User preferences and workspace policy settings have different possible initiators among creator, editor, and administrator; the source combines them without a stable split.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/7, goals-jtbd.yaml#/outcomes/9]
+    priority: should
+    priorityRationale: Settings support governed use of the core product but are not themselves a primary media outcome.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/outcomes/9, goals-jtbd.yaml#/intents/7]
+  - id: media.intent.review-exact-version
+    actorRef: media.reviewer
+    actorStatus: resolved
+    actorRationale: The exact-version review job names reviewer as the initiating role; privacy-rights review is a collaborator when the review purpose requires it.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/8, goals-jtbd.yaml#/jobs/7]
+    priority: must
+    priorityRationale: Review of exact versions is an explicit mission outcome needed to keep approval scoped to the material actually reviewed.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/outcomes/5, goals-jtbd.yaml#/intents/8]
+  - id: media.intent.find-task-guidance
+    actorRef: media.developer-integrator
+    actorStatus: resolved
+    actorRationale: The directly linked J-06 consumer-request journey names developer-integrator as the human initiating actor; automation-client remains a supported collaborator/client actor.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/9, journey-catalog.yaml#/journeys/5]
+    priority: should
+    priorityRationale: Guidance and safe next steps support the core product and consumer integration mission but do not themselves produce a primary media outcome.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/intents/9, goals-jtbd.yaml#/scope/includedFamilies]
+  - id: media.intent.restore-project
+    actorRef: null
+    actorStatus: unresolved
+    actorRationale: Creator, editor, and operator can initiate different archive, restore, branch, or recovery actions; the linked journeys do not select one actor for the combined intent.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/10, journey-catalog.yaml#/journeys/0, journey-catalog.yaml#/journeys/25]
+    priority: must
+    priorityRationale: Project restoration and revision preservation are core to the stated source-preserving Media mission.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/intents/10, goals-jtbd.yaml#/outcomes/1]
+  - id: media.intent.manage-artifact-lifecycle
+    actorRef: null
+    actorStatus: unresolved
+    actorRationale: The intent includes creator/editor use and administrator/privacy-rights authority; J-26 has several actors and does not identify one initiator for all lifecycle actions.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/11, journey-catalog.yaml#/journeys/25]
+    priority: must
+    priorityRationale: Retention, revocation, and erasure are required governance boundaries for the mission's governed media and source preservation scope.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/intents/11, goals-jtbd.yaml#/outcomes/8]
+  - id: media.intent.resolve-job
+    actorRef: null
+    actorStatus: unresolved
+    actorRationale: The intent covers user, operator, automation-client, and worker observations/actions; J-20 and J-27 preserve these as collaborators and do not choose a single initiator.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/12, journey-catalog.yaml#/journeys/19, journey-catalog.yaml#/journeys/26]
+    priority: must
+    priorityRationale: Safe status, cancellation, retry, and reconciliation are core requirements for long-running governed media work.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/intents/12, goals-jtbd.yaml#/outcomes/8]
+  - id: media.intent.recover-live-session
+    actorRef: null
+    actorStatus: unresolved
+    actorRationale: Creator/editor sessions and operator/automation recovery are all explicit, and J-29 preserves each role without identifying a single initiator.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/13, journey-catalog.yaml#/journeys/28]
+    priority: must
+    priorityRationale: Live streaming/session recovery is part of the explicit processing and streaming scope and must preserve consent and effect boundaries.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/13]
+  - id: media.intent.choose-eligible-processing-option
+    actorRef: null
+    actorStatus: unresolved
+    actorRationale: The intent spans creators, editors, integrators, and operators; J-30 records several eligible callers but does not establish one initiator.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/14, journey-catalog.yaml#/journeys/29]
+    priority: should
+    priorityRationale: Option selection supports safe use of core media operations but is a supporting choice rather than a primary media outcome.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/intents/14, goals-jtbd.yaml#/scope/includedFamilies]
+  - id: media.intent.check-processing-options
+    actorRef: null
+    actorStatus: unresolved
+    actorRationale: Developer-integrator and operator are both named, representing distinct compatibility and operational needs that the source has not separated.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/15, journey-catalog.yaml#/journeys/29]
+    priority: should
+    priorityRationale: Processing-option inspection supports integration and operations but does not itself produce or review the user's media outcome.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/intents/15, goals-jtbd.yaml#/scope/includedFamilies]
+  - id: media.intent.check-processing-readiness
+    actorRef: media.operator
+    actorStatus: resolved
+    actorScope: human-initiated-health-readiness-inspection
+    collaboratorActorRefs: [media.administrator, media.automation-client]
+    actorRationale: MEDIA-REQ-CAP-HEALTH traces only this intent and binds the readiness capability to the operator through an exact actor/role mapping. Select the operator as the human initiator for health-readiness inspection; preserve administrator and automation-client as alternate/collaborator actors for their listed scopes. This decision grants no permission and does not select an initiator for the broader mixed J-27/J-30 journeys.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/16, requirements.yaml#/requirements/MEDIA-REQ-CAP-HEALTH, actors-responsibilities.yaml#/actors/media.operator, actors-responsibilities.yaml#/responsibilityRoles/media.role.operator]
+    priority: should
+    priorityRationale: Scoped readiness diagnostics support safe operation of primary product workflows but are not themselves a primary media outcome.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/intents/16, goals-jtbd.yaml#/outcomes/8]
+  - id: media.intent.review-rights-and-consent
+    actorRef: media.privacy-rights-reviewer
+    actorStatus: resolved
+    actorRationale: The intent explicitly assigns review to the responsible rights/consent authority; privacy-rights-reviewer is that source-defined role. This actor mapping grants no permission.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/17, goals-jtbd.yaml#/outcomes/5]
+    priority: must
+    priorityRationale: Rights and consent review are explicit constraints on governed media processing and publication.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/intents/17, goals-jtbd.yaml#/scope/documentIntelligenceBoundary]
+  - id: media.intent.inspect-provenance
+    actorRef: null
+    actorStatus: unresolved
+    actorRationale: Creators, editors, reviewers, and rights reviewers have different provenance inspection purposes; neither the description nor linked journeys select one actor for the combined intent.
+    actorEvidenceRefs: [goals-jtbd.yaml#/intents/18, journey-catalog.yaml#/journeys/20, journey-catalog.yaml#/journeys/25]
+    priority: must
+    priorityRationale: Source lineage and transformation provenance are required to preserve source truth and review trustworthy output.
+    priorityEvidenceRefs: [goals-jtbd.yaml#/intents/18, goals-jtbd.yaml#/outcomes/1, goals-jtbd.yaml#/outcomes/5]

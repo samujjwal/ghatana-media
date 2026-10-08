@@ -72,3 +72,95 @@ values:
     meaning: independent-outcome-for-named-policy-axis-and-exact-scope
     values: not-enumerated-here
     scopeStatus: PDP-0-policy-owned; pending-owner-review
+observedTemporalSpatialFields:
+  status: source-field-reconciliation; no-cross-interface-unit-or-coordinate-adapter-accepted
+  crossAuditRefs:
+    - .product-experience/pdp-0-product-truth/time-units-fidelity.yaml
+    - .product-experience/pdp-1-domain-data/interoperability.yaml
+    - .product-experience/pdp-1-domain-data/versioning.yaml
+    - .product-experience/pdp-1-domain-data/provenance.yaml
+    - .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml
+    - .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml
+  crossAuditDisposition:
+    interoperability: preserve-source-specific-scalar-fps-and-unqualified-coordinate-fields; no-shared-source-PTS-timebase-or-cross-surface-adapter-established
+    versioning: no-canonical-artifact-version-record-or-key-observed; job-version-is-not-artifact-version-identity
+    provenance: conversion-clock-unit-origin-rounding-and-loss-record-is-proposed; conversion-observation-does-not-qualify-runtime-adapter
+    editingAndAnimation: separate-clock-and-accessible-timing-rules-are-authored-proposals; not-source-runtime-guarantees
+  sources:
+    - id: media.observed-temporal-spatial.legacy-typescript
+      source: libs/audio-video-types/src/index.ts
+      fields:
+        audio:
+          fields: [AudioData.durationMs, AudioData.sampleRate, AudioData.channels, AudioData.bitsPerSample]
+          observedMeaning: durationMs-name-states-milliseconds; sampleRate-is-a-separate-numeric-field
+          unresolved: [sample-format-clock-origin-duration-derivation]
+        video:
+          fields: [VideoData.durationMs, VideoData.fps, VideoData.width, VideoData.height]
+          observedMeaning: durationMs-name-states-milliseconds; fps-is-number; dimensions-are-numeric
+          unresolved: [exact-or-rational-frame-rate,-constant-or-variable-frame-rate,frame-origin,coordinate-convention]
+        wordTiming:
+          fields: [WordTimestamp.start, WordTimestamp.end]
+          observedMeaning: numeric-values-without-declared-unit
+          unresolved: [unit-clock-origin-interval-endpoint-convention]
+        imageGeometry:
+          fields: [BoundingBox.x, BoundingBox.y, BoundingBox.width, BoundingBox.height, ImageData.width, ImageData.height]
+          observedMeaning: numeric-coordinates-and-dimensions
+          unresolved: [coordinate-origin, pixel-centers-or-edges, normalized-or-pixel-space, reference-image-and-clipping]
+    - id: media.observed-temporal-spatial.contract-typescript
+      source: libs/audio-video-types/src/contracts.ts
+      fields:
+        transcriptWords: ["TranscriptionResult.words[].startMs", "TranscriptionResult.words[].endMs"]
+        synthesis: [SynthesisResult.durationMs]
+        providerCapability: [ProviderCapability.maxDurationMs]
+        constraints: [startMs/endMs/durationMs/maxDurationMs-are-nonnegative-integers]
+        unresolved: [clock-and-origin, interval-semantics, relationship-to-legacy-WordTimestamp-and-protobuf-fields]
+      spatialFields: none-observed-in-this-contract-file; legacy-index-ts-bounding-box-is-a-separate-source
+    - id: media.observed-temporal-spatial.runtime-java
+      source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+      fields:
+        wallClockInstants: [StreamSession.leaseExpiresAt, StreamSession.createdAt, StreamSession.updatedAt, StreamSession.closedAt, StreamFrame.receivedAt]
+        duration: StreamSessionRequest.leaseDuration
+        sequence: [StreamFrame.sequence, StreamAck.acceptedSequence]
+        constraints: [sequence-is-nonnegative-and-is-not-declared-a-media-timestamp, leaseDuration-is-greater-than-zero-and-at-most-one-hour]
+        limits: [Instant-fields-do-not-define-media-position-or-monotonic-elapsed-time, sequence-does-not-establish-frame-rate-or-timebase]
+    - id: media.observed-temporal-spatial.openapi
+      source: contracts/openapi/media.yaml
+      fields:
+        wallClockDateTime: [ConsentRecord.grantedAt, ConsentRecord.expiresAt, ConsentRecord.revokedAt, PlatformResponseMeta.timestamp, PlatformOperation.createdAt, PlatformOperation.updatedAt, PlatformOperation.completedAt]
+        duration: [UploadRequest.retention, StreamSessionRequest.leaseDuration]
+        streamSequence: ["POST /api/v1/streams/{sessionId}/frames/{sequence}", StreamAck.acceptedSequence]
+        observedFormats: [date-time, duration, nonnegative-int64-sequence]
+        unresolved: [OpenAPI-schema-is-permissive-for-StreamSession-and-contains-no-media-PTS-or-coordinate-convention]
+    - id: media.observed-temporal-spatial.protobuf-stt
+      source: modules/speech/stt-service/src/main/proto/stt_service.proto
+      fields:
+        durationAndPosition: [AudioChunk.timestamp_ms, Transcription.timestamp_ms, WordTiming.start_ms, WordTiming.end_ms, Interaction.timestamp_ms]
+        sampleRate: [TranscribeRequest.sample_rate, AudioChunk.sample_rate]
+        declaredUnits: [timestamp_ms/start_ms/end_ms-are-milliseconds, sample_rate-is-separate]
+        unresolved: [source-timebase, rounding, clock-origin, interval-endpoint-convention, sample-index-mapping]
+    - id: media.observed-temporal-spatial.protobuf-tts
+      source: modules/speech/tts-service/src/main/proto/tts_service.proto
+      fields: [SynthesizeResponse.sample_rate, SynthesizeResponse.duration_ms, AudioChunk.sample_rate, AudioChunk.timestamp_ms]
+      declaredUnits: [duration_ms/timestamp_ms-are-milliseconds, sample_rate-is-separate]
+      unresolved: [timestamp-clock-origin, exact-sample-count-mapping, encoder-priming-and-padding]
+    - id: media.observed-temporal-spatial.protobuf-vision
+      source: modules/vision/vision-service/src/main/proto/vision_service.proto
+      fields: [VideoFrameRequest.timestamp_ms, VideoFrameRequest.frame_number, VideoFrameResponse.timestamp_ms, VideoFrameResponse.frame_number, VideoFileRequest.sample_fps, VideoFileResponse.video_duration_ms, VideoFrameDetections.timestamp_ms, VideoFrameDetections.frame_number, BoundingBox.x, BoundingBox.y, BoundingBox.width, BoundingBox.height]
+      declaredUnits: [timestamp_ms/video_duration_ms-are-milliseconds, sample_fps-is-integer-frames-per-second]
+      unresolved: [frame-number-origin-and-timebase, constant-or-variable-frame-rate, bounding-box-origin-units-and-reference-dimensions]
+    - id: media.observed-temporal-spatial.protobuf-multimodal
+      source: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+      fields: [VideoAudioRequest.frame_sample_rate, FrameAnalysis.timestamp_ms, CrossModalRequest.analysis_window_ms, CrossModalEvent.timestamp_ms, BoundingBox.x, BoundingBox.y, BoundingBox.width, BoundingBox.height]
+      declaredUnits: [analysis_window_ms/timestamp_ms-are-milliseconds, frame_sample_rate-is-an-integer-field-with-no-explicit-rate-unit-comment]
+      unresolved: [frame-sample-rate-unit-and-clock-origin, source-timebase, bounding-box-origin-units-and-reference-dimensions]
+  nonEquivalences:
+    - legacy WordTimestamp.start/end and contract TranscriptionResult.words[].startMs/endMs retain distinct names and unit evidence; no binding or conversion is inferred
+    - media durations and positions are distinct from Java/OpenAPI wall-clock Instants and lease/retention Durations
+    - frame_number and stream sequence are integer identities/counters, not timestamps or proof of frame rate
+    - legacy VideoData.fps, Vision VideoFileRequest.sample_fps, and Multimodal VideoAudioRequest.frame_sample_rate remain separate fields with source-specific declarations
+    - Vision and Multimodal BoundingBox numeric x/y/width/height fields do not establish equal coordinate spaces or a shared origin
+  canonicalization:
+    rational-timebase: unresolved; PDP-0 values remain proposals pending owner and source-contract review
+    coordinate-system: unresolved; no handedness, axis, origin, units, transform order, or normalization rule accepted
+    profiles-and-conversion: unresolved; no mastering profile, adapter, rounding rule, or runtime qualification established
+    external-owner-acceptance: not-established

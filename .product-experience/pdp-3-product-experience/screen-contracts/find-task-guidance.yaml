@@ -164,4 +164,5 @@ localization:
 sourceRefs:
 - master-plan:section-20.2
 - .product-experience/pdp-0-product-truth
-journeyRefs: []
+journeyRefs:
+  - J-06

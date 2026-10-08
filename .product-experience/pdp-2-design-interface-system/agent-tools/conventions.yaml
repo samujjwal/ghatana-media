@@ -12,6 +12,11 @@ sourceRefs:
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml
   - .product-experience/pdp-0-product-truth/quality-policy.yaml
 scopeStatus: proposal; no tool is admitted, callable, or authorized by this convention
+currentRuntimeBindingObservation:
+  status: source-observation-only; owner-and-public-export-binding-pending
+  mediaBuildResolution: Current composite build compiles the handler APIs from the Ghatana Tools runtime/java/tool-contracts and runtime/java/tool-runtime sources.
+  sharedPublicAgentToolContract: No matching ToolExecutionEnvelope, ToolExecutionResult, ToolContract, or ToolHandler source/export was found in the inspected Shared platform/java/agent-core or platform/java/agent-runtime trees.
+  consequence: Shared owner confirmation of the public Agent Tool/runtime contract and a consumer binding is still required; the Tools build resolution does not establish Shared acceptance or execution admission.
 acceptance:
   status: pending-agent-and-runtime-owner-review
   criteria:

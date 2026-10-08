@@ -5,13 +5,13 @@ sourceRefs:
   - ../screen-composition-schema.yaml
   - patterns/catalog.yaml
   - .product-experience/pdp-3-product-experience/screen-registry.yaml
-scopeStatus: proposal; template-to-view bindings require downstream screen review
+scopeStatus: MEDIA_OWNER_ACCEPTED
 acceptance:
   criteria:
     - Each template validates against screen-composition-schema.yaml.
     - Templates reference canonical views, state, actions, and patterns without redefining them.
     - Templates include loading, empty, error, access-limited, and recovery behavior where applicable.
-  status: pending-review
+  status: governed-by-design-governance.json#template-catalog-admission
 verification:
   method: Validate every template instance against the composition schema and referenced source contracts.
   status: not-run
@@ -47,4 +47,4 @@ templates:
   - id: media.gui.template.task-setup
     useFor: Select a source or intent, inspect eligibility and constraints, and review a plan before submission.
     regions: [project-context, requested-outcome, selected-inputs, capability-and-policy-disposition, validation, next-safe-action]
-    patterns: [media.gui.pattern.intent-launcher, media.gui.pattern.creation-plan-review, media.gui.pattern.source-picker, media.gui.pattern.safe-confirmation-and-unknown-outcome]
+    patterns: [media.gui.pattern.intent-launcher, media.gui.pattern.creation-plan-review, media.gui.pattern.source-picker, media.gui.pattern.safe-confirmation-and-unknown-outcome, media.gui.pattern.upload-and-verification]

@@ -77,7 +77,7 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
         List<ArtifactDelete> expired = new ArrayList<>();
         try (Connection connection = state.connection();
              PreparedStatement statement = connection.prepareStatement(
-                     "SELECT tenant_id,artifact_id,object_reference FROM media_artifacts "
+                     "SELECT tenant_id,artifact_id FROM media_artifacts "
                              + "WHERE expires_at<=? ORDER BY expires_at LIMIT ?")) {
             statement.setLong(1, now.toEpochMilli());
             statement.setInt(2, batchSize);
@@ -85,8 +85,7 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
                 while (result.next()) {
                     expired.add(new ArtifactDelete(
                             result.getString("tenant_id"),
-                            result.getString("artifact_id"),
-                            objectKey(result.getString("object_reference"))));
+                            result.getString("artifact_id")));
                 }
             }
         } catch (SQLException failure) {
@@ -95,14 +94,41 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
 
         int deleted = 0;
         for (ArtifactDelete artifact : expired) {
-            deleteObject(artifact.objectKey());
-            try (Connection connection = state.connection();
-                 PreparedStatement statement = connection.prepareStatement(
-                         "DELETE FROM media_artifacts WHERE tenant_id=? AND artifact_id=? AND expires_at<=?")) {
-                statement.setString(1, artifact.tenantId());
-                statement.setString(2, artifact.artifactId());
-                statement.setLong(3, now.toEpochMilli());
-                deleted += statement.executeUpdate();
+            try (Connection connection = state.connection()) {
+                connection.setAutoCommit(false);
+                try {
+                    String reference;
+                    try (PreparedStatement lock = connection.prepareStatement(
+                            "SELECT object_reference FROM media_artifacts "
+                                    + "WHERE tenant_id=? AND artifact_id=? AND expires_at<=? FOR UPDATE")) {
+                        lock.setString(1, artifact.tenantId());
+                        lock.setString(2, artifact.artifactId());
+                        lock.setLong(3, now.toEpochMilli());
+                        try (ResultSet result = lock.executeQuery()) {
+                            if (!result.next()) {
+                                connection.commit();
+                                continue;
+                            }
+                            reference = result.getString("object_reference");
+                        }
+                    }
+                    // Prevent a concurrent retention renewal from preserving metadata after its
+                    // referenced object has been deleted.
+                    deleteObject(objectKey(reference));
+                    try (PreparedStatement remove = connection.prepareStatement(
+                            "DELETE FROM media_artifacts WHERE tenant_id=? AND artifact_id=? AND expires_at<=?")) {
+                        remove.setString(1, artifact.tenantId());
+                        remove.setString(2, artifact.artifactId());
+                        remove.setLong(3, now.toEpochMilli());
+                        deleted += remove.executeUpdate();
+                    }
+                    connection.commit();
+                } catch (SQLException | RuntimeException failure) {
+                    try { connection.rollback(); } catch (SQLException rollbackFailure) {
+                        failure.addSuppressed(rollbackFailure);
+                    }
+                    throw failure;
+                }
             } catch (SQLException failure) {
                 throw databaseFailure("delete expired Media artifact metadata", failure);
             }
@@ -133,25 +159,67 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
         int uploadsDeleted = 0;
         int chunksDeleted = 0;
         for (UploadDelete upload : expired) {
-            List<String> objectKeys = uploadChunkKeys(upload);
-            for (String key : objectKeys) deleteObject(key);
             try (Connection connection = state.connection()) {
-                connection.setAutoCommit(false);
-                try (PreparedStatement chunks = connection.prepareStatement(
-                             "DELETE FROM media_upload_chunks WHERE tenant_id=? AND upload_id=?");
-                     PreparedStatement uploads = connection.prepareStatement(
-                             "DELETE FROM media_upload_sessions WHERE tenant_id=? AND upload_id=? AND expires_at<=?")) {
-                    chunks.setString(1, upload.tenantId());
-                    chunks.setString(2, upload.uploadId());
-                    int removedChunks = chunks.executeUpdate();
-                    uploads.setString(1, upload.tenantId());
-                    uploads.setString(2, upload.uploadId());
-                    uploads.setLong(3, now.toEpochMilli());
-                    int removedUpload = uploads.executeUpdate();
+                try {
+                    connection.setAutoCommit(false);
+                    long expiresAt;
+                    String status;
+                    Long finalizationStartedAt;
+                    try (PreparedStatement lock = connection.prepareStatement(
+                            "SELECT expires_at,status,finalization_started_at FROM media_upload_sessions "
+                                    + "WHERE tenant_id=? AND upload_id=? FOR UPDATE")) {
+                        lock.setString(1, upload.tenantId());
+                        lock.setString(2, upload.uploadId());
+                        try (ResultSet result = lock.executeQuery()) {
+                            if (!result.next()) {
+                                connection.commit();
+                                continue;
+                            }
+                            expiresAt = result.getLong("expires_at");
+                            status = result.getString("status");
+                            finalizationStartedAt = result.getObject("finalization_started_at") == null
+                                    ? null : result.getLong("finalization_started_at");
+                        }
+                    }
+                    boolean staleFinalization = "FINALIZING".equals(status)
+                            && finalizationStartedAt != null
+                            && finalizationStartedAt <= staleFinalizingBefore;
+                    if (expiresAt > now.toEpochMilli()
+                            || ("FINALIZING".equals(status) && !staleFinalization)) {
+                        connection.commit();
+                        continue;
+                    }
+
+                    // The row lock fences append/finalization while chunk objects and their
+                    // metadata are removed. Renewal or active finalization that wins first is
+                    // rechecked above and leaves all chunk bytes intact.
+                    List<String> objectKeys = uploadChunkKeys(connection, upload);
+                    for (String key : objectKeys) deleteObject(key);
+                    int removedChunks;
+                    try (PreparedStatement chunks = connection.prepareStatement(
+                            "DELETE FROM media_upload_chunks WHERE tenant_id=? AND upload_id=?")) {
+                        chunks.setString(1, upload.tenantId());
+                        chunks.setString(2, upload.uploadId());
+                        removedChunks = chunks.executeUpdate();
+                    }
+                    int removedUpload;
+                    try (PreparedStatement remove = connection.prepareStatement(
+                            "DELETE FROM media_upload_sessions WHERE tenant_id=? AND upload_id=? "
+                                    + "AND expires_at<=? "
+                                    + "AND (status<>'FINALIZING' OR finalization_started_at<=?)")) {
+                        remove.setString(1, upload.tenantId());
+                        remove.setString(2, upload.uploadId());
+                        remove.setLong(3, now.toEpochMilli());
+                        remove.setLong(4, staleFinalizingBefore);
+                        removedUpload = remove.executeUpdate();
+                    }
+                    if (removedUpload != 1) {
+                        throw new IllegalStateException("Expired Media upload changed while row lock was held");
+                    }
                     connection.commit();
                     chunksDeleted += removedChunks;
                     uploadsDeleted += removedUpload;
-                } catch (SQLException failure) {
+                } catch (SQLException | RuntimeException failure) {
                     try { connection.rollback(); } catch (SQLException rollbackFailure) { failure.addSuppressed(rollbackFailure); }
                     throw failure;
                 }
@@ -162,19 +230,16 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
         return new UploadPurge(uploadsDeleted, chunksDeleted);
     }
 
-    private List<String> uploadChunkKeys(UploadDelete upload) {
+    private List<String> uploadChunkKeys(Connection connection, UploadDelete upload) throws SQLException {
         List<String> keys = new ArrayList<>();
-        try (Connection connection = state.connection();
-             PreparedStatement statement = connection.prepareStatement(
-                     "SELECT object_key FROM media_upload_chunks WHERE tenant_id=? AND upload_id=? ORDER BY chunk_index")) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT object_key FROM media_upload_chunks WHERE tenant_id=? AND upload_id=? ORDER BY chunk_index")) {
             statement.setString(1, upload.tenantId());
             statement.setString(2, upload.uploadId());
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) keys.add(result.getString("object_key"));
             }
             return List.copyOf(keys);
-        } catch (SQLException failure) {
-            throw databaseFailure("read expired Media upload chunks", failure);
         }
     }
 
@@ -263,7 +328,7 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
         return new IllegalStateException("Unable to " + operation, failure);
     }
 
-    private record ArtifactDelete(String tenantId, String artifactId, String objectKey) { }
+    private record ArtifactDelete(String tenantId, String artifactId) { }
     private record UploadDelete(String tenantId, String uploadId) { }
     private record UploadPurge(int uploads, int chunks) { }
 }

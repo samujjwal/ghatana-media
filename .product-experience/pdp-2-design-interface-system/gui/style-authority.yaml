@@ -2,7 +2,7 @@ schemaVersion: media.gui-style-authority.v1
 artifactId: media.pdp-2.gui-style-authority
 owner: ghatana-media-product-experience
 authority: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
-scopeStatus: PROPOSED
+scopeStatus: MEDIA_OWNER_ACCEPTED
 semanticRule: >-
   Media owns semantic names and composition. Shared owns primitive values,
   tokens, themes, accessibility primitives, and generic component behavior.

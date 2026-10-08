@@ -15,6 +15,7 @@ preconditions:
   - Keep artifact bytes and immutable artifact identity separate from a project-specific MediaAsset attachment.
 steps:
   - view: media.view.browse-media
+    screenContractRef: screen-contracts/browse-media.yaml
     result: show-only-currently-authorized-artifact-versions-and-an-admitted-import-entry-point
     surfaceRefs:
     - media.surface.web
@@ -97,6 +98,7 @@ steps:
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.import-media
+    screenContractRef: screen-contracts/import-media.yaml
     action: media.action.begin-artifact-upload
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [media.artifact.upload, media.artifact.import]
@@ -182,6 +184,7 @@ steps:
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.import-media
+    screenContractRef: screen-contracts/import-media.yaml
     action: media.action.resume-artifact-upload
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [media.artifact.upload.resume]
@@ -268,6 +271,7 @@ steps:
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.job-status
+    screenContractRef: screen-contracts/job-status.yaml
     when: the-owner-contract-returns-a-stable-job-identity-for-asynchronous-integrity-or-format-verification
     result: show-the-existing-verification-job-and-finality; do-not-label-a-transfer-id-as-a-processing-job
     surfaceRefs:
@@ -351,6 +355,7 @@ steps:
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.inspect-media
+    screenContractRef: screen-contracts/inspect-media.yaml
     action: media.action.inspect-artifact
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [media.artifact.inspect]

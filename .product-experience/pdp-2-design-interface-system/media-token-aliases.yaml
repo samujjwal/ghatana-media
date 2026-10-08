@@ -1,7 +1,7 @@
 schemaVersion: media.design-token-aliases.v1
 productId: media
 authority: media-semantic-aliases; Shared owns token values and primitive tokens
-status: local-development-consumer-pass; release-binding-unverified; design-review-pending
+status: MEDIA_OWNER_ACCEPTED_INTENT_ONLY
 dependencies:
   pdp0: .product-experience/pdp-0-product-truth/glossary.yaml
   sharedOwner: ghatana-shared

@@ -13,16 +13,19 @@ surfaces:
   - surface: UI action registry
     denominator: 146
     source: .product-experience/pdp-3-product-experience/action-registry.yaml
-    dispositionCounts: {DOMAIN_COMMAND: 8, DOMAIN_QUERY: 48, CLIENT_ONLY: 48, NAVIGATION_OR_PRESENTATION: 11, NOT_ADMITTED: 31}
-    operationBindingCounts: {mappedProposal: 12, ambiguous: 0, unresolved: 134}
+    dispositionCounts: {DOMAIN_COMMAND: 9, DOMAIN_QUERY: 49, CLIENT_ONLY: 48, NAVIGATION_OR_PRESENTATION: 11, NOT_ADMITTED: 29}
+    operationBindingCounts: {mappedProposal: 14, ambiguous: 0, unresolved: 132}
     explicitlyProposed:
       media.operation.artifact-ingest: [media.action.begin-artifact-upload, media.action.resume-artifact-upload, media.action.inspect-artifact, media.action.attach-source-asset]
       media.operation.job-lifecycle: [media.action.view-job-status, media.action.check-job-outcome, media.action.request-cancellation, media.action.retry-job]
-      media.operation.transcription: [media.action.request-transcription, media.action.review-transcript, media.action.correct-caption, media.action.align-caption-timing]
+      media.operation.transcription-submission: [media.action.request-transcription]
+      media.operation.transcript-version-read: [media.action.review-transcript]
+      media.operation.caption-draft-write: [media.action.correct-caption, media.action.align-caption-timing]
+      media.operation.caption-version-write: [media.action.save-caption-version]
+      media.operation.caption-version-read: [media.action.compare-caption-versions]
     ambiguous: []
-    unresolvedStaleReference: media.action.review-rights-and-consent
     canonicalRefs: .product-experience/pdp-1-domain-data/operations.yaml#/operations/*/actionRefs
-    bindingStatus: exact typed dispositions reconcile below; twelve exact actionRefs now proposed; 134 actions lack exact operation refs; no runtime reachability implied
+    bindingStatus: exact typed dispositions reconcile below; fourteen exact actionRefs now proposed; 132 actions lack exact operation refs; no runtime reachability implied
   - surface: HTTP
     denominator: 27
     source: contracts/openapi/media.yaml
@@ -307,7 +310,22 @@ typedInterfaceIdentityDispositions:
     domainCommands: [media.fixture-cli.upload-inspect, media.fixture-cli.upload-resume, media.fixture-cli.transcribe, media.fixture-cli.job-cancel, media.fixture-cli.caption-correct-text, media.fixture-cli.caption-align-timing, media.fixture-cli.caption-save-version]
     domainQueries: [media.fixture-cli.transcript-review, media.fixture-cli.job-status, media.fixture-cli.job-check-outcome, media.fixture-cli.caption-compare-versions]
     fixtureOnly: true
-    semanticOperationBinding: unresolved-for-every-identity; caption-version-write-read-contracts-remain-unresolved
+    explicitlyProposed: {}
+    unresolvedIdentities: [media.fixture-cli.upload-inspect, media.fixture-cli.upload-resume, media.fixture-cli.transcribe, media.fixture-cli.job-cancel, media.fixture-cli.caption-correct-text, media.fixture-cli.caption-align-timing, media.fixture-cli.caption-save-version, media.fixture-cli.transcript-review, media.fixture-cli.job-status, media.fixture-cli.job-check-outcome, media.fixture-cli.caption-compare-versions]
+    semanticOperationBinding: unresolved-for-all-11-fixture-identities; this-fixture-registry-namespace-is-not-emitted-by-the-parser
+  cliCaptionVersionSlice:
+    denominator: 2
+    registryPopulation: 12
+    source: .product-experience/pdp-3-product-experience/cli-command-registry.yaml#/commands
+    executionSource: libs/media-experience-simulation/src/cli.ts
+    executionScope: local-fixture-simulator-only; production-runtime-cli-not-connected
+    identities: [media.cli.caption.save-version, media.cli.caption.compare-versions]
+    explicitlyProposed:
+      media.operation.caption-version-write: [media.cli.caption.save-version]
+      media.operation.caption-version-read: [media.cli.caption.compare-versions]
+    unresolvedIdentities: []
+    operationBindingCounts: {mappedProposal: 2, unresolved: 0}
+    bindingStatus: both caption-version CLI identities have exact actionRef crosswalk proposal bindings; the remaining ten canonical CLI identities are outside this slice and unchanged; production CLI runtime remains unconnected
   agentTools:
     domainCommands: [av.speech-to-text, av.text-to-speech, av.vision-analysis, av.multimodal-inference]
     invocationAuthorityAndInputResultContracts: unresolved-for-every-identity
@@ -355,14 +373,14 @@ typedUiActionDispositions:
   - NOT_ADMITTED
   evidencePolicy: each-row-cites-its-action-contract-label-preconditions-effect-reversibility-finality; operationRef-is-present-only-for-an-exact-existing-PDP1-actionRef
   operationBindingCounts:
-    mappedProposal: 12
+    mappedProposal: 14
     ambiguous: 0
-    unresolved: 134
+    unresolved: 132
   dispositionCounts:
     CLIENT_ONLY: 48
-    DOMAIN_COMMAND: 8
-    DOMAIN_QUERY: 48
-    NOT_ADMITTED: 31
+    DOMAIN_COMMAND: 9
+    DOMAIN_QUERY: 49
+    NOT_ADMITTED: 29
     NAVIGATION_OR_PRESENTATION: 11
   entries:
   - identity: media.action.select-artifact-source
@@ -480,7 +498,7 @@ typedUiActionDispositions:
     - reversible
     - finality
     classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
-    operationRef: media.operation.transcription
+    operationRef: media.operation.transcription-submission
   - identity: media.action.inspect-source
     type: DOMAIN_QUERY
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-source]
@@ -521,7 +539,7 @@ typedUiActionDispositions:
     - reversible
     - finality
     classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
-    operationRef: media.operation.transcription
+    operationRef: media.operation.transcript-version-read
   - identity: media.action.view-job-status
     type: DOMAIN_QUERY
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.view-job-status]
@@ -576,7 +594,7 @@ typedUiActionDispositions:
     - reversible
     - finality
     classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
-    operationRef: media.operation.transcription
+    operationRef: media.operation.caption-draft-write
   - identity: media.action.align-caption-timing
     type: DOMAIN_COMMAND
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.align-caption-timing]
@@ -587,9 +605,9 @@ typedUiActionDispositions:
     - reversible
     - finality
     classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
-    operationRef: media.operation.transcription
+    operationRef: media.operation.caption-draft-write
   - identity: media.action.save-caption-version
-    type: NOT_ADMITTED
+    type: DOMAIN_COMMAND
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-caption-version]
     evidenceFields:
     - label
@@ -597,8 +615,8 @@ typedUiActionDispositions:
     - effect
     - reversible
     - finality
-    classificationBasis: owner decision requires canonical caption-version write/read semantics; no exact PDP-1 operation
-      exists
+    classificationBasis: action contract declares immutable caption-version registration; operation is proposal-only and has no wire binding
+    operationRef: media.operation.caption-version-write
   - identity: media.action.resolve-caption-conflict
     type: CLIENT_ONLY
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.resolve-caption-conflict]
@@ -610,7 +628,7 @@ typedUiActionDispositions:
     - finality
     classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
   - identity: media.action.compare-caption-versions
-    type: NOT_ADMITTED
+    type: DOMAIN_QUERY
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.compare-caption-versions]
     evidenceFields:
     - label
@@ -618,8 +636,8 @@ typedUiActionDispositions:
     - effect
     - reversible
     - finality
-    classificationBasis: owner decision requires canonical caption-version write/read semantics; no exact PDP-1 operation
-      exists
+    classificationBasis: action contract declares a read-only comparison of two exact caption versions; no write or merge is implied
+    operationRef: media.operation.caption-version-read
   - identity: media.action.inspect-provenance
     type: DOMAIN_QUERY
     sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-provenance]

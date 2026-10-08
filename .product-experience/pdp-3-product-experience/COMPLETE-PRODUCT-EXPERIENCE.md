@@ -1,7 +1,7 @@
 # Media Product Experience Specification
 
 **Authority:** PDP-3 proposal over PDP-0, PDP-1, and PDP-2\
-**Acceptance:** blocked on P0-010 and P1-006; no complete-experience acceptance is recorded\
+**Acceptance:** proposal; depends on accepted PDP-2 and full experience review; no complete-experience acceptance is recorded\
 **Detailed work slices:** J-01 project setup, J-02 artifact intake, J-20 job observation/recovery, and `media.lane.transcribe-and-correct-captions`
 **Lane media scope:** Audio sources only; video audio-extraction and source-time mapping are outside this slice of J-03.
 
@@ -49,9 +49,12 @@ The lane uses `media.goal.understand-media`, `media.goal.review-trustworthy-outp
 supported locale, a callable wire route, provider availability, or a qualified
 runtime. API wire bindings remain open under `GAP-05`; complete Tools validation
 and Explorer bindings remain open under `GAP-MEDIA-TOOLS-SCHEMA-BINDING` and
-`GAP-11`. A local generated candidate invokes available public schema and
-validator contracts but fails closed on unresolved ExperienceDefinition fields
-and owner references; it does not validate or accept the full PDP-3.
+`GAP-11`. The generated ExperienceSpecification v1
+(`ghatana.experience-specification.v1`) candidate passes structural schema
+validation and the available public `@ghatana/experience-specification`
+validator. It still reports ten
+semantic field blockers and does not constitute full PDP-3 validation or
+acceptance.
 
 ## Reading the specification
 
@@ -73,12 +76,20 @@ and owner references; it does not validate or accept the full PDP-3.
   state projection, CLI/API parity, realistic synthetic scenarios, and recovery.
 - `scenario-fixture-registry.yaml` references PDP-3 fixture content; it does
   not duplicate fixture payloads.
-- `generated/experience-specification.candidate.json` records source hashes,
-  observed identifiers, and a partial candidate subject/schema identity. The
-  sibling schema and public validator report missing required model fields;
-  external actor, outcome, guard, and context references remain unresolved.
-  This generated candidate does not imply a complete ExperienceDefinition,
-  acceptance, or Lifecycle currentness.
+- `generated/experience-specification.candidate.json` is a schema-valid
+  candidate that passes its available public validator. It projects 30
+  component contracts, 47 views, 0 schema-shaped journeys, 20 interactions,
+  49 states, 0 transitions, 146 actions, 0 effects, 18 finality candidates,
+  0 recovery records, 14 scenarios, 14 fixture descriptors, 3 search
+  definitions, and 5 inspection definitions. Its ten semantic blockers are
+  `componentContracts`, `views`,
+  `journeys`, `transitions`, `actions`, `effects`, `finality`, `recovery`,
+  `scenarios`, and `fixtures`; the file records exact reasons and source refs.
+  In particular, no schema-shaped journey is emitted from the 30 journey
+  contracts because actor/step mappings remain partial, and action/effect/state
+  links remain proposals. The validator pass does not imply a complete
+  ExperienceSpecification, owner acceptance, independent review, or Lifecycle
+  currentness.
 
 The reviewed plan's legacy `M-*` view IDs remain crosswalk references. New
 view, action, CLI-command, and scenario identifiers follow the canonical
@@ -95,4 +106,42 @@ job-state slice; the selected audio slice of J-03 has lane-specific contracts.
 The full baseline-view denominator is authored, while complete journey,
 channel, action, state, copy, fixture, and owner-review coverage remains an
 explicit completion gap. This work does not pass
-P2-008.
+the PDP-3 acceptance gate.
+
+## Authority, dependencies, review, and proof
+
+The complete PDP-3 artifact inventory and stable IDs are indexed by
+[`../source-manifest.yaml`](../source-manifest.yaml) and
+[`../artifact-identities.yaml`](../artifact-identities.yaml). The primary
+registries are `screen-registry.yaml`, `journey-registry.yaml`,
+`action-registry.yaml`, `interaction-registry.yaml`,
+`application-channel-registry.yaml`, `scenario-fixture-registry.yaml`,
+`data-view-contracts.yaml`, `state-transition-bindings.yaml`,
+`recovery-finality-contracts.yaml`, `responsive-variants.yaml`,
+`navigation-contracts.yaml`, `search-inspection-contracts.yaml`, and
+`experience-source-bindings.yaml`. API, CLI, gRPC, event, and Agent Tool
+surfaces are indexed in their respective registries and binding files; detailed
+screen and journey proposals remain in `screen-contracts/` and
+`journey-contracts/`.
+
+PDP-3 depends on accepted PDP-2; upstream source and dependency boundaries are
+in [`../authority-map.yaml`](../authority-map.yaml),
+[`../traceability.yaml`](../traceability.yaml),
+[`../gaps.yaml`](../gaps.yaml), and
+[`../acceptance.yaml`](../acceptance.yaml) (`ACCEPT-INPUT-PDP-3`). Its named
+review roles are UX information architect, product UX/distributed-systems
+analyst, generation/editing/quality experience lead, animation/simulation/
+domain-integration architect, audio/speech/streaming experience lead, and
+API/SDK/CLI contract owner. P0-010, independent experience review, Shared/Tools
+publication and validation, external owner decisions, and Lifecycle evidence
+remain separate pending gates.
+
+Current local proof inputs include
+`tests/pdp-3-screen-journey-crosslinks.test.mjs`,
+`tests/pdp-2-experience-language-projection.test.mjs`,
+`tests/product-definition-authority.test.mjs`,
+`pnpm check:product-experience-local`, and
+`node ../../scripts/generate-media-phase-projections.mjs --check --strict`.
+These checks validate source structure and available public schemas; they do
+not establish semantic acceptance, execution behavior, independent review,
+or Lifecycle currentness/receipts.

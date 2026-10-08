@@ -25,6 +25,86 @@ interpretation:
     Authentication, tenant isolation, action authorization, delegation, and
     approval authority must come from the applicable trusted identity and
     policy contracts. This artifact does not define RBAC.
+trustContexts:
+  resolutionStatus: media-owner-resolved-by-data-and-effect; P0-010-independent-review-pending
+  classificationBasis: >-
+    Trust level follows the sensitivity of data and the effect being requested.
+    It is never derived from actor, principal, responsibility-role, or persona
+    kind. The same principal can operate at different trust levels for different
+    data and effects.
+  contexts:
+    - id: media.trust.public
+      trustLevel: public
+      dataSensitivity: public-nonsensitive
+      effectScope: read-only-public-material-with-no-consequential-effect
+      auditRequired: false
+      auditRationale: No customer-sensitive data or state-changing/external effect is in scope for this context.
+      sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/dataHandling/defaults, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/enforcementPoints/4]
+    - id: media.trust.authenticated
+      trustLevel: authenticated
+      dataSensitivity: private-tenant-scoped-content-or-metadata
+      effectScope: read-or-process-within-current-verified-tenant-and-delegation
+      auditRequired: true
+      auditRationale: Private media and derived metadata are sensitive; access and processing require attributable current authority.
+      sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/independentGovernanceAxes/2, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/dataHandling/telemetry/audit]
+    - id: media.trust.privileged
+      trustLevel: privileged
+      dataSensitivity: governed-content-with-consequential-external-effect
+      effectScope: provider-dispatch-sharing-export-publication-or-other-privileged-effect
+      auditRequired: true
+      auditRationale: An external effect requires durable audit intent before dispatch and truthful finality afterward.
+      sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/platformMechanics/privilegedEffects, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/platformMechanics/audit, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/enforcementPoints/3]
+    - id: media.trust.admin
+      trustLevel: admin
+      dataSensitivity: tenant-or-workspace-policy-and-identity-configuration
+      effectScope: scoped-configuration-or-identity-setting-change
+      auditRequired: true
+      auditRationale: Configuration and identity changes alter effective access or policy and must remain attributable and auditable.
+      sourceRefs: [.product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/actors/6, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/dataHandling/telemetry/audit]
+  principalKindInference: forbidden
+  principalKindExamples:
+    human-user: may be public, authenticated, privileged, or admin depending on data and effect
+    automation-client: may be authenticated or privileged only with current scoped delegated authority; machine kind grants no trust level
+    media-worker: may execute only under an admitted job grant and current policy; product-runtime kind grants no trust level
+    external-provider: no Media authorization or publication authority is inferred from external-service kind
+ownershipRules:
+  resolutionStatus: media-owner-resolved; external-contract-bindings-remain-source-bounded; P0-010-independent-review-pending
+  accountabilityIsNotPrivilege: true
+  rules:
+    - id: media.ownership.product-semantics
+      concern: product-scope-and-constitution
+      accountableRoleRef: media.role.product-manager
+      executionAuthority: current-authenticated-policy-and-operation-contract
+      contractOwner: { repository: samujjwal/ghatana-media, path: .product-experience/pdp-0-product-truth/constitution.yaml }
+      sourceRefs: [.product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/10, .product-experience/pdp-0-product-truth/constitution.yaml#/requirements]
+    - id: media.ownership.identity
+      concern: authentication-tenant-and-delegation-mechanics
+      accountableRoleRef: media.role.security-privacy-lead
+      executionAuthority: external-identity-owner-contract; no-local-media-identity-authority
+      contractOwner: { repository: ghatana-shared, publicSurface: identity-and-authentication-public-contracts }
+      bindingStatus: owner-surface-identified; exact-public-package-and-deployed-provider-unverified
+      sourceRefs: [.product-experience/pdp-0-product-truth/dependency-contracts.yaml#/dependencyContracts/3, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/platformMechanics/identityAndAuthentication]
+    - id: media.ownership.audit
+      concern: audit-mechanics-and-required-media-action-facts
+      accountableRoleRef: media.role.security-privacy-lead
+      executionAuthority: shared-audit-contract; Media-owns-event-vocabulary-and-required-durability-policy
+      contractOwner: { repository: ghatana-shared, publicSurface: platform/java/audit }
+      bindingStatus: public-surface-identified; public-version-and-required-audit-durability-unverified
+      sourceRefs: [.product-experience/pdp-0-product-truth/dependency-contracts.yaml#/dependencyContracts/2, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/platformMechanics/audit]
+    - id: media.ownership.privileged-effects
+      concern: privileged-external-effect-mechanics
+      accountableRoleRef: media.role.security-privacy-lead
+      executionAuthority: current-Media-preconditions-plus-Action-Plane-public-contract
+      contractOwner: { repository: ghatana, publicSurface: services/action-plane/api }
+      bindingStatus: owner-surface-identified; public-contract-and-isolated-consumer-unverified
+      sourceRefs: [.product-experience/pdp-0-product-truth/dependency-contracts.yaml#/dependencyContracts/10, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/platformMechanics/privilegedEffects]
+    - id: media.ownership.domain-state
+      concern: canonical-media-domain-states-and-transitions
+      accountableRoleRef: media.role.media-domain-lead
+      executionAuthority: pending-PDP-1-owner-reviewed-operation-and-transition-contracts
+      contractOwner: { repository: samujjwal/ghatana-media, path: .product-experience/pdp-1-domain-data }
+      bindingStatus: PDP-1-records-are-proposal-only; owner-review-pending
+      sourceRefs: [.product-experience/pdp-1-domain-data/states.yaml#/authorityStatus, .product-experience/pdp-1-domain-data/transitions.yaml#/authorityStatus]
 principals:
 - id: media.principal.human-user
   kind: human

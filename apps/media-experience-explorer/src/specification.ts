@@ -17,6 +17,9 @@ export interface ArtifactTraceMetadata {
   readonly canonicalLocation: string;
   readonly semanticFingerprint: string;
   readonly currentness: string;
+  readonly semanticStatus: string;
+  readonly acceptanceState: string;
+  readonly verification: string;
   readonly dependencies: readonly string[];
   readonly dependents: readonly string[];
   readonly verificationStatus: string;
@@ -87,6 +90,9 @@ export function traceMetadataForArtifact(artifact: SpecificationArtifact, source
     canonicalLocation: artifact.path,
     semanticFingerprint: "PENDING_OWNER_APPROVED_TOOLS_GENERATION",
     currentness: "NOT_GENERATED_CURRENTNESS_YAML_INTENTIONALLY_ABSENT",
+    semanticStatus: manifestScalar(record, "semanticStatus") || "Not recorded in source manifest",
+    acceptanceState: manifestScalar(record, "acceptanceState") || "Not recorded in source manifest",
+    verification: manifestScalar(record, "verification") || "Not recorded in source manifest",
     dependencies: record ? manifestRelations(record, "dependencies") : [manifestRef],
     dependents: record ? manifestRelations(record, "dependents") : [manifestRef],
     verificationStatus: verificationStatusForArtifact(artifact),

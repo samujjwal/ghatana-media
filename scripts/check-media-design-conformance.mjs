@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 const DEFAULT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PATHS = Object.freeze({
   style: ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
+  governance: ".product-experience/pdp-2-design-interface-system/design-governance.json",
   aliases: ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
   semanticBindings: ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
   templates: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
@@ -51,6 +52,66 @@ const sectionScalar = (source, section, key) => {
 };
 const listIds = (source, key) => [...(source?.matchAll(new RegExp(`^\\s*- ${key}:\\s*([^\\r\\n#]+)`, "gmu")) ?? [])].map((match) => match[1].trim());
 
+const GOVERNANCE_GATES = Object.freeze({
+  "style-semantics-source": { source: PATHS.style, field: "scopeStatus", sourceStatus: "MEDIA_OWNER_ACCEPTED", disposition: "RESOLVED_OWNER" },
+  "shared-artifact-binding": { source: PATHS.style, field: "sharedBinding.status", sourceStatus: "EXTERNAL_PACKAGE_AND_OWNER_REVIEW_PENDING", disposition: "EXTERNAL_PENDING" },
+  "conformance-and-specialist-review": { source: PATHS.style, field: "conformance.status", sourceStatus: "NOT_RUN", disposition: "INDEPENDENT_PENDING" },
+  "semantic-token-aliases": { source: PATHS.aliases, field: "status", sourceStatus: "MEDIA_OWNER_ACCEPTED_INTENT_ONLY", disposition: "RESOLVED_OWNER" },
+  "concrete-component-bindings": { source: PATHS.semanticBindings, field: "status", sourceStatus: "SOURCE_INCOMPLETE", disposition: "SOURCE_INCOMPLETE" },
+  "template-catalog-admission": { source: PATHS.templates, field: "scopeStatus", sourceStatus: "MEDIA_OWNER_ACCEPTED", disposition: "RESOLVED_OWNER" },
+  "layout-admission": { source: PATHS.layout, field: "scopeStatus", sourceStatus: "MEDIA_OWNER_ACCEPTED", disposition: "RESOLVED_OWNER" },
+});
+
+function sourceStatusValue(source, field) {
+  const [section, key] = field.split(".");
+  return key ? sectionScalar(source, section, key) : scalar(source, section);
+}
+
+function validateDesignGovernance(governance, sourceByPath, root) {
+  const errors = [];
+  const records = governance?.gates;
+  if (!Array.isArray(records)) return ["canonical design-governance registry has no gates array"];
+  if (governance.schemaVersion !== "media.pdp-2.design-governance.v1") errors.push("canonical design-governance registry has stale schemaVersion");
+  if (governance.authority !== "Media-owned design decisions only; Shared package, conformance, specialist visualization, and accessibility acceptance remain separately gated") {
+    errors.push("canonical design-governance registry has stale authority boundary");
+  }
+  const ids = records.map((record) => record.id);
+  const duplicates = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
+  for (const id of duplicates) errors.push(`duplicate design-governance gate record: ${id}`);
+  if (governance.gateDenominator !== Object.keys(GOVERNANCE_GATES).length) {
+    errors.push(`design-governance gate denominator must be ${Object.keys(GOVERNANCE_GATES).length}`);
+  }
+  for (const id of Object.keys(GOVERNANCE_GATES)) if (!ids.includes(id)) errors.push(`missing design-governance gate: ${id}`);
+  for (const id of ids) if (!Object.hasOwn(GOVERNANCE_GATES, id)) errors.push(`stale design-governance gate: ${id}`);
+
+  for (const record of records) {
+    const expected = GOVERNANCE_GATES[record.id];
+    if (!expected) continue;
+    if (record.source !== expected.source) errors.push(`${record.id}: stale governance source path`);
+    if (record.sourceField !== expected.field) errors.push(`${record.id}: stale governance source field`);
+    if (record.disposition !== expected.disposition) errors.push(`${record.id}: invalid or stale governance disposition`);
+    const actual = sourceStatusValue(sourceByPath[expected.source], expected.field);
+    if (record.sourceStatus !== expected.sourceStatus) errors.push(`${record.id}: invalid or stale approval status`);
+    if (record.sourceStatus !== actual) errors.push(`${record.id}: stale source approval status (recorded=${record.sourceStatus ?? "missing"}; source=${actual ?? "missing"})`);
+    if (expected.disposition === "RESOLVED_OWNER") {
+      if (record.decision?.authority !== "User-delegated Media owner decision"
+        || typeof record.decision?.rationale !== "string" || record.decision.rationale.length < 40
+        || !Array.isArray(record.evidenceRefs) || record.evidenceRefs.length === 0) {
+        errors.push(`${record.id}: Media owner disposition lacks decision rationale or source evidence`);
+      }
+      const evidence = record.evidenceRefs ?? [];
+      if (new Set(evidence).size !== evidence.length) errors.push(`${record.id}: duplicate owner evidence reference`);
+      for (const ref of evidence) {
+        const sourcePath = ref.split("#", 1)[0];
+        if (!sourcePath || !existsSync(join(root, sourcePath))) errors.push(`${record.id}: stale owner evidence reference ${ref}`);
+      }
+    } else if (record.decision) {
+      errors.push(`${record.id}: pending gate must not contain a Media approval decision`);
+    }
+  }
+  return errors;
+}
+
 /** Analyze a repository root. Findings are observations, never acceptance. */
 export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   const findings = [];
@@ -58,6 +119,11 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   const add = (kind, path, line, detail, disposition = "unexplained", rootCauseKey = `${kind}:${path}`) => findings.push({ kind, path, line, detail, disposition, rootCauseKey });
   const block = (detail) => blockers.push(detail);
   const style = read(root, PATHS.style);
+  const governanceText = read(root, PATHS.governance);
+  let governance = null;
+  if (governanceText) {
+    try { governance = JSON.parse(governanceText); } catch (error) { block(`canonical design-governance registry is invalid JSON: ${error.message}`); }
+  }
   const aliases = read(root, PATHS.aliases);
   const semanticBindings = read(root, PATHS.semanticBindings);
   const templateCatalog = read(root, PATHS.templates);
@@ -65,36 +131,30 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   const componentContracts = read(root, PATHS.components);
   const stateGrammar = read(root, PATHS.states);
 
-  for (const [path, value] of [[PATHS.style, style], [PATHS.aliases, aliases], [PATHS.semanticBindings, semanticBindings], [PATHS.templates, templateCatalog], [PATHS.layout, layout], [PATHS.components, componentContracts], [PATHS.states, stateGrammar]]) {
+  for (const [path, value] of [[PATHS.style, style], [PATHS.governance, governanceText], [PATHS.aliases, aliases], [PATHS.semanticBindings, semanticBindings], [PATHS.templates, templateCatalog], [PATHS.layout, layout], [PATHS.components, componentContracts], [PATHS.states, stateGrammar]]) {
     if (value === null) block(`required PDP-2 authority source is missing: ${path}`);
   }
 
+  const sourceByPath = {
+    [PATHS.style]: style, [PATHS.aliases]: aliases, [PATHS.semanticBindings]: semanticBindings,
+    [PATHS.templates]: templateCatalog, [PATHS.layout]: layout,
+  };
+  for (const error of validateDesignGovernance(governance, sourceByPath, root)) block(`design-governance: ${error}`);
+  if (Array.isArray(governance?.gates)) {
+    const pending = governance.gates.filter((gate) => gate.disposition !== "RESOLVED_OWNER");
+    for (const gate of pending) block(`design-governance gate ${gate.id} remains ${gate.disposition}`);
+  }
+
   if (style) {
-    if (scalar(style, "scopeStatus") !== "ACCEPTED") block(`PDP-2 style authority is not accepted (scopeStatus=${scalar(style, "scopeStatus") ?? "missing"})`);
     if (scalar(style, "authority") !== PATHS.aliases
       || sectionScalar(style, "currentProjection", "semanticAuthority") !== PATHS.semanticBindings) {
       block("style authority must reference canonical Media aliases and component binding sources");
     }
-    const sharedStatus = sectionScalar(style, "sharedBinding", "status");
-    if (!["VERIFIED", "CURRENT"].includes(sharedStatus)) {
-      block(`Shared package binding is unresolved (status=${sharedStatus ?? "missing"})`);
-    }
-    const conformanceStatus = sectionScalar(style, "conformance", "status");
-    if (!["VERIFIED", "CURRENT"].includes(conformanceStatus)) {
-      block(`PDP-2 conformance review is not verified (status=${conformanceStatus ?? "missing"})`);
-    }
   }
-  if (aliases && !/^status:\s*accepted\b/imu.test(aliases)) block(`semantic token aliases are not accepted (status=${scalar(aliases, "status") ?? "missing"})`);
-  const semanticBindingStatus = scalar(semanticBindings, "status");
-  if (semanticBindings && !/^(?:verified|current|accepted)$/iu.test(semanticBindingStatus ?? "")) {
-    block(`Shared component bindings are unresolved (status=${semanticBindingStatus ?? "missing"})`);
-  }
-  if (templateCatalog && !/^scopeStatus:\s*accepted\b/imu.test(templateCatalog)) block(`template catalog is proposal/pending review, not accepted composition authority (scopeStatus=${scalar(templateCatalog, "scopeStatus") ?? "missing"})`);
-  if (layout && !/^\s*status:\s*accepted\b/imu.test(layout)) block("layout rules are proposal/pending review, not accepted layout authority");
 
   const acceptedExtensions = [".css", ".scss", ".sass", ".tsx", ".jsx", ".ts", ".js"];
   const productSourceFiles = PATHS.productSources.flatMap((directory) => filesUnder(root, directory))
-    .filter((file) => acceptedExtensions.includes(extname(file)));
+    .filter((file) => acceptedExtensions.includes(extname(file)) && !/(?:\.test|\.spec)\.[^.]+$/u.test(file));
   const explorerFixtureFiles = filesUnder(root, PATHS.explorerFixtureSource)
     .filter((file) => acceptedExtensions.includes(extname(file)));
   const sourceFiles = [...productSourceFiles, ...explorerFixtureFiles];
@@ -255,6 +315,8 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   const unexplained = findings.filter(({ disposition }) => disposition === "unexplained");
   if (unexplained.length) block(`${unexplained.length} source-observable design-authority finding(s) are unexplained`);
   const rootCauseCount = new Set(unexplained.map((item) => item.rootCauseKey)).size;
+  const governanceGates = Array.isArray(governance?.gates) ? governance.gates : [];
+  const openGates = governanceGates.filter((gate) => gate.disposition !== "RESOLVED_OWNER");
   return { ok: blockers.length === 0 && unexplained.length === 0, findings, blockers, summary: {
     sourceFiles: sourceFiles.length,
     productSourceFiles: productSourceFiles.length,
@@ -268,6 +330,9 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
     explorerFixtureObservations: findings.filter((item) => item.disposition === "explorer-chrome-or-fixture-only-not-product-authority").length,
     unexplained: unexplained.length,
     unexplainedRootCauses: rootCauseCount,
+    governanceGateCount: governanceGates.length,
+    resolvedOwnerGates: governanceGates.filter((gate) => gate.disposition === "RESOLVED_OWNER").length,
+    openGovernanceGates: openGates.map((gate) => ({ id: gate.id, disposition: gate.disposition })),
   } };
 }
 
@@ -275,6 +340,7 @@ function main() {
   const result = analyzeDesignConformance();
   console.log(`Media design conformance ${result.ok ? "passed" : "BLOCKED"}`);
   console.log(`  scanned ${result.summary.productSourceFiles} product source files and ${result.summary.explorerFixtureFiles} Explorer fixture files (${result.summary.productCssFiles} product stylesheets; ${result.summary.explorerFixtureCssFiles} fixture stylesheets), ${result.summary.screenContracts} canonical screen contracts`);
+  console.log(`  design governance: ${result.summary.resolvedOwnerGates}/${result.summary.governanceGateCount} Media owner decisions resolved; ${result.summary.openGovernanceGates.length} external, independent, or source-incomplete gates remain open`);
   console.log(`  ${result.summary.productLiteralColors} product literal color(s), ${result.summary.explorerFixtureObservations} fixture-only observations, ${result.summary.unexplained} unexplained findings across ${result.summary.unexplainedRootCauses} root causes`);
   const byKind = new Map();
   for (const item of result.findings) byKind.set(item.kind, [...(byKind.get(item.kind) ?? []), item]);

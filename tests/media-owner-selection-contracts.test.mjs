@@ -115,7 +115,7 @@ test("all four Agent Tool semantic selections resolve existing observed IDs and 
     assert.ok(observed.has(tool.toolId), `no actual Agent Tool handler for ${tool.toolId}`);
     assert.ok(canonical.has(tool.canonicalOperationFamily), `unregistered canonical operation family for ${tool.toolId}`);
     assert.equal(tool.executionAdmitted, false);
-    assert.ok(Array.isArray(tool.requiredProof) && tool.requiredProof.length >= 5);
+    assert.ok(typeof tool.requiredProof === "string" && tool.requiredProof.split(";").filter(Boolean).length >= 5);
     assert.ok(tool.inputBoundary && tool.effectSemantics);
   }
   assert.match(selections.status, /CONTRACT_AND_EXECUTION_ADMISSION_PENDING/);

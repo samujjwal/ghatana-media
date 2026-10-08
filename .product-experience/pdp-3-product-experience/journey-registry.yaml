@@ -193,6 +193,14 @@ coverageObservation:
   journeyContractCount: 30
   orderedStepCount: 130
   stepBindings:
+    screenContractRef:
+      linked: 122
+      unresolved: 8
+      blocker: J-29-and-J-30-step-views-are-not-explicitly-allocated; do-not-infer-one-to-one-mapping-from-orderedViews
+    action:
+      linked: 18
+      unresolved: 112
+      blocker: remaining-steps-have-no-exact-step-level-action-allocation; screen-action-candidates-are-not-equivalent-to-journey-step-actions
     objectRefs:
       empty: 130
       blocker: canonical-domain-semantics-and-step-object-allocation-remain-unresolved

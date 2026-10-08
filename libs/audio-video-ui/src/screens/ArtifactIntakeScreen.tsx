@@ -1,5 +1,6 @@
 import React from "react";
 import { MediaTaskScreen, type MediaTaskScreenProps } from "./MediaTaskScreen";
+import { EmptyState } from "../foundations";
 
 export type ArtifactIntakeView = "browse-media" | "import-media" | "job-status" | "inspect-media";
 
@@ -68,7 +69,7 @@ export function ArtifactIntakeScreen({ intake, onSourceFilesSelected, ...flow }:
             <p>Artifact ID: {artifact.id}</p>
             {(artifact.integrity || artifact.availability) && <p>{[artifact.integrity, artifact.availability].filter(Boolean).join(" · ")}</p>}
           </li>)}
-        </ul> : <p>No artifact records are available in this projection.</p>}
+        </ul> : <EmptyState title="No artifact records are available in this projection." />}
       </>}
     </section>
   </MediaTaskScreen>;

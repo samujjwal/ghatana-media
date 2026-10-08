@@ -33,8 +33,8 @@ bindings:
   constraints:
   - identity-is-not-authorization
   - keep-project-revision-distinct-from-artifact-version
-  sharedExportStatus: subpath-and-symbol-observed-in-Shared-public-source; Media consumer binding and
-    owner approval pending
+  sharedExportStatus: Alert subpath and symbol observed in Shared public source; Media consumer binding and
+    owner approval pending; progress uses native HTML because Shared Progress is excluded by the Explorer CSP
   evidenceRef: sibling-repository:ghatana-shared/config/design-system-public-api.json
 - id: media.gui.primitive.action
   semanticRole: safe-next-action
@@ -48,12 +48,13 @@ bindings:
   evidenceRef: sibling-repository:ghatana-shared/config/design-system-public-api.json
 - id: media.gui.primitive.status
   semanticRole: state-and-finality
-  sharedExport: '@ghatana/design-system/molecules#Alert; @ghatana/design-system/atoms#Progress'
+  sharedExport: '@ghatana/design-system/molecules#Alert; native HTML progress for measured operation progress'
   constraints:
   - never-infer-finality-from-state
   - never-use-color-as-the-only-signal
   sharedExportStatus: subpath-and-symbol-observed-in-Shared-public-source; Media consumer binding and
     owner approval pending
+  progressExclusion: Shared Progress emits inline style attributes, which the Media Explorer blocks with style-src-attr 'none'; Media uses native HTML progress for determinate and indeterminate measurements, and text for unknown or absent measurements.
   evidenceRef: sibling-repository:ghatana-shared/config/design-system-public-api.json
 - id: media.gui.primitive.collection
   semanticRole: searchable-media-object-collection

@@ -11,6 +11,148 @@ import { join, resolve } from "node:path";
 const root = resolve(new URL("..", import.meta.url).pathname);
 const read = (path) => readFileSync(join(root, path), "utf8");
 
+const TYPED_CONTRACT_ROLES = new Set([
+  "DOMAIN_VALUE_PROJECTION", "DOMAIN_RECORD_PROJECTION", "DOMAIN_RECORD_AND_OPERATION_PROJECTION",
+  "OPERATION_KIND_ENUM_PROJECTION", "DOMAIN_STATE_PROJECTION", "COMPATIBILITY_ADAPTER",
+  "CAPABILITY_PROJECTION", "DOMAIN_OPERATION_INPUT_PROJECTION", "DOMAIN_OPERATION_RESULT_PROJECTION",
+  "DOMAIN_OPERATION_INPUT_COMPONENT", "DOMAIN_OPERATION_ACKNOWLEDGEMENT_PROJECTION", "NOT_ADMITTED",
+]);
+const TYPED_CONTRACT_STATUSES = new Set(["PROPOSAL_ROLE_ONLY", "COMPATIBILITY_SOURCE_ONLY", "NOT_ADMITTED"]);
+const UNQUALIFIED_SPECIALIZED_OPERATIONS = new Set(["SEPARATE_STEMS", "TRAIN_VOICE_MODEL", "CONVERT_VOICE", "EXPORT", "DELETE"]);
+
+function yamlPdp1Ids(text, kind) {
+  const prefix = kind === "domain" ? "media.domain" : "media.operation";
+  return new Set([...text.matchAll(new RegExp(`^  - id: (${prefix.replaceAll(".", "\\.")}\\.[^\\s]+)$`, "gmu"))].map((match) => match[1]));
+}
+
+function operationEnumValues(source) {
+  const body = source.match(/^export const MediaOperationKindSchema = z\.enum\(\[([\s\S]*?)\]\);/mu)?.[1] ?? "";
+  return [...body.matchAll(/^\s*"([A-Z_]+)",?\s*$/gmu)].map((match) => match[1]);
+}
+
+/** Validate the structural role catalog only. This does not establish wire or
+ * semantic equivalence, canonical ownership, or runtime support. */
+export function validateTypedContractBindings(manifest, typesSource, domainObjects, operations) {
+  const errors = [];
+  const types = [...typesSource.matchAll(/^export type (\w+)\s*=/gmu)].map((match) => match[1]);
+  const schemas = [...typesSource.matchAll(/^export const (\w+)Schema\s*=/gmu)].map((match) => `${match[1]}Schema`);
+  const domainIds = yamlPdp1Ids(domainObjects, "domain");
+  const operationIds = yamlPdp1Ids(operations, "operation");
+  const pdp1Ids = new Set([...domainIds, ...operationIds]);
+  const entries = manifest?.bindings ?? [];
+  const schemaIds = entries.map((entry) => entry.schema);
+  const typeIds = entries.flatMap((entry) => entry.type == null ? [] : [entry.type]);
+  const duplicates = (ids) => [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
+
+  if (!Array.isArray(manifest?.bindings)) errors.push("typed contract binding catalog is missing bindings array");
+  for (const id of duplicates(types)) errors.push(`duplicate source exported type identity: ${id}`);
+  for (const id of duplicates(schemas)) errors.push(`duplicate source public schema identity: ${id}`);
+  for (const id of duplicates(schemaIds)) errors.push(`duplicate schema binding: ${id}`);
+  for (const id of duplicates(typeIds)) errors.push(`duplicate type binding: ${id}`);
+  for (const id of schemas) if (!schemaIds.includes(id)) errors.push(`missing schema binding: ${id}`);
+  for (const id of schemaIds) if (!schemas.includes(id)) errors.push(`stale schema binding: ${id}`);
+  for (const id of types) if (!typeIds.includes(id)) errors.push(`missing type binding: ${id}`);
+  for (const id of typeIds) if (!types.includes(id)) errors.push(`stale type binding: ${id}`);
+
+  for (const entry of entries) {
+    if (!TYPED_CONTRACT_ROLES.has(entry.role)) errors.push(`${entry.schema}: unsupported role ${entry.role}`);
+    if (!TYPED_CONTRACT_STATUSES.has(entry.bindingStatus)) errors.push(`${entry.schema}: unsupported binding status ${entry.bindingStatus}`);
+    const expectedType = entry.schema === "MultimodalSourceSchema" ? null : entry.schema.replace(/Schema$/u, "");
+    if (entry.type !== expectedType) errors.push(`${entry.schema}: type must pair with ${expectedType ?? "no exported type"}`);
+    if (!Array.isArray(entry.pdp1Refs)) errors.push(`${entry.schema}: pdp1Refs must be an array`);
+    for (const ref of entry.pdp1Refs ?? []) if (!pdp1Ids.has(ref)) errors.push(`${entry.schema}: unsupported PDP-1 reference ${ref}`);
+    if (entry.runtimeSupport !== false) errors.push(`${entry.schema}: runtime support must remain explicitly false`);
+    if ((entry.role === "NOT_ADMITTED" || entry.bindingStatus === "NOT_ADMITTED")
+      && (entry.role !== "NOT_ADMITTED" || entry.bindingStatus !== "NOT_ADMITTED" || entry.pdp1Refs?.length)) {
+      errors.push(`${entry.schema}: NOT_ADMITTED disposition is inconsistent or has PDP-1 refs`);
+    }
+  }
+  for (const schema of ["VoiceTrainingRequestSchema", "VoiceConversionRequestSchema", "MediaCanonicalErrorSchema"]) {
+    const entry = entries.find((candidate) => candidate.schema === schema);
+    if (entry && (entry.role !== "NOT_ADMITTED" || entry.bindingStatus !== "NOT_ADMITTED" || entry.pdp1Refs?.length)) {
+      errors.push(`${schema}: source contract must remain NOT_ADMITTED`);
+    }
+  }
+
+  if (manifest?.denominators?.exportedTypes !== types.length) errors.push(`exported type denominator must be ${types.length}`);
+  if (manifest?.denominators?.publicSchemas !== schemas.length) errors.push(`public schema denominator must be ${schemas.length}`);
+  if (manifest?.runtimeSupportImplied !== false) errors.push("catalog must not imply runtime support");
+  if (manifest?.semanticOperationParity !== "UNRESOLVED") errors.push("semantic operation parity must remain independent and unresolved");
+  if (manifest?.wireParity !== "UNRESOLVED") errors.push("wire parity must remain independent and unresolved");
+
+  const enumBinding = entries.find((entry) => entry.schema === "MediaOperationKindSchema");
+  if (enumBinding || operationEnumValues(typesSource).length) {
+    const dispositions = enumBinding?.operationValueDispositions ?? [];
+    const dispositionIds = dispositions.map((entry) => entry.value);
+    const sourceValues = operationEnumValues(typesSource);
+    for (const id of duplicates(dispositionIds)) errors.push(`duplicate operation value disposition: ${id}`);
+    for (const value of sourceValues) if (!dispositionIds.includes(value)) errors.push(`missing operation value disposition: ${value}`);
+    for (const value of dispositionIds) if (!sourceValues.includes(value)) errors.push(`stale operation value disposition: ${value}`);
+    for (const entry of dispositions) {
+      if (UNQUALIFIED_SPECIALIZED_OPERATIONS.has(entry.value)
+        && (entry.disposition !== "NOT_ADMITTED" || entry.pdp1Ref)) {
+        errors.push(`${entry.value}: specialized operation must remain NOT_ADMITTED`);
+      }
+      if (entry.disposition === "NOT_ADMITTED" && entry.pdp1Ref) errors.push(`${entry.value}: non-admitted operation has PDP-1 ref`);
+      if (entry.disposition !== "NOT_ADMITTED"
+        && (!entry.pdp1Ref || !operationIds.has(entry.pdp1Ref))) {
+        errors.push(`${entry.value}: proposal operation value lacks a valid PDP-1 operation ref`);
+      }
+    }
+  }
+  return errors;
+}
+
+/** Validate the earlier type/role manifest format still consumed by existing
+ * migration tests. This checks source roles, not wire or runtime acceptance. */
+export function analyzeTypedContractBindings({ typeNames, schemaNames, typedContractBindings, domainObjectSource = "", stateModelSource = "", operationSource = "" }) {
+  const problems = [];
+  if (!typedContractBindings) {
+    problems.push("TypeScript role-binding source is absent; do not treat types as canonical operation contracts");
+    return problems;
+  }
+  let manifest;
+  try { manifest = typeof typedContractBindings === "string" ? JSON.parse(typedContractBindings) : typedContractBindings; }
+  catch { return ["TypeScript typed-contract binding manifest is not valid JSON"]; }
+  if (manifest.schemaVersion !== "media.typed-interface-binding.v1" || manifest.source !== "libs/audio-video-types/src/contracts.ts")
+    problems.push("TypeScript binding manifest identity/source mismatch");
+  if (!Array.isArray(manifest.bindings) || !Array.isArray(manifest.schemaOnly))
+    return [...problems, "TypeScript binding manifest has no complete binding collections"];
+  const rows = manifest.bindings;
+  const names = rows.map((row) => row.type);
+  const declared = new Set(typeNames);
+  const schemas = new Set(schemaNames.map((name) => name.endsWith("Schema") ? name : `${name}Schema`));
+  const usedSchemas = new Set();
+  const validRoles = new Set(manifest.roles ?? []);
+  if (new Set(names).size !== names.length) problems.push("duplicate TypeScript role binding");
+  for (const name of declared) if (!names.includes(name)) problems.push(`missing TypeScript role binding: ${name}`);
+  for (const row of rows) {
+    if (!declared.has(row.type)) problems.push(`stale TypeScript role binding: ${row.type}`);
+    if (!schemas.has(row.schema)) problems.push(`TypeScript ${row.type} references missing schema ${row.schema}`);
+    if (usedSchemas.has(row.schema)) problems.push(`TypeScript schema reused ambiguously: ${row.schema}`);
+    usedSchemas.add(row.schema);
+    if (!validRoles.has(row.role) || !row.reason || row.admission !== "SOURCE_ROLE_ONLY")
+      problems.push(`invalid or prematurely admitted TypeScript role binding: ${row.type}`);
+    if (["OPERATION_INPUT", "OPERATION_OUTPUT", "ACCEPTANCE_ACK"].includes(row.role)
+      && (!row.semanticRef || !operationSource.includes(`- id: ${row.semanticRef}`)))
+      problems.push(`TypeScript operation role lacks exact PDP-1 family: ${row.type}`);
+    if (row.role === "DOMAIN_OBJECT" && (!row.semanticRef || !domainObjectSource.includes(`- id: ${row.semanticRef}`)))
+      problems.push(`TypeScript object role lacks exact PDP-1 identity: ${row.type}`);
+    if (row.role === "STATE_PROJECTION" && (!row.semanticRef || !stateModelSource.includes(`modelId: ${row.semanticRef}`)))
+      problems.push(`TypeScript state role lacks exact machine identity: ${row.type}`);
+    if (row.role === "NOT_ADMITTED_SPECIALIZED_OPERATION" && row.semanticRef)
+      problems.push(`unadmitted TypeScript specialized operation cannot claim canonical binding: ${row.type}`);
+  }
+  for (const row of manifest.schemaOnly) {
+    if (!schemas.has(row.schema) || !validRoles.has(row.role) || row.role !== "SUPPORTING_SCHEMA" || row.admission !== "SOURCE_ROLE_ONLY")
+      problems.push(`unresolved TypeScript schema-only role: ${row.schema}`);
+    if (usedSchemas.has(row.schema)) problems.push(`duplicate TypeScript schema role: ${row.schema}`);
+    usedSchemas.add(row.schema);
+  }
+  for (const schema of schemas) if (!usedSchemas.has(schema)) problems.push(`missing TypeScript schema role: ${schema}`);
+  return problems;
+}
+
 const routeKey = ({ method, path }) => `${method.toUpperCase()} ${path}`;
 const uniqueBy = (rows, key, label, gaps) => {
   const seen = new Set();
@@ -146,57 +288,6 @@ function parseProtoRpcs(text) {
   return rows;
 }
 
-/** Structural binding audit: types, Zod schemas and PDP roles must resolve exactly.
- * This verifies *source roles*, not operation/wire equivalence or runtime admission. */
-export function analyzeTypedContractBindings({ typeNames, schemaNames, typedContractBindings, domainObjectSource = "", stateModelSource = "", operationSource = "" }) {
-  const problems = [];
-  if (!typedContractBindings) {
-    problems.push("TypeScript role-binding source is absent; do not treat types as canonical operation contracts");
-    return problems;
-  }
-  let manifest;
-  try { manifest = typeof typedContractBindings === "string" ? JSON.parse(typedContractBindings) : typedContractBindings; }
-  catch { return ["TypeScript typed-contract binding manifest is not valid JSON"]; }
-  if (manifest.schemaVersion !== "media.typed-interface-binding.v1" || manifest.source !== "libs/audio-video-types/src/contracts.ts")
-    problems.push("TypeScript binding manifest identity/source mismatch");
-  if (!Array.isArray(manifest.bindings) || !Array.isArray(manifest.schemaOnly))
-    return [...problems, "TypeScript binding manifest has no complete binding collections"];
-  const rows = manifest.bindings;
-  const names = rows.map((x) => x.type);
-  const declared = new Set(typeNames);
-  const schemas = new Set(schemaNames);
-  const usedSchemas = new Set();
-  const validRoles = new Set(manifest.roles ?? []);
-  if (new Set(names).size !== names.length) problems.push("duplicate TypeScript role binding");
-  for (const name of declared) if (!names.includes(name)) problems.push(`missing TypeScript role binding: ${name}`);
-  for (const row of rows) {
-    if (!declared.has(row.type)) problems.push(`stale TypeScript role binding: ${row.type}`);
-    if (!schemas.has(row.schema)) problems.push(`TypeScript ${row.type} references missing schema ${row.schema}`);
-    if (usedSchemas.has(row.schema)) problems.push(`TypeScript schema reused ambiguously: ${row.schema}`);
-    usedSchemas.add(row.schema);
-    if (!validRoles.has(row.role) || !row.reason || row.admission !== "SOURCE_ROLE_ONLY")
-      problems.push(`invalid or prematurely admitted TypeScript role binding: ${row.type}`);
-    if (row.role === "OPERATION_INPUT" || row.role === "OPERATION_OUTPUT" || row.role === "ACCEPTANCE_ACK") {
-      if (!row.semanticRef || !operationSource.includes(`- id: ${row.semanticRef}`))
-        problems.push(`TypeScript operation role lacks exact PDP-1 family: ${row.type}`);
-    }
-    if (row.role === "DOMAIN_OBJECT" && (!row.semanticRef || !domainObjectSource.includes(`- id: ${row.semanticRef}`)))
-      problems.push(`TypeScript object role lacks exact PDP-1 identity: ${row.type}`);
-    if (row.role === "STATE_PROJECTION" && (!row.semanticRef || !stateModelSource.includes(`modelId: ${row.semanticRef}`)))
-      problems.push(`TypeScript state role lacks exact machine identity: ${row.type}`);
-    if (row.role === "NOT_ADMITTED_SPECIALIZED_OPERATION" && row.semanticRef)
-      problems.push(`unadmitted TypeScript specialized operation cannot claim canonical binding: ${row.type}`);
-  }
-  for (const row of manifest.schemaOnly) {
-    if (!schemas.has(row.schema) || !validRoles.has(row.role) || row.role !== "SUPPORTING_SCHEMA" || row.admission !== "SOURCE_ROLE_ONLY")
-      problems.push(`unresolved TypeScript schema-only role: ${row.schema}`);
-    if (usedSchemas.has(row.schema)) problems.push(`duplicate TypeScript schema role: ${row.schema}`);
-    usedSchemas.add(row.schema);
-  }
-  for (const schema of schemas) if (!usedSchemas.has(schema)) problems.push(`missing TypeScript schema role: ${schema}`);
-  return problems;
-}
-
 /** Inputs are overridable for deterministic drift tests. */
 export function analyzeContractParity(input) {
   const gaps = [];
@@ -276,15 +367,33 @@ export function analyzeContractParity(input) {
   const schemaNames = [...(input.types ?? "").matchAll(/^export const (\w+)Schema\s*=/gm)].map((m) => m[1]);
   if (!toolIds.length) gaps.push("Agent Tool contract inventory is missing or empty");
   if (!typeNames.length && !schemaNames.length) gaps.push("TypeScript contract inventory is missing or empty");
-  else if (!input.typedContractBindings) {
-    gaps.push(`TypeScript structural inventory found ${typeNames.length} exported types and ${schemaNames.length} schemas; operation-to-type bindings are not explicitly registered`);
-  } else {
-    gaps.push(...analyzeTypedContractBindings({
-      typeNames, schemaNames, typedContractBindings: input.typedContractBindings,
-      domainObjectSource: input.pdp1DomainObjects,
-      stateModelSource: input.pdp0StateModels,
-      operationSource: input.pdp1Operations,
-    }));
+  if (typeNames.length || schemaNames.length) {
+    let typedBindingManifest;
+    try {
+      typedBindingManifest = typeof input.typedContractBindings === "string"
+        ? JSON.parse(input.typedContractBindings)
+        : input.typedContractBindings;
+    } catch (error) {
+      gaps.push(`typed contract binding catalog is invalid JSON: ${error.message}`);
+    }
+    if (typedBindingManifest?.schemaVersion === "media.typed-interface-binding.v1") {
+      gaps.push(...analyzeTypedContractBindings({
+        typeNames,
+        schemaNames,
+        typedContractBindings: typedBindingManifest,
+        domainObjectSource: input.pdp1DomainObjects,
+        stateModelSource: input.pdp0StateModels,
+        operationSource: input.pdp1Operations,
+      }));
+    } else {
+      const typedBindingErrors = validateTypedContractBindings(
+        typedBindingManifest,
+        input.types ?? "",
+        input.pdp1DomainObjects ?? "",
+        input.pdp1Operations ?? "",
+      );
+      for (const error of typedBindingErrors) gaps.push(`typed contract binding: ${error}`);
+    }
   }
   if (toolIds.length) gaps.push(`Agent Tool structural inventory found ${toolIds.length} tools; operation bindings and complete input/result contract parity remain pending`);
   // SDK method identities and HTTP call sites are different populations. The
@@ -352,11 +461,11 @@ function collectLiveInput() {
     sdkRegistryOperationCount,
     sdkRegistryHttpVerbCount,
     types: read("libs/audio-video-types/src/contracts.ts"),
+    typedContractBindings: read(".product-experience/interface-parity/typed-contract-bindings.json"),
+    pdp1DomainObjects: read(".product-experience/pdp-1-domain-data/domain-objects.yaml"),
     agentToolRegistry: read(".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml"),
     pdp1Operations: read(".product-experience/pdp-1-domain-data/operations.yaml"),
-    pdp1DomainObjects: read(".product-experience/pdp-1-domain-data/domain-objects.yaml"),
     pdp0StateModels: read(".product-experience/pdp-0-product-truth/state-models.yaml"),
-    typedContractBindings: read(".product-experience/interface-parity/typed-contract-bindings.json"),
   };
 }
 

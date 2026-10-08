@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "media.lifecycle-proof-route-candidates.v1",
+  "status": "CANDIDATES_ONLY_NOT_LIFECYCLE_ADMITTED",
+  "authority": "ghatana-media.product-definition.consumer-inputs",
+  "description": "Source-resolvable L-03 proof-route candidates. These records document actual local producer/criterion/test identities and method results; they are not Lifecycle observer/oracle registrations, case admission, independent review, or proof receipts.",
+  "routes": [
+    {
+      "id": "media.l03.candidate.runtime-authority",
+      "obligationIds": [
+        "media.pdp-1.requirement.media.operation.job-lifecycle"
+      ],
+      "candidateObserver": {
+        "kind": "registered-local-evidence-producer",
+        "id": "media-runtime",
+        "sourceRef": "scripts/conformance/evidence-definitions/producers/media-runtime.producer.json#/producerId",
+        "admission": "NOT_REGISTERED_AS_LIFECYCLE_OBSERVER"
+      },
+      "candidateOracle": {
+        "kind": "registered-local-evidence-criterion",
+        "id": "media-runtime-authority",
+        "sourceRef": "scripts/conformance/evidence-definitions/criteria/media-runtime.criteria.json#/criteria/0",
+        "testIdentity": "scripts/conformance/check-media-runtime-authority.mjs",
+        "resultCriteria": {
+          "positive": "The runtime authority conformance command exits with code 0.",
+          "negative": "A failed authority invariant or nonzero command exit rejects this candidate result.",
+          "comparison": "Exact command exit code from the producer measurement; no stdout-based success inference.",
+          "executionState": "deferred"
+        }
+      },
+      "sourceDigests": {
+        "producer": "sha256:5518513437e9acef3a359c7bec570ae351eb34c32c557f628634a094be6d70c4",
+        "criteria": "sha256:4842ca3ff76c3620eaf604829ec2bce96d0785997c552d6db967735c82a90978",
+        "test": "sha256:5030c0ee0f613f9b3d942b00c48a5e77c4fe71af0b6def7afc8ab033df2c9718"
+      },
+      "caseDependency": "L-02_CASE_ID_AND_EXECUTION_BINDING_NOT_ADMITTED",
+      "independentReview": "NOT_RUN"
+    },
+    {
+      "id": "media.l03.candidate.runtime-provider-fallback",
+      "obligationIds": [
+        "media.pdp-1.requirement.media.operation.job-lifecycle"
+      ],
+      "candidateObserver": {
+        "kind": "registered-local-evidence-producer",
+        "id": "media-runtime",
+        "sourceRef": "scripts/conformance/evidence-definitions/producers/media-runtime.producer.json#/producerId",
+        "admission": "NOT_REGISTERED_AS_LIFECYCLE_OBSERVER"
+      },
+      "candidateOracle": {
+        "kind": "registered-local-evidence-criterion",
+        "id": "media-provider-fallback-contract-is-conservative",
+        "sourceRef": "scripts/conformance/evidence-definitions/criteria/media-runtime.criteria.json#/criteria/1",
+        "testIdentity": "runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaProcessingProviderFallbackContractTest.java",
+        "resultCriteria": {
+          "positive": "The fallback contract test and its authority check exit with code 0.",
+          "negative": "Timeout or network ambiguity cannot authorize provider fallback; any violating test fails.",
+          "comparison": "Exact Gradle test outcome and conformance command exit code; no inferred remote effect or fallback success.",
+          "executionState": "deferred"
+        }
+      },
+      "sourceDigests": {
+        "producer": "sha256:5518513437e9acef3a359c7bec570ae351eb34c32c557f628634a094be6d70c4",
+        "criteria": "sha256:4842ca3ff76c3620eaf604829ec2bce96d0785997c552d6db967735c82a90978",
+        "test": "sha256:00c581546ad190d626b655b52b1f1001376419f6871f8291f9a674485ffa9493"
+      },
+      "caseDependency": "L-02_CASE_ID_AND_EXECUTION_BINDING_NOT_ADMITTED",
+      "independentReview": "NOT_RUN"
+    },
+    {
+      "id": "media.l03.candidate.production-job-idempotency",
+      "obligationIds": [
+        "media.pdp-1.requirement.media.operation.job-lifecycle"
+      ],
+      "candidateObserver": {
+        "kind": "registered-local-evidence-producer",
+        "id": "media-production-state-streaming",
+        "sourceRef": "scripts/conformance/evidence-definitions/producers/media-production-state-streaming.producer.json#/producerId",
+        "admission": "NOT_REGISTERED_AS_LIFECYCLE_OBSERVER"
+      },
+      "candidateOracle": {
+        "kind": "registered-local-evidence-criterion",
+        "id": "durable-artifact-job-stream-state",
+        "sourceRef": "scripts/conformance/evidence-definitions/criteria/media-production-state-streaming.criteria.json#/criteria/0",
+        "testIdentity": "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java",
+        "testDeclaration": "MediaAwsPostgresqlRuntimeStateTest#persistsChecksumVerifiedArtifactsIdempotentJobsAndLeasedStreams",
+        "assertionScope": "PARTIAL_JOB_LIFECYCLE_ASSERTIONS_ONLY",
+        "resultCriteria": {
+          "positive": "The exact test declaration completes with assertions for idempotent request reuse, exclusive job claim, version-fenced state update, and recoverable running state.",
+          "negative": "Any assertion failure, test failure, or nonzero focused Gradle task rejects this candidate result; this method does not establish distinct attempt semantics or full obligation satisfaction.",
+          "comparison": "Exact Gradle test outcome; no remote production effect or Lifecycle result is inferred.",
+          "executionState": "deferred"
+        }
+      },
+      "sourceDigests": {
+        "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
+        "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
+        "test": "sha256:3933662fffbfc4897505f5ff3495cd4590f8089ef47ad4a17af8b80c43f0aebb"
+      },
+      "caseDependency": "L-02_CASE_ID_AND_EXECUTION_BINDING_NOT_ADMITTED",
+      "independentReview": "NOT_RUN"
+    }
+  ],
+  "nonClaims": [
+    "No authoritative observerIds or oracleIds are assigned by this candidate registry.",
+    "No proof-case identity, producer admission, independent review, receipt, currentness, or PASS is established.",
+    "L-02 case IDs and executable proof-case admission remain dependencies for these routes."
+  ]
+}

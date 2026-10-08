@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "media.pdp-2.design-governance.v1",
+  "authority": "Media-owned design decisions only; Shared package, conformance, specialist visualization, and accessibility acceptance remain separately gated",
+  "gateDenominator": 7,
+  "gates": [
+    {
+      "id": "style-semantics-source",
+      "disposition": "RESOLVED_OWNER",
+      "source": ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
+      "sourceField": "scopeStatus",
+      "sourceStatus": "MEDIA_OWNER_ACCEPTED",
+      "decision": {
+        "authority": "User-delegated Media owner decision",
+        "rationale": "Media owns product semantic names and composition; Shared owns primitive values, tokens, themes, accessibility primitives, and generic component behavior. This accepts the ownership boundary and source, not a Shared package binding or visual conformance."
+      },
+      "evidenceRefs": [".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#semanticRule", ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#exceptionPolicy"]
+    },
+    {
+      "id": "shared-artifact-binding",
+      "disposition": "EXTERNAL_PENDING",
+      "source": ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
+      "sourceField": "sharedBinding.status",
+      "sourceStatus": "EXTERNAL_PACKAGE_AND_OWNER_REVIEW_PENDING",
+      "evidenceRefs": [".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#sharedBinding", ".product-experience/pdp-2-design-interface-system/gui/primitives.yaml#sharedPublicApiEvidence"]
+    },
+    {
+      "id": "conformance-and-specialist-review",
+      "disposition": "INDEPENDENT_PENDING",
+      "source": ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
+      "sourceField": "conformance.status",
+      "sourceStatus": "NOT_RUN",
+      "evidenceRefs": [".product-experience/pdp-2-design-interface-system/accessibility.yaml#acceptance", ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#reviewEvidenceRequired"]
+    },
+    {
+      "id": "semantic-token-aliases",
+      "disposition": "RESOLVED_OWNER",
+      "source": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      "sourceField": "status",
+      "sourceStatus": "MEDIA_OWNER_ACCEPTED_INTENT_ONLY",
+      "decision": {
+        "authority": "User-delegated Media owner decision",
+        "rationale": "The nine aliases express Media state, trust, and source-versus-derived intent without assigning raw values. Their current Shared references remain an observed development binding; package publication, immutable binding, Shared approval, and visual/accessibility review remain open."
+      },
+      "evidenceRefs": [".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#aliases", ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#rules"]
+    },
+    {
+      "id": "concrete-component-bindings",
+      "disposition": "SOURCE_INCOMPLETE",
+      "source": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
+      "sourceField": "status",
+      "sourceStatus": "SOURCE_INCOMPLETE",
+      "evidenceRefs": [".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#bindings", ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#components"]
+    },
+    {
+      "id": "template-catalog-admission",
+      "disposition": "RESOLVED_OWNER",
+      "source": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
+      "sourceField": "scopeStatus",
+      "sourceStatus": "MEDIA_OWNER_ACCEPTED",
+      "decision": {
+        "authority": "User-delegated Media owner decision",
+        "rationale": "Media owns reusable composition templates. The eight catalog entries define task purposes, regions, and pattern links; source-level architecture validation resolves their declared pattern chains. This admits the catalog rules without accepting individual screens or product implementations."
+      },
+      "evidenceRefs": [".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#templates", "tests/media-presentation-architecture.test.mjs"]
+    },
+    {
+      "id": "layout-admission",
+      "disposition": "RESOLVED_OWNER",
+      "source": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
+      "sourceField": "scopeStatus",
+      "sourceStatus": "MEDIA_OWNER_ACCEPTED",
+      "decision": {
+        "authority": "User-delegated Media owner decision",
+        "rationale": "Media owns information hierarchy and responsive composition. The eight layout records preserve identity, state/finality, provenance, and safe actions in stated reading order; Shared layout primitives and rendered viewport/accessibility conformance remain unaccepted."
+      },
+      "evidenceRefs": [".product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules", ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#layouts", "tests/media-design-conformance.test.mjs"]
+    }
+  ]
+}

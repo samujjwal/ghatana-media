@@ -14,6 +14,28 @@ scopeStatement: >-
   mastering, quality assessment, and delivery of governed media. Inclusion in
   this scope defines product meaning; it does not assert that a capability is
   implemented, licensed, qualified, or available in any runtime.
+authorityMapping:
+  accountabilitySource: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules
+  trustContextSource: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/trustContexts
+  rule: >-
+    Outcome actorRefs identify whose outcome a goal serves. They do not identify
+    an authenticated principal, grant execution permission, or appoint an
+    accountable reviewer. Product accountability follows the referenced
+    ownership rule; operation authorization follows current identity, policy,
+    and owner-approved operation contracts.
+  goalAuthorityNotes:
+    - goalRef: media.goal.explain-or-demonstrate
+      accountabilityRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules/rules/0
+      externalDependency: A qualified domain owner retains scientific, clinical, pedagogical, and other domain conclusions; no domain owner appointment is implied.
+    - goalRef: media.goal.review-trustworthy-output
+      accountabilityRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules/rules/0
+      externalDependency: Privacy, rights, quality, and publication review assignments remain separately required; a review role grants no runtime permission.
+    - goalRef: media.goal.deliver-approved-output
+      accountabilityRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules/rules/3
+      externalDependency: The Action Plane contract owns privileged-effect mechanics; Media retains output, rights, consent, and destination preconditions.
+    - goalRef: media.goal.apply-permitted-settings
+      accountabilityRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/trustContexts/contexts/3
+      externalDependency: Administrator is a usage actor and responsibility role, not an implicit unrestricted principal.
 outcomes:
 - id: media.goal.finished-asset
   outcome: Produce a useful media asset that satisfies the user's declared intent and constraints.

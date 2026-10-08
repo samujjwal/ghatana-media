@@ -7,8 +7,8 @@
  * @doc.layer shared
  * @doc.pattern TaskFlow
  */
-import { Badge, Button } from "@ghatana/design-system";
 import React from "react";
+import { Badge, Button } from "../foundations";
 
 /** Host-defined step IDs keep the composition independent of one workflow vocabulary. */
 export type MediaTaskStepId = string;
@@ -199,7 +199,7 @@ export function MediaTaskFlow({
           <p >{Math.round(boundedProgress)}%</p>
         </>}
         {progress?.kind === "indeterminate" && <div>
-          <progress aria-label={progress.label ?? "Media operation progress"} />
+          <progress aria-busy="true" aria-label={progress.label ?? "Media operation progress"} />
           <p >Progress is ongoing; amount is not measured.</p>
         </div>}
         {progress?.kind === "none" && <p >No meaningful progress measurement is available.</p>}

@@ -163,4 +163,14 @@ localization:
 sourceRefs:
 - master-plan:section-20.2
 - .product-experience/pdp-0-product-truth
-journeyRefs: []
+journeyRefs:
+  - J-04
+  - J-06
+  - J-07
+  - J-12
+  - J-13
+  - J-17
+  - J-18
+  - J-21
+  - J-22
+  - J-25

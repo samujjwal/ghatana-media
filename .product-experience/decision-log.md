@@ -665,6 +665,8 @@ constitute runtime or phase acceptance.
 - **Implementation direction:** use requirement-scoped obligations and admitted independent proof; make the Lifecycle preflight transition-capable rather than hardcoding permanent BLOCKED; validate machine and browser representation through actual public exports and typed ports.
 - **Evidence:** [2026-10-07 owner decision and resolution](./reviews/2026-10-07-owner-decision-and-resolution.md); [state adjudication](./pdp-1-domain-data/state-adjudication.yaml); `ACCEPT-INPUT-MEDIA-OWNER-20261007`; `scripts/lib/media-closure-preflight.mjs`.
 - **Excludes:** PDP phase CLOSED/CURRENT/READY statuses, production deployments, release certification, model or codec activation, independent accessibility or visual review.
+- **Normalized dispositions:** the bounded policy scopes above are recorded individually as `ACCEPTED` under [`acceptance.yaml#ACCEPT-INPUT-MEDIA-OWNER-20261007.normalizedPolicyDispositions`](./acceptance.yaml). These dispositions do not accept leaf-level mappings, independent findings, external package consent, or phase status.
+- **Separate bounded decision:** PXD-027 has its own owner-policy input, `ACCEPT-INPUT-MEDIA-OWNER-GATES-20261007`. It adds source selections and mapping criteria without accepting per-record mappings, independent reviews, external package consent, or any PDP phase.
 
 ### PXD-027 — Approve bounded semantic-source decisions for remaining PDP gates, with explicit independent-proof conditions
 

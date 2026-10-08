@@ -1,6 +1,6 @@
 # Media Product Truth
 
-**Definition state:** Proposal pending reference closure, specialist review, and independent P0-010 acceptance. The delegated product-owner review approved the canonical phase architecture (PXD-003) only; it did not accept this Product Truth or any complete PDP phase.
+**Definition state:** Proposal pending source/reference reconciliation, specialist review, and independent P0-010 acceptance. PXD-026 records bounded cross-phase owner-policy decisions; it does not accept this Product Truth, individual records, or any complete PDP phase.
 **Product:** Media (`media`)  
 **Target repository:** `samujjwal/ghatana-media`  
 **Media product-meaning authority:** `.product-experience` is the single editable authority. `samujjwal/ghatana:services/media` remains a migration/implementation observation and compatibility source until an approved cutover executes; it is not a competing Product Truth authority.
@@ -149,28 +149,62 @@ None of these scope values is a synonym for `IMPLEMENTED`, `QUALIFIED`,
 canonical records and identifiers; this page does not substitute for their
 record-level values.
 
-Local inspection found `scopeStatus` keys at the document root rather than
-inside individual records in portions of `requirements.yaml` and
-`capabilities.yaml`. Those files are explicitly outside the PDP0-001/PDP0-004
-write set for this wave, so the malformed placements remain an open
-normalization item; they are not treated as evidence that each record has a
-valid scope value. Journey scope values are normalized within their records.
+The current local source check validates the required scope shape on all 38
+requirement records and 462 capability leaves; all 30 journey records also
+carry their own scope status. These source checks establish structural shape,
+not accepted scope semantics or implementation/availability.
 
 ## Phase acceptance
 
-Only the P0-001 migration boundary slice is accepted. P0-002 through P0-009 are
-authored or being integrated as proposals. P0-010 must still validate schemas,
-IDs, aliases, references, source roles, and complete outcome/capability/state/
-authority/failure paths through independent semantic review. Named owner
-decisions and immutable public Tools package bindings are also outstanding.
-PDP-1 depends on P0-010 acceptance; PDP-2 depends on PDP-1; PDP-3 depends on
-PDP-2. Explorer remains a projection outside these phases. Later-phase
-artifacts and local implementation are provisional work products; none is
-represented as accepted ahead of its dependency gates.
+Only the P0-001 migration boundary slice is accepted as a PDP-0 input. PXD-026
+also records 11 bounded owner-policy dispositions; it does not accept leaf,
+requirement, intent, journey, or state mappings. The ProductDefinition
+candidate currently passes the sibling public schema and validator, with four
+semantic field blockers: `requirements`, `userIntents`, `domainRules`, and
+`successMeasures`. Five explicit product non-goals and four owner-selected
+business intents now map from `goals-jtbd.yaml`; unbound `measuredBy` prose is
+retained in candidate review metadata because the public validator requires a
+success-measure ID reference. The candidate contains 462 capabilities, 52
+requirement projections, 8 of 19 user intents, 30
+journeys with 11 resolved initiating actors, 7 invariants, 4 trust contexts,
+and 5 ownership rules. The 8 resolved user intents have initiating actors;
+the other 11 intents and 19 journey initiators remain unresolved and outside
+the candidate's resolved mappings. They are not accepted by projection.
+Installed-package verification and P0-010 remain open.
 
-`generated/product-definition.candidate.json` is a deterministic read-only
-projection of source observations. It contains only the product/subject
-identifiers and public schema version; it does not map the Product Truth records
-into an accepted ProductDefinition. The sibling schema and public validator
-reject it as incomplete, with the exact blockers retained in the generated
-file. This candidate is not phase acceptance or Lifecycle currentness.
+PDP-1 depends on independent P0-010 acceptance; PDP-2 depends on accepted
+PDP-1; PDP-3 depends on accepted PDP-2. Explorer is a projection outside these
+phases. Later-phase artifacts and local implementation remain provisional.
+
+`generated/product-definition.candidate.json` is a deterministic partial,
+read-only projection using `ghatana.product-definition.v1` and the
+`@ghatana/product-definition` v1 schema (`0.1.0-SNAPSHOT` source package).
+Its sibling-source schema/public-validator pass is structural evidence only;
+the four semantic blockers above, installed-package verification, independent
+P0-010 review, and Lifecycle currentness remain separate.
+
+## Authority, dependencies, review, and proof
+
+Use [`../authority-map.yaml`](../authority-map.yaml),
+[`../acceptance.yaml`](../acceptance.yaml),
+[`../traceability.yaml`](../traceability.yaml),
+[`../gaps.yaml`](../gaps.yaml), and
+[`../source-manifest.yaml`](../source-manifest.yaml) with
+[`../artifact-identities.yaml`](../artifact-identities.yaml) to reconstruct
+the complete source inventory and stable artifact IDs. The core PDP-0 records
+are `capabilities.yaml`, `requirements.yaml`, `goals-jtbd.yaml`,
+`journey-catalog.yaml`, `actors-responsibilities.yaml`,
+`state-models.yaml`, `domain-model.yaml`, and `policy-authority-model.yaml`;
+the other product-truth records cover quality, fidelity, NFRs, dependencies,
+privacy, reuse, content, glossary, and qualification.
+
+The active acceptance input is
+[`../acceptance.yaml#ACCEPT-INPUT-P0-010`](../acceptance.yaml), which requires
+an `independent-product-definition-reviewer`; P0-002 through P0-009 also name
+their specialist and accountable owner roles there. P0-010 remains pending.
+Current local proof inputs are the generated candidate, the residual reporter
+(`../../scripts/report-media-definition-residuals.mjs`),
+`pnpm check:product-definition-authority`,
+`pnpm check:product-experience-local`, and
+`tests/product-definition-authority.test.mjs`. These checks do not generate
+Lifecycle receipts or establish independent acceptance.

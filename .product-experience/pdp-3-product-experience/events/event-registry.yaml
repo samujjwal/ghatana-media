@@ -21,10 +21,27 @@ populations:
       - media.job.completed
       - media.job.failed
     deliveryFinalityOrderingReplayGuarantees: not-established
+    deliveryObservations:
+      status: implementation-observed; not-an-accepted-delivery-contract
+      sourceRefs:
+        - launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#publish
+        - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#publishLifecycle
+      readyFalse: publication-skipped
+      transport: bounded-synchronous-http-post
+      acceptedHttpStatuses: [200, 201]
+      otherHttpStatus: publisher-throws
+      runtimeFailure: logs-publication-unconfirmed-and-continues
+      idempotencyKeyHeader: {name: Idempotency-Key, value: eventId, durableDeduplication: unverified}
+      notEstablished: [durable-outbox, retry-policy, replay, retention, ordering, delivery-cardinality, consumer-acknowledgement, recovery]
   clientLocalTypeScriptNotifications:
     count: 15
     source: libs/audio-video-client/src/index.ts#AudioVideoClient
     classification: five in-process listener families (start, complete, error); separate from server lifecycle publishers
+    dispatchObservations:
+      status: implementation-observed; not-an-accepted-event-contract
+      sourceRef: libs/audio-video-client/src/index.ts#AudioVideoClient.emitEvent
+      behavior: in-process-listener-map; listener-exceptions-caught-and-logged
+      notEstablished: [durable-delivery, retry, replay, consumer-acknowledgement, cross-process-ordering]
     deliveryFinalityOrderingReplayGuarantees: not-established
   semanticCrosswalk: not-established
 events:

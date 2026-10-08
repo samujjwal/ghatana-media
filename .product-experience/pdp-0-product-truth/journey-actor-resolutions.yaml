@@ -1,0 +1,227 @@
+schemaVersion: media.journey-actor-resolutions.v1
+productId: media
+status: Media-owner-initiator-decisions-recorded; P0-010-independent-semantic-review-pending
+authority: User-delegated Media product-owner decisions for P0-04
+sourceRefs:
+  journeyCatalog: .product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys
+  firstUse: .product-experience/pdp-0-product-truth/goals-jtbd.yaml#/firstUse
+  disclosure: .product-experience/pdp-0-product-truth/goals-jtbd.yaml#/disclosureLevels
+  journeyContracts: .product-experience/pdp-3-product-experience/journey-contracts/
+policy:
+  selection: Select the initiating actor only when the narrative or ordered journey semantics distinguish that actor from collaborators.
+  collaborators: Copy every journey actorRef unchanged; selecting an initiator does not remove collaborator roles or grant authorization.
+  ambiguity: Keep initiatingActorRef null where the sources retain multiple plausible initiators.
+  firstUse: The explicit firstUse actor resolves J-01 only; the generic sequence is not treated as an actor binding for unrelated journeys.
+  disclosure: Simple, guided, and expert disclosure levels preserve the same action/state/authority and do not select an initiating actor.
+  acceptance: These are Media-owner decisions only; independent P0-010 review remains pending.
+journeys:
+  - id: J-01
+    initiatingActorRef: media.creator
+    actorStatus: resolved
+    collaboratorActorRefs: [media.creator, media.administrator, media.editor, media.operator]
+    rationale: The dedicated firstUse sequence names only media.creator, and J-01 completion says the creator receives the next action; administrator/operator roles support identity and operations.
+    sourceRef: journey-catalog.yaml#/journeys/0
+    evidenceRefs: [goals-jtbd.yaml#/firstUse, goals-jtbd.yaml#/firstUse/steps/0, journey-contracts/first-use-and-project-creation.yaml#/steps/0]
+  - id: J-02
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor]
+    rationale: Upload/import and inspection can be initiated by either creator or editor; the first browse/select step does not distinguish them.
+    sourceRef: journey-catalog.yaml#/journeys/1
+    evidenceRefs: [journey-contracts/upload-import-and-verify-artifact.yaml#/steps/0]
+  - id: J-03
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor, media.reviewer]
+    rationale: The first select-source step is shared by creator and editor; reviewer is a downstream collaborator, but no narrative selects between the two initiators.
+    sourceRef: journey-catalog.yaml#/journeys/2
+    evidenceRefs: [journey-contracts/transcribe-and-correct-captions.yaml#/steps/0]
+  - id: J-04
+    initiatingActorRef: media.creator
+    actorStatus: resolved
+    collaboratorActorRefs: [media.creator, media.reviewer]
+    rationale: Text-to-speech creates the audio result; the reviewer participates in approval when required and is not the default creation initiator.
+    sourceRef: journey-catalog.yaml#/journeys/3
+    evidenceRefs: [journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/0]
+  - id: J-05
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor, media.reviewer]
+    rationale: Analysis may be requested by either creator or editor; review is a collaborator, and the source does not select the initiating user.
+    sourceRef: journey-catalog.yaml#/journeys/4
+    evidenceRefs: [journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/0]
+  - id: J-06
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.developer-integrator, media.automation-client]
+    rationale: The consumer request can originate from a developer-integrator or an automation-client; the narrative and first step do not choose between the person and calling client.
+    sourceRef: journey-catalog.yaml#/journeys/5
+    evidenceRefs: [journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0]
+  - id: J-07
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor, media.reviewer]
+    rationale: Creator and editor can both request interview cleanup; the narrative does not distinguish which starts the repair workflow.
+    sourceRef: journey-catalog.yaml#/journeys/6
+    evidenceRefs: [journey-contracts/clean-noisy-interview-audio.yaml#/steps/0]
+  - id: J-08
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor, media.reviewer]
+    rationale: Creator and editor can both request video repair; the narrative does not distinguish which starts the repair workflow.
+    sourceRef: journey-catalog.yaml#/journeys/7
+    evidenceRefs: [journey-contracts/repair-video-with-measured-quality.yaml#/steps/0]
+  - id: J-09
+    initiatingActorRef: media.creator
+    actorStatus: resolved
+    collaboratorActorRefs: [media.creator, media.editor, media.reviewer]
+    rationale: The ordered workflow starts from a prompt or brief and proceeds to storyboard/composition; creator initiates creation while editor and reviewer collaborate on revision and review.
+    sourceRef: journey-catalog.yaml#/journeys/8
+    evidenceRefs: [journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/0]
+  - id: J-10
+    initiatingActorRef: media.creator
+    actorStatus: resolved
+    collaboratorActorRefs: [media.creator, media.reviewer]
+    rationale: The workflow starts by reviewing a creation plan for controlled generation; creator initiates the candidate generation and reviewer evaluates continuity.
+    sourceRef: journey-catalog.yaml#/journeys/9
+    evidenceRefs: [journey-contracts/generate-from-references-and-review-continuity.yaml#/steps/0]
+  - id: J-11
+    initiatingActorRef: media.editor
+    actorStatus: resolved
+    collaboratorActorRefs: [media.editor, media.reviewer]
+    rationale: The first action is a region edit on an exact artifact version; editor initiates the edit and reviewer checks the result.
+    sourceRef: journey-catalog.yaml#/journeys/10
+    evidenceRefs: [journey-contracts/edit-tracked-media-region-with-undo.yaml#/steps/0]
+  - id: J-12
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor]
+    rationale: Both creator and editor are named for the deterministic animation workflow; the first animation view does not distinguish who initiates it.
+    sourceRef: journey-catalog.yaml#/journeys/11
+    evidenceRefs: [journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/0]
+  - id: J-13
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor, media.reviewer]
+    rationale: Creator and editor can both initiate rig/path/control animation; reviewer is a collaborator and no narrative resolves creator versus editor.
+    sourceRef: journey-catalog.yaml#/journeys/12
+    evidenceRefs: [journey-contracts/animate-3d-scenes-and-characters.yaml#/steps/0]
+  - id: J-14
+    initiatingActorRef: media.creator
+    actorStatus: resolved
+    collaboratorActorRefs: [media.creator, media.reviewer]
+    rationale: The ordered flow selects domain/model conditions and explores simulation; creator initiates the simulation while reviewer evaluates its measurements and fidelity limits.
+    sourceRef: journey-catalog.yaml#/journeys/13
+    evidenceRefs: [journey-contracts/explore-domain-simulation-and-review-measurements.yaml#/steps/0]
+  - id: J-15
+    initiatingActorRef: media.creator
+    actorStatus: resolved
+    collaboratorActorRefs: [media.creator, media.reviewer]
+    rationale: The workflow refines a simulation/procedural pass after protected properties are identified; creator initiates refinement and reviewer checks semantic validation.
+    sourceRef: journey-catalog.yaml#/journeys/14
+    evidenceRefs: [journey-contracts/refine-simulation-passes-with-semantic-validation.yaml#/steps/0]
+  - id: J-16
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor, media.reviewer]
+    rationale: Creator and editor can both initiate translation/dubbing; the narrative does not distinguish who supplies or edits the source-language material.
+    sourceRef: journey-catalog.yaml#/journeys/15
+    evidenceRefs: [journey-contracts/translate-and-dub-existing-video.yaml#/steps/0]
+  - id: J-17
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor, media.reviewer]
+    rationale: Creator and editor can both initiate music/effects mixing and mastering; reviewer is a collaborator but no narrative chooses between the two.
+    sourceRef: journey-catalog.yaml#/journeys/16
+    evidenceRefs: [journey-contracts/mix-and-master-music-and-effects.yaml#/steps/0]
+  - id: J-18
+    initiatingActorRef: media.editor
+    actorStatus: resolved
+    collaboratorActorRefs: [media.editor, media.reviewer]
+    rationale: The workflow composes clips, captions, graphics, color, and audio into a rendered version; editor initiates composition and reviewer validates it.
+    sourceRef: journey-catalog.yaml#/journeys/17
+    evidenceRefs: [journey-contracts/compose-and-render-reviewed-media.yaml#/steps/0]
+  - id: J-19
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor, media.reviewer]
+    rationale: Creator and editor may select an improvement candidate; the source does not identify which role initiates quality review and optimization.
+    sourceRef: journey-catalog.yaml#/journeys/18
+    evidenceRefs: [journey-contracts/inspect-quality-and-optimize-within-bounds.yaml#/steps/0]
+  - id: J-20
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor, media.operator, media.automation-client, media.worker]
+    rationale: User, operator, automation client, and worker all have explicit status/recovery roles; the first status observation does not select a single initiator.
+    sourceRef: journey-catalog.yaml#/journeys/19
+    evidenceRefs: [journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/0]
+  - id: J-21
+    initiatingActorRef: media.reviewer
+    actorStatus: resolved
+    collaboratorActorRefs: [media.reviewer, media.privacy-rights-reviewer, media.administrator, media.creator, media.editor]
+    rationale: Exact-version review/comment/approval is the workflow's initiating activity and the first step reviews that exact version; other roles provide subject, authority, or delegated collaboration.
+    sourceRef: journey-catalog.yaml#/journeys/20
+    evidenceRefs: [journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/0]
+  - id: J-22
+    initiatingActorRef: media.creator
+    actorStatus: resolved
+    collaboratorActorRefs: [media.creator, media.reviewer, media.operator]
+    rationale: Creator initiates the requested export/download/publication; reviewer supplies approval and operator supports the external effect boundary.
+    sourceRef: journey-catalog.yaml#/journeys/21
+    evidenceRefs: [journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/0]
+  - id: J-23
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor, media.administrator]
+    rationale: Creator/editor may initiate offline work while administrator manages policy and storage; neither narrative nor ordered steps select one for all modes.
+    sourceRef: journey-catalog.yaml#/journeys/22
+    evidenceRefs: [journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/0]
+  - id: J-24
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.developer-integrator, media.automation-client]
+    rationale: A developer-integrator may author the CLI plan while an automation-client may execute it; the journey preserves both and does not identify which initiates a given batch.
+    sourceRef: journey-catalog.yaml#/journeys/23
+    evidenceRefs: [journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/steps/0]
+  - id: J-25
+    initiatingActorRef: media.automation-client
+    actorStatus: resolved
+    collaboratorActorRefs: [media.automation-client, media.developer-integrator, media.operator]
+    rationale: The bounded delegated action is initiated by the calling automation client; the developer-integrator configures the integration and operator handles operational support.
+    sourceRef: journey-catalog.yaml#/journeys/24
+    evidenceRefs: [journey-contracts/return-bounded-results-to-integrating-products.yaml#/steps/0]
+  - id: J-26
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.administrator, media.privacy-rights-reviewer, media.operator, media.creator, media.editor, media.reviewer]
+    rationale: Deletion authority, privacy/rights review, operations, and user requests are distinct initiating cases; source covers them in one journey without a single primary actor.
+    sourceRef: journey-catalog.yaml#/journeys/25
+    evidenceRefs: [journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/0]
+  - id: J-27
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.operator, media.worker, media.editor, media.automation-client, media.administrator]
+    rationale: The journey combines a user's fallback choice with operator/worker recovery and automation; no single initiating actor applies to all recovery paths.
+    sourceRef: journey-catalog.yaml#/journeys/26
+    evidenceRefs: [journey-contracts/continue-safely-when-processing-is-unavailable.yaml#/steps/0]
+  - id: J-28
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.developer-integrator, media.reviewer]
+    rationale: Creator may request an export while developer-integrator represents the declared consumer; source does not distinguish export author from destination integrator.
+    sourceRef: journey-catalog.yaml#/journeys/27
+    evidenceRefs: [journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/0]
+  - id: J-29
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor, media.operator, media.automation-client]
+    rationale: Session owner, operator, and automation client can each start recovery after different loss/consent events; narrative does not choose one initiating role.
+    sourceRef: journey-catalog.yaml#/journeys/28
+    evidenceRefs: [journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0]
+  - id: J-30
+    initiatingActorRef: null
+    actorStatus: unresolved
+    collaboratorActorRefs: [media.creator, media.editor, media.developer-integrator, media.operator, media.administrator, media.automation-client]
+    rationale: The current-options observation is explicitly for a caller and can serve human, integration, and operations needs; neither title nor ordered steps identifies one initiating actor.
+    sourceRef: journey-catalog.yaml#/journeys/29
+    evidenceRefs: [journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/0]

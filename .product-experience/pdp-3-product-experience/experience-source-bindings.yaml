@@ -1,0 +1,123 @@
+schemaVersion: media.experience-source-bindings.v1
+productId: media
+status: proposal-only; source-identity-and-state-links-pending-independent-review
+authority: Media PDP-3 scenario fixture registry, existing deterministic simulation seeds, and PDP-0 canonical state proposals
+sourceRefs:
+  - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+  - .product-experience/pdp-3-product-experience/search-inspection-contracts.yaml
+  - .product-experience/pdp-0-product-truth/state-models.yaml
+  - .product-experience/pdp-1-domain-data/domain-objects.yaml
+  - .product-experience/pdp-1-domain-data/operations.yaml
+  - libs/media-experience-simulation/src/fixtures.ts
+scenarioStartingStateBindings:
+  - scenarioRef: media.scenario.upload-checksum-mismatch
+    sourceFixtureKey: upload-checksum-mismatch
+    startingStateRef: media-upload-and-artifact.REJECTED
+    rationale: The fixture seed sets upload status REJECTED and integrity disposition MISMATCH; the canonical upload state defines REJECTED as failed admission or verification.
+  - scenarioRef: media.scenario.upload-format-unsupported
+    sourceFixtureKey: upload-format-unsupported
+    startingStateRef: media-upload-and-artifact.REJECTED
+    rationale: The fixture seed sets upload status REJECTED and integrity disposition UNSUPPORTED; the canonical upload state defines REJECTED as failed admission or verification.
+  - scenarioRef: media.scenario.upload-quarantined
+    sourceFixtureKey: upload-quarantined
+    startingStateRef: media-upload-and-artifact.QUARANTINED
+    rationale: The fixture seed sets upload status and integrity disposition QUARANTINED, matching the canonical isolated-review state.
+  - scenarioRef: media.scenario.upload-verified-available
+    sourceFixtureKey: upload-verified-available
+    startingStateRef: media-upload-and-artifact.AVAILABLE
+    rationale: The fixture seed sets upload status AVAILABLE after matched integrity; the canonical state permits authorized references to verified artifact bytes.
+  - scenarioRef: media.scenario.upload-permission-revoked
+    sourceFixtureKey: upload-permission-revoked
+    startingStateRef: media-upload-and-artifact.ACCESS_REVOKED
+    rationale: The fixture seed sets upload status ACCESS_REVOKED and denies source read and upload resume authority.
+  - scenarioRef: media.scenario.artifact-verification-running
+    sourceFixtureKey: artifact-verification-running
+    startingStateRef: media-job.RUNNING
+    rationale: The exact verification fixture records status RUNNING and pending finality for its named job identity.
+  - scenarioRef: media.scenario.artifact-verification-outcome-unknown
+    sourceFixtureKey: artifact-verification-outcome-unknown
+    startingStateRef: media-job.OUTCOME_UNKNOWN
+    rationale: The exact verification fixture records status OUTCOME_UNKNOWN and unknown finality for its named job identity.
+  - scenarioRef: media.scenario.artifact-verification-completed
+    sourceFixtureKey: artifact-verification-completed
+    startingStateRef: media-job.COMPLETED
+    rationale: The exact verification fixture records status COMPLETED and confirmed finality for its named job identity.
+  - scenarioRef: media.scenario.source-available
+    sourceFixtureKey: source-available
+    startingStateRef: media-upload-and-artifact.AVAILABLE
+    rationale: The transcription fixture marks its exact source lifecycle AVAILABLE before source selection.
+  - scenarioRef: media.scenario.source-quarantined
+    sourceFixtureKey: source-quarantined
+    startingStateRef: media-upload-and-artifact.QUARANTINED
+    rationale: The transcription fixture marks its exact source lifecycle QUARANTINED before selection.
+  - scenarioRef: media.scenario.transcript-ready
+    sourceFixtureKey: transcript-ready
+    startingStateRef: media-job.COMPLETED
+    rationale: The transcript-ready fixture is built from readyState, whose job is COMPLETED with confirmed finality.
+  - scenarioRef: media.scenario.job-running
+    sourceFixtureKey: job-running
+    startingStateRef: media-job.RUNNING
+    rationale: The exact transcription fixture records job and attempt state RUNNING.
+  - scenarioRef: media.scenario.job-outcome-unknown
+    sourceFixtureKey: job-outcome-unknown
+    startingStateRef: media-job.OUTCOME_UNKNOWN
+    rationale: The exact transcription fixture records job and attempt state OUTCOME_UNKNOWN with unknown finality.
+  - scenarioRef: media.scenario.job-outcome-confirmed
+    sourceFixtureKey: job-outcome-confirmed
+    startingStateRef: media-job.COMPLETED
+    rationale: The exact outcome-check fixture records job state COMPLETED and finality CONFIRMED after checking the same job.
+recoveryCrossReferences:
+  - recoveryRef: media.recovery.language-uncertain
+    scenarioRefs: [media.scenario.language-uncertain]
+    actionRefs: [media.action.correct-caption]
+    rationale: Recovery permits manual correction or retaining a draft; the linked fixture has uncertain transcript language and the action edits caption text without asserting recognition certainty.
+  - recoveryRef: media.recovery.alignment-incomplete
+    scenarioRefs: [media.scenario.alignment-required]
+    actionRefs: [media.action.align-caption-timing]
+    rationale: Recovery permits explicit time-range entry or retaining a draft; the linked fixture has a missing segment end time.
+  - recoveryRef: media.recovery.consent-revoked
+    scenarioRefs: [media.scenario.consent-revoked]
+    actionRefs: [media.action.request-transcription]
+    rationale: The linked fixture denies processing after consent revocation; the exact action is the guarded processing request whose effect must remain blocked.
+  - recoveryRef: media.recovery.outcome-unknown
+    scenarioRefs: [media.scenario.job-outcome-unknown]
+    actionRefs: [media.action.view-job-status, media.action.check-job-outcome]
+    rationale: The recovery path names observing or checking the existing job; both actions are read-only and the fixture preserves OUTCOME_UNKNOWN.
+  - recoveryRef: media.recovery.version-conflict
+    scenarioRefs: [media.scenario.caption-conflict]
+    actionRefs: [media.action.resolve-caption-conflict]
+    rationale: The recovery path preserves both versions and requires an explicit resolution; the linked fixture has concurrent caption versions and a conflicted draft.
+searchBindings:
+  - searchId: media.search.authorized-projects
+    searchableTypeRefs: [media.domain.project]
+    pdp1OperationRefs: []
+    operationBindingStatus: unresolved-no-source-explicit-search-operation
+    sourceRefs: [.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml#search/media.search.authorized-projects, .product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.project]
+    rationale: The search's project type is an exact PDP-1 domain identity. No PDP-1 operation explicitly defines this query, so its operation mapping remains unresolved.
+  - searchId: media.search.authorized-artifacts
+    searchableTypeRefs: [media.domain.artifact-version]
+    pdp1OperationRefs: []
+    operationBindingStatus: unresolved-no-source-explicit-search-operation
+    sourceRefs: [.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml#search/media.search.authorized-artifacts, .product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.artifact-version]
+    rationale: The exact versioned artifact identity is declared in PDP-1. Search remains a query definition, not an inferred artifact-read operation.
+  - searchId: media.search.authorized-jobs
+    searchableTypeRefs: [media.domain.processing-job, media.domain.artifact-verification-job]
+    pdp1OperationRefs: []
+    operationBindingStatus: unresolved-no-source-explicit-search-operation
+    observedProtocolOperationRefs: [media.http.listMediaJobs]
+    observedProtocolBindingStatus: proposal-only; no-source-explicit-pdp1-member-crosswalk
+    sourceRefs: [.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml#search/media.search.authorized-jobs, .product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.processing-job, .product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.artifact-verification-job]
+    rationale: Both job identities are declared in PDP-1. The observed HTTP collection operation does not establish a PDP-1 semantic operation binding.
+inspectionBindings:
+  - inspectionId: media.inspection.specification
+    sourceRefs: [.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml#inspectionContracts/media.inspection.specification, .product-experience/pdp-3-product-experience/screen-registry.yaml, .product-experience/pdp-3-product-experience/application-channel-registry.yaml]
+  - inspectionId: media.inspection.authority
+    sourceRefs: [.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml#inspectionContracts/media.inspection.authority, .product-experience/pdp-1-domain-data/authority.yaml, .product-experience/pdp-1-domain-data/versioning.yaml, .product-experience/pdp-1-domain-data/privacy.yaml]
+  - inspectionId: media.inspection.evidence
+    sourceRefs: [.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml#inspectionContracts/media.inspection.evidence, .product-experience/pdp-0-product-truth/quality-policy.yaml, .product-experience/pdp-1-domain-data/evidence.yaml, .product-experience/pdp-1-domain-data/provenance.yaml]
+  - inspectionId: media.inspection.trace
+    sourceRefs: [.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml#inspectionContracts/media.inspection.trace, .product-experience/pdp-1-domain-data/states.yaml, .product-experience/pdp-1-domain-data/events.yaml, .product-experience/pdp-1-domain-data/state-adjudication.yaml]
+  - inspectionId: media.inspection.synthetic-simulation
+    sourceRefs: [.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml#inspectionContracts/media.inspection.synthetic-simulation, .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml, .product-experience/explorer/scenario-fixtures.yaml]

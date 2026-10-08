@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { validateScopeStatuses } from "../scripts/normalize-media-scope-status.mjs";
 
@@ -340,15 +340,26 @@ test("PDP1 operation proposal preserves source denominators and the complete pro
     "failure", "partialSuccess", "unknownOutcome", "retry", "idempotency", "recovery", "evidenceAudit", "nextSafeAction",
   ];
   const records = [...registry.matchAll(/^  - id: (media\.operation\.[^\n]+)\n([\s\S]*?)(?=^  - id: media\.operation\.|^channelFamilies:)/gmu)];
-  assert.equal(records.length, 9);
-  assert.equal(new Set(records.map(([, id]) => id)).size, 9);
+  assert.equal(records.length, 14, "nine organizational families include five source-specific operations");
+  assert.equal(new Set(records.map(([, id]) => id)).size, 14);
+  const sourceSpecificIds = new Set([
+    "media.operation.transcription-submission", "media.operation.transcript-version-read",
+    "media.operation.caption-draft-write", "media.operation.caption-version-write",
+    "media.operation.caption-version-read",
+  ]);
+  const sourceSpecificFields = [
+    "operationId", "consumerActor", "authority", "inputSemantics", "effect", "outputSemantics",
+    "authorization", "error", "finality", "version", "transport", "idempotency", "cancellation",
+    "actionRefs", "observedBindings", "scopeStatus",
+  ];
   for (const [, id, body] of records) {
-    for (const field of requiredFields) assert.match(body, new RegExp(`^    ${field}:`, "mu"), `${id} missing ${field}`);
+    const fields = sourceSpecificIds.has(id) ? sourceSpecificFields : requiredFields;
+    for (const field of fields) assert.match(body, new RegExp(`^    ${field}:`, "mu"), `${id} missing ${field}`);
   }
 
   assert.match(registry, /^  uiProductActions:\n    count: 146$/mu);
-  assert.match(registry, /12 source actions have exact proposed operation refs; remaining 134 lack direct canonical bindings/u);
-  assert.match(registry, /media\.action\.request-transcription: media\.operation\.transcription/u);
+  assert.match(registry, /14 source actions have exact proposed operation refs; remaining 132 lack direct canonical bindings/u);
+  assert.match(registry, /media\.action\.request-transcription: media\.operation\.transcription-submission/u);
   assert.match(registry, /^  httpOperations:\n    count: 27$/mu);
   assert.match(registry, /all 27 exact OpenAPI operationIds accounted for; exact route-to-logical-operation links remain unresolved/u);
   assert.match(registry, /^  grpcRpcs:\n    count: 43$/mu);
@@ -559,7 +570,7 @@ test("PDP1 state and transition extraction remains proposal-only and preserves u
   assert.match(transitions, /id: media-job\/T03\n    sourceMachineId: media-job\n    sourceTransitionIndex: 3\n    from: \[RETRY_PENDING\]\n    to: \[RUNNING, CANCELLED, FAILED, OUTCOME_UNKNOWN\]/u);
   assert.match(transitions, /id: media-attempt\/T05\n    sourceMachineId: media-attempt\n    sourceTransitionIndex: 5\n    from: \[CANCEL_REQUESTED\]\n    to: \[CANCEL_CONFIRMED, SUCCEEDED, FAILED, OUTCOME_UNKNOWN, SUPERSEDED\]/u);
   assert.match(domainModel, /PDP1-003 state\/transition extraction verification/u);
-  assert.match(domainModel, /does not promote PDP-0 meanings/u);
+  assert.match(domainModel.replace(/\s+/gu, " "), /it does not verify runtime behavior, select a canonical projection, accept meanings, or establish phase completion/u);
 });
 
 test("PDP-1 negative state cases encode owner-approved non-equivalences without claiming runtime proof", () => {
@@ -642,6 +653,36 @@ test("Explorer index exposes source paths without workstation identity", () => {
   assert.equal(index.some((artifact) => artifact.path.startsWith("/")), false);
 });
 
+test("generated Explorer index covers every current source-manifest artifact exactly once", () => {
+  const manifest = readFileSync(resolve(root, ".product-experience/source-manifest.yaml"), "utf8");
+  const index = JSON.parse(readFileSync(resolve(root, "apps/media-experience-explorer/specification-artifacts.json"), "utf8"));
+  const sourceRecords = [...manifest.matchAll(/^  - artifactId: ([^\s]+)\n(?:.*\n){0,20}?    owningPhase: ([^\n]+)\n    path: ([^\n]+)$/gmu)]
+    .map(([, artifactId, phase, path]) => ({ artifactId, phase: phase.trim(), path: path.trim() }));
+  const indexedSourceRecords = index.filter((artifact) => artifact.path !== ".product-experience/source-manifest.yaml");
+  const byPath = new Map(indexedSourceRecords.map((artifact) => [artifact.path, artifact]));
+
+  assert.equal(byPath.size, indexedSourceRecords.length, "each canonical source path must occur once");
+  assert.deepEqual([...byPath.keys()].sort(), sourceRecords.map(({ path }) => path).sort(), "index paths must exactly match generated source-manifest paths");
+  for (const record of sourceRecords) {
+    assert.deepEqual(
+      { artifactId: byPath.get(record.path)?.artifactId, phase: byPath.get(record.path)?.phase },
+      { artifactId: record.artifactId, phase: record.phase },
+      `${record.path} must retain its canonical identity and owner phase in Explorer navigation`,
+    );
+  }
+
+  const sourcePaths = [];
+  const visit = (directory) => {
+    for (const entry of readdirSync(resolve(root, directory), { withFileTypes: true })) {
+      const path = `${directory}/${entry.name}`;
+      if (entry.isDirectory()) visit(path);
+      else if (path !== ".product-experience/source-manifest.yaml" && path !== ".product-experience/artifact-identities.yaml") sourcePaths.push(path);
+    }
+  };
+  visit(".product-experience");
+  assert.deepEqual(sourceRecords.map(({ path }) => path).sort(), sourcePaths.sort(), "manifest inventory must expose every active source file");
+});
+
 test("HTTP route, SDK, and interface projections retain canonical ownership", () => {
   const result = spawnSync(process.execPath, ["scripts/check-media-contract-parity.mjs"], { cwd: root, encoding: "utf8" });
   assert.equal(result.status, 1, result.stderr);
@@ -649,7 +690,7 @@ test("HTTP route, SDK, and interface projections retain canonical ownership", ()
   assert.match(output, /Media contract parity: NON-GREEN/u);
   assert.match(output, /"openapiRoutes":27,"runtimeRoutes":27,"httpRegistryRoutes":27/u);
   assert.match(output, /semantic binding: UNRESOLVED/u);
-  assert.match(output, /source findings audited: 47 \(44 dispositioned; 3 unresolved\)/u);
+  assert.match(output, /source findings audited: 46 \(44 dispositioned; 2 unresolved\)/u);
   assert.match(output, /source-dispositioned findings: 44/u);
 });
 
@@ -659,8 +700,9 @@ test("screen composition records retain Shared-boundary design metadata", () => 
   const output = `${result.stdout}${result.stderr}`;
   assert.match(output, /Media design conformance BLOCKED/u);
   assert.match(output, /\d+ unexplained findings across \d+ root causes/u);
-  assert.match(output, /Shared package binding is unresolved/u);
-  assert.match(output, /template catalog is proposal/u);
+  assert.match(output, /design-governance gate shared-artifact-binding remains EXTERNAL_PENDING/u);
+  assert.match(output, /design-governance gate conformance-and-specialist-review remains INDEPENDENT_PENDING/u);
+  assert.match(output, /design-governance gate concrete-component-bindings remains SOURCE_INCOMPLETE/u);
 });
 
 test("PDP2-002 GUI pattern registry covers every required category without inventing destructive semantics", () => {
@@ -741,6 +783,25 @@ test("PDP2-004/005 interface registries are complete proposals with owner and ru
   assert.match(apiConventions, /not an independent source of product semantics/u);
   assert.match(apiFiles.get("async-operations"), /this proposal establishes no durable storage or retention guarantee/u);
   assert.match(apiFiles.get("idempotency"), /state the implemented retention only after runtime binding/u);
+
+  // Keep the API convention index closed over the actual protocol files, while
+  // preserving the proposal boundary until operation owners accept bindings.
+  const related = apiConventions.match(/^relatedConventions: \[(.*)\]$/mu)?.[1]
+    .split(", ").map((name) => name.replace(/\.yaml$/u, ""));
+  assert.deepEqual(related, apiNames.slice(1), "API convention index must resolve every convention exactly once");
+  for (const [name, content] of apiFiles) {
+    assert.match(content, /^owner: [^\n]+$/mu, `${name} must identify its semantic owner`);
+    assert.match(content, /^scopeStatus: proposal(?:-only)?(?:;|$)/mu, `${name} must remain visibly proposed`);
+    assert.match(content, /^acceptance: \{criteria: \[[^\]]+\], status: pending[^}]*\}$/mu, `${name} must retain pending owner acceptance`);
+    for (const ref of content.matchAll(/^sourceRefs: \[([^\]]*)\]$/gmu)) {
+      for (const item of ref[1].split(", ")) {
+        if (item.startsWith(".product-experience/pdp-2-design-interface-system/api/")) {
+          const target = item.slice(".product-experience/pdp-2-design-interface-system/api/".length).replace(/\.yaml$/u, "");
+          assert.ok(apiFiles.has(target), `${name} references missing API convention ${target}`);
+        }
+      }
+    }
+  }
 
   const cli = readFileSync(resolve(designRoot, "cli/conventions.yaml"), "utf8");
   const sdk = readFileSync(resolve(designRoot, "sdk/conventions.yaml"), "utf8");

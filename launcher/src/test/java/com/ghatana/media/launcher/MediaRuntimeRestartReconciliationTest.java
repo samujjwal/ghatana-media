@@ -27,6 +27,38 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MediaRuntimeRestartReconciliationTest {
 
     @Test
+    void duplicateSubmissionReturnsExistingJobWithoutDispatchingProviderTwice() throws Exception {
+        var root = Files.createTempDirectory("media-duplicate-submission-");
+        var artifacts = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+        var jobs = new LocalMediaRuntimeSupport.JobStore(false);
+        var streams = new LocalMediaRuntimeSupport.StreamStore();
+        CompletableFuture<Map<String, Object>> pending = new CompletableFuture<>();
+        AtomicInteger calls = new AtomicInteger();
+        MediaProcessingProvider provider = pendingProvider(pending, calls);
+        MediaRuntime runtime = runtime(root, artifacts, jobs, streams, provider);
+        try {
+            byte[] bytes = "media".getBytes(StandardCharsets.UTF_8);
+            var upload = runtime.beginUpload(new UploadRequest(
+                    "tenant-a", "principal-a", "clip.bin", "application/octet-stream", bytes.length,
+                    HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)),
+                    "confidential", Duration.ofMinutes(10), Map.of()));
+            runtime.appendChunk("tenant-a", upload.uploadId(), 0, bytes);
+            var artifact = runtime.completeUpload("tenant-a", upload.uploadId());
+            var request = new ProcessingJobRequest(
+                    "request-duplicate", "tenant-a", "principal-a", "correlation-a",
+                    artifact.artifactId(), JobType.VISION, "remote", Map.of());
+
+            var first = runtime.submit(request);
+            var replay = runtime.submit(request);
+
+            assertThat(replay.jobId()).isEqualTo(first.jobId());
+            assertThat(calls).hasValue(1);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void unconfirmedCancellationSurvivesShutdownAndRestartRequiresExplicitReconciliation() throws Exception {
         var root = Files.createTempDirectory("media-restart-reconciliation-");
         var artifacts = new LocalMediaRuntimeSupport.FileArtifactStore(root);

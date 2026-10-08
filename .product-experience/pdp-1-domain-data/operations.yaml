@@ -3,7 +3,7 @@ artifactId: media.pdp-1.operations
 productId: media
 semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/state-models.yaml
-scopeStatus: proposal-only; nine-logical-families; exact-operation-bindings-and-owner-review-pending
+scopeStatus: proposal-only; nine-organizational-families-with-distinct-operation-identities; cross-interface-bindings-and-owner-review-pending
 sourceRefs:
   - .product-experience/pdp-0-product-truth/state-models.yaml
   - .product-experience/pdp-1-domain-data/domain-objects.yaml
@@ -43,12 +43,14 @@ sourceDenominators:
       media.action.check-job-outcome: media.operation.job-lifecycle
       media.action.request-cancellation: media.operation.job-lifecycle
       media.action.retry-job: media.operation.job-lifecycle
-      media.action.request-transcription: media.operation.transcription
-      media.action.review-transcript: media.operation.transcription
-      media.action.correct-caption: media.operation.transcription
-      media.action.align-caption-timing: media.operation.transcription
-    unresolvedActionIds: [media.action.select-artifact-source, media.action.choose-intent, media.action.create-project, media.action.inspect-project-creation, media.action.open-project, media.action.choose-source, media.action.inspect-source, media.action.play-source, media.action.seek-source, media.action.save-caption-version, media.action.resolve-caption-conflict, media.action.compare-caption-versions, media.action.inspect-provenance, media.action.add-scene-entity, media.action.add-storyboard-scene, media.action.apply-admitted-edit, media.action.apply-authorized-rights-restriction, media.action.associate-authorized-reference, media.action.change-interpolation-curve, media.action.change-permitted-preference, media.action.choose-admitted-audio-operation, media.action.choose-alignment-basis, media.action.choose-media-improvement-intent, media.action.choose-named-destination, media.action.compare-candidate-on-metric, media.action.compare-media-versions, media.action.continue-within-recorded-scope, media.action.deliver-exact-version, media.action.edit-admitted-adjustment, media.action.edit-audio-mix-controls, media.action.edit-keyframe, media.action.edit-mask-boundary, media.action.edit-requested-outcome-and-admitted-controls, media.action.edit-scene-timing-or-transition, media.action.edit-transition-or-caption-alignment, media.action.edit-unresolved-plan-decision, media.action.edit-video-temporal-plan, media.action.enter-exact-edit-constraints, media.action.export-authorized-provenance, media.action.inspect-consent-and-permitted-use, media.action.inspect-driver-or-constraint, media.action.inspect-effective-processing-constraints, media.action.inspect-generated-candidates, media.action.inspect-governing-evidence, media.action.inspect-input-output-color-interpretation, media.action.inspect-operation-contract, media.action.inspect-operation-readiness, media.action.inspect-output-preview-and-version, media.action.inspect-quality-evidence, media.action.inspect-scene-binding, media.action.inspect-setting-owner, media.action.inspect-simulation-domain-and-fidelity, media.action.inspect-simulation-result, media.action.inspect-source-measurements, media.action.inspect-version-and-review-scope, media.action.inspect-voice-authorization, media.action.limit-tracking-propagation-range, media.action.open-admitted-delivery-action, media.action.open-approval-view, media.action.open-authorized-recovery-instruction, media.action.open-qualification-evidence, media.action.open-related-view, media.action.prepare-redacted-diagnostics, media.action.preview-current-revision, media.action.preview-motion, media.action.reconcile-delivery-acknowledgment, media.action.record-authorized-attestation, media.action.record-candidate-for-review, media.action.record-review-comment, media.action.record-review-follow-up, media.action.record-version-review-decision, media.action.refresh-operation-readiness, media.action.remove-storyboard-scene, media.action.reorder-storyboard-scenes, media.action.reorder-track, media.action.request-admitted-speech-operation, media.action.request-authorized-review, media.action.request-plan-validation, media.action.request-rights-review, media.action.restore-prior-setting-preference, media.action.return-to-requested-destination-after-identity-confirmation, media.action.review-bounded-repair-proposal, media.action.review-estimates-and-rights-effects, media.action.review-output-evidence, media.action.review-recognized-or-synthesized-content, media.action.review-repair-bounds, media.action.review-rights-approval-and-format-effects, media.action.review-translated-segment, media.action.review-uncertain-tracking, media.action.revise-dubbing-segment, media.action.revoke-authorized-consent, media.action.save-dubbing-version, media.action.save-new-revision, media.action.save-setting-preference, media.action.save-storyboard-revision, media.action.save-versioned-edit, media.action.search-by-user-outcome, media.action.search-named-profiles, media.action.search-product-guidance, media.action.select-authorized-reference, media.action.select-eligible-processing-profile, media.action.select-exact-candidates, media.action.select-identity-confirmed-workspace, media.action.select-keyframe, media.action.select-region-or-point, media.action.select-scene-entity, media.action.select-shot-or-region, media.action.select-track-or-region, media.action.set-simulation-initial-condition, media.action.share-diagnostics-after-explicit-choice, media.action.start-upstream-identity-handoff, media.action.stop-authorized-voice-use, media.action.submit-admitted-plan, media.action.submit-render, media.action.submit-simulation, media.action.submit-validated-request, media.action.trim-track, media.action.undo-or-redo-versioned-change, media.action.update-repair-bounds, media.action.update-scene-binding, media.action.validate-composition, media.action.validate-exact-snapshot, media.action.validate-processing-profile, media.action.validate-scene-references, media.action.validate-simulation-plan, media.action.align-source-time-interval, media.action.inspect-source-grounded-observation, media.action.review-processing-parameters, media.action.review-scene-timing-and-transitions, media.action.search-authorized-artifacts, media.action.select-simulation-output-pass, media.action.select-source-time-interval, media.action.set-declared-simulation-input, media.action.switch-measurement-presentation]
-    bindingStatus: 12 source actions have exact proposed operation refs; remaining 134 lack direct canonical bindings; source-action type dispositions are recorded in interface-parity/operation-parity.yaml
+      media.action.request-transcription: media.operation.transcription-submission
+      media.action.review-transcript: media.operation.transcript-version-read
+      media.action.correct-caption: media.operation.caption-draft-write
+      media.action.align-caption-timing: media.operation.caption-draft-write
+      media.action.save-caption-version: media.operation.caption-version-write
+      media.action.compare-caption-versions: media.operation.caption-version-read
+    unresolvedActionIds: [media.action.select-artifact-source, media.action.choose-intent, media.action.create-project, media.action.inspect-project-creation, media.action.open-project, media.action.choose-source, media.action.inspect-source, media.action.play-source, media.action.seek-source, media.action.resolve-caption-conflict, media.action.inspect-provenance, media.action.add-scene-entity, media.action.add-storyboard-scene, media.action.apply-admitted-edit, media.action.apply-authorized-rights-restriction, media.action.associate-authorized-reference, media.action.change-interpolation-curve, media.action.change-permitted-preference, media.action.choose-admitted-audio-operation, media.action.choose-alignment-basis, media.action.choose-media-improvement-intent, media.action.choose-named-destination, media.action.compare-candidate-on-metric, media.action.compare-media-versions, media.action.continue-within-recorded-scope, media.action.deliver-exact-version, media.action.edit-admitted-adjustment, media.action.edit-audio-mix-controls, media.action.edit-keyframe, media.action.edit-mask-boundary, media.action.edit-requested-outcome-and-admitted-controls, media.action.edit-scene-timing-or-transition, media.action.edit-transition-or-caption-alignment, media.action.edit-unresolved-plan-decision, media.action.edit-video-temporal-plan, media.action.enter-exact-edit-constraints, media.action.export-authorized-provenance, media.action.inspect-consent-and-permitted-use, media.action.inspect-driver-or-constraint, media.action.inspect-effective-processing-constraints, media.action.inspect-generated-candidates, media.action.inspect-governing-evidence, media.action.inspect-input-output-color-interpretation, media.action.inspect-operation-contract, media.action.inspect-operation-readiness, media.action.inspect-output-preview-and-version, media.action.inspect-quality-evidence, media.action.inspect-scene-binding, media.action.inspect-setting-owner, media.action.inspect-simulation-domain-and-fidelity, media.action.inspect-simulation-result, media.action.inspect-source-measurements, media.action.inspect-version-and-review-scope, media.action.inspect-voice-authorization, media.action.limit-tracking-propagation-range, media.action.open-admitted-delivery-action, media.action.open-approval-view, media.action.open-authorized-recovery-instruction, media.action.open-qualification-evidence, media.action.open-related-view, media.action.prepare-redacted-diagnostics, media.action.preview-current-revision, media.action.preview-motion, media.action.reconcile-delivery-acknowledgment, media.action.record-authorized-attestation, media.action.record-candidate-for-review, media.action.record-review-comment, media.action.record-review-follow-up, media.action.record-version-review-decision, media.action.refresh-operation-readiness, media.action.remove-storyboard-scene, media.action.reorder-storyboard-scenes, media.action.reorder-track, media.action.request-admitted-speech-operation, media.action.request-authorized-review, media.action.request-plan-validation, media.action.request-rights-review, media.action.restore-prior-setting-preference, media.action.return-to-requested-destination-after-identity-confirmation, media.action.review-bounded-repair-proposal, media.action.review-estimates-and-rights-effects, media.action.review-output-evidence, media.action.review-recognized-or-synthesized-content, media.action.review-repair-bounds, media.action.review-rights-approval-and-format-effects, media.action.review-translated-segment, media.action.review-uncertain-tracking, media.action.revise-dubbing-segment, media.action.revoke-authorized-consent, media.action.save-dubbing-version, media.action.save-new-revision, media.action.save-setting-preference, media.action.save-storyboard-revision, media.action.save-versioned-edit, media.action.search-by-user-outcome, media.action.search-named-profiles, media.action.search-product-guidance, media.action.select-authorized-reference, media.action.select-eligible-processing-profile, media.action.select-exact-candidates, media.action.select-identity-confirmed-workspace, media.action.select-keyframe, media.action.select-region-or-point, media.action.select-scene-entity, media.action.select-shot-or-region, media.action.select-track-or-region, media.action.set-simulation-initial-condition, media.action.share-diagnostics-after-explicit-choice, media.action.start-upstream-identity-handoff, media.action.stop-authorized-voice-use, media.action.submit-admitted-plan, media.action.submit-render, media.action.submit-simulation, media.action.submit-validated-request, media.action.trim-track, media.action.undo-or-redo-versioned-change, media.action.update-repair-bounds, media.action.update-scene-binding, media.action.validate-composition, media.action.validate-exact-snapshot, media.action.validate-processing-profile, media.action.validate-scene-references, media.action.validate-simulation-plan, media.action.align-source-time-interval, media.action.inspect-source-grounded-observation, media.action.review-processing-parameters, media.action.review-scene-timing-and-transitions, media.action.search-authorized-artifacts, media.action.select-simulation-output-pass, media.action.select-source-time-interval, media.action.set-declared-simulation-input, media.action.switch-measurement-presentation]
+    bindingStatus: 14 source actions have exact proposed operation refs; remaining 132 lack direct canonical bindings; source-action type dispositions are recorded in interface-parity/operation-parity.yaml
   httpOperations:
     count: 27
     source: contracts/openapi/media.yaml
@@ -110,8 +112,8 @@ sourceDenominators:
       count: 12
       source: .product-experience/pdp-3-product-experience/cli-command-registry.yaml#/commands
       ids: [media.cli.upload.inspect, media.cli.upload.resume, media.cli.transcribe, media.cli.transcript.review, media.cli.job.status, media.cli.job.cancel, media.cli.caption.correct-text, media.cli.caption.align-timing, media.cli.caption.save-version, media.cli.caption.compare-versions, media.cli.job.check-outcome, media.cli.job.retry]
-      operationIdsByExistingActionRef: {media.cli.upload.inspect: media.operation.artifact-ingest, media.cli.upload.resume: media.operation.artifact-ingest, media.cli.transcribe: media.operation.transcription, media.cli.transcript.review: media.operation.transcription, media.cli.job.status: media.operation.job-lifecycle, media.cli.job.cancel: media.operation.job-lifecycle, media.cli.caption.correct-text: media.operation.transcription, media.cli.caption.align-timing: media.operation.transcription, media.cli.caption.save-version: unresolved, media.cli.caption.compare-versions: unresolved, media.cli.job.check-outcome: media.operation.job-lifecycle, media.cli.job.retry: media.operation.job-lifecycle}
-    bindingStatus: fixture registry is the exact 11-command plan denominator; separate 12-record root registry discrepancy retained
+      operationIdsByExistingActionRef: {media.cli.upload.inspect: media.operation.artifact-ingest, media.cli.upload.resume: media.operation.artifact-ingest, media.cli.transcribe: media.operation.transcription, media.cli.transcript.review: media.operation.transcription, media.cli.job.status: media.operation.job-lifecycle, media.cli.job.cancel: media.operation.job-lifecycle, media.cli.caption.correct-text: media.operation.transcription, media.cli.caption.align-timing: media.operation.transcription, media.cli.caption.save-version: media.operation.caption-version-write, media.cli.caption.compare-versions: media.operation.caption-version-read, media.cli.job.check-outcome: media.operation.job-lifecycle, media.cli.job.retry: media.operation.job-lifecycle}
+    bindingStatus: all 11 fixture-registry IDs remain unresolved; the separate 12-record canonical proposal registry has actionRef crosswalks, including these two caption-version proposal bindings; production CLI runtime remains unconnected
   sdkMethods:
     registryRecords: 27
     parserDerivedPublicMethodIdentities: 24
@@ -246,7 +248,7 @@ operations:
     operationId: media.operation.transcription
     family: [file-transcription, streaming-transcription, transcript-correction]
     submissionSemantics: request-transcription-is-a-domain-submission-command; response-creates-or-returns-one-stable-Job-reference; recognition-is-asynchronous-and-is-not-synchronous-success
-    domainIntent: derive-source-linked-transcript-with-explicit-time-and-uncertainty
+    domainIntent: asynchronously-execute-recognition-and-produce-source-linked-transcript-with-explicit-time-and-uncertainty
     consumerActor: {proposal: transcription-requester-and-transcript-reviewer, bindingStatus: actor-and-consumer-identities-pending-review}
     authority: {semanticOwner: media, executionAndIdentityAuthority: unresolved; provider-and-identity authority not inferred}
     context: {status: unresolved; source version, consent purpose, locale, and timebase bindings require review}
@@ -268,7 +270,7 @@ operations:
     recovery: {proposal: inspect-existing-job-and-source-linked-result-before-resubmit, status: pending-owner-review}
     evidenceAudit: {observedRefs: [STTService.Transcribe, STTService.StreamTranscribe, STTService.SubmitCorrection], canonicalEvidenceContract: unresolved}
     nextSafeAction: {proposal: review-source-linked-transcript-and-uncertainty-before-version-approval, status: proposed-pending-review}
-    actionRefs: [media.action.request-transcription, media.action.review-transcript, media.action.correct-caption, media.action.align-caption-timing]
+    actionRefs: []
     observedBindings:
       HTTP: [/api/v1/jobs; generic request route, operation mapping unresolved]
       SDK: [transcription and word timestamp types in libs/audio-video-types/src/contracts.ts]
@@ -278,6 +280,227 @@ operations:
       event: {status: envelope-observed; emitted event family and trigger unbound}
     finality: provider-transcription-is-not-reviewed-or-approved-caption-version
     scopeStatus: proposal-only; product-binding-and-owner-review-pending
+  - id: media.operation.transcription-submission
+    operationId: media.operation.transcription-submission
+    family: [submit-transcription-request]
+    domainIntent: submit-one-transcription-request-for-one-exact-source-version-and-create-or-return-one-stable-job-reference
+    consumerActor: {proposal: transcription-requester, bindingStatus: derived-from-media.action.request-transcription; actor-and-authority-approval-pending}
+    authority: {semanticOwner: media, execution-and-identity-authority: unresolved}
+    context: {status: unresolved; tenant, requester, purpose, and delegated context need binding}
+    preconditions: {status: proposal; exact source version and current rights/policy review are required}
+    inputSemantics: {source: media.action.request-transcription; exact-source-version-language-purpose-and-policy-context-required; transport-schema-unbound}
+    effect: {proposal: create-or-return-one-logical-job-reference; recognition-executes-asynchronously, status: proposal-pending-owner-review}
+    outputSemantics: {proposal: stable-job-reference-and-explicit-submission-acknowledgment; completed-recognition-is-not-implied, status: proposal-pending-owner-review}
+    authorization: unresolved; exact requester, tenant, purpose, and delegated authority are not bound
+    error: unresolved; source-specific rejection, conflict, unavailable, and unknown outcomes remain distinct
+    finality: request-acknowledgment-is-not-recognition-completion-or-caption-approval
+    version: exact-source-artifact-version-required; returned-job-and-attempt-identities-unbound
+    transport: source-observed local CLI action path only; canonical HTTP/SDK/gRPC and production-runtime bindings remain unresolved
+    idempotency: unresolved; no request-key scope or replay behavior inferred
+    cancellation: unresolved; job cancellation remains separately modeled
+    affectedObjects: {proposalRefs: [media.domain.artifact-version, media.domain.processing-job], exactBindings: unresolved}
+    transition: {status: unresolved; submission acceptance and asynchronous job transitions are distinct}
+    events: {status: unresolved; no producer trigger or delivery contract bound}
+    risk: {status: unresolved; privacy, rights, provider, and duplicate-effect review required}
+    reversibility: {proposal: before-dispatch-only-if-owner-confirms-no-effect, status: unresolved}
+    commitFinality: {proposal: stable-job-reference-acknowledgment-is-not-recognition-completion, status: pending-owner-review}
+    downstreamEffects: {status: unresolved; provider execution and derived output are not inferred from acknowledgment}
+    failure: {status: unresolved; preserve rejected, unavailable, and unknown outcome distinctions}
+    partialSuccess: {status: unresolved; no partial-recognition guarantee inferred}
+    unknownOutcome: {proposal: inspect-the-existing-job-before-any-repeat, status: pending-owner-review}
+    retry: {status: unresolved; no duplicate submission or replay policy inferred}
+    recovery: {proposal: resolve-existing-job-identity-and-finality-before-retry, status: pending-review}
+    evidenceAudit: {observedRefs: [media.action.request-transcription, STTService.Transcribe], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: inspect-the-returned-job-reference-and-status, status: pending-review}
+    actionRefs: [media.action.request-transcription]
+    observedBindings: {HTTP: unresolved, SDK: legacy-client-identity-only, CLI: media.fixture-cli.transcribe-is-not-bound-without-crosswalk-review, gRPC: STTService.Transcribe-is-execution-interface-not-proven-equivalent}
+    scopeStatus: proposal-only; submission-identity-distinct-from-asynchronous-recognition
+  - id: media.operation.transcript-version-read
+    operationId: media.operation.transcript-version-read
+    family: [inspect-transcript-version]
+    domainIntent: read-one-exact-source-linked-transcript-version-and-its-uncertainty
+    consumerActor: {proposal: transcript-reviewer, bindingStatus: derived-from-media.action.review-transcript; actor-review-pending}
+    authority: {semanticOwner: media, read-identity-and-authorization-authority: unresolved}
+    context: {status: unresolved; tenant, artifact, transcript, and source version identity need binding}
+    preconditions: {status: proposal; exact readable source-linked transcript identity required}
+    inputSemantics: {proposal: exact-transcription-job-or-transcript-version-identity-required, status: proposal-pending-owner-review}
+    effect: {proposal: read-only-source-linked-transcript-inspection, status: proposal-pending-owner-review}
+    outputSemantics: {proposal: exact-transcript-version-with-source-and-uncertainty-context, status: unresolved}
+    authorization: unresolved; exact read authority is not bound
+    error: unresolved; unavailable and stale-read behavior remain source-specific
+    finality: read-only; transcript-inspection-does-not-approve-or-publish-a-caption
+    version: exact-transcript-version-identity-required; transcript-version identity is not yet canonical
+    transport: source-observed local CLI action path only; canonical HTTP/SDK/gRPC and production-runtime bindings remain unresolved
+    idempotency: read-only-proposal; no transport guarantee inferred
+    cancellation: not-applicable-to-read-proposal
+    affectedObjects: {proposalRefs: [media.domain.transcription, media.domain.artifact-version], exactBindings: unresolved}
+    transition: {status: read-only; no domain transition proposed}
+    events: {status: no-event-binding-established}
+    risk: {status: unresolved; source privacy and authorization scope require review}
+    reversibility: {proposal: read-only, status: pending-owner-review}
+    commitFinality: {proposal: read-does-not-approve-or-register-a-caption-version, status: pending-owner-review}
+    downstreamEffects: {status: no-write-or-review-decision-effect-proposed}
+    failure: {status: unresolved; stale, inaccessible, and unavailable reads remain distinct}
+    partialSuccess: {status: unresolved; partial transcript visibility policy unbound}
+    unknownOutcome: {status: unresolved; read timeout does not prove absence}
+    retry: {status: source-specific; no common read retry behavior inferred}
+    recovery: {proposal: recheck-current-read-authority-and-exact-version, status: pending-review}
+    evidenceAudit: {observedRefs: [media.action.review-transcript], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: inspect-exact-transcript-version-and-source-context, status: pending-review}
+    actionRefs: [media.action.review-transcript]
+    observedBindings: {HTTP: unresolved, SDK: unresolved, CLI: media.fixture-cli.transcript-review-is-not-bound-without-crosswalk-review, gRPC: unresolved}
+    scopeStatus: proposal-only; read-schema-and-authorization-pending
+  - id: media.operation.caption-draft-write
+    operationId: media.operation.caption-draft-write
+    family: [edit-caption-text, align-caption-timing]
+    domainIntent: derive-an-editable-caption-draft-from-one-exact-parent-caption-or-transcript-version
+    consumerActor: {proposal: caption-editor, bindingStatus: derived-from-caption-action-contracts; actor-review-pending}
+    authority: {semanticOwner: media, edit-authorization-and-clock-authority: unresolved}
+    context: {status: unresolved; tenant, editor, exact source version, and draft identity need binding}
+    preconditions: {status: proposal; current edit authority and exact parent version required}
+    inputSemantics: {proposal: exact-parent-version-and-text-or-timing-edit; timing-uses-source-clock, status: proposal-pending-owner-review}
+    effect: {proposal: append-or-update-local-derived-draft; committed-parent-version-remains-immutable, status: proposal-pending-owner-review}
+    outputSemantics: {proposal: draft-identity-and-parent-version-reference, status: unresolved}
+    authorization: unresolved; edit authority and principal scope are not bound
+    error: unresolved; version conflict and draft persistence outcomes remain source-specific
+    finality: draft-edit-does-not-register-an-immutable-caption-version
+    version: exact-parent-version-required; draft identity and revision scheme unresolved
+    transport: unresolved; local draft behavior is not evidence of an admitted remote operation
+    idempotency: unresolved; draft-save and edit replay semantics are not bound
+    cancellation: draft-discard semantics remain client-local and unresolved
+    affectedObjects: {proposalRefs: [media.domain.transcription, media.domain.artifact-version], exactBindings: unresolved}
+    transition: {status: draft-only; committed-version lifecycle remains separate}
+    events: {status: no-event-binding-established}
+    risk: {status: unresolved; timing/source-clock and edit authorization require review}
+    reversibility: {proposal: draft-changes-may-be-undone; parent-is-immutable, status: pending-owner-review}
+    commitFinality: {proposal: draft-write-is-not-caption-version-registration, status: pending-owner-review}
+    downstreamEffects: {status: no-committed-version-or-delivery-effect-proposed}
+    failure: {status: unresolved; local persistence and version-conflict behavior remain unbound}
+    partialSuccess: {status: unresolved; text and timing edits may have distinct partial states}
+    unknownOutcome: {proposal: preserve-draft-and-inspect-save-state, status: pending-review}
+    retry: {status: unresolved; draft-save replay semantics not established}
+    recovery: {proposal: preserve-local-edits-and-reconcile-parent-version-before-commit, status: pending-review}
+    evidenceAudit: {observedRefs: [media.action.correct-caption, media.action.align-caption-timing], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: review-source-clock-and-parent-version-before-save, status: pending-review}
+    actionRefs: [media.action.correct-caption, media.action.align-caption-timing]
+    observedBindings: {HTTP: unresolved, SDK: unresolved, CLI: fixture-caption-edit-commands-not-bound-without-crosswalk-review, gRPC: STTService.SubmitCorrection-not-assumed-equivalent}
+    scopeStatus: proposal-only; draft persistence boundary requires review
+  - id: media.operation.caption-version-write
+    operationId: media.operation.caption-version-write
+    family: [save-caption-version]
+    domainIntent: register-a-new-immutable-caption-artifact-version-with-exact-parent-and-operation-provenance
+    consumerActor: {proposal: authorized-caption-editor, bindingStatus: derived-from-media.action.save-caption-version; authority-review-pending}
+    authority: {semanticOwner: media, commit-identity-rights-and-retention-authority: unresolved}
+    context: {status: unresolved; tenant, editor, current parent version, rights, and retention context need binding}
+    preconditions: {status: proposal; validated draft, current parent, and current commit authority required}
+    inputSemantics: {proposal: valid-caption-draft-current-parent-and-commit-context, status: proposal-pending-owner-review}
+    effect: {proposal: register-a-new-immutable-caption-version; never-mutate-the-parent, status: proposal-pending-owner-review}
+    outputSemantics: {proposal: new-caption-version-identity-and-explicit-registration-finality, status: unresolved}
+    authorization: unresolved; current commit, rights, and retention authority are not bound
+    error: unresolved; conflict, denial, and uncertain registration results need a canonical contract
+    finality: internal-version-registration-does-not-imply-delivery-or-publication
+    version: creates-a-distinct-immutable-caption-version; exact identity authority unresolved
+    transport: unresolved; no HTTP, SDK, CLI, or gRPC binding is accepted here
+    idempotency: unresolved; write key scope, deduplication and retention are not established
+    cancellation: unresolved; cancellation cannot reverse a committed version
+    affectedObjects: {proposalRefs: [media.domain.artifact-version, media.domain.transcription], exactBindings: unresolved}
+    transition: {status: unresolved; version registration and downstream delivery are separate}
+    events: {status: unresolved; no version-created event producer contract bound}
+    risk: {status: unresolved; retention, provenance, rights, and commit risks require review}
+    reversibility: {proposal: committed-version-is-immutable; later correction-creates-a-new-version, status: pending-owner-review}
+    commitFinality: {proposal: explicit-registration-finality; no-publication-or-delivery, status: pending-owner-review}
+    downstreamEffects: {status: unresolved; consumers and indexes not bound}
+    failure: {status: unresolved; preserve uncertain registration outcome for reconciliation}
+    partialSuccess: {status: unresolved; metadata and version persistence effects need contract}
+    unknownOutcome: {proposal: inspect-current-version-lineage-before-retry, status: pending-review}
+    retry: {status: unresolved; no write idempotency or duplicate prevention inferred}
+    recovery: {proposal: inspect-version-identity-and-parent-lineage-before-resubmission, status: pending-review}
+    evidenceAudit: {observedRefs: [media.action.save-caption-version], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: inspect-new-version-identity-and-registration-finality, status: pending-review}
+    actionRefs: [media.action.save-caption-version]
+    sourceContractObservations:
+      input:
+        UI: {identity: media.action.save-caption-version, shape: optional-purpose-string; empty-purpose-is-omitted, source: libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx}
+        CLI: {identity: media.cli.caption.save-version, options: [--draft-version, --purpose], purpose: required-and-at-most-240-characters, draftVersion: must-equal-current-simulation-draft, source: libs/media-experience-simulation/src/cli.ts, scope: synthetic-fixture-only}
+        SDK: {status: no-dedicated-caption-version-write-method-observed, source: libs/audio-video-client/src/operations.ts}
+      simulationPreconditions: [fixture-register-derived-version-authority, selected-available-source, nonempty-caption-draft, no-unresolved-conflict, all-segments-have-valid-time-ranges]
+      simulationAuthority: fixture-state-registerDerivedVersion-flag-only; no-principal-tenant-rights-retention-or-production-authority-binding
+      simulationIdempotency: no-idempotency-key-or-deduplication; each repeated permitted fixture action appends a distinct generated version; production write retry/deduplication remains unresolved
+      simulationEffect: {observed: appends-generated-caption-version-with-source-and-parent-version-IDs-to-local-fixture-history, deliveryOrPublication: none}
+      simulationFinality: local-fixture-version-recorded; not-delivered-or-published
+      simulationErrors: [VERSION_REGISTRATION_NOT_ALLOWED, SOURCE_NOT_READY, CAPTION_DRAFT_EMPTY, CAPTION_VERSION_CONFLICT, CAPTION_ALIGNMENT_REQUIRED]
+      acceptanceReferences:
+        sourceAction: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-caption-version]
+        uiDispatch: libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+        cliParserAndTests: [libs/media-experience-simulation/src/cli.ts, libs/media-experience-simulation/tests/product-cli.test.mjs]
+        fixtureReducer: libs/media-experience-simulation/src/index.ts
+        canonicalAcceptance: pending-media-owner-and-runtime-conformance-review
+    observedBindings:
+      UI: {identity: media.action.save-caption-version, status: source-observed-action-dispatch; proposed-operation-ref}
+      CLI: {identity: media.cli.caption.save-version, status: source-observed-command-to-action-dispatch; local-simulation-only}
+      fixtureRegistryIdentity: {identity: media.fixture-cli.caption-save-version, status: separate-registry-namespace-not-emitted-by-parser; remains-unresolved}
+      SDK: {value: null, status: no-dedicated-source-method; remains-unresolved}
+      HTTP: unresolved
+      gRPC: unresolved
+    scopeStatus: proposal-only; immutable-version-write-contract-pending-owner-review
+  - id: media.operation.caption-version-read
+    operationId: media.operation.caption-version-read
+    family: [compare-caption-versions]
+    domainIntent: compare-two-exact-caption-version-identities-without-mutating-either
+    consumerActor: {proposal: caption-reviewer, bindingStatus: derived-from-media.action.compare-caption-versions; actor-review-pending}
+    authority: {semanticOwner: media, read-identity-and-authorization-authority: unresolved}
+    context: {status: unresolved; tenant, reviewer, compared versions, and source identity need binding}
+    preconditions: {status: proposal; two exact readable caption versions required}
+    inputSemantics: {proposal: two-readable-caption-version-identities, status: proposal-pending-owner-review}
+    effect: {proposal: read-only-text-timing-provenance-and-source-version-comparison, status: proposal-pending-owner-review}
+    outputSemantics: {proposal: exact-version-pair-and-explicitly-scoped-differences, status: unresolved}
+    authorization: unresolved; exact read authority is not bound
+    error: unresolved; inaccessible, mismatched-source, and incomplete-comparison outcomes remain distinct
+    finality: read-only; comparison-does-not-merge-or-select-a-winning-version
+    version: requires-two-distinct-exact-caption-version-identities; canonical identity unresolved
+    transport: unresolved; no HTTP, SDK, CLI, or gRPC binding is accepted here
+    idempotency: read-only-proposal; no transport guarantee inferred
+    cancellation: not-applicable-to-read-proposal
+    affectedObjects: {proposalRefs: [media.domain.artifact-version], exactBindings: unresolved}
+    transition: {status: read-only; no domain transition proposed}
+    events: {status: no-event-binding-established}
+    risk: {status: unresolved; source/version mismatch and access scope require review}
+    reversibility: {proposal: read-only, status: pending-owner-review}
+    commitFinality: {proposal: comparison-does-not-merge-or-select-a-winning-version, status: pending-owner-review}
+    downstreamEffects: {status: no-version-mutation-proposed}
+    failure: {status: unresolved; inaccessible, mismatched, and incomplete comparisons remain distinct}
+    partialSuccess: {status: unresolved; field-level comparison completeness needs contract}
+    unknownOutcome: {status: unresolved; timeout does not establish comparison absence}
+    retry: {status: source-specific; no common read retry guarantee inferred}
+    recovery: {proposal: verify-both-exact-version-identities-and-current-read-authority, status: pending-review}
+    evidenceAudit: {observedRefs: [media.action.compare-caption-versions], canonicalEvidenceContract: unresolved}
+    nextSafeAction: {proposal: review-differences-with-both-version-identities-visible, status: pending-review}
+    actionRefs: [media.action.compare-caption-versions]
+    sourceContractObservations:
+      input:
+        UI: {identity: media.action.compare-caption-versions, fields: ["leftVersionId:string", "rightVersionId:string"], source: libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx}
+        CLI: {identity: media.cli.caption.compare-versions, options: [--left-version, --right-version], both-required: true, source: libs/media-experience-simulation/src/cli.ts, scope: synthetic-fixture-only}
+        SDK: {status: no-dedicated-caption-version-comparison-method-observed, source: libs/audio-video-client/src/operations.ts}
+      simulationPreconditions: [fixture-read-source-authority, two-existing-distinct-caption-version-identities]
+      simulationAuthority: fixture-state-readSource-flag-only; no-principal-tenant-or-production-resource-authority-binding
+      simulationIdempotency: read-only-fixture-repeat-does-not-mutate-versions; no-transport-or-production-retry-guarantee-established
+      simulationEffect: read-only; compares source-version identity and reports whether differences are comparable; does-not-mutate-or-merge-versions
+      simulationFinality: read-only-fixture-comparison-result; no-write-finality
+      simulationErrors: [SOURCE_READ_NOT_ALLOWED, CAPTION_VERSIONS_NOT_COMPARABLE]
+      acceptanceReferences:
+        sourceAction: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.compare-caption-versions]
+        uiDispatch: libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+        cliParserAndTests: [libs/media-experience-simulation/src/cli.ts, libs/media-experience-simulation/tests/product-cli.test.mjs]
+        fixtureReducer: libs/media-experience-simulation/src/index.ts
+        canonicalAcceptance: pending-media-owner-and-runtime-conformance-review
+    observedBindings:
+      UI: {identity: media.action.compare-caption-versions, status: source-observed-action-dispatch; proposed-operation-ref}
+      CLI: {identity: media.cli.caption.compare-versions, status: source-observed-command-to-action-dispatch; local-simulation-only}
+      fixtureRegistryIdentity: {identity: media.fixture-cli.caption-compare-versions, status: separate-registry-namespace-not-emitted-by-parser; remains-unresolved}
+      SDK: {value: null, status: no-dedicated-source-method; remains-unresolved}
+      HTTP: unresolved
+      gRPC: unresolved
+    scopeStatus: proposal-only; exact-version-read-contract-pending-owner-review
   - id: media.operation.synthesis
     operationId: media.operation.synthesis
     family: [synthesize, stream-synthesis, voice-list-and-profile]

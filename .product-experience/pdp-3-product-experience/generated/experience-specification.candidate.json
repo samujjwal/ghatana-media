@@ -76,8 +76,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-      "sha256": "1f7618550726233a72249555aeb44f315fab76d3caaa2b5413b79a6cfe85d998",
-      "bytes": 11713,
+      "sha256": "44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c",
+      "bytes": 12088,
       "format": "yaml",
       "schemaVersion": "media.journey-registry.v1",
       "authority": null,
@@ -398,6 +398,33 @@
       ]
     },
     {
+      "sourceRef": ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+      "sha256": "350a6380f5b42b1b21af2f21b71598b3fc1e69e5f4ca52358e9abe9338ab001d",
+      "bytes": 10324,
+      "format": "yaml",
+      "schemaVersion": "media.experience-source-bindings.v1",
+      "authority": "Media PDP-3 scenario fixture registry, existing deterministic simulation seeds, and PDP-0 canonical state proposals",
+      "status": "proposal-only; source-identity-and-state-links-pending-independent-review",
+      "topLevelFields": [
+        "authority",
+        "inspectionBindings",
+        "productId",
+        "recoveryCrossReferences",
+        "scenarioStartingStateBindings",
+        "schemaVersion",
+        "searchBindings",
+        "sourceRefs",
+        "status"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": "libs/media-experience-simulation/src/fixtures.ts",
+      "sha256": "53de214a23fb916ed405b6c1d509d891f98a80fc66a27830675578a4154fdda4",
+      "bytes": 17934,
+      "format": "markdown"
+    },
+    {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
       "sha256": "7bd1032a26eb3afa8877eeef4d705678629916a04bc7243b97629da75ee0f7de",
       "bytes": 2048,
@@ -474,6 +501,37 @@
         "media.interaction.seek-source",
         "media.interaction.select-artifact-source",
         "media.interaction.select-source"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
+      "sha256": "773492977fcd6fa1196b52ee164f332d9db517244c5dff697cbb6024f06118c5",
+      "bytes": 8851,
+      "format": "yaml",
+      "schemaVersion": "media.experience-search-inspection.v1",
+      "authority": "PDP-3 owns searchable and inspectable Media experience semantics; Tools Explorer owns only its generic host and visual inspection mechanics",
+      "status": "OWNER_POLICY_SELECTED; IMPLEMENTATION_AND_INDEPENDENT_ACCEPTANCE_PENDING",
+      "topLevelFields": [
+        "authority",
+        "inspectionContracts",
+        "inspections",
+        "policy",
+        "productId",
+        "schemaVersion",
+        "search",
+        "searchContracts",
+        "sourceRefs",
+        "status"
+      ],
+      "declaredIds": [
+        "media.inspection.authority",
+        "media.inspection.evidence",
+        "media.inspection.specification",
+        "media.inspection.synthetic-simulation",
+        "media.inspection.trace",
+        "media.search.authorized-artifacts",
+        "media.search.authorized-jobs",
+        "media.search.authorized-projects"
       ]
     },
     {
@@ -590,9 +648,89 @@
       ]
     },
     {
+      "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+      "sha256": "5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a",
+      "bytes": 18107,
+      "format": "yaml",
+      "schemaVersion": "media.pdp-1.domain-objects.v1",
+      "authority": ".product-experience/pdp-0-product-truth/domain-model.yaml",
+      "status": null,
+      "topLevelFields": [
+        "artifactId",
+        "authority",
+        "objects",
+        "productId",
+        "schemaVersion",
+        "scopeStatus",
+        "semanticOwner",
+        "sourceRefs"
+      ],
+      "declaredIds": [
+        "media.domain.animation-graph",
+        "media.domain.artifact",
+        "media.domain.artifact-verification-job",
+        "media.domain.artifact-version",
+        "media.domain.caption-version",
+        "media.domain.checkpoint",
+        "media.domain.composition-config",
+        "media.domain.consent-record",
+        "media.domain.consent-reference",
+        "media.domain.continuity-state",
+        "media.domain.delivery-outcome",
+        "media.domain.generation-control-bundle",
+        "media.domain.job-attempt",
+        "media.domain.job-lease",
+        "media.domain.media-asset",
+        "media.domain.media-run",
+        "media.domain.persisted-audio-file",
+        "media.domain.processing-graph",
+        "media.domain.processing-job",
+        "media.domain.project",
+        "media.domain.project-revision",
+        "media.domain.provenance-manifest",
+        "media.domain.quality-assessment",
+        "media.domain.recipe",
+        "media.domain.render-job",
+        "media.domain.render-outcome",
+        "media.domain.resolved-plan",
+        "media.domain.rights-decision",
+        "media.domain.scene-brief",
+        "media.domain.scene-graph",
+        "media.domain.scene-plan",
+        "media.domain.simulation-world",
+        "media.domain.stream-frame",
+        "media.domain.stream-session",
+        "media.domain.timeline",
+        "media.domain.transcription",
+        "media.domain.upload-chunk",
+        "media.domain.upload-session"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml",
+      "sha256": "46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3",
+      "bytes": 13199,
+      "format": "yaml",
+      "schemaVersion": "media.pdp-1.states.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "artifactId",
+        "authorityBoundary",
+        "authorityStatus",
+        "crossSourceReconciliation",
+        "inventory",
+        "productId",
+        "schemaVersion",
+        "semanticOwner",
+        "stateMachines"
+      ],
+      "declaredIds": []
+    },
+    {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
-      "sha256": "8953de0a64fe5e37616ee097133aafa40c1e965ae383057b648d55ce8034c131",
-      "bytes": 7062,
+      "sha256": "b328ba63fb1b06ca4870bf689f671ec173d1db93cd98d0ff14f80e54e8a6bf9b",
+      "bytes": 7068,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -651,8 +789,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
-      "sha256": "c6be1145b04c9505de559e26bdad571cc272e84c49df797581720ffbf7575214",
-      "bytes": 7307,
+      "sha256": "5fa860516241327fd461d159abbe875ca377ff169003d991f112d54e3ee9caaa",
+      "bytes": 7340,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -711,8 +849,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
-      "sha256": "dacfb52d619e78a2b581f5071d2a65e6efaee425071aea93e7883a32f6dbbb22",
-      "bytes": 7207,
+      "sha256": "97f718ba4a4c573d549baebfc3965f4b72ef4764f663b4b592645f41cb8e6cf5",
+      "bytes": 7213,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -803,8 +941,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml",
-      "sha256": "729d87f63e049be3013edc6d58e526be8f98082582b760a250badff7b1d6fa06",
-      "bytes": 5874,
+      "sha256": "da7373c764fce3b7a1560bb043cfc76f160fcac1a3abcc149c609dbbfbe68d87",
+      "bytes": 5880,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -863,8 +1001,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml",
-      "sha256": "fa2112fc36da2ef8522be0e3b32ebd7bb7ecb7d977e7916358744f5c5f260bf3",
-      "bytes": 5621,
+      "sha256": "4f1e4306ac4199cf31e356f68f6e234ebc1f5a74e70cdfa85b991275fe51725a",
+      "bytes": 5627,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -922,8 +1060,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml",
-      "sha256": "ffe564f4917b29d956f7186c45fa6da38f92b1f67f979ff77de509d77e50cb8b",
-      "bytes": 5163,
+      "sha256": "7fc16e0e649db40c2cc273e497e58b97701d280e66362bb4010ef9176dcfe0dd",
+      "bytes": 5187,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -980,8 +1118,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml",
-      "sha256": "9d168926d0182949f92a252ed4d34078cbf03ef22b65bef6ac0b2b9e851c1f3f",
-      "bytes": 6360,
+      "sha256": "0a5f00c34b997c909fc12e04ef4abf36ee29877f50d966f3fb0fda9260b14ad4",
+      "bytes": 6366,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1040,8 +1178,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml",
-      "sha256": "67dec39580e329a575030ed6e7624dff8d7962fab2c4fba1303948ca8662a597",
-      "bytes": 6391,
+      "sha256": "b194fe06a2ff220895acac06d3d8f96392b925d7dda53248b18c26fb97cdf021",
+      "bytes": 6397,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1100,8 +1238,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml",
-      "sha256": "5c3868bdf25bae3da4ba058d7deaa1effdd740c3acd9e7088724bafb2197c616",
-      "bytes": 6726,
+      "sha256": "42bf87d036c0f016036c743267ab6b8d58c4f44af773ba35e5fa24e11dd95805",
+      "bytes": 6732,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1160,8 +1298,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml",
-      "sha256": "1f99c2637955779efee53c010dd5ec4b38b3b7b9c57c4a3a71f16d27af9e6f18",
-      "bytes": 5379,
+      "sha256": "a5eab5f80c36ed2d9acbc72c33bb268939665fb7722e6b332bc77c8f2534234f",
+      "bytes": 5385,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1218,8 +1356,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml",
-      "sha256": "e3fe3eac43c9a1901bf21f0578ee1012c33a52747e303d8d20ae03d75b122beb",
-      "bytes": 7425,
+      "sha256": "3fbc220fc47b982d23b9070aea972b48ae899d93475989be052ca6cb08a3fd0f",
+      "bytes": 7521,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1278,8 +1416,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml",
-      "sha256": "9992a77b756f2b3cfa7753d8bece133a34fd6913ba2c5bd4c2a967ba288c77b7",
-      "bytes": 7213,
+      "sha256": "96215f29f8a4bb82875dada5995d9b9db883c8518db8926a306cfdaf845c245d",
+      "bytes": 7237,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1338,8 +1476,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml",
-      "sha256": "4424db1e89f9e721f4120dedc97d49bae4ea541b70953220cbe2bd6bf6ff007c",
-      "bytes": 7519,
+      "sha256": "1955f17550407182d07e15bd8d9b5278046cf38bc2dd99d0c6a8d6b0309a5a34",
+      "bytes": 7543,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1407,8 +1545,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml",
-      "sha256": "3fb56dca2742a3d77bfda7174eb0b1ab6044f4ebaf4648d44f31158849729d9e",
-      "bytes": 6496,
+      "sha256": "9d20222b731eb175c916a0436ed4c133f924bdce07d7c5f9a7f1f70b03bcf8c5",
+      "bytes": 6502,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1474,8 +1612,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml",
-      "sha256": "717fa0e15b6ea2985eb28bdc6f2fb1da0549819ba93ca3b691dd9cda307b5b00",
-      "bytes": 7405,
+      "sha256": "07d35b4eb4ad0ea00ea543c2c64ba4a6bc34dde5bdf5da2b7dc7bf14bb3c3c43",
+      "bytes": 7447,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1543,8 +1681,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml",
-      "sha256": "e924896576822247ab5c7812f5b49b0147d75ac938f57c7b958c45f4e64fe240",
-      "bytes": 7000,
+      "sha256": "9016d68dc6871800a3051781b365cfcc9d4ffa864915bd2533408575a485cbf0",
+      "bytes": 7006,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1612,8 +1750,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml",
-      "sha256": "a0f709790ee39b5bb528a840e7cc0f8dff2c14fe578b0d2ba6109667f8979a75",
-      "bytes": 5459,
+      "sha256": "5110f827cc8acf8f41519e3e991e6946d00bd6d1f3f93df261a863e3d83b8d6f",
+      "bytes": 5483,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1680,8 +1818,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml",
-      "sha256": "5642acc7210f71c576fbae75dbbc2bbee20184eeeba3cfd9158d47d4246ad781",
-      "bytes": 7771,
+      "sha256": "d52230df6a99da248637938a8322eafa5a27a847d8da4e3d7984f239f4bcc94f",
+      "bytes": 7822,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1749,8 +1887,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml",
-      "sha256": "870591e019a912927fd4ff5460828000beaa122be1eb775668223916bbcd28e7",
-      "bytes": 7174,
+      "sha256": "cfc605d10adac8f256e05c1f923e66ba3a1b6bbe235a245cc0de05c2e423fa9f",
+      "bytes": 7198,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1818,8 +1956,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml",
-      "sha256": "39742bff4b82cdddf14e51add39055ec8a9fe684f6db44fdd0c04b09f8daa063",
-      "bytes": 7772,
+      "sha256": "1acc0e2299911c7e4152689c17f5e780d8f713ef91aa7cab00c25dbe993d31f2",
+      "bytes": 7796,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1887,8 +2025,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml",
-      "sha256": "405187b7aacfa79851bc358781a0e3c548ff6806bf653ea3250c367c506282bb",
-      "bytes": 7294,
+      "sha256": "9725acd45636ef9733997220119c4dee86f240b746fef86ed21d108dac67efc6",
+      "bytes": 7300,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1956,8 +2094,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml",
-      "sha256": "7e9b50482e7b938139f58d4fa4b6d1abdf697e1ab948c935a2952cb63631c9d7",
-      "bytes": 7304,
+      "sha256": "231ba048f17422a29e583acdf9eafe3ea09c04248371043bd9c52d280e84b18c",
+      "bytes": 7319,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2025,8 +2163,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml",
-      "sha256": "bd748ccff258dd9e85ff7b551b0b0d9e227cf2eb88bf4ed4bd4eebdd3b1ff300",
-      "bytes": 7430,
+      "sha256": "aaaab6c3f2b6e573111f630fa9cd458cbe7ebb51acf28180cc7f379196aee850",
+      "bytes": 7445,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2094,8 +2232,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml",
-      "sha256": "db999ec5dcdb1c8c9ef80313e64962b03ed2509e8c13cd79579ef1ea28b80901",
-      "bytes": 5716,
+      "sha256": "50cf30cdf9e6f572447fc65bc08e025572b8cdead46c2d5862c05f4049259d53",
+      "bytes": 5722,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2162,8 +2300,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml",
-      "sha256": "b6beadfd61c6d0bd7eb3feeaab26e1db6628dd216182274fb859cb9e1717bfbb",
-      "bytes": 6365,
+      "sha256": "2c801d22419039e3181f9ba8d7fa5ab1b6b6c63fe50f78a1200b36e13a6003eb",
+      "bytes": 6371,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2221,8 +2359,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml",
-      "sha256": "4e6eef7e5840cd4398bc5058c05f2878799c9207d24fdbfe444237865ac37b01",
-      "bytes": 6101,
+      "sha256": "bbddce0bb0cc6d4b8625ff430d2a6784acb6b45c5bec8e6f3a409bf7b7767c41",
+      "bytes": 6107,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2279,8 +2417,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml",
-      "sha256": "abbc9e63d44121fe74088fd4cbb0aeda087940c9a5b4cb7d12960f0cb51cb432",
-      "bytes": 6726,
+      "sha256": "03175ca6425d0492f9e9c981b2d91dcee2a11cb60e009e9d6b5e886e22255250",
+      "bytes": 6741,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2338,8 +2476,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml",
-      "sha256": "8f5133a46e6de07ad031ea56fcfc6bbbf998d432128caae4a6ff0357853a24ce",
-      "bytes": 5353,
+      "sha256": "8737d5c82387a1168daeba1f8333d0b4c950122659f9cbfaa3fe774220d5dadf",
+      "bytes": 5377,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2396,8 +2534,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml",
-      "sha256": "6e880faa820a1b969830c0ec811c3679bd19a4334f8b14f04b2c87d5d5070cc2",
-      "bytes": 6849,
+      "sha256": "20a10bd005084f04e53450c134b84ae34b3691e6337f3e58d6475046665ee374",
+      "bytes": 6936,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2455,8 +2593,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml",
-      "sha256": "53f2633b1fd721e7447f15f2fe2ef1a9c5dd34c5d3c3730ba989b59e845c5593",
-      "bytes": 5772,
+      "sha256": "858657dc28c09725c804e0fb9debc13885b1932120b62746cbacf1f5d8279e8a",
+      "bytes": 5787,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2581,8 +2719,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml",
-      "sha256": "cfd786f3cf04a9312bbfbb6c296ce2f17a4835cb903edf36513908a457e37bb1",
-      "bytes": 6573,
+      "sha256": "59906aa4b917534f72245b67c31489723c1b87d17a462fbac150b79df4a8cb97",
+      "bytes": 6624,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2640,8 +2778,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml",
-      "sha256": "6ab6dc17623596155823ecc380dceb9d8329c5a1c1e9d8f1a65864d18670191e",
-      "bytes": 4646,
+      "sha256": "199029c96ecc54fe755b452dc84a5c42a4f6b2fe6c21e51dafafee5d4743e2dc",
+      "bytes": 4652,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2698,8 +2836,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml",
-      "sha256": "81cfe3acefb0e6a3bc1d05b24288d970b4273e3a2d53bd0764533be46da4c6d1",
-      "bytes": 5183,
+      "sha256": "ec746c48e1fccccf51e19cc3265c04d30ebdd817fa547a58c5d90735a24035c8",
+      "bytes": 5243,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2756,8 +2894,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml",
-      "sha256": "090872104e3d9498e8af8c1e2b79892afdf838419ad932db5d7a0523a8ce9cc3",
-      "bytes": 6033,
+      "sha256": "54c3d58ef02343c6b83adf4bc9dc6523815fc41f0c65b24b2206b1281044b2dc",
+      "bytes": 6093,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2815,8 +2953,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml",
-      "sha256": "df3568bcde7c8777f212ce9afa92b8c98776eca2f0f99f62edc390431e8423f1",
-      "bytes": 6521,
+      "sha256": "474762c6098207170fd605cf746d151258cebcdaf9bcc0ae25dcab9d4a88a94f",
+      "bytes": 6527,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2874,8 +3012,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml",
-      "sha256": "3df07affd2fce290c3feedfebf003f9849f31f927079d69e3c68b1967adc7709",
-      "bytes": 7683,
+      "sha256": "805faf167c2b8177430bec96f6e61b07f5b6485f99c10cbc79912642b314d7ef",
+      "bytes": 7698,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2946,8 +3084,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml",
-      "sha256": "61a80c6f1c8e653963f8f458f696f4c3584326aa3998bd1b882590855a7acfd7",
-      "bytes": 8529,
+      "sha256": "288ff6c3da6a21b7d8b506ab81a2080ae4a9cbe9133e0abd23b8619d7ad53726",
+      "bytes": 8544,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3018,8 +3156,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml",
-      "sha256": "1ae0e28c0aa55482b2ec7deb8f47b73b27abe92dcea0bceb537a27a49c76f90f",
-      "bytes": 7630,
+      "sha256": "82230e807efdd5e96710340ecb9f42e852c5f42de608455ca59d460e45a252a6",
+      "bytes": 7699,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3090,8 +3228,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml",
-      "sha256": "26b97255527c54993828bafc3e90281811d58e9d22ecfef70e3eb4e87b753137",
-      "bytes": 8007,
+      "sha256": "f41ed733b9e82777cbed3e903d1efa318ed0216212b845b5c98c569ceb750327",
+      "bytes": 8013,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3162,8 +3300,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml",
-      "sha256": "5ac63587e74994283f68d09d6bce995d5c72eb7d1c2cae475baaffaeba734213",
-      "bytes": 6676,
+      "sha256": "324f11e6658e86ea97c7faccf5c7356a2481b1944d8700183e4ac38968c9172f",
+      "bytes": 6682,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3304,8 +3442,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml",
-      "sha256": "5303eb4fb7603ffd0be635afe15c266f9c7797df7acb00f40469e2b77363f2fe",
-      "bytes": 6121,
+      "sha256": "bf338984a3c0da5cd0e03e67e619f8ce2b283aa225299bd4bb1476766ce01b11",
+      "bytes": 6127,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3374,8 +3512,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml",
-      "sha256": "1625e41c73002e9895014238b43b09b5a9bdb9ac1b3a950a6740a1faa2a91ca6",
-      "bytes": 7013,
+      "sha256": "739c7b8f283e396c46f06139c16a606a632f356d1a4413d78b65f2657f6a83d5",
+      "bytes": 7019,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3444,8 +3582,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml",
-      "sha256": "24c059ac35764b7d5c648495de70db4bae7e7ede52d0ee25832b79e71df619be",
-      "bytes": 7619,
+      "sha256": "afeb426e2f6a3a53fb5d209862ed510af0c4a18319e5bee9566fb80f2b1154a8",
+      "bytes": 7625,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3516,8 +3654,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml",
-      "sha256": "ab69f832d350073857df9be02ccd86159b06f3a70ca3a80092ea52fbfc39961f",
-      "bytes": 5897,
+      "sha256": "267795d5319b19864caf4841beb7d763c2cb216a497a2db412e76ed44e680c70",
+      "bytes": 5921,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3587,8 +3725,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml",
-      "sha256": "fea7c681b2fec8f951e1b6de58218385f9563385d262fd306f4ec1beae55c61f",
-      "bytes": 9030,
+      "sha256": "5a61db7d3e05a0d834cd9c98005cfc7b897fd0d6bb772e00e95da257d5381532",
+      "bytes": 9054,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -4214,8 +4352,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
-      "sha256": "027fc642a5743d5abbf7fad732b9185d1261ac4bf14a8df46ed3bfb247a353f6",
-      "bytes": 18389,
+      "sha256": "1939a07621b52c700d4d2e5403fcef2c9dd34900936157b05fe463aa0b364a62",
+      "bytes": 18635,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -4370,8 +4508,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
-      "sha256": "222160e685bc0b9aeeb1b685770241f9fe6560a2926e92e60545c69def16c386",
-      "bytes": 26290,
+      "sha256": "63b89635ef805f2e2f2776d929a65720e9eb6ab3d9fccb02fc82fd5e9511d7c2",
+      "bytes": 26687,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -4678,8 +4816,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
-      "sha256": "605f4f59be427164e51d13880a640e24109b47c7c61914725a83dd0bb2f5c180",
-      "bytes": 33955,
+      "sha256": "6f40d750f3bdb550393f723e4bb175cd4458f776ce53271c0a9e9a8a0d78d101",
+      "bytes": 34491,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -4756,8 +4894,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
-      "sha256": "0bb06bde312edc93296a71dbb4a46ae889c1e0b8f585d8bba7831f61d6d116a6",
-      "bytes": 26943,
+      "sha256": "8e9c1ae09a5e3fb54d3244f1fe924068666785fc0ffdd287a7344138181dab4b",
+      "bytes": 27232,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -5074,7 +5212,10 @@
         "id": "media.view.resume-work",
         "name": "Resume work",
         "intent": "Resume work; launch intent; meaningful first-use/empty state",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.project-context-summary",
+          "media.component.intent-launcher"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5082,7 +5223,9 @@
         "id": "media.view.find-projects",
         "name": "Find projects",
         "intent": "Search/filter/create/open projects",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.project-browser"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5090,7 +5233,10 @@
         "id": "media.view.work-in-project",
         "name": "Work in a project",
         "intent": "Project context, source/output versions and next action",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.project-context-summary",
+          "media.component.intent-launcher"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5098,7 +5244,11 @@
         "id": "media.view.browse-media",
         "name": "Browse media",
         "intent": "Governed library, import/upload/search/filter",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.project-context-summary",
+          "media.component.artifact-integrity-summary",
+          "media.component.artifact-source-picker"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5106,7 +5256,10 @@
         "id": "media.view.inspect-media",
         "name": "Inspect media",
         "intent": "Playback/technical metadata, versions, rights and actions",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.artifact-integrity-summary",
+          "media.component.provenance-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5114,7 +5267,10 @@
         "id": "media.view.import-media",
         "name": "Import media",
         "intent": "Progress/resume/integrity/quarantine/permission recovery",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.artifact-source-picker",
+          "media.component.artifact-transfer-status"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5122,7 +5278,11 @@
         "id": "media.view.create-media",
         "name": "Create media",
         "intent": "Intent/recipe and safe outcome settings",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.project-context-summary",
+          "media.component.intent-launcher",
+          "media.component.creation-plan-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5130,7 +5290,11 @@
         "id": "media.view.review-creation-plan",
         "name": "Review a creation plan",
         "intent": "Proposed graph, estimates, material decisions and validation",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.creation-plan-summary",
+          "media.component.delivery-profile-picker",
+          "media.component.rights-retention-review"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5138,7 +5302,11 @@
         "id": "media.view.arrange-scenes",
         "name": "Arrange scenes",
         "intent": "Scenes, timing, references, versions and transitions",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.storyboard",
+          "media.component.artifact-browser",
+          "media.component.provenance-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5146,7 +5314,12 @@
         "id": "media.view.create-image",
         "name": "Create an image",
         "intent": "Generation/conditioning/candidate selection",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.creation-plan-summary",
+          "media.component.artifact-browser",
+          "media.component.result-comparison",
+          "media.component.rights-retention-review"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5154,7 +5327,13 @@
         "id": "media.view.create-video",
         "name": "Create a video",
         "intent": "Generation strategy, controls, progress and alternatives",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.creation-plan-summary",
+          "media.component.storyboard",
+          "media.component.timeline-keyframe-editor",
+          "media.component.job-status-card",
+          "media.component.result-comparison"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5162,7 +5341,13 @@
         "id": "media.view.create-audio",
         "name": "Create audio",
         "intent": "Sources/stems/cleanup/mix/mastering",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.artifact-browser",
+          "media.component.waveform-spectrogram",
+          "media.component.audio-mixer",
+          "media.component.creation-plan-summary",
+          "media.component.result-comparison"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5170,7 +5355,13 @@
         "id": "media.view.work-with-speech",
         "name": "Work with speech",
         "intent": "Transcription/TTS/pronunciation/language/voice choices",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.source-picker",
+          "media.component.source-player",
+          "media.component.transcript-review",
+          "media.component.job-status-card",
+          "media.component.rights-retention-review"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5178,7 +5369,11 @@
         "id": "media.view.use-authorized-voice",
         "name": "Use an authorized voice",
         "intent": "Training/conversion permissions and model references",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.rights-retention-review",
+          "media.component.provenance-summary",
+          "media.component.creation-plan-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5186,7 +5381,12 @@
         "id": "media.view.edit-captions",
         "name": "Edit captions",
         "intent": "Edit caption wording, timing, and language for accessibility and review.",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.source-player",
+          "media.component.caption-track-editor",
+          "media.component.transcript-review",
+          "media.component.provenance-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5194,7 +5394,13 @@
         "id": "media.view.review-dubbing",
         "name": "Review dubbing",
         "intent": "Translation, voice, timing, meaning review and sync",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.source-player",
+          "media.component.caption-track-editor",
+          "media.component.rights-retention-review",
+          "media.component.result-comparison",
+          "media.component.provenance-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5202,7 +5408,12 @@
         "id": "media.view.improve-media",
         "name": "Improve media",
         "intent": "Preserve/enhance/creative choice, measured defects, safe plan",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.quality-inspector",
+          "media.component.creation-plan-summary",
+          "media.component.result-comparison",
+          "media.component.provenance-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5210,7 +5421,11 @@
         "id": "media.view.compare-results",
         "name": "Compare results",
         "intent": "Before/after, candidate ranking and applicable measurements",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.result-comparison",
+          "media.component.quality-inspector",
+          "media.component.provenance-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5218,7 +5433,12 @@
         "id": "media.view.edit-media",
         "name": "Edit media",
         "intent": "Region/track operations, exact constraints and undo",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.timeline-keyframe-editor",
+          "media.component.mask-tracking-editor",
+          "media.component.creation-plan-summary",
+          "media.component.result-comparison"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5226,7 +5446,12 @@
         "id": "media.view.edit-media-region",
         "name": "Edit a media region",
         "intent": "Region selection, propagation uncertainty and correction",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.mask-tracking-editor",
+          "media.component.scene-inspector",
+          "media.component.result-comparison",
+          "media.component.provenance-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5234,7 +5459,12 @@
         "id": "media.view.animate-media",
         "name": "Animate media",
         "intent": "Timeline/keyframes/curves/rig/path/control actions",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.timeline-keyframe-editor",
+          "media.component.simulation-instruments",
+          "media.component.scene-inspector",
+          "media.component.result-comparison"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5242,7 +5472,12 @@
         "id": "media.view.compose-scene",
         "name": "Compose a scene",
         "intent": "Scene entities/material/camera/light and model bindings",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.scene-inspector",
+          "media.component.storyboard",
+          "media.component.simulation-instruments",
+          "media.component.artifact-browser"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5250,7 +5485,12 @@
         "id": "media.view.explore-simulation",
         "name": "Explore a simulation",
         "intent": "Initial conditions, domain fidelity, time control and instruments",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.simulation-instruments",
+          "media.component.scene-inspector",
+          "media.component.creation-plan-summary",
+          "media.component.quality-inspector"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5258,7 +5498,13 @@
         "id": "media.view.compose-media",
         "name": "Compose media",
         "intent": "Timeline/graphics/brand/audio/captions/transition assembly",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.timeline-keyframe-editor",
+          "media.component.audio-mixer",
+          "media.component.storyboard",
+          "media.component.delivery-profile-picker",
+          "media.component.rights-retention-review"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5266,7 +5512,12 @@
         "id": "media.view.adjust-color",
         "name": "Adjust color",
         "intent": "Input/output color interpretation and shot matching",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.timeline-keyframe-editor",
+          "media.component.result-comparison",
+          "media.component.quality-inspector",
+          "media.component.scene-inspector"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5274,7 +5525,11 @@
         "id": "media.view.review-quality",
         "name": "Review quality",
         "intent": "Applicable dimensions, abstentions, defects and repair plan",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.quality-inspector",
+          "media.component.result-comparison",
+          "media.component.provenance-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5282,7 +5537,12 @@
         "id": "media.view.prepare-render",
         "name": "Prepare a render",
         "intent": "Snapshot/profile, validation, cost and submission",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.creation-plan-summary",
+          "media.component.delivery-profile-picker",
+          "media.component.rights-retention-review",
+          "media.component.job-status-card"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5290,7 +5550,9 @@
         "id": "media.view.review-activity",
         "name": "Review activity",
         "intent": "Jobs/notifications requiring attention; not infrastructure dashboard",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.job-status-card"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5298,7 +5560,10 @@
         "id": "media.view.job-status",
         "name": "View job status",
         "intent": "View progress and outputs, request a stop, retry eligible work, or check an uncertain outcome",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.job-status-card",
+          "media.component.activity-recovery-feed"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5306,7 +5571,13 @@
         "id": "media.view.review-outputs",
         "name": "Review outputs",
         "intent": "Master/renditions/version/approval status",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.job-status-card",
+          "media.component.artifact-browser",
+          "media.component.artifact-integrity-summary",
+          "media.component.quality-inspector",
+          "media.component.provenance-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5314,7 +5585,12 @@
         "id": "media.view.inspect-output",
         "name": "Inspect an output",
         "intent": "Playback/download/review/provenance and delivery action",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.source-player",
+          "media.component.artifact-integrity-summary",
+          "media.component.provenance-summary",
+          "media.component.quality-inspector"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5322,7 +5598,12 @@
         "id": "media.view.deliver-output",
         "name": "Deliver an output",
         "intent": "Destination/format/rights/approval and publication finality",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.delivery-profile-picker",
+          "media.component.rights-retention-review",
+          "media.component.artifact-integrity-summary",
+          "media.component.provenance-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5330,7 +5611,12 @@
         "id": "media.view.review-exact-version",
         "name": "Review an exact version",
         "intent": "Scoped exact-version review/comment/approve/reject",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.artifact-integrity-summary",
+          "media.component.provenance-summary",
+          "media.component.quality-inspector",
+          "media.component.rights-retention-review"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5338,7 +5624,11 @@
         "id": "media.view.review-rights-and-consent",
         "name": "Review rights and consent",
         "intent": "Consent/license/likeness/processing restrictions and remediation",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.rights-retention-review",
+          "media.component.provenance-summary",
+          "media.component.artifact-integrity-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5346,7 +5636,11 @@
         "id": "media.view.inspect-provenance",
         "name": "Inspect provenance",
         "intent": "Source/edit/model/simulation lineage and disclosure limits",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.provenance-summary",
+          "media.component.artifact-integrity-summary",
+          "media.component.scene-inspector"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5354,7 +5648,11 @@
         "id": "media.view.choose-eligible-processing-option",
         "name": "Choose an eligible processing option",
         "intent": "Effective profiles, qualification and allowed overrides",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.delivery-profile-picker",
+          "media.component.creation-plan-summary",
+          "media.component.quality-inspector"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5362,7 +5660,11 @@
         "id": "media.view.check-processing-options",
         "name": "Check processing options",
         "intent": "Declared/qualified/live limits; no ordinary model-selection burden",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.intent-launcher",
+          "media.component.creation-plan-summary",
+          "media.component.quality-inspector"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5370,7 +5672,11 @@
         "id": "media.view.check-processing-readiness",
         "name": "Check processing readiness",
         "intent": "Safe diagnostics, capacity/recovery/erasure and audit access",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.activity-recovery-feed",
+          "media.component.job-status-card",
+          "media.component.provenance-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5378,7 +5684,11 @@
         "id": "media.view.review-workspace-settings",
         "name": "Review workspace settings",
         "intent": "User/workspace policies, accessibility and integration scope",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.identity-context-boundary",
+          "media.component.project-context-summary",
+          "media.component.creation-plan-summary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5386,7 +5696,9 @@
         "id": "media.view.authenticate-and-select-context",
         "name": "Authenticate and select context",
         "intent": "Ghatana identity, context selection, expiry/re-auth and denial",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.identity-context-boundary"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5394,7 +5706,11 @@
         "id": "media.view.find-task-guidance",
         "name": "Find task guidance",
         "intent": "Product-specific assistance and safe diagnostic sharing",
-        "componentRefs": [],
+        "componentRefs": [
+          "media.component.intent-launcher",
+          "media.component.provenance-summary",
+          "media.component.rights-retention-review"
+        ],
         "journeyRefs": [],
         "stateRefs": []
       },
@@ -5453,140 +5769,213 @@
         "id": "media.interaction.select-artifact-source",
         "name": "media.interaction.select-artifact-source",
         "trigger": "keyboard-or-pointer-selection-of-one-local-file-or-admitted-source-reference",
-        "preconditions": [],
+        "preconditions": [
+          "current-workspace-context",
+          "source-choice-is-local-or-an-already-admitted-reference"
+        ],
         "actionRef": "media.action.select-artifact-source"
       },
       {
         "id": "media.interaction.begin-artifact-upload",
         "name": "media.interaction.begin-artifact-upload",
         "trigger": "explicit-upload-action-after-source-and-owner-admitted-limits-are-reviewed",
-        "preconditions": [],
+        "preconditions": [
+          "current-principal-and-workspace",
+          "exact-source-selected",
+          "current-upload-and-import-authority",
+          "rights-consent-retention-and-format-admission"
+        ],
         "actionRef": "media.action.begin-artifact-upload"
       },
       {
         "id": "media.interaction.resume-artifact-upload",
         "name": "media.interaction.resume-artifact-upload",
         "trigger": "explicit-resume-of-the-same-matching-upload",
-        "preconditions": [],
+        "preconditions": [
+          "existing-stable-upload-identity",
+          "matching-source-metadata",
+          "current-workspace",
+          "current-authority-and-retention-policy"
+        ],
         "actionRef": "media.action.resume-artifact-upload"
       },
       {
         "id": "media.interaction.inspect-artifact",
         "name": "media.interaction.inspect-artifact",
         "trigger": "open-one-authorized-artifact-or-upload-identity",
-        "preconditions": [],
+        "preconditions": [
+          "exact-artifact-or-upload-identity",
+          "current-read-authority"
+        ],
         "actionRef": "media.action.inspect-artifact"
       },
       {
         "id": "media.interaction.attach-source-asset",
         "name": "media.interaction.attach-source-asset",
         "trigger": "select-an-exact-project-revision-and-confirm-the-artifact-version-reference",
-        "preconditions": [],
+        "preconditions": [
+          "artifact-version-is-AVAILABLE",
+          "exact-project-revision",
+          "current-project-write-authority",
+          "current-artifact-read-authority"
+        ],
         "actionRef": "media.action.attach-source-asset"
       },
       {
         "id": "media.interaction.choose-intent",
         "name": "media.interaction.choose-intent",
         "trigger": "explicit-selection-of-one-canonical-user-outcome",
-        "preconditions": [],
+        "preconditions": [
+          "current-project-context-when-required",
+          "intent-is-in-the-admitted-product-catalog"
+        ],
         "actionRef": "media.action.choose-intent"
       },
       {
         "id": "media.interaction.create-project",
         "name": "media.interaction.create-project",
         "trigger": "validated-project-request-and-explicit-create-confirmation",
-        "preconditions": [],
+        "preconditions": [
+          "authenticated-principal",
+          "authorized-workspace",
+          "current-project-create-authority",
+          "owner-approved-project-request-shape"
+        ],
         "actionRef": "media.action.create-project"
       },
       {
         "id": "media.interaction.inspect-project-creation",
         "name": "media.interaction.inspect-project-creation",
         "trigger": "inspect-the-same-project-create-request-after-an-unknown-response",
-        "preconditions": [],
+        "preconditions": [
+          "existing-project-create-request-identity",
+          "current-project-read-authority"
+        ],
         "actionRef": "media.action.inspect-project-creation"
       },
       {
         "id": "media.interaction.open-project",
         "name": "media.interaction.open-project",
         "trigger": "explicit-selection-of-one-authorized-project",
-        "preconditions": [],
+        "preconditions": [
+          "project-is-visible-in-current-workspace",
+          "current-project-read-authority"
+        ],
         "actionRef": "media.action.open-project"
       },
       {
         "id": "media.interaction.select-source",
         "name": "media.interaction.select-source",
         "trigger": "keyboard-or-pointer-selection-of-one-source-version",
-        "preconditions": [],
+        "preconditions": [
+          "source-version-visible",
+          "current-read-authority"
+        ],
         "actionRef": "media.action.choose-source"
       },
       {
         "id": "media.interaction.seek-source",
         "name": "media.interaction.seek-source",
         "trigger": "keyboard-time-step-or-explicit-time-entry",
-        "preconditions": [],
+        "preconditions": [
+          "source-version-readable",
+          "source-clock-known"
+        ],
         "actionRef": "media.action.seek-source"
       },
       {
         "id": "media.interaction.edit-caption-text",
         "name": "media.interaction.edit-caption-text",
         "trigger": "keyboard-text-edit",
-        "preconditions": [],
+        "preconditions": [
+          "source-version-readable",
+          "transcript-or-caption-draft-readable",
+          "current-edit-authority"
+        ],
         "actionRef": "media.action.correct-caption"
       },
       {
         "id": "media.interaction.correct-caption-time",
         "name": "media.interaction.correct-caption-time",
         "trigger": "keyboard-numeric-time-or-accessible-range-control",
-        "preconditions": [],
+        "preconditions": [
+          "exact-source-clock-known",
+          "source-version-readable",
+          "current-edit-authority"
+        ],
         "actionRef": "media.action.align-caption-timing"
       },
       {
         "id": "media.interaction.save-caption-version",
         "name": "media.interaction.save-caption-version",
         "trigger": "explicit-save-version-action-after-validation",
-        "preconditions": [],
+        "preconditions": [
+          "caption-draft-valid",
+          "parent-source-current",
+          "current-commit-authority",
+          "rights-and-retention-rechecked"
+        ],
         "actionRef": "media.action.save-caption-version"
       },
       {
         "id": "media.interaction.compare-caption-versions",
         "name": "media.interaction.compare-caption-versions",
         "trigger": "select-two-caption-versions-for-read-only-comparison",
-        "preconditions": [],
+        "preconditions": [
+          "two-caption-versions-readable"
+        ],
         "actionRef": "media.action.compare-caption-versions"
       },
       {
         "id": "media.interaction.resolve-caption-conflict",
         "name": "media.interaction.resolve-caption-conflict",
         "trigger": "choose-whether-to-keep-local-edits-or-use-the-latest-version",
-        "preconditions": [],
+        "preconditions": [
+          "local-caption-draft-and-newer-caption-version-exist",
+          "current-edit-authority"
+        ],
         "actionRef": "media.action.resolve-caption-conflict"
       },
       {
         "id": "media.interaction.check-job-outcome",
         "name": "media.interaction.check-job-outcome",
         "trigger": "explicit-check-status-action",
-        "preconditions": [],
+        "preconditions": [
+          "existing-job-is-outcome-unknown"
+        ],
         "actionRef": "media.action.check-job-outcome"
       },
       {
         "id": "media.interaction.open-job-from-activity",
         "name": "media.interaction.open-job-from-activity",
         "trigger": "activate-the-view-status-action-for-one-exact-job-row",
-        "preconditions": [],
+        "preconditions": [
+          "stable-job-reference"
+        ],
         "actionRef": "media.action.view-job-status"
       },
       {
         "id": "media.interaction.request-job-cancellation",
         "name": "media.interaction.request-job-cancellation",
         "trigger": "explicit-cancellation-request-for-the-same-job-after-current-authority-check",
-        "preconditions": [],
+        "preconditions": [
+          "stable-job-reference",
+          "current-cancellation-authority"
+        ],
         "actionRef": "media.action.request-cancellation"
       },
       {
         "id": "media.interaction.retry-job",
         "name": "media.interaction.retry-job",
         "trigger": "explicit-confirmation-after-the-prior-attempt-is-classified-retryable-and-current-authority-policy-and-budget-pass",
-        "preconditions": [],
+        "preconditions": [
+          "stable-job-identity-and-current-tenant-context",
+          "prior-attempt-is-classified-as-retryable-by-the-job-owner",
+          "current-actor-has-retry-authority-for-this-job",
+          "retry-budget-remains-under-current-policy",
+          "rights-policy-license-resource-and-deployment-eligibility-are-rechecked-before-dispatch",
+          "prior-outcome-is-not-unknown; check-the-existing-job-outcome-first"
+        ],
         "actionRef": "media.action.retry-job"
       }
     ],
@@ -7879,50 +8268,447 @@
       }
     ],
     "effects": [],
-    "finality": [],
-    "recovery": [
+    "finality": [
       {
-        "id": "media.recovery.language-uncertain",
-        "errorKind": "transcript-language-or-recognition-uncertain",
-        "recoveryPath": "correct-manually-or-preserve-draft-under-current-authority",
-        "automaticRecovery": false,
-        "userActionRequired": true
+        "id": "media.action.apply-admitted-edit.finality",
+        "actionRef": "media.action.apply-admitted-edit",
+        "description": "processing-request; owner-acknowledged-job-identity-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
       },
       {
-        "id": "media.recovery.alignment-incomplete",
-        "errorKind": "caption-time-range-missing-or-estimated",
-        "recoveryPath": "enter-explicit-time-ranges-or-retain-draft",
-        "automaticRecovery": false,
-        "userActionRequired": true
+        "id": "media.action.apply-authorized-rights-restriction.finality",
+        "actionRef": "media.action.apply-authorized-rights-restriction",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
       },
       {
-        "id": "media.recovery.consent-revoked",
-        "errorKind": "media-rights-and-consent.consent.REVOKED",
-        "recoveryPath": "block-new-work-and-reconcile-in-flight-effects",
-        "automaticRecovery": false,
-        "userActionRequired": true
+        "id": "media.action.deliver-exact-version.finality",
+        "actionRef": "media.action.deliver-exact-version",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
       },
       {
-        "id": "media.recovery.outcome-unknown",
-        "errorKind": "media-job.OUTCOME_UNKNOWN",
-        "recoveryPath": "view-existing-job-status-or-check-its-outcome",
-        "automaticRecovery": false,
-        "userActionRequired": true
+        "id": "media.action.export-authorized-provenance.finality",
+        "actionRef": "media.action.export-authorized-provenance",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
       },
       {
-        "id": "media.recovery.version-conflict",
-        "errorKind": "concurrent-caption-revision",
-        "recoveryPath": "preserve-local-and-current-versions; choose-keep-local-or-use-latest-before-registering-a-new-version",
-        "automaticRecovery": false,
-        "userActionRequired": true
+        "id": "media.action.record-authorized-attestation.finality",
+        "actionRef": "media.action.record-authorized-attestation",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.record-review-comment.finality",
+        "actionRef": "media.action.record-review-comment",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.record-version-review-decision.finality",
+        "actionRef": "media.action.record-version-review-decision",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.request-admitted-speech-operation.finality",
+        "actionRef": "media.action.request-admitted-speech-operation",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.request-authorized-review.finality",
+        "actionRef": "media.action.request-authorized-review",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.request-plan-validation.finality",
+        "actionRef": "media.action.request-plan-validation",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.request-rights-review.finality",
+        "actionRef": "media.action.request-rights-review",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.revoke-authorized-consent.finality",
+        "actionRef": "media.action.revoke-authorized-consent",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.share-diagnostics-after-explicit-choice.finality",
+        "actionRef": "media.action.share-diagnostics-after-explicit-choice",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.stop-authorized-voice-use.finality",
+        "actionRef": "media.action.stop-authorized-voice-use",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.submit-admitted-plan.finality",
+        "actionRef": "media.action.submit-admitted-plan",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.submit-render.finality",
+        "actionRef": "media.action.submit-render",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.submit-simulation.finality",
+        "actionRef": "media.action.submit-simulation",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
+      },
+      {
+        "id": "media.action.submit-validated-request.finality",
+        "actionRef": "media.action.submit-validated-request",
+        "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
+        "confirmationRequired": true,
+        "undoable": false
       }
     ],
-    "scenarios": [],
-    "fixtures": [],
-    "search": [],
-    "inspections": [],
-    "createdAt": "2026-10-08T00:30:04.772Z",
-    "updatedAt": "2026-10-08T00:30:04.772Z"
+    "recovery": [],
+    "scenarios": [
+      {
+        "id": "media.scenario.source-available",
+        "name": "media.scenario.source-available",
+        "contextDimensions": {},
+        "startingStateRef": "media-upload-and-artifact.AVAILABLE",
+        "description": "source-available-and-not-yet-selected"
+      },
+      {
+        "id": "media.scenario.source-quarantined",
+        "name": "media.scenario.source-quarantined",
+        "contextDimensions": {},
+        "startingStateRef": "media-upload-and-artifact.QUARANTINED",
+        "description": "source-artifact-quarantined"
+      },
+      {
+        "id": "media.scenario.transcript-ready",
+        "name": "media.scenario.transcript-ready",
+        "contextDimensions": {},
+        "startingStateRef": "media-job.COMPLETED",
+        "description": "source-available-consent-active-job-completed-language-intent-present"
+      },
+      {
+        "id": "media.scenario.job-running",
+        "name": "media.scenario.job-running",
+        "contextDimensions": {},
+        "startingStateRef": "media-job.RUNNING",
+        "description": "request-recorded-and-one-attempt-running"
+      },
+      {
+        "id": "media.scenario.job-outcome-unknown",
+        "name": "media.scenario.job-outcome-unknown",
+        "contextDimensions": {},
+        "startingStateRef": "media-job.OUTCOME_UNKNOWN",
+        "description": "dispatch-may-have-crossed-boundary-without-confirmed-result"
+      },
+      {
+        "id": "media.scenario.job-outcome-confirmed",
+        "name": "media.scenario.job-outcome-confirmed",
+        "contextDimensions": {},
+        "startingStateRef": "media-job.COMPLETED",
+        "description": "existing-job-outcome-check-has-classified-completion"
+      },
+      {
+        "id": "media.scenario.upload-checksum-mismatch",
+        "name": "media.scenario.upload-checksum-mismatch",
+        "contextDimensions": {},
+        "startingStateRef": "media-upload-and-artifact.REJECTED",
+        "description": "expected-size-or-part-or-full-digest-does-not-match-recorded-upload-content"
+      },
+      {
+        "id": "media.scenario.upload-format-unsupported",
+        "name": "media.scenario.upload-format-unsupported",
+        "contextDimensions": {},
+        "startingStateRef": "media-upload-and-artifact.REJECTED",
+        "description": "inspected-content-format-is-not-admitted-by-the-current-public-contract"
+      },
+      {
+        "id": "media.scenario.upload-quarantined",
+        "name": "media.scenario.upload-quarantined",
+        "contextDimensions": {},
+        "startingStateRef": "media-upload-and-artifact.QUARANTINED",
+        "description": "verification-or-policy-review-is-required-before-the-artifact-can-be-used"
+      },
+      {
+        "id": "media.scenario.upload-verified-available",
+        "name": "media.scenario.upload-verified-available",
+        "contextDimensions": {},
+        "startingStateRef": "media-upload-and-artifact.AVAILABLE",
+        "description": "size-part-integrity-full-digest-format-and-required-policy-checks-have-recorded-an-available-version"
+      },
+      {
+        "id": "media.scenario.upload-permission-revoked",
+        "name": "media.scenario.upload-permission-revoked",
+        "contextDimensions": {},
+        "startingStateRef": "media-upload-and-artifact.ACCESS_REVOKED",
+        "description": "source-or-workspace-authority-is-revoked-after-the-transfer-begins"
+      },
+      {
+        "id": "media.scenario.artifact-verification-running",
+        "name": "media.scenario.artifact-verification-running",
+        "contextDimensions": {},
+        "startingStateRef": "media-job.RUNNING",
+        "description": "owner-issued-verification-job-is-running-for-an-existing-upload-identity"
+      },
+      {
+        "id": "media.scenario.artifact-verification-outcome-unknown",
+        "name": "media.scenario.artifact-verification-outcome-unknown",
+        "contextDimensions": {},
+        "startingStateRef": "media-job.OUTCOME_UNKNOWN",
+        "description": "verification-job-may-have-committed-without-confirmed-finality"
+      },
+      {
+        "id": "media.scenario.artifact-verification-completed",
+        "name": "media.scenario.artifact-verification-completed",
+        "contextDimensions": {},
+        "startingStateRef": "media-job.COMPLETED",
+        "description": "owner-issued-verification-job-has-confirmed-completion-evidence"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "media.fixture.source-available",
+        "scenarioRef": "media.scenario.source-available",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-PODCAST-INTERVIEW",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "source-available",
+          "initialConditions": "source-available-and-not-yet-selected",
+          "expected": "choose-source-is-available-and-no-transcription-has-been-submitted"
+        }
+      },
+      {
+        "id": "media.fixture.source-quarantined",
+        "scenarioRef": "media.scenario.source-quarantined",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-RIGHTS-DENIAL",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "source-quarantined",
+          "initialConditions": "source-artifact-quarantined",
+          "expected": "no-transcription-action; display-review-recovery"
+        }
+      },
+      {
+        "id": "media.fixture.transcript-ready",
+        "scenarioRef": "media.scenario.transcript-ready",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-PODCAST-INTERVIEW",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "transcript-ready",
+          "initialConditions": "source-available-consent-active-job-completed-language-intent-present",
+          "expected": "transcript-visible-with-source-time-and-recognized-origin"
+        }
+      },
+      {
+        "id": "media.fixture.job-running",
+        "scenarioRef": "media.scenario.job-running",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-PODCAST-INTERVIEW",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "job-running",
+          "initialConditions": "request-recorded-and-one-attempt-running",
+          "expected": "display-current-job-state-and-safe-cancellation-action"
+        }
+      },
+      {
+        "id": "media.fixture.job-outcome-unknown",
+        "scenarioRef": "media.scenario.job-outcome-unknown",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-PROVIDER-AMBIGUITY",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "job-outcome-unknown",
+          "initialConditions": "dispatch-may-have-crossed-boundary-without-confirmed-result",
+          "expected": "same-job-outcome-check-only; duplicate-submit-disabled"
+        }
+      },
+      {
+        "id": "media.fixture.job-outcome-confirmed",
+        "scenarioRef": "media.scenario.job-outcome-confirmed",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-PROVIDER-AMBIGUITY",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "job-outcome-confirmed",
+          "initialConditions": "existing-job-outcome-check-has-classified-completion",
+          "expected": "record-existing-job-result-without-new-dispatch"
+        }
+      },
+      {
+        "id": "media.fixture.upload-checksum-mismatch",
+        "scenarioRef": "media.scenario.upload-checksum-mismatch",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-UPLOAD-INTEGRITY-RECOVERY",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "upload-checksum-mismatch",
+          "initialConditions": "expected-size-or-part-or-full-digest-does-not-match-recorded-upload-content",
+          "expected": "do-not-promote-to-available; record-owner-policy-rejection-or-quarantine-and-show-truthful-integrity-copy"
+        }
+      },
+      {
+        "id": "media.fixture.upload-format-unsupported",
+        "scenarioRef": "media.scenario.upload-format-unsupported",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-UPLOAD-INTEGRITY-RECOVERY",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "upload-format-unsupported",
+          "initialConditions": "inspected-content-format-is-not-admitted-by-the-current-public-contract",
+          "expected": "keep-the-artifact-unavailable-and-report-the-supported-format-boundary-without-parsing-it-as-usable"
+        }
+      },
+      {
+        "id": "media.fixture.upload-quarantined",
+        "scenarioRef": "media.scenario.upload-quarantined",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-UPLOAD-INTEGRITY-RECOVERY",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "upload-quarantined",
+          "initialConditions": "verification-or-policy-review-is-required-before-the-artifact-can-be-used",
+          "expected": "hold-new-reads-and-processing-until-an-authorized-disposition-is-recorded"
+        }
+      },
+      {
+        "id": "media.fixture.upload-verified-available",
+        "scenarioRef": "media.scenario.upload-verified-available",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-UPLOAD-INTEGRITY-RECOVERY",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "upload-verified-available",
+          "initialConditions": "size-part-integrity-full-digest-format-and-required-policy-checks-have-recorded-an-available-version",
+          "expected": "expose-one-exact-immutable-artifact-version-with-integrity-and-unknown-metadata-distinguished"
+        }
+      },
+      {
+        "id": "media.fixture.upload-permission-revoked",
+        "scenarioRef": "media.scenario.upload-permission-revoked",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-UPLOAD-INTEGRITY-RECOVERY",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "upload-permission-revoked",
+          "initialConditions": "source-or-workspace-authority-is-revoked-after-the-transfer-begins",
+          "expected": "stop-accepting-new-parts-and-apply-the-recorded-partial-data-retention-policy"
+        }
+      },
+      {
+        "id": "media.fixture.artifact-verification-running",
+        "scenarioRef": "media.scenario.artifact-verification-running",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-UPLOAD-INTEGRITY-RECOVERY",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "artifact-verification-running",
+          "initialConditions": "owner-issued-verification-job-is-running-for-an-existing-upload-identity",
+          "expected": "show-job-state-stage-progress-and-related-upload-as-distinct-identities"
+        }
+      },
+      {
+        "id": "media.fixture.artifact-verification-outcome-unknown",
+        "scenarioRef": "media.scenario.artifact-verification-outcome-unknown",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-UPLOAD-INTEGRITY-RECOVERY",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "artifact-verification-outcome-unknown",
+          "initialConditions": "verification-job-may-have-committed-without-confirmed-finality",
+          "expected": "view-status-or-check-outcome-for-the-same-job-identity; preserve-the-related-upload-identity; do-not-create-a-duplicate"
+        }
+      },
+      {
+        "id": "media.fixture.artifact-verification-completed",
+        "scenarioRef": "media.scenario.artifact-verification-completed",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-UPLOAD-INTEGRITY-RECOVERY",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "artifact-verification-completed",
+          "initialConditions": "owner-issued-verification-job-has-confirmed-completion-evidence",
+          "expected": "show-completion-finality-and-recorded-verification-evidence-without-inferencing-from-upload-status"
+        }
+      }
+    ],
+    "search": [
+      {
+        "id": "media.search.authorized-projects",
+        "name": "Find authorized projects",
+        "searchableTypes": [
+          "media.domain.project"
+        ],
+        "description": "Find current-tenant authorized projects with exact stable identity and stale-index disclosure."
+      },
+      {
+        "id": "media.search.authorized-artifacts",
+        "name": "Find authorized artifact versions",
+        "searchableTypes": [
+          "media.domain.artifact-version"
+        ],
+        "description": "Find authorized artifact versions by media type, verified integrity, declared provenance and exact version."
+      },
+      {
+        "id": "media.search.authorized-jobs",
+        "name": "Find processing jobs and attempt outcomes",
+        "searchableTypes": [
+          "media.domain.processing-job",
+          "media.domain.artifact-verification-job"
+        ],
+        "description": "Find exact authorized processing jobs with authoritative state and separately measured observation freshness."
+      }
+    ],
+    "inspections": [
+      {
+        "id": "media.inspection.specification",
+        "projectionKind": "specification",
+        "description": "Inspect the currently authored and versioned Media interface, screen, CLI, SDK, Agent Tool or event contract; proposal and admitted implementation must be visibly distinct."
+      },
+      {
+        "id": "media.inspection.authority",
+        "projectionKind": "authority",
+        "description": "Inspect the exact artifact, project, version, rights/consent and caller scope without revealing content outside current policy."
+      },
+      {
+        "id": "media.inspection.evidence",
+        "projectionKind": "evidence",
+        "description": "Inspect available quality, provenance, result and external delivery evidence with metric domains, sources and UNKNOWN/NOT_QUALIFIED distinguished from measured failure."
+      },
+      {
+        "id": "media.inspection.trace",
+        "projectionKind": "trace",
+        "description": "Inspect causal job, attempt, dispatch, provider and delivery statuses across observations without manufacturing finality or permissions."
+      },
+      {
+        "id": "media.inspection.synthetic-simulation",
+        "projectionKind": "simulation",
+        "description": "Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification."
+      }
+    ],
+    "createdAt": "2026-10-08T06:41:06.734Z",
+    "updatedAt": "2026-10-08T06:41:06.734Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
@@ -7938,6 +8724,10 @@
       "states",
       "actions",
       "recovery",
+      "scenarios",
+      "fixtures",
+      "search",
+      "inspections",
       "createdAt",
       "updatedAt"
     ],
@@ -7967,56 +8757,56 @@
         "source": "component-contracts.yaml#components"
       },
       "views": {
-        "status": "DIRECT_IDENTITY_AND_PURPOSE_MAPPING; CROSS_REFERENCES_PENDING",
-        "source": "screen-registry.yaml#screens,laneViews"
+        "status": "DIRECT_IDENTITY_PURPOSE_AND_COMPONENT_REF_MAPPING; JOURNEY_AND_STATE_REFS_PENDING",
+        "source": "screen-registry.yaml#screens,laneViews; screen-contracts/*.yaml#componentIds"
       },
       "journeys": {
         "status": "BLOCKED_PRIMARY_ACTOR_AND_STEP_BINDINGS",
         "source": "journey-registry.yaml#journeys"
       },
       "interactions": {
-        "status": "PARTIAL_DIRECT_MAPPING; PRECONDITIONS_UNALLOCATED",
-        "source": "interaction-registry.yaml#interactions"
+        "status": "DIRECT_INTERACTION_AND_ACTION_PRECONDITION_MAPPING",
+        "source": "interaction-registry.yaml#interactions; action-registry.yaml#actions[].preconditions"
       },
       "states": {
-        "status": "DIRECT_PROPOSAL_MAPPING; PDP-1_ACCEPTANCE_PENDING",
-        "source": "state-models.yaml#models[].states"
+        "status": "DIRECT_PDP-0_STATE_PROPOSAL_MAPPING; PDP-1_RECONCILIATION_AND_OWNER_ACCEPTANCE_PENDING",
+        "source": "state-models.yaml#models[].states; pdp-1-domain-data/states.yaml#stateMachines"
       },
       "transitions": {
         "status": "BLOCKED_CANONICAL_ACTION_AND_GUARD_BINDINGS",
         "source": "state-models.yaml#models[].transitions"
       },
       "actions": {
-        "status": "DIRECT_UI_PROPOSAL_MAPPING; EFFECT_LINKS_PENDING",
+        "status": "DIRECT_UI_PROPOSAL_MAPPING; EFFECT_KIND_AND_CONDITIONAL_REVERSIBILITY_UNRESOLVED",
         "source": "action-registry.yaml#actions"
       },
       "effects": {
-        "status": "BLOCKED_EFFECT_KIND_AND_REVERSIBILITY_MAPPING",
+        "status": "BLOCKED_EFFECT_KIND_AND_CONDITIONAL_REVERSIBILITY_MAPPING",
         "source": "action-registry.yaml#actions[].effect/reversible"
       },
       "finality": {
-        "status": "BLOCKED_ACTION_SCOPED_FINALITY_MAPPING",
-        "source": "action-registry.yaml#actions[].finality"
+        "status": "DIRECT_EXPLICIT_CONFIRMATION_AND_BOOLEAN_REVERSIBILITY_SUBSET; REMAINDER_UNRESOLVED",
+        "source": "action-registry.yaml#actions[].confirmation/finality/reversible"
       },
       "recovery": {
-        "status": "DIRECT_PROPOSAL_MAPPING; CROSS_REFERENCES_PENDING",
-        "source": "recovery-finality-contracts.yaml#contracts"
+        "status": "SOURCE_PROPOSALS_AND_CROSS-REFERENCES_RECORDED; PUBLIC_BOOLEAN_BINDINGS_UNRESOLVED",
+        "source": "recovery-finality-contracts.yaml#contracts; experience-source-bindings.yaml#recoveryCrossReferences"
       },
       "scenarios": {
-        "status": "BLOCKED_STARTING_STATE_AND_CONTEXT_MAPPING",
-        "source": "scenario-fixture-registry.yaml#fixtures"
+        "status": "DIRECT_LINKED_FIXTURE_AND_CANONICAL_START_STATE_SUBSET; CONTEXT_AND_REMAINDER_UNRESOLVED",
+        "source": "scenario-fixture-registry.yaml#fixtures; experience-source-bindings.yaml#scenarioStartingStateBindings; journey-contracts/*.yaml#scenarioRefs; state-models.yaml#models[].states"
       },
       "fixtures": {
-        "status": "BLOCKED_SCENARIO_LINKAGE",
-        "source": "scenario-fixture-registry.yaml#fixtures"
+        "status": "DIRECT_SCENARIO_AND_SOURCE_SEED_REFERENCE_SUBSET; INLINE_PAYLOAD_AND_REMAINDER_UNRESOLVED",
+        "source": "scenario-fixture-registry.yaml#fixtures; libs/media-experience-simulation/src/fixtures.ts"
       },
       "search": {
-        "status": "BLOCKED_NO_SCHEMA_SHAPED_SEARCH_AUTHORITY",
-        "source": "no direct source records"
+        "status": "DIRECT_SOURCE_PROPOSAL; TYPE_OWNER_AND_QUERY_REVIEW_PENDING",
+        "source": "search-inspection-contracts.yaml#search and sourceBindings.searches"
       },
       "inspections": {
-        "status": "BLOCKED_EXPLORER_IS_NOT_PDP-3_AUTHORITY",
-        "source": "explorer/tools-binding.yaml"
+        "status": "DIRECT_SOURCE_PROPOSAL; SOURCE_OWNER_REVIEW_PENDING",
+        "source": "search-inspection-contracts.yaml#inspections and sourceBindings.inspections"
       },
       "createdAt": {
         "status": "PROJECTION_GENERATION_METADATA",
@@ -8033,9 +8823,99 @@
       "projectedJourneys": 0,
       "registryActions": 146,
       "registryInteractions": 20,
-      "projectedStates": 49
+      "projectedStates": 49,
+      "explicitFinalityCandidates": 18,
+      "linkedScenarioCandidates": 14,
+      "linkedFixtureCandidates": 14,
+      "searchContracts": 3,
+      "inspectionContracts": 5
     },
-    "ownerDecisionStatus": "PENDING; directly projected records and schema validation do not establish semantic acceptance or phase closure."
+    "ownerDecisionStatus": "PENDING; directly projected records and schema validation do not establish semantic acceptance or phase closure.",
+    "recoverySourceProposals": [
+      {
+        "id": "media.recovery.language-uncertain",
+        "stateProposal": "transcript-language-or-recognition-uncertain",
+        "allowedProposal": "correct-manually-or-preserve-draft-under-current-authority",
+        "blockedProposal": "label-as-verified-or-commit-when-required-alignment-is-missing"
+      },
+      {
+        "id": "media.recovery.alignment-incomplete",
+        "stateProposal": "caption-time-range-missing-or-estimated",
+        "allowedProposal": "enter-explicit-time-ranges-or-retain-draft",
+        "blockedProposal": "present-estimated-timing-as-measured"
+      },
+      {
+        "id": "media.recovery.consent-revoked",
+        "stateProposal": "media-rights-and-consent.consent.REVOKED",
+        "allowedProposal": "block-new-work-and-reconcile-in-flight-effects",
+        "blockedProposal": "restart-or-route-around-consent"
+      },
+      {
+        "id": "media.recovery.outcome-unknown",
+        "stateProposal": "media-job.OUTCOME_UNKNOWN",
+        "allowedProposal": "view-existing-job-status-or-check-its-outcome",
+        "blockedProposal": "submit-duplicate-request-or-report-cancellation-as-confirmed"
+      },
+      {
+        "id": "media.recovery.version-conflict",
+        "stateProposal": "concurrent-caption-revision",
+        "allowedProposal": "preserve-local-and-current-versions; choose-keep-local-or-use-latest-before-registering-a-new-version",
+        "blockedProposal": "overwrite-a-committed-version"
+      }
+    ],
+    "recoverySourceCrossReferences": [
+      {
+        "recoveryRef": "media.recovery.language-uncertain",
+        "scenarioRefs": [
+          "media.scenario.language-uncertain"
+        ],
+        "actionRefs": [
+          "media.action.correct-caption"
+        ],
+        "rationale": "Recovery permits manual correction or retaining a draft; the linked fixture has uncertain transcript language and the action edits caption text without asserting recognition certainty."
+      },
+      {
+        "recoveryRef": "media.recovery.alignment-incomplete",
+        "scenarioRefs": [
+          "media.scenario.alignment-required"
+        ],
+        "actionRefs": [
+          "media.action.align-caption-timing"
+        ],
+        "rationale": "Recovery permits explicit time-range entry or retaining a draft; the linked fixture has a missing segment end time."
+      },
+      {
+        "recoveryRef": "media.recovery.consent-revoked",
+        "scenarioRefs": [
+          "media.scenario.consent-revoked"
+        ],
+        "actionRefs": [
+          "media.action.request-transcription"
+        ],
+        "rationale": "The linked fixture denies processing after consent revocation; the exact action is the guarded processing request whose effect must remain blocked."
+      },
+      {
+        "recoveryRef": "media.recovery.outcome-unknown",
+        "scenarioRefs": [
+          "media.scenario.job-outcome-unknown"
+        ],
+        "actionRefs": [
+          "media.action.view-job-status",
+          "media.action.check-job-outcome"
+        ],
+        "rationale": "The recovery path names observing or checking the existing job; both actions are read-only and the fixture preserves OUTCOME_UNKNOWN."
+      },
+      {
+        "recoveryRef": "media.recovery.version-conflict",
+        "scenarioRefs": [
+          "media.scenario.caption-conflict"
+        ],
+        "actionRefs": [
+          "media.action.resolve-caption-conflict"
+        ],
+        "rationale": "The recovery path preserves both versions and requires an explicit resolution; the linked fixture has concurrent caption versions and a conflicted draft."
+      }
+    ]
   },
   "candidateFieldSources": {
     "id": {
@@ -8070,8 +8950,8 @@
     },
     "views": {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
-      "sourcePath": "screens and laneViews",
-      "mapping": "all 47 exact view identities, names, and purposes; cross references remain separately pending"
+      "sourcePath": "screens and laneViews; screen-contracts/*.yaml#componentIds",
+      "mapping": "all 47 exact view identities, names, purposes and resolvable component refs; journey/state refs remain unresolved"
     },
     "journeys": {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
@@ -8080,13 +8960,13 @@
     },
     "interactions": {
       "sourceRef": ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
-      "sourcePath": "interactions",
-      "mapping": "direct interaction ID/input/effectRef projection; preconditions not allocated by source"
+      "sourcePath": "interactions[].effectRef; action-registry.yaml#actions[].preconditions",
+      "mapping": "direct exact action linkage and the referenced action's authored preconditions"
     },
     "states": {
       "sourceRef": ".product-experience/pdp-0-product-truth/state-models.yaml",
-      "sourcePath": "models[].states",
-      "mapping": "direct proposed state IDs, meaning, terminality, and model invariants"
+      "sourcePath": "models[].states; PDP-1 states.yaml stateMachines",
+      "mapping": "direct proposed state IDs, meaning, terminality, and invariants; identity extraction does not accept PDP-1 semantics"
     },
     "transitions": {
       "sourceRef": ".product-experience/pdp-0-product-truth/state-models.yaml",
@@ -8105,33 +8985,33 @@
     },
     "finality": {
       "sourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml",
-      "sourcePath": "actions[].finality/confirmation",
-      "mapping": "not projected because finality requires a resolved action contract and boolean confirmation/undoability"
+      "sourcePath": "actions[].finality/confirmation/reversible",
+      "mapping": "direct subset only when confirmation prose explicitly requires confirmation and reversible is a source boolean; other actions remain unresolved"
     },
     "recovery": {
       "sourceRef": ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
-      "sourcePath": "contracts",
-      "mapping": "direct proposed state/allowed/blocked recovery path; no automatic recovery is asserted"
+      "sourcePath": "contracts plus experience-source-bindings.yaml#recoveryCrossReferences",
+      "mapping": "retain source narratives and exact action/scenario links in candidate review metadata; do not emit public records until automaticRecovery/userActionRequired booleans and canonical state bindings are explicit"
     },
     "scenarios": {
-      "sourceRef": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
-      "sourcePath": "fixtures",
-      "mapping": "not projected without exact starting-state and context-dimension bindings"
+      "sourceRef": ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+      "sourcePath": "scenarioStartingStateBindings plus exact journey/action scenarioRefs",
+      "mapping": "project only scenario IDs with an exact source fixture seed and a resolvable canonical startingStateRef; leave contextDimensions empty when none are asserted"
     },
     "fixtures": {
       "sourceRef": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
-      "sourcePath": "fixtures",
-      "mapping": "not projected without a linked ExperienceDefinition scenario"
+      "sourcePath": "fixtures plus libs/media-experience-simulation/src/fixtures.ts",
+      "mapping": "linked fixture descriptor references exact scenario, fixture key, source path and authored conditions; source payload is not copied or treated as runtime evidence"
     },
     "search": {
-      "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
-      "sourcePath": "screen purposes",
-      "mapping": "no schema-shaped searchable type authority is defined"
+      "sourceRef": ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
+      "sourcePath": "search[] and sourceBindings.searches",
+      "mapping": "schema-shaped search records with exact PDP-1 type refs; query execution and owner acceptance remain pending"
     },
     "inspections": {
-      "sourceRef": ".product-experience/explorer/tools-binding.yaml",
-      "sourcePath": "Explorer inspection behavior",
-      "mapping": "Explorer observations are not accepted PDP-3 inspection contracts"
+      "sourceRef": ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
+      "sourcePath": "inspections[] and sourceBindings.inspections",
+      "mapping": "schema-shaped projection-kind records; source review and runtime admission remain pending"
     },
     "createdAt": {
       "sourceRef": null,
@@ -8150,7 +9030,7 @@
       "status": "PARTIAL_DIRECT_MAPPING; REQUIRED_PROPS_UNRESOLVED",
       "sourceDisposition": "component-contracts.yaml#components",
       "reasons": [
-        "component-contracts.yaml#components"
+        "Required public component props are not supplied by component anatomy; the candidate leaves requiredProps empty rather than reclassifying anatomy as props."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -8160,11 +9040,16 @@
         ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
         ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
         ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+        "libs/media-experience-simulation/src/fixtures.ts",
         ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
         ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
+        ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
@@ -8247,10 +9132,10 @@
     },
     {
       "field": "views",
-      "status": "DIRECT_IDENTITY_AND_PURPOSE_MAPPING; CROSS_REFERENCES_PENDING",
-      "sourceDisposition": "screen-registry.yaml#screens,laneViews",
+      "status": "DIRECT_IDENTITY_PURPOSE_AND_COMPONENT_REF_MAPPING; JOURNEY_AND_STATE_REFS_PENDING",
+      "sourceDisposition": "screen-registry.yaml#screens,laneViews; screen-contracts/*.yaml#componentIds",
       "reasons": [
-        "screen-registry.yaml#screens,laneViews"
+        "View identity, purpose, and exact resolvable component refs are projected; screen journey refs use J-xx source IDs with no schema-shaped journeys, and PDP-1 state refs remain unbound."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -8260,11 +9145,16 @@
         ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
         ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
         ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+        "libs/media-experience-simulation/src/fixtures.ts",
         ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
         ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
+        ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
@@ -8350,7 +9240,7 @@
       "status": "BLOCKED_PRIMARY_ACTOR_AND_STEP_BINDINGS",
       "sourceDisposition": "journey-registry.yaml#journeys",
       "reasons": [
-        "journey-registry.yaml#journeys"
+        "P0-04 resolves 11 of 30 initiating actors, while 19 remain unresolved; the public journey projection still lacks schema-shaped per-step intent/transition bindings and exact ordered step IDs, so no P3 journey is emitted."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -8360,211 +9250,16 @@
         ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
         ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
         ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+        "libs/media-experience-simulation/src/fixtures.ts",
         ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
         ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
+        ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/artifact-verification-job-family.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml"
-      ]
-    },
-    {
-      "field": "interactions",
-      "status": "PARTIAL_DIRECT_MAPPING; PRECONDITIONS_UNALLOCATED",
-      "sourceDisposition": "interaction-registry.yaml#interactions",
-      "reasons": [
-        "interaction-registry.yaml#interactions"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
-        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-        ".product-experience/pdp-3-product-experience/action-registry.yaml",
-        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
-        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
-        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
-        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
-        ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
-        ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
-        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
-        ".product-experience/pdp-0-product-truth/state-models.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/artifact-verification-job-family.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml"
-      ]
-    },
-    {
-      "field": "states",
-      "status": "DIRECT_PROPOSAL_MAPPING; PDP-1_ACCEPTANCE_PENDING",
-      "sourceDisposition": "state-models.yaml#models[].states",
-      "reasons": [
-        "state-models.yaml#models[].states"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
-        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-        ".product-experience/pdp-3-product-experience/action-registry.yaml",
-        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
-        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
-        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
-        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
-        ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
-        ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
-        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
-        ".product-experience/pdp-0-product-truth/state-models.yaml",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
@@ -8650,7 +9345,7 @@
       "status": "BLOCKED_CANONICAL_ACTION_AND_GUARD_BINDINGS",
       "sourceDisposition": "state-models.yaml#models[].transitions",
       "reasons": [
-        "state-models.yaml#models[].transitions"
+        "PDP-0 transition proposals lack resolved PDP-1 actionRefs and guard references; the P1 state/operation owners have not accepted a legal source-to-target binding."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -8660,11 +9355,16 @@
         ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
         ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
         ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+        "libs/media-experience-simulation/src/fixtures.ts",
         ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
         ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
+        ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
@@ -8747,10 +9447,10 @@
     },
     {
       "field": "actions",
-      "status": "DIRECT_UI_PROPOSAL_MAPPING; EFFECT_LINKS_PENDING",
+      "status": "DIRECT_UI_PROPOSAL_MAPPING; EFFECT_KIND_AND_CONDITIONAL_REVERSIBILITY_UNRESOLVED",
       "sourceDisposition": "action-registry.yaml#actions",
       "reasons": [
-        "action-registry.yaml#actions"
+        "The 146 UI action records supply exact labels, prose, and preconditions, but do not select canonical PDP-1 operationRefs or exact action-to-effect bindings for producesEffectRefs."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -8760,11 +9460,16 @@
         ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
         ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
         ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+        "libs/media-experience-simulation/src/fixtures.ts",
         ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
         ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
+        ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
@@ -8847,10 +9552,10 @@
     },
     {
       "field": "effects",
-      "status": "BLOCKED_EFFECT_KIND_AND_REVERSIBILITY_MAPPING",
+      "status": "BLOCKED_EFFECT_KIND_AND_CONDITIONAL_REVERSIBILITY_MAPPING",
       "sourceDisposition": "action-registry.yaml#actions[].effect/reversible",
       "reasons": [
-        "action-registry.yaml#actions[].effect/reversible"
+        "The action source does not classify each effect into the public effect-kind enum; six reversible values are conditional prose while the schema requires a boolean, so those cannot be narrowed without owner decisions."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -8860,11 +9565,16 @@
         ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
         ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
         ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+        "libs/media-experience-simulation/src/fixtures.ts",
         ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
         ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
+        ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
@@ -8947,10 +9657,10 @@
     },
     {
       "field": "finality",
-      "status": "BLOCKED_ACTION_SCOPED_FINALITY_MAPPING",
-      "sourceDisposition": "action-registry.yaml#actions[].finality",
+      "status": "DIRECT_EXPLICIT_CONFIRMATION_AND_BOOLEAN_REVERSIBILITY_SUBSET; REMAINDER_UNRESOLVED",
+      "sourceDisposition": "action-registry.yaml#actions[].confirmation/finality/reversible",
       "reasons": [
-        "action-registry.yaml#actions[].finality"
+        "Only actions whose confirmation prose explicitly requires confirmation and whose reversible field is a boolean have a candidate finality record; other confirmation wording and conditional reversibility remain unresolved."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -8960,11 +9670,16 @@
         ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
         ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
         ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+        "libs/media-experience-simulation/src/fixtures.ts",
         ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
         ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
+        ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
@@ -9047,10 +9762,10 @@
     },
     {
       "field": "recovery",
-      "status": "DIRECT_PROPOSAL_MAPPING; CROSS_REFERENCES_PENDING",
-      "sourceDisposition": "recovery-finality-contracts.yaml#contracts",
+      "status": "SOURCE_PROPOSALS_AND_CROSS-REFERENCES_RECORDED; PUBLIC_BOOLEAN_BINDINGS_UNRESOLVED",
+      "sourceDisposition": "recovery-finality-contracts.yaml#contracts; experience-source-bindings.yaml#recoveryCrossReferences",
       "reasons": [
-        "recovery-finality-contracts.yaml#contracts"
+        "Five recovery narratives and exact action/scenario cross-references are retained in source review metadata; the source does not provide the public automaticRecovery/userActionRequired booleans or all canonical state/finality references."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -9060,11 +9775,16 @@
         ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
         ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
         ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+        "libs/media-experience-simulation/src/fixtures.ts",
         ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
         ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
+        ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
@@ -9147,10 +9867,10 @@
     },
     {
       "field": "scenarios",
-      "status": "BLOCKED_STARTING_STATE_AND_CONTEXT_MAPPING",
-      "sourceDisposition": "scenario-fixture-registry.yaml#fixtures",
+      "status": "DIRECT_LINKED_FIXTURE_AND_CANONICAL_START_STATE_SUBSET; CONTEXT_AND_REMAINDER_UNRESOLVED",
+      "sourceDisposition": "scenario-fixture-registry.yaml#fixtures; experience-source-bindings.yaml#scenarioStartingStateBindings; journey-contracts/*.yaml#scenarioRefs; state-models.yaml#models[].states",
       "reasons": [
-        "scenario-fixture-registry.yaml#fixtures"
+        "Only 14 of 31 registry records have an exact source-fixture state that maps to a canonical PDP-0 state; 17 remain unresolved, and context dimensions are not asserted."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -9160,11 +9880,16 @@
         ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
         ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
         ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+        "libs/media-experience-simulation/src/fixtures.ts",
         ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
         ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
+        ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
@@ -9247,10 +9972,10 @@
     },
     {
       "field": "fixtures",
-      "status": "BLOCKED_SCENARIO_LINKAGE",
-      "sourceDisposition": "scenario-fixture-registry.yaml#fixtures",
+      "status": "DIRECT_SCENARIO_AND_SOURCE_SEED_REFERENCE_SUBSET; INLINE_PAYLOAD_AND_REMAINDER_UNRESOLVED",
+      "sourceDisposition": "scenario-fixture-registry.yaml#fixtures; libs/media-experience-simulation/src/fixtures.ts",
       "reasons": [
-        "scenario-fixture-registry.yaml#fixtures"
+        "Only fixtures with a projected linked scenario and an exact fixture key in the local simulation source are emitted; records carry source descriptors, not an inlined executable payload."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -9260,211 +9985,16 @@
         ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
         ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
         ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+        "libs/media-experience-simulation/src/fixtures.ts",
         ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
         ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
+        ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/artifact-verification-job-family.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml"
-      ]
-    },
-    {
-      "field": "search",
-      "status": "BLOCKED_NO_SCHEMA_SHAPED_SEARCH_AUTHORITY",
-      "sourceDisposition": "no direct source records",
-      "reasons": [
-        "no direct source records"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
-        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-        ".product-experience/pdp-3-product-experience/action-registry.yaml",
-        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
-        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
-        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
-        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
-        ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
-        ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
-        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
-        ".product-experience/pdp-0-product-truth/state-models.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/artifact-verification-job-family.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml"
-      ]
-    },
-    {
-      "field": "inspections",
-      "status": "BLOCKED_EXPLORER_IS_NOT_PDP-3_AUTHORITY",
-      "sourceDisposition": "explorer/tools-binding.yaml",
-      "reasons": [
-        "explorer/tools-binding.yaml"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
-        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-        ".product-experience/pdp-3-product-experience/action-registry.yaml",
-        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
-        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
-        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
-        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
-        ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
-        ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
-        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
-        ".product-experience/pdp-0-product-truth/state-models.yaml",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
         ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
@@ -9546,7 +10076,7 @@
       ]
     }
   ],
-  "derivationBoundary": "candidateModel is a structurally conformant partial projection populated from direct source records where mappings exist. Empty collections represent unresolved mappings, never accepted non-applicability. createdAt/updatedAt are projection-build timestamps only; they are not canonical product timestamps. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
+  "derivationBoundary": "candidateModel is a structurally conformant partial projection populated from direct source records where mappings exist. Empty collections represent unresolved mappings, never accepted non-applicability. Where a contract requires generated timestamps, they are projection-build metadata rather than canonical product timestamps; optional ProductDefinition timestamps are omitted when source provenance is absent. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
   "knownBlockers": [
     "The required ExperienceDefinition shape is populated from exact PDP sources wherever direct mappings exist; exact remaining semantic, cross-reference, and acceptance blockers stay listed separately."
   ],

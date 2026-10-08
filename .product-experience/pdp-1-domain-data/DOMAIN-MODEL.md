@@ -2,7 +2,7 @@
 
 **Product:** Media (`media`)
 **Artifact:** `media.pdp-1.domain-data.v1`
-**Status:** proposed projection; semantic owner review pending (P0-010 remains open)
+**Status:** proposed canonical registries; bounded PXD-026 state-policy decisions are accepted with explicit limits; full PDP-1 semantic acceptance and independent P0-010 remain open
 
 This directory organizes domain and data semantics recorded in PDP-0 into
 machine-readable registries. PDP-0 remains the source for product truth and
@@ -157,11 +157,14 @@ identity, immutable artifact version, append-only history, or ancestry rules.
 The unresolved owner decisions at the end of that file are acceptance gates,
 not omissions to fill from whichever projection happens to be newest.
 
-`state-adjudication.yaml` gives provisional meanings for states by machine
-dimension and preserves the exact `RETRY_PENDING`/`RETRYING`,
-`CANCEL_REQUESTED`/`CANCELLING`, and unknown/reconciliation/partial-success
-differences. Its meanings remain proposals pending owner review and the
-independent P0-010 gate. Existing lossy adapter mappings are evidence only.
+`state-adjudication.yaml` preserves exact job/attempt/delivery identity and the
+`RETRY_PENDING`/`RETRYING`, `CANCEL_REQUESTED`/`CANCELLING`, and
+unknown/reconciliation/partial-success distinctions. PXD-026 explicitly
+accepts the bounded policy decisions linked there through
+[`../acceptance.yaml`](../acceptance.yaml) dispositions
+`MEDIA-OWNER-20261007-04` through `-07`; that does not accept each state
+projection, transition, runtime mapping, or the PDP-1 phase. Existing lossy
+adapter mappings remain implementation evidence only.
 
 `operations.yaml` remains the semantic operation center. The added
 `../interface-parity/operation-parity.yaml` records the current source
@@ -173,17 +176,25 @@ every outcome. `presentation-projections.yaml` defines read-side fields and
 requires freshness, uncertainty, authorization scope, and safe actions to be
 carried from the host/domain adapter.
 
+The current operation-parity report inventories 279 identities across eight
+surface families: 146 UI actions, 27 HTTP operations, 43 gRPC methods, CLI,
+SDK, Agent Tools, events, and related interfaces. It reports 175 unresolved
+identities and zero owner-accepted bindings. Proposed family associations do
+not eliminate source-specific gaps or establish semantic equivalence.
+
 ## Uncertainty and finality
 
 The following is source material only: PDP-0 `state-models.yaml` proposes
 unknown/finality distinctions, cancellation request versus confirmation, and
 machine-specific state relations. PDP-1 extracts exact machine IDs, dimensions,
 state spellings, and transition relations into `states.yaml` and
-`transitions.yaml`; this extraction does not promote PDP-0 meanings, guards,
-terminality, or safe actions to accepted canonical semantics. In particular,
-`RETRY_PENDING`/`RETRYING`, `CANCEL_REQUESTED`/`CANCELLING`, and the job,
-attempt, and delivery uses of `OUTCOME_UNKNOWN`, `RECONCILING`, and
-`PARTIALLY_SUCCEEDED` remain unresolved across sources. The current TypeScript
+`transitions.yaml`; this extraction does not accept the per-record source
+mappings, guards, transition legality, or terminality. PXD-026 accepts the
+bounded non-equivalence rules for `RETRY_PENDING`/`RETRYING`,
+`CANCEL_REQUESTED`/`CANCELLING`, ingress `ACCEPTED`/job `QUEUED`, and unknown
+outcomes; exact source-to-canonical mappings and the job, attempt, and delivery
+uses of `OUTCOME_UNKNOWN`, `RECONCILING`, and `PARTIALLY_SUCCEEDED` remain
+unresolved. The current TypeScript
 `CANCELLING` to `RUNNING` mapping is recorded as a lossy implementation
 observation, not adopted as product or presentation meaning. OpenAPI's
 `PlatformOperation.state` enum is narrower and differently named; no mapping
@@ -197,18 +208,51 @@ in `states.yaml`, with exact source and display context, rationale, and owner;
 the current extraction adds no such mapping because the observed mappings are
 conflicting or lossy. Transition operation references use only existing
 PDP1-002 operation-family IDs and remain proposed/unresolved. Event triggers,
-permissions, execution effects, operation equivalence, and state meanings stay
-pending their respective owners and PDP1-004. No implementation or API schema
-was changed by this extraction.
+permissions, execution effects, operation equivalence, and individual source
+mappings remain pending their respective owners and PDP1-004. No implementation
+or API schema was changed by this extraction.
 
 ## Acceptance
 
-These projections do not claim owner acceptance. This PDP1-001 source
-reconciliation is proposed only. Exact wire parity, consumer
-compatibility, unit/coordinate decisions, event names, operation bindings,
-and offline conflict policy remain open where source evidence does not settle
-them. Structural YAML validity does not establish semantic acceptance,
-runtime behavior, qualification, or publication.
+PDP1-001 reconciliation and the canonical registries remain proposals. The
+bounded PXD-026 policies do not accept per-record identities, all state or
+operation bindings, exact wire parity, consumer compatibility, unit/coordinate
+decisions, event names, or offline conflict behavior. The prerequisite is
+independent P0-010 acceptance; PDP-1 review then requires `media-domain-lead`,
+`distributed-systems-lead`, `privacy-and-rights-owner`, relevant domain and
+platform contract owners, and an independent product-definition reviewer.
+The active record is `ACCEPT-INPUT-PDP-1` in
+[`../acceptance.yaml`](../acceptance.yaml). Structural validity does not
+establish runtime behavior, qualification, publication, or phase acceptance.
+
+## Authority, dependencies, artifact registry, and proof
+
+PDP-0 `domain-model.yaml` and `state-models.yaml` remain upstream product-truth
+sources; bounded state-policy references are recorded in
+[`state-adjudication.yaml`](state-adjudication.yaml). The full PDP-1 artifact
+set is indexed in [`../source-manifest.yaml`](../source-manifest.yaml) and
+[`../artifact-identities.yaml`](../artifact-identities.yaml). This directory's
+registries are `domain-objects.yaml`, `value-objects.yaml`, `relationships.yaml`,
+`operations.yaml`, `states.yaml`, `transitions.yaml`, `events.yaml`,
+`evidence.yaml`, `provenance.yaml`, `privacy.yaml`, `versioning.yaml`,
+`offline-sync.yaml`, `interoperability.yaml`, `authority.yaml`,
+`decisions.yaml`, `canonical-reconciliation.yaml`, `state-adjudication.yaml`,
+`presentation-projections.yaml`, and `action-contracts.yaml`; cross-surface
+identity inventory is in [`../interface-parity/operation-parity.yaml`](../interface-parity/operation-parity.yaml).
+
+The decision and dependency sources are
+[`../decision-log.md`](../decision-log.md),
+[`../acceptance.yaml`](../acceptance.yaml),
+[`../authority-map.yaml`](../authority-map.yaml),
+[`../traceability.yaml`](../traceability.yaml), and
+[`../gaps.yaml`](../gaps.yaml). Local verification uses
+`tests/product-definition-authority.test.mjs`,
+`tests/media-contract-parity.test.mjs`,
+`pnpm check:product-definition-authority`,
+`pnpm check:product-experience-local`, and
+`node ../../scripts/report-media-definition-residuals.mjs`. These are
+structural and source-inventory checks; independent P0-010/PDP-1 review and
+Lifecycle currentness/receipts remain unperformed.
 
 ### Local structural verification (not portable CI evidence)
 

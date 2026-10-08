@@ -202,4 +202,10 @@ localization:
 sourceRefs:
 - master-plan:section-20.2
 - .product-experience/pdp-0-product-truth
-journeyRefs: []
+journeyRefs:
+  - J-03
+  - J-05
+  - J-08
+  - J-09
+  - J-10
+  - J-29

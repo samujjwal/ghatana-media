@@ -1,0 +1,109 @@
+schemaVersion: media.r02-model-quality-observations.v1
+observationId: media.r02.model-quality.source-observation.2026-10-07
+observedSourceRevision: 996181731a5017caaf6156b797953104682dd414
+scope: Media STT, TTS, vision, and multimodal model/provider/quality evidence present in this repository at the observed revision.
+status: SOURCE_OBSERVATION_ONLY
+qualificationResult: NOT_EVALUATED
+interpretation:
+  - Source identifiers and configured paths below are observations, not proof that an artifact exists, was loaded, or is authorized.
+  - Test fixtures, synthetic engines, confidence thresholds, and load-test definitions are not model quality measurements.
+  - Package/source license metadata does not establish model-weight license or training-data rights.
+  - No supported deployment profile is qualified by this record.
+requiredEvidenceMissingForEveryProfile:
+  - exact model artifact, immutable version/revision, digest, tokenizer/pre/postprocessing and provider identity
+  - weight license and source-data rights, including commercial/use restrictions and provenance
+  - privacy, retention, residency, consent, and likeness/voice authority for the exact provider and profile
+  - hardware/software/runtime, precision, batch/concurrency, memory, latency and throughput envelope
+  - language, locale, accent, domain, noise/channel and task/output profile; TTS voice identity and rights where applicable
+  - reproducible, versioned benchmark/holdout corpus with ground truth, protocol, sample counts and uncertainty
+  - calibrated metrics and thresholds, domain bounds, abstention/uncertain behavior, and failure analysis
+  - comparison protocol establishing whether candidate metrics are comparable; otherwise explicit non-comparability
+profiles:
+  - capability: STT
+    qualificationResult: NOT_EVALUATED
+    sourceObservedIdentities:
+      - value: whisper-base
+        role: ProductionSttGrpcService source default modelId
+        source: modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/ProductionSttGrpcService.java
+      - value: /models/whisper-base.onnx
+        role: ProductionSttGrpcService source default model path
+        source: modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/ProductionSttGrpcService.java
+      - value: whisper-large-v3
+        role: config/docker-compose.prod.yml environment model ID and filename label; not a pinned artifact version
+        source: config/docker-compose.prod.yml
+      - value: whisper-tiny
+        role: integration-test compose environment default; not production qualification
+        source: integration-tests/docker-compose.integration.yml
+      - value: external gRPC Whisper implementation
+        role: STT module README/ADR describes external dependency; no implementation identity or pinned provider release observed here
+        source: modules/speech/stt-service/README.md
+    observedDependencies:
+      - coordinate: "com.microsoft.onnxruntime:onnxruntime:1.29.0"
+        role: checked-in Gradle catalog and common Java library dependency; does not identify or license weights
+        source: gradle/libs.versions.toml
+    evidenceNotFound:
+      - model artifact bytes, immutable upstream release/revision and digest
+      - weights license and training-data rights
+      - language/domain/noise/device profile and actual provider deployment identity
+      - reproducible WER/CER or other task metrics, calibration, confidence validity and abstention results
+      - comparable benchmark and holdout methodology
+  - capability: TTS
+    qualificationResult: NOT_EVALUATED
+    sourceObservedIdentities:
+      - value: piper-en
+        role: ProductionTtsGrpcService source default voice ID and default model path basename; no immutable voice/model version
+        source: modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/ProductionTtsGrpcService.java
+      - value: /models/tts-model
+        role: config/docker-compose.prod.yml model path placeholder; no model identifier/version
+        source: config/docker-compose.prod.yml
+      - value: en-US-default
+        role: integration-test compose voice label; not production qualification
+        source: integration-tests/docker-compose.integration.yml
+    evidenceNotFound:
+      - exact model and voice artifacts, immutable versions and digests
+      - model/voice licenses, source-data rights, speaker consent and likeness authority
+      - supported language/locale/pronunciation/output profile and target hardware/runtime
+      - reproducible listening, intelligibility, naturalness, and prosody metrics, calibrated acceptance criteria and holdout results
+      - uncertainty/abstention behavior and comparable evaluation protocol
+  - capability: Vision
+    qualificationResult: NOT_EVALUATED
+    sourceObservedIdentities:
+      - value: yolov8n
+        role: ProductionVisionGrpcService source default modelName
+        source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/grpc/ProductionVisionGrpcService.java
+      - value: /models/yolo-v8
+        role: config/docker-compose.prod.yml model directory label; not an artifact version
+        source: config/docker-compose.prod.yml
+      - value: yolov8-coco
+        role: vision test engine fixture identity only
+        source: modules/vision/vision-service/src/test/java/com/ghatana/vision/quality/DetectionAccuracyTest.java
+    observedDependencies:
+      - coordinate: "org.openpnp:opencv:4.9.0-0"
+        role: checked-in Gradle catalog/dependency; library version does not identify or license the model weights
+        source: gradle/libs.versions.toml
+    evidenceNotFound:
+      - exact model artifact, immutable version/revision, digest, class map and preprocessing contract
+      - weight license and training-data rights
+      - hardware/runtime and image/video domain/output profile
+      - held-out detection/classification metrics, calibration, domain bounds and abstention/uncertain results
+      - benchmark comparability protocol
+  - capability: multimodal
+    qualificationResult: NOT_EVALUATED
+    sourceObservedIdentities:
+      - value: whisper-base + yolov8n + piper-en
+        role: AudioVideoRuntimeSettings defaults consumed by the platform multimodal adapter; these component IDs do not identify a qualified fusion model
+        source: modules/intelligence/multimodal-service/src/main/java/com/ghatana/audio/video/multimodal/engine/AudioVideoRuntimeSettings.java
+      - value: configurable modelId
+        role: CrossModalFusionEngine constructor identity only; no source-pinned weights or provider artifact observed
+        source: modules/intelligence/multimodal-service/src/main/java/com/ghatana/multimodal/engine/CrossModalFusionEngine.java
+    evidenceNotFound:
+      - exact multimodal/fusion model, component model versions, immutable artifacts and digests
+      - model and component weight licenses plus source-data rights
+      - modality/task/language/voice/output profile, hardware and end-to-end deployment identity
+      - reproducible synchronized multimodal holdout, ground truth and per-task/joint metrics
+      - calibrated uncertainty, abstention, missing-modality behavior, domain bounds and failure analysis
+      - valid comparison protocol across candidate systems
+non_evidence_boundaries:
+  - Tests named DetectionAccuracyTest and SynthesisQualityTest use fixture/deterministic engine behavior; their existence does not demonstrate model-backed accuracy or synthesis quality.
+  - Compose environment names and model paths are configuration labels; they do not prove artifact availability, exact version, deployment, or provider behavior.
+  - Dependency versions identify runtime libraries only, not weights, provider models, datasets, or quality.

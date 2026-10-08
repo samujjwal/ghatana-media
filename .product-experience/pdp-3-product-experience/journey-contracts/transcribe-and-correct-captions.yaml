@@ -14,6 +14,7 @@ preconditions:
   - A language intent is provided; locale support is evaluated by an admitted runtime, not inferred from this fixture.
 steps:
   - view: media.view.select-source
+    screenContractRef: screen-contracts/select-source.yaml
     action: media.action.choose-source
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [media.artifact.inspect]
@@ -93,6 +94,7 @@ steps:
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.monitor-transcription
+    screenContractRef: screen-contracts/transcription-progress.yaml
     action: media.action.request-transcription
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [media.job.submit, media.speech.transcription.file]
@@ -172,6 +174,7 @@ steps:
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.monitor-transcription
+    screenContractRef: screen-contracts/transcription-progress.yaml
     action: media.action.view-job-status
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [media.job.view-status]
@@ -251,6 +254,7 @@ steps:
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.review-transcript
+    screenContractRef: screen-contracts/review-transcript.yaml
     action: media.action.review-transcript
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [media.artifact.inspect]
@@ -259,7 +263,7 @@ steps:
     - media.surface.web
     objectRefs: []
     stateRefs: []
-    canonicalOperationRef: media.operation.transcription
+    canonicalOperationRef: media.operation.transcript-version-read
     authorityRef: null
     decisionRef: null
     transitionRef: null
@@ -330,6 +334,7 @@ steps:
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.correct-captions
+    screenContractRef: screen-contracts/correct-captions.yaml
     action: media.action.correct-caption
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [media.artifact.derive]
@@ -338,7 +343,7 @@ steps:
     - media.surface.web
     objectRefs: []
     stateRefs: []
-    canonicalOperationRef: media.operation.transcription
+    canonicalOperationRef: media.operation.caption-draft-write
     authorityRef: null
     decisionRef: null
     transitionRef: null
@@ -409,6 +414,7 @@ steps:
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.correct-captions
+    screenContractRef: screen-contracts/correct-captions.yaml
     action: media.action.align-caption-timing
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [media.speech.transcription.forced-align, media.artifact.derive]
@@ -417,7 +423,7 @@ steps:
     - media.surface.web
     objectRefs: []
     stateRefs: []
-    canonicalOperationRef: media.operation.transcription
+    canonicalOperationRef: media.operation.caption-draft-write
     authorityRef: null
     decisionRef: null
     transitionRef: null
@@ -488,6 +494,7 @@ steps:
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.correct-captions
+    screenContractRef: screen-contracts/correct-captions.yaml
     action: media.action.save-caption-version
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [media.artifact.output.register, media.artifact.provenance.export]
@@ -567,6 +574,7 @@ steps:
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.compare-caption-versions
+    screenContractRef: screen-contracts/compare-caption-versions.yaml
     action: media.action.compare-caption-versions
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [media.artifact.inspect]

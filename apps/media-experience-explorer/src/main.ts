@@ -552,12 +552,15 @@ function renderTraceMetadata(artifact: SpecificationArtifact, sourceManifest: st
       <div><dt>Canonical artifact ID</dt><dd><code>${escapeHtml(metadata.canonicalArtifactId)}</code></dd></div>
       <div><dt>Owning phase</dt><dd>${escapeHtml(artifact.phase)} · ${escapeHtml(metadata.authorityClass)}</dd></div>
       <div><dt>Canonical location</dt><dd><code>${escapeHtml(metadata.canonicalLocation)}</code></dd></div>
+      <div><dt>Declared semantic status</dt><dd>${escapeHtml(metadata.semanticStatus)}</dd></div>
+      <div><dt>Declared acceptance state</dt><dd>${escapeHtml(metadata.acceptanceState)}</dd></div>
+      <div><dt>Declared verification</dt><dd>${escapeHtml(metadata.verification)}</dd></div>
       <div><dt>Semantic fingerprint</dt><dd>${escapeHtml(metadata.semanticFingerprint)}</dd></div>
       <div><dt>Currentness</dt><dd>${escapeHtml(metadata.currentness)}</dd></div>
       <div><dt>Verification status</dt><dd>${escapeHtml(metadata.verificationStatus)}</dd></div>
     </dl>
     <div class="trace-relations"><div><span>Dependencies</span><ul>${list(metadata.dependencies)}</ul></div><div><span>Dependents</span><ul>${list(metadata.dependents)}</ul></div></div>
-    <p class="trace-honesty-note">The Explorer exposes the canonical path and declared relation authority. It does not generate semantic fingerprints, currentness, acceptance, or Lifecycle receipts.</p>
+    <p class="trace-honesty-note">Declared semantic, acceptance, and verification fields are copied from the generated source manifest. They are source observations, not independent validation. The Explorer does not generate semantic fingerprints, currentness, acceptance, or Lifecycle receipts.</p>
   </section>`;
 }
 
@@ -573,8 +576,14 @@ function specificationSurface(): string {
   const content = sourceContent ?? specificationErrors.get(activeArtifact.path) ?? "Loading source file…";
   const invalidLegacyRoute = location.hash.startsWith("#product/view/") && !legacyRouteArtifactFromLocation();
   const phaseCoverage = phaseIds.map((phase) => {
-    const count = specificationArtifacts.filter((artifact) => artifact.phase === phase).length;
-    return `<button type="button" class="phase-coverage-card ${phase === selectedPhase ? "is-current" : ""}" data-phase="${escapeHtml(phase)}" aria-label="Inspect ${escapeHtml(phaseSummary[phase].title)} records"><span>${escapeHtml(phase)}</span><strong>${count}</strong><small>${escapeHtml(phaseSummary[phase].title)}</small></button>`;
+    const records = specificationArtifacts.filter((artifact) => artifact.phase === phase);
+    const count = records.length;
+    const declaredStatuses = records.map((artifact) => traceMetadataForArtifact(artifact, sourceManifestContent).semanticStatus);
+    const pendingCount = declaredStatuses.filter((status) => status === "PROPOSAL_PENDING_OWNER_REVIEW").length;
+    const statusReport = sourceManifestContent
+      ? `${pendingCount} pending owner review · ${count - pendingCount} other/unstated`
+      : "Manifest status loading";
+    return `<button type="button" class="phase-coverage-card ${phase === selectedPhase ? "is-current" : ""}" data-phase="${escapeHtml(phase)}" aria-label="Inspect ${escapeHtml(phaseSummary[phase].title)} records"><span>${escapeHtml(phase)}</span><strong>${count}</strong><small>${escapeHtml(phaseSummary[phase].title)}</small><small>${escapeHtml(statusReport)}</small></button>`;
   }).join("");
   return `<div class="specification-workspace ${highContrast ? "contrast-on" : ""}">
     <aside class="spec-sidebar"><div class="eyebrow">SOURCE OF MEANING</div><h1>Specification</h1><p>Inspect the source records behind this experience.</p>
@@ -585,7 +594,8 @@ function specificationSurface(): string {
     </aside>
     <main class="spec-document" id="main-content"><header class="spec-doc-header"><div><div class="eyebrow">${selectedPhase} · ${escapeHtml(phaseSummary[selectedPhase].title.toUpperCase())}</div><h2>${escapeHtml(activeArtifact.title)}</h2><p>${escapeHtml(activeArtifact.path)}</p></div><span class="proposal-chip"><span></span> ${escapeHtml(reviewStatusForArtifact(activeArtifact))}</span></header>
       ${location.hash.startsWith("#product/view/") ? `<aside class="legacy-proposal-route-note" role="note"><strong>${invalidLegacyRoute ? "Proposal route not found" : "Legacy Product URL opened as Specification"}</strong><p>${invalidLegacyRoute ? "This URL does not match an indexed source record. No Product screen is mounted." : "Screen contracts are read-only proposal previews in Specification. No Product route or implementation is implied."}</p></aside>` : ""}
-      <section class="phase-coverage" aria-label="Product Definition coverage">${phaseCoverage}</section>
+      <section class="phase-coverage" aria-label="Indexed source and semantic status report">${phaseCoverage}</section>
+      <p class="trace-honesty-note">Counts report indexed source records and their declared source-manifest status. They do not measure obligation completion, semantic correctness, phase acceptance, or Lifecycle currentness.</p>
       <div class="spec-context"><div class="spec-context-icon">${selectedPhase}</div><div><strong>${escapeHtml(phaseSummary[selectedPhase].summary)}</strong><span>Read-only content bundled from the repository’s current authority file.</span></div></div>
       ${renderScreenContractPreview(activeArtifact, sourceContent ?? "")}
       <pre class="spec-source"><code>${escapeHtml(content)}</code></pre>

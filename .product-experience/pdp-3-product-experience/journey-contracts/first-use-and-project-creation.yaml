@@ -14,6 +14,7 @@ preconditions:
   - No source media, provider, model, engine, or processing request is required to create an empty project.
 steps:
 - view: media.view.authenticate-and-select-context
+  screenContractRef: screen-contracts/authenticate-and-select-context.yaml
   handoff: media.handoff.identity
   result: current-principal-and-authorized-workspace-are-resolved-or-a-recoverable-access-state-is-shown
   surfaceRefs:
@@ -87,6 +88,7 @@ steps:
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.resume-work
+  screenContractRef: screen-contracts/resume-work.yaml
   result: authorized-projects-or-a-purposeful-first-use-state-are-shown; no-cross-tenant-project-data-is-visible
   surfaceRefs:
   - media.surface.web
@@ -159,6 +161,7 @@ steps:
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.find-projects
+  screenContractRef: screen-contracts/find-projects.yaml
   action: media.action.create-project
   actionBindingStatus: direct-action-capability-crosswalk; proposal-only
   capabilityRefs: [media.project.create]
@@ -234,6 +237,7 @@ steps:
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.work-in-project
+  screenContractRef: screen-contracts/work-in-project.yaml
   result: the-exact-project-identity-and-version-are-visible-with-a-safe-next-action
   surfaceRefs:
   - media.surface.web

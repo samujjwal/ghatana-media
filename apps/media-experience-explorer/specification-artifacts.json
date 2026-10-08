@@ -98,6 +98,13 @@
     "title": "EXPERIENCE EXPLORER"
   },
   {
+    "artifactId": "ART-P3-EXPLORER-E04-SOURCE-PINS",
+    "authorityClass": "EXPLORER_PROJECTION",
+    "phase": "EXPLORER",
+    "path": ".product-experience/explorer/e04-source-pins.json",
+    "title": "E04 Source Pins"
+  },
+  {
     "artifactId": "ART-P3-PHASE-3-EXPERIENCE-EXPLORER-INTERACTION-DISPOSITIONS-YAML",
     "authorityClass": "EXPLORER_PROJECTION",
     "phase": "EXPLORER",
@@ -159,6 +166,13 @@
     "phase": "CROSS_PHASE",
     "path": ".product-experience/interface-parity/operation-parity.yaml",
     "title": "Operation Parity"
+  },
+  {
+    "artifactId": "ART-GOV-TYPED-CONTRACT-BINDINGS",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/interface-parity/typed-contract-bindings.json",
+    "title": "Typed Contract Bindings"
   },
   {
     "artifactId": "ART-P2-LANES-TRANSCRIBE-AND-CORRECT-CAPTIONS-YAML",
@@ -273,11 +287,32 @@
     "title": "Handoff Contracts"
   },
   {
+    "artifactId": "ART-P0-IMPLEMENTATION-STATUS-20261007",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "PDP-0",
+    "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+    "title": "Implementation Status 2026 10 07"
+  },
+  {
     "artifactId": "ART-P0-INFORMATION-ARCHITECTURE",
     "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
     "phase": "PDP-0",
     "path": ".product-experience/pdp-0-product-truth/information-architecture.yaml",
     "title": "Information Architecture"
+  },
+  {
+    "artifactId": "ART-P0-INTENT-RESOLUTIONS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
+    "phase": "PDP-0",
+    "path": ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
+    "title": "Intent Resolutions"
+  },
+  {
+    "artifactId": "ART-P0-JOURNEY-ACTOR-RESOLUTIONS",
+    "authorityClass": "PRODUCT_TRUTH_AUTHORITY",
+    "phase": "PDP-0",
+    "path": ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+    "title": "Journey Actor Resolutions"
   },
   {
     "artifactId": "ART-P0-JOURNEYS",
@@ -665,6 +700,13 @@
     "title": "Component Contracts"
   },
   {
+    "artifactId": "ART-P2-DESIGN-GOVERNANCE",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/design-governance.json",
+    "title": "Design Governance"
+  },
+  {
     "artifactId": "ART-MEDIA-D93AAC60D437",
     "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
@@ -740,6 +782,20 @@
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/primitives.yaml",
     "title": "Primitives"
+  },
+  {
+    "artifactId": "ART-P2-GUI-RECIPE-CHAIN-REVIEW",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/gui/recipe-chain-review.yaml",
+    "title": "Recipe Chain Review"
+  },
+  {
+    "artifactId": "ART-MEDIA-P2-GUI-COMPOSITION-RECIPES",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
+    "title": "Catalog"
   },
   {
     "artifactId": "ART-PDP2-REUSE-AUDIT",
@@ -1118,6 +1174,13 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/events/event-registry.yaml",
     "title": "Event Registry"
+  },
+  {
+    "artifactId": "ART-P3-EXPERIENCE-SOURCE-BINDINGS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+    "title": "Experience Source Bindings"
   },
   {
     "artifactId": "ART-PDP3-EXPERIENCE-SPECIFICATION-CANDIDATE",
@@ -2065,6 +2128,20 @@
     "title": "Operation Registry"
   },
   {
+    "artifactId": "ART-P3-SEARCH-INSPECTION-CONTRACTS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
+    "title": "Search Inspection Contracts"
+  },
+  {
+    "artifactId": "ART-MEDIA-P3-SEARCH-INSPECTION-SOURCE-PROPOSALS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/search-inspection-source-proposals.yaml",
+    "title": "Search Inspection Source Proposals"
+  },
+  {
     "artifactId": "ART-MEDIA-EFCDFCE4606B",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
@@ -2084,6 +2161,20 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
     "title": "State Transition Bindings"
+  },
+  {
+    "artifactId": "ART-MEDIA-GOV-20261007-ALL-GATE-OWNER-REVIEW",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/reviews/2026-10-07-all-gate-unblocking.md",
+    "title": "2026 10 07 All Gate Unblocking"
+  },
+  {
+    "artifactId": "ART-GOV-OWNER-DECISION-20261007",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/reviews/2026-10-07-owner-decision-and-resolution.md",
+    "title": "2026 10 07 Owner Decision And Resolution"
   },
   {
     "artifactId": "ART-MEDIA-4E7104A99344",

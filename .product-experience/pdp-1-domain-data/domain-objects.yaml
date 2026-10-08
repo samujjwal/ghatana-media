@@ -23,7 +23,7 @@ objects:
   - id: media.domain.artifact
     name: MediaArtifact
     kind: entity
-    identity: stable-artifact-id; bytes-bound-by-digest-and-version
+    identity: Java-store-lookup-tenantId-plus-artifactId; TypeScript-tenantId-and-id-fields; SQL-primary-key-(tenant_id,artifact_id); cross-interface-canonical-key-unbound
     lifecycle: immutable-content-identity; policy-and-erasure-state-separate
     observedProjection: Java MediaArtifact; TypeScript MediaArtifact; OpenAPI MediaArtifact
     scopeStatus: proposed-semantics-with-observed-projections; pending-owner-review
@@ -66,7 +66,7 @@ objects:
   - id: media.domain.processing-job
     name: ProcessingJob
     kind: mutable-execution-aggregate
-    identity: stable-logical-job-id
+    identity: Java-store-key-tenantId-plus-jobId; TypeScript-tenantId-and-id-fields; SQL-primary-key-(tenant_id,job_id); cross-interface-canonical-key-unbound
     lifecycle: PDP-0-media-job-state-model; attempts-distinct-from-logical-job
     observedProjection: Java ProcessingJob; TypeScript job union; OpenAPI jobs
     scopeStatus: PDP-0-semantics-with-observed-projections; pending-owner-review
@@ -95,11 +95,11 @@ objects:
   - id: media.domain.job-lease
     name: JobLease
     kind: temporary-execution-claim
-    identity: lease-id-and-fencing-token
+    identity: Java-record-tenantId-plus-jobId-plus-ownerId-plus-fencingToken; PostgreSQL-lease-columns-on-job-row; no-standalone-lease-id
     lifecycle: wall-clock-expiry; stale-fence-cannot-commit
     observedProjection: Java JobLease
     scopeStatus: PDP-0-semantics-with-observed-projection; pending-owner-review
-    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, .product-experience/pdp-0-product-truth/domain-model.yaml#media-runtime-records]
+    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java, providers/aws-postgresql/src/main/resources/db/media-runtime/V005__media_job_worker_lease.sql, .product-experience/pdp-0-product-truth/domain-model.yaml#media-runtime-records]
   - id: media.domain.media-run
     name: MediaRun
     kind: mutable-execution-aggregate
@@ -148,7 +148,7 @@ objects:
     identity: stable-id-and-version
     lifecycle: model-state-distinct-from-rendered-scene
     scopeStatus: proposed; Media-owned-simulation-IR-not-observed-in-scanned-services; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#SimulationWorld, modules]
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#SimulationWorld]
   - id: media.domain.timeline
     name: Timeline
     kind: versioned-editorial-specification
@@ -268,3 +268,10 @@ objects:
     lifecycle: legacy-status-soft-delete-row-version-and-transcript-fields
     scopeStatus: storage-and-service-observation-only; canonical-transcript-model-pending-owner-review
     sourceRefs: [modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/TranscriptionEntity.java, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql#audio_video.transcriptions, libs/audio-video-types/src/contracts.ts#TranscriptionResult, modules/speech/stt-service/src/main/proto/stt_service.proto#Transcription]
+  - id: media.domain.caption-version
+    name: CaptionVersionRecord
+    kind: observed-local-simulation-fixture-record
+    identity: fixture-versionId; canonical-key-unbound
+    lifecycle: fixture-caption-history-entry; immutable-version-and-durable-history-semantics-unbound
+    scopeStatus: local-simulation-fixture-observation-only; not-an-observed-runtime-or-persistence-record
+    sourceRefs: [libs/media-experience-simulation/src/model.ts#CaptionVersionRecord, libs/media-experience-simulation/src/fixtures.ts]

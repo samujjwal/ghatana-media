@@ -7,13 +7,14 @@ import com.ghatana.observability.MetricsCollector;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.ghatana.audio.video.infrastructure.messaging.AsyncOperationTestSupport.await;
 import static com.ghatana.audio.video.infrastructure.messaging.AsyncOperationTestSupport.awaitFailure;
@@ -41,7 +42,7 @@ class TranscriptionJobConsumerTest {
     @Test
     @DisplayName("start fails when job processor is missing")
     void startFailsWithoutProcessor() {
-        TranscriptionJobConsumer consumer = new TranscriptionJobConsumer("av.jobs", consumerStrategy, metricsCollector);
+        TranscriptionJobConsumer consumer = callbackConsumer(new AtomicReference<>());
 
         var operation = consumer.start();
 
@@ -53,10 +54,9 @@ class TranscriptionJobConsumerTest {
     @Test
     @DisplayName("start and stop delegate lifecycle to strategy")
     void startAndStopDelegateLifecycle() {
-        TranscriptionJobConsumer consumer = new TranscriptionJobConsumer("av.jobs", consumerStrategy, metricsCollector);
+        TranscriptionJobConsumer consumer = callbackConsumer(new AtomicReference<>());
         consumer.setJobProcessor(job -> AsyncOperation.success(null));
 
-        when(consumerStrategy.supportsMessageHandlerRegistration()).thenReturn(true);
         when(consumerStrategy.start()).thenReturn(AsyncOperation.success(null));
         when(consumerStrategy.stop()).thenReturn(AsyncOperation.success(null));
         when(consumerStrategy.isRunning()).thenReturn(true, false);
@@ -76,13 +76,12 @@ class TranscriptionJobConsumerTest {
     @Test
     @DisplayName("start without processor does not move consumer to STARTED")
     void startWithoutProcessorDoesNotChangeState() {
-        TranscriptionJobConsumer consumer = new TranscriptionJobConsumer("av.jobs", consumerStrategy, metricsCollector);
+        TranscriptionJobConsumer consumer = callbackConsumer(new AtomicReference<>());
 
         AsyncOperation<Void> firstStart = consumer.start();
         assertThat(awaitFailure(firstStart)).isInstanceOf(IllegalStateException.class);
 
         consumer.setJobProcessor(job -> AsyncOperation.success(null));
-        when(consumerStrategy.supportsMessageHandlerRegistration()).thenReturn(true);
         when(consumerStrategy.start()).thenReturn(AsyncOperation.success(null));
 
         await(consumer.start());
@@ -93,18 +92,13 @@ class TranscriptionJobConsumerTest {
     @Test
     @DisplayName("message handler rethrows processor failure for strategy nack/retry")
     void messageHandlerRethrowsProcessorFailure() {
-        TranscriptionJobConsumer consumer = new TranscriptionJobConsumer("av.jobs", consumerStrategy, metricsCollector);
+        AtomicReference<Consumer<EventEnvelope<?>>> registeredHandler = new AtomicReference<>();
+        TranscriptionJobConsumer consumer = callbackConsumer(registeredHandler);
         consumer.setJobProcessor(job -> AsyncOperation.failure(new RuntimeException("simulated failure")));
 
-        when(consumerStrategy.supportsMessageHandlerRegistration()).thenReturn(true);
         when(consumerStrategy.start()).thenReturn(AsyncOperation.success(null));
 
         await(consumer.start());
-
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<Consumer<EventEnvelope<?>>> handlerCaptor =
-            (ArgumentCaptor<Consumer<EventEnvelope<?>>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(Consumer.class);
-        verify(consumerStrategy).setMessageHandler(handlerCaptor.capture());
 
         String payload = "{\"jobId\":\"" + UUID.randomUUID()
             + "\",\"tenantId\":\"tenant-1\",\"artifactId\":\"" + UUID.randomUUID()
@@ -114,8 +108,28 @@ class TranscriptionJobConsumerTest {
         EventEnvelope<String> envelope = EventEnvelope.of(
             "av.jobs", "media.transcription.job.submitted", "media", "tenant-1", payload);
 
-        assertThatThrownBy(() -> handlerCaptor.getValue().accept(envelope))
+        assertThatThrownBy(() -> registeredHandler.get().accept(envelope))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("simulated failure");
+    }
+
+    @Test
+    @DisplayName("legacy strategy constructor fails clearly because public strategy API cannot bind a handler")
+    void legacyStrategyConstructorCannotBindHandler() {
+        TranscriptionJobConsumer consumer = new TranscriptionJobConsumer("av.jobs", consumerStrategy, metricsCollector);
+        consumer.setJobProcessor(job -> AsyncOperation.success(null));
+
+        assertThat(awaitFailure(consumer.start()))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("callback factory constructor");
+    }
+
+    private TranscriptionJobConsumer callbackConsumer(
+            AtomicReference<Consumer<EventEnvelope<?>>> registeredHandler) {
+        Function<Consumer<EventEnvelope<?>>, QueueConsumerStrategy> factory = handler -> {
+            registeredHandler.set(handler);
+            return consumerStrategy;
+        };
+        return new TranscriptionJobConsumer("av.jobs", factory, metricsCollector);
     }
 }

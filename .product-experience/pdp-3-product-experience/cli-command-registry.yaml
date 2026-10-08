@@ -62,12 +62,16 @@ commands:
     options: [--draft-version, --purpose]
     purposeRequirement: non-empty-and-at-most-240-characters
     actionRef: media.action.save-caption-version
+    operationRef: media.operation.caption-version-write
+    operationBindingStatus: proposed-action-ref-crosswalk; production-cli-runtime-not-connected
     result: immutable-caption-version-or-explicit-block
   - id: media.cli.caption.compare-versions
     label: Compare caption versions
     canonicalCommand: ghatana-media caption compare-versions
     options: [--left-version, --right-version]
     actionRef: media.action.compare-caption-versions
+    operationRef: media.operation.caption-version-read
+    operationBindingStatus: proposed-action-ref-crosswalk; production-cli-runtime-not-connected
     result: text-timing-provenance-and-source-version-comparison
   - id: media.cli.job.check-outcome
     label: Check job outcome

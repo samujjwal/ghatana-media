@@ -30,7 +30,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-PROJECT",
-        "recordId": "MEDIA-REQ-CAP-PROJECT"
+        "recordId": "MEDIA-REQ-CAP-PROJECT",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -65,7 +66,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-ARTIFACT",
-        "recordId": "MEDIA-REQ-CAP-ARTIFACT"
+        "recordId": "MEDIA-REQ-CAP-ARTIFACT",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -101,7 +103,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-JOB",
-        "recordId": "MEDIA-REQ-CAP-JOB"
+        "recordId": "MEDIA-REQ-CAP-JOB",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -136,7 +139,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-STREAM",
-        "recordId": "MEDIA-REQ-CAP-STREAM"
+        "recordId": "MEDIA-REQ-CAP-STREAM",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -171,7 +175,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-PROFILE",
-        "recordId": "MEDIA-REQ-CAP-PROFILE"
+        "recordId": "MEDIA-REQ-CAP-PROFILE",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -206,7 +211,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-CAPABILITY",
-        "recordId": "MEDIA-REQ-CAP-CAPABILITY"
+        "recordId": "MEDIA-REQ-CAP-CAPABILITY",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -241,7 +247,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-HEALTH",
-        "recordId": "MEDIA-REQ-CAP-HEALTH"
+        "recordId": "MEDIA-REQ-CAP-HEALTH",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -276,7 +283,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-RIGHTS",
-        "recordId": "MEDIA-REQ-CAP-RIGHTS"
+        "recordId": "MEDIA-REQ-CAP-RIGHTS",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -311,7 +319,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-PROVENANCE",
-        "recordId": "MEDIA-REQ-CAP-PROVENANCE"
+        "recordId": "MEDIA-REQ-CAP-PROVENANCE",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -346,7 +355,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-VISION-SCENE-TEXT",
-        "recordId": "MEDIA-REQ-CAP-VISION-SCENE-TEXT"
+        "recordId": "MEDIA-REQ-CAP-VISION-SCENE-TEXT",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -381,7 +391,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
-        "recordId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION"
+        "recordId": "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -416,7 +427,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-VISION",
-        "recordId": "MEDIA-REQ-CAP-VISION"
+        "recordId": "MEDIA-REQ-CAP-VISION",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -451,7 +463,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-MULTIMODAL",
-        "recordId": "MEDIA-REQ-CAP-MULTIMODAL"
+        "recordId": "MEDIA-REQ-CAP-MULTIMODAL",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -486,7 +499,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-AUDIO-ANALYSIS",
-        "recordId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS"
+        "recordId": "MEDIA-REQ-CAP-AUDIO-ANALYSIS",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -521,7 +535,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-GENERATE-IMAGE",
-        "recordId": "MEDIA-REQ-CAP-GENERATE-IMAGE"
+        "recordId": "MEDIA-REQ-CAP-GENERATE-IMAGE",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -556,7 +571,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-GENERATE-VIDEO",
-        "recordId": "MEDIA-REQ-CAP-GENERATE-VIDEO"
+        "recordId": "MEDIA-REQ-CAP-GENERATE-VIDEO",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -591,7 +607,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-GENERATE-AUDIO",
-        "recordId": "MEDIA-REQ-CAP-GENERATE-AUDIO"
+        "recordId": "MEDIA-REQ-CAP-GENERATE-AUDIO",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -626,7 +643,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
-        "recordId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
+        "recordId": "MEDIA-REQ-CAP-SPEECH-SYNTHESIS",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -661,7 +679,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-GENERATE-SPATIAL",
-        "recordId": "MEDIA-REQ-CAP-GENERATE-SPATIAL"
+        "recordId": "MEDIA-REQ-CAP-GENERATE-SPATIAL",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -696,7 +715,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-ANIMATION",
-        "recordId": "MEDIA-REQ-CAP-ANIMATION"
+        "recordId": "MEDIA-REQ-CAP-ANIMATION",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -731,7 +751,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-ANIMATION-EDITING",
-        "recordId": "MEDIA-REQ-CAP-ANIMATION-EDITING"
+        "recordId": "MEDIA-REQ-CAP-ANIMATION-EDITING",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -766,7 +787,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-ANIMATION-OUTPUT",
-        "recordId": "MEDIA-REQ-CAP-ANIMATION-OUTPUT"
+        "recordId": "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -801,7 +823,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-SIMULATION",
-        "recordId": "MEDIA-REQ-CAP-SIMULATION"
+        "recordId": "MEDIA-REQ-CAP-SIMULATION",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -836,7 +859,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-SIMULATION-OUTPUT",
-        "recordId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT"
+        "recordId": "MEDIA-REQ-CAP-SIMULATION-OUTPUT",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -871,7 +895,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-RECIPE-TEMPLATE",
-        "recordId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE"
+        "recordId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -906,7 +931,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-ENHANCE-IMAGE",
-        "recordId": "MEDIA-REQ-CAP-ENHANCE-IMAGE"
+        "recordId": "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -941,7 +967,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-ENHANCE-VIDEO",
-        "recordId": "MEDIA-REQ-CAP-ENHANCE-VIDEO"
+        "recordId": "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -976,7 +1003,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-ENHANCE-AUDIO",
-        "recordId": "MEDIA-REQ-CAP-ENHANCE-AUDIO"
+        "recordId": "MEDIA-REQ-CAP-ENHANCE-AUDIO",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -1011,7 +1039,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-EDIT",
-        "recordId": "MEDIA-REQ-CAP-EDIT"
+        "recordId": "MEDIA-REQ-CAP-EDIT",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -1046,7 +1075,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-SYNC",
-        "recordId": "MEDIA-REQ-CAP-SYNC"
+        "recordId": "MEDIA-REQ-CAP-SYNC",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -1081,7 +1111,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-COMPOSE",
-        "recordId": "MEDIA-REQ-CAP-COMPOSE"
+        "recordId": "MEDIA-REQ-CAP-COMPOSE",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -1116,7 +1147,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-COLOR",
-        "recordId": "MEDIA-REQ-CAP-COLOR"
+        "recordId": "MEDIA-REQ-CAP-COLOR",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -1151,7 +1183,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-MASTER-AUDIO",
-        "recordId": "MEDIA-REQ-CAP-MASTER-AUDIO"
+        "recordId": "MEDIA-REQ-CAP-MASTER-AUDIO",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -1186,7 +1219,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-QUALITY",
-        "recordId": "MEDIA-REQ-CAP-QUALITY"
+        "recordId": "MEDIA-REQ-CAP-QUALITY",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -1221,7 +1255,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-QUALITY-IMAGE",
-        "recordId": "MEDIA-REQ-CAP-QUALITY-IMAGE"
+        "recordId": "MEDIA-REQ-CAP-QUALITY-IMAGE",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -1256,7 +1291,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-QUALITY-VIDEO",
-        "recordId": "MEDIA-REQ-CAP-QUALITY-VIDEO"
+        "recordId": "MEDIA-REQ-CAP-QUALITY-VIDEO",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -1291,7 +1327,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-QUALITY-AUDIO",
-        "recordId": "MEDIA-REQ-CAP-QUALITY-AUDIO"
+        "recordId": "MEDIA-REQ-CAP-QUALITY-AUDIO",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -1326,7 +1363,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/MEDIA-REQ-CAP-DELIVER",
-        "recordId": "MEDIA-REQ-CAP-DELIVER"
+        "recordId": "MEDIA-REQ-CAP-DELIVER",
+        "sourceDigest": "sha256:7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a"
       }
     }
   },
@@ -1358,7 +1396,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.project",
-        "recordId": "media.domain.project"
+        "recordId": "media.domain.project",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1390,7 +1429,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.project-revision",
-        "recordId": "media.domain.project-revision"
+        "recordId": "media.domain.project-revision",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1422,7 +1462,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.artifact",
-        "recordId": "media.domain.artifact"
+        "recordId": "media.domain.artifact",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1454,7 +1495,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.artifact-version",
-        "recordId": "media.domain.artifact-version"
+        "recordId": "media.domain.artifact-version",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1486,7 +1528,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.media-asset",
-        "recordId": "media.domain.media-asset"
+        "recordId": "media.domain.media-asset",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1518,7 +1561,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.recipe",
-        "recordId": "media.domain.recipe"
+        "recordId": "media.domain.recipe",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1550,7 +1594,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.processing-graph",
-        "recordId": "media.domain.processing-graph"
+        "recordId": "media.domain.processing-graph",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1582,7 +1627,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.resolved-plan",
-        "recordId": "media.domain.resolved-plan"
+        "recordId": "media.domain.resolved-plan",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1614,7 +1660,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.processing-job",
-        "recordId": "media.domain.processing-job"
+        "recordId": "media.domain.processing-job",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1646,7 +1693,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.render-job",
-        "recordId": "media.domain.render-job"
+        "recordId": "media.domain.render-job",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1678,7 +1726,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.artifact-verification-job",
-        "recordId": "media.domain.artifact-verification-job"
+        "recordId": "media.domain.artifact-verification-job",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1710,7 +1759,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.job-attempt",
-        "recordId": "media.domain.job-attempt"
+        "recordId": "media.domain.job-attempt",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1742,7 +1792,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.job-lease",
-        "recordId": "media.domain.job-lease"
+        "recordId": "media.domain.job-lease",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1774,7 +1825,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.media-run",
-        "recordId": "media.domain.media-run"
+        "recordId": "media.domain.media-run",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1806,7 +1858,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.checkpoint",
-        "recordId": "media.domain.checkpoint"
+        "recordId": "media.domain.checkpoint",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1838,7 +1891,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.scene-plan",
-        "recordId": "media.domain.scene-plan"
+        "recordId": "media.domain.scene-plan",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1870,7 +1924,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.scene-brief",
-        "recordId": "media.domain.scene-brief"
+        "recordId": "media.domain.scene-brief",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1902,7 +1957,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.scene-graph",
-        "recordId": "media.domain.scene-graph"
+        "recordId": "media.domain.scene-graph",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1934,7 +1990,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.animation-graph",
-        "recordId": "media.domain.animation-graph"
+        "recordId": "media.domain.animation-graph",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1966,7 +2023,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.simulation-world",
-        "recordId": "media.domain.simulation-world"
+        "recordId": "media.domain.simulation-world",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -1998,7 +2056,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.timeline",
-        "recordId": "media.domain.timeline"
+        "recordId": "media.domain.timeline",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2030,7 +2089,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.composition-config",
-        "recordId": "media.domain.composition-config"
+        "recordId": "media.domain.composition-config",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2062,7 +2122,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.generation-control-bundle",
-        "recordId": "media.domain.generation-control-bundle"
+        "recordId": "media.domain.generation-control-bundle",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2094,7 +2155,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.continuity-state",
-        "recordId": "media.domain.continuity-state"
+        "recordId": "media.domain.continuity-state",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2126,7 +2188,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.quality-assessment",
-        "recordId": "media.domain.quality-assessment"
+        "recordId": "media.domain.quality-assessment",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2158,7 +2221,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.render-outcome",
-        "recordId": "media.domain.render-outcome"
+        "recordId": "media.domain.render-outcome",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2190,7 +2254,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.delivery-outcome",
-        "recordId": "media.domain.delivery-outcome"
+        "recordId": "media.domain.delivery-outcome",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2222,7 +2287,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.consent-reference",
-        "recordId": "media.domain.consent-reference"
+        "recordId": "media.domain.consent-reference",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2254,7 +2320,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.rights-decision",
-        "recordId": "media.domain.rights-decision"
+        "recordId": "media.domain.rights-decision",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2286,7 +2353,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.provenance-manifest",
-        "recordId": "media.domain.provenance-manifest"
+        "recordId": "media.domain.provenance-manifest",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2318,7 +2386,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.upload-session",
-        "recordId": "media.domain.upload-session"
+        "recordId": "media.domain.upload-session",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2350,7 +2419,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.upload-chunk",
-        "recordId": "media.domain.upload-chunk"
+        "recordId": "media.domain.upload-chunk",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2382,7 +2452,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.stream-session",
-        "recordId": "media.domain.stream-session"
+        "recordId": "media.domain.stream-session",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2414,7 +2485,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.stream-frame",
-        "recordId": "media.domain.stream-frame"
+        "recordId": "media.domain.stream-frame",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2446,7 +2518,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.consent-record",
-        "recordId": "media.domain.consent-record"
+        "recordId": "media.domain.consent-record",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2478,7 +2551,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.persisted-audio-file",
-        "recordId": "media.domain.persisted-audio-file"
+        "recordId": "media.domain.persisted-audio-file",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2510,7 +2584,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.transcription",
-        "recordId": "media.domain.transcription"
+        "recordId": "media.domain.transcription",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
   },
@@ -2542,7 +2617,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.opaque-id",
-        "recordId": "media.value.opaque-id"
+        "recordId": "media.value.opaque-id",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2574,7 +2650,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.artifact-digest",
-        "recordId": "media.value.artifact-digest"
+        "recordId": "media.value.artifact-digest",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2606,7 +2683,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.byte-count",
-        "recordId": "media.value.byte-count"
+        "recordId": "media.value.byte-count",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2638,7 +2716,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.wall-clock-instant",
-        "recordId": "media.value.wall-clock-instant"
+        "recordId": "media.value.wall-clock-instant",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2670,7 +2749,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.duration",
-        "recordId": "media.value.duration"
+        "recordId": "media.value.duration",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2702,7 +2782,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.source-pts",
-        "recordId": "media.value.source-pts"
+        "recordId": "media.value.source-pts",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2734,7 +2815,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.sample-position",
-        "recordId": "media.value.sample-position"
+        "recordId": "media.value.sample-position",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2766,7 +2848,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.frame-rate",
-        "recordId": "media.value.frame-rate"
+        "recordId": "media.value.frame-rate",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2798,7 +2881,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.pixel-coordinate",
-        "recordId": "media.value.pixel-coordinate"
+        "recordId": "media.value.pixel-coordinate",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2830,7 +2914,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.physical-quantity",
-        "recordId": "media.value.physical-quantity"
+        "recordId": "media.value.physical-quantity",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2862,7 +2947,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.uncertainty",
-        "recordId": "media.value.uncertainty"
+        "recordId": "media.value.uncertainty",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2894,7 +2980,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.classification",
-        "recordId": "media.value.classification"
+        "recordId": "media.value.classification",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2926,7 +3013,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/values/media.value.policy-disposition",
-        "recordId": "media.value.policy-disposition"
+        "recordId": "media.value.policy-disposition",
+        "sourceDigest": "sha256:479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321"
       }
     }
   },
@@ -2958,7 +3046,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#/relationships/media.rel.project-revision",
-        "recordId": "media.rel.project-revision"
+        "recordId": "media.rel.project-revision",
+        "sourceDigest": "sha256:4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df"
       }
     }
   },
@@ -2990,7 +3079,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#/relationships/media.rel.project-asset",
-        "recordId": "media.rel.project-asset"
+        "recordId": "media.rel.project-asset",
+        "sourceDigest": "sha256:4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df"
       }
     }
   },
@@ -3022,7 +3112,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#/relationships/media.rel.asset-artifact-version",
-        "recordId": "media.rel.asset-artifact-version"
+        "recordId": "media.rel.asset-artifact-version",
+        "sourceDigest": "sha256:4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df"
       }
     }
   },
@@ -3054,7 +3145,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#/relationships/media.rel.job-plan",
-        "recordId": "media.rel.job-plan"
+        "recordId": "media.rel.job-plan",
+        "sourceDigest": "sha256:4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df"
       }
     }
   },
@@ -3086,7 +3178,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#/relationships/media.rel.job-attempt",
-        "recordId": "media.rel.job-attempt"
+        "recordId": "media.rel.job-attempt",
+        "sourceDigest": "sha256:4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df"
       }
     }
   },
@@ -3118,7 +3211,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#/relationships/media.rel.attempt-lease",
-        "recordId": "media.rel.attempt-lease"
+        "recordId": "media.rel.attempt-lease",
+        "sourceDigest": "sha256:4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df"
       }
     }
   },
@@ -3150,7 +3244,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#/relationships/media.rel.run-checkpoint",
-        "recordId": "media.rel.run-checkpoint"
+        "recordId": "media.rel.run-checkpoint",
+        "sourceDigest": "sha256:4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df"
       }
     }
   },
@@ -3182,7 +3277,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#/relationships/media.rel.scene-model-binding",
-        "recordId": "media.rel.scene-model-binding"
+        "recordId": "media.rel.scene-model-binding",
+        "sourceDigest": "sha256:4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df"
       }
     }
   },
@@ -3214,7 +3310,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#/relationships/media.rel.animation-property-owner",
-        "recordId": "media.rel.animation-property-owner"
+        "recordId": "media.rel.animation-property-owner",
+        "sourceDigest": "sha256:4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df"
       }
     }
   },
@@ -3246,7 +3343,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#/relationships/media.rel.derived-artifact",
-        "recordId": "media.rel.derived-artifact"
+        "recordId": "media.rel.derived-artifact",
+        "sourceDigest": "sha256:4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df"
       }
     }
   },
@@ -3278,7 +3376,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#/relationships/media.rel.assessment-subject",
-        "recordId": "media.rel.assessment-subject"
+        "recordId": "media.rel.assessment-subject",
+        "sourceDigest": "sha256:4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df"
       }
     }
   },
@@ -3310,7 +3409,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-job",
-        "recordId": "media-job"
+        "recordId": "media-job",
+        "sourceDigest": "sha256:46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3"
       }
     }
   },
@@ -3342,7 +3442,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-attempt",
-        "recordId": "media-attempt"
+        "recordId": "media-attempt",
+        "sourceDigest": "sha256:46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3"
       }
     }
   },
@@ -3374,7 +3475,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-upload-and-artifact",
-        "recordId": "media-upload-and-artifact"
+        "recordId": "media-upload-and-artifact",
+        "sourceDigest": "sha256:46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3"
       }
     }
   },
@@ -3406,7 +3508,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-stream-session",
-        "recordId": "media-stream-session"
+        "recordId": "media-stream-session",
+        "sourceDigest": "sha256:46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3"
       }
     }
   },
@@ -3438,7 +3541,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-rights-and-consent",
-        "recordId": "media-rights-and-consent"
+        "recordId": "media-rights-and-consent",
+        "sourceDigest": "sha256:46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3"
       }
     }
   },
@@ -3470,7 +3574,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-review",
-        "recordId": "media-review"
+        "recordId": "media-review",
+        "sourceDigest": "sha256:46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3"
       }
     }
   },
@@ -3502,7 +3607,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-delivery",
-        "recordId": "media-delivery"
+        "recordId": "media-delivery",
+        "sourceDigest": "sha256:46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3"
       }
     }
   },
@@ -3534,7 +3640,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-quality-disposition",
-        "recordId": "media-quality-disposition"
+        "recordId": "media-quality-disposition",
+        "sourceDigest": "sha256:46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3"
       }
     }
   },
@@ -3566,7 +3673,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-project",
-        "recordId": "media-project"
+        "recordId": "media-project",
+        "sourceDigest": "sha256:46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3"
       }
     }
   },
@@ -3598,7 +3706,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-project-version",
-        "recordId": "media-project-version"
+        "recordId": "media-project-version",
+        "sourceDigest": "sha256:46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3"
       }
     }
   },
@@ -3630,7 +3739,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-project-membership",
-        "recordId": "media-project-membership"
+        "recordId": "media-project-membership",
+        "sourceDigest": "sha256:46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3"
       }
     }
   },
@@ -3662,7 +3772,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-job/T01",
-        "recordId": "media-job/T01"
+        "recordId": "media-job/T01",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -3694,7 +3805,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-job/T02",
-        "recordId": "media-job/T02"
+        "recordId": "media-job/T02",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -3726,7 +3838,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-job/T03",
-        "recordId": "media-job/T03"
+        "recordId": "media-job/T03",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -3758,7 +3871,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-job/T04",
-        "recordId": "media-job/T04"
+        "recordId": "media-job/T04",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -3790,7 +3904,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-job/T05",
-        "recordId": "media-job/T05"
+        "recordId": "media-job/T05",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -3822,7 +3937,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-attempt/T01",
-        "recordId": "media-attempt/T01"
+        "recordId": "media-attempt/T01",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -3854,7 +3970,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-attempt/T02",
-        "recordId": "media-attempt/T02"
+        "recordId": "media-attempt/T02",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -3886,7 +4003,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-attempt/T03",
-        "recordId": "media-attempt/T03"
+        "recordId": "media-attempt/T03",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -3918,7 +4036,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-attempt/T04",
-        "recordId": "media-attempt/T04"
+        "recordId": "media-attempt/T04",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -3950,7 +4069,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-attempt/T05",
-        "recordId": "media-attempt/T05"
+        "recordId": "media-attempt/T05",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -3982,7 +4102,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-upload-and-artifact/T01",
-        "recordId": "media-upload-and-artifact/T01"
+        "recordId": "media-upload-and-artifact/T01",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4014,7 +4135,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-upload-and-artifact/T02",
-        "recordId": "media-upload-and-artifact/T02"
+        "recordId": "media-upload-and-artifact/T02",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4046,7 +4168,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-upload-and-artifact/T03",
-        "recordId": "media-upload-and-artifact/T03"
+        "recordId": "media-upload-and-artifact/T03",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4078,7 +4201,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-upload-and-artifact/T04",
-        "recordId": "media-upload-and-artifact/T04"
+        "recordId": "media-upload-and-artifact/T04",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4110,7 +4234,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-upload-and-artifact/T05",
-        "recordId": "media-upload-and-artifact/T05"
+        "recordId": "media-upload-and-artifact/T05",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4142,7 +4267,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-upload-and-artifact/T06",
-        "recordId": "media-upload-and-artifact/T06"
+        "recordId": "media-upload-and-artifact/T06",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4174,7 +4300,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-upload-and-artifact/T07",
-        "recordId": "media-upload-and-artifact/T07"
+        "recordId": "media-upload-and-artifact/T07",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4206,7 +4333,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-upload-and-artifact/T08",
-        "recordId": "media-upload-and-artifact/T08"
+        "recordId": "media-upload-and-artifact/T08",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4238,7 +4366,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-upload-and-artifact/T09",
-        "recordId": "media-upload-and-artifact/T09"
+        "recordId": "media-upload-and-artifact/T09",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4270,7 +4399,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-stream-session/T01",
-        "recordId": "media-stream-session/T01"
+        "recordId": "media-stream-session/T01",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4302,7 +4432,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-stream-session/T02",
-        "recordId": "media-stream-session/T02"
+        "recordId": "media-stream-session/T02",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4334,7 +4465,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-stream-session/T03",
-        "recordId": "media-stream-session/T03"
+        "recordId": "media-stream-session/T03",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4366,7 +4498,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-stream-session/T04",
-        "recordId": "media-stream-session/T04"
+        "recordId": "media-stream-session/T04",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4398,7 +4531,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-review/T01",
-        "recordId": "media-review/T01"
+        "recordId": "media-review/T01",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4430,7 +4564,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-review/T02",
-        "recordId": "media-review/T02"
+        "recordId": "media-review/T02",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4462,7 +4597,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-review/T03",
-        "recordId": "media-review/T03"
+        "recordId": "media-review/T03",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4494,7 +4630,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-review/T04",
-        "recordId": "media-review/T04"
+        "recordId": "media-review/T04",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4526,7 +4663,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-review/T05",
-        "recordId": "media-review/T05"
+        "recordId": "media-review/T05",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4558,7 +4696,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-delivery/T01",
-        "recordId": "media-delivery/T01"
+        "recordId": "media-delivery/T01",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4590,7 +4729,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-delivery/T02",
-        "recordId": "media-delivery/T02"
+        "recordId": "media-delivery/T02",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4622,7 +4762,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-delivery/T03",
-        "recordId": "media-delivery/T03"
+        "recordId": "media-delivery/T03",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4654,7 +4795,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-delivery/T04",
-        "recordId": "media-delivery/T04"
+        "recordId": "media-delivery/T04",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4686,7 +4828,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-delivery/T05",
-        "recordId": "media-delivery/T05"
+        "recordId": "media-delivery/T05",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4718,7 +4861,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-delivery/T06",
-        "recordId": "media-delivery/T06"
+        "recordId": "media-delivery/T06",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4750,7 +4894,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-delivery/T07",
-        "recordId": "media-delivery/T07"
+        "recordId": "media-delivery/T07",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4782,7 +4927,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-quality-disposition/T01",
-        "recordId": "media-quality-disposition/T01"
+        "recordId": "media-quality-disposition/T01",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4814,7 +4960,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-quality-disposition/T02",
-        "recordId": "media-quality-disposition/T02"
+        "recordId": "media-quality-disposition/T02",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4846,7 +4993,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-quality-disposition/T03",
-        "recordId": "media-quality-disposition/T03"
+        "recordId": "media-quality-disposition/T03",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4878,7 +5026,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-project/T01",
-        "recordId": "media-project/T01"
+        "recordId": "media-project/T01",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4910,7 +5059,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-project/T02",
-        "recordId": "media-project/T02"
+        "recordId": "media-project/T02",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4942,7 +5092,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-project-version/T01",
-        "recordId": "media-project-version/T01"
+        "recordId": "media-project-version/T01",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -4974,7 +5125,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-project-version/T02",
-        "recordId": "media-project-version/T02"
+        "recordId": "media-project-version/T02",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -5006,7 +5158,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-project-version/T03",
-        "recordId": "media-project-version/T03"
+        "recordId": "media-project-version/T03",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -5038,7 +5191,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-project-version/T04",
-        "recordId": "media-project-version/T04"
+        "recordId": "media-project-version/T04",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -5070,7 +5224,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-project-membership/T01",
-        "recordId": "media-project-membership/T01"
+        "recordId": "media-project-membership/T01",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -5102,7 +5257,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-project-membership/T02",
-        "recordId": "media-project-membership/T02"
+        "recordId": "media-project-membership/T02",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -5134,7 +5290,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-project-membership/T03",
-        "recordId": "media-project-membership/T03"
+        "recordId": "media-project-membership/T03",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -5166,7 +5323,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-project-membership/T04",
-        "recordId": "media-project-membership/T04"
+        "recordId": "media-project-membership/T04",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -5198,7 +5356,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#/transitionRecords/media-project-membership/T05",
-        "recordId": "media-project-membership/T05"
+        "recordId": "media-project-membership/T05",
+        "sourceDigest": "sha256:935f0349666660b0f65b490cd5e8e52f333b50dbea4438027078a2330fed9aa0"
       }
     }
   },
@@ -5230,7 +5389,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.artifact-ingest",
-        "recordId": "media.operation.artifact-ingest"
+        "recordId": "media.operation.artifact-ingest",
+        "sourceDigest": "sha256:0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9"
       }
     }
   },
@@ -5262,7 +5422,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.job-lifecycle",
-        "recordId": "media.operation.job-lifecycle"
+        "recordId": "media.operation.job-lifecycle",
+        "sourceDigest": "sha256:0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9"
       }
     }
   },
@@ -5294,7 +5455,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.transcription",
-        "recordId": "media.operation.transcription"
+        "recordId": "media.operation.transcription",
+        "sourceDigest": "sha256:0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9"
       }
     }
   },
@@ -5326,7 +5488,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.synthesis",
-        "recordId": "media.operation.synthesis"
+        "recordId": "media.operation.synthesis",
+        "sourceDigest": "sha256:0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9"
       }
     }
   },
@@ -5358,7 +5521,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.vision-analysis",
-        "recordId": "media.operation.vision-analysis"
+        "recordId": "media.operation.vision-analysis",
+        "sourceDigest": "sha256:0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9"
       }
     }
   },
@@ -5390,7 +5554,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.multimodal-analysis",
-        "recordId": "media.operation.multimodal-analysis"
+        "recordId": "media.operation.multimodal-analysis",
+        "sourceDigest": "sha256:0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9"
       }
     }
   },
@@ -5422,7 +5587,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.stream-session",
-        "recordId": "media.operation.stream-session"
+        "recordId": "media.operation.stream-session",
+        "sourceDigest": "sha256:0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9"
       }
     }
   },
@@ -5454,7 +5620,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.consent",
-        "recordId": "media.operation.consent"
+        "recordId": "media.operation.consent",
+        "sourceDigest": "sha256:0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9"
       }
     }
   },
@@ -5486,7 +5653,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.health-capability",
-        "recordId": "media.operation.health-capability"
+        "recordId": "media.operation.health-capability",
+        "sourceDigest": "sha256:0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9"
       }
     }
   },
@@ -5518,7 +5686,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.identity-context-boundary",
-        "recordId": "media.component.identity-context-boundary"
+        "recordId": "media.component.identity-context-boundary",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5550,7 +5719,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.intent-launcher",
-        "recordId": "media.component.intent-launcher"
+        "recordId": "media.component.intent-launcher",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5582,7 +5752,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.project-browser",
-        "recordId": "media.component.project-browser"
+        "recordId": "media.component.project-browser",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5614,7 +5785,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.project-context-summary",
-        "recordId": "media.component.project-context-summary"
+        "recordId": "media.component.project-context-summary",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5646,7 +5818,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.creation-plan-summary",
-        "recordId": "media.component.creation-plan-summary"
+        "recordId": "media.component.creation-plan-summary",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5678,7 +5851,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.source-picker",
-        "recordId": "media.component.source-picker"
+        "recordId": "media.component.source-picker",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5710,7 +5884,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.source-player",
-        "recordId": "media.component.source-player"
+        "recordId": "media.component.source-player",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5742,7 +5917,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.transcript-review",
-        "recordId": "media.component.transcript-review"
+        "recordId": "media.component.transcript-review",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5774,7 +5950,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.caption-track-editor",
-        "recordId": "media.component.caption-track-editor"
+        "recordId": "media.component.caption-track-editor",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5806,7 +5983,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.job-status-card",
-        "recordId": "media.component.job-status-card"
+        "recordId": "media.component.job-status-card",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5838,7 +6016,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.provenance-summary",
-        "recordId": "media.component.provenance-summary"
+        "recordId": "media.component.provenance-summary",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5870,7 +6049,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.artifact-source-picker",
-        "recordId": "media.component.artifact-source-picker"
+        "recordId": "media.component.artifact-source-picker",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5902,7 +6082,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.artifact-transfer-status",
-        "recordId": "media.component.artifact-transfer-status"
+        "recordId": "media.component.artifact-transfer-status",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5934,7 +6115,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.artifact-integrity-summary",
-        "recordId": "media.component.artifact-integrity-summary"
+        "recordId": "media.component.artifact-integrity-summary",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5966,7 +6148,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.artifact-browser",
-        "recordId": "media.component.artifact-browser"
+        "recordId": "media.component.artifact-browser",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -5998,7 +6181,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.waveform-spectrogram",
-        "recordId": "media.component.waveform-spectrogram"
+        "recordId": "media.component.waveform-spectrogram",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6030,7 +6214,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.storyboard",
-        "recordId": "media.component.storyboard"
+        "recordId": "media.component.storyboard",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6062,7 +6247,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.timeline-keyframe-editor",
-        "recordId": "media.component.timeline-keyframe-editor"
+        "recordId": "media.component.timeline-keyframe-editor",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6094,7 +6280,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.audio-mixer",
-        "recordId": "media.component.audio-mixer"
+        "recordId": "media.component.audio-mixer",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6126,7 +6313,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.mask-tracking-editor",
-        "recordId": "media.component.mask-tracking-editor"
+        "recordId": "media.component.mask-tracking-editor",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6158,7 +6346,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.scene-inspector",
-        "recordId": "media.component.scene-inspector"
+        "recordId": "media.component.scene-inspector",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6190,7 +6379,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.simulation-instruments",
-        "recordId": "media.component.simulation-instruments"
+        "recordId": "media.component.simulation-instruments",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6222,7 +6412,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.result-comparison",
-        "recordId": "media.component.result-comparison"
+        "recordId": "media.component.result-comparison",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6254,7 +6445,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.quality-inspector",
-        "recordId": "media.component.quality-inspector"
+        "recordId": "media.component.quality-inspector",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6286,7 +6478,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.delivery-profile-picker",
-        "recordId": "media.component.delivery-profile-picker"
+        "recordId": "media.component.delivery-profile-picker",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6318,7 +6511,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.rights-retention-review",
-        "recordId": "media.component.rights-retention-review"
+        "recordId": "media.component.rights-retention-review",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6350,7 +6544,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.activity-recovery-feed",
-        "recordId": "media.component.activity-recovery-feed"
+        "recordId": "media.component.activity-recovery-feed",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6382,7 +6577,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.task-flow",
-        "recordId": "media.component.task-flow"
+        "recordId": "media.component.task-flow",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6414,7 +6610,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.voice-production-workflow",
-        "recordId": "media.component.voice-production-workflow"
+        "recordId": "media.component.voice-production-workflow",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6446,7 +6643,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.cli-output",
-        "recordId": "media.component.cli-output"
+        "recordId": "media.component.cli-output",
+        "sourceDigest": "sha256:47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493"
       }
     }
   },
@@ -6478,7 +6676,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.project-browser",
-        "recordId": "media.gui.pattern.project-browser"
+        "recordId": "media.gui.pattern.project-browser",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6510,7 +6709,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.project-context-header",
-        "recordId": "media.gui.pattern.project-context-header"
+        "recordId": "media.gui.pattern.project-context-header",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6542,7 +6742,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.intent-launcher",
-        "recordId": "media.gui.pattern.intent-launcher"
+        "recordId": "media.gui.pattern.intent-launcher",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6574,7 +6775,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.creation-plan-review",
-        "recordId": "media.gui.pattern.creation-plan-review"
+        "recordId": "media.gui.pattern.creation-plan-review",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6606,7 +6808,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.source-picker",
-        "recordId": "media.gui.pattern.source-picker"
+        "recordId": "media.gui.pattern.source-picker",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6638,7 +6841,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.upload-and-verification",
-        "recordId": "media.gui.pattern.upload-and-verification"
+        "recordId": "media.gui.pattern.upload-and-verification",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6670,7 +6874,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.job-status-and-recovery",
-        "recordId": "media.gui.pattern.job-status-and-recovery"
+        "recordId": "media.gui.pattern.job-status-and-recovery",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6702,7 +6907,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.activity-attention",
-        "recordId": "media.gui.pattern.activity-attention"
+        "recordId": "media.gui.pattern.activity-attention",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6734,7 +6940,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.transcript-and-playback",
-        "recordId": "media.gui.pattern.transcript-and-playback"
+        "recordId": "media.gui.pattern.transcript-and-playback",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6766,7 +6973,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.caption-editor",
-        "recordId": "media.gui.pattern.caption-editor"
+        "recordId": "media.gui.pattern.caption-editor",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6798,7 +7006,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.version-comparison",
-        "recordId": "media.gui.pattern.version-comparison"
+        "recordId": "media.gui.pattern.version-comparison",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6830,7 +7039,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.review-approval",
-        "recordId": "media.gui.pattern.review-approval"
+        "recordId": "media.gui.pattern.review-approval",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6862,7 +7072,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.quality-and-uncertainty",
-        "recordId": "media.gui.pattern.quality-and-uncertainty"
+        "recordId": "media.gui.pattern.quality-and-uncertainty",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6894,7 +7105,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.rights-and-consent-review",
-        "recordId": "media.gui.pattern.rights-and-consent-review"
+        "recordId": "media.gui.pattern.rights-and-consent-review",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6926,7 +7138,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.rendering",
-        "recordId": "media.gui.pattern.rendering"
+        "recordId": "media.gui.pattern.rendering",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6958,7 +7171,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.provenance-and-lineage",
-        "recordId": "media.gui.pattern.provenance-and-lineage"
+        "recordId": "media.gui.pattern.provenance-and-lineage",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -6990,7 +7204,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.safe-confirmation-and-unknown-outcome",
-        "recordId": "media.gui.pattern.safe-confirmation-and-unknown-outcome"
+        "recordId": "media.gui.pattern.safe-confirmation-and-unknown-outcome",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -7022,7 +7237,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.destructive-lifecycle-action",
-        "recordId": "media.gui.pattern.destructive-lifecycle-action"
+        "recordId": "media.gui.pattern.destructive-lifecycle-action",
+        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
       }
     }
   },
@@ -7054,7 +7270,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.collection",
-        "recordId": "media.gui.template.collection"
+        "recordId": "media.gui.template.collection",
+        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
       }
     }
   },
@@ -7086,7 +7303,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.workbench",
-        "recordId": "media.gui.template.workbench"
+        "recordId": "media.gui.template.workbench",
+        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
       }
     }
   },
@@ -7118,7 +7336,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.job-observation",
-        "recordId": "media.gui.template.job-observation"
+        "recordId": "media.gui.template.job-observation",
+        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
       }
     }
   },
@@ -7150,7 +7369,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.review-and-compare",
-        "recordId": "media.gui.template.review-and-compare"
+        "recordId": "media.gui.template.review-and-compare",
+        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
       }
     }
   },
@@ -7182,7 +7402,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.consent-gate",
-        "recordId": "media.gui.template.consent-gate"
+        "recordId": "media.gui.template.consent-gate",
+        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
       }
     }
   },
@@ -7214,7 +7435,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.render-preparation-and-review",
-        "recordId": "media.gui.template.render-preparation-and-review"
+        "recordId": "media.gui.template.render-preparation-and-review",
+        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
       }
     }
   },
@@ -7246,7 +7468,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.lifecycle-confirmation",
-        "recordId": "media.gui.template.lifecycle-confirmation"
+        "recordId": "media.gui.template.lifecycle-confirmation",
+        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
       }
     }
   },
@@ -7278,7 +7501,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.task-setup",
-        "recordId": "media.gui.template.task-setup"
+        "recordId": "media.gui.template.task-setup",
+        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
       }
     }
   },
@@ -7310,7 +7534,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.collection",
-        "recordId": "media.gui.layout.collection"
+        "recordId": "media.gui.layout.collection",
+        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
       }
     }
   },
@@ -7342,7 +7567,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.task-setup",
-        "recordId": "media.gui.layout.task-setup"
+        "recordId": "media.gui.layout.task-setup",
+        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
       }
     }
   },
@@ -7374,7 +7600,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.media-workbench",
-        "recordId": "media.gui.layout.media-workbench"
+        "recordId": "media.gui.layout.media-workbench",
+        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
       }
     }
   },
@@ -7406,7 +7633,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.job-observation",
-        "recordId": "media.gui.layout.job-observation"
+        "recordId": "media.gui.layout.job-observation",
+        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
       }
     }
   },
@@ -7438,7 +7666,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.review",
-        "recordId": "media.gui.layout.review"
+        "recordId": "media.gui.layout.review",
+        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
       }
     }
   },
@@ -7470,7 +7699,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.consent",
-        "recordId": "media.gui.layout.consent"
+        "recordId": "media.gui.layout.consent",
+        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
       }
     }
   },
@@ -7502,7 +7732,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.render",
-        "recordId": "media.gui.layout.render"
+        "recordId": "media.gui.layout.render",
+        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
       }
     }
   },
@@ -7534,7 +7765,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.record-detail",
-        "recordId": "media.gui.layout.record-detail"
+        "recordId": "media.gui.layout.record-detail",
+        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
       }
     }
   },
@@ -7566,7 +7798,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#/aliases/media.token.state.completed",
-        "recordId": "media.token.state.completed"
+        "recordId": "media.token.state.completed",
+        "sourceDigest": "sha256:3d827331ced21766e3b3a5aa8f0a339206bf05296d256813102ff25f6c3d6516"
       }
     }
   },
@@ -7598,7 +7831,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#/aliases/media.token.state.in-progress",
-        "recordId": "media.token.state.in-progress"
+        "recordId": "media.token.state.in-progress",
+        "sourceDigest": "sha256:3d827331ced21766e3b3a5aa8f0a339206bf05296d256813102ff25f6c3d6516"
       }
     }
   },
@@ -7630,7 +7864,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#/aliases/media.token.state.needs-review",
-        "recordId": "media.token.state.needs-review"
+        "recordId": "media.token.state.needs-review",
+        "sourceDigest": "sha256:3d827331ced21766e3b3a5aa8f0a339206bf05296d256813102ff25f6c3d6516"
       }
     }
   },
@@ -7662,7 +7897,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#/aliases/media.token.state.blocked",
-        "recordId": "media.token.state.blocked"
+        "recordId": "media.token.state.blocked",
+        "sourceDigest": "sha256:3d827331ced21766e3b3a5aa8f0a339206bf05296d256813102ff25f6c3d6516"
       }
     }
   },
@@ -7694,7 +7930,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#/aliases/media.token.trust.measured",
-        "recordId": "media.token.trust.measured"
+        "recordId": "media.token.trust.measured",
+        "sourceDigest": "sha256:3d827331ced21766e3b3a5aa8f0a339206bf05296d256813102ff25f6c3d6516"
       }
     }
   },
@@ -7726,7 +7963,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#/aliases/media.token.trust.recognized",
-        "recordId": "media.token.trust.recognized"
+        "recordId": "media.token.trust.recognized",
+        "sourceDigest": "sha256:3d827331ced21766e3b3a5aa8f0a339206bf05296d256813102ff25f6c3d6516"
       }
     }
   },
@@ -7758,7 +7996,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#/aliases/media.token.trust.generated",
-        "recordId": "media.token.trust.generated"
+        "recordId": "media.token.trust.generated",
+        "sourceDigest": "sha256:3d827331ced21766e3b3a5aa8f0a339206bf05296d256813102ff25f6c3d6516"
       }
     }
   },
@@ -7790,7 +8029,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#/aliases/media.token.surface.source",
-        "recordId": "media.token.surface.source"
+        "recordId": "media.token.surface.source",
+        "sourceDigest": "sha256:3d827331ced21766e3b3a5aa8f0a339206bf05296d256813102ff25f6c3d6516"
       }
     }
   },
@@ -7822,7 +8062,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#/aliases/media.token.surface.derived",
-        "recordId": "media.token.surface.derived"
+        "recordId": "media.token.surface.derived",
+        "sourceDigest": "sha256:3d827331ced21766e3b3a5aa8f0a339206bf05296d256813102ff25f6c3d6516"
       }
     }
   },
@@ -7861,7 +8102,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-01",
-        "recordId": "J-01"
+        "recordId": "J-01",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -7904,7 +8146,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-02",
-        "recordId": "J-02"
+        "recordId": "J-02",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -7952,7 +8195,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-03",
-        "recordId": "J-03"
+        "recordId": "J-03",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -7984,7 +8228,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-04",
-        "recordId": "J-04"
+        "recordId": "J-04",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8016,7 +8261,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-05",
-        "recordId": "J-05"
+        "recordId": "J-05",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8048,7 +8294,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-06",
-        "recordId": "J-06"
+        "recordId": "J-06",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8080,7 +8327,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-07",
-        "recordId": "J-07"
+        "recordId": "J-07",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8112,7 +8360,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-08",
-        "recordId": "J-08"
+        "recordId": "J-08",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8144,7 +8393,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-09",
-        "recordId": "J-09"
+        "recordId": "J-09",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8176,7 +8426,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-10",
-        "recordId": "J-10"
+        "recordId": "J-10",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8208,7 +8459,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-11",
-        "recordId": "J-11"
+        "recordId": "J-11",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8240,7 +8492,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-12",
-        "recordId": "J-12"
+        "recordId": "J-12",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8272,7 +8525,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-13",
-        "recordId": "J-13"
+        "recordId": "J-13",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8304,7 +8558,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-14",
-        "recordId": "J-14"
+        "recordId": "J-14",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8336,7 +8591,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-15",
-        "recordId": "J-15"
+        "recordId": "J-15",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8368,7 +8624,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-16",
-        "recordId": "J-16"
+        "recordId": "J-16",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8400,7 +8657,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-17",
-        "recordId": "J-17"
+        "recordId": "J-17",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8432,7 +8690,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-18",
-        "recordId": "J-18"
+        "recordId": "J-18",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8464,7 +8723,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-19",
-        "recordId": "J-19"
+        "recordId": "J-19",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8496,7 +8756,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-20",
-        "recordId": "J-20"
+        "recordId": "J-20",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8528,7 +8789,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-21",
-        "recordId": "J-21"
+        "recordId": "J-21",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8560,7 +8822,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-22",
-        "recordId": "J-22"
+        "recordId": "J-22",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8592,7 +8855,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-23",
-        "recordId": "J-23"
+        "recordId": "J-23",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8624,7 +8888,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-24",
-        "recordId": "J-24"
+        "recordId": "J-24",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8656,7 +8921,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-25",
-        "recordId": "J-25"
+        "recordId": "J-25",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8688,7 +8954,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-26",
-        "recordId": "J-26"
+        "recordId": "J-26",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8720,7 +8987,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-27",
-        "recordId": "J-27"
+        "recordId": "J-27",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8752,7 +9020,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-28",
-        "recordId": "J-28"
+        "recordId": "J-28",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8784,7 +9053,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-29",
-        "recordId": "J-29"
+        "recordId": "J-29",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8816,7 +9086,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-30",
-        "recordId": "J-30"
+        "recordId": "J-30",
+        "sourceDigest": "sha256:44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c"
       }
     }
   },
@@ -8855,7 +9126,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.resume-work",
-        "recordId": "media.view.resume-work"
+        "recordId": "media.view.resume-work",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -8894,7 +9166,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.find-projects",
-        "recordId": "media.view.find-projects"
+        "recordId": "media.view.find-projects",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -8933,7 +9206,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.work-in-project",
-        "recordId": "media.view.work-in-project"
+        "recordId": "media.view.work-in-project",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -8976,7 +9250,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.browse-media",
-        "recordId": "media.view.browse-media"
+        "recordId": "media.view.browse-media",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9019,7 +9294,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.inspect-media",
-        "recordId": "media.view.inspect-media"
+        "recordId": "media.view.inspect-media",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9062,7 +9338,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.import-media",
-        "recordId": "media.view.import-media"
+        "recordId": "media.view.import-media",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9101,7 +9378,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.create-media",
-        "recordId": "media.view.create-media"
+        "recordId": "media.view.create-media",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9133,7 +9411,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-creation-plan",
-        "recordId": "media.view.review-creation-plan"
+        "recordId": "media.view.review-creation-plan",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9165,7 +9444,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.arrange-scenes",
-        "recordId": "media.view.arrange-scenes"
+        "recordId": "media.view.arrange-scenes",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9197,7 +9477,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.create-image",
-        "recordId": "media.view.create-image"
+        "recordId": "media.view.create-image",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9245,7 +9526,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.create-video",
-        "recordId": "media.view.create-video"
+        "recordId": "media.view.create-video",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9293,7 +9575,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.create-audio",
-        "recordId": "media.view.create-audio"
+        "recordId": "media.view.create-audio",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9341,7 +9624,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.work-with-speech",
-        "recordId": "media.view.work-with-speech"
+        "recordId": "media.view.work-with-speech",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9373,7 +9657,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.use-authorized-voice",
-        "recordId": "media.view.use-authorized-voice"
+        "recordId": "media.view.use-authorized-voice",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9421,7 +9706,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.edit-captions",
-        "recordId": "media.view.edit-captions"
+        "recordId": "media.view.edit-captions",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9453,7 +9739,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-dubbing",
-        "recordId": "media.view.review-dubbing"
+        "recordId": "media.view.review-dubbing",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9485,7 +9772,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.improve-media",
-        "recordId": "media.view.improve-media"
+        "recordId": "media.view.improve-media",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9533,7 +9821,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.compare-results",
-        "recordId": "media.view.compare-results"
+        "recordId": "media.view.compare-results",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9565,7 +9854,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.edit-media",
-        "recordId": "media.view.edit-media"
+        "recordId": "media.view.edit-media",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9597,7 +9887,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.edit-media-region",
-        "recordId": "media.view.edit-media-region"
+        "recordId": "media.view.edit-media-region",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9629,7 +9920,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.animate-media",
-        "recordId": "media.view.animate-media"
+        "recordId": "media.view.animate-media",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9661,7 +9953,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.compose-scene",
-        "recordId": "media.view.compose-scene"
+        "recordId": "media.view.compose-scene",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9693,7 +9986,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.explore-simulation",
-        "recordId": "media.view.explore-simulation"
+        "recordId": "media.view.explore-simulation",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9725,7 +10019,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.compose-media",
-        "recordId": "media.view.compose-media"
+        "recordId": "media.view.compose-media",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9757,7 +10052,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.adjust-color",
-        "recordId": "media.view.adjust-color"
+        "recordId": "media.view.adjust-color",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9789,7 +10085,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-quality",
-        "recordId": "media.view.review-quality"
+        "recordId": "media.view.review-quality",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9821,7 +10118,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.prepare-render",
-        "recordId": "media.view.prepare-render"
+        "recordId": "media.view.prepare-render",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9864,7 +10162,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-activity",
-        "recordId": "media.view.review-activity"
+        "recordId": "media.view.review-activity",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9907,7 +10206,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.job-status",
-        "recordId": "media.view.job-status"
+        "recordId": "media.view.job-status",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9939,7 +10239,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-outputs",
-        "recordId": "media.view.review-outputs"
+        "recordId": "media.view.review-outputs",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -9971,7 +10272,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.inspect-output",
-        "recordId": "media.view.inspect-output"
+        "recordId": "media.view.inspect-output",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10003,7 +10305,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.deliver-output",
-        "recordId": "media.view.deliver-output"
+        "recordId": "media.view.deliver-output",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10035,7 +10338,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-exact-version",
-        "recordId": "media.view.review-exact-version"
+        "recordId": "media.view.review-exact-version",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10067,7 +10371,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-rights-and-consent",
-        "recordId": "media.view.review-rights-and-consent"
+        "recordId": "media.view.review-rights-and-consent",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10099,7 +10404,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.inspect-provenance",
-        "recordId": "media.view.inspect-provenance"
+        "recordId": "media.view.inspect-provenance",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10131,7 +10437,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.choose-eligible-processing-option",
-        "recordId": "media.view.choose-eligible-processing-option"
+        "recordId": "media.view.choose-eligible-processing-option",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10163,7 +10470,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.check-processing-options",
-        "recordId": "media.view.check-processing-options"
+        "recordId": "media.view.check-processing-options",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10195,7 +10503,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.check-processing-readiness",
-        "recordId": "media.view.check-processing-readiness"
+        "recordId": "media.view.check-processing-readiness",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10227,7 +10536,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-workspace-settings",
-        "recordId": "media.view.review-workspace-settings"
+        "recordId": "media.view.review-workspace-settings",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10266,7 +10576,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.authenticate-and-select-context",
-        "recordId": "media.view.authenticate-and-select-context"
+        "recordId": "media.view.authenticate-and-select-context",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10298,7 +10609,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.find-task-guidance",
-        "recordId": "media.view.find-task-guidance"
+        "recordId": "media.view.find-task-guidance",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10346,7 +10658,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews/media.view.select-source",
-        "recordId": "media.view.select-source"
+        "recordId": "media.view.select-source",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10394,7 +10707,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews/media.view.monitor-transcription",
-        "recordId": "media.view.monitor-transcription"
+        "recordId": "media.view.monitor-transcription",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10442,7 +10756,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews/media.view.review-transcript",
-        "recordId": "media.view.review-transcript"
+        "recordId": "media.view.review-transcript",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10490,7 +10805,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews/media.view.correct-captions",
-        "recordId": "media.view.correct-captions"
+        "recordId": "media.view.correct-captions",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10538,7 +10854,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews/media.view.compare-caption-versions",
-        "recordId": "media.view.compare-caption-versions"
+        "recordId": "media.view.compare-caption-versions",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   },
@@ -10586,7 +10903,8 @@
     "extensions": {
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews/media.view.check-job-outcome",
-        "recordId": "media.view.check-job-outcome"
+        "recordId": "media.view.check-job-outcome",
+        "sourceDigest": "sha256:d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd"
       }
     }
   }

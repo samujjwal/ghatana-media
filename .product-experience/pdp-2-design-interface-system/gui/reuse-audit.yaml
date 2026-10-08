@@ -3,6 +3,33 @@ productId: media
 authority: Source inventory observations and PDP-2 contract/catalog identity crosswalk; candidate links are not
   admitted implementation or design bindings.
 status: audit-recorded; component-owner-review-pending; composition-review-pending; Shared-style-binding-unverified
+sharedPackageMetadataObservation:
+  packages:
+    "@ghatana/design-system": { version: 0.1.0-SNAPSHOT, declaredLicense: MIT }
+    "@ghatana/theme": { version: 0.1.0-SNAPSHOT, declaredLicense: MIT }
+    "@ghatana/tokens": { version: 0.1.0-SNAPSHOT, declaredLicense: MIT }
+  scope: Current sibling package.json metadata only; this is not a transitive dependency license assessment, immutable artifact verification, or Shared owner/design acceptance.
+sharedStylesheetBindingReview:
+  candidatePackages:
+    tokens: sibling-repository:ghatana-shared/platform/typescript/tokens/package.json#./tokens.css
+    recipes: sibling-repository:ghatana-shared/platform/typescript/ui-styles/package.json#./styles.css
+  observedMismatch:
+    tokensProvide: ["--gh-semantic-colors-light-interactive-default", "--gh-semantic-colors-light-surface-default", "--gh-semantic-geometry-control-height-standard"]
+    recipesRequire: ["--gh-semantic-interactive-accent", "--gh-semantic-surface-default", "--gh-geometry-control-height"]
+    missingRecipeVariables: 56
+    exactNameMatches: 0
+    semanticBridge: absent
+    dimensionalUnitBridge: absent
+  disposition: not-consumed; package CSS exports are public, but current token CSS does not define the variable names required by the recipe stylesheet and no source-backed Shared bridge was identified
+  evidence: Explorer CSP permits same-origin stylesheets and blocks inline style attributes; no Shared stylesheet binding is admitted until variable parity, semantic mappings, dimensional units, and runtime behavior are verified against an owner-approved release. Theme provider output is not a CSS-only bridge because its runtime path applies inline styles.
+  nextAction: Shared owner to publish a compatible bridge or approve a complete alias/unit mapping; keep Media on qualified Shared React controls and documented Media-owned structural styles until then.
+  reviewState: design-system-owner-and-consumer-binding-review-pending
+inRepoConsumerEvidence:
+  source: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components
+  observations:
+  - StemTrack, TrainingProgress, and VoiceProductionWorkflow import Button from @ghatana/design-system.
+  - useSemanticColors composes useTheme from @ghatana/theme/react with semanticColorRoles from @ghatana/tokens/semantic-roles.
+  limit: Existing imports are ecosystem usage evidence only; they do not establish a new Media component binding or CSP compatibility for other components.
 sourceInventory:
   path: .product-experience/pdp-2-design-interface-system/executable-ui-inventory.json
   sourceRevision: d4caa874f822e1737a88d0a6056e4f2faaeb78c1
@@ -26,7 +53,17 @@ componentFamilyCrosswalk:
   - libs/audio-video-ui/src/components/MediaTaskFlow.tsx
   bindingStatus: candidate-public-export-needs-owner-review
   publicExport: "@audio-video/ui/components#MediaTaskFlow"
-  reviewState: rendered behavior and port regression exist; accessibility, responsive, Shared theme, and owner review remain pending
+  sharedReuse:
+    package: "@ghatana/design-system"
+    publicExport: "."
+    components: [Badge, Button]
+    mediaFacade: libs/audio-video-ui/src/foundations/index.ts
+    status: source-consumer-candidate; installed-artifact-and-owner-review-pending
+    progress: excluded-from-Shared-reuse
+    progressReason: Shared Progress emits inline style attributes; Explorer enforces style-src-attr 'none'. Media uses native HTML progress for measured and indeterminate states; unknown and no-measurement remain text-only.
+    stepNavigation: native-button-retained
+    stepNavigationReason: Shared Button emits an inline style attribute blocked by Explorer style-src-attr 'none' and wraps its children in a label span that breaks Media's direct-child nav layout selectors; native button matches the host-gated step contract.
+  reviewState: MediaTaskFlow composes Shared Badge and Button through the public Media foundations facade; Shared Progress is excluded because its inline style attributes violate the Explorer CSP. Consumer, accessibility, responsive, Shared theme, and owner review remain pending
 - componentRef: media.component.voice-production-workflow
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.voice-production-workflow
   contractStatus: authored-proposal; Media-and-AI-Voice-owner-review-pending
@@ -56,7 +93,15 @@ componentFamilyCrosswalk:
   implementationEvidence:
   - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
   bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: "@ghatana/ai-voice-ui-react/components#PhraseTimeline"
+  publicExport: no-PDP-2-family-specific-export-binding-established
+  sharedReuse:
+    package: "@ghatana/design-system"
+    publicExport: "."
+    components: [Button, EmptyState, TextField]
+    mediaFacade: libs/audio-video-ui/src/foundations/index.ts
+    status: source-consumer-candidate; installed-artifact-and-owner-review-pending
+    emptyStateCspEvidence: Public Shared EmptyState source emits class-based markup without inline style attributes; its title-only status behavior matches the resolved-empty project list.
+  crosswalkNote: FirstUseProjectScreen.tsx is a screen candidate; PhraseTimeline is a timeline editor export and is not evidence of a project-browser implementation.
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.project-context-summary
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.project-context-summary
@@ -64,7 +109,8 @@ componentFamilyCrosswalk:
   implementationEvidence:
   - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
   bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: "@ghatana/ai-voice-ui-react/components#StemTrack"
+  publicExport: no-PDP-2-family-specific-export-binding-established
+  crosswalkNote: FirstUseProjectScreen.tsx is a screen candidate; StemTrack is an audio-mix component export and is not evidence of a project-context-summary implementation.
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.creation-plan-summary
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.creation-plan-summary
@@ -81,6 +127,12 @@ componentFamilyCrosswalk:
   - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
   bindingStatus: candidate-source-link-needs-owner-review
   publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  sharedReuse:
+    package: "@ghatana/design-system"
+    publicExport: "."
+    components: [Button, Select, TextArea, TextField]
+    mediaFacade: libs/audio-video-ui/src/foundations/index.ts
+    status: source-consumer-candidate; installed-artifact-and-owner-review-pending
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.source-player
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.source-player
@@ -96,6 +148,12 @@ componentFamilyCrosswalk:
   - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
   bindingStatus: candidate-source-link-needs-owner-review
   publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  sharedReuse:
+    package: "@ghatana/design-system"
+    publicExport: "."
+    components: [Button, Select, TextArea, TextField]
+    mediaFacade: libs/audio-video-ui/src/foundations/index.ts
+    status: source-consumer-candidate; installed-artifact-and-owner-review-pending
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.caption-track-editor
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.caption-track-editor
@@ -104,6 +162,12 @@ componentFamilyCrosswalk:
   - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
   bindingStatus: candidate-source-link-needs-owner-review
   publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  sharedReuse:
+    package: "@ghatana/design-system"
+    publicExport: "."
+    components: [Button, Select, TextArea, TextField]
+    mediaFacade: libs/audio-video-ui/src/foundations/index.ts
+    status: source-consumer-candidate; installed-artifact-and-owner-review-pending
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.job-status-card
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.job-status-card
@@ -129,6 +193,12 @@ componentFamilyCrosswalk:
   - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
   bindingStatus: candidate-source-link-needs-owner-review
   publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  sharedCandidateReview:
+    package: "@ghatana/design-system"
+    publicExport: ".#FileUpload"
+    observedSnapshotVersion: 0.1.0-SNAPSHOT
+    observedRetentionLimit: 100
+    disposition: not-composed; current Shared FileUpload truncates the retained selection at its local maximum, while Media has no owner-selected file-count bound and forwards the complete selection to its host callback
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.artifact-transfer-status
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-transfer-status
@@ -153,6 +223,12 @@ componentFamilyCrosswalk:
   - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
   bindingStatus: candidate-source-link-needs-owner-review
   publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  sharedReuse:
+    package: "@ghatana/design-system"
+    publicExport: ".#EmptyState"
+    mediaFacade: libs/audio-video-ui/src/foundations/index.ts
+    status: source-consumer-candidate; installed-artifact-and-owner-review-pending
+    emptyStateCspEvidence: Public Shared EmptyState source emits class-based markup without inline style attributes; Media uses it only for the empty artifact collection.
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.waveform-spectrogram
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.waveform-spectrogram

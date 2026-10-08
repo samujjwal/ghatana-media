@@ -44,6 +44,11 @@ public class TranscriptionJobConsumer {
     private final AtomicReference<ConsumerState> state = new AtomicReference<>(ConsumerState.CREATED);
     private Function<TranscriptionJobProducer.TranscriptionJobMessage, AsyncOperation<Void>> jobProcessor;
     
+    /**
+     * @deprecated QueueConsumerStrategy exposes no callback registration method.
+     * Use the callback-factory constructor so the consumer handler is bound before start.
+     */
+    @Deprecated
     public TranscriptionJobConsumer(String queueName,
                                     QueueConsumerStrategy consumerStrategy,
                                     MetricsCollector metricsCollector) {
@@ -52,6 +57,11 @@ public class TranscriptionJobConsumer {
             Executors.newVirtualThreadPerTaskExecutor());
     }
 
+    /**
+     * @deprecated QueueConsumerStrategy exposes no callback registration method.
+     * Use the callback-factory constructor so the consumer handler is bound before start.
+     */
+    @Deprecated
     public TranscriptionJobConsumer(String queueName,
                                     QueueConsumerStrategy consumerStrategy,
                                     MetricsCollector metricsCollector,
@@ -61,6 +71,11 @@ public class TranscriptionJobConsumer {
             Executors.newVirtualThreadPerTaskExecutor());
     }
     
+    /**
+     * @deprecated QueueConsumerStrategy exposes no callback registration method.
+     * Use the callback-factory constructor so the consumer handler is bound before start.
+     */
+    @Deprecated
     public TranscriptionJobConsumer(String queueName,
                                     QueueConsumerStrategy consumerStrategy,
                                     MetricsCollector metricsCollector,
@@ -70,7 +85,12 @@ public class TranscriptionJobConsumer {
             processingExecutor);
     }
 
-    /** Creates a consumer with an explicit object mapper and processing executor. */
+    /**
+     * Creates a consumer with an explicit object mapper and processing executor.
+     * @deprecated QueueConsumerStrategy exposes no callback registration method.
+     * Use the callback-factory constructor so the consumer handler is bound before start.
+     */
+    @Deprecated
     public TranscriptionJobConsumer(String queueName,
                                     QueueConsumerStrategy consumerStrategy,
                                     MetricsCollector metricsCollector,
@@ -122,18 +142,14 @@ public class TranscriptionJobConsumer {
         if (jobProcessor == null) {
             return AsyncOperation.failure(new IllegalStateException("Job processor not set"));
         }
-        if (!handlerBoundAtConstruction && !consumerStrategy.supportsMessageHandlerRegistration()) {
+        if (!handlerBoundAtConstruction) {
             return AsyncOperation.failure(new IllegalStateException(
-                "Consumer strategy does not support message handler registration"));
+                "QueueConsumerStrategy has no handler registration API; use the callback factory constructor"));
         }
 
         if (!state.compareAndSet(ConsumerState.CREATED, ConsumerState.STARTED)) {
             LOG.warn("Consumer already started or stopped");
             return AsyncOperation.success(null);
-        }
-
-        if (!handlerBoundAtConstruction) {
-            consumerStrategy.setMessageHandler(this::dispatchEnvelope);
         }
 
         return consumerStrategy.start().whenComplete((ignored, error) -> {

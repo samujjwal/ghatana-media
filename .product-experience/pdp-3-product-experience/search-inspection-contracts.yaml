@@ -9,10 +9,23 @@ sourceRefs:
   - .product-experience/pdp-3-product-experience/screen-registry.yaml
   - .product-experience/pdp-3-product-experience/application-channel-registry.yaml
   - .product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml
-searches:
+search:
   - id: media.search.authorized-projects
     name: Find authorized projects
-    searchableTypes: [media.domain.project, media.domain.project-revision]
+    searchableTypes: [media.domain.project]
+    description: Find current-tenant authorized projects with exact stable identity and stale-index disclosure.
+  - id: media.search.authorized-artifacts
+    name: Find authorized artifact versions
+    searchableTypes: [media.domain.artifact-version]
+    description: Find authorized artifact versions by media type, verified integrity, declared provenance and exact version.
+  - id: media.search.authorized-jobs
+    name: Find processing jobs and attempt outcomes
+    searchableTypes: [media.domain.processing-job, media.domain.artifact-verification-job]
+    description: Find exact authorized processing jobs with authoritative state and separately measured observation freshness.
+searchContracts:
+  - id: media.search.authorized-projects
+    name: Find authorized projects
+    searchableTypes: [media.domain.project]
     description: Find only current-tenant authorized projects and their visible revisions, with exact stable identity and stale-index disclosure.
     filters: [workspace-or-tenant, project-visibility, updated-at, ownership]
     ordering: [updated-at-descending-stable-id, project-label-then-id]
@@ -23,7 +36,7 @@ searches:
     runtimeBinding: NOT_ADMITTED
   - id: media.search.authorized-artifacts
     name: Find authorized artifact versions
-    searchableTypes: [media.domain.artifact, media.domain.artifact-version]
+    searchableTypes: [media.domain.artifact-version]
     description: Search media by type, verified integrity, authorization, declared provenance and exact version without implying publication or deletion state.
     filters: [tenant-project-scope, media-kind, integrity-status, owner, version, time-range]
     ordering: [created-at-descending-stable-id, media-kind-then-id]
@@ -34,7 +47,7 @@ searches:
     runtimeBinding: NOT_ADMITTED
   - id: media.search.authorized-jobs
     name: Find processing jobs and attempt outcomes
-    searchableTypes: [media.domain.processing-job, media.domain.job-attempt]
+    searchableTypes: [media.domain.processing-job, media.domain.artifact-verification-job]
     description: Find exact authorized jobs with current authoritative state and separately measured observation freshness; never equate request receipt with job finality.
     filters: [job-kind, status, created-at, source-version, attempt, owner]
     ordering: [updated-at-descending-stable-job-id]
@@ -44,31 +57,47 @@ searches:
     availableChannels: [media.channel.web, media.channel.http-api, media.channel.sdk, media.channel.cli]
     runtimeBinding: NOT_ADMITTED
 inspections:
-  - id: media.inspection.product-contract
+  - id: media.inspection.specification
+    projectionKind: specification
+    description: Inspect the currently authored and versioned Media interface, screen, CLI, SDK, Agent Tool or event contract; proposal and admitted implementation must be visibly distinct.
+  - id: media.inspection.authority
+    projectionKind: authority
+    description: Inspect the exact artifact, project, version, rights/consent and caller scope without revealing content outside current policy.
+  - id: media.inspection.evidence
+    projectionKind: evidence
+    description: Inspect available quality, provenance, result and external delivery evidence with metric domains, sources and UNKNOWN/NOT_QUALIFIED distinguished from measured failure.
+  - id: media.inspection.trace
+    projectionKind: trace
+    description: Inspect causal job, attempt, dispatch, provider and delivery statuses across observations without manufacturing finality or permissions.
+  - id: media.inspection.synthetic-simulation
+    projectionKind: simulation
+    description: Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification.
+inspectionContracts:
+  - id: media.inspection.specification
     projectionKind: specification
     description: Inspect the currently authored and versioned Media interface, screen, CLI, SDK, Agent Tool or event contract; proposal and admitted implementation must be visibly distinct.
     authorityRefs: [.product-experience/pdp-0-product-truth/, .product-experience/pdp-1-domain-data/, .product-experience/pdp-2-design-interface-system/, .product-experience/pdp-3-product-experience/]
     requiredContext: [contract-id, source-revision, channel, authority-status]
     runtimeBinding: DEFINITION_ONLY
-  - id: media.inspection.resource-authority
+  - id: media.inspection.authority
     projectionKind: authority
     description: Inspect the exact artifact, project, version, rights/consent and caller scope without revealing content outside current policy.
     authorityRefs: [.product-experience/pdp-1-domain-data/authority.yaml, .product-experience/pdp-1-domain-data/versioning.yaml, .product-experience/pdp-1-domain-data/privacy.yaml]
     requiredContext: [tenant-project-context, exact-resource-version, current-principal, policy-issuer]
     runtimeBinding: NOT_ADMITTED
-  - id: media.inspection.quality-and-effect-proof
+  - id: media.inspection.evidence
     projectionKind: evidence
     description: Inspect available quality, provenance, result and external delivery evidence with metric domains, sources and UNKNOWN/NOT_QUALIFIED distinguished from measured failure.
     authorityRefs: [.product-experience/pdp-0-product-truth/quality-policy.yaml, .product-experience/pdp-1-domain-data/evidence.yaml, .product-experience/pdp-1-domain-data/provenance.yaml]
     requiredContext: [source-version, output-version, assessment-profile, evidence-issuer, observation-time]
     runtimeBinding: NOT_ADMITTED
-  - id: media.inspection.job-effect-trace
+  - id: media.inspection.trace
     projectionKind: trace
     description: Inspect causal job, attempt, dispatch, provider and delivery statuses across observations without manufacturing finality or permissions.
     authorityRefs: [.product-experience/pdp-1-domain-data/states.yaml, .product-experience/pdp-1-domain-data/events.yaml, .product-experience/pdp-1-domain-data/state-adjudication.yaml]
     requiredContext: [logical-job-id, attempt-ids, source-version, evidence-fingerprint]
     runtimeBinding: NOT_ADMITTED
-  - id: media.inspection.scenario-fixture
+  - id: media.inspection.synthetic-simulation
     projectionKind: simulation
     description: Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification.
     authorityRefs: [.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml, .product-experience/explorer/scenario-fixtures.yaml]

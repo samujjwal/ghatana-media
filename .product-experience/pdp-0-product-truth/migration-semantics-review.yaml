@@ -20,6 +20,187 @@ ownerDecisionOverlay:
   unresolvedBlockCount: 349
   partiallyMappedUnresolvedBlockCount: 2
   partialMappingItems: [MPSEM-0178, MPSEM-0211]
+reviewedClaimSlices:
+- sliceId: MPSEM-0001-META-04-05
+  itemId: MPSEM-0001
+  reviewStatus: BOUNDED_SOURCE_REVIEWED
+  reviewMethod: exact-text-comparison-to-historical-pin-and-current-source
+  sourcePinRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+  sourceLines: [4, 5]
+  exactText:
+  - '**Document ID:** MEDIA-MASTER-PLAN'
+  - '**Review date:** October 4, 2026'
+  classification: NO_NORMATIVE_CONTENT
+  disposition: exclude-this-metadata-slice-from-product-semantic-reconciliation
+  basis: Document identifier and date are bibliographic metadata only.
+  authorityEffect: The containing MPSEM item remains UNRESOLVED; lines 6-12 include status and authority-phase claims and are not covered by this disposition.
+  acceptanceEffect: none
+- sliceId: MPSEM-0007-READING-ORDER
+  itemId: MPSEM-0007
+  reviewStatus: BOUNDED_SOURCE_REVIEWED
+  reviewMethod: exact-text-comparison-to-historical-pin-and-current-source
+  sourcePinRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+  sourceLines: [26, 26]
+  currentSourceLines: [28, 28]
+  exactText: '**Reading order:** Sections 1–5 establish decisions and boundaries. Sections 6–17 define the product and runtime contracts. Sections 18–22 specify the four phases and their handoff. Sections 23–25 provide executable task cards, sequencing, and verification. The appendices preserve source coverage, evidence provenance, and unresolved prerequisites.'
+  classification: NO_NORMATIVE_CONTENT
+  disposition: exclude-reading-guide-from-product-semantic-reconciliation
+  basis: This sentence directs readers through document sections; it does not assert product behavior or accept the referenced material.
+  authorityEffect: The containing MPSEM item remains UNRESOLVED; the navigation text does not classify or accept the sections it describes.
+  acceptanceEffect: none
+claimDecompositions:
+- claimId: MPSEM-0002-C01
+  itemId: MPSEM-0002
+  sourcePinRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+  historicalSourceLines: [14, 14]
+  currentSourceLines: [16, 16]
+  exactClaim: Reuse the appropriate Ghatana owner first.
+  reviewStatus: PROPOSAL_ONLY
+  mappingStatus: CANDIDATE_TARGET
+  candidatePdpRefs:
+  - .product-experience/pdp-0-product-truth/constitution.yaml#/requirements/13
+  - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#/decisions
+  mappingBasis: MEDIA-CONST-014 states Ghatana reuse-first ordering; the reuse register records candidate owner decisions but leaves versions/publication or owner acceptance open.
+  acceptanceEffect: none
+- claimId: MPSEM-0002-C02
+  itemId: MPSEM-0002
+  sourcePinRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+  historicalSourceLines: [14, 14]
+  currentSourceLines: [16, 16]
+  exactClaim: Define Media meaning once.
+  reviewStatus: PROPOSAL_ONLY
+  mappingStatus: CANDIDATE_TARGET
+  candidatePdpRefs:
+  - .product-experience/pdp-0-product-truth/constitution.yaml#/requirements/17
+  - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/singleAuthorityInvariant
+  mappingBasis: MEDIA-CONST-018 requires one domain/action/state authority; the policy records the one-editable-authority invariant. Both are prospective authority sources, not acceptance evidence.
+  acceptanceEffect: none
+- claimId: MPSEM-0002-C03
+  itemId: MPSEM-0002
+  sourcePinRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+  historicalSourceLines: [14, 14]
+  currentSourceLines: [16, 16]
+  exactClaim: Keep every channel consistent.
+  reviewStatus: PROPOSAL_ONLY
+  mappingStatus: CANDIDATE_TARGET
+  candidatePdpRefs:
+  - .product-experience/pdp-0-product-truth/applications-channels.yaml#/channelInvariants/0
+  mappingBasis: The referenced invariant expressly requires Web, CLI, API, SDK, and product integrations to project the same versioned semantics, authorization, finality, and recovery rules.
+  acceptanceEffect: none
+- claimId: MPSEM-0002-C04
+  itemId: MPSEM-0002
+  sourcePinRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+  historicalSourceLines: [14, 14]
+  currentSourceLines: [16, 16]
+  exactClaim: Make protection and quality native, and complexity optional.
+  claimAspect: protection
+  reviewStatus: PROPOSAL_ONLY
+  mappingStatus: PARTIAL_CANDIDATE
+  candidatePdpRefs:
+  - .product-experience/pdp-0-product-truth/constitution.yaml#/requirements/7
+  mappingBasis: MEDIA-CONST-008 supports the protection constraint against silently weakening privacy, rights, safety, fidelity, quality, and finality; it does not define what makes protection "native."
+  unresolvedClaimRef: MPSEM-0002-U01
+  acceptanceEffect: none
+- claimId: MPSEM-0002-C05
+  itemId: MPSEM-0002
+  sourcePinRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+  historicalSourceLines: [14, 14]
+  currentSourceLines: [16, 16]
+  exactClaim: Make protection and quality native, and complexity optional.
+  claimAspect: quality
+  reviewStatus: PROPOSAL_ONLY
+  mappingStatus: PARTIAL_CANDIDATE
+  candidatePdpRefs:
+  - .product-experience/pdp-0-product-truth/constitution.yaml#/requirements/6
+  mappingBasis: MEDIA-CONST-007 makes structural validation and applicable quality measurement part of proposed quality acceptance; the term "native" has no exact operational definition here.
+  unresolvedClaimRef: MPSEM-0002-U02
+  acceptanceEffect: none
+- claimId: MPSEM-0002-C06
+  itemId: MPSEM-0002
+  sourcePinRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+  historicalSourceLines: [14, 14]
+  currentSourceLines: [16, 16]
+  exactClaim: Make protection and quality native, and complexity optional.
+  claimAspect: complexity-optional
+  reviewStatus: PROPOSAL_ONLY
+  mappingStatus: PARTIAL_CANDIDATE
+  candidatePdpRefs:
+  - .product-experience/pdp-0-product-truth/constitution.yaml#/requirements/2
+  - .product-experience/pdp-0-product-truth/constitution.yaml#/requirements/3
+  mappingBasis: MEDIA-CONST-003 and MEDIA-CONST-004 describe intent-first use and progressively deeper controls; they do not settle which complexity or expert controls must be optional.
+  unresolvedClaimRef: MPSEM-0002-U03
+  acceptanceEffect: none
+- claimId: MPSEM-0002-C07
+  itemId: MPSEM-0002
+  sourcePinRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+  historicalSourceLines: [14, 14]
+  currentSourceLines: [16, 16]
+  exactClaim: Verify the resulting behavior rather than inferring it from source presence.
+  reviewStatus: PROPOSAL_ONLY
+  mappingStatus: UNMAPPED
+  candidatePdpRefs: []
+  mappingBasis: No exact PDP-0 requirement states a complete behavior-verification method or oracle; source presence alone is insufficient to assign one.
+  unresolvedClaimRef: MPSEM-0002-U04
+  acceptanceEffect: none
+- claimId: MPSEM-0713-C01
+  itemId: MPSEM-0713
+  sourcePinRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+  historicalSourceLines: [1560, 1560]
+  currentSourceLines: [1574, 1574]
+  exactClaim: Include original streaming/document worker and all animation/simulation/spatial/enhancement families.
+  claimAspect: animation-family scope within the grouped capability enumeration
+  reviewStatus: BOUNDED_SOURCE_REVIEWED
+  mappingStatus: SCOPE_CROSSWALKED_PENDING_SEMANTIC_DETAIL
+  candidatePdpRefs:
+  - .product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#/familyCrosswalk/19
+  - .product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#/familyCrosswalk/20
+  - .product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml#/familyCrosswalk/21
+  mappingBasis: The three §6.5 animation crosswalk records preserve the source family phrases and map 42 unique leaf IDs; this reconciles catalog scope only, while per-leaf semantic detail and Product Truth acceptance remain pending.
+  unresolvedClaimRef: MPSEM-0713-U01
+  acceptanceEffect: none
+- claimId: MPSEM-0713-C02
+  itemId: MPSEM-0713
+  sourcePinRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+  historicalSourceLines: [1560, 1560]
+  currentSourceLines: [1574, 1574]
+  exactClaim: Bind every leaf to inputs/outputs, actors, requirements, states, acceptance and implementation/qualification/license/runtime dimensions.
+  reviewStatus: PROPOSAL_ONLY
+  mappingStatus: UNRESOLVED
+  candidatePdpRefs: []
+  mappingBasis: The animation-only scope match does not reconcile the other named families or the required per-leaf semantic and support dimensions; those assertions need separate source-to-record reconciliation and owner review.
+  unresolvedClaimRef: MPSEM-0713-U02
+  acceptanceEffect: none
+unresolvedClaimFragments:
+- fragmentId: MPSEM-0002-U01
+  itemId: MPSEM-0002
+  claimId: MPSEM-0002-C04
+  text: The meaning and acceptance criteria of protection being "native."
+  status: UNRESOLVED
+- fragmentId: MPSEM-0002-U02
+  itemId: MPSEM-0002
+  claimId: MPSEM-0002-C05
+  text: The meaning and acceptance criteria of quality being "native."
+  status: UNRESOLVED
+- fragmentId: MPSEM-0002-U03
+  itemId: MPSEM-0002
+  claimId: MPSEM-0002-C06
+  text: Which advanced or expert complexity is optional, and which capabilities remain mandatory.
+  status: UNRESOLVED
+- fragmentId: MPSEM-0002-U04
+  itemId: MPSEM-0002
+  claimId: MPSEM-0002-C07
+  text: The required behavior-verification methods, observers, and acceptance oracles.
+  status: UNRESOLVED
+- fragmentId: MPSEM-0713-U01
+  itemId: MPSEM-0713
+  claimId: MPSEM-0713-C01
+  text: The grouped source-family enumeration outside the bounded animation mapping (original streaming/document worker and simulation/spatial/enhancement).
+  status: UNRESOLVED
+- fragmentId: MPSEM-0713-U02
+  itemId: MPSEM-0713
+  claimId: MPSEM-0713-C02
+  text: Per-leaf binding to inputs/outputs, actors, requirements, states, acceptance, and implementation/qualification/license/runtime dimensions.
+  status: UNRESOLVED
 systematicScope:
   unit: 'unique Markdown content block: paragraph, individual list item, individual table row, or fenced code example; exact
     repeated blocks are deduplicated while every source location is retained'
@@ -29698,3 +29879,450 @@ items:
     headingPath:
     - Appendix E. Document consistency checks
   itemId: MPSEM-1339
+sourceChangeLedger:
+  schemaVersion: media.migration-source-change-ledger.v1
+  task: P0-03 semantic reconciliation of the stale master-plan source pin
+  historicalSource:
+    path: docs/migration/expert-reviewed-master-plan.md
+    commit: e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+    sha256: 2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a
+    lineCount: 2815
+  observedCurrentSource:
+    path: docs/migration/expert-reviewed-master-plan.md
+    sha256: c2d9d1f1fcc35b0804f69335657c3b8058ff5163ac1eefb78c6b9bc7d9ab11da
+    lineCount: 2829
+    diffAgainstHistorical: 182 additions and 168 deletions; 350 changed lines
+  sourcePinDisposition: keep-stale
+  reconciliationStatus: partial; material changes are ledgered but old item text/locations and claim-level decompositions are not fully reconciled
+  unchangedReviewCounts:
+    uniqueUnits: 1340
+    unresolved: 349
+    mixedRequiresDecomposition: 123
+    ownerReviewed: 0
+  remainingReview: Refreshing the source pin requires decomposing changed normative paragraphs and task-card assertions into source-owned claims, updating the affected MPSEM source text/current locations, and reviewing the new taxonomy and PDP-1 routing claims. Existing section provenance and the ledger do not constitute semantic acceptance.
+  clusters:
+  - id: MSC-01
+    currentLineSpans: [14]
+    historicalLineSpans: []
+    affectedItemIds: []
+    unmappedStatus: new-claim-no-historical-MPSEM-item
+    disposition: needs decomposition
+    changedClaims: Introduces the full legacy Phase/P0-P3 to PDP-0/PDP-1/PDP-2/PDP-3/Explorer mapping, including P0-004/005 to PDP-1 and Explorer outside the PDP phases.
+    rationale: This new paragraph asserts owner routing and task-group semantics absent from the historical source blocks; it requires claim-level assignment and review before pin refresh.
+  - id: MSC-02
+    currentLineSpans: [24]
+    historicalLineSpans: [22]
+    affectedItemIds: [MPSEM-0005]
+    disposition: needs decomposition
+    changedClaims: DEFINE_PRODUCT now authors PDP-0 through PDP-3 authorities and builds Explorer as their deterministic projection; the historical sentence assigned phases 0-2 authoring and phase-3 Explorer building.
+    rationale: The permission scope and Explorer relationship changed. MPSEM-0005 is still UNRESOLVED and mixed; its historical paragraph cannot be treated as equivalent by a label substitution.
+  - id: MSC-03
+    currentLineSpans: [287, 332, 336]
+    historicalLineSpans: [284, 329, 332]
+    affectedItemIds: [MPSEM-0122, MPSEM-0157, MPSEM-0158, MPSEM-0159, MPSEM-0160]
+    disposition: needs decomposition
+    changedClaims: Recasts four phase owners as PDP-0 through PDP-3 plus a separate Explorer workstream; creates a distinct PDP-1 domain/data authority and assigns domain/state/operation contracts to it.
+    rationale: The old PDP-0 row included domain/time/units, states, failure/finality, dependencies and NFRs; the new table explicitly moves canonical domain/state/operation semantics to PDP-1 and narrows PDP-0. Existing rows remain UNRESOLVED.
+  - id: MSC-04
+    currentLineSpans: [260, 354, 356, 1072, 1090]
+    historicalLineSpans: [257, 350, 355, 1054, 1075]
+    affectedItemIds: [MPSEM-0118, MPSEM-0164, MPSEM-0463]
+    disposition: source-scope change
+    changedClaims: Replaces phase-* directory authorities with pdp-* authorities, adds explorer/ source metadata, and names apps/media-experience-explorer as an implementation outside the PDP authorities.
+    rationale: These are material authority/path identity changes in the canonical directory and source layout. Existing implementation-guidance items do not prove all artifact identities or generated-source mappings have been reconciled.
+  - id: MSC-05
+    currentLineSpans: [364, 368]
+    historicalLineSpans: [357, 361]
+    affectedItemIds: [MPSEM-0165, MPSEM-0166, MPSEM-0167]
+    disposition: needs decomposition
+    changedClaims: Changes phase-local ledgers to PDP-local ledgers, assigns reuse decisions to PDP-0, and changes source-manifest ownership from a phase to a PDP or workstream while explicitly classifying Explorer as an outside projection.
+    rationale: Ownership classification changed beyond path renaming; the affected assertions remain unresolved in their current source register.
+  - id: MSC-06
+    currentLineSpans: [379]
+    historicalLineSpans: [372]
+    affectedItemIds: [MPSEM-0170]
+    disposition: still applicable
+    changedClaims: Replaces the Phase-0 operation-expansion label with PDP-0 recording of stable capability families/leaves.
+    rationale: The complete-scope rule and no-silent-future rule remain intact; only the authority label changed.
+  - id: MSC-07
+    currentLineSpans: [584, 827, 891, 918, 1027]
+    historicalLineSpans: [577, 820, 884, 911, 1020]
+    affectedItemIds: [MPSEM-0261, MPSEM-0366, MPSEM-0389, MPSEM-0403, MPSEM-0453]
+    disposition: needs decomposition
+    changedClaims: Routes scene-coordinate validation to PDP-1; erasure states to PDP-1 while policy remains PDP-0; product-level budget targets to PDP-0; the accepted migration boundary to PDP-0/PDP-1; and localization intent versus canonical language/data semantics to PDP-0/PDP-1.
+    rationale: These are semantic ownership changes in safety-, domain-, and qualification-related claims. The records remain unresolved or execution-only and do not establish owner acceptance of the new routing.
+  - id: MSC-08
+    currentLineSpans: [1177, 1201]
+    historicalLineSpans: [1167, 1195]
+    affectedItemIds: [MPSEM-0478, MPSEM-0499]
+    disposition: needs decomposition
+    changedClaims: Reconciles PDP-0 artifacts to current path layout, changes its pass criteria, and clarifies that full scope requires channel/journey disposition and product-level policy/boundary/failure semantics.
+    rationale: MPSEM-0499 is an EXECUTION_ONLY block whose historical pass sentence included state transitions and dependencies. The current pass sentence removes those from PDP-0 and adds other criteria, so it needs separate normative claims and owner routing; the stored item text and line locations remain historical.
+  - id: MSC-09
+    currentLineSpans: [1207, 1209]
+    historicalLineSpans: []
+    affectedItemIds: []
+    unmappedStatus: new-section-and-routing-claims-without-historical-items
+    disposition: needs decomposition
+    changedClaims: >-
+      Adds §18.4: PDP-1 is an independent authority; P0-004 domain/time/unit and P0-005 state/transition work map there,
+      while related PDP-0 requirements/policy/boundary stay PDP-0; legacy prefixes do not determine ownership and unresolved
+      proposals require reconciliation.
+    rationale: The added paragraph has no historical source block/MPSEM ID. Owner policy supports distinct PDP authority boundaries, but does not independently approve these task-specific mappings.
+  - id: MSC-10
+    currentLineSpans: [1217, 1221, 1229, 1231, 1235, 1243, 1303, 1346, 1392, 2458]
+    historicalLineSpans: [1203, 1207, 1215, 1217, 1221, 1229, 1289, 1332, 1378, 2444]
+    affectedItemIds: [MPSEM-0500, MPSEM-0501, MPSEM-0504, MPSEM-0505, MPSEM-0507, MPSEM-0508, MPSEM-0556, MPSEM-0589, MPSEM-0605, MPSEM-1100]
+    disposition: needs decomposition
+    changedClaims: Moves design semantics to PDP-2 over PDP-0/PDP-1, specifies PDP-3 consumes accepted PDP-0/1/2 inputs, changes PDP-3 acceptance wording, and defines Explorer verification against accepted PDP definitions outside the authority phases.
+    rationale: Some wording is a stable phase-label replacement, but new PDP-1 dependencies and the Explorer boundary change acceptance inputs. The affected task/acceptance blocks are still execution-only and mixed source claims have not been decomposed.
+  - id: MSC-11
+    currentLineSpans: [1409, 1411, 1413, 1426, 1464]
+    historicalLineSpans: [1395, 1397, 1399, 1412, 1450]
+    affectedItemIds: [MPSEM-0609, MPSEM-0610, MPSEM-0611, MPSEM-0618, MPSEM-0619, MPSEM-0620, MPSEM-0621, MPSEM-0622, MPSEM-0623, MPSEM-0624, MPSEM-0625, MPSEM-0626, MPSEM-0627, MPSEM-0636, MPSEM-0637, MPSEM-0638, MPSEM-0639, MPSEM-0640, MPSEM-0641, MPSEM-0642, MPSEM-0643, MPSEM-0644, MPSEM-0645, MPSEM-0646, MPSEM-0647, MPSEM-0648, MPSEM-0649, MPSEM-0650, MPSEM-0651, MPSEM-0652, MPSEM-0653, MPSEM-0654, MPSEM-0655, MPSEM-0656]
+    disposition: source-scope change
+    changedClaims: Clarifies legacy P0 task prefixes are stable IDs but not semantic owners and reclassifies task-index groupings, including P0-004/005 as PDP-1, P1 as PDP-2, P2 as PDP-3 and P3 as Explorer.
+    rationale: The task identity and dependency order is mostly retained, but owner attribution changes materially. Item samples remain EXECUTION_ONLY and do not resolve the new owner claims.
+  - id: MSC-12
+    currentLineSpans: [1506, 1538, 1548, 1554, 1562, 1570, 1586, 1602, 1618, 1634, 1650, 1666, 1676, 1682, 1684, 1686, 1692, 1826, 1842, 1852, 1864, 1890, 1900, 1906, 1910, 1916, 2028, 2044, 2050, 2054, 2066, 2082, 2098, 2130, 2146, 2156]
+    historicalLineSpans: [1492, 1524, 1534, 1536, 1540, 1548, 1556, 1568, 1572, 1584, 1588, 1600, 1604, 1616, 1620, 1632, 1648, 1652, 1662, 1668, 1670, 1672, 1678, 1812, 1828, 1838, 1850, 1876, 1886, 1892, 1896, 1902, 2014, 2030, 2036, 2040, 2052, 2068, 2084, 2116, 2132, 2142]
+    affectedItemIds: [MPSEM-0683, MPSEM-0697, MPSEM-0702, MPSEM-0704, MPSEM-0708, MPSEM-0711, MPSEM-0718, MPSEM-0725, MPSEM-0732, MPSEM-0739, MPSEM-0746, MPSEM-0753, MPSEM-0758, MPSEM-0760, MPSEM-0761, MPSEM-0762, MPSEM-0765, MPSEM-0823, MPSEM-0830, MPSEM-0835, MPSEM-0840, MPSEM-0851, MPSEM-0856, MPSEM-0858, MPSEM-0860, MPSEM-0863, MPSEM-0912, MPSEM-0919, MPSEM-0921, MPSEM-0923, MPSEM-0928, MPSEM-0935, MPSEM-0942, MPSEM-0956, MPSEM-0963, MPSEM-0968]
+    disposition: needs decomposition
+    changedClaims: Updates task card paths, owner labels, dependencies, and acceptance consequences, especially P0-004/005 targets and PDP-0/PDP-1 division; moves phase-3 Explorer targets under apps/media-experience-explorer.
+    rationale: Task cards are classified EXECUTION_ONLY at block granularity even where they contain normative scope/acceptance. P0-004/005 owner changes and added PDP-1 target scope require claim extraction; task/path replacements elsewhere are source-scope changes, not semantic acceptance.
+  - id: MSC-13
+    currentLineSpans: [2544, 2546, 2547, 2548, 2549, 2562, 2573, 2578]
+    historicalLineSpans: [2530, 2532, 2533, 2534, 2535, 2548, 2559, 2564]
+    affectedItemIds: [MPSEM-1100, MPSEM-1153, MPSEM-1155, MPSEM-1156, MPSEM-1157, MPSEM-1158, MPSEM-1165, MPSEM-1176, MPSEM-1180]
+    disposition: needs decomposition
+    changedClaims: Execution order assigns P0-004/005 to PDP-1, maps legacy P1/P2/P3 tasks to PDP-2/PDP-3/Explorer, requires canonical reconciliation/owner review, and describes Explorer as outside the phases.
+    rationale: This changes normative owner routing and prerequisites. The old task-order blocks remain EXECUTION_ONLY and need claim-level split before they can be reconciled.
+  - id: MSC-14
+    currentLineSpans: [2625, 2626, 2627, 2628, 2652, 2653, 2680]
+    historicalLineSpans: [2611, 2612, 2613, 2614, 2638, 2639, 2666]
+    affectedItemIds: [MPSEM-1210, MPSEM-1211, MPSEM-1212, MPSEM-1213, MPSEM-1232, MPSEM-1233, MPSEM-1259]
+    disposition: needs decomposition
+    changedClaims: Rewrites the source-section crosswalk with PDP labels, reroutes legacy P0-004/005 task mapping, changes the U2 summary to call PDP-3 independent and Explorer outside the phases, and adds current taxonomy references.
+    rationale: These claims change source-to-current-section and task mappings; the current crosswalk items remain UNRESOLVED and cannot serve as accepted semantic equivalence.
+  - id: MSC-15
+    currentLineSpans: [92, 2738, 2819, 2821, 2827]
+    historicalLineSpans: [89, 2724, 2805, 2807, 2813]
+    affectedItemIds: [MPSEM-0017, MPSEM-1298, MPSEM-1336, MPSEM-1337, MPSEM-1338]
+    disposition: source-scope change
+    changedClaims: Updates U2's description of which taxonomy its supplied source establishes and updates the document consistency claim to report the new authority mapping.
+    rationale: These are document/source inventory claims whose exact current descriptions changed; the U2 source fingerprint is retained and the end-of-document checking statement does not certify semantic reconciliation.
+  linkedPdpClaimReconciliation:
+    scope: >-
+      Atomic routing of assertions added in the three pinned PDP source blocks. These
+      records establish claim-level source-to-target correspondence only; they do not
+      make proposed PDP records accepted or resolve external owner and independent
+      review dependencies.
+    status: partial; claim routing is recorded, semantic acceptance remains pending where stated
+    sourceBlocks:
+      - path: .product-experience/pdp-0-product-truth/goals-jtbd.yaml
+        sourceSpan: [17, 38]
+        claims:
+          - claimId: LPR-GOAL-001
+            sourceSpan: [20, 22]
+            assertion: Outcome actorRefs identify whose outcome a goal serves and do not identify an authenticated principal.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel
+            disposition: ROUTED_PENDING_OWNER_REVIEW
+            dependency: goals-jtbd.yaml remains proposed-for-phase-0-review.
+          - claimId: LPR-GOAL-002
+            sourceSpan: [21, 23]
+            assertion: Outcome actorRefs do not grant execution permission.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource
+            disposition: ROUTED_PENDING_OWNER_REVIEW
+            dependency: goals-jtbd.yaml remains proposed-for-phase-0-review.
+          - claimId: LPR-GOAL-003
+            sourceSpan: [22, 24]
+            assertion: Outcome actorRefs do not appoint an accountable reviewer.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/responsibilityRolesModel
+            disposition: ROUTED_PENDING_OWNER_REVIEW
+            dependency: goals-jtbd.yaml remains proposed-for-phase-0-review.
+          - claimId: LPR-GOAL-004
+            sourceSpan: [23, 24]
+            assertion: Product accountability follows the referenced ownership rule.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules
+            disposition: ROUTED_PENDING_OWNER_REVIEW
+            dependency: goals-jtbd.yaml remains proposed-for-phase-0-review.
+          - claimId: LPR-GOAL-005
+            sourceSpan: [24, 25]
+            assertion: Operation authorization follows current identity, policy, and owner-approved operation contracts.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/authorizationSource
+            disposition: ROUTED_PENDING_OWNER_REVIEW
+            dependency: Operation contracts remain separately subject to owner approval.
+          - claimId: LPR-GOAL-006
+            sourceSpan: [27, 29]
+            assertion: The explain-or-demonstrate goal retains qualified domain conclusions with an appointed domain owner; this record does not appoint one.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules/rules/0
+            disposition: ROUTED_WITH_EXTERNAL_OWNER_DEPENDENCY
+            dependency: Qualified scientific, clinical, pedagogical, or other domain owner appointment is not evidenced here.
+          - claimId: LPR-GOAL-007
+            sourceSpan: [30, 32]
+            assertion: Review of trustworthy output does not itself assign privacy, rights, quality, or publication reviewers or grant runtime permission.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules/rules/0
+            disposition: ROUTED_PENDING_OWNER_REVIEW
+            dependency: The source explicitly leaves review assignments separately required.
+          - claimId: LPR-GOAL-008
+            sourceSpan: [33, 35]
+            assertion: Delivery retains Media output, rights, consent, and destination preconditions while privileged-effect mechanics belong to the Action Plane contract.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules/rules/3
+            disposition: ROUTED_WITH_EXTERNAL_CONTRACT_DEPENDENCY
+            dependency: Action Plane public-contract acceptance and isolated consumer binding remain unverified.
+          - claimId: LPR-GOAL-009
+            sourceSpan: [36, 38]
+            assertion: Administrator is an outcome/responsibility actor and does not imply an unrestricted principal.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/trustContexts/contexts/3
+            disposition: ROUTED_PENDING_OWNER_REVIEW
+            dependency: goals-jtbd.yaml remains proposed-for-phase-0-review; the referenced trust context awaits independent review.
+      - path: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml
+        sourceSpan: [28, 107]
+        claims:
+          - claimId: LPR-ACTOR-001
+            sourceSpan: [30, 34]
+            assertion: Trust follows data sensitivity and effect, never actor, principal, responsibility-role, or persona kind.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/trustContexts/classificationBasis
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: P0-010 independent review remains pending.
+          - claimId: LPR-ACTOR-002
+            sourceSpan: [36, 42]
+            assertion: Public read-only, nonsensitive access has no required audit under the explicitly bounded context.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/trustContexts/contexts/0
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: P0-010 independent review remains pending.
+          - claimId: LPR-ACTOR-003
+            sourceSpan: [43, 49]
+            assertion: Private tenant-scoped content requires attributable current authority and audit for access or processing.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/trustContexts/contexts/1
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: P0-010 independent review remains pending.
+          - claimId: LPR-ACTOR-004
+            sourceSpan: [50, 56]
+            assertion: Privileged external effects require durable audit intent before dispatch.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/trustContexts/contexts/2
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: Shared audit and Action Plane contract bindings remain externally unverified.
+          - claimId: LPR-ACTOR-004B
+            sourceSpan: [54, 56]
+            assertion: Privileged external effects require truthful finality after dispatch.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/trustContexts/contexts/2
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: Action Plane contract binding remains externally unverified.
+          - claimId: LPR-ACTOR-005
+            sourceSpan: [57, 63]
+            assertion: Workspace or identity configuration changes are scoped and auditable.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/trustContexts/contexts/3
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: P0-010 independent review remains pending.
+          - claimId: LPR-ACTOR-006
+            sourceSpan: [64, 69]
+            assertion: Principal kind never determines a trust level or supplies Media authorization or publication authority.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/trustContexts/principalKindInference
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: P0-010 independent review remains pending.
+          - claimId: LPR-ACTOR-007
+            sourceSpan: [74, 79]
+            assertion: Media product scope and constitution accountability belongs to the product-semantics owner; execution authority still comes from current policy and operation contracts.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules/rules/0
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: No acceptance beyond the proposed PDP-0 record is claimed.
+          - claimId: LPR-ACTOR-008
+            sourceSpan: [80, 86]
+            assertion: Identity, tenant, and delegation mechanics are assigned to Shared's public identity/authentication contract.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules/rules/1
+            disposition: ROUTED_WITH_EXTERNAL_CONTRACT_DEPENDENCY
+            dependency: Exact public package and deployed provider are unverified.
+          - claimId: LPR-ACTOR-009
+            sourceSpan: [87, 93]
+            assertion: Shared owns audit mechanics while Media owns its event vocabulary and required durability policy.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules/rules/2
+            disposition: ROUTED_WITH_EXTERNAL_CONTRACT_DEPENDENCY
+            dependency: Public version and required audit durability are unverified.
+          - claimId: LPR-ACTOR-010
+            sourceSpan: [94, 100]
+            assertion: Privileged external-effect mechanics are assigned to the Action Plane contract, with Media preconditions retained.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules/rules/3
+            disposition: ROUTED_WITH_EXTERNAL_CONTRACT_DEPENDENCY
+            dependency: Public contract and isolated consumer remain unverified.
+          - claimId: LPR-ACTOR-011
+            sourceSpan: [101, 107]
+            assertion: Canonical Media domain states and transitions are assigned to PDP-1 and remain proposals pending owner review.
+            ownerPhase: PDP-1
+            targetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/ownershipRules/rules/4
+            disposition: ROUTED_PENDING_PDP1_OWNER_REVIEW
+            dependency: PDP-1 states, transitions, and authority records are proposal-only or unverified.
+      - path: .product-experience/pdp-0-product-truth/constitution.yaml
+        sourceSpan: [19, 63]
+        claims:
+          - claimId: LPR-CONST-001
+            sourceSpan: [19, 31]
+            assertion: PDP-0 records the ownership boundary for canonical domain state, transition guards, and action semantics; PDP-1 records and owner decision must be accepted before projection.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/constitution.yaml#/domainRules
+            disposition: ROUTED_PENDING_PDP1_OWNER_REVIEW
+            dependency: The three named PDP-1 state, transition, and authority source records remain proposal-only or unverified.
+          - claimId: LPR-CONST-002
+            sourceSpan: [36, 39]
+            assertion: Private context, processing locality, and authorization are independent; missing or conflicting locality/authorization blocks or requires review.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/constitution.yaml#/invariants/records/0
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: P0-010 independent review remains pending.
+          - claimId: LPR-CONST-003
+            sourceSpan: [40, 43]
+            assertion: User attestation is not verified consent or license; missing, expired, revoked, or unverified evidence blocks governed work.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/constitution.yaml#/invariants/records/1
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: P0-010 independent review remains pending.
+          - claimId: LPR-CONST-004
+            sourceSpan: [44, 47]
+            assertion: Source classification is the floor for derived data until authorized deidentification promotion.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/constitution.yaml#/invariants/records/2
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: P0-010 independent review remains pending.
+          - claimId: LPR-CONST-005
+            sourceSpan: [48, 51]
+            assertion: Generated content and model assertions cannot supply their own approval or privileged authority.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/constitution.yaml#/invariants/records/3
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: P0-010 independent review remains pending.
+          - claimId: LPR-CONST-006
+            sourceSpan: [52, 55]
+            assertion: Required audit intent precedes external effects; possible completed effects retain uncertainty and are not replayed to repair a missing audit record.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/constitution.yaml#/invariants/records/4
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: Shared audit contract version and durability remain unverified.
+          - claimId: LPR-CONST-007
+            sourceSpan: [56, 59]
+            assertion: Revocation blocks future dispatch and restricts outputs at enforcement points without asserting an in-flight effect was terminated.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/constitution.yaml#/invariants/records/5
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: P0-010 independent review remains pending.
+          - claimId: LPR-CONST-008
+            sourceSpan: [60, 63]
+            assertion: Cross-tenant access and reuse are denied even when content digests match.
+            ownerPhase: PDP-0
+            targetRef: .product-experience/pdp-0-product-truth/constitution.yaml#/invariants/records/6
+            disposition: OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW
+            dependency: P0-010 independent review remains pending.
+    unresolvedDependencies:
+      - Independent P0-010 review for trust-context and invariant records.
+      - Human review of proposed goals-jtbd.yaml and constitution.yaml product semantics.
+      - Qualified domain-owner appointment for scientific, clinical, pedagogical, or other domain conclusions.
+      - Shared identity/authentication and audit public package/version and deployed bindings.
+      - Action Plane public-contract acceptance and isolated consumer binding.
+      - PDP-1 owner acceptance of state, transition, and authority records before their semantics are projected.
+  linkedPdpPinImpact:
+    disposition: keep-three-linked-pins-stale
+    method: >-
+      Compared the exact linked-pinned source bytes (each pinned fingerprint matches
+      the current HEAD blob) with the appended current source sections, then traced the
+      migration items that cite each artifact. These items carry only section-level
+      provenance stating that a PDP source cites the legacy section; none has an
+      exactPdpRef to these artifacts. A hash refresh would conceal new claims and
+      cannot establish item-level semantic equivalence.
+    masterPlanPinDisposition: unchanged-keep-stale
+    records:
+      - id: LPI-01
+        path: .product-experience/pdp-0-product-truth/goals-jtbd.yaml
+        pinnedSha256: f5d2cc3112fded0c46f811fdc4604ffb85d0d780f22883771f7181ac1faedc40
+        observedCurrentSha256: c09396068115f86bae21addc69520d0529c6ba48a4d08eda246e7d75430f0711
+        addedCurrentLineSpan: [17, 38]
+        addedBlockHeader: 'authorityMapping:'
+        addedLines: 22
+        changedClaims: >-
+          Adds actorRefs-versus-principal/permission/accountability rules and four
+          goal-to-accountability or trust-context links, with unresolved external
+          reviewer/domain-owner dependencies. These are new source claims, not edits
+          to the existing outcome, job, intent, scope, first-use, or disclosure text.
+        citedMigrationItems:
+          itemIdRanges: [MPSEM-0050..MPSEM-0081, MPSEM-0170..MPSEM-0212, MPSEM-0440..MPSEM-0453]
+          count: 89
+          sectionProvenanceOnly: 89
+          exactPdpRefCount: 0
+          provenanceBasis: canonical-PDP-0-source-explicitly-cites-master-plan-section; statement-equivalence-unreviewed
+        disposition: keep-stale-needs-claim-level-reconciliation
+        rationale: >-
+          The 89 items refer broadly to plan sections 2, 6, and 14 and other nearby
+          locations, but none identifies a goal or authorityMapping excerpt as the
+          compared claim. Although the goal/intent/outcome semantic projection used by
+          capability review is unchanged, these new authority assertions may affect
+          migration actor/approval mappings; no MPSEM item decomposes them. Do not
+          refresh this pin until those claims are routed and reviewed.
+      - id: LPI-02
+        path: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml
+        pinnedSha256: 76f66242b91c1401baaf85f70d1ff87dc2a06ed1728d8832f30d8c58e5ae5056
+        observedCurrentSha256: 9f077be079a1815ea15988fd0a01a142351ab8137f299d24d1be7b72c8bd2af1
+        addedCurrentLineSpan: [28, 107]
+        addedBlockHeader: 'trustContexts:'
+        addedLines: 80
+        changedClaims: >-
+          Adds four data/effect-based trust contexts with auditRequired, a
+          principal-kind inference prohibition, and five owner-routing records for
+          product semantics, identity, audit, privileged effects, and PDP-1 domain
+          states. Some external contract/package bindings remain explicitly unverified.
+        citedMigrationItems:
+          itemIdRanges: [MPSEM-0050..MPSEM-0121, MPSEM-0354..MPSEM-0371, MPSEM-0440..MPSEM-0453]
+          count: 104
+          sectionProvenanceOnly: 104
+          exactPdpRefCount: 0
+          provenanceBasis: canonical-PDP-0-source-explicitly-cites-master-plan-section; statement-equivalence-unreviewed
+        disposition: keep-stale-needs-claim-level-reconciliation
+        rationale: >-
+          The 104 items point generally at master-plan §§2, 3, 11, and 14 (plus other
+          sections) without linking a specific principal, responsibility, trust, or
+          ownership excerpt. The additions are cross-cutting authority claims that
+          can change actor and approval interpretation. Existing item-level
+          equivalence is unreviewed, so this source cannot be marked unaffected.
+      - id: LPI-03
+        path: .product-experience/pdp-0-product-truth/constitution.yaml
+        pinnedSha256: c725a9b76563d1209420b8dbefc4f6df95e4265ca2f66f1f218babf97d6dfe7d
+        observedCurrentSha256: fe7a6f5d402192981e2f02a9c094d480f769e623493241b229cbd9cd37c43b74
+        addedCurrentLineSpan: [19, 63]
+        addedBlockHeader: 'domainRules:'
+        addedLines: 45
+        changedClaims: >-
+          Adds pending PDP-1 domain-rule source refs and seven PDP-0 invariant
+          statement/violation pairs covering locality/authorization, consent/license,
+          classification, model authority, audit, revocation, and tenant isolation.
+        citedMigrationItems:
+          itemIdRanges: [MPSEM-0122..MPSEM-0155]
+          count: 34
+          sectionProvenanceOnly: 34
+          exactPdpRefCount: 0
+          classifications: { EXTRACTED_TO_PDP: 32, UNRESOLVED: 2 }
+          provenanceBasis: canonical-PDP-0-source-explicitly-cites-master-plan-section-4; statement-equivalence-unreviewed
+        disposition: keep-stale-needs-claim-level-reconciliation
+        rationale: >-
+          All 34 cited items derive only from broad §4 provenance. Thirty-two are
+          classified EXTRACTED_TO_PDP and two remain UNRESOLVED, but none points to
+          the new invariant IDs or domainRules block. These additions materially
+          expand or clarify constitutional claims; the extracted labels alone do
+          not demonstrate equivalence. Preserve both the stale pin and unresolved
+          dispositions until claim-level review reconciles the new records.

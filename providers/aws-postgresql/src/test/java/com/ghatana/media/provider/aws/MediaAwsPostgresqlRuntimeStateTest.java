@@ -20,6 +20,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 
 import java.nio.charset.StandardCharsets;
@@ -283,6 +284,201 @@ class MediaAwsPostgresqlRuntimeStateTest {
         assertThat(admin.listObjectsV2(ListObjectsV2Request.builder().bucket(bucket).build()).contents())
                 .noneMatch(object -> object.key().equals(artifactObjectKey))
                 .noneMatch(object -> object.key().contains(abandoned.uploadId()));
+
+        verifiesArtifactRenewalCannotRaceBlobDeletion(environment, admin, artifacts, bucket);
+        verifiesActiveUploadCannotRaceChunkDeletion(environment, admin, artifacts, bucket);
+    }
+
+    private static void verifiesArtifactRenewalCannotRaceBlobDeletion(
+            Map<String, String> environment,
+            S3Client admin,
+            S3PostgresqlMediaArtifactStore artifacts,
+            String bucket) throws Exception {
+        MediaArtifact artifact = upload(
+                artifacts, "renew-during-purge".getBytes(StandardCharsets.UTF_8),
+                "renew.bin", "application/octet-stream", "restricted", Duration.ofDays(30), Map.of());
+        long expiredAt = Instant.now().minus(Duration.ofDays(2)).toEpochMilli();
+        long renewedUntil = Instant.now().plus(Duration.ofDays(30)).toEpochMilli();
+        String jdbcUrl = environment.get("MEDIA_POSTGRES_JDBC_URL");
+        // Commit the expired state first so the purge's initial candidate scan can see it.
+        try (var expire = DriverManager.getConnection(jdbcUrl);
+             var update = expire.prepareStatement(
+                     "UPDATE media_artifacts SET expires_at=? WHERE tenant_id=? AND artifact_id=?")) {
+            update.setLong(1, expiredAt);
+            update.setString(2, artifact.tenantId());
+            update.setString(3, artifact.artifactId());
+            assertThat(update.executeUpdate()).isEqualTo(1);
+        }
+
+        try (var renewal = DriverManager.getConnection(jdbcUrl)) {
+            renewal.setAutoCommit(false);
+            try (var update = renewal.prepareStatement(
+                    "UPDATE media_artifacts SET expires_at=? WHERE tenant_id=? AND artifact_id=?")) {
+                update.setLong(1, renewedUntil);
+                update.setString(2, artifact.tenantId());
+                update.setString(3, artifact.artifactId());
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+
+            // Prove the same non-locking candidate scan used by purge still observes the
+            // committed expired version while the renewal transaction has an uncommitted future
+            // expiry. This makes the ordering precondition explicit for the concurrency check.
+            try (var scan = DriverManager.getConnection(jdbcUrl);
+                 var candidates = scan.prepareStatement(
+                         "SELECT tenant_id,artifact_id FROM media_artifacts "
+                                 + "WHERE tenant_id=? AND artifact_id=? AND expires_at<=? "
+                                 + "ORDER BY expires_at LIMIT ?")) {
+                candidates.setString(1, artifact.tenantId());
+                candidates.setString(2, artifact.artifactId());
+                candidates.setLong(3, Instant.now().toEpochMilli());
+                candidates.setInt(4, 100);
+                try (var rows = candidates.executeQuery()) {
+                    assertThat(rows.next()).isTrue();
+                    assertThat(rows.getString("tenant_id")).isEqualTo(artifact.tenantId());
+                    assertThat(rows.getString("artifact_id")).isEqualTo(artifact.artifactId());
+                }
+            }
+
+            Map<String, String> maintenanceEnvironment = new LinkedHashMap<>(environment);
+            maintenanceEnvironment.put("MEDIA_PRIVACY_PURGE_BATCH_SIZE", "100");
+            try (PostgresqlMediaPrivacyMaintenance maintenance =
+                         new PostgresqlMediaPrivacyMaintenance(maintenanceEnvironment);
+                 ExecutorService executor = Executors.newSingleThreadExecutor()) {
+                Future<?> purge = executor.submit(() -> maintenance.purgeExpired(Instant.now()));
+                // The purge first sees the committed expired value, then must wait on this row
+                // lock before it can remove the object. Under the former implementation it
+                // deleted the S3 object while waiting on the later metadata DELETE.
+                awaitBlockedStatement(jdbcUrl, "SELECT OBJECT_REFERENCE FROM MEDIA_ARTIFACTS");
+                assertThat(admin.headObject(HeadObjectRequest.builder()
+                        .bucket(bucket).key(objectKey(artifact.objectReference())).build()).contentLength())
+                        .isGreaterThan(0);
+                renewal.commit();
+                purge.get(10, TimeUnit.SECONDS);
+            } catch (Exception failure) {
+                renewal.rollback();
+                throw failure;
+            }
+        }
+        assertThat(artifacts.artifact(artifact.tenantId(), artifact.artifactId())).isPresent();
+        assertThat(admin.headObject(HeadObjectRequest.builder()
+                .bucket(bucket).key(objectKey(artifact.objectReference())).build()).contentLength())
+                .isGreaterThan(0);
+    }
+
+    private static String objectKey(String objectReference) {
+        return java.net.URI.create(objectReference).getPath().substring(1);
+    }
+
+    private static void awaitBlockedStatement(String jdbcUrl, String statementFragment) throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+        String pattern = "%" + statementFragment.toLowerCase(java.util.Locale.ROOT) + "%";
+        while (System.nanoTime() < deadline) {
+            try (var connection = DriverManager.getConnection(jdbcUrl);
+                 var statement = connection.prepareStatement(
+                         "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS "
+                                 + "WHERE BLOCKER_ID IS NOT NULL AND LOWER(EXECUTING_STATEMENT) LIKE ?")) {
+                statement.setString(1, pattern);
+                try (var result = statement.executeQuery()) {
+                    result.next();
+                    if (result.getInt(1) > 0) return;
+                }
+            }
+            Thread.sleep(20);
+        }
+        throw new AssertionError("Timed out waiting for purge to block on SQL: " + statementFragment);
+    }
+
+    private static void verifiesActiveUploadCannotRaceChunkDeletion(
+            Map<String, String> environment,
+            S3Client admin,
+            S3PostgresqlMediaArtifactStore artifacts,
+            String bucket) throws Exception {
+        byte[] chunk = "active-finalization-chunk".getBytes(StandardCharsets.UTF_8);
+        UploadSession upload = artifacts.begin(new UploadRequest(
+                "tenant-active-finalization", "principal-active-finalization", "finalizing.bin",
+                "application/octet-stream", chunk.length, sha256(chunk), "restricted",
+                Duration.ofDays(30), Map.of()));
+        artifacts.append(upload.tenantId(), upload.uploadId(), 0, chunk);
+
+        String jdbcUrl = environment.get("MEDIA_POSTGRES_JDBC_URL");
+        String chunkObjectKey;
+        try (var connection = DriverManager.getConnection(jdbcUrl);
+             var statement = connection.prepareStatement(
+                     "SELECT object_key FROM media_upload_chunks WHERE tenant_id=? AND upload_id=?")) {
+            statement.setString(1, upload.tenantId());
+            statement.setString(2, upload.uploadId());
+            try (var rows = statement.executeQuery()) {
+                assertThat(rows.next()).isTrue();
+                chunkObjectKey = rows.getString("object_key");
+            }
+        }
+
+        long expiredAt = Instant.now().minus(Duration.ofDays(2)).toEpochMilli();
+        try (var expire = DriverManager.getConnection(jdbcUrl);
+             var update = expire.prepareStatement(
+                     "UPDATE media_upload_sessions SET expires_at=? WHERE tenant_id=? AND upload_id=?")) {
+            update.setLong(1, expiredAt);
+            update.setString(2, upload.tenantId());
+            update.setString(3, upload.uploadId());
+            assertThat(update.executeUpdate()).isEqualTo(1);
+        }
+
+        long renewedUntil = Instant.now().plus(Duration.ofDays(30)).toEpochMilli();
+        long finalizationStarted = Instant.now().toEpochMilli();
+        try (var finalization = DriverManager.getConnection(jdbcUrl)) {
+            finalization.setAutoCommit(false);
+            try (var update = finalization.prepareStatement(
+                    "UPDATE media_upload_sessions SET expires_at=?,status='FINALIZING',"
+                            + "finalization_started_at=? WHERE tenant_id=? AND upload_id=?")) {
+                update.setLong(1, renewedUntil);
+                update.setLong(2, finalizationStarted);
+                update.setString(3, upload.tenantId());
+                update.setString(4, upload.uploadId());
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+
+            // Verify the purge's non-locking candidate predicate sees the committed expired OPEN
+            // state despite this transaction's uncommitted future expiry and FINALIZING state.
+            try (var scan = DriverManager.getConnection(jdbcUrl);
+                 var candidates = scan.prepareStatement(
+                         "SELECT tenant_id,upload_id FROM media_upload_sessions "
+                                 + "WHERE tenant_id=? AND upload_id=? AND expires_at<=? "
+                                 + "AND (status<>'FINALIZING' OR finalization_started_at<=?) "
+                                 + "ORDER BY expires_at LIMIT ?")) {
+                candidates.setString(1, upload.tenantId());
+                candidates.setString(2, upload.uploadId());
+                candidates.setLong(3, Instant.now().toEpochMilli());
+                candidates.setLong(4, Instant.now().minus(Duration.ofMinutes(15)).toEpochMilli());
+                candidates.setInt(5, 100);
+                try (var rows = candidates.executeQuery()) {
+                    assertThat(rows.next()).isTrue();
+                    assertThat(rows.getString("tenant_id")).isEqualTo(upload.tenantId());
+                    assertThat(rows.getString("upload_id")).isEqualTo(upload.uploadId());
+                }
+            }
+
+            Map<String, String> maintenanceEnvironment = new LinkedHashMap<>(environment);
+            maintenanceEnvironment.put("MEDIA_PRIVACY_PURGE_BATCH_SIZE", "100");
+            try (PostgresqlMediaPrivacyMaintenance maintenance =
+                         new PostgresqlMediaPrivacyMaintenance(maintenanceEnvironment);
+                 ExecutorService executor = Executors.newSingleThreadExecutor()) {
+                Future<?> purge = executor.submit(() -> maintenance.purgeExpired(Instant.now()));
+                // The prior implementation deleted this object before waiting on the locked
+                // upload row during metadata deletion. The fenced path waits before deleting it.
+                awaitBlockedStatement(jdbcUrl,
+                        "SELECT EXPIRES_AT,STATUS,FINALIZATION_STARTED_AT FROM MEDIA_UPLOAD_SESSIONS");
+                assertThat(admin.headObject(HeadObjectRequest.builder()
+                        .bucket(bucket).key(chunkObjectKey).build()).contentLength()).isEqualTo((long) chunk.length);
+                finalization.commit();
+                purge.get(10, TimeUnit.SECONDS);
+            } catch (Exception failure) {
+                finalization.rollback();
+                throw failure;
+            }
+        }
+        assertThat(admin.headObject(HeadObjectRequest.builder()
+                .bucket(bucket).key(chunkObjectKey).build()).contentLength()).isEqualTo((long) chunk.length);
+        assertThat(artifacts.upload(upload.tenantId(), upload.uploadId())).isPresent();
     }
 
     private static void verifiesFailedAppendRemovesUnownedChunk(

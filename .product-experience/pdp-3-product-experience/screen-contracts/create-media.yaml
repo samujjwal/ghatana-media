@@ -140,4 +140,7 @@ channelDispositions:
 sourceRefs:
 - master-plan:section-20.2
 - .product-experience/pdp-0-product-truth
-journeyRefs: []
+journeyRefs:
+  - J-01
+  - J-09
+  - J-24

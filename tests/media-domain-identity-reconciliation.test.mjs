@@ -1,0 +1,95 @@
+import assert from "node:assert/strict";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import test from "node:test";
+
+const domainObjectsPath = ".product-experience/pdp-1-domain-data/domain-objects.yaml";
+const relationshipsPath = ".product-experience/pdp-1-domain-data/relationships.yaml";
+const reconciliationPath = ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml";
+const domainModelPath = ".product-experience/pdp-0-product-truth/domain-model.yaml";
+
+function idsIn(text, indent = "  ") {
+  return [...text.matchAll(new RegExp(`^${indent}- id: ([^\\n]+)$`, "gmu"))].map((match) => match[1]);
+}
+
+function blockForId(text, id) {
+  const marker = `  - id: ${id}`;
+  const start = text.indexOf(marker);
+  if (start < 0) return "";
+  const next = text.indexOf("\n  - id: ", start + marker.length);
+  return text.slice(start, next < 0 ? undefined : next);
+}
+
+test("PDP-1 canonical references resolve only to catalogued domain objects", () => {
+  const domainObjects = readFileSync(domainObjectsPath, "utf8");
+  const relationships = readFileSync(relationshipsPath, "utf8");
+  const reconciliation = readFileSync(reconciliationPath, "utf8");
+  const objectIds = idsIn(domainObjects);
+
+  assert.equal(new Set(objectIds).size, objectIds.length, "domain object IDs must be unique");
+  assert.equal(objectIds.length, 38, "the audited domain-object denominator changed; review the identity crosswalk");
+
+  for (const match of reconciliation.matchAll(/^    canonicalRef: ([^\n]+)$/gmu)) {
+    assert.ok(objectIds.includes(match[1]), `canonical reconciliation ref ${match[1]} has no domain-object record`);
+  }
+
+  for (const match of relationships.matchAll(/^    (?:from|to): (.+)$/gmu)) {
+    for (const endpoint of match[1].match(/media\.domain\.[a-z0-9-]+/gu) ?? []) {
+      assert.ok(objectIds.includes(endpoint), `relationship endpoint ${endpoint} has no domain-object record`);
+    }
+  }
+});
+
+test("PDP-1 object source references resolve to files and PDP-0 anchors resolve to named records", () => {
+  const domainObjects = readFileSync(domainObjectsPath, "utf8");
+  const domainModel = readFileSync(domainModelPath, "utf8");
+  const domainModelIds = new Set([...domainModel.matchAll(/^  - id: ([^\n]+)$/gmu)].map((match) => match[1]));
+
+  for (const match of domainObjects.matchAll(/^    sourceRefs: \[([^\]]*)\]$/gmu)) {
+    for (const rawRef of match[1].split(",")) {
+      const ref = rawRef.trim();
+      const [path, anchor] = ref.split("#", 2);
+      assert.ok(existsSync(path), `source path ${path} exists`);
+      assert.ok(statSync(path).isFile(), `source ref ${path} identifies a file`);
+      readFileSync(path);
+      if (path === domainModelPath && anchor) {
+        assert.ok(domainModelIds.has(anchor), `PDP-0 mapping anchor ${anchor} is not a named domain-model record`);
+      }
+    }
+  }
+});
+
+test("caption version catalog entry remains scoped to its observed simulation fixture", () => {
+  const domainObjects = readFileSync(domainObjectsPath, "utf8");
+  const fixtureModel = readFileSync("libs/media-experience-simulation/src/model.ts", "utf8");
+  const fixtureData = readFileSync("libs/media-experience-simulation/src/fixtures.ts", "utf8");
+  const captionVersion = blockForId(domainObjects, "media.domain.caption-version");
+
+  assert.ok(captionVersion, "canonical reconciliation has a matching caption-version catalog target");
+  assert.match(captionVersion, /kind: observed-local-simulation-fixture-record/u);
+  assert.match(captionVersion, /identity: fixture-versionId; canonical-key-unbound/u);
+  assert.match(captionVersion, /immutable-version-and-durable-history-semantics-unbound/u);
+  assert.match(captionVersion, /not-an-observed-runtime-or-persistence-record/u);
+  assert.match(fixtureModel, /export interface CaptionVersionRecord[\s\S]*?readonly versionId: string;[\s\S]*?readonly sourceArtifactVersion: string;[\s\S]*?readonly parentVersionId: string;/u);
+  assert.match(fixtureData, /captionHistory: \[[\s\S]*?versionId: "caption-v0"[\s\S]*?parentVersionId: "transcript-v1"/u);
+});
+
+test("artifact, job, and lease identities preserve the source-specific keys without promoting them", () => {
+  const domainObjects = readFileSync(domainObjectsPath, "utf8");
+  const typeScript = readFileSync("libs/audio-video-types/src/contracts.ts", "utf8");
+  const runtime = readFileSync("runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java", "utf8");
+  const artifactSchema = readFileSync("providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql", "utf8");
+  const jobStore = readFileSync("providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java", "utf8");
+  const artifact = blockForId(domainObjects, "media.domain.artifact");
+  const job = blockForId(domainObjects, "media.domain.processing-job");
+  const lease = blockForId(domainObjects, "media.domain.job-lease");
+
+  assert.match(artifact, /identity: Java-store-lookup-tenantId-plus-artifactId; TypeScript-tenantId-and-id-fields; SQL-primary-key-\(tenant_id,artifact_id\); cross-interface-canonical-key-unbound/u);
+  assert.match(job, /identity: Java-store-key-tenantId-plus-jobId; TypeScript-tenantId-and-id-fields; SQL-primary-key-\(tenant_id,job_id\); cross-interface-canonical-key-unbound/u);
+  assert.match(lease, /identity: Java-record-tenantId-plus-jobId-plus-ownerId-plus-fencingToken; PostgreSQL-lease-columns-on-job-row; no-standalone-lease-id/u);
+  assert.match(typeScript, /id: IdentifierSchema,[\s\S]*?tenantId: IdentifierSchema,[\s\S]*?checksumSha256/u);
+  assert.match(artifactSchema, /PRIMARY KEY \(tenant_id, artifact_id\)[\s\S]*?UNIQUE \(tenant_id, sha256, size_bytes\)/u);
+  assert.match(runtime, /public record JobLease\([\s\S]*?String tenantId,[\s\S]*?String jobId,[\s\S]*?String ownerId,[\s\S]*?long fencingToken/u);
+  assert.match(jobStore, /UPDATE media_processing_jobs SET lease_owner=\?,lease_token=\?,lease_expires_at=\?/u);
+  assert.doesNotMatch(artifact, /bytes-bound-by-digest-and-version/u);
+  assert.doesNotMatch(lease, /identity: lease-id-and-fencing-token/u);
+});

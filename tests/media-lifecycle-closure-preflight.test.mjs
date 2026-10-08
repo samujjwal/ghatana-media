@@ -49,6 +49,22 @@ function fixture() {
   return { consumer, program, surface, binding, obligations, pending };
 }
 
+function providerBindingInput(input) {
+  input.consumer.providerRegistry = {
+    schemaVersion: 'closure-source-ref', kind: 'file', ref: 'scripts/closure/provider-registry.json',
+  };
+  input.consumer.providerBindings.push({
+    schemaVersion: 'closure-provider-binding',
+    bindingId: 'media-proof-producer',
+    capability: 'proof-producer',
+    providerRef: {
+      schemaVersion: 'closure-provider-ref', id: 'ghatana-lifecycle.proof-producer',
+      version: '1', capability: 'proof-producer',
+    },
+    selection: { mode: 'SINGLE' },
+  });
+}
+
 test('admits truthful PENDING source inputs without claiming completion', () => {
   const result = validateMediaClosureInputState(fixture());
   assert.equal(result.inputStatus, 'PENDING');
@@ -78,14 +94,14 @@ test('rejects INPUT_READY without producer and case/observer/oracle coverage', (
   const input = fixture();
   Object.assign(input.pending, { status: 'INPUT_READY', closureStatus: 'NOT_EVALUATED', blockers: [] });
   assert.throws(() => validateMediaClosureInputState(input), /provider bindings/);
-  input.consumer.providerBindings.push({ id: 'candidate-binding-requires-separate-Lifecycle-admission' });
+  providerBindingInput(input);
   assert.throws(() => validateMediaClosureInputState(input), /needs caseIds/);
 });
 
 test('allows only input readiness, never Media-authored closure', () => {
   const input = fixture();
   Object.assign(input.pending, { status: 'INPUT_READY', closureStatus: 'NOT_EVALUATED', blockers: [] });
-  input.consumer.providerBindings.push({ id: 'candidate-requires-separate-Lifecycle-admission' });
+  providerBindingInput(input);
   for (const obligation of input.obligations) {
     obligation.caseIds = [`${obligation.id}.case`];
     obligation.observerIds = [`${obligation.id}.observer`];
@@ -97,6 +113,30 @@ test('allows only input readiness, never Media-authored closure', () => {
   input.pending.closureStatus = 'NOT_EVALUATED';
   input.pending.currentness = 'CURRENT';
   assert.throws(() => validateMediaClosureInputState(input), /currentness/);
+});
+
+test('requires unique versioned public provider bindings and a provider registry for readiness', () => {
+  const input = fixture();
+  Object.assign(input.pending, { status: 'INPUT_READY', closureStatus: 'NOT_EVALUATED', blockers: [] });
+  providerBindingInput(input);
+  for (const obligation of input.obligations) {
+    obligation.caseIds = [`${obligation.id}.case`];
+    obligation.observerIds = [`${obligation.id}.observer`];
+    obligation.oracleIds = [`${obligation.id}.oracle`];
+  }
+  input.consumer.providerBindings[0].providerRef.version = '';
+  assert.throws(() => validateMediaClosureInputState(input), /versioned provider identity/);
+
+  const noRegistry = fixture();
+  Object.assign(noRegistry.pending, { status: 'INPUT_READY', closureStatus: 'NOT_EVALUATED', blockers: [] });
+  providerBindingInput(noRegistry);
+  for (const obligation of noRegistry.obligations) {
+    obligation.caseIds = [`${obligation.id}.case`];
+    obligation.observerIds = [`${obligation.id}.observer`];
+    obligation.oracleIds = [`${obligation.id}.oracle`];
+  }
+  delete noRegistry.consumer.providerRegistry;
+  assert.throws(() => validateMediaClosureInputState(noRegistry), /provider registry source/);
 });
 
 test('rejects hidden missing obligations and inconsistent phase selectors', () => {

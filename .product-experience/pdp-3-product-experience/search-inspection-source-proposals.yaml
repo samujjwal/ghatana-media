@@ -1,0 +1,136 @@
+schemaVersion: media.pdp-3.search-inspection-contracts.v1
+productId: media
+status: proposal; query-execution-and-owner-acceptance-pending
+authorityBoundary: PDP-3 declares source-backed search and inspection projections; host execution, current authorization enforcement, and lifecycle evidence admission remain externally owned.
+experienceSpecificationContract: ghatana.experience-specification.v1
+pdp1TypeAuthority: .product-experience/pdp-1-domain-data/domain-objects.yaml
+search:
+  - id: media.search.authorized-projects
+    name: Search authorized projects
+    searchableTypes: [media.domain.project]
+    description: Find projects visible in the current identity and workspace scope; do not expose records outside current read authority.
+  - id: media.search.authorized-artifacts
+    name: Search authorized artifacts
+    searchableTypes: [media.domain.artifact-version]
+    description: Find immutable artifact versions visible under current read authority; preserve exact version and integrity identity.
+  - id: media.search.authorized-jobs
+    name: Search authorized jobs
+    searchableTypes: [media.domain.processing-job, media.domain.artifact-verification-job]
+    description: Find existing processing or artifact-verification jobs visible under current job-read authority; keep each job identity and finality distinct.
+inspections:
+  - id: media.inspection.specification
+    projectionKind: specification
+    description: Inspect indexed Product Definition and Experience source records as proposals with their declared phase and source location.
+  - id: media.inspection.authority
+    projectionKind: authority
+    description: Inspect declared source ownership and authority boundaries; source presence does not imply semantic acceptance or currentness.
+  - id: media.inspection.evidence
+    projectionKind: evidence
+    description: Inspect indexed verification and evidence availability with provenance; missing evidence remains missing and is not treated as a pass.
+  - id: media.inspection.trace
+    projectionKind: trace
+    description: Inspect explicitly declared source identifiers and relationships; do not infer missing dependencies or closure.
+  - id: media.inspection.synthetic-simulation
+    projectionKind: simulation
+    description: Inspect deterministic synthetic fixtures and their declared outcomes; simulation does not establish production runtime behavior or qualification.
+sourceBindings:
+  searches:
+    - searchId: media.search.authorized-projects
+      searchableTypeRefs: [media.domain.project]
+      pdp1OperationRefs: []
+      operationBindingStatus: unresolved-no-source-explicit-search-operation
+      sourceRefs:
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml
+        - .product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml
+      status: direct-source-proposal; access-query-and-owner-semantics-pending
+    - searchId: media.search.authorized-artifacts
+      searchableTypeRefs: [media.domain.artifact-version]
+      pdp1OperationRefs: []
+      operationBindingStatus: unresolved-no-source-explicit-search-operation
+      sourceRefs:
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml
+        - .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
+      status: direct-source-proposal; access-query-and-owner-semantics-pending
+    - searchId: media.search.authorized-jobs
+      searchableTypeRefs: [media.domain.processing-job, media.domain.artifact-verification-job]
+      pdp1OperationRefs: []
+      operationBindingStatus: unresolved-no-source-explicit-search-operation
+      observedProtocolOperationRefs: [media.http.listMediaJobs]
+      observedProtocolBindingStatus: proposal-only; no-source-explicit-pdp1-member-crosswalk
+      sourceRefs:
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml
+        - .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
+        - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+      status: direct-source-proposal; access-query-and-owner-semantics-pending
+  inspectionBindings:
+    - inspectionId: media.inspection.specification
+      sourceRefs:
+        - .product-experience/source-manifest.yaml
+        - .product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md
+      status: source-index-proposal; semantic-acceptance-pending
+    - inspectionId: media.inspection.authority
+      sourceRefs:
+        - .product-experience/authority-map.yaml
+        - .product-experience/source-manifest.yaml
+      status: declared-authority-proposal; lifecycle-currentness-pending
+    - inspectionId: media.inspection.evidence
+      sourceRefs:
+        - .product-experience/explorer/verification-matrix.yaml
+        - .product-experience/acceptance.yaml
+      status: evidence-availability-proposal; no-receipt-or-acceptance-implied
+    - inspectionId: media.inspection.trace
+      sourceRefs:
+        - .product-experience/source-manifest.yaml
+        - .product-experience/traceability.yaml
+      status: declared-relations-proposal; no-inferred-closure
+    - inspectionId: media.inspection.synthetic-simulation
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
+        - .product-experience/pdp-3-product-experience/simulation-semantics.yaml
+      status: deterministic-fixture-proposal; not-runtime-evidence
+searchObservations:
+  status: source-observations-only; not-search-execution-contract
+  projects:
+    sourceRefs: [.product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml]
+    observedStates: [loading, projects-available, no-matching-projects, workspace-empty, stale-results, access-denied, offline]
+    requestFilters: not-declared
+    permissionSafeCount: not-declared
+    sorting: not-declared
+    pagination: not-declared
+    exactResultAndError: not-declared
+    staleOrUnknown: stale-results-state-declared; unknown-search-outcome-not-declared
+  artifacts:
+    sourceRefs: [.product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml]
+    observedStates: [loading, artifacts-available, workspace-empty, no-results, stale-results, identity-required, access-denied, offline]
+    requestFilters: not-declared
+    permissionSafeCount: not-declared
+    sorting: not-declared
+    pagination: not-declared
+    exactResultAndError: not-declared
+    staleOrUnknown: stale-results-state-declared; unknown-search-outcome-not-declared
+  jobs:
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/api/operations/listMediaJobs.yaml
+      - contracts/openapi/media.yaml
+    observedRequest: tenant-header-and-limit-query; limit-minimum-1-maximum-1000-default-100
+    observedResponse: required-jobs-array-of-ProcessingJob; no-count-field-declared
+    observedAccessMetadata: requires-authentication-and-tenant; required-access-operator
+    requestFilters: no-filter-parameters-declared
+    permissionSafeCount: no-count-field-declared; authorized-count-semantics-unresolved
+    sorting: not-declared
+    pagination: limit-only; continuation-token-offset-and-page-metadata-not-declared
+    exactResultAndError: 200-jobs-array-observed; canonical-error-mapping-not-declared
+    staleOrUnknown: outcome-unknown-is-a-job-status-not-a-search-result; freshness-semantics-unresolved
+  unresolvedSemantics:
+    ownerReview: pending
+    fields: [request-filter-schema, permission-safe-count-rules, sort-keys-and-order, pagination-continuation, exact-search-error-shape, search-freshness-and-unknown-outcome]
+execution:
+  status: NOT_ADMITTED
+  reason: ExperienceSpecification declares searchable types and inspection projection kinds; it does not implement search execution, authorization enforcement, or inspection rendering.
+ownerReview:
+  status: PENDING
+  unresolved:
+    - ExperienceSpecification requires a caller-supplied searchable-type owner resolver; Media has no admitted resolver for the listed PDP-1 type IDs.
+    - PDP-1 domain-object semantics and the project/artifact/job query and authorization rules remain proposals pending their owners.
+    - Inspection projection sources, access controls, evidence admission, trace closure, and simulation oracles require their respective owner reviews.
+    - This contract does not supply the other unresolved ExperienceDefinition fields or the external actor, desired-outcome, guard, and context reference authorities.

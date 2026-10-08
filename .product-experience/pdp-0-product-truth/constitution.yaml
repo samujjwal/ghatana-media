@@ -16,6 +16,51 @@ acceptancePolicy:
   allRequirementsRequireHumanReview: true
   missingRoleAssignmentMeans: review-required
   evidenceOfSourcePresenceIsNotAcceptance: true
+domainRules:
+  status: pending-PDP-1-owner-review
+  rule: >-
+    PDP-0 does not restate canonical domain states, transition guards, or action
+    semantics. Those rules remain owned by PDP-1 and are not projected until
+    their source record and owner decision are accepted.
+  pendingSources:
+    - ref: .product-experience/pdp-1-domain-data/states.yaml
+      reason: State records are proposal-only and their meaningDisposition remains pending-owner-review.
+    - ref: .product-experience/pdp-1-domain-data/transitions.yaml
+      reason: Transition records remain proposals; guards, operation bindings, permission checks, and effects are pending.
+    - ref: .product-experience/pdp-1-domain-data/authority.yaml
+      reason: PDP-1 authority and identity/provider bindings remain proposal-only or unverified.
+invariants:
+  resolutionStatus: media-owner-resolved; P0-010-independent-review-pending
+  sourceOfResolution: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+  records:
+    - id: MEDIA-INV-001
+      statement: A private context does not imply local processing, and local processing does not imply authorized use.
+      violation: If processing locality or authorization is missing or conflicting, return blocked or review-required; make no locality claim without a binding and observation.
+      sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/independentGovernanceAxes/3, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/invariants/0, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/invariants/1]
+    - id: MEDIA-INV-002
+      statement: User attestation is not verified consent or license.
+      violation: Do not admit governed processing or distribution when required consent or license evidence is absent, expired, revoked, or unverified; return blocked or review-required with the reason.
+      sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/independentGovernanceAxes/8, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/independentGovernanceAxes/9, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/enforcementPoints/2]
+    - id: MEDIA-INV-003
+      statement: Source classification is a floor for derived data until an authorized deidentification promotion.
+      violation: Do not persist or promote metadata whose classification, tenant ownership, retention, or provenance checks fail.
+      sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/independentGovernanceAxes/1, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/invariants/3, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/enforcementPoints/1]
+    - id: MEDIA-INV-004
+      statement: Model-generated content or assertions cannot authorize themselves.
+      violation: Reject model output as approval or privileged authority; require current policy and a separately authorized decision at the effect boundary.
+      sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/invariants/4, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/platformMechanics/privilegedEffects]
+    - id: MEDIA-INV-005
+      statement: Required audit intent must be recorded before crossing an external effect boundary.
+      violation: Do not dispatch or publish when required audit intent cannot be recorded; if an effect may already have occurred, preserve outcome uncertainty and do not replay to repair the audit record.
+      sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/platformMechanics/audit, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/invariants/8, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/adversarialAcceptanceCases/8]
+    - id: MEDIA-INV-006
+      statement: Policy revocation stops future dispatch and restricts outputs at the next enforcement point.
+      violation: Re-check current authority at effect boundaries; stop future dispatch and restrict outputs when policy has been revoked, without claiming an in-flight effect was terminated.
+      sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/invariants/7, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/enforcementPoints]
+    - id: MEDIA-INV-007
+      statement: Cross-tenant access and reuse are denied.
+      violation: Deny read, reuse, or effect when tenant ownership does not match the verified request context, even when content digests match.
+      sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/independentGovernanceAxes/2, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/enforcementPoints/4]
 normativeRecordContract:
   requiredFields:
     - what

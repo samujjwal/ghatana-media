@@ -1,7 +1,7 @@
 # Media Design Language
 
 **Authority:** PDP-2 proposal over PDP-0 Product Truth\
-**Acceptance:** blocked on independent P0-010 acceptance; no independent visual or accessibility acceptance is recorded\
+**Acceptance:** proposal; depends on accepted PDP-1 (with P0-010 as its prerequisite); Shared admission and independent visual/accessibility acceptance remain pending\
 **Experience contracts prepared here:** all 17 master-plan component families are indexed by 28 family-level proposals; detailed interaction implementation remains selected-lane only
 
 This phase defines how Media meaning appears and behaves. It does not add capabilities, change authority, or redefine job, consent, artifact, time, or finality states. The Media-specific records in this directory are the only editable authorities for their stated design decisions. Shared retains the generic token, component primitive, theme, accessibility, and localization contracts.
@@ -43,14 +43,59 @@ Web, terminal, API examples, and embedded results refer to the same Media artifa
 
 ## Current decision state
 
-All records are proposals. Component action intents now resolve to named PDP-3 action references. Capability authority, component interactions, state transitions, and owner approval remain open, and the component contracts do not establish runtime implementation. The nine Media token aliases now reference source-verified public Shared semantic-role exports at the observed clean repository revision; a released package version, Media CSS adapter, Shared primitive bindings, and owner review remain unverified. PDP-0 has unresolved semantic and external-owner reviews; the Tools publication/validation binding is also unverified. No viewport, locale, WCAG conformance, or visual result is accepted by this document.
+The canonical seven-gate disposition is `.product-experience/pdp-2-design-interface-system/design-governance.json`. Media owner decisions resolve the style-semantics boundary, semantic alias intent, template catalog rules, and layout hierarchy. These decisions do not accept package consumption, Shared component bindings, rendered behavior, viewport conformance, accessibility, or specialist visualization. Shared package binding remains external; conformance and specialist review remain independent; concrete component binding remains source-incomplete. The nine Media token aliases still use source-observed public Shared semantic-role refs; a released package version, Media CSS adapter, Shared primitive bindings, and Shared owner approval remain unverified. PDP-0 has unresolved semantic and external-owner reviews; the Tools publication/validation binding is also unverified.
 
-The current design-conformance check reports seven distinct authority/review blockers: proposal status for style authority, unresolved Shared package binding, unverified PDP-2 conformance review, proposal status for semantic aliases, unresolved component-to-Shared bindings, proposal status for the template catalog, and proposal status for layout rules. The checker currently resolves all 47 indexed screen template and layout references to entries in those PDP-2 registries, and reports zero unexplained product-source findings; these structural checks do not change any of the seven statuses. GAP-12 records local browser coverage, while independent visual review, screen-reader testing, canonical visual references, and accessibility acceptance remain unverified.
+The design-conformance checker validates all seven unique gate records and their source-status mirrors, then reports the three still-open gates without promoting local evidence into external or independent acceptance. It resolves all 47 indexed screen template and layout references to entries in the PDP-2 registries and reports zero unexplained product-source findings; the presentation architecture audit still proves zero admitted screen design chains. GAP-12 records local browser coverage, while independent visual review, screen-reader testing, canonical visual references, and accessibility acceptance remain unverified.
 
-`generated/experience-language.candidate.json` records source observations and
-the subject/schema identifiers available for a deterministic candidate. It is
-not a mapped ExperienceLanguage instance: component, recipe, token-group, and
-domain-state owner resolvers remain unavailable. The sibling schema and public
-validator reject the candidate as incomplete; blockers are retained in that
-generated file. Its presence does not establish Shared binding or PDP-2
-acceptance.
+`generated/experience-language.candidate.json` is a schema-valid partial
+ExperienceLanguage v1 (`ghatana.experience-language.v1`) candidate and passes
+the sibling-source public validator (`@ghatana/experience-language`; installed
+`dist` is unavailable). It
+maps 3 density profiles, 3 presentation profiles, 18 interaction patterns,
+6 recovery patterns, 3 disclosure rules, 4 responsive rules, 8 accessibility
+target rules, 6 localization rules, 11 component bindings, 8 state
+presentation mappings, and 8 owner-approved GUI recipe identities and bindings.
+The catalog defines exact recipe, template, and primary-pattern identities.
+Shared public package binding, implementation verification, all 47 screen-instance
+admissions, owner acceptance, and design conformance remain pending.
+
+## Authority, dependencies, review, and proof
+
+The canonical source inventory and stable IDs are indexed by
+[`../source-manifest.yaml`](../source-manifest.yaml) and
+[`../artifact-identities.yaml`](../artifact-identities.yaml). In addition to
+the records above, the PDP-2 set includes `design-governance.json`,
+`executable-ui-inventory.json`, `executable-ui-inventory.md`,
+`gui/layout.yaml`, `gui/templates/catalog.yaml`,
+`gui/recipes/catalog.yaml`, `gui/patterns/catalog.yaml`,
+`gui/screen-composition-schema.yaml`, `gui/primitives.yaml`,
+`gui/reuse-audit.yaml`, `gui/semantic-component-bindings.yaml`,
+`gui/style-authority.yaml`, and the API, CLI, SDK, event, and agent-tool
+convention records. The recipe-chain source audit is
+[`gui/recipe-chain-review.yaml`](gui/recipe-chain-review.yaml).
+
+The current decision and dependency inputs are
+[`../acceptance.yaml`](../acceptance.yaml) (`ACCEPT-INPUT-PDP-2`),
+[`../authority-map.yaml`](../authority-map.yaml),
+[`../traceability.yaml`](../traceability.yaml),
+[`../gaps.yaml`](../gaps.yaml),
+[`design-governance.json`](design-governance.json), and the PDP-0/PDP-1
+sources linked by the registries. Required roles are listed under
+`ACCEPT-INPUT-PDP-2`: design-system consumer lead, Media interaction and
+animation designers, UX and trust operations designers, accessibility and
+localization specialist, CLI/SDK designer and technical writer, and design
+authority reviewer. The public Tools schema/validator binding and Shared
+package consumer check remain dependencies.
+
+Local proof inputs include
+`tests/pdp-2-experience-language-projection.test.mjs`,
+`tests/pdp-2-recipe-layout-chains.test.mjs`,
+`tests/media-design-conformance.test.mjs`,
+`tests/media-presentation-architecture.test.mjs`,
+`pnpm check:design-conformance`,
+`pnpm check:presentation-architecture`, and
+`node ../../scripts/generate-media-phase-projections.mjs --check --strict`.
+They establish source/structure results only; the required independent review
+and external Shared acceptance have not been performed. Lifecycle
+currentness/receipts remain a separate authority and are not generated by
+these local checks.

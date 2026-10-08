@@ -1,199 +1,465 @@
 {
-  "schemaVersion": "media.typed-interface-binding.v1",
-  "subjectId": "media",
-  "source": "libs/audio-video-types/src/contracts.ts",
-  "semanticsAuthority": ".product-experience/pdp-1-domain-data/operations.yaml",
-  "ownerDecision": ".product-experience/reviews/2026-10-07-all-gate-unblocking.md",
-  "status": "TYPE_AND_SCHEMA_ROLE_BOUND_ONLY; NO_WIRE_OR_RUNTIME_ACCEPTANCE",
-  "roles": [
-    "VALUE_OBJECT",
-    "STATE_PROJECTION",
-    "DOMAIN_OBJECT",
-    "LEGACY_COMPATIBILITY",
-    "PROVIDER_CAPABILITY",
-    "ERROR_CONTRACT",
-    "OPERATION_INPUT",
-    "OPERATION_OUTPUT",
-    "NOT_ADMITTED_SPECIALIZED_OPERATION",
-    "ACCEPTANCE_ACK",
-    "SUPPORTING_SCHEMA"
+  "schemaVersion": "media.interface-parity.typed-contract-bindings.v1",
+  "status": "source-role-catalog-only; semantic-operation-and-wire-parity-remain-independent",
+  "typescriptSource": "libs/audio-video-types/src/contracts.ts",
+  "pdp1Sources": [
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+    ".product-experience/pdp-1-domain-data/operations.yaml"
   ],
+  "denominators": {
+    "exportedTypes": 19,
+    "publicSchemas": 20
+  },
+  "runtimeSupportImplied": false,
+  "semanticOperationParity": "UNRESOLVED",
+  "wireParity": "UNRESOLVED",
   "bindings": [
     {
-      "type": "MediaClassification",
       "schema": "MediaClassificationSchema",
-      "role": "VALUE_OBJECT",
-      "reason": "classification vocabulary only; no privilege inference",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "MediaClassification",
+      "role": "DOMAIN_VALUE_PROJECTION",
+      "pdp1Refs": [
+        "media.domain.artifact"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "MediaArtifactKind",
       "schema": "MediaArtifactKindSchema",
-      "role": "VALUE_OBJECT",
-      "semanticRef": "media.domain.artifact",
-      "reason": "artifact kind discriminator, not availability evidence",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "MediaArtifactKind",
+      "role": "DOMAIN_VALUE_PROJECTION",
+      "pdp1Refs": [
+        "media.domain.artifact"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "MediaArtifactStatus",
       "schema": "MediaArtifactStatusSchema",
-      "role": "STATE_PROJECTION",
-      "semanticRef": "media-upload-and-artifact",
-      "reason": "legacy artifact status projection; no canonical state equivalence inferred",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "MediaArtifactStatus",
+      "role": "DOMAIN_VALUE_PROJECTION",
+      "pdp1Refs": [
+        "media.domain.artifact"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "MediaArtifact",
       "schema": "MediaArtifactSchema",
-      "role": "DOMAIN_OBJECT",
-      "semanticRef": "media.domain.artifact",
-      "reason": "source/client artifact shape, exact versioning and authority require separate contract",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "MediaArtifact",
+      "role": "DOMAIN_RECORD_PROJECTION",
+      "pdp1Refs": [
+        "media.domain.artifact"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "UploadSession",
       "schema": "UploadSessionSchema",
-      "role": "DOMAIN_OBJECT",
-      "semanticRef": "media.domain.upload-session",
-      "reason": "upload session observation; transfer receipt is not artifact availability",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "UploadSession",
+      "role": "DOMAIN_RECORD_AND_OPERATION_PROJECTION",
+      "pdp1Refs": [
+        "media.domain.upload-session",
+        "media.operation.artifact-ingest"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "MediaOperationKind",
       "schema": "MediaOperationKindSchema",
-      "role": "VALUE_OBJECT",
-      "reason": "observed operation names are not canonical PDP-1 operation identities",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "MediaOperationKind",
+      "role": "OPERATION_KIND_ENUM_PROJECTION",
+      "pdp1Refs": [
+        "media.operation.transcription",
+        "media.operation.synthesis",
+        "media.operation.vision-analysis",
+        "media.operation.multimodal-analysis",
+        "media.operation.job-lifecycle"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false,
+      "operationValueDispositions": [
+        {
+          "value": "TRANSCRIBE",
+          "disposition": "PROPOSAL_REF_ONLY",
+          "pdp1Ref": "media.operation.transcription"
+        },
+        {
+          "value": "SYNTHESIZE",
+          "disposition": "PROPOSAL_REF_ONLY",
+          "pdp1Ref": "media.operation.synthesis"
+        },
+        {
+          "value": "VISION_ANALYZE",
+          "disposition": "PROPOSAL_REF_ONLY",
+          "pdp1Ref": "media.operation.vision-analysis"
+        },
+        {
+          "value": "MULTIMODAL_ANALYZE",
+          "disposition": "PROPOSAL_REF_ONLY",
+          "pdp1Ref": "media.operation.multimodal-analysis"
+        },
+        {
+          "value": "SEPARATE_STEMS",
+          "disposition": "NOT_ADMITTED"
+        },
+        {
+          "value": "TRAIN_VOICE_MODEL",
+          "disposition": "NOT_ADMITTED"
+        },
+        {
+          "value": "CONVERT_VOICE",
+          "disposition": "NOT_ADMITTED"
+        },
+        {
+          "value": "EXPORT",
+          "disposition": "NOT_ADMITTED"
+        },
+        {
+          "value": "DELETE",
+          "disposition": "NOT_ADMITTED"
+        }
+      ]
     },
     {
-      "type": "MediaJobState",
       "schema": "MediaJobStateSchema",
-      "role": "STATE_PROJECTION",
-      "semanticRef": "media-job",
-      "reason": "job state machine; preserve cancellation and unknown outcome",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "MediaJobState",
+      "role": "DOMAIN_STATE_PROJECTION",
+      "pdp1Refs": [
+        "media.domain.processing-job",
+        "media.operation.job-lifecycle"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "LegacyMediaJobState",
       "schema": "LegacyMediaJobStateSchema",
-      "role": "LEGACY_COMPATIBILITY",
-      "semanticRef": "media-job",
-      "reason": "retained RETRYING/CANCELLING strings are not canonical states",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "LegacyMediaJobState",
+      "role": "COMPATIBILITY_ADAPTER",
+      "pdp1Refs": [
+        "media.domain.processing-job",
+        "media.operation.job-lifecycle"
+      ],
+      "bindingStatus": "COMPATIBILITY_SOURCE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "MediaProcessingJob",
       "schema": "MediaProcessingJobSchema",
-      "role": "DOMAIN_OBJECT",
-      "semanticRef": "media.domain.processing-job",
-      "reason": "job state, attempt, version and finality remain separate dimensions",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "MediaProcessingJob",
+      "role": "DOMAIN_RECORD_AND_OPERATION_PROJECTION",
+      "pdp1Refs": [
+        "media.domain.processing-job",
+        "media.operation.job-lifecycle"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "ProviderCapability",
       "schema": "ProviderCapabilitySchema",
-      "role": "PROVIDER_CAPABILITY",
-      "semanticRef": "media.operation.health-capability",
-      "reason": "provider capability metadata not guaranteed runtime readiness",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "ProviderCapability",
+      "role": "CAPABILITY_PROJECTION",
+      "pdp1Refs": [
+        "media.operation.health-capability"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "MediaCanonicalError",
       "schema": "MediaCanonicalErrorSchema",
-      "role": "ERROR_CONTRACT",
-      "reason": "typed error projection, not proof of effect finality",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "MediaCanonicalError",
+      "role": "NOT_ADMITTED",
+      "pdp1Refs": [],
+      "bindingStatus": "NOT_ADMITTED",
+      "runtimeSupport": false
     },
     {
-      "type": "TranscriptionRequest",
       "schema": "TranscriptionRequestSchema",
-      "role": "OPERATION_INPUT",
-      "semanticRef": "media.operation.transcription",
-      "reason": "typed input request; wire and admission still per-provider",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "TranscriptionRequest",
+      "role": "DOMAIN_OPERATION_INPUT_PROJECTION",
+      "pdp1Refs": [
+        "media.operation.transcription-submission"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "TranscriptionResult",
       "schema": "TranscriptionResultSchema",
-      "role": "OPERATION_OUTPUT",
-      "semanticRef": "media.operation.transcription",
-      "reason": "typed output schema; result identity and job finality separate",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "TranscriptionResult",
+      "role": "DOMAIN_OPERATION_RESULT_PROJECTION",
+      "pdp1Refs": [
+        "media.operation.transcription",
+        "media.domain.transcription"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "SynthesisRequest",
       "schema": "SynthesisRequestSchema",
-      "role": "OPERATION_INPUT",
-      "semanticRef": "media.operation.synthesis",
-      "reason": "typed synthesis input; authorized voice/provider separately qualified",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "SynthesisRequest",
+      "role": "DOMAIN_OPERATION_INPUT_PROJECTION",
+      "pdp1Refs": [
+        "media.operation.synthesis"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "SynthesisResult",
       "schema": "SynthesisResultSchema",
-      "role": "OPERATION_OUTPUT",
-      "semanticRef": "media.operation.synthesis",
-      "reason": "typed output; format/codec not implicitly qualified",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "SynthesisResult",
+      "role": "DOMAIN_OPERATION_RESULT_PROJECTION",
+      "pdp1Refs": [
+        "media.operation.synthesis"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     },
     {
-      "type": "VoiceTrainingRequest",
       "schema": "VoiceTrainingRequestSchema",
-      "role": "NOT_ADMITTED_SPECIALIZED_OPERATION",
-      "reason": "no approved training invocation or model-asset/consent qualification",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "VoiceTrainingRequest",
+      "role": "NOT_ADMITTED",
+      "pdp1Refs": [],
+      "bindingStatus": "NOT_ADMITTED",
+      "runtimeSupport": false
     },
     {
-      "type": "VoiceConversionRequest",
       "schema": "VoiceConversionRequestSchema",
-      "role": "NOT_ADMITTED_SPECIALIZED_OPERATION",
-      "reason": "request type does not establish admitted conversion operation or rights",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": "VoiceConversionRequest",
+      "role": "NOT_ADMITTED",
+      "pdp1Refs": [],
+      "bindingStatus": "NOT_ADMITTED",
+      "runtimeSupport": false
     },
-    {
-      "type": "MultimodalAnalysisRequest",
-      "schema": "MultimodalAnalysisRequestSchema",
-      "role": "OPERATION_INPUT",
-      "semanticRef": "media.operation.multimodal-analysis",
-      "reason": "typed multimodal analysis input; strict source/media bounds",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
-    },
-    {
-      "type": "OperationAccepted",
-      "schema": "OperationAcceptedSchema",
-      "role": "ACCEPTANCE_ACK",
-      "semanticRef": "media.operation.job-lifecycle",
-      "reason": "acceptance receipt only; no queued/dispatch/completion proof",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "admission": "SOURCE_ROLE_ONLY"
-    }
-  ],
-  "schemaOnly": [
     {
       "schema": "MultimodalSourceSchema",
-      "role": "SUPPORTING_SCHEMA",
-      "semanticRef": "media.operation.multimodal-analysis",
-      "source": "libs/audio-video-types/src/contracts.ts",
-      "reason": "nested source discriminator for multimodal request; no separately exported TypeScript alias",
-      "admission": "SOURCE_ROLE_ONLY"
+      "type": null,
+      "role": "DOMAIN_OPERATION_INPUT_COMPONENT",
+      "pdp1Refs": [
+        "media.operation.multimodal-analysis"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
+    },
+    {
+      "schema": "MultimodalAnalysisRequestSchema",
+      "type": "MultimodalAnalysisRequest",
+      "role": "DOMAIN_OPERATION_INPUT_PROJECTION",
+      "pdp1Refs": [
+        "media.operation.multimodal-analysis"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
+    },
+    {
+      "schema": "OperationAcceptedSchema",
+      "type": "OperationAccepted",
+      "role": "DOMAIN_OPERATION_ACKNOWLEDGEMENT_PROJECTION",
+      "pdp1Refs": [
+        "media.domain.processing-job",
+        "media.operation.job-lifecycle"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     }
-  ]
+  ],
+  "ownerDecision": ".product-experience/reviews/2026-10-07-all-gate-unblocking.md",
+  "pdp027Boundary": "Source-role decisions only; no runtime, wire, package or phase acceptance.",
+  "legacySourceRoleManifest": {
+    "schemaVersion": "media.typed-interface-binding.v1",
+    "subjectId": "media",
+    "source": "libs/audio-video-types/src/contracts.ts",
+    "semanticsAuthority": ".product-experience/pdp-1-domain-data/operations.yaml",
+    "ownerDecision": ".product-experience/reviews/2026-10-07-all-gate-unblocking.md",
+    "status": "TYPE_AND_SCHEMA_ROLE_BOUND_ONLY; NO_WIRE_OR_RUNTIME_ACCEPTANCE",
+    "roles": [
+      "VALUE_OBJECT",
+      "STATE_PROJECTION",
+      "DOMAIN_OBJECT",
+      "LEGACY_COMPATIBILITY",
+      "PROVIDER_CAPABILITY",
+      "ERROR_CONTRACT",
+      "OPERATION_INPUT",
+      "OPERATION_OUTPUT",
+      "NOT_ADMITTED_SPECIALIZED_OPERATION",
+      "ACCEPTANCE_ACK",
+      "SUPPORTING_SCHEMA"
+    ],
+    "bindings": [
+      {
+        "type": "MediaClassification",
+        "schema": "MediaClassificationSchema",
+        "role": "VALUE_OBJECT",
+        "reason": "classification vocabulary only; no privilege inference",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "MediaArtifactKind",
+        "schema": "MediaArtifactKindSchema",
+        "role": "VALUE_OBJECT",
+        "semanticRef": "media.domain.artifact",
+        "reason": "artifact kind discriminator, not availability evidence",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "MediaArtifactStatus",
+        "schema": "MediaArtifactStatusSchema",
+        "role": "STATE_PROJECTION",
+        "semanticRef": "media-upload-and-artifact",
+        "reason": "legacy artifact status projection; no canonical state equivalence inferred",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "MediaArtifact",
+        "schema": "MediaArtifactSchema",
+        "role": "DOMAIN_OBJECT",
+        "semanticRef": "media.domain.artifact",
+        "reason": "source/client artifact shape, exact versioning and authority require separate contract",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "UploadSession",
+        "schema": "UploadSessionSchema",
+        "role": "DOMAIN_OBJECT",
+        "semanticRef": "media.domain.upload-session",
+        "reason": "upload session observation; transfer receipt is not artifact availability",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "MediaOperationKind",
+        "schema": "MediaOperationKindSchema",
+        "role": "VALUE_OBJECT",
+        "reason": "observed operation names are not canonical PDP-1 operation identities",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "MediaJobState",
+        "schema": "MediaJobStateSchema",
+        "role": "STATE_PROJECTION",
+        "semanticRef": "media-job",
+        "reason": "job state machine; preserve cancellation and unknown outcome",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "LegacyMediaJobState",
+        "schema": "LegacyMediaJobStateSchema",
+        "role": "LEGACY_COMPATIBILITY",
+        "semanticRef": "media-job",
+        "reason": "retained RETRYING/CANCELLING strings are not canonical states",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "MediaProcessingJob",
+        "schema": "MediaProcessingJobSchema",
+        "role": "DOMAIN_OBJECT",
+        "semanticRef": "media.domain.processing-job",
+        "reason": "job state, attempt, version and finality remain separate dimensions",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "ProviderCapability",
+        "schema": "ProviderCapabilitySchema",
+        "role": "PROVIDER_CAPABILITY",
+        "semanticRef": "media.operation.health-capability",
+        "reason": "provider capability metadata not guaranteed runtime readiness",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "MediaCanonicalError",
+        "schema": "MediaCanonicalErrorSchema",
+        "role": "ERROR_CONTRACT",
+        "reason": "typed error projection, not proof of effect finality",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "TranscriptionRequest",
+        "schema": "TranscriptionRequestSchema",
+        "role": "OPERATION_INPUT",
+        "semanticRef": "media.operation.transcription",
+        "reason": "typed input request; wire and admission still per-provider",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "TranscriptionResult",
+        "schema": "TranscriptionResultSchema",
+        "role": "OPERATION_OUTPUT",
+        "semanticRef": "media.operation.transcription",
+        "reason": "typed output schema; result identity and job finality separate",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "SynthesisRequest",
+        "schema": "SynthesisRequestSchema",
+        "role": "OPERATION_INPUT",
+        "semanticRef": "media.operation.synthesis",
+        "reason": "typed synthesis input; authorized voice/provider separately qualified",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "SynthesisResult",
+        "schema": "SynthesisResultSchema",
+        "role": "OPERATION_OUTPUT",
+        "semanticRef": "media.operation.synthesis",
+        "reason": "typed output; format/codec not implicitly qualified",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "VoiceTrainingRequest",
+        "schema": "VoiceTrainingRequestSchema",
+        "role": "NOT_ADMITTED_SPECIALIZED_OPERATION",
+        "reason": "no approved training invocation or model-asset/consent qualification",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "VoiceConversionRequest",
+        "schema": "VoiceConversionRequestSchema",
+        "role": "NOT_ADMITTED_SPECIALIZED_OPERATION",
+        "reason": "request type does not establish admitted conversion operation or rights",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "MultimodalAnalysisRequest",
+        "schema": "MultimodalAnalysisRequestSchema",
+        "role": "OPERATION_INPUT",
+        "semanticRef": "media.operation.multimodal-analysis",
+        "reason": "typed multimodal analysis input; strict source/media bounds",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "OperationAccepted",
+        "schema": "OperationAcceptedSchema",
+        "role": "ACCEPTANCE_ACK",
+        "semanticRef": "media.operation.job-lifecycle",
+        "reason": "acceptance receipt only; no queued/dispatch/completion proof",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      }
+    ],
+    "schemaOnly": [
+      {
+        "schema": "MultimodalSourceSchema",
+        "role": "SUPPORTING_SCHEMA",
+        "semanticRef": "media.operation.multimodal-analysis",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "reason": "nested source discriminator for multimodal request; no separately exported TypeScript alias",
+        "admission": "SOURCE_ROLE_ONLY"
+      }
+    ]
+  }
 }

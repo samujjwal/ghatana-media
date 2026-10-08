@@ -13,6 +13,7 @@ preconditions:
   - Cancellation and outcome-check availability follow the current authority and job state.
 steps:
 - view: media.view.monitor-transcription
+  screenContractRef: screen-contracts/transcription-progress.yaml
   action: media.action.view-job-status
   actionBindingStatus: direct-action-capability-crosswalk; proposal-only
   capabilityRefs: [media.job.view-status]
@@ -86,6 +87,7 @@ steps:
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.job-status
+  screenContractRef: screen-contracts/job-status.yaml
   action: media.action.view-job-status
   actionBindingStatus: direct-action-capability-crosswalk; proposal-only
   capabilityRefs: [media.job.view-status]
@@ -159,6 +161,7 @@ steps:
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.job-status
+  screenContractRef: screen-contracts/job-status.yaml
   navigation: stop-watching
   result: observation-ends-for-this-view; the-existing-job-state-and-finality-are-unchanged
   surfaceRefs: []
@@ -230,6 +233,7 @@ steps:
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.job-status
+  screenContractRef: screen-contracts/job-status.yaml
   navigation: reattach-by-stable-job-reference
   action: media.action.view-job-status
   actionBindingStatus: direct-action-capability-crosswalk; proposal-only
@@ -304,6 +308,7 @@ steps:
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.job-status
+  screenContractRef: screen-contracts/job-status.yaml
   action: media.action.request-cancellation
   actionBindingStatus: direct-action-capability-crosswalk; proposal-only
   capabilityRefs: [media.job.cancel]
@@ -378,6 +383,7 @@ steps:
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.job-status
+  screenContractRef: screen-contracts/job-status.yaml
   action: media.action.retry-job
   actionBindingStatus: direct-action-capability-crosswalk; proposal-only
   capabilityRefs: [media.job.retry]
@@ -452,6 +458,7 @@ steps:
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.check-job-outcome
+  screenContractRef: screen-contracts/check-job-outcome.yaml
   action: media.action.check-job-outcome
   actionBindingStatus: direct-action-capability-crosswalk; proposal-only
   capabilityRefs: [media.job.check-outcome]

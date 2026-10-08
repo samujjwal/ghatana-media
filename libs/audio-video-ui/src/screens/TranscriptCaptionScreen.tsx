@@ -1,5 +1,6 @@
 import React from "react";
 import { MediaTaskScreen, type MediaTaskScreenProps } from "./MediaTaskScreen";
+import { Button, Select, TextArea, TextField } from "../foundations";
 
 export type TranscriptCaptionView = "select-source" | "monitor-transcription" | "review-transcript" | "correct-captions" | "compare-caption-versions";
 
@@ -86,8 +87,8 @@ export function TranscriptCaptionScreen({
           {transcript.sourceChoices.map((source) => <li key={source.artifactVersion}>
             <p>{source.label}</p>
             <p><code>{source.artifactVersion}</code>{source.availability ? ` · ${source.availability}` : ""}</p>
-            <button type="button" disabled={!availableActions.get("media.action.choose-source")?.enabled}
-              onClick={() => void actionPort.invoke("media.action.choose-source", { artifactVersion: source.artifactVersion })}>Select this source</button>
+            <Button type="button" disabled={!availableActions.get("media.action.choose-source")?.enabled}
+              onClick={() => void actionPort.invoke("media.action.choose-source", { artifactVersion: source.artifactVersion })}>Select this source</Button>
           </li>)}
         </ul>
       </section> : null}
@@ -95,29 +96,29 @@ export function TranscriptCaptionScreen({
         {transcript.segments?.map((segment) => <li key={segment.id}>
           <p>{segment.startTime}–{segment.endTime} · Segment {segment.id}</p>
           <label htmlFor={`caption-${segment.id}`}>Caption text for segment {segment.id}</label>
-          <textarea id={`caption-${segment.id}`} value={segment.text} disabled={!onCaptionEdit || !canCorrect}
+          <TextArea id={`caption-${segment.id}`} value={segment.text} disabled={!onCaptionEdit || !canCorrect}
             onChange={(event) => onCaptionEdit?.(segment.id, event.currentTarget.value)} rows={2} />
-          <button type="button" disabled={!canCorrect} onClick={() => {
+          <Button type="button" disabled={!canCorrect} onClick={() => {
             if (canCorrect) void actionPort.invoke("media.action.correct-caption", { segmentId: segment.id, text: segment.text });
-          }}>Apply caption correction</button>
+          }}>Apply caption correction</Button>
           {correctAction?.disabledReason && <p>{correctAction.disabledReason}</p>}
           <p>{[segment.confidence, segment.provenance].filter(Boolean).join(" · ")}</p>
           <fieldset disabled={!onCaptionTimingDraftChange || !alignAction?.enabled}>
             <legend>Timing in source clock ticks ({transcript.clockId ?? "clock not identified"})</legend>
             <label htmlFor={`caption-start-${segment.id}`}>Start tick</label>
-            <input id={`caption-start-${segment.id}`} type="number" min={0} max={transcript.durationTicks} step={1}
+            <TextField id={`caption-start-${segment.id}`} type="number" min={0} max={transcript.durationTicks} step={1}
               value={segment.startTick ?? ""} onChange={(event) => onCaptionTimingDraftChange?.(segment.id, "startTick", event.currentTarget.value === "" ? null : Number(event.currentTarget.value))} />
             <label htmlFor={`caption-end-${segment.id}`}>End tick</label>
-            <input id={`caption-end-${segment.id}`} type="number" min={0} max={transcript.durationTicks} step={1}
+            <TextField id={`caption-end-${segment.id}`} type="number" min={0} max={transcript.durationTicks} step={1}
               value={segment.endTick ?? ""} onChange={(event) => onCaptionTimingDraftChange?.(segment.id, "endTick", event.currentTarget.value === "" ? null : Number(event.currentTarget.value))} />
-            <button type="button" disabled={!alignAction?.enabled || segment.startTick == null || segment.endTick == null}
+            <Button type="button" disabled={!alignAction?.enabled || segment.startTick == null || segment.endTick == null}
               onClick={() => {
                 if (segment.startTick != null && segment.endTick != null) {
                   void actionPort.invoke("media.action.align-caption-timing", {
                     segmentId: segment.id, startTick: segment.startTick, endTick: segment.endTick,
                   });
                 }
-              }}>{alignAction?.label ?? "Apply timing alignment"}</button>
+              }}>{alignAction?.label ?? "Apply timing alignment"}</Button>
             {alignAction?.disabledReason && <p>{alignAction.disabledReason}</p>}
           </fieldset>
         </li>)}
@@ -134,20 +135,20 @@ export function TranscriptCaptionScreen({
       {transcript.view === "compare-caption-versions" && <fieldset>
         <legend>Choose versions to compare</legend>
         <label htmlFor="caption-version-left">Earlier or source version</label>
-        <select id="caption-version-left" value={transcript.leftCompareVersionId ?? ""}
+        <Select id="caption-version-left" value={transcript.leftCompareVersionId ?? ""}
           disabled={!onCompareVersionSelection || !compareAction?.enabled}
           onChange={(event) => onCompareVersionSelection?.("left", event.currentTarget.value)}>
           <option value="">Choose a version</option>
           {transcript.versions?.map((version) => <option key={version.id} value={version.id}>{version.label} — {version.id}</option>)}
-        </select>
+        </Select>
         <label htmlFor="caption-version-right">Other version</label>
-        <select id="caption-version-right" value={transcript.rightCompareVersionId ?? ""}
+        <Select id="caption-version-right" value={transcript.rightCompareVersionId ?? ""}
           disabled={!onCompareVersionSelection || !compareAction?.enabled}
           onChange={(event) => onCompareVersionSelection?.("right", event.currentTarget.value)}>
           <option value="">Choose a version</option>
           {transcript.versions?.map((version) => <option key={version.id} value={version.id}>{version.label} — {version.id}</option>)}
-        </select>
-        <button type="button" disabled={!compareAction?.enabled || !transcript.leftCompareVersionId || !transcript.rightCompareVersionId}
+        </Select>
+        <Button type="button" disabled={!compareAction?.enabled || !transcript.leftCompareVersionId || !transcript.rightCompareVersionId}
           onClick={() => {
             if (transcript.leftCompareVersionId && transcript.rightCompareVersionId) {
               void actionPort.invoke("media.action.compare-caption-versions", {
@@ -155,19 +156,19 @@ export function TranscriptCaptionScreen({
                 rightVersionId: transcript.rightCompareVersionId,
               });
             }
-          }}>{compareAction?.label ?? "Compare selected versions"}</button>
+          }}>{compareAction?.label ?? "Compare selected versions"}</Button>
         {compareAction?.disabledReason && <p>{compareAction.disabledReason}</p>}
       </fieldset>}
       {transcript.view === "correct-captions" && <section aria-labelledby="caption-version-purpose-title">
         <h4 id="caption-version-purpose-title">Save a caption version</h4>
         <label htmlFor="caption-version-purpose">Version purpose (optional)</label>
-        <input id="caption-version-purpose" type="text" value={transcript.versionPurpose ?? ""}
+        <TextField id="caption-version-purpose" type="text" value={transcript.versionPurpose ?? ""}
           disabled={!onVersionPurposeChange || !saveAction?.enabled}
           onChange={(event) => onVersionPurposeChange?.(event.currentTarget.value)} />
-        <button type="button" disabled={!saveAction?.enabled} onClick={() => {
+        <Button type="button" disabled={!saveAction?.enabled} onClick={() => {
           const purpose = transcript.versionPurpose?.trim();
           void actionPort.invoke("media.action.save-caption-version", purpose ? { purpose } : {});
-        }}>{saveAction?.label ?? "Save caption version"}</button>
+        }}>{saveAction?.label ?? "Save caption version"}</Button>
         {saveAction?.disabledReason && <p>{saveAction.disabledReason}</p>}
       </section>}
       {transcript.view === "monitor-transcription" && <p role="status">The latest job state and outcome are shown in the operation observation above.</p>}

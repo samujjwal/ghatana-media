@@ -99,7 +99,12 @@ ownerAcceptedPolicyDecisions:
   cancelledRule: authoritative-no-dispatch-or-confirmed-fenced-effects-finality; request-and-observer-detach-insufficient
   durableAttemptRule: append-only-attempt-history-with-unique-id-monotonic-fencing-and-restart-reconciliation
   unknownOutcomeRule: never-conflate-with-running-failure-or-safe-retry
-  policyStatus: DELEGATED_OWNER_APPROVED
+  policyDispositionRefs:
+    - .product-experience/acceptance.yaml#MEDIA-OWNER-20261007-04
+    - .product-experience/acceptance.yaml#MEDIA-OWNER-20261007-05
+    - .product-experience/acceptance.yaml#MEDIA-OWNER-20261007-06
+    - .product-experience/acceptance.yaml#MEDIA-OWNER-20261007-07
+  policyStatus: ACCEPTED
 unresolvedOwnerDecisions: []
 remainingImplementationAndIndependentProof:
   - observed-legacy-wire-and-client-projections-must-be-updated-with-loss-reporting-and-tested

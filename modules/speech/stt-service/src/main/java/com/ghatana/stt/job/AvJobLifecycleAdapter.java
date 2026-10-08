@@ -27,7 +27,7 @@ import java.util.Objects;
  *       retained in record metadata for the older shared enum</li>
  *   <li>{@code OUTCOME_UNKNOWN} and {@code RECONCILING} → {@code RUNNING} with
  *       the exact Media state retained in record metadata; neither is terminal</li>
- *   <li>legacy {@code RETRYING} → {@code RETRYING}</li>
+ *   <li>legacy {@code RETRYING} → {@code RETRYING} with the raw spelling retained</li>
  * </ul>
  *
  * @doc.type class
@@ -101,6 +101,33 @@ public final class AvJobLifecycleAdapter {
         };
     }
 
+    /**
+     * Restores the exact Media state when this adapter's source-state metadata is present.
+     *
+     * <p>The shared status is a lossy projection for states the shared enum cannot express
+     * (notably {@code RETRY_PENDING}, {@code OUTCOME_UNKNOWN}, and {@code RECONCILING}).
+     * Records with no Media state marker use the legacy status-only mapping.</p>
+     *
+     * @param record canonical record emitted by this adapter or a compatible producer
+     * @return the exact local status when metadata is recognized; otherwise the status-only
+     *         compatibility mapping (or {@code null} for an unmapped shared status)
+     */
+    public static AvTranscriptionJob.JobStatus fromCanonical(CanonicalJobRecord record) {
+        Objects.requireNonNull(record, "record must not be null");
+        if (record.metadata().containsKey("mediaCanonicalState")) {
+            Object mediaState = record.metadata().get("mediaCanonicalState");
+            if (!(mediaState instanceof String state)) return null;
+            try {
+                AvTranscriptionJob.JobStatus sourceState = AvTranscriptionJob.JobStatus.valueOf(state);
+                return mapStatus(sourceState) == record.status() ? sourceState : null;
+            } catch (IllegalArgumentException ignored) {
+                // Unknown or conflicting source spellings are not silently coerced into a Media state.
+                return null;
+            }
+        }
+        return fromCanonical(record.status());
+    }
+
     private static CanonicalJobStatus mapStatus(AvTranscriptionJob.JobStatus status) {
         return switch (status) {
             case CREATED -> CanonicalJobStatus.PENDING;
@@ -115,8 +142,6 @@ public final class AvJobLifecycleAdapter {
     }
 
     private static String canonicalMediaState(AvTranscriptionJob.JobStatus status) {
-        return status == AvTranscriptionJob.JobStatus.RETRYING
-                ? AvTranscriptionJob.JobStatus.RETRY_PENDING.name()
-                : status.name();
+        return status.name();
     }
 }

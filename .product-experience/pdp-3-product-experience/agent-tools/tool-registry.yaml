@@ -6,85 +6,168 @@ sourcePopulation:
   count: 4
   classification: registered handler inventory only; non-admitted and not evidence of production Agent Tool support
   contractAuthority: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#/observedHandlerInventory
+contractObservationPolicy:
+  authority: Java handler source is authoritative only for behavior directly visible in each adapter.
+  schemaVersion: NOT_DECLARED_BY_HANDLER
+  inputSchema: Dynamic Map<String,Object> observations are incomplete, open, and not a canonical validated schema.
+  delegateInputForwarding: If configured, every handler calls delegate.handle(envelope, contract) with the original envelope and ToolContract; it does not construct a filtered or normalized request.
+  outputSchema: Delegate results are passed through; no successful output schema is validated by these handlers.
+  asynchronousFailure: A delegate Promise is returned unchanged; these adapters do not attach asynchronous recovery or convert later Promise failures into the local caughtException result.
+  localFailedResultArguments: ToolExecutionResult.failed receives invocationId for both its first and third arguments, the observed end Instant, and Duration.between(start, end).
+  localFailedResultMapping: "Sibling Tools source observation only (runtime/java/tool-contracts/.../ToolExecutionResult.java): the failed(String, String, String, Instant, Duration) factory maps these non-code messages to status FAILED and failure kind INTERNAL/stage EXECUTION; its code normalizer falls back to TOOL_EXECUTION_FAILED for messages that are not a valid code. Installed package resolution and owner acceptance are not established by this Media observation."
+  preTryNullArguments: Objects.requireNonNull(envelope/contract) executes before the try block in each handler, so a null argument throws directly and is not converted to Promise<ToolExecutionResult>.
+  runtimeAndAvailability: UNRESOLVED; factory registration does not prove a configured delegate, runtime availability, or production readiness.
+  operationBinding: UNRESOLVED; tool identifiers are observed handler IDs and are not mapped to PDP-1 operations here.
+  executionAdmitted: false
 tools:
   - id: av.speech-to-text
     canonicalId: av.speech-to-text
     handler: SpeechToTextToolHandler
+    handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java
     registration: AudioVideoToolHandlerFactory
     experienceBinding: pending-owner-review
+    executionAdmitted: false
+    operationBinding: {value: null, status: unresolved-owner-and-operation-mapping}
     inputSchema:
-      status: partial-source-observation; non-authoritative
-      sourceRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#observedHandlerInventory.tools[av.speech-to-text]
-      observedFields:
-        audioSource: object with mediaArtifactId or audioBytes; flat mediaArtifactId fallback observed; full types, bounds, authorization and closed-schema behavior pending
-    resultSchema: {value: null, status: pending, reason: versioned result and evidence contract unavailable}
-    authorityAndDelegation: {value: null, status: pending, reason: invocation-time principal, tenant, resource, policy and delegation contract unavailable}
-    idempotency: {value: null, status: pending, reason: duplicate and provider-effect semantics unavailable; automatic retry not authorized}
-    timeout: {value: null, status: pending, reason: finite runtime/provider deadline unavailable}
-    cancellation: {value: null, status: pending, reason: cancellation and race semantics unavailable}
-    unknownOutcome: {value: null, status: pending, reason: canonical non-final result and original-operation resolution unavailable}
-    evidence: {value: null, status: pending, reason: provenance, issuer, resource/version scope and currentness contract unavailable}
-    safeFailure: observed handler fails for invalid/missing source or missing delegate; canonical bounded error and post-dispatch outcome rules pending
+      observationStatus: handler-source-observation-only
+      schemaVersion: {value: null, status: not-declared-by-handler}
+      closed: false
+      sourceType: Map<String,Object> from ToolExecutionEnvelope.input()
+      fields:
+        - {name: audioSource, type: "Map<?,?> when recognized", presence: optional-wrapper, sourceExpression: 'input.get("audioSource")', semantics: nested source wrapper}
+        - {name: audioSource.mediaArtifactId, type: Object, presence: accepted-if-key-present, sourceExpression: 'src.containsKey("mediaArtifactId")', validation: value type, nonblankness, resource resolution and bounds not checked}
+        - {name: audioSource.audioBytes, type: Object, presence: accepted-if-key-present, sourceExpression: 'src.containsKey("audioBytes")', validation: value type and byte bounds not checked}
+        - {name: mediaArtifactId, type: Object, presence: accepted-flat-fallback-if-key-present, sourceExpression: 'input.containsKey("mediaArtifactId")', validation: value type, nonblankness and resource resolution not checked}
+      rejection: Throws IllegalArgumentException("audioSource must contain mediaArtifactId or audioBytes") if no recognized nested key and no flat mediaArtifactId key; unknown fields are not rejected.
+    observedResult:
+      javaType: Promise<ToolExecutionResult>
+      schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
+      success: Exact delegate Promise is returned without output validation; result fields/schema are not visible here.
+      noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video STT provider unavailable for <source>: no speech-to-text service delegate configured", invocationId, end, elapsed Duration)'
+      caughtException: 'ToolExecutionResult.failed(invocationId, "STT processing error: " + exception message, invocationId, end, elapsed Duration)'
+      finality: {value: null, status: not-established-by-handler-or-delegate-contract}
+      errorDisclosure: Caught exception message is interpolated without sanitization or bounds in this handler.
+    safetyAndEffects:
+      envelopeChecks: Objects.requireNonNull(envelope) and Objects.requireNonNull(contract)
+      nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.
+      delegateInputForwarding: When configured, delegate.handle receives the original envelope and contract unchanged.
+      observedContext: Logs invocationId and tenantId; these values are not authorization checks.
+      effect: No provider operation is performed by this adapter; any effect is delegated and unresolved.
+      authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}
+      timeoutCancellationIdempotencyEvidence: {value: null, status: not-shown-by-handler}
+    availability: {value: null, status: unresolved-delegate-and-runtime-binding}
+    safeFailure: Handler returns local failed result for invalid source, missing delegate, or caught exception; sanitized error, post-dispatch state and canonical recovery semantics unresolved.
   - id: av.text-to-speech
     canonicalId: av.text-to-speech
     handler: TextToSpeechToolHandler
+    handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java
     registration: AudioVideoToolHandlerFactory
     experienceBinding: pending-owner-review
+    executionAdmitted: false
+    operationBinding: {value: null, status: unresolved-owner-and-operation-mapping}
     inputSchema:
-      status: partial-source-observation; non-authoritative
-      sourceRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#observedHandlerInventory.tools[av.text-to-speech]
-      observedFields:
-        text: required nonblank string observed
-        voiceId: optional; observed default en-US-default; allowed values/bounds pending
-        speakingRate: optional numeric conversion; observed default 1.0; valid range pending
-        audioEncoding: optional; observed default MP3; supported enum pending
-        storeAsArtifact: boolean observed; effect, authorization and default contract pending
-    resultSchema: {value: null, status: pending, reason: versioned result and evidence contract unavailable}
-    authorityAndDelegation: {value: null, status: pending, reason: artifact effect and invocation-time policy/delegation contract unavailable}
-    idempotency: {value: null, status: pending, reason: artifact/provider duplicate semantics unavailable; automatic retry not authorized}
-    timeout: {value: null, status: pending, reason: finite runtime/provider deadline unavailable}
-    cancellation: {value: null, status: pending, reason: cancellation and possible artifact-effect race semantics unavailable}
-    unknownOutcome: {value: null, status: pending, reason: original operation and artifact-state resolution unavailable}
-    evidence: {value: null, status: pending, reason: generated audio, artifact version and provenance evidence contract unavailable}
-    safeFailure: observed handler rejects blank text or missing delegate; canonical bounded error and partial-effect rules pending
+      observationStatus: handler-source-observation-only
+      schemaVersion: {value: null, status: not-declared-by-handler}
+      closed: false
+      sourceType: Map<String,Object> from ToolExecutionEnvelope.input()
+      fields:
+        - {name: text, type: String, presence: required, sourceExpression: 'requireString(input, "text")', validation: must be nonblank}
+        - {name: voiceId, type: String cast from Object, presence: optional, default: en-US-default, sourceExpression: '(String) input.getOrDefault("voiceId", "en-US-default")', validation: allowed voice values and bounds not checked}
+        - {name: speakingRate, type: Number converted to double or fallback, presence: optional, default: 1.0, sourceExpression: 'toDouble(input.getOrDefault("speakingRate", 1.0))', validation: non-Number silently becomes 1.0; numeric range not checked}
+        - {name: audioEncoding, type: String cast from Object, presence: optional, default: MP3, sourceExpression: '(String) input.getOrDefault("audioEncoding", "MP3")', validation: supported values not checked}
+        - {name: storeAsArtifact, type: boolean, presence: optional, default: false, sourceExpression: 'Boolean.TRUE.equals(input.get("storeAsArtifact"))', validation: only true enables the logged request flag; adapter does not store an artifact}
+      rejection: Missing or blank text throws IllegalArgumentException("Required input field 'text' is missing or blank"); wrong String casts may throw and be caught; unknown fields are not rejected.
+    observedResult:
+      javaType: Promise<ToolExecutionResult>
+      schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
+      success: Exact delegate Promise is returned without output validation; result fields/schema are not visible here.
+      noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video TTS provider unavailable: no text-to-speech service delegate configured", invocationId, end, elapsed Duration)'
+      caughtException: 'ToolExecutionResult.failed(invocationId, "TTS processing error: " + exception message, invocationId, end, elapsed Duration)'
+      finality: {value: null, status: not-established-by-handler-or-delegate-contract}
+      errorDisclosure: Caught exception message is interpolated without sanitization or bounds in this handler.
+    safetyAndEffects:
+      envelopeChecks: Objects.requireNonNull(envelope) and Objects.requireNonNull(contract)
+      nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.
+      delegateInputForwarding: When configured, delegate.handle receives the original envelope and contract unchanged.
+      observedContext: Logs invocationId and tenantId; these values are not authorization checks.
+      effect: No synthesis or artifact write is performed by this adapter; storeAsArtifact is only read/logged and delegate effects are unresolved.
+      authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}
+      timeoutCancellationIdempotencyEvidence: {value: null, status: not-shown-by-handler}
+    availability: {value: null, status: unresolved-delegate-and-runtime-binding}
+    safeFailure: Handler returns local failed result for invalid text, missing delegate, or caught exception; sanitized error, partial effects and canonical recovery semantics unresolved.
   - id: av.vision-analysis
     canonicalId: av.vision-analysis
     handler: VisionAnalysisToolHandler
+    handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java
     registration: AudioVideoToolHandlerFactory
     experienceBinding: pending-owner-review
+    executionAdmitted: false
+    operationBinding: {value: null, status: unresolved-owner-and-operation-mapping}
     inputSchema:
-      status: partial-source-observation; non-authoritative
-      sourceRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#observedHandlerInventory.tools[av.vision-analysis]
-      observedFields:
-        mediaSource: object with mediaArtifactId or imageBytes; flat mediaArtifactId fallback observed; full types, bounds, authorization and closed-schema behavior pending
-        analysisTypes: optional list; observed default [OBJECT_DETECTION]; values/bounds pending
-        maxResults: optional integer conversion; observed default 10; range pending
-    resultSchema: {value: null, status: pending, reason: versioned findings, uncertainty, finality and evidence contract unavailable}
-    authorityAndDelegation: {value: null, status: pending, reason: invocation-time source scope, policy and delegation contract unavailable}
-    idempotency: {value: null, status: pending, reason: provider effects and duplicate semantics unavailable; automatic retry not authorized}
-    timeout: {value: null, status: pending, reason: finite runtime/provider deadline unavailable}
-    cancellation: {value: null, status: pending, reason: cancellation and race semantics unavailable}
-    unknownOutcome: {value: null, status: pending, reason: canonical non-final result and original-operation resolution unavailable}
-    evidence: {value: null, status: pending, reason: model/provider provenance and source/version integrity contract unavailable}
-    safeFailure: observed handler rejects missing source or missing delegate; canonical bounded error and partial-result rules pending
+      observationStatus: handler-source-observation-only
+      schemaVersion: {value: null, status: not-declared-by-handler}
+      closed: false
+      sourceType: Map<String,Object> from ToolExecutionEnvelope.input()
+      fields:
+        - {name: mediaSource, type: "Map<?,?> when recognized", presence: optional-wrapper, sourceExpression: 'input.get("mediaSource")', semantics: nested source wrapper}
+        - {name: mediaSource.mediaArtifactId, type: Object, presence: accepted-if-key-present, sourceExpression: 'srcMap.containsKey("mediaArtifactId")', validation: value type, nonblankness, resource resolution and bounds not checked}
+        - {name: mediaSource.imageBytes, type: Object, presence: accepted-if-key-present, sourceExpression: 'srcMap.containsKey("imageBytes")', validation: value type and byte bounds not checked}
+        - {name: mediaArtifactId, type: Object, presence: accepted-flat-fallback-if-key-present, sourceExpression: 'input.containsKey("mediaArtifactId")', validation: value type, nonblankness and resource resolution not checked}
+        - {name: analysisTypes, type: unchecked List<String> cast from Object, presence: optional, default: [OBJECT_DETECTION], sourceExpression: '(List<String>) input.getOrDefault("analysisTypes", List.of("OBJECT_DETECTION"))', validation: element types and supported values not checked}
+        - {name: maxResults, type: Number converted with intValue or fallback, presence: optional, default: 10, sourceExpression: 'toInt(input.getOrDefault("maxResults", 10))', validation: non-Number silently becomes 10; fractional values truncate; range not checked}
+      rejection: Throws IllegalArgumentException("mediaSource must contain mediaArtifactId or imageBytes") if no recognized nested key and no flat mediaArtifactId key; unknown fields are not rejected.
+    observedResult:
+      javaType: Promise<ToolExecutionResult>
+      schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
+      success: Exact delegate Promise is returned without output validation; result fields/schema are not visible here.
+      noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video Vision provider unavailable: no vision analysis service delegate configured", invocationId, end, elapsed Duration)'
+      caughtException: 'ToolExecutionResult.failed(invocationId, "Vision analysis error: " + exception message, invocationId, end, elapsed Duration)'
+      finality: {value: null, status: not-established-by-handler-or-delegate-contract}
+      errorDisclosure: Caught exception message is interpolated without sanitization or bounds in this handler.
+    safetyAndEffects:
+      envelopeChecks: Objects.requireNonNull(envelope) and Objects.requireNonNull(contract)
+      nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.
+      delegateInputForwarding: When configured, delegate.handle receives the original envelope and contract unchanged.
+      observedContext: Logs invocationId and tenantId; these values are not authorization checks.
+      effect: No provider operation is performed by this adapter; any effect is delegated and unresolved.
+      authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}
+      timeoutCancellationIdempotencyEvidence: {value: null, status: not-shown-by-handler}
+    availability: {value: null, status: unresolved-delegate-and-runtime-binding}
+    safeFailure: Handler returns local failed result for invalid source, missing delegate, or caught exception; sanitized error, post-dispatch state and canonical recovery semantics unresolved.
   - id: av.multimodal-inference
     canonicalId: av.multimodal-inference
     handler: MultimodalInferenceToolHandler
+    handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java
     registration: AudioVideoToolHandlerFactory
     experienceBinding: pending-owner-review
+    executionAdmitted: false
+    operationBinding: {value: null, status: unresolved-owner-and-operation-mapping}
     inputSchema:
-      status: partial-source-observation; non-authoritative
-      sourceRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#observedHandlerInventory.tools[av.multimodal-inference]
-      observedFields:
-        mediaArtifactId: required nonblank string observed
-        inferenceMode: optional; observed default SUMMARY; allowed values/bounds pending
-        enableTranscription: optional boolean-like value; observed default enabled unless explicitly false
-        enableVisionAnalysis: optional boolean-like value; observed default enabled unless explicitly false
-    resultSchema: {value: null, status: pending, reason: versioned component outputs, partial-result and evidence contract unavailable}
-    authorityAndDelegation: {value: null, status: pending, reason: per-component invocation-time resource, policy and delegation contract unavailable}
-    idempotency: {value: null, status: pending, reason: component/provider duplicate semantics unavailable; automatic retry not authorized}
-    timeout: {value: null, status: pending, reason: finite end-to-end and component deadlines unavailable}
-    cancellation: {value: null, status: pending, reason: component cancellation and partial-completion race semantics unavailable}
-    unknownOutcome: {value: null, status: pending, reason: component operation resolution unavailable}
-    evidence: {value: null, status: pending, reason: per-component source/version and provider provenance contract unavailable}
-    safeFailure: observed handler rejects missing artifact ID or missing delegate; canonical bounded error and partial-effect/result rules pending
+      observationStatus: handler-source-observation-only
+      schemaVersion: {value: null, status: not-declared-by-handler}
+      closed: false
+      sourceType: Map<String,Object> from ToolExecutionEnvelope.input()
+      fields:
+        - {name: mediaArtifactId, type: String, presence: required, sourceExpression: 'requireString(input, "mediaArtifactId")', validation: must be nonblank}
+        - {name: inferenceMode, type: String cast from Object, presence: optional, default: SUMMARY, sourceExpression: '(String) input.getOrDefault("inferenceMode", "SUMMARY")', validation: allowed values and bounds not checked}
+        - {name: enableTranscription, type: boolean, presence: optional, default: true, sourceExpression: '!Boolean.FALSE.equals(input.get("enableTranscription"))', validation: only Boolean.FALSE disables}
+        - {name: enableVisionAnalysis, type: boolean, presence: optional, default: true, sourceExpression: '!Boolean.FALSE.equals(input.get("enableVisionAnalysis"))', validation: only Boolean.FALSE disables}
+      rejection: Missing or blank mediaArtifactId throws IllegalArgumentException("Required input field 'mediaArtifactId' is missing or blank"); wrong String casts may throw and be caught; unknown fields are not rejected.
+    observedResult:
+      javaType: Promise<ToolExecutionResult>
+      schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
+      success: Exact delegate Promise is returned without output validation; component or partial-result semantics are not visible here.
+      noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video Multimodal provider unavailable: no multimodal inference service delegate configured", invocationId, end, elapsed Duration)'
+      caughtException: 'ToolExecutionResult.failed(invocationId, "Multimodal inference error: " + exception message, invocationId, end, elapsed Duration)'
+      finality: {value: null, status: not-established-by-handler-or-delegate-contract}
+      errorDisclosure: Caught exception message is interpolated without sanitization or bounds in this handler.
+    safetyAndEffects:
+      envelopeChecks: Objects.requireNonNull(envelope) and Objects.requireNonNull(contract)
+      nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.
+      delegateInputForwarding: When configured, delegate.handle receives the original envelope and contract unchanged.
+      observedContext: Logs invocationId and tenantId; these values are not authorization checks.
+      effect: No inference component is invoked by this adapter; any component work/effects are delegated and unresolved.
+      authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}
+      timeoutCancellationIdempotencyEvidence: {value: null, status: not-shown-by-handler}
+    availability: {value: null, status: unresolved-delegate-and-runtime-binding}
+    safeFailure: Handler returns local failed result for invalid artifact ID, missing delegate, or caught exception; sanitized error, partial effects/results and canonical recovery semantics unresolved.

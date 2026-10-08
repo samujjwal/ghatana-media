@@ -584,6 +584,71 @@ recordedHumanDecisionInputs:
     - Public owner acceptance, license/codec/model authorization, provider operation or production deployment
     - Independent visual, screen-reader, security, legal or accessibility signoff
     - Lifecycle-admitted proof/currentness/receipts or production release readiness
+  normalizedPolicyDispositions:
+    sourceDecisionId: PXD-026
+    decisionOwner: media-product-owner-delegate
+    decisionSource: .product-experience/decision-log.md#PXD-026
+    sourceOfDecision: explicit-2026-10-07-user-delegation-to-resolve-media-product-owner-decisions
+    decisionDate: '2026-10-07'
+    scopeBoundary: policy-decision-only; no-per-record-binding-acceptance-or-PDP-phase-acceptance
+    allowedDispositions: [ACCEPTED, REJECTED_WITH_REASON, REWORK_REQUIRED, REQUIRES_INDEPENDENT_REVIEW, NOT_APPLICABLE_WITH_REASON]
+    records:
+      - id: MEDIA-OWNER-20261007-01
+        topic: canonical-phase-authority
+        disposition: ACCEPTED
+        scope: PDP-0 through PDP-3 are independent authored sources of truth; this does not make phase acceptance a production deployment gate.
+        evidenceRefs: [.product-experience/reviews/2026-10-07-owner-decision-and-resolution.md, .product-experience/authority-map.yaml]
+      - id: MEDIA-OWNER-20261007-02
+        topic: source-and-channel-aware-capability-disposition
+        disposition: ACCEPTED
+        scope: capability applicability is source- and channel-aware; this is not a per-leaf implementation or availability claim.
+        evidenceRefs: [.product-experience/reviews/2026-10-07-owner-decision-and-resolution.md, .product-experience/pdp-0-product-truth/capabilities.yaml]
+      - id: MEDIA-OWNER-20261007-03
+        topic: migration-normative-content-decomposition
+        disposition: ACCEPTED
+        scope: migration normative content is decomposed and routed by source authority; legacy implementation text is not promoted to competing product authority.
+        evidenceRefs: [.product-experience/reviews/2026-10-07-owner-decision-and-resolution.md, .product-experience/pdp-0-product-truth/migration-semantics-review.yaml]
+      - id: MEDIA-OWNER-20261007-04
+        topic: distinct-job-attempt-delivery-identities
+        disposition: ACCEPTED
+        scope: job, attempt, and delivery are distinct state machines; identical state spelling does not establish identity across machines.
+        evidenceRefs: [.product-experience/pdp-1-domain-data/state-adjudication.yaml, .product-experience/reviews/2026-10-07-owner-decision-and-resolution.md]
+      - id: MEDIA-OWNER-20261007-05
+        topic: legacy-state-non-equivalence
+        disposition: ACCEPTED
+        scope: ingress ACCEPTED is not durable job QUEUED; legacy RETRYING and CANCELLING are not canonical job states; attempt cancellation request is not confirmed job cancellation.
+        evidenceRefs: [.product-experience/pdp-1-domain-data/state-adjudication.yaml, .product-experience/reviews/2026-10-07-owner-decision-and-resolution.md]
+      - id: MEDIA-OWNER-20261007-06
+        topic: output-partial-success-and-cancellation-finality
+        disposition: ACCEPTED
+        scope: output, partial-success, and cancellation finality are explicit policies; partial success requires declared closed sub-effect dispositions and cancellation requires authoritative confirmation.
+        evidenceRefs: [.product-experience/pdp-1-domain-data/state-adjudication.yaml, .product-experience/reviews/2026-10-07-owner-decision-and-resolution.md]
+      - id: MEDIA-OWNER-20261007-07
+        topic: preserve-unknown-outcome
+        disposition: ACCEPTED
+        scope: unknown outcome remains distinct from running or failure and does not authorize automatic replay.
+        evidenceRefs: [.product-experience/pdp-1-domain-data/state-adjudication.yaml, .product-experience/reviews/2026-10-07-owner-decision-and-resolution.md]
+      - id: MEDIA-OWNER-20261007-08
+        topic: typed-operation-and-transport-classification
+        disposition: ACCEPTED
+        scope: operation identity and transport-specific interface classification remain distinct; mappings require exact source identity.
+        evidenceRefs: [.product-experience/interface-parity/operation-parity.yaml, .product-experience/reviews/2026-10-07-owner-decision-and-resolution.md]
+      - id: MEDIA-OWNER-20261007-09
+        topic: public-media-product-renderer-parity-target
+        disposition: ACCEPTED
+        scope: the public MediaProductRenderer is the parity target for compatible GUI cases; this does not establish package admission or renderer parity evidence.
+        evidenceRefs: [.product-experience/reviews/2026-10-07-owner-decision-and-resolution.md, .product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md]
+      - id: MEDIA-OWNER-20261007-10
+        topic: candidate-only-third-party-admission
+        disposition: ACCEPTED
+        scope: third-party dependencies remain candidates until separate licensing, asset, model, codec, and distribution review.
+        evidenceRefs: [.product-experience/reviews/2026-10-07-owner-decision-and-resolution.md, .product-experience/pdp-0-product-truth/reuse-decisions.yaml]
+      - id: MEDIA-OWNER-20261007-11
+        topic: lifecycle-input-ready-transition-policy
+        disposition: ACCEPTED
+        scope: Lifecycle input preflight may transition from pending only with justified inputs; Media does not author Lifecycle closure, currentness, or receipts.
+        evidenceRefs: [.product-experience/reviews/2026-10-07-owner-decision-and-resolution.md, scripts/lib/media-closure-preflight.mjs]
+
 - id: ACCEPT-INPUT-MEDIA-OWNER-GATES-20261007
   phaseTask: CROSS-PDP-REMAINING-GATE-OWNER-POLICIES-20261007
   decisionInput: accepted

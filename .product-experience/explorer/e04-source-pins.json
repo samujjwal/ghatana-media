@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "media.e04-source-pins.v1",
+  "scope": "byte-level stale-source guard for deterministic mock-fixture and browser-audit inputs",
+  "authority": "local negative drift check only; not semantic currentness, Lifecycle admission, provider/runtime proof, or acceptance",
+  "sources": [
+    {
+      "path": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+      "role": "PDP-3 scenario identities, source fixture references, and expected proposals",
+      "sha256": "f93b763618765dd008c8c1a96836831402c3c53034741fb3092da9f686bc6aa2"
+    },
+    {
+      "path": ".product-experience/explorer/scenario-fixtures.yaml",
+      "role": "Explorer synthetic fixture index and payload-to-scenario links",
+      "sha256": "3daf34a9cc2a6ff43623823e62bc143ccb259b572097fcf27896f94038f3d1c7"
+    },
+    {
+      "path": "libs/media-experience-simulation/src/fixtures.ts",
+      "role": "Deterministic simulation seed payloads",
+      "sha256": "53de214a23fb916ed405b6c1d509d891f98a80fc66a27830675578a4154fdda4"
+    },
+    {
+      "path": "scripts/check-experience-browser.mjs",
+      "role": "Browser audit harness used for local fixture-route smoke observations",
+      "sha256": "4587ca0ff95c99f7126f86aba3a34adf256da31f49b75ab74ec675cb16eaa0df"
+    }
+  ]
+}

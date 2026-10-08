@@ -72,6 +72,26 @@ export function validateMediaClosureInputState({
   assert.equal(consumer.schemaVersion, 'ghatana.closure.consumer');
   assert.deepEqual(consumer.contractSet, { id: 'ghatana.closure', version: '1' });
   assert.ok(Array.isArray(consumer.providerBindings));
+  const providerBindingIds = new Set();
+  for (const binding of consumer.providerBindings) {
+    assert.equal(binding.schemaVersion, 'closure-provider-binding',
+      'provider bindings must use the public Lifecycle binding contract');
+    assert.ok(typeof binding.bindingId === 'string' && binding.bindingId.length > 0,
+      'provider binding needs a stable bindingId');
+    assert.ok(!providerBindingIds.has(binding.bindingId),
+      `duplicate provider binding ${binding.bindingId}`);
+    providerBindingIds.add(binding.bindingId);
+    assert.ok(typeof binding.capability === 'string' && binding.capability.length > 0,
+      `${binding.bindingId} needs a capability`);
+    assert.equal(binding.providerRef?.schemaVersion, 'closure-provider-ref',
+      `${binding.bindingId} needs a public provider reference`);
+    assert.ok(typeof binding.providerRef?.id === 'string' && binding.providerRef.id.length > 0,
+      `${binding.bindingId} needs a provider identity`);
+    assert.ok(typeof binding.providerRef?.version === 'string' && binding.providerRef.version.length > 0,
+      `${binding.bindingId} needs a versioned provider identity`);
+    assert.ok(binding.selection && ['SINGLE', 'MULTI'].includes(binding.selection.mode),
+      `${binding.bindingId} has an invalid provider selection mode`);
+  }
   for (const key of ['surfaces', 'phasePrograms', 'phaseBindings', 'obligations']) {
     assert.ok(consumer.sources[key]?.length > 0, `missing consumer source ${key}`);
   }
@@ -92,7 +112,13 @@ export function validateMediaClosureInputState({
     'Media input readiness is not Lifecycle closure');
   assert.deepEqual(pending.blockers, [], 'input-ready declarations cannot retain known blockers');
   assert.ok(consumer.providerBindings.length > 0,
-    'input ready needs admitted provider bindings, not a placeholder');
+    'input ready needs provider bindings; provider admission is checked separately');
+  assert.equal(consumer.providerRegistry?.schemaVersion, 'closure-source-ref',
+    'input ready requires the Lifecycle provider registry source');
+  assert.equal(consumer.providerRegistry?.kind, 'file',
+    'input ready requires a file-backed Lifecycle provider registry');
+  assert.ok(typeof consumer.providerRegistry?.ref === 'string' && consumer.providerRegistry.ref.length > 0,
+    'input ready requires a versioned public provider registry source');
   for (const obligation of obligations) {
     for (const key of ['caseIds', 'observerIds', 'oracleIds']) {
       assert.ok(Array.isArray(obligation[key]) && obligation[key].length > 0,

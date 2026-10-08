@@ -1,0 +1,84 @@
+schemaVersion: media.gui-recipe-chain-review.v1
+owner: ghatana-media-product-experience
+authority: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+scopeStatus: Media recipe identities owner-approved; Shared binding and screen-instance admission pending
+sourceRefs:
+  - .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/layout.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml
+  - .product-experience/pdp-3-product-experience/screen-contracts/*.yaml
+recipeCatalog:
+  path: .product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml
+  status: OWNER_APPROVED_AS_DEFINITION_RECIPES
+  admissionStatus: SHARED_COMPONENT_AND_SCREEN_INSTANCE_ADMISSION_PENDING
+  records:
+    - id: media.gui.recipe.collection
+      templateRef: media.gui.template.collection
+      semanticPattern: media.gui.pattern.project-browser
+    - id: media.gui.recipe.workbench
+      templateRef: media.gui.template.workbench
+      semanticPattern: media.gui.pattern.transcript-and-playback
+    - id: media.gui.recipe.job-observation
+      templateRef: media.gui.template.job-observation
+      semanticPattern: media.gui.pattern.job-status-and-recovery
+    - id: media.gui.recipe.review-and-compare
+      templateRef: media.gui.template.review-and-compare
+      semanticPattern: media.gui.pattern.version-comparison
+    - id: media.gui.recipe.consent-gate
+      templateRef: media.gui.template.consent-gate
+      semanticPattern: media.gui.pattern.rights-and-consent-review
+    - id: media.gui.recipe.render-preparation-and-review
+      templateRef: media.gui.template.render-preparation-and-review
+      semanticPattern: media.gui.pattern.rendering
+    - id: media.gui.recipe.lifecycle-confirmation
+      templateRef: media.gui.template.lifecycle-confirmation
+      semanticPattern: media.gui.pattern.destructive-lifecycle-action
+    - id: media.gui.recipe.task-setup
+      templateRef: media.gui.template.task-setup
+      semanticPattern: media.gui.pattern.intent-launcher
+chains:
+  - templateRef: media.gui.template.collection
+    recipeRef: media.gui.recipe.collection
+    patternRefs: [media.gui.pattern.project-browser]
+    screenDerivedLayoutRefs: [media.gui.layout.collection]
+  - templateRef: media.gui.template.workbench
+    recipeRef: media.gui.recipe.workbench
+    patternRefs: [media.gui.pattern.transcript-and-playback, media.gui.pattern.caption-editor]
+    screenDerivedLayoutRefs: [media.gui.layout.media-workbench]
+  - templateRef: media.gui.template.job-observation
+    recipeRef: media.gui.recipe.job-observation
+    patternRefs: [media.gui.pattern.job-status-and-recovery, media.gui.pattern.activity-attention, media.gui.pattern.safe-confirmation-and-unknown-outcome]
+    screenDerivedLayoutRefs: [media.gui.layout.job-observation]
+  - templateRef: media.gui.template.review-and-compare
+    recipeRef: media.gui.recipe.review-and-compare
+    patternRefs: [media.gui.pattern.version-comparison, media.gui.pattern.review-approval, media.gui.pattern.quality-and-uncertainty, media.gui.pattern.provenance-and-lineage]
+    screenDerivedLayoutRefs: [media.gui.layout.review, media.gui.layout.record-detail]
+  - templateRef: media.gui.template.consent-gate
+    recipeRef: media.gui.recipe.consent-gate
+    patternRefs: [media.gui.pattern.rights-and-consent-review]
+    screenDerivedLayoutRefs: [media.gui.layout.consent]
+  - templateRef: media.gui.template.render-preparation-and-review
+    recipeRef: media.gui.recipe.render-preparation-and-review
+    patternRefs: [media.gui.pattern.rendering, media.gui.pattern.review-approval, media.gui.pattern.provenance-and-lineage]
+    screenDerivedLayoutRefs: [media.gui.layout.render]
+  - templateRef: media.gui.template.lifecycle-confirmation
+    recipeRef: media.gui.recipe.lifecycle-confirmation
+    patternRefs: [media.gui.pattern.destructive-lifecycle-action, media.gui.pattern.safe-confirmation-and-unknown-outcome]
+    screenDerivedLayoutRefs: []
+    blocker: no PDP-3 screen contract selects this template or supplies a layout binding
+  - templateRef: media.gui.template.task-setup
+    recipeRef: media.gui.recipe.task-setup
+    patternRefs: [media.gui.pattern.intent-launcher, media.gui.pattern.creation-plan-review, media.gui.pattern.source-picker, media.gui.pattern.safe-confirmation-and-unknown-outcome, media.gui.pattern.upload-and-verification]
+    screenDerivedLayoutRefs: [media.gui.layout.task-setup]
+residuals:
+  - screen-composition-schema-has-templateRef-but-no-recipeRef; all 47 PDP-3 screen contracts bind templateId, layoutIds, and patternIds only
+  - registered-pattern-sourceRefs and canonical-layout records describe UI composition; neither supplies a recipe identity or an explicit recipe-to-template link
+  - PDP-0 media.recipe.template capability records describe processing recipes and do not explicitly bind to any of the eight GUI templates
+  - lifecycle-confirmation-has-no-screen-derived-layout-binding
+  - Shared-public-package-admission-and-independent-accessibility-review-remain-pending
+admissionResiduals:
+  - Shared public-package binding and implementation verification remain pending
+  - All 47 screen-instance admissions and independent accessibility review remain pending
+acceptance: NOT_CLAIMED
