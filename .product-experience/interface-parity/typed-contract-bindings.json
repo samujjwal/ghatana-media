@@ -23,7 +23,6 @@
       "type": "MediaClassification",
       "schema": "MediaClassificationSchema",
       "role": "VALUE_OBJECT",
-      "semanticRef": "media.policy.classification",
       "reason": "classification vocabulary only; no privilege inference",
       "source": "libs/audio-video-types/src/contracts.ts",
       "admission": "SOURCE_ROLE_ONLY"
@@ -41,7 +40,7 @@
       "type": "MediaArtifactStatus",
       "schema": "MediaArtifactStatusSchema",
       "role": "STATE_PROJECTION",
-      "semanticRef": "media-artifact",
+      "semanticRef": "media-upload-and-artifact",
       "reason": "legacy artifact status projection; no canonical state equivalence inferred",
       "source": "libs/audio-video-types/src/contracts.ts",
       "admission": "SOURCE_ROLE_ONLY"
@@ -68,7 +67,6 @@
       "type": "MediaOperationKind",
       "schema": "MediaOperationKindSchema",
       "role": "VALUE_OBJECT",
-      "semanticRef": "media.operation.catalog",
       "reason": "observed operation names are not canonical PDP-1 operation identities",
       "source": "libs/audio-video-types/src/contracts.ts",
       "admission": "SOURCE_ROLE_ONLY"
@@ -95,7 +93,7 @@
       "type": "MediaProcessingJob",
       "schema": "MediaProcessingJobSchema",
       "role": "DOMAIN_OBJECT",
-      "semanticRef": "media.domain.job",
+      "semanticRef": "media.domain.processing-job",
       "reason": "job state, attempt, version and finality remain separate dimensions",
       "source": "libs/audio-video-types/src/contracts.ts",
       "admission": "SOURCE_ROLE_ONLY"
@@ -113,7 +111,6 @@
       "type": "MediaCanonicalError",
       "schema": "MediaCanonicalErrorSchema",
       "role": "ERROR_CONTRACT",
-      "semanticRef": "media.interface.error",
       "reason": "typed error projection, not proof of effect finality",
       "source": "libs/audio-video-types/src/contracts.ts",
       "admission": "SOURCE_ROLE_ONLY"
@@ -158,7 +155,6 @@
       "type": "VoiceTrainingRequest",
       "schema": "VoiceTrainingRequestSchema",
       "role": "NOT_ADMITTED_SPECIALIZED_OPERATION",
-      "semanticRef": "media.operation.synthesis",
       "reason": "no approved training invocation or model-asset/consent qualification",
       "source": "libs/audio-video-types/src/contracts.ts",
       "admission": "SOURCE_ROLE_ONLY"
@@ -167,7 +163,6 @@
       "type": "VoiceConversionRequest",
       "schema": "VoiceConversionRequestSchema",
       "role": "NOT_ADMITTED_SPECIALIZED_OPERATION",
-      "semanticRef": "media.operation.synthesis",
       "reason": "request type does not establish admitted conversion operation or rights",
       "source": "libs/audio-video-types/src/contracts.ts",
       "admission": "SOURCE_ROLE_ONLY"
