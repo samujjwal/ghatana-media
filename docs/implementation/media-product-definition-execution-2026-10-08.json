@@ -317,7 +317,12 @@
       "log": "/tmp/media-execution/definition-final-source-checks.log"
     },
     "originalLedgerIntegrity": "71 original IDs, titles, statuses and Done predicates compared with base main and unchanged",
-    "gitDiffCheck": "PASS"
+    "gitDiffCheck": "PASS",
+    "lifecycleSourceCheck": {
+      "command": "node scripts/generate-media-lifecycle-source-inputs.mjs --check",
+      "result": "PASS",
+      "log": "/tmp/media-execution/definition-lifecycle-check-final.log"
+    }
   },
   "publicDependencyVersions": {
     "Tools": "0.1.0-rc.1",
@@ -354,5 +359,13 @@
       "artifact": "config/closure/media-product-definition/obligations.json"
     }
   ],
-  "nextDefinitionBatch": "Complete the remaining selected upload/artifact definition constraints and cross-phase action/effect/recovery projections, then the next existing canonical journey; no new runtime implementation or production activation."
+  "nextDefinitionBatch": "Complete the remaining selected upload/artifact definition constraints and cross-phase action/effect/recovery projections, then the next existing canonical journey; no new runtime implementation or production activation.",
+  "committedSourceCheckpoint": {
+    "mainCommit": "26c1f231545abb7b5fd6f9676a2a83ef434d7a94",
+    "originMainSynchronized": true,
+    "worktreeAfterSourceCommit": "CLEAN",
+    "pendingImplementationStashRetained": true,
+    "scope": "Definition source, validators, projections and original-ledger scope correction; no application implementation",
+    "evidenceBoundary": "This subsequent report-only checkpoint records the source commit, avoiding a self-referential commit hash."
+  }
 }
