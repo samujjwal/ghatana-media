@@ -426,6 +426,20 @@ describe("MediaOperationClient", () => {
     },
   );
 
+  it("keeps configured principal scope stable when callers mutate the original headers", async () => {
+    const originalHeaders = { "X-Principal-Id": "principal-1" };
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(canonicalArtifact())) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", defaultHeaders: originalHeaders, fetchImpl,
+    });
+    originalHeaders["X-Principal-Id"] = "principal-2";
+    await expect(client.getArtifact("artifact-1")).resolves.toEqual(canonicalArtifact());
+    const [, init] = (fetchImpl as unknown as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
+    expect(new Headers(init.headers).get("X-Principal-Id")).toBe("principal-1");
+    delete (originalHeaders as Partial<typeof originalHeaders>)["X-Principal-Id"];
+    await expect(client.getArtifact("artifact-1")).resolves.toEqual(canonicalArtifact());
+  });
+
   it("reads the canonical artifact DTO through the tenant- and principal-scoped route", async () => {
     const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(canonicalArtifact())) as unknown as typeof fetch;
     const client = createMediaOperationClient({

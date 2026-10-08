@@ -425,7 +425,8 @@ export class MediaOperationClient {
     if (!this.tenantId) throw new Error("Media client tenantId is required.");
     this.fetchImpl = config.fetchImpl ?? fetch;
     this.getAccessToken = config.getAccessToken;
-    this.defaultHeaders = config.defaultHeaders ?? {};
+    // The configured caller identity must not change through an external mutable alias.
+    this.defaultHeaders = Object.freeze({ ...config.defaultHeaders });
     this.requestTimeoutMs = boundedPositive(config.requestTimeoutMs, 30_000);
     this.pollIntervalMs = boundedPositive(config.pollIntervalMs, 1_000);
     const requestContext = config.requestContext ?? {};

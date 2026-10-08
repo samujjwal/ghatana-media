@@ -29,6 +29,7 @@ lombok = "1.18.46"
 micrometer = "1.17.1"
 mockito = "5.23.0"
 native-lib-loader = "2.4.0"
+networknt = "3.0.6"
 nimbus-jose-jwt = "10.9.1"
 onnx-runtime = "1.29.0"
 opencv = "4.9.0-0"
@@ -43,6 +44,8 @@ swagger-annotations = "2.2.28"
 testcontainers = "2.0.5"
 
 [libraries]
+# AI Inference public request-schema test dependency used by standalone service integration.
+networknt-validator = { module = "com.networknt:json-schema-validator", version = { ref = "networknt" } }
 activej-common = { group = "io.activej", name = "activej-common", version = { ref = "activej" } }
 activej-core = { group = "io.activej", name = "activej-eventloop", version = { ref = "activej" } }
 activej-eventloop = { group = "io.activej", name = "activej-eventloop", version = { ref = "activej" } }

@@ -217,8 +217,10 @@ public final class MediaFormatValidator {
             }
 
             int offset = 12; // Start after RIFF + WAVE
+            int sampleRate = 0, numChannels = 0, bitsPerSample = 0, blockAlign = 0;
+            boolean formatSeen = false, dataSeen = false;
 
-            // Find fmt chunk
+            // Validate every chunk before admitting the container metadata.
             while ((long) offset <= riffEnd - 8L) {
                 String chunkId = new String(data, offset, 4, StandardCharsets.US_ASCII);
                 long chunkSize = Integer.toUnsignedLong((data[offset + 4] & 0xFF) |
@@ -244,14 +246,15 @@ public final class MediaFormatValidator {
                     if (chunkSize < 16) {
                         return AudioValidationResult.error("WAV fmt chunk is shorter than the PCM header");
                     }
-                    // Found fmt chunk
+                    if (formatSeen) return AudioValidationResult.error("WAV contains duplicate fmt chunks");
+                    formatSeen = true;
                     int audioFormat = (data[offset + 8] & 0xFF) | ((data[offset + 9] & 0xFF) << 8);
-                    int numChannels = (data[offset + 10] & 0xFF) | ((data[offset + 11] & 0xFF) << 8);
-                    int sampleRate = (data[offset + 12] & 0xFF) |
+                    numChannels = (data[offset + 10] & 0xFF) | ((data[offset + 11] & 0xFF) << 8);
+                    sampleRate = (data[offset + 12] & 0xFF) |
                                     ((data[offset + 13] & 0xFF) << 8) |
                                     ((data[offset + 14] & 0xFF) << 16) |
                                     ((data[offset + 15] & 0xFF) << 24);
-                    int bitsPerSample = (data[offset + 22] & 0xFF) | ((data[offset + 23] & 0xFF) << 8);
+                    bitsPerSample = (data[offset + 22] & 0xFF) | ((data[offset + 23] & 0xFF) << 8);
 
                     if (audioFormat != 1) { // PCM = 1
                         return AudioValidationResult.error("Unsupported audio format: " + audioFormat + " (only PCM supported)");
@@ -261,19 +264,43 @@ public final class MediaFormatValidator {
                         return AudioValidationResult.error("WAV PCM channel, sample-rate, and bit-depth values must be positive");
                     }
 
-                    if (expectedSampleRate > 0 && sampleRate != expectedSampleRate) {
-                        return AudioValidationResult.warning("Sample rate mismatch: expected " +
-                            expectedSampleRate + " Hz but got " + sampleRate + " Hz");
+                    // This parser implements the unambiguous basic PCM shape only; extensible
+                    // channel masks and valid-bit/container distinctions require their own parser.
+                    if (numChannels > 2 || (bitsPerSample != 8 && bitsPerSample != 16)) {
+                        return AudioValidationResult.error("Unsupported basic WAV PCM channel or bit-depth layout");
                     }
-
-                    return AudioValidationResult.success("WAV", data.length, sampleRate, numChannels, bitsPerSample);
+                    blockAlign = (data[offset + 20] & 0xFF) | ((data[offset + 21] & 0xFF) << 8);
+                    long byteRate = Integer.toUnsignedLong((data[offset + 16] & 0xFF) |
+                            ((data[offset + 17] & 0xFF) << 8) | ((data[offset + 18] & 0xFF) << 16) |
+                            ((data[offset + 19] & 0xFF) << 24));
+                    if (bitsPerSample % 8 != 0 || blockAlign != (long) numChannels * (bitsPerSample / 8)) {
+                        return AudioValidationResult.error("WAV PCM block alignment disagrees with channels and bit depth");
+                    }
+                    if (byteRate != (long) sampleRate * blockAlign) {
+                        return AudioValidationResult.error("WAV PCM byte rate disagrees with sample rate and block alignment");
+                    }
+                } else if (chunkId.equals("data")) {
+                    if (!formatSeen) return AudioValidationResult.error("WAV data precedes fmt chunk");
+                    if (dataSeen) return AudioValidationResult.error("WAV contains duplicate data chunks");
+                    dataSeen = true;
+                    if (chunkSize == 0 || chunkSize % blockAlign != 0) {
+                        return AudioValidationResult.error("WAV PCM data must contain complete nonempty sample frames");
+                    }
                 }
 
                 // RIFF chunks with odd payload lengths include one pad byte.
                 offset = (int) paddedChunkEnd;
             }
 
-            return AudioValidationResult.error("WAV file missing fmt chunk");
+            if (offset != riffEnd) return AudioValidationResult.error("WAV has an incomplete trailing chunk header");
+            if (riffEnd != data.length) return AudioValidationResult.error("WAV contains bytes outside the RIFF container");
+            if (!formatSeen) return AudioValidationResult.error("WAV file missing fmt chunk");
+            if (!dataSeen) return AudioValidationResult.error("WAV file missing data chunk");
+            if (expectedSampleRate > 0 && sampleRate != expectedSampleRate) {
+                return AudioValidationResult.warning("Sample rate mismatch: expected " +
+                        expectedSampleRate + " Hz but got " + sampleRate + " Hz");
+            }
+            return AudioValidationResult.success("WAV", data.length, sampleRate, numChannels, bitsPerSample);
 
         } catch (Exception e) {
             return AudioValidationResult.error("Error parsing WAV header: " + e.getMessage());
