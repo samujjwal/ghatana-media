@@ -438,6 +438,7 @@ const definitions = [
     },
     ownerResolvers: (sources) => {
       const componentIds = new Set((sources.find((source) => source.sourceRef.endsWith("/component-contracts.yaml"))?.content?.components ?? []).map((component) => component.id));
+      const recipeIds = new Set((sources.find((source) => source.sourceRef.endsWith("/gui/recipes/catalog.yaml"))?.content?.recipes ?? []).map((recipe) => recipe.id));
       const stateIds = new Set((sources.find((source) => source.sourceRef.endsWith("/state-models.yaml"))?.content?.models ?? [])
         .flatMap((model) => [
           ...(model.states ?? []).filter((state) => state && typeof state === "object" && typeof state.id === "string").map((state) => `${model.modelId}.${state.id}`),
@@ -446,6 +447,7 @@ const definitions = [
         ]));
       return {
         resolveComponent: (ref) => componentIds.has(ref),
+        resolveRecipe: (ref) => recipeIds.has(ref),
         resolveDomainState: (ref) => stateIds.has(ref),
       };
     },
