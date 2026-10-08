@@ -17,6 +17,9 @@ const paths = {
   recipes: ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
   templates: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
   patterns: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
+  toolConventions: ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
+  toolRegistry: ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml",
+  operations: ".product-experience/pdp-1-domain-data/operations.yaml",
 };
 const unique = (items, field = "id") => new Set(items.map(x => x[field])).size === items.length;
 
@@ -96,4 +99,22 @@ test("every selected GUI template has an exact owned composition recipe and regi
     assert.equal(recipe.screenInstanceAdmission, "PENDING");
     assert.equal(recipe.sharedPublicBinding, "PENDING");
   }
+});
+
+test("all four Agent Tool semantic selections resolve existing observed IDs and PDP-1 families without execution admission", () => {
+  const selections = source(paths.toolConventions).ownerSemanticSelections;
+  const registry = source(paths.toolRegistry);
+  const operations = source(paths.operations);
+  const observed = new Set(registry.tools.map(x => x.id));
+  const canonical = new Set((operations.operations ?? []).map(x => x.id));
+  assert.equal(selections.tools.length, observed.size);
+  assert.ok(unique(selections.tools, "toolId"));
+  for (const tool of selections.tools) {
+    assert.ok(observed.has(tool.toolId), `no actual Agent Tool handler for ${tool.toolId}`);
+    assert.ok(canonical.has(tool.canonicalOperationFamily), `unregistered canonical operation family for ${tool.toolId}`);
+    assert.equal(tool.executionAdmitted, false);
+    assert.ok(Array.isArray(tool.requiredProof) && tool.requiredProof.length >= 5);
+    assert.ok(tool.inputBoundary && tool.effectSemantics);
+  }
+  assert.match(selections.status, /CONTRACT_AND_EXECUTION_ADMISSION_PENDING/);
 });
