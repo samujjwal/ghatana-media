@@ -35,7 +35,7 @@ vision.fusion-strategy=late-fusion
 - `libs/java/common` — shared config, `VisionEngineFactory`, cloud fallback
 - `modules/infrastructure/messaging` — job queue for async multimodal pipelines
 - `modules/infrastructure/security` — authentication interceptor
-- `services/ai-inference:delivery:api` — generic inference API; the inspected public request contract supports text generation and embeddings and has no modality field. Media audio, video, STT, TTS, vision, and multimodal operations remain unbound until an explicit typed modality contract is available.
+- `services/ai-inference:delivery:api` — generic inference API whose version 1.1.0 request schema now accepts either text input or 1–32 opaque `mediaInputs` references. Each media input carries modality (`AUDIO`, `VIDEO`, or `IMAGE`), constrained reference, media type, role, purpose, classification, and expiry. The references identify material only: the contract does not authorize dereferencing, establish rights or consent, or qualify a provider. Media operations remain unbound to this API; schema support does not qualify a Media runtime, model, storage path, or execution.
 - `platform:java:observability` — metrics and tracing
 
 ## Testing

@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@link ToolHandler} adapter for the Audio-Video Multimodal Inference service.
@@ -50,23 +51,25 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
         Objects.requireNonNull(contract, "contract must not be null");
 
         Instant start = Instant.now();
-        Map<String, Object> input = envelope.input();
+        Map<String, Object> input;
 
         log.debug("MultimodalInference invocation [{}] tenant={}", envelope.invocationId(), envelope.tenantId());
 
         try {
-            String mediaArtifactId = requireString(input, "mediaArtifactId");
-            String inferenceMode = (String) input.getOrDefault("inferenceMode", "SUMMARY");
-            boolean enableTranscription = !Boolean.FALSE.equals(input.get("enableTranscription"));
-            boolean enableVision = !Boolean.FALSE.equals(input.get("enableVisionAnalysis"));
+            input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("mediaArtifactId", "inferenceMode", "samplingRateMs", "enableTranscription", "enableVisionAnalysis", "languageCode"));
+            String mediaArtifactId = AgentToolInput.requiredString(input, "mediaArtifactId", 512);
+            Object mode = input.getOrDefault("inferenceMode", "SUMMARY");
+            if (!(mode instanceof String inferenceMode) || !Set.of("SUMMARY", "SEGMENT", "FRAME_BY_FRAME", "FULL").contains(inferenceMode)) throw new IllegalArgumentException("INVALID_INFERENCE_MODE");
+            Object sampling = input.getOrDefault("samplingRateMs", 1000);
+            if (!(sampling instanceof Number rate) || rate.intValue() != rate.doubleValue() || rate.intValue() < 100 || rate.intValue() > 60_000)
+                throw new IllegalArgumentException("INVALID_SAMPLING_RATE");
+            AgentToolInput.languageTag(input.get("languageCode"), "en-US");
+            boolean enableTranscription = optionalBoolean(input, "enableTranscription", true);
+            boolean enableVision = optionalBoolean(input, "enableVisionAnalysis", true);
+            if (!enableTranscription && !enableVision) throw new IllegalArgumentException("NO_MODALITY_SELECTED");
 
             log.debug("Multimodal: artifactId={} mode={} stt={} vision={}", mediaArtifactId, inferenceMode, enableTranscription, enableVision);
 
-            if (delegate == null) {
-                return providerUnavailable(envelope, start);
-            }
-
-            return delegate.handle(envelope, contract);
         } catch (Exception e) {
             log.error("MultimodalInference handler failed for invocation {}: {}", envelope.invocationId(), e.getMessage(), e);
             Instant end = Instant.now();
@@ -77,6 +80,8 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
                     end,
                     Duration.between(start, end)));
         }
+        if (delegate == null) return providerUnavailable(envelope, start);
+        return AgentToolInput.dispatch(delegate, envelope, contract);
     }
 
     private Promise<ToolExecutionResult> providerUnavailable(ToolExecutionEnvelope envelope, Instant start) {
@@ -95,6 +100,13 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
             throw new IllegalArgumentException("Required input field '" + key + "' is missing or blank");
         }
         return s;
+    }
+
+    private boolean optionalBoolean(Map<String, Object> input, String key, boolean fallback) {
+        Object value = input.get(key);
+        if (value == null) return fallback;
+        if (!(value instanceof Boolean flag)) throw new IllegalArgumentException("INVALID_" + key.toUpperCase());
+        return flag;
     }
 
 }

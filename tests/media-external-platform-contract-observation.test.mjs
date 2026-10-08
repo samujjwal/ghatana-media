@@ -22,7 +22,7 @@ test("external contract observation retains X-04/X-05/X-06 source limits", () =>
   assert.equal(observation.authority, "SOURCE_OBSERVATION_ONLY");
   assert.deepEqual(observation.gates.map(({ id }) => id), ["X-04", "X-05", "X-06"]);
   assert.match(observation.gates[0].status, /PUBLICATION_AND_QUALIFICATION_UNPROVEN/u);
-  assert.match(observation.gates[1].status, /TYPED_MEDIA_MODALITY_CONTRACT_NOT_OBSERVED/u);
+  assert.match(observation.gates[1].status, /VERSIONED_TYPED_MEDIA_INPUT_CONTRACT_OBSERVED/u);
   assert.match(observation.gates[2].status, /MEDIA_OPERATION_AND_LIFECYCLE_CROSSWALK_NOT_OBSERVED/u);
   assert.ok(observation.limits.some((item) => item.includes("does not prove remote publication")));
 });
@@ -134,8 +134,22 @@ test("available sibling source still matches the recorded contract facts", (t) =
 
   assert.match(aiContract, /version: 1\.1\.0/u);
   assert.match(aiContract, /familyId: TEXT_GENERATION[\s\S]*?operationTypes: \[LLM, COMPLETION\][\s\S]*?familyId: EMBEDDING[\s\S]*?operationTypes: \[EMBEDDING\]/u);
-  assert.match(aiContract, /type: \{ type: string, enum: \[LLM, EMBEDDING, COMPLETION\] \}/u);
-  assert.doesNotMatch(aiContract, /modality:/u);
+  const ai = parse(aiContract);
+  const inference = ai.components.schemas.InferenceRequest;
+  assert.deepEqual(inference.properties.type.enum, ["LLM", "EMBEDDING", "COMPLETION"]);
+  assert.equal(inference.properties.input.maxLength, 262144);
+  assert.equal(inference.properties.mediaInputs.minItems, 1);
+  assert.equal(inference.properties.mediaInputs.maxItems, 32);
+  assert.deepEqual(inference.oneOf, [
+    { required: ["input"], not: { required: ["mediaInputs"] } },
+    { required: ["mediaInputs"], not: { required: ["input"] } },
+  ]);
+  const mediaInput = inference.properties.mediaInputs.items;
+  assert.deepEqual(mediaInput.required, ["modality", "reference", "mediaType", "role", "purpose", "classification", "expiresAt"]);
+  assert.equal(mediaInput.additionalProperties, false);
+  assert.deepEqual(mediaInput.properties.modality.enum, ["AUDIO", "VIDEO", "IMAGE"]);
+  assert.match(mediaInput.description ?? inference.properties.mediaInputs.description,
+    /do not authorize dereferencing|Opaque Media artifact references/u);
   assert.match(dcContract, /"version": "1\.2\.1"/u);
   assert.match(dcContract, /"x-ghatana-lifecycle-status": "active"/u);
   assert.match(actionContract, /version: 1\.2\.0/u);

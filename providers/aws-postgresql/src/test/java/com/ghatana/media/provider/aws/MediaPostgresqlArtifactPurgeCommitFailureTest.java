@@ -59,11 +59,11 @@ class MediaPostgresqlArtifactPurgeCommitFailureTest {
                 var upload = artifacts.begin(new UploadRequest("tenant-complete-commit", "principal-complete-commit",
                         "complete.bin", "application/octet-stream", bytes.length, sha256(bytes),
                         "restricted", Duration.ofDays(30), Map.of()));
-                artifacts.append(upload.tenantId(), upload.uploadId(), 0, bytes);
+                artifacts.append(upload.tenantId(), upload.principalId(), upload.uploadId(), 0, bytes);
                 createDeferredArtifactInsertFailureTrigger();
 
                 try {
-                    assertThatThrownBy(() -> artifacts.complete(upload.tenantId(), upload.uploadId()))
+                    assertThatThrownBy(() -> artifacts.complete(upload.tenantId(), upload.principalId(), upload.uploadId()))
                             .isInstanceOf(IllegalStateException.class)
                             .hasMessageContaining("persist Media artifact")
                             .satisfies(failure -> assertThat(failure.getCause())
@@ -77,7 +77,7 @@ class MediaPostgresqlArtifactPurgeCommitFailureTest {
                     dropDeferredArtifactInsertFailureTrigger();
                 }
 
-                MediaArtifact artifact = artifacts.complete(upload.tenantId(), upload.uploadId());
+                MediaArtifact artifact = artifacts.complete(upload.tenantId(), upload.principalId(), upload.uploadId());
                 String key = java.net.URI.create(artifact.objectReference()).getPath().substring(1);
                 assertThat(artifact.sizeBytes()).isEqualTo(bytes.length);
                 assertThat(artifact.sha256()).isEqualTo(sha256(bytes));
@@ -126,8 +126,8 @@ class MediaPostgresqlArtifactPurgeCommitFailureTest {
                 var upload = artifacts.begin(new UploadRequest("tenant-commit", "principal-commit",
                         "commit.bin", "application/octet-stream", bytes.length, sha256(bytes),
                         "restricted", Duration.ofDays(30), Map.of()));
-                artifacts.append(upload.tenantId(), upload.uploadId(), 0, bytes);
-                MediaArtifact artifact = artifacts.complete(upload.tenantId(), upload.uploadId());
+                artifacts.append(upload.tenantId(), upload.principalId(), upload.uploadId(), 0, bytes);
+                MediaArtifact artifact = artifacts.complete(upload.tenantId(), upload.principalId(), upload.uploadId());
                 String key = java.net.URI.create(artifact.objectReference()).getPath().substring(1);
                 try (var connection = DriverManager.getConnection(POSTGRES.getJdbcUrl(),
                         POSTGRES.getUsername(), POSTGRES.getPassword());

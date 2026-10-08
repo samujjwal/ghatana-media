@@ -31,6 +31,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaLifecycleEvent;
+import com.ghatana.media.runtime.MediaJobRequestFingerprint;
+import com.ghatana.media.runtime.MediaJobRequestFingerprint.ProviderDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -267,20 +269,31 @@ public final class MediaRuntime implements AutoCloseable {
         return session;
     }
 
-    public UploadSession appendChunk(String tenantId, String uploadId, int chunkIndex, byte[] bytes) {
+    public UploadSession appendChunk(String tenantId, String principalId, String uploadId, int chunkIndex, byte[] bytes) {
         ensureOpen();
+        if (principalId == null || principalId.isBlank()) throw new SecurityException("Authenticated principal is required");
         if (bytes == null || bytes.length == 0 || bytes.length > config.maximumChunkBytes()) {
             throw new IllegalArgumentException(
                     "Chunk must contain between 1 and " + config.maximumChunkBytes() + " bytes");
         }
-        return artifactStore.append(tenantId, uploadId, chunkIndex, bytes);
+        return artifactStore.append(tenantId, principalId, uploadId, chunkIndex, bytes);
     }
 
-    public MediaArtifact completeUpload(String tenantId, String uploadId) {
+    /** @deprecated Principal-less upload mutation cannot prove ownership and always fails closed. */
+    @Deprecated
+    public UploadSession appendChunk(String tenantId, String uploadId, int chunkIndex, byte[] bytes) {
+        throw new SecurityException("Authenticated principal is required to append an upload");
+    }
+
+    public MediaArtifact completeUpload(String tenantId, String principalId, String uploadId) {
         ensureOpen();
+        if (principalId == null || principalId.isBlank()) throw new SecurityException("Authenticated principal is required");
         UploadSession upload = artifactStore.upload(tenantId, uploadId)
                 .orElseThrow(() -> new IllegalArgumentException("Media upload not found: " + uploadId));
-        MediaArtifact artifact = artifactStore.complete(tenantId, uploadId);
+        if (!upload.principalId().equals(principalId)) {
+            throw new IllegalArgumentException("Media upload not found: " + uploadId);
+        }
+        MediaArtifact artifact = artifactStore.complete(tenantId, principalId, uploadId);
         audit.info("MEDIA_UPLOAD_COMPLETED tenantId={} uploadId={} artifactId={} size={} sha256={} classification={}",
                 tenantId, uploadId, artifact.artifactId(), artifact.sizeBytes(), artifact.sha256(),
                 artifact.classification());
@@ -294,23 +307,35 @@ public final class MediaRuntime implements AutoCloseable {
         return artifact;
     }
 
+    /** @deprecated Principal-less upload mutation cannot prove ownership and always fails closed. */
+    @Deprecated
+    public MediaArtifact completeUpload(String tenantId, String uploadId) {
+        throw new SecurityException("Authenticated principal is required to finalize an upload");
+    }
+
+    /** @deprecated A tenant-scoped upload read is insufficient where sessions belong to principals. */
+    @Deprecated
     public Optional<UploadSession> upload(String tenantId, String uploadId) {
-        ensureOpen();
-        return artifactStore.upload(tenantId, uploadId);
+        throw new SecurityException("Authenticated principal is required to read a Media upload");
     }
 
     public Optional<UploadSession> upload(String tenantId, String principalId, String uploadId) {
-        return upload(tenantId, uploadId)
+        ensureOpen();
+        requirePrincipal(principalId);
+        return artifactStore.upload(tenantId, uploadId)
                 .filter(session -> session.principalId().equals(principalId));
     }
 
+    /** @deprecated A tenant-scoped artifact read is insufficient where artifacts belong to principals. */
+    @Deprecated
     public Optional<MediaArtifact> artifact(String tenantId, String artifactId) {
-        ensureOpen();
-        return artifactStore.artifact(tenantId, artifactId);
+        throw new SecurityException("Authenticated principal is required to read a Media artifact");
     }
 
     public Optional<MediaArtifact> artifact(String tenantId, String principalId, String artifactId) {
-        return artifact(tenantId, artifactId)
+        ensureOpen();
+        requirePrincipal(principalId);
+        return artifactStore.artifact(tenantId, artifactId)
                 .filter(value -> value.principalId().equals(principalId));
     }
 
@@ -323,6 +348,11 @@ public final class MediaRuntime implements AutoCloseable {
         }
         List<MediaProcessingProvider> providers = selectProcessingProviders(request);
         MediaProcessingProvider provider = providers.getFirst();
+        List<ProviderDescriptor> providerDescriptors = providers.stream()
+                .map(candidate -> new ProviderDescriptor(candidate.providerId(), candidate.providerVersion(),
+                        candidate.modelVersion(request.jobType())))
+                .toList();
+        String requestFingerprint = MediaJobRequestFingerprint.compute(request, providerDescriptors);
         if (MediaSemanticRedactionRuntime.promotionRequested(request) && !semanticRedaction.available()) {
             throw new IllegalStateException(
                     "DEIDENTIFIED promotion requires a ready Media semantic redaction provider");
@@ -330,7 +360,8 @@ public final class MediaRuntime implements AutoCloseable {
         String jobId = UUID.randomUUID().toString();
         ProcessingJob accepted = jobStore.create(new ProcessingJob(
                 jobId, request.requestId(), request.tenantId(), request.principalId(), request.artifactId(), request.jobType(),
-                provider.providerId(), JobStatus.ACCEPTED, Instant.now(), null, null, Map.of(), "", 1));
+                provider.providerId(), JobStatus.ACCEPTED, Instant.now(), null, null, Map.of(), "", 1,
+                requestFingerprint));
         if (!accepted.jobId().equals(jobId)) {
             audit.info("MEDIA_JOB_IDEMPOTENT_REPLAY tenantId={} requestId={} jobId={} status={}",
                     request.tenantId(), request.requestId(), accepted.jobId(), accepted.status());
@@ -358,31 +389,52 @@ public final class MediaRuntime implements AutoCloseable {
         return accepted;
     }
 
+    /** @deprecated A tenant-scoped read is insufficient where jobs belong to principals. */
+    @Deprecated
     public Optional<ProcessingJob> job(String tenantId, String jobId) {
-        ensureOpen();
-        return jobStore.find(tenantId, jobId);
+        throw new SecurityException("Authenticated principal is required to read a Media job");
     }
 
     public Optional<ProcessingJob> job(String tenantId, String principalId, String jobId) {
-        return job(tenantId, jobId)
+        ensureOpen();
+        requirePrincipal(principalId);
+        return jobStore.find(tenantId, jobId)
                 .filter(value -> value.principalId().equals(principalId));
     }
 
+    /** @deprecated A tenant-scoped list is insufficient where jobs belong to principals. */
+    @Deprecated
     public List<ProcessingJob> jobs(String tenantId, int limit) {
-        ensureOpen();
-        return jobStore.list(tenantId, Math.max(1, Math.min(limit, 1_000)));
+        throw new SecurityException("Authenticated principal is required to list Media jobs");
     }
 
     public List<ProcessingJob> jobs(String tenantId, String principalId, int limit) {
-        return jobs(tenantId, limit).stream()
+        ensureOpen();
+        requirePrincipal(principalId);
+        return jobStore.list(tenantId, Math.max(1, Math.min(limit, 1_000))).stream()
                 .filter(value -> value.principalId().equals(principalId))
                 .toList();
     }
 
+    /** @deprecated Cancellation requires the authenticated principal that owns the job. */
+    @Deprecated
     public ProcessingJob cancel(String tenantId, String jobId) {
+        throw new SecurityException("Authenticated principal is required to cancel a Media job");
+    }
+
+    public ProcessingJob cancel(String tenantId, String principalId, String jobId) {
+        ensureOpen();
+        requirePrincipal(principalId);
+        return cancelOwnedJob(tenantId, principalId, jobId);
+    }
+
+    private ProcessingJob cancelOwnedJob(String tenantId, String principalId, String jobId) {
         ensureOpen();
         ProcessingJob current = jobStore.find(tenantId, jobId)
                 .orElseThrow(() -> new IllegalArgumentException("Media job not found: " + jobId));
+        if (!current.principalId().equals(principalId)) {
+            throw new IllegalArgumentException("Media job not found: " + jobId);
+        }
         if (terminal(current.status())) return current;
         JobControl control = activeJobs.get(jobId);
         CancellationOutcome providerOutcome = processingProviders.stream()
@@ -392,25 +444,33 @@ public final class MediaRuntime implements AutoCloseable {
                         tenantId, current.principalId(), current.requestId(), jobId))
                 .orElse(CancellationOutcome.UNSUPPORTED);
 
-        final ProcessingJob stored;
-        final String lifecycleEvent;
-        if (providerOutcome == CancellationOutcome.CONFIRMED) {
-            stored = jobStore.update(current,
-                    transition(current, JobStatus.CANCELLED,
-                            Map.of("cancellationOutcome", CancellationOutcome.CONFIRMED.name()),
-                            "CANCELLED"));
-            lifecycleEvent = "media.job.cancelled";
-            if (control != null) {
-                control.cancellation().cancel();
-                control.future().cancel(true);
+        ProcessingJob stored;
+        String lifecycleEvent;
+        try {
+            if (providerOutcome == CancellationOutcome.CONFIRMED) {
+                stored = jobStore.update(current,
+                        transition(current, JobStatus.CANCELLED,
+                                Map.of("cancellationOutcome", CancellationOutcome.CONFIRMED.name()),
+                                "CANCELLED"));
+                lifecycleEvent = "media.job.cancelled";
+                if (control != null) {
+                    control.cancellation().cancel();
+                    control.future().cancel(true);
+                }
+                audit.info("MEDIA_JOB_CANCELLED tenantId={} jobId={} provider={} cancellationOutcome={}",
+                        tenantId, jobId, current.providerId(), providerOutcome);
+            } else {
+                stored = jobStore.update(current, cancellationRequested(current, providerOutcome));
+                lifecycleEvent = "media.job.cancel_requested";
+                audit.info("MEDIA_JOB_CANCEL_REQUESTED tenantId={} jobId={} provider={} cancellationOutcome={} status={}",
+                        tenantId, jobId, current.providerId(), providerOutcome, stored.status());
             }
-            audit.info("MEDIA_JOB_CANCELLED tenantId={} jobId={} provider={} cancellationOutcome={}",
-                    tenantId, jobId, current.providerId(), providerOutcome);
-        } else {
-            stored = jobStore.update(current, cancellationRequested(current, providerOutcome));
-            lifecycleEvent = "media.job.cancel_requested";
-            audit.info("MEDIA_JOB_CANCEL_REQUESTED tenantId={} jobId={} provider={} cancellationOutcome={} status={}",
-                    tenantId, jobId, current.providerId(), providerOutcome, stored.status());
+        } catch (com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException concurrentTransition) {
+            // Provider cancellation can race with completion/failure or another cancellation.
+            // A stale confirmation cannot rewrite the newer state or report false cancellation.
+            ProcessingJob latest = jobStore.find(tenantId, jobId).orElseThrow(() -> concurrentTransition);
+            if (terminal(latest.status())) return latest;
+            throw concurrentTransition;
         }
 
         String classification = artifactStore.artifact(tenantId, current.artifactId())
@@ -423,12 +483,6 @@ public final class MediaRuntime implements AutoCloseable {
                         "status", stored.status().name(),
                         "cancellationOutcome", providerOutcome.name()));
         return stored;
-    }
-
-    public ProcessingJob cancel(String tenantId, String principalId, String jobId) {
-        job(tenantId, principalId, jobId)
-                .orElseThrow(() -> new IllegalArgumentException("Media job not found: " + jobId));
-        return cancel(tenantId, jobId);
     }
 
     public StreamSessionRegistration openStream(StreamSessionRequest request) {
@@ -1045,7 +1099,7 @@ public final class MediaRuntime implements AutoCloseable {
             running = jobStore.update(lease, accepted, new ProcessingJob(
                     accepted.jobId(), accepted.requestId(), accepted.tenantId(), accepted.principalId(), accepted.artifactId(),
                     accepted.jobType(), accepted.providerId(), JobStatus.RUNNING, accepted.createdAt(),
-                    Instant.now(), null, Map.of(), "", accepted.version() + 1));
+                    Instant.now(), null, Map.of(), "", accepted.version() + 1, accepted.requestFingerprint()));
         } catch (RuntimeException failure) {
             jobStore.release(lease);
             throw failure;
@@ -1235,7 +1289,7 @@ public final class MediaRuntime implements AutoCloseable {
                         job.jobType(), job.providerId(), JobStatus.OUTCOME_UNKNOWN, job.createdAt(),
                         job.startedAt(), null,
                         Map.of("reconciliation", "provider outcome unknown after runtime restart"),
-                        "", job.version() + 1);
+                        "", job.version() + 1, job.requestFingerprint());
                 jobStore.update(job, reconciled);
                 audit.warn("MEDIA_JOB_RECONCILED_AFTER_RESTART tenantId={} jobId={} priorStatus={}",
                         job.tenantId(), job.jobId(), job.status());
@@ -1440,7 +1494,8 @@ public final class MediaRuntime implements AutoCloseable {
         return new ProcessingJob(
                 current.jobId(), current.requestId(), current.tenantId(), current.principalId(), current.artifactId(),
                 current.jobType(), current.providerId(), current.status(), current.createdAt(), current.startedAt(),
-                current.completedAt(), Map.copyOf(result), current.failureCode(), current.version() + 1);
+                current.completedAt(), Map.copyOf(result), current.failureCode(), current.version() + 1,
+                current.requestFingerprint());
     }
 
     private static ProcessingJob transition(
@@ -1460,7 +1515,7 @@ public final class MediaRuntime implements AutoCloseable {
         return new ProcessingJob(
                 current.jobId(), current.requestId(), current.tenantId(), current.principalId(), current.artifactId(),
                 current.jobType(), providerId, status, current.createdAt(), current.startedAt(),
-                Instant.now(), result, failureCode, current.version() + 1);
+                Instant.now(), result, failureCode, current.version() + 1, current.requestFingerprint());
     }
 
     private static boolean terminal(JobStatus status) {
@@ -1605,6 +1660,12 @@ public final class MediaRuntime implements AutoCloseable {
 
     private static String streamKey(String tenantId, String sessionId) {
         return tenantId.length() + ":" + tenantId + ':' + sessionId.length() + ':' + sessionId;
+    }
+
+    private static void requirePrincipal(String principalId) {
+        if (principalId == null || principalId.isBlank()) {
+            throw new SecurityException("Authenticated principal is required");
+        }
     }
 
     private void ensureOpen() {

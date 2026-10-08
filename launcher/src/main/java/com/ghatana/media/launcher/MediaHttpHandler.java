@@ -254,7 +254,7 @@ public final class MediaHttpHandler implements HttpHandler {
             return;
         }
         json(exchange, 200, runtime.appendChunk(
-                tenantId, uploadId, index, boundedBody(exchange, runtime.config().maximumChunkBytes())));
+                tenantId, principalId, uploadId, index, boundedBody(exchange, runtime.config().maximumChunkBytes())));
     }
 
     private void completeUpload(
@@ -264,7 +264,7 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 404, "UPLOAD_NOT_FOUND", "Upload session not found");
             return;
         }
-        json(exchange, 201, runtime.completeUpload(tenantId, uploadId));
+        json(exchange, 201, runtime.completeUpload(tenantId, principalId, uploadId));
     }
 
     private void upload(HttpExchange exchange, String tenantId, String principalId, String uploadId) throws IOException {

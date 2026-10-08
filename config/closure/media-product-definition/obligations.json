@@ -4631,7 +4631,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.append-upload-chunk",
         "recordId": "media.operation-slice.append-upload-chunk",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -4664,7 +4664,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.begin-upload",
         "recordId": "media.operation-slice.begin-upload",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -4697,7 +4697,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.cancel-job",
         "recordId": "media.operation-slice.cancel-job",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -4730,7 +4730,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.check-job-outcome",
         "recordId": "media.operation-slice.check-job-outcome",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -4763,7 +4763,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.complete-upload",
         "recordId": "media.operation-slice.complete-upload",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -4796,7 +4796,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.inspect-artifact",
         "recordId": "media.operation-slice.inspect-artifact",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -4829,7 +4829,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.inspect-job",
         "recordId": "media.operation-slice.inspect-job",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -4862,7 +4862,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.inspect-upload",
         "recordId": "media.operation-slice.inspect-upload",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -4895,7 +4895,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.retry-job",
         "recordId": "media.operation-slice.retry-job",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -4928,7 +4928,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.submit-job",
         "recordId": "media.operation-slice.submit-job",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -4961,7 +4961,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.artifact-ingest",
         "recordId": "media.operation.artifact-ingest",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -4994,7 +4994,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.caption-draft-write",
         "recordId": "media.operation.caption-draft-write",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -5027,7 +5027,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.caption-version-read",
         "recordId": "media.operation.caption-version-read",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -5060,7 +5060,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.caption-version-write",
         "recordId": "media.operation.caption-version-write",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -5093,7 +5093,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.consent",
         "recordId": "media.operation.consent",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -5126,7 +5126,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.health-capability",
         "recordId": "media.operation.health-capability",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -5159,7 +5159,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.job-lifecycle",
         "recordId": "media.operation.job-lifecycle",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -5192,7 +5192,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.multimodal-analysis",
         "recordId": "media.operation.multimodal-analysis",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -5225,7 +5225,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.stream-session",
         "recordId": "media.operation.stream-session",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -5258,7 +5258,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.synthesis",
         "recordId": "media.operation.synthesis",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -5291,7 +5291,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.transcript-version-read",
         "recordId": "media.operation.transcript-version-read",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -5324,7 +5324,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.transcription",
         "recordId": "media.operation.transcription",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -5357,7 +5357,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.transcription-submission",
         "recordId": "media.operation.transcription-submission",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },
@@ -5390,7 +5390,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.vision-analysis",
         "recordId": "media.operation.vision-analysis",
-        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+        "sourceDigest": "sha256:2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e"
       }
     }
   },

@@ -43,8 +43,8 @@ class MediaRuntimeRestartReconciliationTest {
                     "tenant-a", "principal-a", "clip.bin", "application/octet-stream", bytes.length,
                     HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)),
                     "confidential", Duration.ofMinutes(10), Map.of()));
-            runtime.appendChunk("tenant-a", upload.uploadId(), 0, bytes);
-            var artifact = runtime.completeUpload("tenant-a", upload.uploadId());
+            runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0, bytes);
+            var artifact = runtime.completeUpload("tenant-a", "principal-a", upload.uploadId());
             var request = new ProcessingJobRequest(
                     "request-duplicate", "tenant-a", "principal-a", "correlation-a",
                     artifact.artifactId(), JobType.VISION, "remote", Map.of());
@@ -53,6 +53,11 @@ class MediaRuntimeRestartReconciliationTest {
             var replay = runtime.submit(request);
 
             assertThat(replay.jobId()).isEqualTo(first.jobId());
+            assertThatThrownBy(() -> runtime.submit(new ProcessingJobRequest(
+                    request.requestId(), request.tenantId(), request.principalId(), request.correlationId(),
+                    request.artifactId(), request.jobType(), request.providerHint(), Map.of("mode", "changed"))))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("different job payload");
             assertThat(calls).hasValue(1);
         } finally {
             runtime.close();
@@ -77,14 +82,14 @@ class MediaRuntimeRestartReconciliationTest {
                     "tenant-a", "principal-a", "clip.bin", "application/octet-stream", bytes.length,
                     HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)),
                     "confidential", Duration.ofMinutes(10), Map.of()));
-            first.appendChunk("tenant-a", upload.uploadId(), 0, bytes);
-            var artifact = first.completeUpload("tenant-a", upload.uploadId());
+            first.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0, bytes);
+            var artifact = first.completeUpload("tenant-a", "principal-a", upload.uploadId());
             var accepted = first.submit(new ProcessingJobRequest(
                     "request-restart", "tenant-a", "principal-a", "correlation-a",
                     artifact.artifactId(), JobType.VISION, "remote", Map.of()));
             jobId = accepted.jobId();
 
-            var requested = first.cancel("tenant-a", jobId);
+            var requested = first.cancel("tenant-a", "principal-a", jobId);
             assertThat(requested.status()).isEqualTo(JobStatus.RUNNING);
             assertThat(requested.result())
                     .containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED");
@@ -99,7 +104,7 @@ class MediaRuntimeRestartReconciliationTest {
 
         MediaRuntime restarted = runtime(root, artifacts, jobs, streams, provider);
         try {
-            var reconciled = restarted.job("tenant-a", jobId).orElseThrow();
+            var reconciled = restarted.job("tenant-a", "principal-a", jobId).orElseThrow();
             assertThat(reconciled.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
             assertThat(reconciled.failureCode()).isBlank();
             assertThat(reconciled.completedAt()).isNull();

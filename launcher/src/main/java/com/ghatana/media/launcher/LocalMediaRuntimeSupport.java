@@ -91,12 +91,13 @@ public final class LocalMediaRuntimeSupport {
         }
 
         @Override
-        public UploadSession append(String tenantId, String uploadId, int chunkIndex, byte[] bytes) {
+        public UploadSession append(String tenantId, String principalId, String uploadId, int chunkIndex, byte[] bytes) {
             if (bytes == null || bytes.length == 0) throw new IllegalArgumentException("chunk bytes are required");
             String key = key(tenantId, uploadId);
             synchronized (key.intern()) {
                 UploadSession current = uploads.get(key);
-                if (current == null || current.status() != UploadStatus.OPEN) {
+                if (current == null || !current.principalId().equals(principalId)
+                        || current.status() != UploadStatus.OPEN) {
                     throw new IllegalArgumentException("Open upload session not found");
                 }
                 if (!current.expiresAt().isAfter(Instant.now())) {
@@ -117,11 +118,12 @@ public final class LocalMediaRuntimeSupport {
         }
 
         @Override
-        public MediaArtifact complete(String tenantId, String uploadId) {
+        public MediaArtifact complete(String tenantId, String principalId, String uploadId) {
             String key = key(tenantId, uploadId);
             synchronized (key.intern()) {
                 UploadSession current = uploads.get(key);
-                if (current == null || current.status() != UploadStatus.OPEN) {
+                if (current == null || !current.principalId().equals(principalId)
+                        || current.status() != UploadStatus.OPEN) {
                     throw new IllegalArgumentException("Open upload session not found");
                 }
                 if (current.bytesReceived() != current.expectedSizeBytes()) {
@@ -205,30 +207,34 @@ public final class LocalMediaRuntimeSupport {
         @Override public String storeId() { return "local-job-store"; }
         @Override public ProcessingJob create(ProcessingJob job) {
             String requestKey = key(job.tenantId(), job.requestId());
-            String existingJobId = requests.putIfAbsent(requestKey, job.jobId());
-            if (existingJobId != null) {
-                ProcessingJob existing = jobs.get(key(job.tenantId(), existingJobId));
-                if (existing == null) throw new IllegalStateException("Media request index is inconsistent");
-                if (!existing.principalId().equals(job.principalId())
-                        || !existing.artifactId().equals(job.artifactId())
-                        || existing.jobType() != job.jobType()) {
-                    throw new IllegalStateException("Media request ID was reused for a different job");
+            // Publish the request index and job as one operation. Without this lock, a concurrent
+            // idempotent replay can observe the index between putIfAbsent and jobs.put and fail
+            // spuriously with "request index is inconsistent".
+            synchronized (requestKey.intern()) {
+                String existingJobId = requests.get(requestKey);
+                if (existingJobId != null) {
+                    ProcessingJob existing = jobs.get(key(job.tenantId(), existingJobId));
+                    if (existing == null) throw new IllegalStateException("Media request index is inconsistent");
+                    verifyRequestIdentity(existing, job);
+                    return existing;
                 }
-                return existing;
+                String jobKey = key(job.tenantId(), job.jobId());
+                if (jobs.putIfAbsent(jobKey, job) != null) {
+                    throw new IllegalStateException("Media job already exists");
+                }
+                requests.put(requestKey, job.jobId());
+                return job;
             }
-            if (jobs.putIfAbsent(key(job.tenantId(), job.jobId()), job) != null) {
-                requests.remove(requestKey, job.jobId());
-                throw new IllegalStateException("Media job already exists");
-            }
-            return job;
         }
         @Override public ProcessingJob update(ProcessingJob expected, ProcessingJob updated) {
             if (!expected.jobId().equals(updated.jobId()) || !expected.tenantId().equals(updated.tenantId())
+                    || !expected.requestFingerprint().equals(updated.requestFingerprint())
                     || updated.version() != expected.version() + 1) {
                 throw new IllegalArgumentException("Media job identity/version is invalid");
             }
             if (!jobs.replace(key(expected.tenantId(), expected.jobId()), expected, updated)) {
-                throw new IllegalStateException("Media job version changed concurrently");
+                throw new com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException(
+                        "Media job version changed concurrently");
             }
             return updated;
         }
@@ -305,6 +311,19 @@ public final class LocalMediaRuntimeSupport {
                 jobs.clear();
                 requests.clear();
                 leases.clear();
+            }
+        }
+
+        private static void verifyRequestIdentity(ProcessingJob existing, ProcessingJob requested) {
+            if (existing.requestFingerprint().isBlank() || requested.requestFingerprint().isBlank()) {
+                throw new IllegalStateException(
+                        "Media request has no semantic fingerprint; replay safety cannot be established");
+            }
+            if (!existing.principalId().equals(requested.principalId())
+                    || !existing.artifactId().equals(requested.artifactId())
+                    || existing.jobType() != requested.jobType()
+                    || !existing.requestFingerprint().equals(requested.requestFingerprint())) {
+                throw new IllegalStateException("Media request ID was reused for a different job payload");
             }
         }
     }

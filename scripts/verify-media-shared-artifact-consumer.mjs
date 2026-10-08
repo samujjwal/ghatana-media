@@ -19,6 +19,11 @@ const mediaRoot = join(root, "libs/audio-video-ui");
 const mediaManifest = JSON.parse(readFileSync(join(mediaRoot, "package.json"), "utf8"));
 const { parse: parseYaml } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
 const tokenAliases = parseYaml(readFileSync(join(root, ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"), "utf8")).aliases;
+const mediaStyleSource = readFileSync(join(root, "libs/audio-video-ui/src/styles.css"), "utf8");
+assert.match(mediaStyleSource, /@import\s+["']@ghatana\/design-system\/strict-csp-controls\.css["']/u,
+  "Media's public stylesheet must consume the Shared CSP-safe control asset");
+assert.match(mediaStyleSource, /@import\s+["']@ghatana\/tokens\/tokens\.css["']/u,
+  "Media's public stylesheet must consume the public token CSS used by Shared controls");
 const tempRoot = mkdtempSync(join(tmpdir(), "media-shared-artifact-consumer-"));
 const npm = process.platform === "win32" ? "npm.cmd" : "npm";
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
@@ -122,6 +127,16 @@ try {
     });
   }
   assert.deepEqual([...sharedByName.keys()].sort(), [...closure.keys()].sort(), "packed Shared identities must match Media's transitive dependency closure");
+
+  const designSystemSource = readFileSync(join(sharedRoot, "design-system/src/styles/strict-csp-controls.css"), "utf8");
+  const tokensCssPath = join(sharedRoot, "tokens/dist/tokens.css");
+  assert.ok(existsSync(tokensCssPath), "public token CSS must be built before validating Shared control token bindings");
+  const tokensCss = readFileSync(tokensCssPath, "utf8");
+  const exportedTokenVars = new Set([...tokensCss.matchAll(/(--gh-[\w-]+)\s*:/gu)].map((match) => match[1]));
+  const usedVars = new Set([...designSystemSource.matchAll(/var\(\s*(--gh-[\w-]+)/gu)].map((match) => match[1]));
+  const localControlVars = new Set(["--gh-button-tone", "--gh-badge-tone"]);
+  const unresolvedTokenVars = [...usedVars].filter((name) => !localControlVars.has(name) && !exportedTokenVars.has(name));
+  assert.deepEqual(unresolvedTokenVars, [], "Shared controls may reference only local presentation vars or actual public token CSS exports");
 
   // Compile Media sources from a temporary copy whose node_modules contain
   // only tarball-installed packages. No workspace aliases or repository lockfile participate.

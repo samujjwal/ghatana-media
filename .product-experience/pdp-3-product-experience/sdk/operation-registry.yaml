@@ -31,7 +31,7 @@ methods:
     visibility: public
     source: libs/audio-video-client/src/operations.ts
     declaringClass: MediaOperationHandle
-    experienceBinding: pending-owner-review
+    experienceBinding: SOURCE_COMPATIBLE_BUT_NOT_ADMITTED; delegates-to-retryOperation-which-fails-before-network
   - id: media.sdk.getResult
     method: getResult
     visibility: public
@@ -49,25 +49,25 @@ methods:
     visibility: public
     source: libs/audio-video-client/src/operations.ts
     declaringClass: MediaOperationClient
-    experienceBinding: pending-owner-review
+    experienceBinding: source-backed-runtime-create; POST-/api/v1/artifacts/uploads; exact-UploadRequest-and-UploadSession-DTO; caller-X-Principal-Id; sends-declared-Idempotency-Key-but-runtime-replay-semantics-unqualified
   - id: media.sdk.uploadPart
     method: uploadPart
     visibility: public
     source: libs/audio-video-client/src/operations.ts
     declaringClass: MediaOperationClient
-    experienceBinding: pending-owner-review
+    experienceBinding: source-backed-runtime-chunk-append; PUT-/api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}; zero-based-current-nextChunkIndex; raw-octet-stream; returns-exact-UploadSession; no-automatic-replay-after-ambiguous-ack
   - id: media.sdk.completeUploadSession
     method: completeUploadSession
     visibility: public
     source: libs/audio-video-client/src/operations.ts
     declaringClass: MediaOperationClient
-    experienceBinding: pending-owner-review
+    experienceBinding: source-backed-runtime-completion; POST-/api/v1/artifacts/uploads/{uploadId}/complete; bodyless; returns-CanonicalMediaArtifactObservation; session-overload-binds-scope-size-hash-file-contentType-classification-metadata; legacy-id-overload-cannot-bind-artifact-to-upload; no-automatic-replay-semantics-admitted
   - id: media.sdk.getArtifact
     method: getArtifact
     visibility: public
     source: libs/audio-video-client/src/operations.ts
     declaringClass: MediaOperationClient
-    experienceBinding: pending-owner-review
+    experienceBinding: source-backed-runtime-read; GET-/api/v1/artifacts/{artifactId}; returns-CanonicalMediaArtifactObservation-without-domain-or-provenance-aliases; requires-caller-X-Principal-Id; 404-preserves-ARTIFACT_NOT_FOUND-scope-code-and-correlation; consumer-type-migration-documented; semantic-admission-pending
   - id: media.sdk.listProviderCapabilities
     method: listProviderCapabilities
     visibility: public
@@ -133,7 +133,7 @@ methods:
     visibility: public
     source: libs/audio-video-client/src/operations.ts
     declaringClass: MediaOperationClient
-    experienceBinding: unresolved-source-observed-method
+    experienceBinding: SOURCE_COMPATIBLE_BUT_NOT_ADMITTED; MediaOperationNotAdmittedError-before-transport
   - id: media.sdk.getOperationResult
     method: getOperationResult
     visibility: public
@@ -205,4 +205,7 @@ methods:
     visibility: public
     source: libs/audio-video-client/src/scene-text-adapter.ts
     declaringClass: DocumentIntelligenceSceneTextAdapter
-    experienceBinding: unresolved-canonical-operation-binding; candidate-provider-adapter
+    experienceBinding: provider-adapter; NOT_A_MEDIA_HTTP_OPERATION; preserves-Media-source-version-frame-time-around-DI-v1
+    targetContractSource: services/document-intelligence/contracts/protocol-v1.md
+    targetClientPackageObservation: '@ghatana/document-intelligence-client@0.1.0'
+    targetClientAdmission: NOT_CONSUMED; package-peer-is-@ghatana/document-extraction@0.1.0-SNAPSHOT; no-Media-public-dependency-or-owner-handoff

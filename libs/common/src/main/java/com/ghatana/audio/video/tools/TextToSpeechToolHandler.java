@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@link ToolHandler} adapter for the Audio-Video Text-to-Speech service.
@@ -50,24 +51,27 @@ public final class TextToSpeechToolHandler implements ToolHandler {
         Objects.requireNonNull(contract, "contract must not be null");
 
         Instant start = Instant.now();
-        Map<String, Object> input = envelope.input();
+        Map<String, Object> input;
 
         log.debug("TTS invocation [{}] tenant={}", envelope.invocationId(), envelope.tenantId());
 
         try {
-            String text = requireString(input, "text");
-            String voiceId = (String) input.getOrDefault("voiceId", "en-US-default");
-            double speakingRate = toDouble(input.getOrDefault("speakingRate", 1.0));
-            String encoding = (String) input.getOrDefault("audioEncoding", "MP3");
-            boolean storeAsArtifact = Boolean.TRUE.equals(input.get("storeAsArtifact"));
+            input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("text", "voiceId", "speakingRate", "pitch", "audioEncoding", "storeAsArtifact"));
+            String text = AgentToolInput.requiredString(input, "text", 10_000);
+            String voiceId = optionalString(input, "voiceId", "en-US-default", 128);
+            double speakingRate = AgentToolInput.boundedRate(input.getOrDefault("speakingRate", 1.0));
+            String encoding = optionalString(input, "audioEncoding", "MP3", 16);
+            if (!Set.of("MP3", "WAV", "OGG_OPUS", "LINEAR16").contains(encoding)) throw new IllegalArgumentException("INVALID_AUDIO_ENCODING");
+            Object pitch = input.getOrDefault("pitch", 0.0);
+            if (!(pitch instanceof Number pitchNumber) || !Double.isFinite(pitchNumber.doubleValue())
+                    || pitchNumber.doubleValue() < -20.0 || pitchNumber.doubleValue() > 20.0)
+                throw new IllegalArgumentException("INVALID_PITCH");
+            Object store = input.getOrDefault("storeAsArtifact", Boolean.FALSE);
+            if (!(store instanceof Boolean)) throw new IllegalArgumentException("INVALID_STORE_AS_ARTIFACT");
+            boolean storeAsArtifact = (Boolean) store;
 
             log.debug("TTS: voice={} rate={} encoding={} storeAsArtifact={}", voiceId, speakingRate, encoding, storeAsArtifact);
 
-            if (delegate == null) {
-                return providerUnavailable(envelope, start);
-            }
-
-            return delegate.handle(envelope, contract);
         } catch (Exception e) {
             log.error("TTS handler failed for invocation {}: {}", envelope.invocationId(), e.getMessage(), e);
             Instant end = Instant.now();
@@ -78,6 +82,8 @@ public final class TextToSpeechToolHandler implements ToolHandler {
                     end,
                     Duration.between(start, end)));
         }
+        if (delegate == null) return providerUnavailable(envelope, start);
+        return AgentToolInput.dispatch(delegate, envelope, contract);
     }
 
     private Promise<ToolExecutionResult> providerUnavailable(ToolExecutionEnvelope envelope, Instant start) {
@@ -98,9 +104,8 @@ public final class TextToSpeechToolHandler implements ToolHandler {
         return s;
     }
 
-    private double toDouble(Object value) {
-        if (value instanceof Number n) return n.doubleValue();
-        return 1.0;
+    private String optionalString(Map<String, Object> input, String key, String fallback, int max) {
+        return input.containsKey(key) ? AgentToolInput.requiredString(input, key, max) : fallback;
     }
 
 }

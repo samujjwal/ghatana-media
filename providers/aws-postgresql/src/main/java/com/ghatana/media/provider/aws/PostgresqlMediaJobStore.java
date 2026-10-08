@@ -7,6 +7,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobLease;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -50,8 +51,8 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 try (PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO media_processing_jobs "
                                 + "(tenant_id,job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,created_at,"
-                                + "started_at,completed_at,result_json,failure_code,version) "
-                                + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+                                + "started_at,completed_at,result_json,failure_code,version,request_fingerprint) "
+                                + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
                     bind(statement, persistable);
                     statement.executeUpdate();
                 }
@@ -94,7 +95,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             statement.setString(9, expected.jobId());
             statement.setLong(10, expected.version());
             if (statement.executeUpdate() != 1) {
-                throw new IllegalStateException("Media job version changed concurrently");
+                throw new MediaJobStoreConflictException("Media job version changed concurrently");
             }
             return persistable;
         } catch (SQLException failure) {
@@ -144,7 +145,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         try (Connection connection = state.connection();
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT request_id,principal_id,artifact_id,job_type,provider_id,status,created_at,started_at,completed_at,"
-                             + "result_json,failure_code,version FROM media_processing_jobs "
+                             + "result_json,failure_code,version,request_fingerprint FROM media_processing_jobs "
                              + "WHERE tenant_id=? AND job_id=?")) {
             statement.setString(1, tenantId);
             statement.setString(2, jobId);
@@ -164,7 +165,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         try (Connection connection = state.connection();
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,created_at,started_at,"
-                             + "completed_at,result_json,failure_code,version FROM media_processing_jobs "
+                             + "completed_at,result_json,failure_code,version,request_fingerprint FROM media_processing_jobs "
                              + "WHERE tenant_id=? ORDER BY created_at DESC,job_id LIMIT ?")) {
             statement.setString(1, tenantId);
             statement.setInt(2, limit);
@@ -284,8 +285,8 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         List<ProcessingJob> values = new ArrayList<>();
         try (Connection connection = state.connection();
              PreparedStatement statement = connection.prepareStatement(
-                     "SELECT tenant_id,job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,"
-                             + "created_at,started_at,completed_at,result_json,failure_code,version "
+                "SELECT tenant_id,job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,"
+                             + "created_at,started_at,completed_at,result_json,failure_code,version,request_fingerprint "
                              + "FROM media_processing_jobs WHERE status IN ('ACCEPTED','RUNNING') "
                              + "AND (lease_expires_at IS NULL OR lease_expires_at<=?) "
                              + "ORDER BY created_at,tenant_id,job_id LIMIT ?")) {
@@ -314,7 +315,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
     private ProcessingJob byRequest(Connection connection, String tenantId, String requestId, boolean lock)
             throws SQLException {
         String sql = "SELECT job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,created_at,started_at,"
-                + "completed_at,result_json,failure_code,version FROM media_processing_jobs "
+                + "completed_at,result_json,failure_code,version,request_fingerprint FROM media_processing_jobs "
                 + "WHERE tenant_id=? AND request_id=?" + (lock ? " FOR UPDATE" : "");
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, tenantId);
@@ -350,7 +351,8 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 completed == null ? null : Instant.ofEpochMilli(completed),
                 objectMap(result.getString("result_json")),
                 result.getString("failure_code"),
-                result.getLong("version"));
+                result.getLong("version"),
+                result.getString("request_fingerprint"));
     }
 
     private void bind(PreparedStatement statement, ProcessingJob job) throws SQLException {
@@ -368,6 +370,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         statement.setString(12, json(job.result()));
         statement.setString(13, job.failureCode());
         statement.setLong(14, job.version());
+        statement.setString(15, job.requestFingerprint().isBlank() ? null : job.requestFingerprint());
     }
 
     private static ProcessingJob sanitizeForPersistence(ProcessingJob job) {
@@ -395,7 +398,8 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 completedAt,
                 sanitized,
                 job.failureCode(),
-                job.version());
+                job.version(),
+                job.requestFingerprint());
     }
 
     private static Instant millisecondPrecision(Instant value) {
@@ -411,16 +415,22 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 || !expected.principalId().equals(updated.principalId())
                 || !expected.artifactId().equals(updated.artifactId())
                 || expected.jobType() != updated.jobType()
+                || !expected.requestFingerprint().equals(updated.requestFingerprint())
                 || updated.version() != expected.version() + 1) {
             throw new IllegalArgumentException("Media job identity/version is invalid");
         }
     }
 
     private static void verifyRequestIdentity(ProcessingJob existing, ProcessingJob requested) {
+        if (existing.requestFingerprint().isBlank() || requested.requestFingerprint().isBlank()) {
+            throw new IllegalStateException(
+                    "Media request has no semantic fingerprint; replay safety cannot be established");
+        }
         if (!existing.principalId().equals(requested.principalId())
                 || !existing.artifactId().equals(requested.artifactId())
-                || existing.jobType() != requested.jobType()) {
-            throw new IllegalStateException("Media request ID was reused for a different job");
+                || existing.jobType() != requested.jobType()
+                || !existing.requestFingerprint().equals(requested.requestFingerprint())) {
+            throw new IllegalStateException("Media request ID was reused for a different job payload");
         }
     }
 

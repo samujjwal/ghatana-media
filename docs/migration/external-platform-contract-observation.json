@@ -6,16 +6,21 @@
     {
       "repository": "samujjwal/ghatana",
       "path": "/home/samujjwal/Developments/ghatana",
-      "head": "4ee0297eae262fa3223709af9229f6f04edc7533",
+      "head": "dae220989f878f413d1bc7bb1fda2896610d848d",
       "branch": "main",
-      "worktree": "dirty at inspection; 1 paths",
+      "worktree": "dirty at inspection; 6 paths",
       "dirtyPaths": [
-        "M services/ai-inference/delivery/api/src/test/java/com/ghatana/aiinference/delivery/openapi/AiInferenceOpenApiContractConsumptionTest.java"
+        "M services/ai-inference/delivery/api/src/test/java/com/ghatana/aiinference/delivery/openapi/AiInferenceOpenApiContractConsumptionTest.java",
+        "?? services/aep/lab/scripts/lanl-ucaat/native/m2-protected-vm-launcher-v1/generated_lifecycle_intake.py",
+        "?? services/aep/lab/scripts/lanl-ucaat/native/m2-protected-vm-launcher-v1/generated_lifecycle_observer.py",
+        "?? services/aep/lab/scripts/lanl-ucaat/native/m2-protected-vm-launcher-v1/tests/test_generated_lifecycle_intake.py",
+        "?? services/aep/lab/scripts/lanl-ucaat/native/m2-protected-vm-launcher-v1/tests/test_generated_lifecycle_observer.py",
+        "?? services/aep/lab/scripts/lanl-ucaat/native/m2-v8-generated-seven-role-v1/"
       ],
       "dirtyPathClassification": {
         "aiInference": {
           "path": "services/ai-inference/delivery/api/src/test/java/com/ghatana/aiinference/delivery/openapi/AiInferenceOpenApiContractConsumptionTest.java",
-          "change": "test-parser tolerance only: accepts whitespace inside the OpenAPI enum brackets; API contract semantics are unchanged",
+          "change": "test-parser tolerance only: accepts whitespace inside the OpenAPI enum brackets; contract source is unchanged by this worktree edit",
           "pathCount": 1
         },
         "sharedBuildToolingAndTests": {
@@ -33,6 +38,17 @@
           "paths": [],
           "change": "AEP ENI native descriptor qualification source and tests; they are not Media qualification or Lifecycle receipts."
         },
+        "unrelatedAepGeneratedLifecycleWork": {
+          "pathCount": 5,
+          "paths": [
+            "services/aep/lab/scripts/lanl-ucaat/native/m2-protected-vm-launcher-v1/generated_lifecycle_intake.py",
+            "services/aep/lab/scripts/lanl-ucaat/native/m2-protected-vm-launcher-v1/generated_lifecycle_observer.py",
+            "services/aep/lab/scripts/lanl-ucaat/native/m2-protected-vm-launcher-v1/tests/test_generated_lifecycle_intake.py",
+            "services/aep/lab/scripts/lanl-ucaat/native/m2-protected-vm-launcher-v1/tests/test_generated_lifecycle_observer.py",
+            "services/aep/lab/scripts/lanl-ucaat/native/m2-v8-generated-seven-role-v1/"
+          ],
+          "change": "Untracked AEP lifecycle intake/observer and generated seven-role artifacts; unrelated to Media contract observation and not Media proof or Lifecycle receipts."
+        },
         "aiInferenceRuntimeTests": {
           "paths": [],
           "pathCount": 0,
@@ -44,11 +60,11 @@
           "change": "Legacy cache key encoding and tests changed to require nonblank valid-Unicode segments. No Media source cutover or runtime qualification is claimed."
         }
       },
-      "dirtyPathCount": 1,
+      "dirtyPathCount": 6,
       "sourceRevisionReconciliation": {
-        "previousHead": "7079f0bd1d73722cfc4b416a17cfe3ea502dde43",
-        "currentHead": "4ee0297eae262fa3223709af9229f6f04edc7533",
-        "review": "Direct commit diff of DI client package plus AI/Data/Action/Event public contracts is empty. The observed contract facts are unchanged; runtime, licensing, external owner and release qualification remain unproven."
+        "previousHead": "4ee0297eae262fa3223709af9229f6f04edc7533",
+        "currentHead": "dae220989f878f413d1bc7bb1fda2896610d848d",
+        "review": "The direct diff changes only services/ai-inference/contracts/openapi/ai-inference.yaml among the seven pinned public contract sources: it adds the bounded 1–32 opaque mediaInputs record with seven required fields and AUDIO/VIDEO/IMAGE modality/MIME constraints, and makes text input and mediaInputs mutually exclusive. Text-generation and embedding operation families remain unchanged; the six other pinned public contracts are unchanged. This source observation does not bind a Media operation or establish dereference authority, rights/consent, provider/runtime qualification, or execution."
       }
     },
     {
@@ -126,17 +142,19 @@
     },
     {
       "id": "X-05",
-      "status": "VERSIONED_AI_INFERENCE_API_OBSERVED; TYPED_MEDIA_MODALITY_CONTRACT_NOT_OBSERVED",
+      "status": "VERSIONED_TYPED_MEDIA_INPUT_CONTRACT_OBSERVED; MEDIA_OPERATION_AND_PROVIDER_QUALIFICATION_UNPROVEN",
       "sourceEvidence": [
         {
           "repository": "samujjwal/ghatana",
           "path": "services/ai-inference/contracts/openapi/ai-inference.yaml",
           "facts": [
-            "OpenAPI info version 1.1.0",
-            "contract versions api/event/semantic 1.0.0",
-            "request families TEXT_GENERATION (LLM, COMPLETION) and EMBEDDING (EMBEDDING)",
-            "InferenceRequest.type is LLM, EMBEDDING or COMPLETION and input is a string bounded to 256 KiB",
-            "no modality field in InferenceRequest"
+            "OpenAPI info version 1.1.0; API, event and semantic contract versions are 1.0.0",
+            "request families remain TEXT_GENERATION (LLM, COMPLETION) and EMBEDDING (EMBEDDING); InferenceRequest.type is LLM, EMBEDDING or COMPLETION",
+            "InferenceRequest supports exactly one of text input (string, 1-262144 characters) or mediaInputs (1-32 opaque references)",
+            "each mediaInputs item is a closed seven-field record: modality, reference, mediaType, role, purpose, classification and expiresAt",
+            "media modalities are AUDIO, VIDEO and IMAGE; reference accepts constrained URNs or lowercase SHA-256 digests, not raw bytes/data URLs or paths",
+            "mediaType is bounded to 127 characters and modality-specific audio/video/image media types are constrained",
+            "the contract states references do not authorize dereferencing, establish consent/rights, or qualify any provider; it does not declare a Media operation/provider opt-in"
           ]
         },
         {
@@ -149,7 +167,7 @@
           ]
         }
       ],
-      "mediaWork": "Do not map Media audio, image, video, speech or multimodal operations onto the current text/embedding request enum. Media can record exact non-matches and defer a typed modality/provider crosswalk until the external schema exposes those modalities."
+      "mediaWork": "Media may evaluate the exact opaque-reference request shape for future bounded integration. This schema alone binds no Media operation, does not authorize reference dereferencing or rights/consent, and qualifies no provider, model, runtime, storage or execution path. Keep Media operation and provider mappings unbound until their owner contracts and qualifications are established; do not infer that schema support enables current Media AI execution."
     },
     {
       "id": "X-06",

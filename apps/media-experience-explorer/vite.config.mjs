@@ -69,6 +69,7 @@ export default {
       "@audio-video/ui/screens": resolve(appRoot, "../../libs/audio-video-ui/src/screens/index.ts"),
       "@audio-video/ui/components": resolve(appRoot, "../../libs/audio-video-ui/src/components/index.ts"),
       "@audio-video/ui/styles.css": resolve(appRoot, "../../libs/audio-video-ui/src/styles.css"),
+      "@ghatana/design-system/strict-csp-controls.css": resolve(sharedRoot, "design-system/dist/strict-csp-controls.css"),
       "@ghatana/design-system": resolve(sharedRoot, "design-system/dist/index.js"),
       "react/jsx-dev-runtime": resolve(appRoot, "node_modules/react/jsx-dev-runtime.js"),
       "react/jsx-runtime": resolve(appRoot, "node_modules/react/jsx-runtime.js"),
@@ -90,5 +91,8 @@ export default {
   build: {
     outDir: "dist",
     emptyOutDir: true,
+    ...(process.env.MEDIA_STRICT_CSP_FIXTURE === "1"
+      ? { rollupOptions: { input: { strictCspControls: resolve(appRoot, "strict-csp-controls.html") } } }
+      : {}),
   },
 };

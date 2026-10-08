@@ -101,9 +101,10 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
     }
 
     @Override
-    public UploadSession append(String tenantId, String uploadId, int chunkIndex, byte[] bytes) {
+    public UploadSession append(String tenantId, String principalId, String uploadId, int chunkIndex, byte[] bytes) {
         ensureOpen();
         require(tenantId, "tenantId");
+        require(principalId, "principalId");
         require(uploadId, "uploadId");
         if (chunkIndex < 0) throw new IllegalArgumentException("chunkIndex must not be negative");
         if (bytes == null || bytes.length == 0) throw new IllegalArgumentException("chunk bytes are required");
@@ -115,7 +116,8 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             connection.setAutoCommit(false);
             try {
                 UploadRow current = lockUpload(connection, tenantId, uploadId);
-                if (current == null || current.status() != UploadStatus.OPEN) {
+                if (current == null || !current.principalId().equals(principalId)
+                        || current.status() != UploadStatus.OPEN) {
                     throw new IllegalArgumentException("Open upload session not found");
                 }
                 if (current.expiresAt() <= System.currentTimeMillis()) {
@@ -193,9 +195,10 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
     }
 
     @Override
-    public MediaArtifact complete(String tenantId, String uploadId) {
+    public MediaArtifact complete(String tenantId, String principalId, String uploadId) {
         ensureOpen();
-        FinalizationClaim claim = claimFinalization(tenantId, uploadId);
+        require(principalId, "principalId");
+        FinalizationClaim claim = claimFinalization(tenantId, principalId, uploadId);
         if (claim.existingArtifact() != null) return claim.existingArtifact();
 
         String finalKey = artifactKey(tenantId, claim.row().expectedSha256());
@@ -367,14 +370,16 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         return Optional.empty();
     }
 
-    private FinalizationClaim claimFinalization(String tenantId, String uploadId) {
+    private FinalizationClaim claimFinalization(String tenantId, String principalId, String uploadId) {
         String token = UUID.randomUUID().toString();
         long now = System.currentTimeMillis();
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
             try {
                 UploadRow row = lockUpload(connection, tenantId, uploadId);
-                if (row == null) throw new IllegalArgumentException("Upload session not found");
+                if (row == null || !row.principalId().equals(principalId)) {
+                    throw new IllegalArgumentException("Upload session not found");
+                }
                 if (row.status() == UploadStatus.COMPLETED && row.artifactId() != null) {
                     MediaArtifact artifact = artifactForUpdate(connection, tenantId, row.artifactId());
                     connection.commit();

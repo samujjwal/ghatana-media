@@ -3,6 +3,9 @@
  * utility-class pipeline. Semantic color uses browser/OS system colors; this
  * is not a qualified Shared theme or a Media primitive-token definition.
  */
+@import "@ghatana/tokens/tokens.css";
+@import "@ghatana/design-system/strict-csp-controls.css";
+
 .media-task-flow {
   box-sizing: border-box;
   width: min(100% - 2rem, 80rem);

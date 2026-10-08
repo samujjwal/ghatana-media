@@ -92,7 +92,7 @@ test("keeps the two remaining parity findings open because current sources lack 
   assert.equal(inputSchemaVersions.length, 4);
   assert.equal(resultSchemaVersions.length, 4);
   assert.equal(unresolvedToolBindings.length, 4);
-  assert.match(toolRegistry, /inputSchema: Dynamic Map<String,Object> observations are incomplete, open, and not a canonical validated schema/u);
+  assert.match(toolRegistry, /inputSchema: Media adapters enforce closed top-level key sets and local field validation, but these Java checks are not a published JSON Schema/u);
   assert.match(toolRegistry, /outputSchema: Delegate results are passed through; no successful output schema is validated by these handlers/u);
   assert.match(conventions, /no tool is admitted, callable, or authorized by this convention/u);
 
@@ -461,4 +461,29 @@ test("semantic candidates never contradict the HTTP and gRPC typed role disposit
     assert.doesNotMatch(memberProposals, new RegExp(`^      ${identity.replace(".", "\\.")}:`, "mu"),
       `${identity} must not carry a proposed logical-operation binding`);
   }
+});
+
+// Source-level owner status cannot substitute for per-operation semantics.
+test("changing global operation scope to accepted cannot bypass exact record review", () => {
+  const result = analyzeContractParity(validStructuralInput({
+    pdp1Operations: 'scopeStatus: accepted\nbindingStatus: accepted\noperations:\n  - id: media.operation.fake\n    scopeStatus: accepted\n',
+  }));
+  assert.equal(result.semanticStatus, 'UNRESOLVED');
+  assert.equal(result.operationAcceptance.complete, false);
+  assert.ok(result.gaps.some(gap => gap.startsWith('semantic binding unresolved:')));
+});
+test("retired unsafe retry remains in historical finding census only while source proves no dispatch", () => {
+  const source = readFileSync('libs/audio-video-client/src/operations.ts', 'utf8');
+  const input = validStructuralInput({sdkSourceFiles: {'libs/audio-video-client/src/operations.ts': source}});
+  const result = analyzeContractParity(input);
+  assert.equal(result.retiredFindings.length, 5);
+  assert.equal(result.historicalFindingCount, result.observedFindingCount + 5);
+  const unsafe = {...input, sdkSourceFiles: {'libs/audio-video-client/src/operations.ts': source.replace('throw new MediaOperationNotAdmittedError("media.operation.retry");', 'return this.request("POST", "/retry");')}};
+  assert.equal(analyzeContractParity(unsafe).retiredFindings.some(row => row.path.endsWith(':retry')), false);
+  assert.equal(analyzeContractParity(unsafe).retiredFindings.length, 4);
+  const legacyArtifact = {...input, sdkSourceFiles: {'libs/audio-video-client/src/operations.ts': source.replace('`/api/v1/artifacts/${', '`/api/v1/media/artifacts/${')}};
+  assert.equal(analyzeContractParity(legacyArtifact).retiredFindings.some(row => row.path.includes('/artifacts/')), false);
+  assert.equal(analyzeContractParity(legacyArtifact).retiredFindings.length, 4);
+  const legacyUpload = {...input, sdkSourceFiles: {'libs/audio-video-client/src/operations.ts': source.replaceAll('/api/v1/artifacts/uploads', '/api/v1/media/uploads')}};
+  assert.equal(analyzeContractParity(legacyUpload).retiredFindings.length, 2);
 });

@@ -15,7 +15,7 @@ scopeStatus: proposal; no tool is admitted, callable, or authorized by this conv
 currentRuntimeBindingObservation:
   status: source-observation-only; owner-and-public-export-binding-pending
   mediaBuildResolution: Current composite build compiles the handler APIs from the Ghatana Tools runtime/java/tool-contracts and runtime/java/tool-runtime sources.
-  sharedPublicAgentToolContract: No matching ToolExecutionEnvelope, ToolExecutionResult, ToolContract, or ToolHandler source/export was found in the inspected Shared platform/java/agent-core or platform/java/agent-runtime trees.
+  sharedPublicAgentToolContract: No matching ToolExecutionEnvelope, ToolExecutionResult, ToolContract, or ToolHandler source/export was found in the inspected Shared platform/java/agent-core or platform/java/agent-runtime trees; Media handlers consume the separately owned Ghatana Tools runtime SPI.
   consequence: Shared owner confirmation of the public Agent Tool/runtime contract and a consumer binding is still required; the Tools build resolution does not establish Shared acceptance or execution admission.
 acceptance:
   status: pending-agent-and-runtime-owner-review
@@ -86,7 +86,7 @@ observedHandlerInventory:
       cancellation: unresolved; runtime/provider cancellation and race semantics pending
       unknownOutcome: unresolved result binding; require original operation resolution before retry
       evidence: unresolved provenance/currentness contract; do not claim transcript/source lineage from handler invocation alone
-      safeFailure: observed handler returns failure for invalid/missing source or unavailable delegate; canonical sanitized error/result semantics and runtime fail-closed enforcement pending
+      safeFailure: observed handler returns failure for invalid/missing source or unavailable delegate; post-dispatch ambiguity is preserved for runtime reconciliation; canonical sanitized error/result semantics remain pending
     - canonicalToolId: av.text-to-speech
       idStatus: observed-in-handler; canonical registry admission pending
       inputSchema:
@@ -94,7 +94,7 @@ observedHandlerInventory:
         fields:
           text: "Observed required nonblank string."
           voiceId: "Observed optional value, default en-US-default; allowed values and schema bounds unresolved."
-          speakingRate: "Observed optional numeric conversion, default 1.0; valid range unresolved."
+          speakingRate: "Observed optional Number, default 1.0; rejects non-finite values and values outside the inclusive range 0.25..4.0."
           audioEncoding: "Observed optional value, default MP3; supported enum unresolved."
           storeAsArtifact: "Observed boolean controlling requested artifact storage; storage effect, authorization, and defaults require canonical definition."
       resultSchema: unresolved; define versioned output/artifact identity, finality, operation identity, failure, and evidence before admission
@@ -104,7 +104,7 @@ observedHandlerInventory:
       cancellation: unresolved; runtime/provider cancellation and possible artifact side effects pending
       unknownOutcome: unresolved result binding; resolve original operation and artifact state before any retry
       evidence: unresolved; generated audio, storage, provenance, and artifact-version evidence must be specified and observed
-      safeFailure: observed handler rejects blank text and reports unavailable delegate; canonical sanitized errors and partial-effect handling remain pending
+      safeFailure: observed handler rejects blank text and reports unavailable delegate; post-dispatch ambiguity is preserved for runtime reconciliation; canonical sanitized errors and partial-effect handling remain pending
     - canonicalToolId: av.vision-analysis
       idStatus: observed-in-handler; canonical registry admission pending
       inputSchema:
@@ -120,7 +120,7 @@ observedHandlerInventory:
       cancellation: unresolved; runtime/provider cancellation and race semantics pending
       unknownOutcome: unresolved result binding; require original operation resolution before retry
       evidence: unresolved model/provider provenance, source/version scope, and integrity/currentness contract
-      safeFailure: observed handler rejects missing source and reports unavailable delegate; canonical sanitized errors and partial-result rules pending
+      safeFailure: observed handler rejects missing source and reports unavailable delegate; post-dispatch ambiguity is preserved for runtime reconciliation; canonical sanitized errors and partial-result rules remain pending
     - canonicalToolId: av.multimodal-inference
       idStatus: observed-in-handler; canonical registry admission pending
       inputSchema:
@@ -137,7 +137,7 @@ observedHandlerInventory:
       cancellation: unresolved across component calls; partial completion and cancellation races pending
       unknownOutcome: unresolved result binding; resolve original operation and component states before retry
       evidence: unresolved per-component source/version, provider/model, provenance, and partial-result evidence
-      safeFailure: observed handler rejects missing artifact ID and reports unavailable delegate; canonical sanitized errors and partial-effect/result rules pending
+      safeFailure: observed handler rejects missing artifact ID and reports unavailable delegate; post-dispatch ambiguity is preserved for runtime reconciliation; canonical sanitized errors and partial-effect/result rules remain pending
 
 admissionGates:
   handlerCapabilityTransportRuntimeBindings: pending; resolve exact registered capability, handler, transport, schema, identity, and runtime enforcement without inferring from class names or source observations
@@ -187,3 +187,26 @@ ownerSemanticSelections:
       effectSemantics: Treat each modality as a distinct sub-effect; report partial, unknown and per-component provenance without overclaiming aggregate success.
       requiredProof: exact-composition-schema; per-modality-policy; sub-effect-idempotency; partial-finality; finite-aggregate-and-component-timeout; per-component-provenance; cancellation-and-reconcile
       executionAdmitted: false
+
+
+mediaHandlerImplementationObservation:
+  status: hardened-adapter-contract; execution-not-admitted
+  sourceRefs:
+    - libs/common/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java
+    - libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java
+  implementedChecks:
+    - Tool ID, version and effect-class binding between invocation envelope and declared tool contract.
+    - Closed top-level input fields and type/bound validation for accepted handler parameters.
+    - Malformed artifact references and malformed byte inputs fail closed; inline bytes have a 20 MiB adapter bound.
+    - Invalid optional values are rejected rather than silently defaulted or coerced.
+  limits:
+    - The invocation envelope itself has no idempotency key, deadline, cancellation token, or authority/delegation evidence fields; the runtime supplies idempotency, deadline, cancellation, and attempt context separately through ToolExecutionBudget and ToolTransportInvocationContext.
+    - Ghatana Tools ToolExecutionResult now supports non-final OUTCOME_UNKNOWN and CANCELLATION_REQUESTED values with operation/attempt references. Media handlers preserve post-dispatch ambiguity on the promise error channel, validate returned invocation identity, and do not persist or reconcile operation state themselves.
+    - Handler checks are schema/context validation only; they do not authorize tenant/resource access or enforce consent, rights, policy, idempotency, or provenance.
+    - Media handlers wrap delegate promises only to reject null or mismatched invocation results; at the Ghatana Tools DefaultToolExecutor boundary, ambiguous effectful failures map to non-final OUTCOME_UNKNOWN while read-only failures map to FAILED.
+  executionAdmitted: false
+  requiredSharedOwnerIntegration:
+    - Publish and qualify the generic invocation SPI with principal/delegation, exact resource scope, invocation deadline, idempotency key, cancellation signal and operation identity.
+    - Publish an explicit non-final outcome-unknown result and status-resolution contract preserving original operation and attempt IDs.
+    - Qualify async completion/error mapping, cancellation races, and effect reconciliation semantics in the Shared runtime.
+    - Bind Media tools to exact canonical operation contracts and independently tested output/provenance schemas.

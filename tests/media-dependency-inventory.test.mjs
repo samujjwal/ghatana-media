@@ -13,10 +13,10 @@ const EXPECTED_DENOMINATORS = Object.freeze({
   cargoManifestCount: 4,
   cargoLockfileCount: 2,
   cargoLockedPackageCount: 114,
-  gradleDeclarationCount: 313,
+  gradleDeclarationCount: 314,
   dockerfileCount: 9,
   pythonDependencyManifestCount: 0,
-  trackedAssetOrFixtureCount: 13,
+  trackedAssetOrFixtureCount: 21,
   modelOrWeightBinaryCount: 0,
   fontBinaryCount: 0,
   gradleLockOrVerificationFileCount: 0,
@@ -28,7 +28,23 @@ const EXPECTED_DENOMINATORS = Object.freeze({
 test("dependency inventory preserves current source denominators and lock membership", () => {
   const report = buildMediaDependencyInventory(root);
   assertNoDenominatorShrink(report, EXPECTED_DENOMINATORS);
+  const asyncTestSupport = report.gradle.declaredDependencies.filter(({ coordinate }) =>
+    coordinate === 'com.ghatana.platform:tool-test-support');
+  assert.equal(asyncTestSupport.length, 1, 'async handler regression uses one explicit public test-support dependency');
+  assert.equal(asyncTestSupport[0].configuration, 'testImplementation');
+  assert.equal(asyncTestSupport[0].distributionProfile, 'TEST_ONLY');
   assert.deepEqual(report.denominators, EXPECTED_DENOMINATORS);
+  // Eight committed browser-reference screenshots joined the tracked inventory.
+  // They are evidence inputs, not a license or independent-review receipt.
+  const browserScreenshots = report.trackedAssets.filter(({ path }) =>
+    path.startsWith("docs/implementation/verification/media-experience-browser-audit-2026-10-08/screenshots/"));
+  assert.deepEqual(browserScreenshots.map(({ path }) => path.split("/").at(-1)), [
+    "candidate-edit-captions-desktop.png", "candidate-edit-captions-narrow-mobile.png",
+    "explore-desktop.png", "explore-narrow-mobile.png",
+    "specification-desktop.png", "specification-narrow-mobile.png",
+    "verify-desktop.png", "verify-narrow-mobile.png",
+  ]);
+  assert.ok(browserScreenshots.every(({ licenseReview }) => licenseReview === "REVIEW_REQUIRED"));
   assert.equal(report.pnpmLock.packages.length, EXPECTED_DENOMINATORS.pnpmLockedPackageCount);
   assert.equal(report.cargo.lockedPackages.length, EXPECTED_DENOMINATORS.cargoLockedPackageCount);
   assert.equal(report.gradle.declaredDependencies.length, EXPECTED_DENOMINATORS.gradleDeclarationCount);

@@ -9,13 +9,13 @@ sourcePopulation:
 contractObservationPolicy:
   authority: Java handler source is authoritative only for behavior directly visible in each adapter.
   schemaVersion: NOT_DECLARED_BY_HANDLER
-  inputSchema: Dynamic Map<String,Object> observations are incomplete, open, and not a canonical validated schema.
-  delegateInputForwarding: If configured, every handler calls delegate.handle(envelope, contract) with the original envelope and ToolContract; it does not construct a filtered or normalized request.
+  inputSchema: Media adapters enforce closed top-level key sets and local field validation, but these Java checks are not a published JSON Schema and do not establish a canonical public schema.
+  delegateInputForwarding: If configured, every handler delegates the original envelope and ToolContract through AgentToolInput.dispatch; it does not construct a filtered or normalized request. The returned result is checked for invocationId equality.
   outputSchema: Delegate results are passed through; no successful output schema is validated by these handlers.
-  asynchronousFailure: A delegate Promise is returned unchanged; these adapters do not attach asynchronous recovery or convert later Promise failures into the local caughtException result.
+  asynchronousFailure: The adapter preserves delegate rejection and synchronous throw, and rejects null promise or mismatched invocationId results. The DefaultToolExecutor boundary maps effectful post-dispatch ambiguity to non-final OUTCOME_UNKNOWN and read-only rejection to FAILED; direct handler use preserves the rejection channel.
   localFailedResultArguments: ToolExecutionResult.failed receives invocationId for both its first and third arguments, the observed end Instant, and Duration.between(start, end).
   localFailedResultMapping: "Sibling Tools source observation only (runtime/java/tool-contracts/.../ToolExecutionResult.java): the failed(String, String, String, Instant, Duration) factory maps these non-code messages to status FAILED and failure kind INTERNAL/stage EXECUTION; its code normalizer falls back to TOOL_EXECUTION_FAILED for messages that are not a valid code. Installed package resolution and owner acceptance are not established by this Media observation."
-  preTryNullArguments: Objects.requireNonNull(envelope/contract) executes before the try block in each handler, so a null argument throws directly and is not converted to Promise<ToolExecutionResult>.
+  preTryNullArguments: Objects.requireNonNull(envelope/contract) executes before the try block in each handler, so a null argument throws directly. Envelope/contract tool ID, version and action-class mismatch is now rejected inside the validation boundary.
   runtimeAndAvailability: UNRESOLVED; factory registration does not prove a configured delegate, runtime availability, or production readiness.
   operationBinding: UNRESOLVED; tool identifiers are observed handler IDs and are not mapped to PDP-1 operations here.
   executionAdmitted: false
@@ -31,32 +31,32 @@ tools:
     inputSchema:
       observationStatus: handler-source-observation-only
       schemaVersion: {value: null, status: not-declared-by-handler}
-      closed: false
+      closed: true
       sourceType: Map<String,Object> from ToolExecutionEnvelope.input()
       fields:
-        - {name: audioSource, type: "Map<?,?> when recognized", presence: optional-wrapper, sourceExpression: 'input.get("audioSource")', semantics: nested source wrapper}
-        - {name: audioSource.mediaArtifactId, type: Object, presence: accepted-if-key-present, sourceExpression: 'src.containsKey("mediaArtifactId")', validation: value type, nonblankness, resource resolution and bounds not checked}
-        - {name: audioSource.audioBytes, type: Object, presence: accepted-if-key-present, sourceExpression: 'src.containsKey("audioBytes")', validation: value type and byte bounds not checked}
-        - {name: mediaArtifactId, type: Object, presence: accepted-flat-fallback-if-key-present, sourceExpression: 'input.containsKey("mediaArtifactId")', validation: value type, nonblankness and resource resolution not checked}
-      rejection: Throws IllegalArgumentException("audioSource must contain mediaArtifactId or audioBytes") if no recognized nested key and no flat mediaArtifactId key; unknown fields are not rejected.
+        - {name: audioSource, type: object, presence: required, validation: exactly one nested mediaArtifactId or bounded Base64 audioBytes field}
+        - {name: languageCode, type: String, presence: optional, default: en-US, validation: valid BCP-47 tag}
+        - {name: enableDiarization, type: boolean, presence: optional, default: false, validation: strict boolean}
+        - {name: model, type: String, presence: optional, default: default, validation: default, enhanced, or telephony}
+      rejection: Rejects missing or malformed nested source, flat fallback, malformed Base64 and unknown top-level fields before delegation.
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
-      success: Exact delegate Promise is returned without output validation; result fields/schema are not visible here.
+      success: Delegate result is returned without output validation after invocationId equality check; result fields/schema remain unresolved.
       noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video STT provider unavailable for <source>: no speech-to-text service delegate configured", invocationId, end, elapsed Duration)'
-      caughtException: 'ToolExecutionResult.failed(invocationId, "STT processing error: " + exception message, invocationId, end, elapsed Duration)'
-      finality: {value: null, status: not-established-by-handler-or-delegate-contract}
-      errorDisclosure: Caught exception message is interpolated without sanitization or bounds in this handler.
+      preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "STT processing error: " + exception message, invocationId, end, elapsed Duration)'
+      finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.
+      errorDisclosure: Local failure is constructed from bounded validation reason codes; canonical public error mapping remains unresolved. Delegate errors remain on the Promise error channel.
     safetyAndEffects:
       envelopeChecks: Objects.requireNonNull(envelope) and Objects.requireNonNull(contract)
       nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.
-      delegateInputForwarding: When configured, delegate.handle receives the original envelope and contract unchanged.
+      delegateInputForwarding: After local envelope/contract and input validation, delegate.handle receives the original envelope and contract unchanged through AgentToolInput.dispatch.
       observedContext: Logs invocationId and tenantId; these values are not authorization checks.
       effect: No provider operation is performed by this adapter; any effect is delegated and unresolved.
       authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}
-      timeoutCancellationIdempotencyEvidence: {value: null, status: not-shown-by-handler}
+      timeoutCancellationIdempotencyEvidence: {value: null, status: unavailable-in-invocation-spi-and-not-shown-by-handler}
     availability: {value: null, status: unresolved-delegate-and-runtime-binding}
-    safeFailure: Handler returns local failed result for invalid source, missing delegate, or caught exception; sanitized error, post-dispatch state and canonical recovery semantics unresolved.
+    safeFailure: Handler returns local failure for invalid input or absent delegate. After dispatch, synchronous throw, null/rejected Promise, or mismatched invocationId remains an ambiguous Promise failure for runtime reconciliation.
   - id: av.text-to-speech
     canonicalId: av.text-to-speech
     handler: TextToSpeechToolHandler
@@ -68,33 +68,34 @@ tools:
     inputSchema:
       observationStatus: handler-source-observation-only
       schemaVersion: {value: null, status: not-declared-by-handler}
-      closed: false
+      closed: true
       sourceType: Map<String,Object> from ToolExecutionEnvelope.input()
       fields:
-        - {name: text, type: String, presence: required, sourceExpression: 'requireString(input, "text")', validation: must be nonblank}
-        - {name: voiceId, type: String cast from Object, presence: optional, default: en-US-default, sourceExpression: '(String) input.getOrDefault("voiceId", "en-US-default")', validation: allowed voice values and bounds not checked}
-        - {name: speakingRate, type: Number converted to double or fallback, presence: optional, default: 1.0, sourceExpression: 'toDouble(input.getOrDefault("speakingRate", 1.0))', validation: non-Number silently becomes 1.0; numeric range not checked}
-        - {name: audioEncoding, type: String cast from Object, presence: optional, default: MP3, sourceExpression: '(String) input.getOrDefault("audioEncoding", "MP3")', validation: supported values not checked}
-        - {name: storeAsArtifact, type: boolean, presence: optional, default: false, sourceExpression: 'Boolean.TRUE.equals(input.get("storeAsArtifact"))', validation: only true enables the logged request flag; adapter does not store an artifact}
-      rejection: Missing or blank text throws IllegalArgumentException("Required input field 'text' is missing or blank"); wrong String casts may throw and be caught; unknown fields are not rejected.
+        - {name: text, type: String, presence: required, maxLength: 10000, validation: nonblank plain text; angle-bracket characters are accepted as text; SSML semantics are not independently detected or admitted}
+        - {name: voiceId, type: String, presence: optional, default: en-US-default, maxLength: 128}
+        - {name: speakingRate, type: Number, presence: optional, default: 1.0, minimum: 0.25, maximum: 4.0}
+        - {name: pitch, type: Number, presence: optional, default: 0.0, minimum: -20.0, maximum: 20.0}
+        - {name: audioEncoding, type: String, presence: optional, default: MP3, enum: MP3|WAV|OGG_OPUS|LINEAR16}
+        - {name: storeAsArtifact, type: boolean, presence: optional, default: false, validation: strict boolean}
+      rejection: Rejects missing, blank or over-100000-character text, invalid option types/ranges, and unknown top-level fields before delegation.
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
-      success: Exact delegate Promise is returned without output validation; result fields/schema are not visible here.
+      success: Delegate result is returned without output validation after invocationId equality check; result fields/schema remain unresolved.
       noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video TTS provider unavailable: no text-to-speech service delegate configured", invocationId, end, elapsed Duration)'
-      caughtException: 'ToolExecutionResult.failed(invocationId, "TTS processing error: " + exception message, invocationId, end, elapsed Duration)'
-      finality: {value: null, status: not-established-by-handler-or-delegate-contract}
-      errorDisclosure: Caught exception message is interpolated without sanitization or bounds in this handler.
+      preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "TTS processing error: " + exception message, invocationId, end, elapsed Duration)'
+      finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.
+      errorDisclosure: Local failure is constructed from bounded validation reason codes; canonical public error mapping remains unresolved. Delegate errors remain on the Promise error channel.
     safetyAndEffects:
       envelopeChecks: Objects.requireNonNull(envelope) and Objects.requireNonNull(contract)
       nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.
-      delegateInputForwarding: When configured, delegate.handle receives the original envelope and contract unchanged.
+      delegateInputForwarding: After local envelope/contract and input validation, delegate.handle receives the original envelope and contract unchanged through AgentToolInput.dispatch.
       observedContext: Logs invocationId and tenantId; these values are not authorization checks.
       effect: No synthesis or artifact write is performed by this adapter; storeAsArtifact is only read/logged and delegate effects are unresolved.
       authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}
-      timeoutCancellationIdempotencyEvidence: {value: null, status: not-shown-by-handler}
+      timeoutCancellationIdempotencyEvidence: {value: null, status: unavailable-in-invocation-spi-and-not-shown-by-handler}
     availability: {value: null, status: unresolved-delegate-and-runtime-binding}
-    safeFailure: Handler returns local failed result for invalid text, missing delegate, or caught exception; sanitized error, partial effects and canonical recovery semantics unresolved.
+    safeFailure: Handler returns local failure for invalid input or absent delegate. After dispatch, synchronous throw, null/rejected Promise, or mismatched invocationId remains an ambiguous Promise failure for runtime reconciliation.
   - id: av.vision-analysis
     canonicalId: av.vision-analysis
     handler: VisionAnalysisToolHandler
@@ -106,34 +107,33 @@ tools:
     inputSchema:
       observationStatus: handler-source-observation-only
       schemaVersion: {value: null, status: not-declared-by-handler}
-      closed: false
+      closed: true
       sourceType: Map<String,Object> from ToolExecutionEnvelope.input()
       fields:
-        - {name: mediaSource, type: "Map<?,?> when recognized", presence: optional-wrapper, sourceExpression: 'input.get("mediaSource")', semantics: nested source wrapper}
-        - {name: mediaSource.mediaArtifactId, type: Object, presence: accepted-if-key-present, sourceExpression: 'srcMap.containsKey("mediaArtifactId")', validation: value type, nonblankness, resource resolution and bounds not checked}
-        - {name: mediaSource.imageBytes, type: Object, presence: accepted-if-key-present, sourceExpression: 'srcMap.containsKey("imageBytes")', validation: value type and byte bounds not checked}
-        - {name: mediaArtifactId, type: Object, presence: accepted-flat-fallback-if-key-present, sourceExpression: 'input.containsKey("mediaArtifactId")', validation: value type, nonblankness and resource resolution not checked}
-        - {name: analysisTypes, type: unchecked List<String> cast from Object, presence: optional, default: [OBJECT_DETECTION], sourceExpression: '(List<String>) input.getOrDefault("analysisTypes", List.of("OBJECT_DETECTION"))', validation: element types and supported values not checked}
-        - {name: maxResults, type: Number converted with intValue or fallback, presence: optional, default: 10, sourceExpression: 'toInt(input.getOrDefault("maxResults", 10))', validation: non-Number silently becomes 10; fractional values truncate; range not checked}
-      rejection: Throws IllegalArgumentException("mediaSource must contain mediaArtifactId or imageBytes") if no recognized nested key and no flat mediaArtifactId key; unknown fields are not rejected.
+        - {name: mediaSource, type: object, presence: required, validation: artifact reference or bounded Base64 imageBytes; optional allowlisted mimeType}
+        - {name: analysisTypes, type: List<String>, presence: required, minItems: 1, maxItems: 8, enum: OBJECT_DETECTION|SCENE_CLASSIFICATION|OCR|FACE_DETECTION|LABEL_DETECTION|CUSTOM_MODEL}
+        - {name: maxResults, type: integer, presence: optional, default: 10, minimum: 1, maximum: 100}
+        - {name: confidenceThreshold, type: Number, presence: optional, default: 0.5, minimum: 0, maximum: 1}
+        - {name: customModelId, type: String, presence: conditionally-required, maxLength: 512, condition: CUSTOM_MODEL analysis}
+      rejection: Rejects missing or malformed nested source, flat fallback, malformed Base64 and unknown top-level fields before delegation.
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
-      success: Exact delegate Promise is returned without output validation; result fields/schema are not visible here.
+      success: Delegate result is returned without output validation after invocationId equality check; result fields/schema remain unresolved.
       noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video Vision provider unavailable: no vision analysis service delegate configured", invocationId, end, elapsed Duration)'
-      caughtException: 'ToolExecutionResult.failed(invocationId, "Vision analysis error: " + exception message, invocationId, end, elapsed Duration)'
-      finality: {value: null, status: not-established-by-handler-or-delegate-contract}
-      errorDisclosure: Caught exception message is interpolated without sanitization or bounds in this handler.
+      preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "Vision analysis error: " + exception message, invocationId, end, elapsed Duration)'
+      finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.
+      errorDisclosure: Local failure is constructed from bounded validation reason codes; canonical public error mapping remains unresolved. Delegate errors remain on the Promise error channel.
     safetyAndEffects:
       envelopeChecks: Objects.requireNonNull(envelope) and Objects.requireNonNull(contract)
       nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.
-      delegateInputForwarding: When configured, delegate.handle receives the original envelope and contract unchanged.
+      delegateInputForwarding: After local envelope/contract and input validation, delegate.handle receives the original envelope and contract unchanged through AgentToolInput.dispatch.
       observedContext: Logs invocationId and tenantId; these values are not authorization checks.
       effect: No provider operation is performed by this adapter; any effect is delegated and unresolved.
       authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}
-      timeoutCancellationIdempotencyEvidence: {value: null, status: not-shown-by-handler}
+      timeoutCancellationIdempotencyEvidence: {value: null, status: unavailable-in-invocation-spi-and-not-shown-by-handler}
     availability: {value: null, status: unresolved-delegate-and-runtime-binding}
-    safeFailure: Handler returns local failed result for invalid source, missing delegate, or caught exception; sanitized error, post-dispatch state and canonical recovery semantics unresolved.
+    safeFailure: Handler returns local failure for invalid input or absent delegate. After dispatch, synchronous throw, null/rejected Promise, or mismatched invocationId remains an ambiguous Promise failure for runtime reconciliation.
   - id: av.multimodal-inference
     canonicalId: av.multimodal-inference
     handler: MultimodalInferenceToolHandler
@@ -145,29 +145,38 @@ tools:
     inputSchema:
       observationStatus: handler-source-observation-only
       schemaVersion: {value: null, status: not-declared-by-handler}
-      closed: false
+      closed: true
       sourceType: Map<String,Object> from ToolExecutionEnvelope.input()
       fields:
-        - {name: mediaArtifactId, type: String, presence: required, sourceExpression: 'requireString(input, "mediaArtifactId")', validation: must be nonblank}
-        - {name: inferenceMode, type: String cast from Object, presence: optional, default: SUMMARY, sourceExpression: '(String) input.getOrDefault("inferenceMode", "SUMMARY")', validation: allowed values and bounds not checked}
-        - {name: enableTranscription, type: boolean, presence: optional, default: true, sourceExpression: '!Boolean.FALSE.equals(input.get("enableTranscription"))', validation: only Boolean.FALSE disables}
-        - {name: enableVisionAnalysis, type: boolean, presence: optional, default: true, sourceExpression: '!Boolean.FALSE.equals(input.get("enableVisionAnalysis"))', validation: only Boolean.FALSE disables}
+        - {name: mediaArtifactId, type: String, presence: required, maxLength: 512}
+        - {name: inferenceMode, type: String, presence: optional, default: SUMMARY, enum: SUMMARY|SEGMENT|FRAME_BY_FRAME|FULL}
+        - {name: samplingRateMs, type: integer, presence: optional, default: 1000, minimum: 100, maximum: 60000}
+        - {name: enableTranscription, type: boolean, presence: optional, default: true, validation: strict boolean}
+        - {name: enableVisionAnalysis, type: boolean, presence: optional, default: true, validation: strict boolean}
+        - {name: languageCode, type: String, presence: optional, default: en-US, validation: valid BCP-47 tag}
       rejection: Missing or blank mediaArtifactId throws IllegalArgumentException("Required input field 'mediaArtifactId' is missing or blank"); wrong String casts may throw and be caught; unknown fields are not rejected.
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
-      success: Exact delegate Promise is returned without output validation; component or partial-result semantics are not visible here.
+      success: Delegate result is returned without output validation after invocationId equality check; component and partial-result semantics remain unresolved.
       noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video Multimodal provider unavailable: no multimodal inference service delegate configured", invocationId, end, elapsed Duration)'
-      caughtException: 'ToolExecutionResult.failed(invocationId, "Multimodal inference error: " + exception message, invocationId, end, elapsed Duration)'
-      finality: {value: null, status: not-established-by-handler-or-delegate-contract}
-      errorDisclosure: Caught exception message is interpolated without sanitization or bounds in this handler.
+      preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "Multimodal inference error: " + exception message, invocationId, end, elapsed Duration)'
+      finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.
+      errorDisclosure: Local failure is constructed from bounded validation reason codes; canonical public error mapping remains unresolved. Delegate errors remain on the Promise error channel.
     safetyAndEffects:
       envelopeChecks: Objects.requireNonNull(envelope) and Objects.requireNonNull(contract)
       nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.
-      delegateInputForwarding: When configured, delegate.handle receives the original envelope and contract unchanged.
+      delegateInputForwarding: After local envelope/contract and input validation, delegate.handle receives the original envelope and contract unchanged through AgentToolInput.dispatch.
       observedContext: Logs invocationId and tenantId; these values are not authorization checks.
       effect: No inference component is invoked by this adapter; any component work/effects are delegated and unresolved.
       authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}
-      timeoutCancellationIdempotencyEvidence: {value: null, status: not-shown-by-handler}
+      timeoutCancellationIdempotencyEvidence: {value: null, status: unavailable-in-invocation-spi-and-not-shown-by-handler}
     availability: {value: null, status: unresolved-delegate-and-runtime-binding}
-    safeFailure: Handler returns local failed result for invalid artifact ID, missing delegate, or caught exception; sanitized error, partial effects/results and canonical recovery semantics unresolved.
+    safeFailure: Handler returns local failure for invalid input or absent delegate. After dispatch, synchronous throw, null/rejected Promise, or mismatched invocationId remains an ambiguous Promise failure for runtime reconciliation.
+
+implementationUpdate:
+  status: adapter-validation-hardened; execution-not-admitted
+  source: libs/common/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java
+  evidence: Scoped Java tests cover exact context binding, closed inputs, type/range checks, and fail-closed rejection.
+  limitation: Local handler checks do not enforce authority; the executor policy boundary checks tenant, caller, action, required permissions and policy tags. Budgeted runtime calls carry deadline, idempotency, cancellation, attempt and correlation through ToolExecutionBudget and ToolTransportInvocationContext. Delegation-chain authority evidence and operation-specific result/provenance bindings remain unavailable here.
+  executionAdmitted: false

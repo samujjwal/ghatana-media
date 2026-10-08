@@ -65,8 +65,8 @@ class MediaRuntimeJobTimeoutTest {
                     "confidential",
                     Duration.ofHours(1),
                     Map.of()));
-            runtime.appendChunk("tenant-a", upload.uploadId(), 0, content);
-            var artifact = runtime.completeUpload("tenant-a", upload.uploadId());
+            runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0, content);
+            var artifact = runtime.completeUpload("tenant-a", "principal-a", upload.uploadId());
 
             var accepted = runtime.submit(new ProcessingJobRequest(
                     "request-a",
@@ -83,7 +83,7 @@ class MediaRuntimeJobTimeoutTest {
             while (terminal.status() == JobStatus.ACCEPTED || terminal.status() == JobStatus.RUNNING) {
                 assertThat(System.nanoTime()).isLessThan(deadline);
                 Thread.sleep(10);
-                terminal = runtime.job("tenant-a", accepted.jobId()).orElseThrow();
+                terminal = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
             }
 
             assertThat(terminal.status()).isEqualTo(JobStatus.FAILED);
@@ -95,7 +95,7 @@ class MediaRuntimeJobTimeoutTest {
 
             long terminalVersion = terminal.version();
             Thread.sleep(20);
-            var persisted = runtime.job("tenant-a", accepted.jobId()).orElseThrow();
+            var persisted = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
             assertThat(persisted.status()).isEqualTo(JobStatus.FAILED);
             assertThat(persisted.failureCode()).isEqualTo("PROCESSING_TIMEOUT");
             assertThat(persisted.version()).isEqualTo(terminalVersion);

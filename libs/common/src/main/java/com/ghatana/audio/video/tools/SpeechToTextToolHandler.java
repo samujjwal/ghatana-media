@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@link ToolHandler} adapter for the Audio-Video Speech-to-Text service.
@@ -51,18 +52,20 @@ public final class SpeechToTextToolHandler implements ToolHandler {
         Objects.requireNonNull(contract, "contract must not be null");
 
         Instant start = Instant.now();
-        Map<String, Object> input = envelope.input();
+        Map<String, Object> input;
+        String audioSource;
 
         log.debug("STT invocation [{}] tenant={}", envelope.invocationId(), envelope.tenantId());
 
         try {
-            String audioSource = resolveAudioSource(input);
+            input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("audioSource", "languageCode", "enableDiarization", "model"));
+            audioSource = resolveAudioSource(input);
+            AgentToolInput.languageTag(input.get("languageCode"), "en-US");
+            if (!(input.getOrDefault("enableDiarization", Boolean.FALSE) instanceof Boolean))
+                throw new IllegalArgumentException("INVALID_ENABLE_DIARIZATION");
+            if (!Set.of("default", "enhanced", "telephony").contains(input.getOrDefault("model", "default")))
+                throw new IllegalArgumentException("INVALID_MODEL");
 
-            if (delegate == null) {
-                return providerUnavailable(envelope, start, audioSource);
-            }
-
-            return delegate.handle(envelope, contract);
         } catch (Exception e) {
             log.error("STT handler failed for invocation {}: {}", envelope.invocationId(), e.getMessage(), e);
             Instant end = Instant.now();
@@ -73,6 +76,8 @@ public final class SpeechToTextToolHandler implements ToolHandler {
                     end,
                     Duration.between(start, end)));
         }
+        if (delegate == null) return providerUnavailable(envelope, start, audioSource);
+        return AgentToolInput.dispatch(delegate, envelope, contract);
     }
 
     private Promise<ToolExecutionResult> providerUnavailable(
@@ -89,20 +94,7 @@ public final class SpeechToTextToolHandler implements ToolHandler {
     }
 
     private String resolveAudioSource(Map<String, Object> input) {
-        Object mediaSource = input.get("audioSource");
-        if (mediaSource instanceof Map<?, ?> src) {
-            if (src.containsKey("mediaArtifactId")) {
-                return "artifact:" + src.get("mediaArtifactId");
-            }
-            if (src.containsKey("audioBytes")) {
-                return "bytes:inline";
-            }
-        }
-        // Flat-map fallback (direct keys)
-        if (input.containsKey("mediaArtifactId")) {
-            return "artifact:" + input.get("mediaArtifactId");
-        }
-        throw new IllegalArgumentException("audioSource must contain mediaArtifactId or audioBytes");
+        return AgentToolInput.source(input, "audioSource", "audioBytes", 20 * 1024 * 1024, false);
     }
 
 }

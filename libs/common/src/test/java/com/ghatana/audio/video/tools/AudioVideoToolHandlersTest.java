@@ -11,6 +11,7 @@ import com.ghatana.agent.framework.tools.ToolExecutionResult;
 import com.ghatana.agent.framework.tools.ToolExecutionStatus;
 import com.ghatana.agent.framework.tools.ToolTransport;
 import io.activej.promise.Promise;
+import com.ghatana.tools.testing.EventloopTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -32,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Unit tests for all Audio-Video ToolHandler implementations and the factory.
  */
 @DisplayName("AudioVideo ToolHandlers")
-class AudioVideoToolHandlersTest {
+class AudioVideoToolHandlersTest extends EventloopTestBase {
 
     private ToolContract dummyContract;
 
@@ -50,13 +51,14 @@ class AudioVideoToolHandlersTest {
                 "tenant-test", ToolActionClass.CALL_EXTERNAL, "1.0", input);
     }
 
+    private ToolContract contractFor(ToolExecutionEnvelope envelope) {
+        return new ToolContract(envelope.toolId(), envelope.toolVersion(), "Test Tool", "description",
+                envelope.actionClass(), false, true, Map.of(), Map.of(), Set.of(),
+                ToolTransport.IN_PROCESS, null, Map.of());
+    }
+
     private ToolExecutionResult await(Promise<ToolExecutionResult> p) {
-        // ToolHandlers are synchronous — invoke directly via promise value
-        try {
-            return p.getResult();
-        } catch (Exception e) {
-            throw new AssertionError("Promise failed unexpectedly", e);
-        }
+        return runPromise(() -> p);
     }
 
     private com.ghatana.toolruntime.ToolHandler delegateReturning(Map<String, Object> output) {
@@ -82,11 +84,12 @@ class AudioVideoToolHandlersTest {
             return delegatedPromise;
         };
 
-        Promise<ToolExecutionResult> returnedPromise = wrap.apply(delegate).handle(envelope, dummyContract);
+        Promise<ToolExecutionResult> returnedPromise = wrap.apply(delegate).handle(envelope, contractFor(envelope));
 
-        assertThat(returnedPromise).isSameAs(delegatedPromise);
+        assertThat(returnedPromise).isNotSameAs(delegatedPromise);
+        assertThat(await(returnedPromise).invocationId()).isEqualTo(envelope.invocationId());
         assertThat(receivedEnvelope.get()).isSameAs(envelope);
-        assertThat(receivedContract.get()).isSameAs(dummyContract);
+        assertThat(receivedContract.get()).isEqualTo(contractFor(envelope));
     }
 
     // =========================================================================
@@ -113,16 +116,16 @@ class AudioVideoToolHandlersTest {
         void succeedsWithArtifactSource() {
             Map<String, Object> audioSource = Map.of("mediaArtifactId", "artifact-42");
             ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("audioSource", audioSource));
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
         }
 
         @Test
         @DisplayName("succeeds with audioBytes in audioSource")
         void succeedsWithBytesSource() {
-            Map<String, Object> audioSource = Map.of("audioBytes", "BASE64==");
+            Map<String, Object> audioSource = Map.of("audioBytes", "AQID");
             ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("audioSource", audioSource));
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
         }
 
@@ -130,25 +133,22 @@ class AudioVideoToolHandlersTest {
         @DisplayName("fails when audioSource is missing")
         void failsWhenAudioSourceMissing() {
             ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of());
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.failure()).isNotNull();
             assertThat(result.failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
         }
 
         @Test
-        @DisplayName("returns the delegate-provided STT output without validating a result schema")
-        void returnsDelegateOutputWithoutSchemaValidation() {
+        @DisplayName("rejects undeclared STT input fields")
+        void rejectsUndeclaredSttInputFields() {
             Map<String, Object> input = new LinkedHashMap<>();
             input.put("audioSource", Map.of("mediaArtifactId", "artifact-1"));
-            input.put("languageCode", "fr-FR");
+            input.put("untrustedExtra", "must-not-reach-delegate");
             ToolExecutionEnvelope env = envelope("av.speech-to-text", input);
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
-            assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
-            @SuppressWarnings("unchecked")
-            Map<String, Object> output = (Map<String, Object>) result.output();
-            assertThat(output).isEqualTo(Map.of(
-                    "transcript", "hello", "segments", List.of(), "confidence", 0.95, "languageDetected", "fr-FR"));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
+            assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+            assertThat(result.failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
         }
 
         @Test
@@ -158,7 +158,7 @@ class AudioVideoToolHandlersTest {
             ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of(
                     "audioSource", Map.of("mediaArtifactId", "artifact-1")));
 
-            ToolExecutionResult result = await(defaultHandler.handle(env, dummyContract));
+            ToolExecutionResult result = await(defaultHandler.handle(env, contractFor(env)));
 
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.failure()).isNotNull();
@@ -205,6 +205,90 @@ class AudioVideoToolHandlersTest {
     }
 
     @Test
+    @DisplayName("all delegates preserve ambiguous post-dispatch failures and reject mismatched result identity")
+    void delegatedAmbiguityAndIdentityMismatchRemainNonfinal() {
+        List<Map.Entry<ToolExecutionEnvelope, Function<com.ghatana.toolruntime.ToolHandler, com.ghatana.toolruntime.ToolHandler>>> cases = List.of(
+                Map.entry(envelope("av.speech-to-text", Map.of("audioSource", Map.of("mediaArtifactId", "a"))), SpeechToTextToolHandler::new),
+                Map.entry(envelope("av.text-to-speech", Map.of("text", "hello")), TextToSpeechToolHandler::new),
+                Map.entry(envelope("av.vision-analysis", Map.of("mediaSource", Map.of("mediaArtifactId", "a"))), VisionAnalysisToolHandler::new),
+                Map.entry(envelope("av.multimodal-inference", Map.of("mediaArtifactId", "a")), MultimodalInferenceToolHandler::new));
+
+        for (var entry : cases) {
+            var input = entry.getKey();
+            var wrap = entry.getValue();
+            var syncThrow = wrap.apply((e, c) -> { throw new IllegalStateException("dispatch-ambiguous"); });
+            assertThatThrownBy(() -> await(syncThrow.handle(input, contractFor(input))))
+                    .hasMessage("dispatch-ambiguous");
+
+            var asyncReject = wrap.apply((e, c) -> Promise.ofException(new IllegalStateException("async-ambiguous")));
+            assertThatThrownBy(() -> await(asyncReject.handle(input, contractFor(input))))
+                    .hasMessage("async-ambiguous");
+
+            var nullPromise = wrap.apply((e, c) -> null);
+            assertThatThrownBy(() -> await(nullPromise.handle(input, contractFor(input))))
+                    .hasMessage("delegate returned null promise");
+
+            var wrongIdentity = wrap.apply((e, c) -> Promise.of(ToolExecutionResult.succeeded(
+                    "other-invocation", Map.of(), Map.of(), "other-invocation", Instant.now(), Duration.ZERO)));
+            assertThatThrownBy(() -> await(wrongIdentity.handle(input, contractFor(input))))
+                    .hasMessage("DELEGATE_INVOCATION_IDENTITY_MISMATCH");
+        }
+    }
+
+    @Test
+    @DisplayName("TTS accepts ordinary comparison and emoticon characters as plain text")
+    void ttsAcceptsAngleBracketsAsOrdinaryText() {
+        AtomicReference<Boolean> dispatched = new AtomicReference<>(false);
+        ToolExecutionEnvelope input = envelope("av.text-to-speech", Map.of("text", "2 < 3 :) and a > b"));
+        TextToSpeechToolHandler handler = new TextToSpeechToolHandler((e, c) -> {
+            dispatched.set(true);
+            return Promise.of(ToolExecutionResult.succeeded(e.invocationId(), Map.of(), Map.of(),
+                    e.invocationId(), Instant.now(), Duration.ZERO));
+        });
+        assertThat(await(handler.handle(input, contractFor(input))).status()).isEqualTo(ToolExecutionStatus.SUCCESS);
+        assertThat(dispatched.get()).isTrue();
+    }
+
+    @Test
+    @DisplayName("rejects mismatched declared tool identity before delegate dispatch")
+    void rejectsContractIdentityMismatch() {
+        AtomicReference<Boolean> invoked = new AtomicReference<>(false);
+        SpeechToTextToolHandler handler = new SpeechToTextToolHandler((envelope, contract) -> {
+            invoked.set(true);
+            return Promise.of(ToolExecutionResult.succeeded(envelope.invocationId(), Map.of(), Map.of(),
+                    envelope.invocationId(), Instant.now(), Duration.ZERO));
+        });
+        ToolExecutionEnvelope request = envelope("av.speech-to-text", Map.of(
+                "audioSource", Map.of("mediaArtifactId", "asset-1")));
+
+        ToolExecutionResult result = await(handler.handle(request, dummyContract));
+
+        assertThat(invoked.get()).isFalse();
+        assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+        assertThat(result.output()).isNull();
+    }
+
+    @Test
+    @DisplayName("rejects out-of-range synthesis and analysis bounds before delegation")
+    void rejectsOutOfRangeArguments() {
+        AtomicReference<Integer> dispatches = new AtomicReference<>(0);
+        com.ghatana.toolruntime.ToolHandler delegate = (envelope, contract) -> {
+            dispatches.set(dispatches.get() + 1);
+            return Promise.of(ToolExecutionResult.succeeded(envelope.invocationId(), Map.of(), Map.of(),
+                    envelope.invocationId(), Instant.now(), Duration.ZERO));
+        };
+        ToolExecutionEnvelope tts = envelope("av.text-to-speech", Map.of("text", "hello", "speakingRate", 9.0));
+        ToolExecutionEnvelope vision = envelope("av.vision-analysis", Map.of(
+                "mediaSource", Map.of("mediaArtifactId", "image-1"), "maxResults", 101));
+
+        assertThat(await(new TextToSpeechToolHandler(delegate).handle(tts, contractFor(tts))).status())
+                .isEqualTo(ToolExecutionStatus.FAILED);
+        assertThat(await(new VisionAnalysisToolHandler(delegate).handle(vision, contractFor(vision))).status())
+                .isEqualTo(ToolExecutionStatus.FAILED);
+        assertThat(dispatches.get()).isZero();
+    }
+
+    @Test
     @DisplayName("local invalid-input results preserve only observed invocation metadata")
     void localFailuresHaveExactObservedResultShape() {
         List<Map.Entry<ToolExecutionEnvelope, com.ghatana.toolruntime.ToolHandler>> cases = List.of(
@@ -215,7 +299,7 @@ class AudioVideoToolHandlersTest {
 
         for (Map.Entry<ToolExecutionEnvelope, com.ghatana.toolruntime.ToolHandler> testCase : cases) {
             ToolExecutionEnvelope input = testCase.getKey();
-            ToolExecutionResult result = await(testCase.getValue().handle(input, dummyContract));
+            ToolExecutionResult result = await(testCase.getValue().handle(input, contractFor(input)));
 
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.invocationId()).isEqualTo(input.invocationId());
@@ -255,7 +339,7 @@ class AudioVideoToolHandlersTest {
         @DisplayName("succeeds with valid text")
         void succeedsWithValidText() {
             ToolExecutionEnvelope env = envelope("av.text-to-speech", Map.of("text", "Hello world"));
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
         }
 
@@ -263,7 +347,7 @@ class AudioVideoToolHandlersTest {
         @DisplayName("fails when text is missing")
         void failsWhenTextMissing() {
             ToolExecutionEnvelope env = envelope("av.text-to-speech", Map.of());
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.failure()).isNotNull();
             assertThat(result.failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
@@ -274,7 +358,7 @@ class AudioVideoToolHandlersTest {
         void returnsDelegateOutputWithoutProvingArtifactStorage() {
             Map<String, Object> input = Map.of("text", "Synthesize this", "storeAsArtifact", true);
             ToolExecutionEnvelope env = envelope("av.text-to-speech", input);
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
             @SuppressWarnings("unchecked")
             Map<String, Object> output = (Map<String, Object>) result.output();
@@ -288,7 +372,7 @@ class AudioVideoToolHandlersTest {
             TextToSpeechToolHandler defaultHandler = new TextToSpeechToolHandler();
             ToolExecutionEnvelope env = envelope("av.text-to-speech", Map.of("text", "Hello world"));
 
-            ToolExecutionResult result = await(defaultHandler.handle(env, dummyContract));
+            ToolExecutionResult result = await(defaultHandler.handle(env, contractFor(env)));
 
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.failure()).isNotNull();
@@ -322,7 +406,7 @@ class AudioVideoToolHandlersTest {
                     "mediaSource", Map.of("mediaArtifactId", "img-artifact-1"),
                     "analysisTypes", List.of("OBJECT_DETECTION"));
             ToolExecutionEnvelope env = envelope("av.vision-analysis", input);
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
         }
 
@@ -330,7 +414,7 @@ class AudioVideoToolHandlersTest {
         @DisplayName("fails when mediaSource is absent")
         void failsWhenMediaSourceAbsent() {
             ToolExecutionEnvelope env = envelope("av.vision-analysis", Map.of("analysisTypes", List.of("OCR")));
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.failure()).isNotNull();
             assertThat(result.failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
@@ -343,7 +427,7 @@ class AudioVideoToolHandlersTest {
                     "mediaSource", Map.of("mediaArtifactId", "img-42"),
                     "analysisTypes", List.of("OBJECT_DETECTION", "OCR"));
             ToolExecutionEnvelope env = envelope("av.vision-analysis", input);
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             @SuppressWarnings("unchecked")
             Map<String, Object> output = (Map<String, Object>) result.output();
             assertThat(output).isEqualTo(Map.of(
@@ -357,7 +441,7 @@ class AudioVideoToolHandlersTest {
             ToolExecutionEnvelope env = envelope("av.vision-analysis", Map.of(
                     "mediaSource", Map.of("mediaArtifactId", "img-1")));
 
-            ToolExecutionResult result = await(defaultHandler.handle(env, dummyContract));
+            ToolExecutionResult result = await(defaultHandler.handle(env, contractFor(env)));
 
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.failure()).isNotNull();
@@ -388,7 +472,7 @@ class AudioVideoToolHandlersTest {
         void succeedsWithArtifact() {
             Map<String, Object> input = Map.of("mediaArtifactId", "video-artifact-1");
             ToolExecutionEnvelope env = envelope("av.multimodal-inference", input);
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
         }
 
@@ -396,7 +480,7 @@ class AudioVideoToolHandlersTest {
         @DisplayName("fails when mediaArtifactId is missing")
         void failsWhenArtifactMissing() {
             ToolExecutionEnvelope env = envelope("av.multimodal-inference", Map.of());
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
         }
 
@@ -405,7 +489,7 @@ class AudioVideoToolHandlersTest {
         void returnsDelegateMultimodalOutputWithoutComponentValidation() {
             Map<String, Object> input = Map.of("mediaArtifactId", "v-1", "inferenceMode", "FULL");
             ToolExecutionEnvelope env = envelope("av.multimodal-inference", input);
-            ToolExecutionResult result = await(handler.handle(env, dummyContract));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             @SuppressWarnings("unchecked")
             Map<String, Object> output = (Map<String, Object>) result.output();
             assertThat(output).isEqualTo(Map.of(
@@ -418,7 +502,7 @@ class AudioVideoToolHandlersTest {
             MultimodalInferenceToolHandler defaultHandler = new MultimodalInferenceToolHandler();
             ToolExecutionEnvelope env = envelope("av.multimodal-inference", Map.of("mediaArtifactId", "video-1"));
 
-            ToolExecutionResult result = await(defaultHandler.handle(env, dummyContract));
+            ToolExecutionResult result = await(defaultHandler.handle(env, contractFor(env)));
 
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.failure()).isNotNull();

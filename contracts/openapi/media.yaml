@@ -327,7 +327,9 @@ paths:
     post:
       tags: [Uploads]
       operationId: beginMediaUpload
-      parameters: [{ $ref: "#/components/parameters/TenantHeader" }]
+      parameters:
+        - { $ref: "#/components/parameters/TenantHeader" }
+        - { $ref: "#/components/parameters/PrincipalHeader" }
       requestBody:
         required: true
         content:
@@ -369,6 +371,7 @@ paths:
       parameters:
         [
           { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/PrincipalHeader" },
           { $ref: "#/components/parameters/UploadId" },
         ]
       responses:
@@ -399,6 +402,7 @@ paths:
       operationId: appendMediaChunk
       parameters:
         - $ref: "#/components/parameters/TenantHeader"
+        - $ref: "#/components/parameters/PrincipalHeader"
         - $ref: "#/components/parameters/UploadId"
         - {
             name: chunkIndex,
@@ -448,6 +452,7 @@ paths:
       parameters:
         [
           { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/PrincipalHeader" },
           { $ref: "#/components/parameters/UploadId" },
         ]
       responses:
@@ -482,6 +487,7 @@ paths:
       operationId: getMediaArtifact
       parameters:
         - $ref: "#/components/parameters/TenantHeader"
+        - $ref: "#/components/parameters/PrincipalHeader"
         - {
             name: artifactId,
             in: path,
@@ -583,6 +589,7 @@ paths:
       operationId: listMediaJobs
       parameters:
         - $ref: "#/components/parameters/TenantHeader"
+        - $ref: "#/components/parameters/PrincipalHeader"
         - {
             name: limit,
             in: query,
@@ -622,6 +629,7 @@ paths:
       parameters:
         [
           { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/PrincipalHeader" },
           { $ref: "#/components/parameters/JobId" },
         ]
       responses:
@@ -653,6 +661,7 @@ paths:
       parameters:
         [
           { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/PrincipalHeader" },
           { $ref: "#/components/parameters/JobId" },
         ]
       responses:
@@ -1135,6 +1144,7 @@ components:
       required:
         [
           tenantId,
+          principalId,
           fileName,
           contentType,
           expectedSizeBytes,
@@ -1145,6 +1155,7 @@ components:
         ]
       properties:
         tenantId: { type: string }
+        principalId: { type: string }
         fileName: { type: string }
         contentType: { type: string }
         expectedSizeBytes:
@@ -1244,6 +1255,11 @@ components:
         result: { type: object, additionalProperties: true }
         failureCode: { type: [string, "null"] }
         version: { type: integer, format: int64, minimum: 1 }
+        requestFingerprint:
+          type: string
+          description: >-
+            SHA-256 semantic request digest (schema media.job-request-fingerprint.v1, digestVersion 1).
+            Empty for legacy jobs created before fingerprint admission; such jobs are not safe to replay.
     StreamSessionRequest:
       type: object
       required:

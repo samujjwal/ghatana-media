@@ -1,0 +1,386 @@
+{
+  "schemaVersion": "media.execution-evidence.v1",
+  "date": "2026-10-08",
+  "executionInstruction": "docs/implementation/IMPLEMENTER-MASTER-PROMPT-ALL-71-TASKS.md",
+  "baseMain": "4ab86b9852c55db370de2c998d5b71c1350857d2",
+  "branch": "main",
+  "scope": "B00 verification and bounded B01/B02/B04/B07 implementation; original Done criteria control completion",
+  "taskStatuses": {
+    "complete": 6,
+    "partial": 51,
+    "blockedExternalIndependent": 14,
+    "newlyComplete": 0
+  },
+  "ownerCommits": {
+    "ghatana-shared": "c6ee23215bd046eed4aec405cec4cd6e7b5a6803",
+    "ghatana-tools": [
+      "b9b27b0ed",
+      "d1924b5d9"
+    ],
+    "ghatana": "dae220989f878f413d1bc7bb1fda2896610d848d"
+  },
+  "changedFiles": [
+    ".product-experience/acceptance.yaml",
+    ".product-experience/decision-log.md",
+    ".product-experience/interface-parity/operation-parity.yaml",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+    ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+    ".product-experience/pdp-1-domain-data/events.yaml",
+    ".product-experience/pdp-1-domain-data/evidence.yaml",
+    ".product-experience/pdp-1-domain-data/operations.yaml",
+    ".product-experience/pdp-1-domain-data/privacy.yaml",
+    ".product-experience/pdp-1-domain-data/provenance.yaml",
+    ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
+    ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json",
+    ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml",
+    ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
+    ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml",
+    ".product-experience/source-manifest.yaml",
+    "apps/media-experience-explorer/src/strict-csp-controls.tsx",
+    "apps/media-experience-explorer/strict-csp-controls.html",
+    "apps/media-experience-explorer/vite.config.mjs",
+    "config/closure/media-product-definition/l03-proof-route-candidates.json",
+    "config/closure/media-product-definition/obligations.json",
+    "contracts/openapi/media.yaml",
+    "docs/migration/external-platform-contract-observation.json",
+    "launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java",
+    "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java",
+    "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+    "launcher/src/test/java/com/ghatana/media/launcher/LocalMediaJobStoreGovernanceTest.java",
+    "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeActiveTest.java",
+    "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeJobGovernanceTest.java",
+    "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeJobTimeoutTest.java",
+    "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java",
+    "libs/audio-video-client/README.md",
+    "libs/audio-video-client/src/operations.test.ts",
+    "libs/audio-video-client/src/operations.ts",
+    "libs/audio-video-client/src/scene-text-adapter.test.ts",
+    "libs/audio-video-ui/src/styles.css",
+    "libs/common/build.gradle.kts",
+    "libs/common/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java",
+    "libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
+    "libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
+    "libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
+    "libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
+    "libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java",
+    "modules/intelligence/multimodal-service/README.md",
+    "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java",
+    "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactStore.java",
+    "providers/aws-postgresql/src/main/resources/db/media-runtime/V008__media_job_request_fingerprint.sql",
+    "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java",
+    "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaPostgresqlArtifactPurgeCommitFailureTest.java",
+    "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaPostgresqlS3TenantIsolationTest.java",
+    "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaJobRequestFingerprint.java",
+    "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java",
+    "runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaJobRequestFingerprintTest.java",
+    "scripts/check-media-contract-parity.mjs",
+    "scripts/check-product-definition-authority.mjs",
+    "scripts/check-shared-controls-strict-csp.mjs",
+    "scripts/lib/media-canonical-read-contracts.mjs",
+    "scripts/verify-media-shared-artifact-consumer.mjs",
+    "tests/media-agent-tool-contracts.test.mjs",
+    "tests/media-ai-inference-modality-boundary.test.mjs",
+    "tests/media-canonical-read-contracts.test.mjs",
+    "tests/media-capability-review-source-impact.test.mjs",
+    "tests/media-contract-parity.test.mjs",
+    "tests/media-dependency-inventory.test.mjs",
+    "tests/media-external-platform-contract-observation.test.mjs",
+    "tests/media-operation-parity-source-denominators.test.mjs",
+    "tests/media-privacy-consistency-source.test.mjs",
+    "tests/media-product-definition-residuals.test.mjs",
+    "tests/media-runtime-openapi-job-status.test.mjs",
+    "tests/product-definition-authority.test.mjs"
+  ],
+  "before": {
+    "projectionBlockers": {
+      "PDP-0": 1,
+      "PDP-2": 0,
+      "PDP-3": 10
+    },
+    "capabilityCoverage": {
+      "leafCount": 462,
+      "acceptedCoverageCount": 0,
+      "unresolvedCount": 383
+    },
+    "migrationSemantics": {
+      "sourceContentBlocks": 1366,
+      "uniqueContentUnits": 1340,
+      "unresolvedCount": 260,
+      "semanticReviewRequiredCount": 260,
+      "ownerClassifiedNonNormativeCount": 89,
+      "originalStructuralUnresolvedCount": 349,
+      "mixedRequiresDecompositionCount": 124,
+      "partiallyMappedUnresolvedCount": 2,
+      "declaredSourceLineCount": 2815,
+      "currentSourceLineCount": 2829,
+      "staleSourcePinCount": 4,
+      "total": 1340,
+      "applicable": 325
+    },
+    "operationParity": {
+      "surfaceCount": 8,
+      "totalObservedIdentities": 284,
+      "unresolvedIdentityCount": 192,
+      "acceptedBindingCount": 0
+    },
+    "designConformance": {
+      "gateCount": 7,
+      "resolvedOwnerGateCount": 4,
+      "openGateCount": 3
+    },
+    "productExperience": {
+      "screenViewCount": 47,
+      "journeyCount": 30,
+      "projectedJourneyCount": 30,
+      "stepCount": 130,
+      "stepsWithScreenContracts": 130,
+      "stepsWithoutScreenContracts": 0,
+      "stepsWithActionBindings": 18,
+      "stepsWithoutActionBindings": 112,
+      "stepsWithoutAcceptedTransitionBindings": 130
+    },
+    "lifecycle": {
+      "obligationCount": 344,
+      "totalProofRoutes": 344,
+      "obligationsWithCaseIds": 62,
+      "obligationsWithoutCaseIds": 282,
+      "observerAssignments": 0,
+      "oracleAssignments": 0,
+      "providerBindingCount": 0,
+      "localReceiptRecordCount": 0,
+      "l02CandidateLinks": 28,
+      "l02LinkedObligations": 7,
+      "l02UnmappedObligations": 337,
+      "nativeAdmissions": 0
+    },
+    "operationConstraints": {
+      "capabilityLeaves": 462,
+      "unboundedLeaves": 445
+    }
+  },
+  "after": {
+    "projectionBlockers": {
+      "PDP-0": 1,
+      "PDP-2": 0,
+      "PDP-3": 10
+    },
+    "capabilityCoverage": {
+      "leafCount": 462,
+      "acceptedCoverageCount": 0,
+      "unresolvedCount": 383
+    },
+    "migrationSemantics": {
+      "sourceContentBlocks": 1366,
+      "uniqueContentUnits": 1340,
+      "unresolvedCount": 260,
+      "semanticReviewRequiredCount": 260,
+      "ownerClassifiedNonNormativeCount": 89,
+      "originalStructuralUnresolvedCount": 349,
+      "mixedRequiresDecompositionCount": 124,
+      "partiallyMappedUnresolvedCount": 2,
+      "declaredSourceLineCount": 2815,
+      "currentSourceLineCount": 2829,
+      "staleSourcePinCount": 4,
+      "total": 1340,
+      "applicable": 325
+    },
+    "operationParity": {
+      "surfaceCount": 8,
+      "totalObservedIdentities": 284,
+      "unresolvedIdentityCount": 190,
+      "acceptedBindingCount": 0
+    },
+    "designConformance": {
+      "gateCount": 7,
+      "resolvedOwnerGateCount": 4,
+      "openGateCount": 3
+    },
+    "productExperience": {
+      "screenViewCount": 47,
+      "journeyCount": 30,
+      "projectedJourneyCount": 30,
+      "stepCount": 130,
+      "stepsWithScreenContracts": 130,
+      "stepsWithoutScreenContracts": 0,
+      "stepsWithActionBindings": 18,
+      "stepsWithoutActionBindings": 112,
+      "stepsWithoutAcceptedTransitionBindings": 130
+    },
+    "lifecycle": {
+      "obligationCount": 344,
+      "totalProofRoutes": 344,
+      "obligationsWithCaseIds": 62,
+      "obligationsWithoutCaseIds": 282,
+      "observerAssignments": 0,
+      "oracleAssignments": 0,
+      "providerBindingCount": 0,
+      "localReceiptRecordCount": 0,
+      "l02CandidateLinks": 28,
+      "l02LinkedObligations": 7,
+      "l02UnmappedObligations": 337,
+      "nativeAdmissions": 0
+    },
+    "operationConstraints": {
+      "capabilityLeaves": 462,
+      "unboundedLeaves": 445
+    }
+  },
+  "verification": {
+    "node": {
+      "command": "node --test --test-concurrency=1 tests/*.test.mjs",
+      "tests": 344,
+      "pass": 344,
+      "failures": 0,
+      "skipped": 0,
+      "durationMs": 105316.29731,
+      "log": "/tmp/media-execution/node-main-integration.log"
+    },
+    "mediaJava": {
+      "tests": 109,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "log": "/tmp/media-deep-snapshot-principal-jobs-tests.log"
+    },
+    "mediaAgentHandlers": {
+      "tests": 30,
+      "failures": 0
+    },
+    "sdk": {
+      "tests": 74,
+      "typecheck": "PASS",
+      "build": "PASS"
+    },
+    "sharedDesignSystem": {
+      "tests": 1740,
+      "failures": 0,
+      "typecheck": "PASS",
+      "build": "PASS"
+    },
+    "toolsJava": {
+      "tests": 167,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "skipReason": "Cargo executable unavailable"
+    },
+    "toolsInstalledProvider": {
+      "tests": 2,
+      "failures": 0,
+      "scope": "Packed public packages; no registry publication or native admission"
+    },
+    "aiInference": {
+      "tests": 191,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "log": "/tmp/ai-inference-media-test-20261008.log",
+      "xmlManifest": "/tmp/media-execution/ai-test-results.json"
+    },
+    "validators": [
+      {
+        "command": "node scripts/generate-media-phase-projections.mjs --check --strict",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/final-validation-00.log"
+      },
+      {
+        "command": "pnpm check:lifecycle-source-inputs",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/final-validation-01.log"
+      },
+      {
+        "command": "pnpm audit:lifecycle-obligations",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/final-validation-02.log"
+      },
+      {
+        "command": "pnpm check:product-definition-authority",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/final-validation-03.log"
+      },
+      {
+        "command": "pnpm check:product-experience-local",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/final-validation-04.log"
+      },
+      {
+        "command": "pnpm test:owner-source-selections",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/final-validation-05.log"
+      },
+      {
+        "command": "pnpm test:typed-contract-bindings",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/final-validation-06.log"
+      },
+      {
+        "command": "pnpm check:contract-parity",
+        "exitCode": 1,
+        "log": "/tmp/media-execution/final-validation-07.log"
+      },
+      {
+        "command": "pnpm check:design-conformance",
+        "exitCode": 1,
+        "log": "/tmp/media-execution/final-validation-08.log"
+      },
+      {
+        "command": "pnpm check:presentation-architecture",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/final-validation-09.log"
+      },
+      {
+        "command": "pnpm check:lifecycle-closure-inputs",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/final-validation-10.log"
+      },
+      {
+        "command": "pnpm test:lifecycle-input-preflight",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/final-validation-11.log"
+      },
+      {
+        "command": "pnpm check:release-profile",
+        "exitCode": 0,
+        "log": "/tmp/media-execution/final-validation-12.log"
+      }
+    ],
+    "browser": {
+      "report": "/tmp/media-experience-browser-audit/report.json",
+      "scope": "47 routes, six viewports, forced colors, reduced motion, keyboard and reflow; no independent acceptance"
+    },
+    "publicConsumers": {
+      "tools": "PASS",
+      "shared": "PASS",
+      "evidenceContracts": "PASS;344 PENDING,0 admissions,3 blockers"
+    }
+  },
+  "publicDependencyVersions": {
+    "Tools": "0.1.0-rc.1",
+    "LifecycleEvidenceContracts": "0.1.0-rc.1",
+    "Shared": "0.1.0-SNAPSHOT",
+    "DI": "0.1.0",
+    "AIInferenceOpenAPI": "1.1.0",
+    "DataCloudOpenAPI": "1.2.1",
+    "ActionPlaneOpenAPI": "1.2.0",
+    "EventPlaneOpenAPI": "1.3.0"
+  },
+  "approvalRequests": [
+    {
+      "authority": "Lifecycle provider/distribution/J08/issuer",
+      "url": "https://github.com/samujjwal/ghatana-lifecycle/issues/1#issuecomment-6070166418",
+      "acceptance": "Verified provider/package/license disposition, immutable artifact route, real Media case/observer/oracle binding and authoritative admission",
+      "status": "REQUESTED; NOT_GRANTED"
+    },
+    {
+      "authority": "Tools/Lifecycle composition",
+      "url": "https://github.com/samujjwal/ghatana-tools/issues/30#issuecomment-6070166091",
+      "status": "REQUESTED; NOT_GRANTED"
+    }
+  ],
+  "nextExecutableBatch": "Implement persisted tenant/principal/key/full-payload upload begin deduplication and equal Local/PostgreSQL repeated completion; verify adversarial behavior before claiming command admission. Reconcile individual migration changed claims against authoritative PDP sources.",
+  "limitations": [
+    "No original task newly satisfies all Done criteria in this batch.",
+    "No existing AI provider opts in to typed references.",
+    "No independent specialist acceptance, native Lifecycle phase receipt, commercial release, codec qualification or production availability is inferred."
+  ]
+}

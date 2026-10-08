@@ -85,7 +85,15 @@ test("operation source changes reconcile affected leaf links without promoting c
   assert.ok(sourcePin, "canonical operation families remain an explicit capability-review source");
   assert.ok(impact, "the changed canonical operation source has a semantic reconciliation");
   assert.equal(hash(sourceText), sourcePin.sha256);
-  assert.equal(sourcePin.sha256, impact.sceneTextAdapterSourceDelta.currentSha256);
+  assert.equal(sourcePin.sha256, review.canonicalReadSourceReconciliation.currentSha256);
+  assert.equal(review.canonicalReadSourceReconciliation.previousSha256, impact.sceneTextAdapterSourceDelta.currentSha256);
+  assert.deepEqual(review.canonicalReadSourceReconciliation.exactChangedRecords, [
+    'media.operation-slice.inspect-upload', 'media.operation-slice.inspect-artifact',
+    'media.operation-slice.inspect-job', 'media.operation-slice.submit-job',
+    'media.operation-slice.append-upload-chunk', 'media.operation-slice.complete-upload',
+    'media.operation-slice.begin-upload',
+  ]);
+  assert.match(review.canonicalReadSourceReconciliation.capabilityImpact, /No leaf-level operation/u);
   assert.equal(impact.previousSha256, "e680643b45a5c3f25638b4f06ec0f9d544e2190c69c2c25f9a054445dcb3e085");
   assert.notEqual(impact.previousSha256, impact.currentSha256);
   assert.match(impact.result, /semantic-source-change-reconciled/u);
@@ -151,7 +159,7 @@ test("operation source changes reconcile affected leaf links without promoting c
   const adapterDelta = impact.sceneTextAdapterSourceDelta;
   assert.ok(adapterDelta, "the adapter method source-pair denominator change has a separate capability-impact record");
   assert.equal(adapterDelta.previousSha256, operationSliceDelta.currentSha256);
-  assert.equal(adapterDelta.currentSha256, sourcePin.sha256);
+  assert.equal(adapterDelta.currentSha256, review.canonicalReadSourceReconciliation.previousSha256);
   assert.equal(adapterDelta.reviewedCapabilityEvidence.candidateProviderAdapter,
     "media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame");
   assert.match(adapterDelta.result, /remains unresolved and unadmitted/u);
@@ -174,7 +182,7 @@ test("operation source changes reconcile affected leaf links without promoting c
   for (const id of ["media.sdk.getServiceStatus", "media.sdk.getAllServicesStatus", "media.sdk.addEventListener", "media.sdk.removeEventListener"]) {
     assert.equal(operations.sourceDenominators.sdkMethods.unresolvedOperationIds.includes(id), false, `${id} has an exact non-operation disposition`);
   }
-  assert.match(operations.sourceDenominators.sdkMethods.bindingStatus, /14 family associations remain proposals, four identities have source-backed transport\/client-only dispositions, and eleven domain-relevant identities remain unresolved, including one candidate provider adapter/u);
+  assert.match(operations.sourceDenominators.sdkMethods.bindingStatus, /13 family associations remain proposals, four identities have source-backed transport\/client-only dispositions, one DI adapter is NOT_ADMITTED to Media OpenAPI, two retries reject before dispatch, and nine identities remain unresolved/u);
   const transcriptionSubmission = operations.operations.find(({ id }) => id === "media.operation.transcription-submission");
   assert.deepEqual(transcriptionSubmission.evidenceAudit.observedRefs, ["STTService.Transcribe"]);
   assert.equal(subsequent.reviewedCapabilityEvidence.currentActionBindingsUnchanged, true);

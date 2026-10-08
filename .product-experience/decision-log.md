@@ -819,6 +819,60 @@ constitute runtime or phase acceptance.
 - **Evidence:** `migration-semantics-review.yaml#ownerDecisionOverlay.additionalBoundedClassificationDecisions`, exact item texts/source locations and migration regression tests.
 - **Excludes:** adjacent normative assertions, dependency equivalence, boundary/API semantic acceptance, master-plan pin acceptance, task completion, independent review or phase closure.
 
+### PXD-040 — Accept three exact principal-scoped read contracts
+
+- **Status:** accepted bounded Media query semantics; no family-wide operation or phase approval.
+- **Authority:** the user's October 8, 2026 delegation to implement and decide Media-owned semantics.
+- **Reviewed:** `inspect-upload`, `inspect-artifact`, and `inspect-job` individually against their GET OpenAPI identity, `MediaHttpHandler` principal-scoped calls, and `MediaRuntime` direct tenant-store lookup followed by owning-principal filter; principal-less public runtime overloads fail closed. An inaccessible identity and an absent identity both return 404 within caller scope.
+- **Approved:** version 1 QUERY contracts in `operations.yaml#individualOperationContracts.records` carry tenant, principal and resource identity; reads observe a stored projection without mutating domain state. Metadata grants no processing, byte-retrieval, rights or delivery permission. A missing job is never proof of no external effect, and a status observation is never an authoritative reconciliation/currentness receipt.
+- **Alternatives rejected:** tenant-only public reads expose other principals' records; treating 404 as global nonexistence or a failed job invites unsafe replay. The trusted internal tenant-only store API remains distinct from the principal-scoped public runtime/transport contract.
+- **Evidence:** `tests/media-canonical-read-contracts.test.mjs` executes source binding and adversarial missing-principal/renamed-route/false-finality/non-scoped-approval cases; `MediaRuntimeActiveTest` executes actual local runtime isolation. Tests are local evidence and remain subject to their recorded run outcomes.
+- **Excludes:** production authentication/delegation qualification, unrestricted metadata access, Shared publisher approval, HTTP/SDK/gRPC equivalence, independent review, native Lifecycle admission/receipts, broader task completion or release.
+
+### PXD-041 — Reject unsafe legacy SDK retry and classify the DI adapter
+
+- **Status:** accepted bounded Media compatibility disposition.
+- **Authority:** the user's October 8, 2026 delegated Media product/contract authority.
+- **Reviewed:** no runtime or OpenAPI route serves the legacy SDK retry POST; attempt, current rights/policy, budget and unknown-effect reconciliation cannot be inferred from a request ID. The scene-text adapter maps Media source/version/frame/time around the Document Intelligence v1 provider port.
+- **Approved:** legacy `retryOperation` and handle `retry` remain source-compatible methods that reject with `MediaOperationNotAdmittedError` before network dispatch. The adapter is `NOT_ADMITTED` to Media OpenAPI and does not create a Media OCR route. Its observed external client version `0.1.0` and extraction SNAPSHOT peer mismatch remain unqualified.
+- **Alternative rejected:** sending a POST to a nonexistent route and interpreting retry as a new safe attempt would assert behavior the server does not own. A similarly named Media route cannot substitute for the DI protocol.
+- **Evidence:** client retry tests assert zero fetch calls; exact SDK identity/parity negative tests retain DI provenance and no Media route admission.
+- **Excludes:** an implemented canonical retry API, public DI package consumption/admission, external owner approval, model/runtime qualification, independent review or Lifecycle/phase/release acceptance.
+
+### PXD-042 — Bind job request replay to the complete immutable payload
+
+- **Status:** accepted exact Media submission idempotency invariant; full command/authority and runtime qualification remain open.
+- **Authority:** the user's October 8, 2026 delegated Media owner review.
+- **Reviewed and approved:** `(tenantId, requestId)` binds one logical job to a version-1 SHA-256 fingerprint of its request context, artifact, job type, governance, parameters and ordered structured provider identity/version/model descriptors. Matching replay returns the existing job without redispatch; a mismatched or absent legacy fingerprint fails closed. Job state/version transitions preserve that immutable fingerprint.
+- **Concurrency:** local publication is atomic; persisted uniqueness scopes to tenant/request ID. Cancellation confirmation losing a compare-and-swap rereads canonical terminal state rather than overwriting completion. Storage failures are not cancellation conflicts.
+- **Alternatives rejected:** comparing artifact/type alone silently reuses a job for changed parameters or governance. Guessing legacy payloads cannot prove replay safety. Provider-name delimiter concatenation and lossy Unicode encoding cannot establish distinct request identities.
+- **Evidence:** exact fingerprint, concurrent local-store, runtime cancellation/replay, and PostgreSQL state/migration tests; their recorded verification outcomes control implementation evidence. V008 preserves old rows with nullable fingerprints, explicitly denying their replay.
+- **Excludes:** accepted project/rights/budget policy, trusted transport identity, new retry attempts, provider/model licensing or qualification, production failure/soak evidence, independent review, native Lifecycle admission/receipts or release.
+
+### PXD-043 — Enforce upload ownership at the mutation boundary
+
+- **Authority:** explicit October 8, 2026 delegated Media owner authority.
+- **Approved scope:** existing upload append and finalize commands require tenant, authenticated principal and upload identity at the runtime/store boundary. Local ownership checks occur under the upload lock; PostgreSQL checks the locked row before byte mutation or finalization claim. Deprecated principal-less entrypoints fail closed.
+- **Alternatives rejected:** an HTTP-only preflight read cannot protect direct runtime callers or establish authority inside the storage mutation boundary; deriving the caller from the stored owner would fabricate authorization.
+- **Evidence:** actual local and PostgreSQL wrong-principal/cross-tenant tests verify unchanged progress and owner success; HTTP passes its authenticated principal to the same APIs.
+- **Excludes:** production identity, current policy/consent/budget authorization, full upload command acceptance, storage qualification, independent acceptance or Lifecycle receipts.
+
+### PXD-044 — Bind the existing SDK artifact getter to the canonical read
+
+- **Authority:** explicit October 8, 2026 delegated Media owner authority.
+- **Approved:** existing `MediaOperationClient.getArtifact` uses `getMediaArtifact` GET `/api/v1/artifacts/{artifactId}` and the exact twelve-field runtime observation DTO, scoped to configured tenant/principal. Invalid shape, classification, size, digest, timestamp or scope fails closed. A scope-safe 404 retains its error/status/correlation and does not prove global absence.
+- **Compatibility decision:** return `CanonicalMediaArtifactObservation`; document the source type migration instead of fabricating legacy domain kind/status/version/provenance aliases from absent wire fields. No new operation identity is introduced.
+- **Evidence:** client 53-test suite, typecheck/build and wrong-scope/malformed/no-principal/404 tests. The previous unserved legacy artifact path is retained in the historical checker census as replaced, not active.
+- **Excludes:** content retrieval, current rights or immutable domain-version qualification, production authentication, full interface parity, independent acceptance and Lifecycle receipts.
+
+### PXD-045 — Replace three unserved SDK upload paths with actual runtime wire behavior
+
+- **Authority:** explicit October 8, 2026 delegated Media owner authority.
+- **Approved bounded compatibility migration:** existing create/upload-part/complete methods use the runtime upload paths and exact DTOs, configured tenant/principal, zero-based chunk sequence and bodyless completion. Legacy aliases are rejected; migration is documented. SDK sends the requested create idempotency header but does not infer replay support from that header; chunks are never automatically replayed after a lost acknowledgement.
+- **Evidence:** client 69-test suite, typecheck/build, exact body/header/sequence/response and one-dispatch lost-ack tests. Three replaced routes remain in the historical 51-finding census; source convergence does not establish command acceptance.
+- **Unresolved discrepancy:** OpenAPI declares create/completion payload-hash idempotency while the current runtime does not bind the create key or expose a completion request-key contract. Exact authority, replay, provider/storage qualification and complete upload command semantics remain unadmitted.
+- **Excludes:** full operation/interface parity, production host identity, rights/budget authority, independent review, native Lifecycle receipts or release.
+
 ## Governance decisions for this authority root
 
 ### GOV-AUTH-001 — Use authored partial relations for traceability

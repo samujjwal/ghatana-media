@@ -19,6 +19,53 @@ acceptanceAuthority:
   blockerRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
   currentnessGenerationGapRef: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
 recordedHumanDecisionInputs:
+- id: ACCEPT-INPUT-MEDIA-REQUEST-FINGERPRINT-20261008
+  phase: PDP-1
+  phaseTask: P1-04
+  decisionInput: accepted
+  sourceOfDecision: explicit-user-delegation-to-media-owner-on-2026-10-08
+  decisionDate: '2026-10-08'
+  acceptedScope:
+  - Tenant/request identity binds an immutable version-1 digest of the full submission and ordered structured provider plan.
+  - Matching replay returns the existing job without redispatch; mismatched payload or legacy missing digest fails closed.
+  - State transitions preserve the digest; a cancellation CAS conflict rereads the winning terminal state.
+  evidenceRefs:
+  - .product-experience/decision-log.md#PXD-042
+  - runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaJobRequestFingerprintTest.java
+  - launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeJobGovernanceTest.java
+  - providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
+  exclusions:
+  - Full command authority, rights/budget policy, new retry attempts, provider qualification, independent acceptance, Lifecycle receipts and release.
+- id: ACCEPT-INPUT-MEDIA-EXACT-READS-20261008
+  phase: PDP-1
+  phaseTask: P1-03
+  decisionInput: accepted
+  sourceOfDecision: explicit-user-delegation-to-media-owner-on-2026-10-08
+  decisionDate: '2026-10-08'
+  acceptedScope:
+  - Exact version-1 inspect-upload, inspect-artifact and inspect-job QUERY semantics scoped to tenant and owning principal.
+  - Stored observations, scope-safe 404, no implicit rights, mutation, currentness or external-effect reconciliation.
+  evidenceRefs:
+  - .product-experience/decision-log.md#PXD-040
+  - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records
+  - tests/media-canonical-read-contracts.test.mjs
+  exclusions:
+  - All other operations, transport equivalence, production identity qualification, independent acceptance and Lifecycle phase receipts.
+- id: ACCEPT-INPUT-MEDIA-SDK-RETRY-DI-20261008
+  phase: PDP-1
+  phaseTask: P1-04
+  decisionInput: accepted
+  sourceOfDecision: explicit-user-delegation-to-media-owner-on-2026-10-08
+  decisionDate: '2026-10-08'
+  acceptedScope:
+  - Legacy SDK retry rejects before network dispatch because no canonical server route or replay authority exists.
+  - DI scene-text temporal adapter is distinct from Media OpenAPI operations and retains unqualified external dependency provenance.
+  evidenceRefs:
+  - .product-experience/decision-log.md#PXD-041
+  - .product-experience/interface-parity/operation-parity.yaml
+  - libs/audio-video-client/src/operations.test.ts
+  exclusions:
+  - Implemented canonical retry, DI package owner admission, runtime qualification, independent review and phase or release closure.
 - id: ACCEPT-INPUT-P0-001
   phase: PDP-0
   phaseTask: P0-001

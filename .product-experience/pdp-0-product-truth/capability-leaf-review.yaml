@@ -18,7 +18,7 @@ sourceInventory:
 - path: .product-experience/pdp-0-product-truth/applications-channels.yaml
   sha256: e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d
 - path: .product-experience/pdp-1-domain-data/operations.yaml
-  sha256: a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3
+  sha256: 2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e
 - path: .product-experience/pdp-3-product-experience/action-registry.yaml
   sha256: a0e67cb434c5a8af867a1667f5ded9c57fe613170e877db347a845b339fea118
 - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
@@ -61696,3 +61696,15 @@ leaves:
     missingDecision: Per-leaf implementation, license, qualification and deployment evidence plus owner admission; GAP-MEDIA-CAPABILITY-LEAF-DETAIL
       and P0-010.
   sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/461
+
+# PXD-040 source change review; no capability target is inferred from a metadata query.
+canonicalReadSourceReconciliation:
+  path: .product-experience/pdp-1-domain-data/operations.yaml
+  previousSha256: a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3
+  currentSha256: 2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e
+  decisionRef: .product-experience/decision-log.md#PXD-040
+  exactChangedRecords: [media.operation-slice.inspect-upload, media.operation-slice.inspect-artifact, media.operation-slice.inspect-job, media.operation-slice.submit-job, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload, media.operation-slice.begin-upload]
+  unchangedFamilyRecords: 14
+  capabilityImpact: No leaf-level operation, actor, bounds, implementation, qualification, rights or availability disposition changes.
+  proofImpact: Regenerate source fingerprints; prior source-bound results are not reusable without exact dependency review.
+  acceptanceEffect: Only the three named tenant/principal-scoped QUERY semantics, immutable submission fingerprint behavior and upload mutation principal checks; no family, capability, transport-equivalence or phase acceptance.

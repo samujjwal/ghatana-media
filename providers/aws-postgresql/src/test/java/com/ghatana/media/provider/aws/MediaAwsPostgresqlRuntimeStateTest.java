@@ -96,15 +96,15 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             "tenant-a", "principal-a", "clip.bin", "application/octet-stream", content.length,
                             digest, "restricted", Duration.ofDays(30), Map.of("source", "test")));
                     int split = 3 * 1024 * 1024;
-                    artifacts.append("tenant-a", upload.uploadId(), 0, Arrays.copyOfRange(content, 0, split));
+                    artifacts.append("tenant-a", upload.principalId(), upload.uploadId(), 0, Arrays.copyOfRange(content, 0, split));
                     var progress = artifacts.append(
-                            "tenant-a", upload.uploadId(), 1, Arrays.copyOfRange(content, split, content.length));
+                            "tenant-a", upload.principalId(), upload.uploadId(), 1, Arrays.copyOfRange(content, split, content.length));
                     assertThat(progress.bytesReceived()).isEqualTo(content.length);
                     assertThat(artifacts.append(
-                            "tenant-a", upload.uploadId(), 1,
+                            "tenant-a", upload.principalId(), upload.uploadId(), 1,
                             Arrays.copyOfRange(content, split, content.length))).isEqualTo(progress);
 
-                    var artifact = artifacts.complete("tenant-a", upload.uploadId());
+                    var artifact = artifacts.complete("tenant-a", upload.principalId(), upload.uploadId());
                     assertThat(artifact.sha256()).isEqualTo(digest);
                     assertThat(artifact.principalId()).isEqualTo("principal-a");
                     assertThat(artifact.objectReference()).startsWith("s3://" + bucket + "/");
@@ -123,20 +123,40 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             "job-a", "request-a", "tenant-a", "principal-a", artifact.artifactId(), JobType.VISION,
                             "http-media-processing", JobStatus.ACCEPTED,
                             Instant.now().truncatedTo(ChronoUnit.MILLIS), null, null,
-                            Map.of(), "", 1);
+                            Map.of(), "", 1, "sha256:request-a-payload");
                     assertThat(jobs.create(accepted)).isEqualTo(accepted);
                     ProcessingJob duplicateRequest = new ProcessingJob(
                             "job-other", "request-a", "tenant-a", "principal-a", artifact.artifactId(), JobType.VISION,
                             "http-media-processing", JobStatus.ACCEPTED, Instant.now(), null, null,
-                            Map.of(), "", 1);
+                            Map.of(), "", 1, accepted.requestFingerprint());
                     assertThat(jobs.create(duplicateRequest)).isEqualTo(accepted);
                     ProcessingJob replayedByOtherPrincipal = new ProcessingJob(
                             "job-replayed", "request-a", "tenant-a", "principal-b",
                             artifact.artifactId(), JobType.VISION, "http-media-processing",
-                            JobStatus.ACCEPTED, Instant.now(), null, null, Map.of(), "", 1);
+                            JobStatus.ACCEPTED, Instant.now(), null, null, Map.of(), "", 1,
+                            "sha256:different-principal-request");
                     assertThatThrownBy(() -> jobs.create(replayedByOtherPrincipal))
                             .isInstanceOf(IllegalStateException.class)
-                            .hasMessageContaining("reused");
+                            .hasMessageContaining("different job payload");
+                    ProcessingJob changedPayload = new ProcessingJob(
+                            "job-payload-mismatch", "request-a", "tenant-a", "principal-a", artifact.artifactId(),
+                            JobType.VISION, "http-media-processing", JobStatus.ACCEPTED, Instant.now(), null, null,
+                            Map.of(), "", 1, "sha256:altered-request-payload");
+                    assertThatThrownBy(() -> jobs.create(changedPayload))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("different job payload");
+                    ProcessingJob legacy = new ProcessingJob(
+                            "job-legacy", "request-legacy", "tenant-a", "principal-a", artifact.artifactId(),
+                            JobType.VISION, "http-media-processing", JobStatus.FAILED,
+                            Instant.now().truncatedTo(ChronoUnit.MILLIS), null, null,
+                            Map.of(), "", 1);
+                    assertThat(jobs.create(legacy)).isEqualTo(legacy);
+                    assertThatThrownBy(() -> jobs.create(new ProcessingJob(
+                            "job-legacy-replay", "request-legacy", "tenant-a", "principal-a", artifact.artifactId(),
+                            JobType.VISION, "http-media-processing", JobStatus.ACCEPTED, Instant.now(), null, null,
+                            Map.of(), "", 1)))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("replay safety cannot be established");
                     var lease = jobs.claim(accepted, "worker-a", Instant.now().plusSeconds(60));
                     assertThat(jobs.leaseValid(lease)).isTrue();
                     assertThatThrownBy(() -> jobs.claim(
@@ -146,7 +166,8 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     ProcessingJob running = new ProcessingJob(
                             accepted.jobId(), accepted.requestId(), accepted.tenantId(), accepted.principalId(), accepted.artifactId(),
                             accepted.jobType(), accepted.providerId(), JobStatus.RUNNING, accepted.createdAt(),
-                            Instant.now().truncatedTo(ChronoUnit.MILLIS), null, Map.of(), "", 2);
+                            Instant.now().truncatedTo(ChronoUnit.MILLIS), null, Map.of(), "", 2,
+                            accepted.requestFingerprint());
                     assertThat(jobs.update(lease, accepted, running)).isEqualTo(running);
                     assertThat(jobs.leaseValid(lease)).isTrue();
                     try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
@@ -161,14 +182,15 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     ProcessingJob staleCompletion = new ProcessingJob(
                             running.jobId(), running.requestId(), running.tenantId(), running.principalId(), running.artifactId(),
                             running.jobType(), running.providerId(), JobStatus.COMPLETED, running.createdAt(),
-                            running.startedAt(), Instant.now().truncatedTo(ChronoUnit.MILLIS), Map.of(), "", 3);
+                            running.startedAt(), Instant.now().truncatedTo(ChronoUnit.MILLIS), Map.of(), "", 3,
+                            running.requestFingerprint());
                     assertThatThrownBy(() -> jobs.update(lease, running, staleCompletion))
                             .isInstanceOf(IllegalStateException.class)
                             .hasMessageContaining("lease fence");
                     ProcessingJob replacementRunning = new ProcessingJob(
                             running.jobId(), running.requestId(), running.tenantId(), running.principalId(), running.artifactId(),
                             running.jobType(), running.providerId(), JobStatus.RUNNING, running.createdAt(),
-                            running.startedAt(), null, Map.of(), "", 3);
+                            running.startedAt(), null, Map.of(), "", 3, running.requestFingerprint());
                     assertThat(jobs.update(replacementLease, running, replacementRunning)).isEqualTo(replacementRunning);
                     assertThat(jobs.find("tenant-a", running.jobId())).contains(replacementRunning);
                     jobs.release(replacementLease);
@@ -265,14 +287,15 @@ class MediaAwsPostgresqlRuntimeStateTest {
         UploadSession abandoned = artifacts.begin(new UploadRequest(
                 "tenant-expired", "principal-expired", "expired.bin", "application/octet-stream",
                 abandonedBytes.length, sha256(abandonedBytes), "restricted", Duration.ofDays(1), Map.of()));
-        artifacts.append("tenant-expired", abandoned.uploadId(), 0, abandonedBytes);
+        artifacts.append("tenant-expired", abandoned.principalId(), abandoned.uploadId(), 0, abandonedBytes);
 
         Instant completedAt = Instant.now().truncatedTo(ChronoUnit.MILLIS);
         ProcessingJob completed = new ProcessingJob(
                 running.jobId(), running.requestId(), running.tenantId(), running.principalId(),
                 running.artifactId(), running.jobType(), running.providerId(), JobStatus.COMPLETED,
                 running.createdAt(), running.startedAt(), completedAt,
-                Map.of("derivedFaceCount", 2, "transcriptSummary", "sensitive-result"), "", running.version() + 1);
+                Map.of("derivedFaceCount", 2, "transcriptSummary", "sensitive-result"), "", running.version() + 1,
+                running.requestFingerprint());
         assertThat(jobs.update(running, completed)).isEqualTo(completed);
 
         long expiredAt = Instant.now().minus(Duration.ofDays(2)).toEpochMilli();
@@ -520,7 +543,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                 "tenant-active-finalization", "principal-active-finalization", "finalizing.bin",
                 "application/octet-stream", chunk.length, sha256(chunk), "restricted",
                 Duration.ofDays(30), Map.of()));
-        artifacts.append(upload.tenantId(), upload.uploadId(), 0, chunk);
+        artifacts.append(upload.tenantId(), upload.principalId(), upload.uploadId(), 0, chunk);
 
         String jdbcUrl = environment.get("MEDIA_POSTGRES_JDBC_URL");
         String chunkObjectKey;
@@ -620,7 +643,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
         }
         try {
             assertThatThrownBy(() -> artifacts.append(
-                    "tenant-rollback", upload.uploadId(), 0, bytes))
+                    "tenant-rollback", upload.principalId(), upload.uploadId(), 0, bytes))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("append Media upload chunk");
         } finally {
@@ -702,7 +725,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
         if (!start.await(10, TimeUnit.SECONDS)) {
             throw new IllegalStateException("Concurrent Media deduplication barrier timed out");
         }
-        return artifacts.complete("tenant-dedup", upload.uploadId());
+        return artifacts.complete("tenant-dedup", upload.principalId(), upload.uploadId());
     }
 
     private static UploadSession prepareUpload(
@@ -716,7 +739,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
         UploadSession upload = artifacts.begin(new UploadRequest(
                 "tenant-dedup", "principal-dedup", fileName, contentType, bytes.length, sha256(bytes),
                 classification, retention, metadata));
-        artifacts.append("tenant-dedup", upload.uploadId(), 0, bytes);
+        artifacts.append("tenant-dedup", upload.principalId(), upload.uploadId(), 0, bytes);
         return upload;
     }
 
@@ -730,7 +753,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
             Map<String, Object> metadata) throws Exception {
         UploadSession upload = prepareUpload(
                 artifacts, bytes, fileName, contentType, classification, retention, metadata);
-        return artifacts.complete("tenant-dedup", upload.uploadId());
+        return artifacts.complete("tenant-dedup", upload.principalId(), upload.uploadId());
     }
 
     private static void assertConflict(
@@ -744,7 +767,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
             String expectedField) throws Exception {
         UploadSession upload = prepareUpload(
                 artifacts, bytes, fileName, contentType, classification, retention, metadata);
-        assertThatThrownBy(() -> artifacts.complete("tenant-dedup", upload.uploadId()))
+        assertThatThrownBy(() -> artifacts.complete("tenant-dedup", upload.principalId(), upload.uploadId()))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("governed metadata")
                 .hasMessageContaining(expectedField);

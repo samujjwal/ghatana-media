@@ -271,6 +271,8 @@ export function parseSdkOpenApiDispositions(parityMatrix) {
     return [{
       identity,
       type: record.match(/^  type: ([A-Z_]+)$/mu)?.[1],
+      operationId: record.match(/^  openApiOperationId: ([A-Za-z0-9]+)$/mu)?.[1],
+      ownerDecisionRef: record.match(/^  ownerDecisionRef: (.+)$/mu)?.[1],
       disposition: record.match(/^  openApiBindingDisposition: ([A-Z_]+)$/mu)?.[1],
     }];
   })
@@ -320,6 +322,50 @@ function parseProtoRpcs(text) {
   return rows;
 }
 
+/** Global labels cannot accept an operation. Every exact record must carry its
+ * own typed command/query semantics and owner disposition; incomplete families
+ * remain unresolved even if the root status is changed to accepted. */
+export function canonicalOperationAcceptance(source) {
+  const records = [...source.matchAll(/^  - id: (media\.operation\.[^\s]+)\n([\s\S]*?)(?=^  - id: |^channelFamilies:|$(?![\s\S]))/gmu)];
+  const unresolved = records.filter(([, , body]) => {
+    const fields = ['ownerDecisionRef', 'operationKind', 'authority', 'context', 'preconditions',
+      'inputSemantics', 'effect', 'transition', 'commitFinality', 'failure', 'unknownOutcome', 'retry', 'idempotency'];
+    return !/^    operationKind: (?:COMMAND|QUERY)$/mu.test(body)
+      || !/^    ownerDecisionRef: \.product-experience\/decision-log\.md#PXD-\d+$/mu.test(body)
+      || fields.some(field => !new RegExp(`^    ${field}:`, 'mu').test(body))
+      || /unresolved|proposal|pending|unassessed/iu.test(body);
+  }).map(([ , id]) => id);
+  return { recordCount: records.length, unresolvedIds: unresolved, complete: records.length > 0 && unresolved.length === 0 };
+}
+
+export function retiredSdkRetryFindings(sources = {}) {
+  const path = 'libs/audio-video-client/src/operations.ts';
+  const body = sources[path]?.match(/public async retryOperation<T>\([\s\S]*?\n  \}/u)?.[0];
+  const findings = [];
+  if (body?.includes('throw new MediaOperationNotAdmittedError(') && !/this\.request\(|fetch\(/u.test(body)) findings.push({ source: path, method: 'POST', path: '/api/v1/media/operations/{parameter}:retry',
+    disposition: 'RETIRED_NOT_ADMITTED_BEFORE_DISPATCH', ownerDecisionRef: '.product-experience/decision-log.md#PXD-041' });
+  const artifactRead = sources[path]?.match(/public async getArtifact\([\s\S]*?\n  \}/u)?.[0];
+  if (artifactRead?.includes('Promise<CanonicalMediaArtifactObservation>')
+      && artifactRead.includes('/api/v1/artifacts/') && !artifactRead.includes('/api/v1/media/artifacts/')) {
+    findings.push({ source: path, method: 'GET', path: '/api/v1/media/artifacts/{parameter}',
+      disposition: 'REPLACED_WITH_EXACT_CANONICAL_READ', ownerDecisionRef: '.product-experience/decision-log.md#PXD-044' });
+  }
+  for (const [method, httpMethod, oldPath, fragment] of [
+    ['createUploadSession', 'POST', '/api/v1/media/uploads', '/api/v1/artifacts/uploads'],
+    ['uploadPart', 'PUT', '/api/v1/media/uploads/{parameter}/parts/{parameter}', '/chunks/'],
+    ['completeUploadSession', 'POST', '/api/v1/media/uploads/{parameter}:complete', '/complete'],
+  ]) {
+    const methodBody = sources[path]?.match(new RegExp(`public async ${method}\\([\\s\\S]*?\\n  \\}`, 'u'))?.[0];
+    if (methodBody?.includes('/api/v1/artifacts/uploads') && methodBody.includes(fragment)
+        && !methodBody.includes('/api/v1/media/uploads')) {
+      findings.push({ source: path, method: httpMethod, path: oldPath,
+        disposition: 'REPLACED_WITH_RUNTIME_WIRE_OBSERVATION; COMMAND_ADMISSION_UNQUALIFIED',
+        ownerDecisionRef: '.product-experience/decision-log.md#PXD-045' });
+    }
+  }
+  return findings;
+}
+
 /** Inputs are overridable for deterministic drift tests. */
 export function analyzeContractParity(input) {
   const gaps = [];
@@ -337,7 +383,13 @@ export function analyzeContractParity(input) {
     if (operationIds.has(id)) continue;
     const finding = `SDK operation has no explicit OpenAPI binding: ${id}`;
     const disposition = sdkOpenApiDispositions.get(id);
-    if (disposition && ["CLIENT_ONLY", "TRANSPORT_ONLY", "PROVIDER_ADMIN", "NOT_ADMITTED"].includes(disposition.disposition)) {
+    const canonicalRead = disposition?.disposition === "BOUNDED_CANONICAL_READ"
+      && disposition.type === "DOMAIN_QUERY" && operationIds.has(disposition.operationId)
+      && disposition.ownerDecisionRef === '.product-experience/decision-log.md#PXD-044'
+      && id === 'media.sdk.getArtifact'
+      && input.sdkSourceFiles?.['libs/audio-video-client/src/operations.ts']?.includes('Promise<CanonicalMediaArtifactObservation>')
+      && (input.sdkCalls ?? []).some(call => call.method === 'GET' && call.path === '/api/v1/artifacts/{parameter}');
+    if (canonicalRead || (disposition && ["CLIENT_ONLY", "TRANSPORT_ONLY", "PROVIDER_ADMIN", "NOT_ADMITTED"].includes(disposition.disposition))) {
       reconciledFindings.push({ finding, disposition: disposition.disposition });
     } else {
       gaps.push(finding);
@@ -434,8 +486,9 @@ export function analyzeContractParity(input) {
   // ambiguous, so do not emit the old aggregate false positive.
 
   const operationStatus = input.pdp1Operations.match(/^scopeStatus:\s*([^\n]+)/m)?.[1]?.trim() ?? "missing";
-  const semanticUnresolved = /proposal|pending|unresolved/i.test(operationStatus)
-    || !/accepted|approved/i.test(operationStatus);
+  const operationAcceptance = canonicalOperationAcceptance(input.pdp1Operations);
+  const semanticUnresolved = !operationAcceptance.complete;
+  const retiredFindings = retiredSdkRetryFindings(input.sdkSourceFiles);
   if (semanticUnresolved) gaps.push(`semantic binding unresolved: PDP-1 operations remain ${operationStatus}; structural identities are not accepted mappings`);
   if (!input.pdp1Operations.includes("bindingStatus:")) gaps.push("semantic binding unresolved: PDP-1 binding status is absent");
 
@@ -454,6 +507,10 @@ export function analyzeContractParity(input) {
     },
     semanticStatus: semanticUnresolved ? "UNRESOLVED" : "REVIEW_REQUIRED",
     observedFindingCount: gaps.length + reconciledFindings.length,
+    operationAcceptance,
+    retiredFindings,
+    historicalFindingCount: gaps.length + reconciledFindings.length + retiredFindings.length,
+    historicalDispositionedCount: reconciledFindings.length + retiredFindings.length,
     reconciledFindings,
     gaps,
     passed: gaps.length === 0,
@@ -486,6 +543,7 @@ function collectLiveInput() {
     protoFiles: operationFiles.map(read),
     sdkOperationIds: parseSdkRegistryMethods(operationRegistry, sdkSourceFiles).map(({ id }) => id),
     sdkCalls,
+    sdkSourceFiles,
     sdkRouteDispositions: parseNotAdmittedSdkRoutes(operationParity),
     sdkOpenApiDispositions: parseSdkOpenApiDispositions(operationParity),
     sdkRegistryOperationCount,
@@ -505,6 +563,7 @@ if (process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.
   console.log(`  structural inventory: ${JSON.stringify(result.structural)}`);
   console.log(`  semantic binding: ${result.semanticStatus}`);
   console.log(`  source findings audited: ${result.observedFindingCount} (${result.reconciledFindings.length} dispositioned; ${result.gaps.length} unresolved)`);
+  console.log(`  historical source findings: ${result.historicalFindingCount} (${result.historicalDispositionedCount} dispositioned; ${result.gaps.length} unresolved; ${result.retiredFindings.length} retired routes)`);
   if (result.reconciledFindings.length) {
     console.log(`  source-dispositioned findings: ${result.reconciledFindings.length}`);
   }

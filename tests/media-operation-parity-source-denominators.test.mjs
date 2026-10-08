@@ -122,12 +122,14 @@ test("CLI crosswalk is exact and SDK registry reports exact source-pair discrepa
   const artifactIds = new Set(parserArtifactIds);
   const transportOnlyIds = inlineList(sdkSurface, "TRANSPORT_ONLY");
   const clientOnlyIds = inlineList(sdkSurface, "CLIENT_ONLY");
-  const candidateProviderAdapterIds = inlineList(sdkSurface, "candidateProviderAdapters");
-  assert.deepEqual(candidateProviderAdapterIds, ["media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame"]);
+  const providerAdapterIds = inlineList(sdkSurface, "PROVIDER_ADAPTER");
+  const notAdmittedIds = inlineList(sdkSurface, "NOT_ADMITTED");
+  assert.deepEqual(providerAdapterIds, ["media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame"]);
+  assert.deepEqual(notAdmittedIds.sort(), ["media.sdk.retry", "media.sdk.retryOperation"]);
   const nonOperationIds = [...transportOnlyIds, ...clientOnlyIds];
   assert.deepEqual(transportOnlyIds.sort(), ["media.sdk.getAllServicesStatus", "media.sdk.getServiceStatus"]);
   assert.deepEqual(clientOnlyIds.sort(), ["media.sdk.addEventListener", "media.sdk.removeEventListener"]);
-  const semanticPartition = [...candidateIds(sdkSurface), ...inlineList(sdkSurface, "unresolved"), ...nonOperationIds];
+  const semanticPartition = [...candidateIds(sdkSurface), ...inlineList(sdkSurface, "unresolved"), ...nonOperationIds, ...providerAdapterIds, ...notAdmittedIds];
   assert.equal(new Set(sdkRows.map(({ id }) => id)).size, sdkRows.length, "SDK registry identities are unique");
   assertExactPartition(
     sdkRows.filter(({ id }) => !artifactIds.has(id)).map(({ id }) => id),
@@ -152,7 +154,14 @@ test("CLI crosswalk is exact and SDK registry reports exact source-pair discrepa
       }
     }
   }
-  assert.equal(new Set(declarationPairs).size, declarationPairs.length, "exported public SDK source pairs are unique");
+  const overloadPairs = declarationPairs.filter((pair, index) => declarationPairs.indexOf(pair) !== index);
+  assert.deepEqual(overloadPairs, [
+    'libs/audio-video-client/src/operations.ts#MediaOperationClient#completeUploadSession',
+    'libs/audio-video-client/src/operations.ts#MediaOperationClient#completeUploadSession',
+  ], 'only the two documented completion overload signatures repeat a logical source identity');
+  assert.equal(declarationPairs.length, 31, '29 logical APIs plus two source-compatible overload signatures');
+  const logicalDeclarationPairs = [...new Set(declarationPairs)];
+  assert.equal(logicalDeclarationPairs.length, 29);
 
   const nonArtifactRows = sdkRows.filter(({ id }) => !artifactIds.has(id));
   const candidateIdsAndUnresolved = new Set(semanticPartition);
@@ -160,7 +169,7 @@ test("CLI crosswalk is exact and SDK registry reports exact source-pair discrepa
     .filter(({ id }) => candidateIdsAndUnresolved.has(id))
     .map(({ source, declaringClass, method }) => `${source}#${declaringClass}#${method}`);
   assert.equal(new Set(crosswalkPairs).size, crosswalkPairs.length, "SDK source pairs are unique in the crosswalk");
-  assertExactPartition(declarationPairs, crosswalkPairs, "SDK public source/class/method");
+  assertExactPartition(logicalDeclarationPairs, crosswalkPairs, "SDK public source/class/method");
   assert.deepEqual(parserArtifactIds.sort(), ["media.sdk.clearTimeout", "media.sdk.for", "media.sdk.if"]);
   for (const id of parserArtifactIds) {
     const row = sdkRows.find((candidate) => candidate.id === id);
@@ -172,8 +181,20 @@ test("CLI crosswalk is exact and SDK registry reports exact source-pair discrepa
     assert.ok(row.declaringClass, `${row.id} declares its source class`);
     assert.equal(declarationNames.has(`${row.source}#${row.declaringClass}#${row.method}`), true, `${row.id} method ${row.method} is declared in its recorded source/class`);
   }
-  const adapterRow = nonArtifactRows.find(({ id }) => id === candidateProviderAdapterIds[0]);
+  const adapterRow = nonArtifactRows.find(({ id }) => id === providerAdapterIds[0]);
   assert.equal(adapterRow?.source, "libs/audio-video-client/src/scene-text-adapter.ts");
   assert.equal(adapterRow?.declaringClass, "DocumentIntelligenceSceneTextAdapter");
   assert.equal(adapterRow?.method, "recognizeFrame");
+  const retry = nonArtifactRows.find(({ id }) => id === "media.sdk.retryOperation");
+  assert.equal(retry?.source, "libs/audio-video-client/src/operations.ts");
+  assert.equal(retry?.declaringClass, "MediaOperationClient");
+
+  const sdkTyped = parity.slice(parity.indexOf("typedMethodDispositions:"), parity.indexOf("typedInterfaceIdentityDispositions:"));
+  assert.match(sdkTyped, /- identity: media\.sdk\.documentIntelligenceSceneTextAdapter\.recognizeFrame\n  type: COMPATIBILITY_ADAPTER\n  semanticBinding: not-a-media-http-operation/u);
+  assert.match(sdkTyped, /- identity: media\.sdk\.retryOperation\n  type: NOT_ADMITTED\n  semanticBinding: not-admitted-to-current-media-runtime/u);
+  assert.doesNotMatch(parity, /source: libs\/audio-video-client\/src\/operations\.ts, method: POST, path: '\/api\/v1\/media\/operations\/\{parameter\}:retry'/u,
+    "retry route must not be reported as an active source call after the SDK fails closed");
+  assert.match(sdkRegistry, /targetContractSource: services\/document-intelligence\/contracts\/protocol-v1\.md\n    targetClientPackageObservation: '@ghatana\/document-intelligence-client@0\.1\.0'\n    targetClientAdmission: NOT_CONSUMED; package-peer-is-@ghatana\/document-extraction@0\.1\.0-SNAPSHOT/u,
+    "adapter provenance records the observed public DI contract and explicitly denies claiming package consumption");
+  assert.match(sdkRegistry, /media\.sdk\.retryOperation[\s\S]*?experienceBinding: SOURCE_COMPATIBLE_BUT_NOT_ADMITTED; MediaOperationNotAdmittedError-before-transport/u);
 });

@@ -36,14 +36,14 @@ class MediaRuntimeActiveTest {
                     "tenant-a", "principal-a", "clip.bin", "application/octet-stream", content.length,
                     sha256(content), "confidential", Duration.ofHours(2), Map.of("source", "test")));
             assertThat(runtime.upload("tenant-a", "principal-b", upload.uploadId())).isEmpty();
-            runtime.appendChunk("tenant-a", upload.uploadId(), 0,
+            runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0,
                     java.util.Arrays.copyOfRange(content, 0, 5));
-            runtime.appendChunk("tenant-a", upload.uploadId(), 1,
+            runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 1,
                     java.util.Arrays.copyOfRange(content, 5, content.length));
-            var artifact = runtime.completeUpload("tenant-a", upload.uploadId());
+            var artifact = runtime.completeUpload("tenant-a", "principal-a", upload.uploadId());
             assertThat(artifact.sha256()).isEqualTo(sha256(content));
             assertThat(artifact.expiresAt()).isAfter(Instant.now().plus(Duration.ofMinutes(90)));
-            assertThat(runtime.artifact("tenant-b", artifact.artifactId())).isEmpty();
+            assertThat(runtime.artifact("tenant-b", "principal-a", artifact.artifactId())).isEmpty();
             assertThat(runtime.artifact("tenant-a", "principal-b", artifact.artifactId())).isEmpty();
             assertThatThrownBy(() -> runtime.submit(new ProcessingJobRequest(
                     "request-spoofed", "tenant-a", "principal-b", "correlation-spoofed",
@@ -56,12 +56,22 @@ class MediaRuntimeActiveTest {
                     artifact.artifactId(), JobType.VISION, "local-diagnostic", Map.of()));
             assertThat(runtime.job("tenant-a", "principal-b", accepted.jobId())).isEmpty();
             assertThat(runtime.jobs("tenant-a", "principal-b", 100)).isEmpty();
+            assertThatThrownBy(() -> runtime.job("tenant-a", accepted.jobId()))
+                    .isInstanceOf(SecurityException.class);
+            assertThatThrownBy(() -> runtime.jobs("tenant-a", 100))
+                    .isInstanceOf(SecurityException.class);
+            assertThatThrownBy(() -> runtime.cancel("tenant-a", accepted.jobId()))
+                    .isInstanceOf(SecurityException.class);
+            assertThatThrownBy(() -> runtime.cancel("tenant-a", "principal-b", accepted.jobId()))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("not found");
+            assertThat(runtime.job("tenant-a", "principal-a", accepted.jobId())).isPresent();
             long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
             var job = accepted;
             while (!Set.of(JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED).contains(job.status())
                     && System.nanoTime() < deadline) {
                 Thread.sleep(10);
-                job = runtime.job("tenant-a", accepted.jobId()).orElseThrow();
+                job = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
             }
             assertThat(job.status()).isEqualTo(JobStatus.COMPLETED);
             assertThat(job.result()).containsEntry("rawMediaRead", false)
@@ -117,11 +127,19 @@ class MediaRuntimeActiveTest {
             var upload = runtime.beginUpload(new UploadRequest(
                     "tenant-a", "principal-a", "clip.bin", "application/octet-stream", bytes.length,
                     "0".repeat(64), "restricted", Duration.ofMinutes(10), Map.of()));
-            assertThatThrownBy(() -> runtime.appendChunk("tenant-a", upload.uploadId(), 1, bytes))
+            assertThatThrownBy(() -> runtime.appendChunk("tenant-a", "principal-b", upload.uploadId(), 0, bytes))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Open upload session not found");
+            assertThatThrownBy(() -> runtime.completeUpload("tenant-a", "principal-b", upload.uploadId()))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("not found");
+            assertThat(runtime.upload("tenant-a", "principal-a", upload.uploadId()).orElseThrow().bytesReceived())
+                    .isZero();
+            assertThatThrownBy(() -> runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 1, bytes))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Expected chunk index 0");
-            runtime.appendChunk("tenant-a", upload.uploadId(), 0, bytes);
-            assertThatThrownBy(() -> runtime.completeUpload("tenant-a", upload.uploadId()))
+            runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0, bytes);
+            assertThatThrownBy(() -> runtime.completeUpload("tenant-a", "principal-a", upload.uploadId()))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("checksum");
 
@@ -162,6 +180,49 @@ class MediaRuntimeActiveTest {
         } finally {
             runtime.close();
         }
+    }
+
+    @Test
+    void principalScopedReadsHideCrossTenantWrongPrincipalAndMissingObjectsAndRejectClosedRuntime()
+            throws Exception {
+        var root = Files.createTempDirectory("media-runtime-scoped-reads-");
+        MediaRuntime runtime = MediaRuntime.compose(localEnvironment(root));
+        byte[] content = "media-payload".getBytes(StandardCharsets.UTF_8);
+        var upload = runtime.beginUpload(new UploadRequest(
+                "tenant-a", "principal-a", "clip.bin", "application/octet-stream", content.length,
+                sha256(content), "confidential", Duration.ofHours(2), Map.of()));
+        assertThat(runtime.upload("tenant-a", "principal-a", upload.uploadId())).isPresent();
+        assertThat(runtime.upload("tenant-a", "principal-b", upload.uploadId())).isEmpty();
+        assertThat(runtime.upload("tenant-b", "principal-a", upload.uploadId())).isEmpty();
+        assertThat(runtime.upload("tenant-a", "principal-a", "missing-upload")).isEmpty();
+        assertThatThrownBy(() -> runtime.upload("tenant-a", upload.uploadId()))
+                .isInstanceOf(SecurityException.class);
+
+        runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0, content);
+        var artifact = runtime.completeUpload("tenant-a", "principal-a", upload.uploadId());
+        assertThat(runtime.artifact("tenant-a", "principal-a", artifact.artifactId())).isPresent();
+        assertThat(runtime.artifact("tenant-a", "principal-b", artifact.artifactId())).isEmpty();
+        assertThat(runtime.artifact("tenant-b", "principal-a", artifact.artifactId())).isEmpty();
+        assertThat(runtime.artifact("tenant-a", "principal-a", "missing-artifact")).isEmpty();
+        assertThatThrownBy(() -> runtime.artifact("tenant-a", artifact.artifactId()))
+                .isInstanceOf(SecurityException.class);
+
+        var job = runtime.submit(new ProcessingJobRequest(
+                "request-scoped-read", "tenant-a", "principal-a", "correlation-scoped-read",
+                artifact.artifactId(), JobType.VISION, "local-diagnostic", Map.of()));
+        assertThat(runtime.job("tenant-a", "principal-a", job.jobId())).isPresent();
+        assertThat(runtime.job("tenant-a", "principal-b", job.jobId())).isEmpty();
+        assertThat(runtime.job("tenant-b", "principal-a", job.jobId())).isEmpty();
+        assertThat(runtime.job("tenant-a", "principal-a", "missing-job")).isEmpty();
+        assertThat(runtime.jobs("tenant-a", "principal-b", 100)).isEmpty();
+        runtime.close();
+
+        assertThatThrownBy(() -> runtime.upload("tenant-a", "principal-a", upload.uploadId()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("closed");
+        assertThatThrownBy(() -> runtime.artifact("tenant-a", "principal-a", artifact.artifactId()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("closed");
+        assertThatThrownBy(() -> runtime.job("tenant-a", "principal-a", job.jobId()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("closed");
     }
 
     private static Map<String, String> localEnvironment(java.nio.file.Path root) {

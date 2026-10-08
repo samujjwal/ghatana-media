@@ -15,15 +15,19 @@ const paths = {
   streamStore: "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java",
   schema: "providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql",
   runtime: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+  localArtifactStore: "launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java",
   localJobStore: "launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java",
+  requestFingerprint: "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaJobRequestFingerprint.java",
   maintenanceContract: "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java",
   maintenance: "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaPrivacyMaintenance.java",
   maintenanceRuntime: "launcher/src/main/java/com/ghatana/media/launcher/MediaPrivacyMaintenanceRuntime.java",
   consentTest: "launcher/src/test/java/com/ghatana/media/launcher/MediaConsentRevocationTest.java",
   activeTest: "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeActiveTest.java",
   pgTest: "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java",
+  artifactIsolationTest: "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaPostgresqlS3TenantIsolationTest.java",
   restartTest: "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java",
   client: "libs/audio-video-client/src/operations.ts",
+  clientTest: "libs/audio-video-client/src/operations.test.ts",
   openapi: "contracts/openapi/media.yaml",
 };
 const read = (path) => readFileSync(path, "utf8");
@@ -44,7 +48,7 @@ function validate(files) {
     "id: media.privacy.observation.physical-erasure",
     "id: media.privacy.observation.uncertain-effect-replay",
     "legalHoldStatus: not-implemented-or-proven-by-inspected-runtime-schema-and-provider",
-    "safe-replay-or-deduplication-contract",
+    "provider-effect-safe-replay-or-deduplication-contract",
     "securityAndPrivacyOwnerApproval: pending",
     "independentReview: pending",
   ]) if (!audit.includes(marker)) errors.push(`privacy observation ledger missing ${marker}`);
@@ -60,16 +64,42 @@ function validate(files) {
   for (const marker of [
     "WHERE tenant_id=? AND artifact_id=? FOR UPDATE",
     "WHERE tenant_id=? AND principal_id=? AND sha256=? AND size_bytes=? FOR UPDATE",
+    "!current.principalId().equals(principalId)",
+    "claimFinalization(String tenantId, String principalId, String uploadId)",
   ]) needs("artifactStore", marker);
+  needs("localArtifactStore", "!current.principalId().equals(principalId)");
+  needs("runtime", "artifactStore.append(tenantId, principalId, uploadId, chunkIndex, bytes)");
+  needs("runtime", "artifactStore.complete(tenantId, principalId, uploadId)");
   needs("jobStore", "WHERE tenant_id=? AND job_id=? AND version=?");
   needs("schema", "CONSTRAINT uk_media_job_request UNIQUE (tenant_id, request_id)");
   for (const marker of [
     "String requestKey = key(job.tenantId(), job.requestId());",
-    "if (!existing.principalId().equals(job.principalId())",
-    "|| !existing.artifactId().equals(job.artifactId())",
-    "|| existing.jobType() != job.jobType())",
+    "verifyRequestIdentity(existing, job);",
+    "if (existing.requestFingerprint().isBlank() || requested.requestFingerprint().isBlank())",
+    "|| !existing.requestFingerprint().equals(requested.requestFingerprint()))",
+    "!expected.requestFingerprint().equals(updated.requestFingerprint())",
     "return existing;",
   ]) needs("localJobStore", marker);
+  for (const marker of [
+    'envelope.put("schema", "media.job-request-fingerprint.v1");',
+    'envelope.put("digestVersion", 1);',
+    'MessageDigest.getInstance("SHA-256")',
+    '"governance", governance',
+    '"parameters", request.parameters()',
+  ]) needs("requestFingerprint", marker);
+  for (const marker of [
+    "existing.requestFingerprint().isBlank() || requested.requestFingerprint().isBlank()",
+    "!existing.requestFingerprint().equals(requested.requestFingerprint())",
+    "!expected.requestFingerprint().equals(updated.requestFingerprint())",
+  ]) needs("jobStore", marker);
+  if (!files.jobStore.includes('"Media request has no semantic fingerprint; replay safety cannot be established"')) {
+    errors.push("jobStore must fail closed for a legacy duplicate with no request fingerprint");
+  }
+  if (!files.openapi.includes("/api/v1/media/operations/{operationId}:retry")) {
+    // The absence is the current contract: no retry route is admitted.
+  } else {
+    errors.push("OpenAPI unexpectedly admits the legacy retry route without an approved attempt-safe contract");
+  }
   needs("streamStore", "WHERE tenant_id=? AND session_id=? AND version=?");
   for (const marker of [
     "PRIMARY KEY (tenant_id, upload_id)", "PRIMARY KEY (tenant_id, artifact_id)",
@@ -125,14 +155,21 @@ function validate(files) {
   needs("restartTest", "assertThat(reconciled.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN)");
   needs("pgTest", "JobStatus.OUTCOME_UNKNOWN");
   needs("restartTest", 'assertThat(calls).hasValue(1)');
-  needs("client", '`/api/v1/media/operations/${encodeURIComponent(operationId)}:retry`');
-  needs("client", 'const response = await this.fetchImpl(`${this.baseUrl}${path}`');
+  needs("client", 'throw new MediaOperationNotAdmittedError("media.operation.retry")');
+  needs("client", "without server-owned eligibility, attempt fencing and idempotency");
+  needs("clientTest", 'await expect(client.retryOperation("operation-1"');
+  needs("clientTest", "expect(fetchImpl).not.toHaveBeenCalled()");
+  needs("activeTest", 'runtime.appendChunk("tenant-a", "principal-b", upload.uploadId(), 0, bytes)');
+  needs("activeTest", 'runtime.completeUpload("tenant-a", "principal-b", upload.uploadId())');
+  needs("artifactIsolationTest", 'store.append("tenant-a", "principal-b", upload.uploadId(), 0, bytes)');
+  needs("artifactIsolationTest", 'store.complete("tenant-a", "principal-b", upload.uploadId())');
   needs("offline", "safeReplay: not-established");
   needs("openapi", "No replay-safe idempotency guarantee is declared; clients must not automatically retry this mutation.");
   needs("ledger", "provider-outcome-reconciliation");
   needs("ledger", "replay-contract-unbound");
-  if (files.offline.includes("safeReplay: guaranteed") || audit.includes("safe-replay-or-deduplication-contract: established")) {
-    errors.push("uncertain-effect replay must remain unestablished");
+  if (files.offline.includes("safeReplay: guaranteed")
+      || audit.includes("provider-effect-safe-replay-or-deduplication-contract: established")) {
+    errors.push("provider-effect replay must remain unestablished");
   }
   return errors;
 }
@@ -158,8 +195,26 @@ test("privacy regression rejects request deduplication scope drift", () => {
     "String requestKey = job.requestId();",
   );
   assert.match(validate({ ...base, localJobStore: unscopedRequestIndex }).join("\n"), /localJobStore missing source evidence: String requestKey/u);
-  const missingConflictGuard = base.localJobStore.replace("|| !existing.artifactId().equals(job.artifactId())", "|| false");
-  assert.match(validate({ ...base, localJobStore: missingConflictGuard }).join("\n"), /localJobStore missing source evidence: \|\| !existing.artifactId/u);
+  const missingFingerprintGuard = base.localJobStore.replace(
+    "|| !existing.requestFingerprint().equals(requested.requestFingerprint())",
+    "|| false",
+  );
+  assert.match(validate({ ...base, localJobStore: missingFingerprintGuard }).join("\n"), /localJobStore missing source evidence: \|\| !existing.requestFingerprint/u);
+  const missingPostgresDigestGuard = base.jobStore.replace(
+    "if (existing.requestFingerprint().isBlank() || requested.requestFingerprint().isBlank())",
+    "if (false)",
+  );
+  assert.match(validate({ ...base, jobStore: missingPostgresDigestGuard }).join("\n"), /jobStore missing source evidence: existing.requestFingerprint\(\).isBlank/u);
+  const legacyReplayAllowed = base.localJobStore.replace(
+    "if (existing.requestFingerprint().isBlank() || requested.requestFingerprint().isBlank())",
+    "if (false)",
+  );
+  assert.match(validate({ ...base, localJobStore: legacyReplayAllowed }).join("\n"), /localJobStore missing source evidence: if \(existing.requestFingerprint\(\).isBlank/u);
+  const mutableFingerprint = base.jobStore.replace(
+    "|| !expected.requestFingerprint().equals(updated.requestFingerprint())",
+    "|| false",
+  );
+  assert.match(validate({ ...base, jobStore: mutableFingerprint }).join("\n"), /jobStore missing source evidence: !expected.requestFingerprint/u);
   const unscopedDatabaseKey = base.schema.replace("CONSTRAINT uk_media_job_request UNIQUE (tenant_id, request_id)", "CONSTRAINT uk_media_job_request UNIQUE (request_id)");
   assert.match(validate({ ...base, schema: unscopedDatabaseKey }).join("\n"), /schema missing source evidence: CONSTRAINT uk_media_job_request UNIQUE \(tenant_id, request_id\)/u);
 });

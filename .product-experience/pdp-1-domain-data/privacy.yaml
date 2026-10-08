@@ -95,14 +95,19 @@ sourceIndexedAudit:
     - id: media.privacy.observation.tenant-scope
       authorityRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#independentGovernanceAxes, .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity]
       implementationRefs:
+        - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#appendChunk
+        - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#completeUpload
+        - launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java#ArtifactStore.append
+        - launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java#ArtifactStore.complete
         - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactStore.java
         - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java
         - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java
         - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql
       verificationRefs:
         - providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
+        - providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaPostgresqlS3TenantIsolationTest.java
         - launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeActiveTest.java
-      observed: PostgreSQL store lookups and updates include tenant_id predicates; listed tenant-keyed tables use tenant-scoped primary or unique keys; tests query artifact/job/stream under another tenant and assert empty
+      observed: PostgreSQL store lookups and updates include tenant_id predicates; upload append and finalization also compare the supplied principal with the locked session owner before mutation; local upload mutations enforce the same tenant-and-principal match; tests prove cross-tenant and same-tenant wrong-principal append/finalization leave upload progress unchanged
       doesNotEstablish: authenticated-transport-tenant-integrity; every-deployment-store-or-cache-isolation; cross-tenant-deduplication-nondisclosure-outside-the-tested-provider
       status: bounded-implementation-and-test-observation
     - id: media.privacy.observation.request-deduplication-scope
@@ -111,10 +116,16 @@ sourceIndexedAudit:
         - launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java#JobStore.create
         - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java#create
         - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql
-      verificationRef: launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java
-      observed: local request index and PostgreSQL uniqueness scope requestId by tenant; local store rejects reuse within a tenant when principal, artifact, or job type differs; same-scope duplicate submission returns the existing job and avoids a second provider dispatch
-      doesNotEstablish: authenticated-tenant-or-principal-integrity; cross-tenant-nondisclosure-for-all-stores; global-replay-safety-or-provider-effect-deduplication
-      status: bounded-local-implementation-observation; PostgreSQL-constraint-observed
+        - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaJobRequestFingerprint.java
+        - providers/aws-postgresql/src/main/resources/db/media-runtime/V008__media_job_request_fingerprint.sql
+      verificationRefs:
+        - launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java
+        - launcher/src/test/java/com/ghatana/media/launcher/LocalMediaJobStoreGovernanceTest.java
+        - runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaJobRequestFingerprintTest.java
+        - providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
+      observed: local request index and PostgreSQL uniqueness scope requestId by tenant; both stores compare an immutable media.job-request-fingerprint.v1 SHA-256 covering request identity, parameters, governance and ordered provider plan; exact same-scope payload replay returns the existing job; mismatched payload and legacy rows without a digest fail closed; provider-effect replay remains unadmitted
+      doesNotEstablish: authenticated-tenant-or-principal-integrity; cross-tenant-nondisclosure-for-all-stores; provider-effect-safe-replay-or-deduplication-contract
+      status: bounded-versioned-request-payload-idempotency-observation; legacy-replay-fails-closed; PostgreSQL-constraint-observed
     - id: media.privacy.observation.consent-revocation
       authorityRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#invariants, .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity]
       implementationRefs:
@@ -161,11 +172,15 @@ sourceIndexedAudit:
       implementationRefs:
         - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#reconcileJobsAfterRestart
         - libs/audio-video-client/src/operations.ts#retryOperation
+        - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaJobRequestFingerprint.java
         - contracts/openapi/media.yaml#x-ghatana-idempotency
-      verificationRef: launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java
-      observed: startup changes recoverable jobs to OUTCOME_UNKNOWN without a failure code or completion timestamp; local and PostgreSQL job stores refuse to lease unknown-outcome jobs for replay; provider outcome and later reconciliation remain unproved; client exposes an explicit retry operation; selected OpenAPI mutations explicitly disclaim replay-safe idempotency
-      doesNotEstablish: provider-outcome-reconciliation; safe-replay-or-deduplication-contract; universal-automatic-retry-prohibition; offline-command-queue-or-cross-client-replay-safety
-      status: restart-unknown-outcome-path-tested; replay-contract-unbound
+      verificationRefs:
+        - launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java
+        - libs/audio-video-client/src/operations.test.ts
+        - tests/media-runtime-openapi-job-status.test.mjs
+      observed: startup changes recoverable jobs to OUTCOME_UNKNOWN without a failure code or completion timestamp; local and PostgreSQL job stores refuse to lease unknown-outcome jobs for replay; versioned request payload idempotency binds exact submission replays, but provider effect reconciliation remains unproved; the legacy client retry method fails before transport because no server-owned retry contract or route is admitted; selected OpenAPI mutations explicitly disclaim replay-safe idempotency
+      doesNotEstablish: provider-outcome-reconciliation; provider-effect-safe-replay-or-deduplication-contract; universal-automatic-retry-prohibition; offline-command-queue-or-cross-client-replay-safety
+      status: restart-unknown-outcome-path-tested; legacy-retry-fails-before-dispatch; provider-effect-replay-contract-unbound
   policyAndReviewBoundary:
     pdp0PolicyAuthority: authored-proposal; pending-P0-010-independent-acceptance
     pdp1Privacy: source-observations-do-not-accept-policy-meaning

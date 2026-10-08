@@ -99,22 +99,23 @@ surfaces:
     rawRegistryRecordCount: 32
     source: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
     proposedSemanticCandidates:
-      job-lifecycle: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.getOperation, media.sdk.cancelOperation]
+      job-lifecycle: [media.sdk.getStatus, media.sdk.cancel, media.sdk.getResult, media.sdk.wait, media.sdk.getOperation, media.sdk.cancelOperation]
       artifact-ingest: [media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact]
       transcription: [media.sdk.transcribe]
       synthesis: [media.sdk.synthesize]
       multimodal-analysis: [media.sdk.analyzeMultimodal]
-    unresolved: [media.sdk.listProviderCapabilities, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.retryOperation, media.sdk.getOperationResult, media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame]
+    unresolved: [media.sdk.listProviderCapabilities, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.getOperationResult]
     sourceBackedNonOperationDispositions:
       TRANSPORT_ONLY: [media.sdk.getServiceStatus, media.sdk.getAllServicesStatus]
       CLIENT_ONLY: [media.sdk.addEventListener, media.sdk.removeEventListener]
-    candidateProviderAdapters: [media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame]
+      PROVIDER_ADAPTER: [media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame]
+      NOT_ADMITTED: [media.sdk.retry, media.sdk.retryOperation]
     parserArtifactTokensExcludedFromMethodDenominator: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
     parserArtifactEvidence: public-declaration-parser-scans-recursively-discovered-production-TypeScript-sources-under-the-SDK-src-tree; none-of-the-three-token-names-has-a-public-method-declaration; raw-records-retained-for-audit
-    dispositionCounts: {mappedProposal: 14, transportOnly: 2, clientOnly: 2, unresolved: 11}
+    dispositionCounts: {mappedProposal: 13, transportOnly: 2, clientOnly: 2, providerAdapter: 1, unadmitted: 2, unresolved: 9}
     legacyClientSource: libs/audio-video-client/src/index.ts
     sourcePairInventory: public-method-pairs-include-source-and-declaring-class; duplicate-transcribe-and-synthesize-identities-are-separated-by-legacy-source-class
-    bindingStatus: 14 family associations remain proposals; four exact source-backed non-operation identities are classified below; eleven domain-relevant identities remain unresolved, including one candidate provider adapter; three source-parser artifacts are explicitly excluded; no runtime route or client admission is implied
+    bindingStatus: thirteen family associations remain proposals; six exact source-backed non-operation identities (including two retry methods) are classified below; nine domain-relevant identities remain unresolved; three source-parser artifacts are explicitly excluded; no runtime route or client admission is implied
   - surface: Agent Tool handlers
     denominator: 4
     source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
@@ -177,11 +178,11 @@ typedMethodDispositions:
   openApiBindingDisposition: NOT_ADMITTED
   bindingEvidence: legacy-client-method-delegates-to-cancelOperation; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
 - identity: media.sdk.retry
-  type: DOMAIN_COMMAND
-  semanticBinding: unresolved
-  basis: retry-request-method-with-eligibility-unresolved
+  type: NOT_ADMITTED
+  semanticBinding: not-admitted-to-current-media-runtime
+  basis: retry-handle-method-delegates-to-fail-closed-unadmitted-client-method
   openApiBindingDisposition: NOT_ADMITTED
-  bindingEvidence: legacy-client-method-delegates-to-retryOperation; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+  bindingEvidence: MediaOperationHandle.retry-delegates-to-retryOperation-which-throws-MediaOperationNotAdmittedError-before-network
 - identity: media.sdk.getResult
   type: DOMAIN_QUERY
   semanticBinding: unresolved
@@ -199,25 +200,27 @@ typedMethodDispositions:
   semanticBinding: unresolved
   basis: upload-session-submission-method
   openApiBindingDisposition: NOT_ADMITTED
-  bindingEvidence: legacy-client-method-delegates-to-createUploadSession; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+  bindingEvidence: createUploadSession-uses-exact-runtime-route-and-DTO; source-wire-behavior-tested; full-authority-and-idempotency-admission-remain-unqualified
 - identity: media.sdk.uploadPart
   type: DOMAIN_COMMAND
   semanticBinding: unresolved
   basis: upload-part-transfer-method
   openApiBindingDisposition: NOT_ADMITTED
-  bindingEvidence: legacy-client-method-delegates-to-uploadPart; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+  bindingEvidence: uploadPart-uses-exact-runtime-route-and-DTO; source-wire-behavior-tested; full-authority-and-idempotency-admission-remain-unqualified
 - identity: media.sdk.completeUploadSession
   type: DOMAIN_COMMAND
   semanticBinding: unresolved
   basis: upload-completion-method
   openApiBindingDisposition: NOT_ADMITTED
-  bindingEvidence: legacy-client-method-delegates-to-completeUploadSession; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+  bindingEvidence: completeUploadSession-uses-exact-runtime-route-and-DTO; source-wire-behavior-tested; full-authority-and-idempotency-admission-remain-unqualified
 - identity: media.sdk.getArtifact
   type: DOMAIN_QUERY
-  semanticBinding: unresolved
-  basis: artifact-read-method
-  openApiBindingDisposition: NOT_ADMITTED
-  bindingEvidence: legacy-client-method-delegates-to-getArtifact; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+  semanticBinding: accepted-bounded-wire-read; host-identity-and-runtime-qualification-open
+  basis: exact-principal-scoped-artifact-observation
+  openApiBindingDisposition: BOUNDED_CANONICAL_READ
+  openApiOperationId: getMediaArtifact
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-044
+  bindingEvidence: canonical-GET-route-and-exact-runtime-DTO; strict-scope-and-malformed-response-tests; no-legacy-domain-alias-or-rights-inference
 - identity: media.sdk.listProviderCapabilities
   type: PROVIDER_ADMIN
   semanticBinding: unresolved
@@ -267,11 +270,17 @@ typedMethodDispositions:
   openApiBindingDisposition: NOT_ADMITTED
   bindingEvidence: legacy-client-method-delegates-to-cancelOperation; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
 - identity: media.sdk.retryOperation
-  type: DOMAIN_COMMAND
-  semanticBinding: unresolved
-  basis: legacy-retry-request-with-eligibility-and-attempt-semantics-unresolved
+  type: NOT_ADMITTED
+  semanticBinding: not-admitted-to-current-media-runtime
+  basis: legacy-retry-method-is-source-compatible-but-fails-closed-before-transport
   openApiBindingDisposition: NOT_ADMITTED
-  bindingEvidence: libs/audio-video-client/src/operations.ts-posts-to-/api/v1/media/operations/{operationId}:retry; exact-route-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+  bindingEvidence: retryOperation-throws-MediaOperationNotAdmittedError-before-network; OpenAPI-and-runtime-route-manifest-have-no-retry-route
+- identity: media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame
+  type: COMPATIBILITY_ADAPTER
+  semanticBinding: not-a-media-http-operation
+  basis: source-qualified-scene-and-temporal-adapter-over-document-intelligence-v1-client-contract
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: libs/audio-video-client/src/scene-text-adapter.ts-preserves-media-source-version-frame-and-time-around-DI-v1-parse; public-DI-package-is-not-a-Media-dependency-and-no-Media-OpenAPI-route-exists
 - identity: media.sdk.getOperationResult
   type: DOMAIN_QUERY
   semanticBinding: unresolved
@@ -368,8 +377,9 @@ typedInterfaceIdentityDispositions:
   sdk:
     transportOnly: [media.sdk.getServiceStatus, media.sdk.getAllServicesStatus]
     clientOnly: [media.sdk.addEventListener, media.sdk.removeEventListener]
-    candidateProviderAdapters: [media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame]
-    semanticOperationBinding: unresolved-for-14-proposed-domain-operation-candidates-and-one-provider-adapter; four-source-backed-non-operation-dispositions-are-exact-role-classifications-only
+    providerAdapters: [media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame]
+    notAdmitted: [media.sdk.retry, media.sdk.retryOperation]
+    semanticOperationBinding: unresolved-for-13-proposed-domain-operation-candidates; six-source-backed-role-dispositions-include-DI-adapter-and-two-legacy-retry-nonadmissions
   agentTools:
     domainCommands: [av.speech-to-text, av.text-to-speech, av.vision-analysis, av.multimodal-inference]
     invocationAuthorityAndInputResultContracts: unresolved-for-every-identity
@@ -382,20 +392,15 @@ typedInterfaceIdentityDispositions:
 compatibilityRouteFindings:
   disposition: NOT_ADMITTED_TO_CURRENT_RUNTIME_ROUTE_MANIFEST; retained-as-legacy-client-call-sites; each-exact-route-remains-a-parity-finding-until-client-or-runtime-contracts-converge
   sourceFindings:
-    - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/uploads'}
-    - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/uploads/{parameter}:complete'}
-    - {source: libs/audio-video-client/src/operations.ts, method: GET, path: '/api/v1/media/artifacts/{parameter}'}
     - {source: libs/audio-video-client/src/operations.ts, method: GET, path: '/api/v1/media/providers/capabilities'}
     - {source: libs/audio-video-client/src/operations.ts, method: GET, path: '/api/v1/media/operations/{parameter}'}
     - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/operations/{parameter}:cancel'}
-    - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/operations/{parameter}:retry'}
     - {source: libs/audio-video-client/src/operations.ts, method: GET, path: '/api/v1/media/operations/{parameter}/result'}
     - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/transcriptions'}
     - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/syntheses'}
     - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/voice-models:train'}
     - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/voice-conversions'}
     - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/multimodal-analyses'}
-    - {source: libs/audio-video-client/src/operations.ts, method: PUT, path: '/api/v1/media/uploads/{parameter}/parts/{parameter}'}
     - {source: libs/audio-video-client/src/index.ts, method: POST, path: '/api/stt/transcribe'}
     - {source: libs/audio-video-client/src/index.ts, method: POST, path: '/api/tts/synthesize'}
     - {source: libs/audio-video-client/src/index.ts, method: POST, path: '/api/ai-voice/process'}

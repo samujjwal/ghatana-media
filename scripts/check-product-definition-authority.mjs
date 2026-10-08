@@ -9,6 +9,8 @@
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { createRequire } from "node:module";
+import { validateCanonicalMediaReads } from "./lib/media-canonical-read-contracts.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const productRoot = join(root, ".product-experience");
@@ -186,6 +188,18 @@ const screenIds = new Set([...screenRegistry.matchAll(/^\s*- id: (media\.view\.[
 if (screenIds.size !== 47) fail(`screen registry ID count is ${screenIds.size}; expected 47`);
 const journeyRegistry = read(".product-experience/pdp-3-product-experience/journey-registry.yaml");
 if (!journeyRegistry.includes("id: J-29") || !journeyRegistry.includes("id: J-30")) fail("journey registry does not include J-29 and J-30");
+
+// Validate the exact source/handler relationships approved in PXD-040; a
+// global phase label cannot compensate for a missing principal guard.
+try {
+  const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
+  for (const issue of validateCanonicalMediaReads({
+    operations: parse(read(".product-experience/pdp-1-domain-data/operations.yaml")),
+    openapi: parse(read("contracts/openapi/media.yaml")),
+    runtimeSource: read("launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java"),
+    handlerSource: read("launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java"),
+  })) fail(issue);
+} catch (error) { fail(`canonical read-contract validation unavailable: ${error.message}`); }
 
 if (failures.length) {
   console.error(`Media Product Definition authority check failed (${failures.length} failures)`);

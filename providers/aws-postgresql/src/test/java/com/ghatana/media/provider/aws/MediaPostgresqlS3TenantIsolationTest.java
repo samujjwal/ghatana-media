@@ -49,17 +49,24 @@ class MediaPostgresqlS3TenantIsolationTest {
              S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
             byte[] bytes = "tenant-scoped-upload".getBytes(StandardCharsets.UTF_8);
             var upload = store.begin(upload("tenant-a", "principal-a", "a.bin", bytes, Duration.ofDays(30)));
-            store.append("tenant-a", upload.uploadId(), 0, bytes);
 
             assertThat(store.upload("tenant-b", upload.uploadId())).isEmpty();
-            assertThatThrownBy(() -> store.append("tenant-b", upload.uploadId(), 0, bytes))
+            assertThatThrownBy(() -> store.append("tenant-a", "principal-b", upload.uploadId(), 0, bytes))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Open upload session not found");
-            assertThatThrownBy(() -> store.complete("tenant-b", upload.uploadId()))
+            assertThatThrownBy(() -> store.complete("tenant-a", "principal-b", upload.uploadId()))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Upload session not found");
+            assertThatThrownBy(() -> store.append("tenant-b", upload.principalId(), upload.uploadId(), 0, bytes))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Open upload session not found");
+            assertThatThrownBy(() -> store.complete("tenant-b", upload.principalId(), upload.uploadId()))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Upload session not found");
 
-            MediaArtifact artifact = store.complete("tenant-a", upload.uploadId());
+            assertThat(store.upload("tenant-a", upload.uploadId()).orElseThrow().bytesReceived()).isZero();
+            store.append("tenant-a", upload.principalId(), upload.uploadId(), 0, bytes);
+            MediaArtifact artifact = store.complete("tenant-a", upload.principalId(), upload.uploadId());
             String objectKey = URI.create(artifact.objectReference()).getPath().substring(1);
             assertThat(store.artifact("tenant-a", artifact.artifactId())).contains(artifact);
             assertThat(store.artifact("tenant-b", artifact.artifactId())).isEmpty();
@@ -87,8 +94,8 @@ class MediaPostgresqlS3TenantIsolationTest {
                     Duration.ofDays(30)));
             var uploadB = store.begin(upload("tenant-b", "principal-b", "pending-b.bin", chunkB,
                     Duration.ofDays(30)));
-            store.append("tenant-a", uploadA.uploadId(), 0, chunkA);
-            store.append("tenant-b", uploadB.uploadId(), 0, chunkB);
+            store.append("tenant-a", uploadA.principalId(), uploadA.uploadId(), 0, chunkA);
+            store.append("tenant-b", uploadB.principalId(), uploadB.uploadId(), 0, chunkB);
             String chunkKeyA = chunkObjectKey("tenant-a", uploadA.uploadId());
             String chunkKeyB = chunkObjectKey("tenant-b", uploadB.uploadId());
             assertObjectExists(admin, bucket, chunkKeyA);
@@ -166,8 +173,8 @@ class MediaPostgresqlS3TenantIsolationTest {
             String fileName,
             byte[] bytes) throws Exception {
         var upload = store.begin(upload(tenantId, principalId, fileName, bytes, Duration.ofDays(30)));
-        store.append(tenantId, upload.uploadId(), 0, bytes);
-        return store.complete(tenantId, upload.uploadId());
+        store.append(tenantId, upload.principalId(), upload.uploadId(), 0, bytes);
+        return store.complete(tenantId, upload.principalId(), upload.uploadId());
     }
 
     private static void expireRows(MediaArtifact artifact, String uploadId) throws Exception {

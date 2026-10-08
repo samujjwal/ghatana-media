@@ -15,8 +15,8 @@ const definitions = [
     handler: "SpeechToTextToolHandler",
     factoryId: "TOOL_ID_STT",
     source: "SpeechToTextToolHandler.java",
-    fields: ["audioSource", "audioSource.mediaArtifactId", "audioSource.audioBytes", "mediaArtifactId"],
-    markers: ["src.containsKey(\"mediaArtifactId\")", "src.containsKey(\"audioBytes\")", "input.containsKey(\"mediaArtifactId\")", "delegate.handle(envelope, contract)"],
+    fields: ["audioSource", "languageCode", "enableDiarization", "model"],
+    markers: ["AgentToolInput.checked(envelope, contract, TOOL_ID", "AgentToolInput.languageTag", "INVALID_ENABLE_DIARIZATION", "INVALID_MODEL", "AgentToolInput.dispatch(delegate, envelope, contract)"],
     error: "STT processing error: ",
     unavailable: "Audio-Video STT provider unavailable for " + '" + audioSource + ": no speech-to-text service delegate configured"',
   },
@@ -25,8 +25,8 @@ const definitions = [
     handler: "TextToSpeechToolHandler",
     factoryId: "TOOL_ID_TTS",
     source: "TextToSpeechToolHandler.java",
-    fields: ["text", "voiceId", "speakingRate", "audioEncoding", "storeAsArtifact"],
-    markers: ["requireString(input, \"text\")", "input.getOrDefault(\"voiceId\", \"en-US-default\")", "toDouble(input.getOrDefault(\"speakingRate\", 1.0))", "input.getOrDefault(\"audioEncoding\", \"MP3\")", "Boolean.TRUE.equals(input.get(\"storeAsArtifact\"))", "delegate.handle(envelope, contract)"],
+    fields: ["text", "voiceId", "speakingRate", "pitch", "audioEncoding", "storeAsArtifact"],
+    markers: ["AgentToolInput.checked(envelope, contract, TOOL_ID", "AgentToolInput.requiredString(input, \"text\", 10_000)", "AgentToolInput.boundedRate", "INVALID_PITCH", "OGG_OPUS", "AgentToolInput.dispatch(delegate, envelope, contract)"],
     error: "TTS processing error: ",
     unavailable: "Audio-Video TTS provider unavailable: no text-to-speech service delegate configured",
   },
@@ -35,8 +35,8 @@ const definitions = [
     handler: "VisionAnalysisToolHandler",
     factoryId: "TOOL_ID_VISION",
     source: "VisionAnalysisToolHandler.java",
-    fields: ["mediaSource", "mediaSource.mediaArtifactId", "mediaSource.imageBytes", "mediaArtifactId", "analysisTypes", "maxResults"],
-    markers: ["srcMap.containsKey(\"mediaArtifactId\")", "srcMap.containsKey(\"imageBytes\")", "input.containsKey(\"mediaArtifactId\")", "List.of(\"OBJECT_DETECTION\")", "toInt(input.getOrDefault(\"maxResults\", 10))", "delegate.handle(envelope, contract)"],
+    fields: ["mediaSource", "analysisTypes", "maxResults", "confidenceThreshold", "customModelId"],
+    markers: ["AgentToolInput.checked(envelope, contract, TOOL_ID", "INVALID_ANALYSIS_TYPES", "AgentToolInput.boundedInt", "INVALID_CONFIDENCE_THRESHOLD", "CUSTOM_MODEL", "AgentToolInput.dispatch(delegate, envelope, contract)"],
     error: "Vision analysis error: ",
     unavailable: "Audio-Video Vision provider unavailable: no vision analysis service delegate configured",
   },
@@ -45,8 +45,8 @@ const definitions = [
     handler: "MultimodalInferenceToolHandler",
     factoryId: "TOOL_ID_MULTIMODAL",
     source: "MultimodalInferenceToolHandler.java",
-    fields: ["mediaArtifactId", "inferenceMode", "enableTranscription", "enableVisionAnalysis"],
-    markers: ["requireString(input, \"mediaArtifactId\")", "input.getOrDefault(\"inferenceMode\", \"SUMMARY\")", "!Boolean.FALSE.equals(input.get(\"enableTranscription\"))", "!Boolean.FALSE.equals(input.get(\"enableVisionAnalysis\"))", "delegate.handle(envelope, contract)"],
+    fields: ["mediaArtifactId", "inferenceMode", "samplingRateMs", "enableTranscription", "enableVisionAnalysis", "languageCode"],
+    markers: ["AgentToolInput.checked(envelope, contract, TOOL_ID", "FRAME_BY_FRAME", "INVALID_SAMPLING_RATE", "AgentToolInput.languageTag", "NO_MODALITY_SELECTED", "AgentToolInput.dispatch(delegate, envelope, contract)"],
     error: "Multimodal inference error: ",
     unavailable: "Audio-Video Multimodal provider unavailable: no multimodal inference service delegate configured",
   },
@@ -71,7 +71,7 @@ function checkRegistry(text, sources) {
   if (text.includes("executionAdmitted: true")) errors.push("tool registry must not admit execution");
   if (!text.includes("schemaVersion: NOT_DECLARED_BY_HANDLER")) errors.push("handler schema version must remain explicitly undeclared");
   if (!text.includes("operationBinding: UNRESOLVED")) errors.push("PDP-1 operation binding must remain unresolved");
-  if (!text.includes("asynchronousFailure: A delegate Promise is returned unchanged")) errors.push("delegate Promise failure semantics must remain explicit");
+  if (!text.includes("asynchronousFailure: The adapter preserves delegate rejection and synchronous throw, and rejects null promise or mismatched invocationId results. The DefaultToolExecutor boundary maps effectful post-dispatch ambiguity to non-final OUTCOME_UNKNOWN")) errors.push("delegate ambiguity semantics must remain explicit");
   if (!text.includes("localFailedResultArguments: ToolExecutionResult.failed receives invocationId for both its first and third arguments")) errors.push("local failed-result identity/time argument behavior must remain explicit");
 
   for (const definition of definitions) {
@@ -98,9 +98,12 @@ function checkRegistry(text, sources) {
     }
     if (!block.includes("sourceType: Map<String,Object> from ToolExecutionEnvelope.input()")) errors.push(`${definition.id}: input source type observation missing`);
     if (!block.includes("javaType: Promise<ToolExecutionResult>")) errors.push(`${definition.id}: observed result type missing`);
-    if (!block.includes("success: Exact delegate Promise is returned without output validation;")) errors.push(`${definition.id}: delegate result opacity observation missing`);
+    const successObservation = definition.id === "av.multimodal-inference"
+      ? "success: Delegate result is returned without output validation after invocationId equality check; component and partial-result semantics remain unresolved."
+      : "success: Delegate result is returned without output validation after invocationId equality check; result fields/schema remain unresolved.";
+    if (!block.includes(successObservation)) errors.push(`${definition.id}: delegate result opacity observation missing`);
     if (!block.includes("schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}")) errors.push(`${definition.id}: result schema version must remain undeclared`);
-    if (!block.includes("finality: {value: null, status: not-established-by-handler-or-delegate-contract}")) errors.push(`${definition.id}: result finality must remain unresolved`);
+    if (!block.includes("finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.")) errors.push(`${definition.id}: result finality capability and limit must be accurate`);
     for (const marker of definition.markers) {
       if (!source.includes(marker)) errors.push(`${definition.id}: handler source drift at ${marker}`);
     }
@@ -109,13 +112,13 @@ function checkRegistry(text, sources) {
     }
     if (source.indexOf("Objects.requireNonNull(contract") > source.indexOf("try {")) errors.push(`${definition.id}: null contract check moved inside try; direct-throw classification changed`);
     if (!block.includes("nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.")) errors.push(`${definition.id}: direct null-argument behavior missing`);
-    if (!block.includes("delegateInputForwarding: When configured, delegate.handle receives the original envelope and contract unchanged.")) errors.push(`${definition.id}: original delegate input forwarding missing`);
+    if (!block.includes("delegateInputForwarding: After local envelope/contract and input validation, delegate.handle receives the original envelope and contract unchanged through AgentToolInput.dispatch.")) errors.push(`${definition.id}: original delegate input forwarding missing`);
     if (!source.includes(definition.error)) errors.push(`${definition.id}: caught-error semantics drift`);
     if (!source.includes(definition.unavailable)) errors.push(`${definition.id}: no-delegate failure semantics drift`);
     if (!source.includes("return Promise.of(ToolExecutionResult.failed(")) errors.push(`${definition.id}: local failure must be returned as a resolved Promise`);
     if (!source.includes("envelope.invocationId(),\n                    end,\n                    Duration.between(start, end)")) errors.push(`${definition.id}: local failed-result identity/time arguments drift`);
-    if (!source.includes("return delegate.handle(envelope, contract);")) errors.push(`${definition.id}: delegate Promise must be returned unchanged`);
-    if (!block.includes("finality: {value: null, status: not-established-by-handler-or-delegate-contract}")) errors.push(`${definition.id}: result finality must remain unresolved`);
+    if (!source.includes("return AgentToolInput.dispatch(delegate, envelope, contract);")) errors.push(`${definition.id}: delegate ambiguity must remain on the promise error channel`);
+    if (!block.includes("finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.")) errors.push(`${definition.id}: result finality capability and limit must be accurate`);
     if (!block.includes("schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}")) errors.push(`${definition.id}: result schema version must remain undeclared`);
     if (!block.includes("authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}")) errors.push(`${definition.id}: authority must remain unresolved`);
     if (!block.includes("availability: {value: null, status: unresolved-delegate-and-runtime-binding}")) errors.push(`${definition.id}: runtime availability must remain unresolved`);
@@ -131,7 +134,7 @@ test("tool registry records the exact four handler-observed contracts without im
   assert.deepEqual(checkRegistry(registryText(), sources), []);
 });
 
-test("all four entries inventory only source-observed inputs and keep result schemas opaque", () => {
+test("all four entries inventory validated inputs while retaining output and operation admission gates", () => {
   const registry = registryText();
   assert.equal([...registry.matchAll(/^  - id: /gmu)].length, 4);
   for (const definition of definitions) {
@@ -140,9 +143,11 @@ test("all four entries inventory only source-observed inputs and keep result sch
     assert.deepEqual(observedInputs, definition.fields, `${definition.id}: exact observed input inventory`);
     assert.match(block, /sourceType: Map<String,Object> from ToolExecutionEnvelope\.input\(\)/u);
     assert.match(block, /javaType: Promise<ToolExecutionResult>/u);
-    assert.match(block, /success: Exact delegate Promise is returned without output validation;/u);
+    assert.ok(block.includes(definition.id === "av.multimodal-inference"
+      ? "success: Delegate result is returned without output validation after invocationId equality check; component and partial-result semantics remain unresolved."
+      : "success: Delegate result is returned without output validation after invocationId equality check; result fields/schema remain unresolved."));
     assert.match(block, /schemaVersion: \{value: null, status: not-declared-by-handler-or-delegate-contract\}/u);
-    assert.match(block, /finality: \{value: null, status: not-established-by-handler-or-delegate-contract\}/u);
+    assert.match(block, /finality: Tools result enum carries non-final unknown\/cancellation-requested states; handler does not validate operation-specific output finality\./u);
     assert.match(block, /operationBinding: \{value: null, status: unresolved-owner-and-operation-mapping\}/u);
     assert.match(block, /executionAdmitted: false/u);
   }
@@ -152,8 +157,8 @@ test("tool registry rejects missing, extra, or duplicate handler entries and mis
   const registry = registryText();
   const first = getBlock(registry, definitions[0].id);
   assert.ok(first);
-  assert.match(checkRegistry(registry.replace("name: audioSource.audioBytes,", "name: audioSource.bytes,"), sources).join("\n"), /missing observed field binding audioSource\.audioBytes/u);
-  assert.match(checkRegistry(registry.replace("name: audioSource.audioBytes,", "name: audioSource.audioBytes,\n        - {name: inventedField, type: Object, presence: unknown}"), sources).join("\n"), /unsupported observed field binding inventedField/u);
+  assert.match(checkRegistry(registry.replace("name: languageCode,", "name: audioSource.bytes,"), sources).join("\n"), /missing observed field binding languageCode/u);
+  assert.match(checkRegistry(registry.replace("name: languageCode,", "name: languageCode,\n        - {name: inventedField, type: Object, presence: unknown}"), sources).join("\n"), /unsupported observed field binding inventedField/u);
   assert.match(checkRegistry(registry.replace("  - id: av.vision-analysis", "  - id: av.unsupported\n    canonicalId: av.unsupported\n  - id: av.vision-analysis"), sources).join("\n"), /unsupported tool entry/u);
   assert.match(checkRegistry(registry.replace("  - id: av.vision-analysis", "  - id: av.speech-to-text\n    canonicalId: av.speech-to-text\n  - id: av.vision-analysis"), sources).join("\n"), /duplicate tool entry/u);
   assert.match(checkRegistry(registry.replace("  - id: av.vision-analysis", "  - id: av.text-to-speech\n    canonicalId: av.text-to-speech\n  - id: av.vision-analysis"), sources).join("\n"), /duplicate tool entry/u);
@@ -170,15 +175,15 @@ test("each handler input/error source drift is rejected independently", () => {
   }
 });
 
-test("registry distinguishes direct null-argument throws from caught local failures and records unchanged delegate forwarding", () => {
+test("registry distinguishes pre-dispatch local failures from ambiguous post-dispatch outcomes", () => {
   for (const definition of definitions) {
     const source = sources[definition.source];
     assert.ok(source.indexOf("Objects.requireNonNull(envelope") < source.indexOf("try {"), `${definition.id}: envelope null check must remain before try`);
     assert.ok(source.indexOf("Objects.requireNonNull(contract") < source.indexOf("try {"), `${definition.id}: contract null check must remain before try`);
-    assert.ok(source.includes("return delegate.handle(envelope, contract)"), `${definition.id}: delegate must receive original envelope and contract`);
+    assert.ok(source.includes("return AgentToolInput.dispatch(delegate, envelope, contract)"), `${definition.id}: delegate dispatch must retain ambiguous outcomes`);
     const block = getBlock(registryText(), definition.id);
     assert.match(block, /nullArgumentBehavior: Both checks occur before the handler try block and throw directly/u);
-    assert.match(block, /delegateInputForwarding: When configured, delegate\.handle receives the original envelope and contract unchanged/u);
+    assert.match(block, /delegateInputForwarding: After local envelope\/contract and input validation, delegate\.handle receives the original envelope and contract unchanged through AgentToolInput\.dispatch/u);
   }
 });
 
@@ -186,7 +191,7 @@ test("registry rejects accidental runtime, operation, authority, or finality pro
   const registry = registryText();
   assert.match(checkRegistry(registry.replace("executionAdmitted: false", "executionAdmitted: true"), sources).join("\n"), /must not admit execution/u);
   assert.match(checkRegistry(registry.replace("operationBinding: UNRESOLVED", "operationBinding: media\.operation\.transcribe"), sources).join("\n"), /operation binding must remain unresolved/u);
-  assert.match(checkRegistry(registry.replace("finality: {value: null, status: not-established-by-handler-or-delegate-contract}", "finality: final"), sources).join("\n"), /result finality must remain unresolved/u);
+  assert.match(checkRegistry(registry.replace("finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.", "finality: final"), sources).join("\n"), /result finality capability and limit must be accurate/u);
   assert.match(checkRegistry(registry.replace("availability: {value: null, status: unresolved-delegate-and-runtime-binding}", "availability: available"), sources).join("\n"), /runtime availability must remain unresolved/u);
   assert.match(checkRegistry(registry.replace("authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}", "authority: authorized"), sources).join("\n"), /authority must remain unresolved/u);
 });
@@ -216,4 +221,19 @@ test("owner-selected operation families remain definition-only until handler bin
     assert.match(registryEntry, /executionAdmitted: false/u);
     assert.match(registryEntry, /operationBinding: \{value: null, status: unresolved-owner-and-operation-mapping\}/u);
   }
+});
+
+
+test("adapter input validation and generic unknown outcome support do not admit Media tool execution", () => {
+  const validator = readFileSync(`${handlerRoot}/AgentToolInput.java`, "utf8");
+  assert.match(validator, /UNKNOWN_INPUT_FIELD/u);
+  assert.match(validator, /TOOL_ID_MISMATCH/u);
+  assert.match(validator, /TOOL_VERSION_MISMATCH/u);
+  assert.match(validator, /TOOL_ACTION_CLASS_MISMATCH/u);
+  const conventions = readFileSync(conventionsPath, "utf8");
+  assert.match(conventions, /executionAdmitted: false/u);
+  assert.match(conventions, /Ghatana Tools ToolExecutionResult now supports non-final OUTCOME_UNKNOWN/u);
+  const registry = registryText();
+  assert.match(registry, /executionAdmitted: false/u);
+  assert.match(registry, /DefaultToolExecutor boundary maps effectful post-dispatch ambiguity to non-final OUTCOME_UNKNOWN/u);
 });

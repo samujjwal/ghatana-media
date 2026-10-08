@@ -220,6 +220,10 @@ describe('DocumentIntelligenceSceneTextAdapter', () => {
       providerRef: policy.providerRef, providerVersion: 'older',
       modelRef: policy.modelRef, modelVersion: policy.modelVersion,
     } }) }), policy), 'RESPONSE_IDENTITY_MISMATCH');
+    await expectCode(new DocumentIntelligenceSceneTextAdapter(client({ result: document({ providerProvenance: {
+      providerRef: 'unqualified-provider', providerVersion: policy.providerVersion,
+      modelRef: policy.modelRef, modelVersion: policy.modelVersion,
+    } }) }), policy), 'RESPONSE_IDENTITY_MISMATCH');
     await expectCode(new DocumentIntelligenceSceneTextAdapter(client({ result: document({ pages: [{
       ...document().pages[0], tables: [{ tableId: 't1' }],
     }] }) }), policy), 'RESULT_SHAPE_UNSUPPORTED');

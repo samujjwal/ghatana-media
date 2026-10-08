@@ -89,15 +89,15 @@ observedEnvelope:
     observedWirePayloadFields: [aggregateType, aggregateId, aggregateVersion, classification, attributes]
     publisherSourcePaths: [launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java]
     records:
-      - {eventType: media.upload.started, callSite: "MediaRuntime#beginUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L262-L266", publisherCallSite: {identity: MediaRuntime#beginUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, expectedSizeBytes], trigger: upload-session-created, aggregateType: upload, aggregateId: session.uploadId, aggregateVersion: 1}
-      - {eventType: media.artifact.completed, callSite: "MediaRuntime#completeUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L287-L293", publisherCallSite: {identity: MediaRuntime#completeUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, sizeBytes, sourceUploadId, sha256], trigger: upload-completes-and-artifact-is-returned, aggregateType: artifact, aggregateId: artifact.artifactId, aggregateVersion: 1}
-      - {eventType: media.job.accepted, callSite: "MediaRuntime#submitJob", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L351-L357", publisherCallSite: {identity: MediaRuntime#submitJob, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status], trigger: job-persisted-as-accepted, aggregateType: job, aggregateId: accepted.jobId, aggregateVersion: accepted.version}
-      - {eventType: media.job.cancelled, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L396-L424", publisherCallSite: {identity: MediaRuntime#cancel, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, cancellationOutcome], trigger: provider-confirms-cancellation-and-cancelled-job-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
-      - {eventType: media.job.cancel_requested, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L396-L424", publisherCallSite: {identity: MediaRuntime#cancel, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, cancellationOutcome], trigger: cancellation-remains-unconfirmed-and-requested-state-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
-      - {eventType: media.stream.opened, callSite: "MediaRuntime#openStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L456-L460", publisherCallSite: {identity: MediaRuntime#openStream, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [streamKind, providerId], trigger: stream-session-created, aggregateType: stream, aggregateId: sessionId, aggregateVersion: session.version}
-      - {eventType: media.stream.closed, callSite: "MediaRuntime#closeStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L596-L602", publisherCallSite: {identity: MediaRuntime#closeStream, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [streamKind, providerId, lastSequence, state], trigger: stream-transitions-to-closed, aggregateType: stream, aggregateId: sessionId, aggregateVersion: closed.version}
-      - {eventType: media.job.completed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1135-L1142", publisherCallSite: {identity: MediaRuntime#startJob-terminal-publication, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, failureCode], trigger: terminal-job-record-persisted-and-current-status-is-COMPLETED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
-      - {eventType: media.job.failed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1135-L1142", publisherCallSite: {identity: MediaRuntime#startJob-terminal-publication, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, failureCode], trigger: terminal-job-record-persisted-and-current-status-is-FAILED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
+      - {eventType: media.upload.started, callSite: "MediaRuntime#beginUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L264-L268", publisherCallSite: {identity: MediaRuntime#beginUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, expectedSizeBytes], trigger: upload-session-created, aggregateType: upload, aggregateId: session.uploadId, aggregateVersion: 1}
+      - {eventType: media.artifact.completed, callSite: "MediaRuntime#completeUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L300-L306", publisherCallSite: {identity: MediaRuntime#completeUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, sizeBytes, sourceUploadId, sha256], trigger: upload-completes-and-artifact-is-returned, aggregateType: artifact, aggregateId: artifact.artifactId, aggregateVersion: 1}
+      - {eventType: media.job.accepted, callSite: "MediaRuntime#submitJob", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L382-L388", publisherCallSite: {identity: MediaRuntime#submitJob, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status], trigger: job-persisted-as-accepted, aggregateType: job, aggregateId: accepted.jobId, aggregateVersion: accepted.version}
+      - {eventType: media.job.cancelled, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L448-L484", publisherCallSite: {identity: MediaRuntime#cancel, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, cancellationOutcome], trigger: provider-confirms-cancellation-and-cancelled-job-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
+      - {eventType: media.job.cancel_requested, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L448-L484", publisherCallSite: {identity: MediaRuntime#cancel, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, cancellationOutcome], trigger: cancellation-remains-unconfirmed-and-requested-state-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
+      - {eventType: media.stream.opened, callSite: "MediaRuntime#openStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L510-L514", publisherCallSite: {identity: MediaRuntime#openStream, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [streamKind, providerId], trigger: stream-session-created, aggregateType: stream, aggregateId: sessionId, aggregateVersion: session.version}
+      - {eventType: media.stream.closed, callSite: "MediaRuntime#closeStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L650-L656", publisherCallSite: {identity: MediaRuntime#closeStream, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [streamKind, providerId, lastSequence, state], trigger: stream-transitions-to-closed, aggregateType: stream, aggregateId: sessionId, aggregateVersion: closed.version}
+      - {eventType: media.job.completed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1189-L1196", publisherCallSite: {identity: MediaRuntime#startJob-terminal-publication, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, failureCode], trigger: terminal-job-record-persisted-and-current-status-is-COMPLETED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
+      - {eventType: media.job.failed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1189-L1196", publisherCallSite: {identity: MediaRuntime#startJob-terminal-publication, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, failureCode], trigger: terminal-job-record-persisted-and-current-status-is-FAILED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
     sharedPublisher: "MediaRuntime#publishLifecycle constructs dynamic media.job.<status>; current startJob assignments establish only completed and failed concrete outcomes in this inventory"
     perEventProducerAuthority: unresolved
     canonicalTaxonomy: unresolved
@@ -108,63 +108,63 @@ observedEnvelope:
       records:
         - eventType: media.upload.started
           callSite: MediaRuntime#beginUpload
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L262-L265, candidate: upload-session-returned-by-artifactStore.begin}
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L264-L268, candidate: upload-session-returned-by-artifactStore.begin}
           aggregateProposal: {type: upload, identity: session.uploadId, version: literal-1; no-upload-version-record-observed}
           provenanceCandidates: [tenantId, principalId, classification, contentType, expectedSizeBytes]
           evidenceStatus: source-observation-candidate-only; committed-or-delivery-evidence-unavailable
           policySemantics: pending-owner-review
         - eventType: media.artifact.completed
           callSite: MediaRuntime#completeUpload
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L287-L291, candidate: artifact-returned-by-artifactStore.complete}
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L300-L306, candidate: artifact-returned-by-principal-scoped-artifactStore.complete}
           aggregateProposal: {type: artifact, identity: artifact.artifactId, version: literal-1; no-artifact-version-record-observed}
           provenanceCandidates: [tenantId, principalId, classification, contentType, sizeBytes, sourceUploadId, sha256]
           evidenceStatus: source-observation-candidate-only; completion-is-not-independent-verification-or-committed-event-evidence
           policySemantics: pending-owner-review
         - eventType: media.job.accepted
           callSite: MediaRuntime#submitJob
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L351-L357, candidate: accepted-ProcessingJob-after-jobStore.create}
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L382-L388, candidate: accepted-ProcessingJob-after-jobStore.create}
           aggregateProposal: {type: job, identity: accepted.jobId, version: accepted.version}
           provenanceCandidates: [tenantId, principalId, request.correlationId, request.requestId, request.artifactId, accepted.jobType, accepted.providerId, accepted.status, artifact.classification]
           evidenceStatus: source-observation-candidate-only; accepted-record-does-not-prove-processing-finality
           policySemantics: pending-owner-review
         - eventType: media.job.cancelled
           callSite: MediaRuntime#cancel
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L402-L409, candidate: provider-confirmed-cancellation-and-stored-job}
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L448-L484, candidate: provider-confirmed-cancellation-and-stored-job}
           aggregateProposal: {type: job, identity: current.jobId, version: stored.version}
           provenanceCandidates: [tenantId, principalId, current.requestId, current.artifactId, current.jobType, current.providerId, stored.status, providerOutcome]
           evidenceStatus: source-observation-candidate-only; provider-confirmation-is-not-an-independent-delivery-receipt
           policySemantics: pending-owner-review
         - eventType: media.job.cancel_requested
           callSite: MediaRuntime#cancel
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L411-L424, candidate: unconfirmed-provider-outcome-and-stored-requested-state}
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L448-L484, candidate: unconfirmed-provider-outcome-and-stored-requested-state}
           aggregateProposal: {type: job, identity: current.jobId, version: stored.version}
           provenanceCandidates: [tenantId, principalId, current.requestId, current.artifactId, current.jobType, current.providerId, stored.status, providerOutcome]
           evidenceStatus: source-observation-candidate-only; explicitly-not-cancellation-finality
           policySemantics: pending-owner-review
         - eventType: media.stream.opened
           callSite: MediaRuntime#openStream
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L456-L461, candidate: created-StreamSession}
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L510-L514, candidate: created-StreamSession}
           aggregateProposal: {type: stream, identity: sessionId, version: session.version}
           provenanceCandidates: [tenantId, principalId, request.correlationId, session.streamKind, session.providerId, session.version, governanceContext.classification]
           evidenceStatus: source-observation-candidate-only; session-creation-is-not-provider-delivery-or-stream-success-evidence
           policySemantics: pending-owner-review
         - eventType: media.stream.closed
           callSite: MediaRuntime#closeStream
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L596-L602, candidate: transitioned-StreamSession}
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L650-L656, candidate: transitioned-StreamSession}
           aggregateProposal: {type: stream, identity: sessionId, version: closed.version}
           provenanceCandidates: [tenantId, principalId, sessionId, closed.streamKind, closed.providerId, closed.lastSequence, closed.state, closed.version]
           evidenceStatus: source-observation-candidate-only; closed-state-observation-is-not-independent-consumer-or-delivery-acknowledgement
           policySemantics: pending-owner-review
         - eventType: media.job.completed
           callSite: MediaRuntime#startJob-terminal-publication
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1135-L1142, candidate: terminal-ProcessingJob-persisted-with-COMPLETED-status}
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1189-L1196, candidate: terminal-ProcessingJob-persisted-with-COMPLETED-status}
           aggregateProposal: {type: job, identity: value.jobId, version: terminal.version}
           provenanceCandidates: [tenantId, principalId, request.correlationId, request.requestId, value.artifactId, value.jobType, terminal.providerId, terminal.status, terminal.failureCode, artifact.classification]
           evidenceStatus: source-observation-candidate-only; terminal-record-is-not-independent-quality-or-delivery-evidence
           policySemantics: pending-owner-review
         - eventType: media.job.failed
           callSite: MediaRuntime#startJob-terminal-publication
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1135-L1142, candidate: terminal-ProcessingJob-persisted-with-FAILED-status}
+          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1189-L1196, candidate: terminal-ProcessingJob-persisted-with-FAILED-status}
           aggregateProposal: {type: job, identity: value.jobId, version: terminal.version}
           provenanceCandidates: [tenantId, principalId, request.correlationId, request.requestId, value.artifactId, value.jobType, terminal.providerId, terminal.status, terminal.failureCode, artifact.classification]
           evidenceStatus: source-observation-candidate-only; failure-record-is-not-independent-delivery-or-recovery-evidence

@@ -72,3 +72,35 @@ test("ProcessingJob HTTP schema mirrors the serialized runtime record without cl
   assert.ok(!platformOperation.properties.state.enum.includes("OUTCOME_UNKNOWN"),
     "the separate PlatformOperation enum remains distinct until its owner mapping is decided");
 });
+
+test("principal-scoped upload, artifact, and job routes declare the principal header", () => {
+  const routes = [
+    ["/api/v1/artifacts/uploads", "post"],
+    ["/api/v1/artifacts/uploads/{uploadId}", "get"],
+    ["/api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}", "put"],
+    ["/api/v1/artifacts/uploads/{uploadId}/complete", "post"],
+    ["/api/v1/artifacts/{artifactId}", "get"],
+    ["/api/v1/jobs", "post"],
+    ["/api/v1/jobs", "get"],
+    ["/api/v1/jobs/{jobId}", "get"],
+    ["/api/v1/jobs/{jobId}/cancel", "post"],
+  ];
+  for (const [path, method] of routes) {
+    assert.ok(openApi.paths[path][method].parameters.some(
+      (parameter) => parameter.$ref === "#/components/parameters/PrincipalHeader",
+    ), `${method.toUpperCase()} ${path} declares PrincipalHeader`);
+  }
+});
+
+test("UploadRequest mirrors the runtime body identity fields and requires its principal", () => {
+  const record = runtime.match(/public record UploadRequest\(([\s\S]*?)\)\s*\{/u)?.[1];
+  assert.ok(record, "runtime UploadRequest record is present");
+  const fields = record.split("\n").map((field) => field.trim().replace(/,$/u, "")).filter(Boolean)
+    .map((field) => field.match(/^(.+?)\s+(\w+)$/u));
+  assert.ok(fields.every(Boolean), "UploadRequest fields have supported record declarations");
+  const names = fields.map((match) => match[2]);
+  const schema = openApi.components.schemas.UploadRequest;
+  assert.deepEqual(Object.keys(schema.properties), names, "OpenAPI describes the exact UploadRequest record fields");
+  assert.deepEqual(schema.required, names, "all UploadRequest constructor fields are required on the HTTP request");
+  assert.equal(schema.properties.principalId.type, "string");
+});

@@ -75,7 +75,7 @@ test("residual report validates exact projection dispositions and pinned sources
   assert.ok(report.migrationSemantics.unresolvedItems.every((item) => item.id && item.sourceLocations.length && item.classificationBasis));
   assert.equal(report.operationParity.surfaceCount, 8);
   assert.equal(report.operationParity.totalObservedIdentities, 284);
-  assert.equal(report.operationParity.unresolvedIdentityCount, 192);
+  assert.equal(report.operationParity.unresolvedIdentityCount, 190);
   assert.ok(report.operationParity.surfaces.every((surface) => surface.observedIdentities.length === surface.denominator));
   assert.ok(report.operationParity.surfaces.every((surface) => surface.unresolvedIdentities.length === (surface.counts.unresolved ?? 0)));
   const sdkSurface = report.operationParity.surfaces.find(({ name }) => name === "SDK registry");

@@ -2,6 +2,11 @@ package com.ghatana.media.runtime;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -20,6 +25,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class MediaRuntimeContracts {
     private MediaRuntimeContracts() { }
+
+    /** A compare-and-set conflict caused by a newer concurrent job transition. */
+    public static final class MediaJobStoreConflictException extends IllegalStateException {
+        public MediaJobStoreConflictException(String message) { super(message); }
+    }
 
     public enum UploadStatus { OPEN, FINALIZING, COMPLETED, ABORTED, EXPIRED }
     /** Logical job outcome and observation; OUTCOME_UNKNOWN is never a replay or failure signal. */
@@ -369,9 +379,15 @@ public final class MediaRuntimeContracts {
             artifactId = required(artifactId, "artifactId");
             jobType = java.util.Objects.requireNonNull(jobType, "jobType");
             providerHint = optional(providerHint);
-            parameters = Map.copyOf(parameters == null ? Map.of() : parameters);
+            parameters = immutableJsonObject(parameters == null ? Map.of() : parameters);
             governanceContext = governanceContext == null
                     ? MediaGovernanceContext.compatibilityDefault() : governanceContext;
+        }
+
+        /** Return a defensive snapshot; JSON arrays are copied because Java arrays remain mutable. */
+        @Override
+        public Map<String, Object> parameters() {
+            return immutableJsonObject(parameters);
         }
 
         public ProcessingJobRequest(
@@ -396,7 +412,8 @@ public final class MediaRuntimeContracts {
             Instant completedAt,
             Map<String, Object> result,
             String failureCode,
-            long version) {
+            long version,
+            String requestFingerprint) {
         public ProcessingJob {
             jobId = required(jobId, "jobId");
             requestId = required(requestId, "requestId");
@@ -409,7 +426,17 @@ public final class MediaRuntimeContracts {
             createdAt = createdAt == null ? Instant.now() : createdAt;
             result = Map.copyOf(result == null ? Map.of() : result);
             failureCode = optional(failureCode);
+            requestFingerprint = optional(requestFingerprint);
             if (version < 1) throw new IllegalArgumentException("version must be positive");
+        }
+
+        /** Compatibility constructor for pre-fingerprint records and non-submission fixtures. */
+        public ProcessingJob(
+                String jobId, String requestId, String tenantId, String principalId, String artifactId,
+                JobType jobType, String providerId, JobStatus status, Instant createdAt, Instant startedAt,
+                Instant completedAt, Map<String, Object> result, String failureCode, long version) {
+            this(jobId, requestId, tenantId, principalId, artifactId, jobType, providerId, status,
+                    createdAt, startedAt, completedAt, result, failureCode, version, "");
         }
     }
 
@@ -537,8 +564,16 @@ public final class MediaRuntimeContracts {
     public interface MediaArtifactStore extends AutoCloseable {
         String storeId();
         UploadSession begin(UploadRequest request);
-        UploadSession append(String tenantId, String uploadId, int chunkIndex, byte[] bytes);
-        MediaArtifact complete(String tenantId, String uploadId);
+        UploadSession append(String tenantId, String principalId, String uploadId, int chunkIndex, byte[] bytes);
+        MediaArtifact complete(String tenantId, String principalId, String uploadId);
+        /** @deprecated Principal-less mutation cannot prove upload ownership and always fails closed. */
+        @Deprecated default UploadSession append(String tenantId, String uploadId, int chunkIndex, byte[] bytes) {
+            throw new SecurityException("Authenticated principal is required to append an upload");
+        }
+        /** @deprecated Principal-less mutation cannot prove upload ownership and always fails closed. */
+        @Deprecated default MediaArtifact complete(String tenantId, String uploadId) {
+            throw new SecurityException("Authenticated principal is required to finalize an upload");
+        }
         Optional<UploadSession> upload(String tenantId, String uploadId);
         Optional<MediaArtifact> artifact(String tenantId, String artifactId);
         boolean durable();
@@ -757,6 +792,64 @@ public final class MediaRuntimeContracts {
         String normalized = required(value, "sha256").toLowerCase(Locale.ROOT);
         if (!normalized.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("sha256 must contain 64 hexadecimal characters");
         return normalized;
+    }
+
+    private static Map<String, Object> immutableJsonObject(Map<String, Object> value) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> copy = (Map<String, Object>) immutableJsonValue(value, new IdentityHashMap<>(), 0);
+        return copy;
+    }
+
+    private static Object immutableJsonValue(
+            Object value, IdentityHashMap<Object, Boolean> active, int depth) {
+        if (depth > 64) throw new IllegalArgumentException("Media request parameters exceed maximum JSON nesting");
+        if (value == null || value instanceof String || value instanceof Boolean) return value;
+        if (value instanceof MediaModalityContracts.ContextReference) return value;
+        if (value instanceof Number number) {
+            if (!(number instanceof Byte || number instanceof Short || number instanceof Integer
+                    || number instanceof Long || number instanceof java.math.BigInteger
+                    || number instanceof java.math.BigDecimal || number instanceof Double
+                    || number instanceof Float)) {
+                throw new IllegalArgumentException("Media request number type is not a supported JSON number");
+            }
+            if ((number instanceof Double d && !Double.isFinite(d))
+                    || (number instanceof Float f && !Float.isFinite(f))) {
+                throw new IllegalArgumentException("Media request parameters cannot contain non-finite numbers");
+            }
+            return number;
+        }
+        if (active.put(value, Boolean.TRUE) != null) {
+            throw new IllegalArgumentException("Media request parameters cannot contain cyclic values");
+        }
+        try {
+            if (value instanceof Map<?, ?> map) {
+                Map<String, Object> copy = new LinkedHashMap<>();
+                for (Map.Entry<?, ?> entry : map.entrySet()) {
+                    if (!(entry.getKey() instanceof String key)) {
+                        throw new IllegalArgumentException("Media request parameter object keys must be strings");
+                    }
+                    copy.put(key, immutableJsonValue(entry.getValue(), active, depth + 1));
+                }
+                return Collections.unmodifiableMap(copy);
+            }
+            if (value instanceof List<?> list) {
+                List<Object> copy = new ArrayList<>(list.size());
+                for (Object item : list) copy.add(immutableJsonValue(item, active, depth + 1));
+                return Collections.unmodifiableList(copy);
+            }
+            if (value.getClass().isArray()) {
+                int length = Array.getLength(value);
+                Object copy = Array.newInstance(value.getClass().getComponentType(), length);
+                for (int i = 0; i < length; i++) {
+                    Array.set(copy, i, immutableJsonValue(Array.get(value, i), active, depth + 1));
+                }
+                return copy;
+            }
+            throw new IllegalArgumentException(
+                    "Unsupported Media request parameter value type: " + value.getClass().getName());
+        } finally {
+            active.remove(value);
+        }
     }
 
     private static String required(String value, String field) {
