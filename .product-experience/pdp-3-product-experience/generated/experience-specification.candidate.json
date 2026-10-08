@@ -8707,8 +8707,8 @@
         "description": "Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification."
       }
     ],
-    "createdAt": "2026-10-08T06:41:06.734Z",
-    "updatedAt": "2026-10-08T06:41:06.734Z"
+    "createdAt": "2026-10-08T06:45:52.864Z",
+    "updatedAt": "2026-10-08T06:45:52.864Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",

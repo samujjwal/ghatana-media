@@ -119,3 +119,35 @@ test("observed job-search protocol details do not claim unprovided query or cont
   assert.match(contractText, /runtimeBinding: NOT_ADMITTED/u);
   assert.deepEqual(bindings.searchBindings.find(({ searchId }) => searchId === "media.search.authorized-jobs").pdp1OperationRefs, []);
 });
+
+test("the source-observation artifact cross-references canonical identities without redefining them", () => {
+  const observationPath = ".product-experience/pdp-3-product-experience/search-inspection-source-proposals.yaml";
+  const observationsText = readFileSync(resolve(root, observationPath), "utf8");
+  const observations = parseYaml(observationsText);
+  const manifestText = readFileSync(resolve(root, ".product-experience/source-manifest.yaml"), "utf8");
+  assert.equal(observations.canonicalDefinitionSource, contractPath);
+  assert.equal(Object.hasOwn(observations, "search"), false);
+  assert.equal(Object.hasOwn(observations, "inspections"), false);
+  assert.match(observations.authorityBoundary, /observed screen and protocol facts only/u);
+  assert.equal(observations.execution.status, "NOT_ADMITTED");
+  assert.equal(observations.independentAcceptance.status, "PENDING");
+  const manifestStart = manifestText.indexOf("artifactId: ART-MEDIA-P3-SEARCH-INSPECTION-SOURCE-PROPOSALS");
+  const manifestEnd = manifestText.indexOf("\n  - artifactId:", manifestStart);
+  const manifestRecord = manifestText.slice(manifestStart, manifestEnd === -1 ? undefined : manifestEnd);
+  assert.match(manifestRecord, /semanticStatus: OBSERVATION_ONLY_CROSSWALK; CANONICAL_DEFINITIONS_IN_SEARCH_INSPECTION_CONTRACTS; RUNTIME_NOT_ADMITTED; INDEPENDENT_ACCEPTANCE_PENDING/u);
+  assert.deepEqual([
+    observations.searchObservations.projects.canonicalSearchRef,
+    observations.searchObservations.artifacts.canonicalSearchRef,
+    observations.searchObservations.jobs.canonicalSearchRef,
+  ], contract.search.map(({ id }) => id));
+  assert.deepEqual([
+    observations.inspectionObservations.specification.canonicalInspectionRef,
+    observations.inspectionObservations.authority.canonicalInspectionRef,
+    observations.inspectionObservations.evidence.canonicalInspectionRef,
+    observations.inspectionObservations.trace.canonicalInspectionRef,
+    observations.inspectionObservations.syntheticSimulation.canonicalInspectionRef,
+  ], contract.inspections.map(({ id }) => id));
+  for (const row of Object.values(observations.searchObservations).filter((value) => value?.sourceRefs)) {
+    for (const ref of row.sourceRefs) assert.ok(existsSync(resolve(root, sourcePath(ref))), `${ref} exists`);
+  }
+});

@@ -322,7 +322,9 @@ const records = relativeFiles.map((path) => {
     owningPhase: phase,
     path,
     surfaceIds: surfacesFor(path, phase),
-    semanticStatus: "PROPOSAL_PENDING_OWNER_REVIEW",
+    semanticStatus: identity.authorityClass === "OBSERVATION_ONLY_SOURCE"
+      ? "OBSERVATION_ONLY_CROSSWALK; CANONICAL_DEFINITIONS_IN_SEARCH_INSPECTION_CONTRACTS; RUNTIME_NOT_ADMITTED; INDEPENDENT_ACCEPTANCE_PENDING"
+      : "PROPOSAL_PENDING_OWNER_REVIEW",
     generatedOrAuthored: "AUTHORED",
     generatedFrom: ["canonical-source-file"],
     schema: `${phase.toLowerCase().replaceAll("-", ".")}.artifact.v1`,

@@ -2136,7 +2136,7 @@
   },
   {
     "artifactId": "ART-MEDIA-P3-SEARCH-INSPECTION-SOURCE-PROPOSALS",
-    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "authorityClass": "OBSERVATION_ONLY_SOURCE",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/search-inspection-source-proposals.yaml",
     "title": "Search Inspection Source Proposals"

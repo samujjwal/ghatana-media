@@ -13,6 +13,7 @@ allowedAuthorityClasses:
   - "DOMAIN_DATA_AUTHORITY"
   - "DESIGN_INTERFACE_AUTHORITY"
   - "PRODUCT_EXPERIENCE_AUTHORITY"
+  - "OBSERVATION_ONLY_SOURCE"
 manifestProjection:
   path: ".product-experience/source-manifest.yaml"
   artifactId: "ART-MEDIA-SOURCE-MANIFEST"
@@ -959,4 +960,4 @@ records:
     authorityClass: "CROSS_PHASE_GOVERNANCE"
   - path: ".product-experience/pdp-3-product-experience/search-inspection-source-proposals.yaml"
     artifactId: "ART-MEDIA-P3-SEARCH-INSPECTION-SOURCE-PROPOSALS"
-    authorityClass: "PRODUCT_EXPERIENCE_AUTHORITY"
+    authorityClass: "OBSERVATION_ONLY_SOURCE"

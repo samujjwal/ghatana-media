@@ -21,6 +21,7 @@ const paths = {
   toolRegistry: ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml",
   operations: ".product-experience/pdp-1-domain-data/operations.yaml",
   searchInspection: ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
+  experienceBindings: ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
   domainObjects: ".product-experience/pdp-1-domain-data/domain-objects.yaml",
 };
 const unique = (items, field = "id") => new Set(items.map(x => x[field])).size === items.length;
@@ -123,20 +124,31 @@ test("all four Agent Tool semantic selections resolve existing observed IDs and 
 
 test("PDP-3 search and inspection contracts are source-owned, typed and fail closed", () => {
   const catalog = source(paths.searchInspection);
+  const bindings = source(paths.experienceBindings);
   const domainIds = new Set(source(paths.domainObjects).objects.map(x => x.id));
-  assert.equal(catalog.searches.length, 3);
+  assert.equal(catalog.search.length, 3);
   assert.equal(catalog.inspections.length, 5);
-  assert.ok(unique(catalog.searches) && unique(catalog.inspections));
-  for (const item of catalog.searches) {
+  assert.ok(unique(catalog.search) && unique(catalog.inspections));
+  assert.deepEqual(bindings.searchBindings.map(({ searchId }) => searchId), catalog.search.map(({ id }) => id));
+  assert.deepEqual(bindings.inspectionBindings.map(({ inspectionId }) => inspectionId), catalog.inspections.map(({ id }) => id));
+  for (const item of catalog.search) {
     assert.ok(item.searchableTypes?.length > 0);
     assert.ok(item.searchableTypes.every(id => domainIds.has(id)), `unknown searchable domain type for ${item.id}`);
-    assert.ok(item.authorization && item.pagination && item.absentResults);
-    assert.equal(item.runtimeBinding, "NOT_ADMITTED");
+    assert.deepEqual(Object.keys(item).sort(), ["description", "id", "name", "searchableTypes"]);
+    const semantics = catalog.searchContracts.find(({ id }) => id === item.id);
+    assert.ok(semantics.authorization && semantics.pagination && semantics.absentResults);
+    assert.equal(semantics.runtimeBinding, "NOT_ADMITTED");
+    const binding = bindings.searchBindings.find(({ searchId }) => searchId === item.id);
+    assert.deepEqual(binding.searchableTypeRefs, item.searchableTypes);
+    assert.deepEqual(binding.pdp1OperationRefs, []);
+    assert.equal(binding.operationBindingStatus, "unresolved-no-source-explicit-search-operation");
   }
   for (const item of catalog.inspections) {
     assert.ok(["specification", "authority", "evidence", "trace", "simulation"].includes(item.projectionKind));
-    assert.ok(item.authorityRefs?.length > 0 && item.requiredContext?.length > 0);
-    assert.ok(["NOT_ADMITTED", "DEFINITION_ONLY"].includes(item.runtimeBinding));
+    assert.deepEqual(Object.keys(item).sort(), ["description", "id", "projectionKind"]);
+    const semantics = catalog.inspectionContracts.find(({ id }) => id === item.id);
+    assert.ok(semantics.authorityRefs?.length > 0 && semantics.requiredContext?.length > 0);
+    assert.ok(["NOT_ADMITTED", "DEFINITION_ONLY"].includes(semantics.runtimeBinding));
   }
   assert.ok(catalog.policy.some(rule => /alternate authorization side channels/u.test(rule)));
 });
