@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +53,12 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
     }
 
     private ToolContract contractFor(ToolExecutionEnvelope envelope) {
+        return contractFor(envelope, Map.of("type", "object"));
+    }
+
+    private ToolContract contractFor(ToolExecutionEnvelope envelope, Map<String, Object> outputSchema) {
         return new ToolContract(envelope.toolId(), envelope.toolVersion(), "Test Tool", "description",
-                envelope.actionClass(), false, true, Map.of(), Map.of(), Set.of(),
+                envelope.actionClass(), false, true, Map.of(), outputSchema, Set.of(),
                 ToolTransport.IN_PROCESS, null, Map.of());
     }
 
@@ -90,6 +95,87 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         assertThat(await(returnedPromise).invocationId()).isEqualTo(envelope.invocationId());
         assertThat(receivedEnvelope.get()).isSameAs(envelope);
         assertThat(receivedContract.get()).isEqualTo(contractFor(envelope));
+    }
+
+    @Test
+    @DisplayName("preserves non-final outcome-unknown delegate results without output inference")
+    void preservesOutcomeUnknownDelegateResult() {
+        ToolExecutionEnvelope env = envelope("av.text-to-speech", Map.of("text", "hello"));
+        ToolContract contract = contractFor(env, Map.of("type", "object", "required", List.of("audioBytes")));
+        com.ghatana.toolruntime.ToolHandler delegate = (ignoredEnvelope, ignoredContract) -> Promise.of(
+                ToolExecutionResult.outcomeUnknown(env.invocationId(), "operation-1", "attempt-1",
+                        env.invocationId(), "PROVIDER_ACK_UNKNOWN", Instant.now(), Duration.ZERO));
+
+        ToolExecutionResult result = await(AgentToolInput.dispatch(delegate, env, contract));
+
+        assertThat(result.status()).isEqualTo(ToolExecutionStatus.OUTCOME_UNKNOWN);
+        assertThat(result.isFinal()).isFalse();
+    }
+
+    private ToolExecutionResult runWithOutputSchema(Map<String, Object> schema, Object output) {
+        ToolExecutionEnvelope env = envelope("av.text-to-speech", Map.of("text", "hello"));
+        ToolContract contract = contractFor(env, schema);
+        com.ghatana.toolruntime.ToolHandler delegate = (delegateEnvelope, ignoredContract) -> Promise.of(
+                ToolExecutionResult.succeeded(delegateEnvelope.invocationId(), output, Map.of(),
+                        delegateEnvelope.invocationId(), Instant.now(), Duration.ZERO));
+        return await(AgentToolInput.dispatch(delegate, env, contract));
+    }
+
+    @Test
+    @DisplayName("uses full local Draft 2020-12 validation with bounded values and no remote reference fetch")
+    void validatesCompleteSchemaWithoutRemoteFetch() {
+        Map<String, Object> strictSchema = Map.of(
+                "$schema", "https://json-schema.org/draft/2020-12/schema",
+                "type", "object",
+                "required", List.of("count"),
+                "additionalProperties", false,
+                "properties", Map.of("count", Map.of("type", "integer", "minimum", new BigInteger("9007199254740993"),
+                        "maximum", new BigInteger("9007199254740993"))));
+        ToolExecutionResult exactLargeInteger = runWithOutputSchema(strictSchema,
+                Map.of("count", new BigInteger("9007199254740993")));
+        assertThat(exactLargeInteger.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
+
+        assertThatThrownBy(() -> runWithOutputSchema(strictSchema, Map.of(
+                "count", new BigInteger("9007199254740993"), "extra", true)))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+        assertThatThrownBy(() -> runWithOutputSchema(strictSchema, Map.of()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+        assertThatThrownBy(() -> runWithOutputSchema(Map.of(
+                "oneOf", List.of(Map.of("type", "string"), Map.of("type", "integer"))), true))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+        assertThatThrownBy(() -> runWithOutputSchema(Map.of("$ref", "https://invalid.example/schema.json"), Map.of()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+        assertThatThrownBy(() -> runWithOutputSchema(Map.of("type", "not-a-json-schema-type"), Map.of()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+        assertThatThrownBy(() -> runWithOutputSchema(Map.of("type", "object", "unrecognizedSchemaKeyword", true), Map.of()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+        assertThatThrownBy(() -> runWithOutputSchema(Map.of("$schema", "http://json-schema.org/draft-07/schema#", "type", "object"), Map.of()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+        assertThatThrownBy(() -> runWithOutputSchema(Map.of("type", "object"), Map.of("large", "x".repeat(1_100_000))))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+        assertThatThrownBy(() -> runWithOutputSchema(Map.of("type", "array"), java.util.Collections.nCopies(20_000, 1)))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+        assertThatThrownBy(() -> runWithOutputSchema(Map.of("type", "object"), new Object())).isInstanceOf(RuntimeException.class);
+
+        Map<String, Object> cyclic = new java.util.HashMap<>();
+        cyclic.put("self", cyclic);
+        assertThatThrownBy(() -> runWithOutputSchema(Map.of("type", "object"), cyclic)).isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> runWithOutputSchema(Map.of("type", "number"), Double.NaN)).isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    @DisplayName("rejects custom Number subclasses before invoking their methods")
+    void rejectsUnsupportedNumberWithoutCallingMethods() {
+        Number hostile = new Number() {
+            @Override public int intValue() { throw new AssertionError("custom Number method must not run"); }
+            @Override public long longValue() { throw new AssertionError("custom Number method must not run"); }
+            @Override public float floatValue() { throw new AssertionError("custom Number method must not run"); }
+            @Override public double doubleValue() { throw new AssertionError("custom Number method must not run"); }
+            @Override public String toString() { throw new AssertionError("custom Number method must not run"); }
+        };
+        assertThat(AgentToolInput.isSupportedJsonNumber(hostile)).isFalse();
+        assertThat(AgentToolInput.isSupportedJsonNumber(1)).isTrue();
+        assertThat(AgentToolInput.isSupportedJsonNumber(new BigInteger("9007199254740993"))).isTrue();
     }
 
     // =========================================================================
@@ -137,6 +223,21 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.failure()).isNotNull();
             assertThat(result.failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
+        }
+
+        @Test
+        @DisplayName("rejects malformed transcript segment fields against registered output types")
+        void rejectsMalformedTranscriptSegmentFields() {
+            SpeechToTextToolHandler invalid = new SpeechToTextToolHandler(delegateReturning(Map.of(
+                    "transcript", "hello", "segments", List.of(Map.of("startMs", "zero")))));
+            ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("audioSource", Map.of("mediaArtifactId", "a-1")));
+            Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
+                    "transcript", Map.of("type", "string"),
+                    "segments", Map.of("type", "array", "items", Map.of("type", "object", "properties", Map.of(
+                            "text", Map.of("type", "string"), "startMs", Map.of("type", "integer"), "endMs", Map.of("type", "integer"))))));
+            assertThatThrownBy(() -> await(invalid.handle(env, contractFor(env, schema)))
+                    .status()).isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
         }
 
         @Test
@@ -354,16 +455,32 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("returns delegate output without proving artifact storage")
-        void returnsDelegateOutputWithoutProvingArtifactStorage() {
+        @DisplayName("validates declared output fields without proving artifact storage")
+        void validatesOutputFieldsWithoutProvingArtifactStorage() {
             Map<String, Object> input = Map.of("text", "Synthesize this", "storeAsArtifact", true);
             ToolExecutionEnvelope env = envelope("av.text-to-speech", input);
-            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
+            Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
+                    "mediaArtifactId", Map.of("type", "string"),
+                    "audioEncoding", Map.of("type", "string"),
+                    "durationMs", Map.of("type", "integer", "minimum", 0)));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env, schema)));
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
             @SuppressWarnings("unchecked")
             Map<String, Object> output = (Map<String, Object>) result.output();
             assertThat(output).isEqualTo(Map.of(
                     "mediaArtifactId", "tts-artifact-1", "audioEncoding", "MP3", "durationMs", 1200, "voiceId", "en-US-default"));
+        }
+
+        @Test
+        @DisplayName("rejects malformed successful delegate output on the ambiguous result channel")
+        void rejectsMalformedSuccessfulOutput() {
+            TextToSpeechToolHandler invalid = new TextToSpeechToolHandler(delegateReturning(Map.of("durationMs", "long")));
+            ToolExecutionEnvelope env = envelope("av.text-to-speech", Map.of("text", "Synthesize this"));
+            Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
+                    "durationMs", Map.of("type", "integer", "minimum", 0)));
+            assertThatThrownBy(() -> await(invalid.handle(env, contractFor(env, schema)))
+                    .status()).isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
         }
 
         @Test
@@ -421,17 +538,38 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("returns delegate-provided vision output without validating an output schema")
+        @DisplayName("accepts structurally valid delegate output while preserving open schema fields")
         void returnsDelegateVisionOutputWithoutSchemaValidation() {
             Map<String, Object> input = Map.of(
                     "mediaSource", Map.of("mediaArtifactId", "img-42"),
                     "analysisTypes", List.of("OBJECT_DETECTION", "OCR"));
             ToolExecutionEnvelope env = envelope("av.vision-analysis", input);
-            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
+            Map<String, Object> objectSchema = Map.of("type", "object", "properties", Map.of(
+                    "label", Map.of("type", "string"),
+                    "confidence", Map.of("type", "number", "minimum", 0, "maximum", 1)));
+            Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
+                    "objects", Map.of("type", "array", "items", objectSchema),
+                    "texts", Map.of("type", "array")));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env, schema)));
             @SuppressWarnings("unchecked")
             Map<String, Object> output = (Map<String, Object>) result.output();
             assertThat(output).isEqualTo(Map.of(
                     "objects", List.of(), "texts", List.of(), "maxResults", 10, "confidenceThreshold", 0.5));
+        }
+
+        @Test
+        @DisplayName("rejects nested malformed finding fields")
+        void rejectsNestedMalformedFindingFields() {
+            VisionAnalysisToolHandler invalid = new VisionAnalysisToolHandler(delegateReturning(Map.of(
+                    "objects", List.of(Map.of("label", 42)))));
+            ToolExecutionEnvelope env = envelope("av.vision-analysis", Map.of(
+                    "mediaSource", Map.of("mediaArtifactId", "img-42"), "analysisTypes", List.of("OBJECT_DETECTION")));
+            Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
+                    "objects", Map.of("type", "array", "items", Map.of("type", "object", "properties", Map.of(
+                            "label", Map.of("type", "string"))))));
+            assertThatThrownBy(() -> await(invalid.handle(env, contractFor(env, schema)))
+                    .status()).isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
         }
 
         @Test
@@ -485,15 +623,34 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("returns delegate-provided multimodal output without component-result validation")
+        @DisplayName("validates declared multimodal output structure")
         void returnsDelegateMultimodalOutputWithoutComponentValidation() {
             Map<String, Object> input = Map.of("mediaArtifactId", "v-1", "inferenceMode", "FULL");
             ToolExecutionEnvelope env = envelope("av.multimodal-inference", input);
-            ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
+            Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
+                    "summary", Map.of("type", "string"),
+                    "confidence", Map.of("type", "number", "minimum", 0, "maximum", 1),
+                    "processingMetadata", Map.of("type", "object", "properties", Map.of(
+                            "framesAnalyzed", Map.of("type", "integer"), "audioSegments", Map.of("type", "integer")))));
+            ToolExecutionResult result = await(handler.handle(env, contractFor(env, schema)));
             @SuppressWarnings("unchecked")
             Map<String, Object> output = (Map<String, Object>) result.output();
             assertThat(output).isEqualTo(Map.of(
                     "summary", "summary", "processingMetadata", Map.of("framesAnalyzed", 12, "audioSegments", 3), "confidence", 0.9));
+        }
+
+        @Test
+        @DisplayName("rejects malformed processing metadata without manufacturing a terminal result")
+        void rejectsMalformedProcessingMetadata() {
+            MultimodalInferenceToolHandler invalid = new MultimodalInferenceToolHandler(delegateReturning(Map.of(
+                    "processingMetadata", Map.of("framesAnalyzed", "many"))));
+            ToolExecutionEnvelope env = envelope("av.multimodal-inference", Map.of("mediaArtifactId", "v-1"));
+            Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
+                    "processingMetadata", Map.of("type", "object", "properties", Map.of(
+                            "framesAnalyzed", Map.of("type", "integer")))));
+            assertThatThrownBy(() -> await(invalid.handle(env, contractFor(env, schema)))
+                    .status()).isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
         }
 
         @Test

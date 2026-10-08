@@ -71,7 +71,9 @@ function checkRegistry(text, sources) {
   if (text.includes("executionAdmitted: true")) errors.push("tool registry must not admit execution");
   if (!text.includes("schemaVersion: NOT_DECLARED_BY_HANDLER")) errors.push("handler schema version must remain explicitly undeclared");
   if (!text.includes("operationBinding: UNRESOLVED")) errors.push("PDP-1 operation binding must remain unresolved");
-  if (!text.includes("asynchronousFailure: The adapter preserves delegate rejection and synchronous throw, and rejects null promise or mismatched invocationId results. The DefaultToolExecutor boundary maps effectful post-dispatch ambiguity to non-final OUTCOME_UNKNOWN")) errors.push("delegate ambiguity semantics must remain explicit");
+  if (!text.includes("asynchronousFailure: The adapter preserves delegate rejection and synchronous throw, and rejects null promises, mismatched invocationId results, and malformed successful payloads on the promise error channel. The DefaultToolExecutor boundary maps effectful post-dispatch ambiguity to non-final OUTCOME_UNKNOWN")) errors.push("delegate ambiguity and output-validation error semantics must remain explicit");
+  if (!text.includes("Successful delegate outputs receive bounded Draft 2020-12 validation against the outputSchema supplied by the matching ToolContract")) errors.push("registered-contract output validation must remain source-bounded");
+  if (!text.includes("An empty schema remains unresolved and passes through")) errors.push("empty/unbound result schemas must remain unresolved");
   if (!text.includes("localFailedResultArguments: ToolExecutionResult.failed receives invocationId for both its first and third arguments")) errors.push("local failed-result identity/time argument behavior must remain explicit");
 
   for (const definition of definitions) {
@@ -99,8 +101,8 @@ function checkRegistry(text, sources) {
     if (!block.includes("sourceType: Map<String,Object> from ToolExecutionEnvelope.input()")) errors.push(`${definition.id}: input source type observation missing`);
     if (!block.includes("javaType: Promise<ToolExecutionResult>")) errors.push(`${definition.id}: observed result type missing`);
     const successObservation = definition.id === "av.multimodal-inference"
-      ? "success: Delegate result is returned without output validation after invocationId equality check; component and partial-result semantics remain unresolved."
-      : "success: Delegate result is returned without output validation after invocationId equality check; result fields/schema remain unresolved.";
+      ? "success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; component, partial-result, provenance, and output admission semantics remain unresolved."
+      : "success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; field semantics, provenance, evidence, and output admission remain unresolved.";
     if (!block.includes(successObservation)) errors.push(`${definition.id}: delegate result opacity observation missing`);
     if (!block.includes("schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}")) errors.push(`${definition.id}: result schema version must remain undeclared`);
     if (!block.includes("finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.")) errors.push(`${definition.id}: result finality capability and limit must be accurate`);
@@ -144,8 +146,8 @@ test("all four entries inventory validated inputs while retaining output and ope
     assert.match(block, /sourceType: Map<String,Object> from ToolExecutionEnvelope\.input\(\)/u);
     assert.match(block, /javaType: Promise<ToolExecutionResult>/u);
     assert.ok(block.includes(definition.id === "av.multimodal-inference"
-      ? "success: Delegate result is returned without output validation after invocationId equality check; component and partial-result semantics remain unresolved."
-      : "success: Delegate result is returned without output validation after invocationId equality check; result fields/schema remain unresolved."));
+      ? "success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; component, partial-result, provenance, and output admission semantics remain unresolved."
+      : "success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; field semantics, provenance, evidence, and output admission remain unresolved."));
     assert.match(block, /schemaVersion: \{value: null, status: not-declared-by-handler-or-delegate-contract\}/u);
     assert.match(block, /finality: Tools result enum carries non-final unknown\/cancellation-requested states; handler does not validate operation-specific output finality\./u);
     assert.match(block, /operationBinding: \{value: null, status: unresolved-owner-and-operation-mapping\}/u);

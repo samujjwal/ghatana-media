@@ -69,7 +69,9 @@ function validate(files) {
   ]) needs("artifactStore", marker);
   needs("localArtifactStore", "!current.principalId().equals(principalId)");
   needs("runtime", "artifactStore.append(tenantId, principalId, uploadId, chunkIndex, bytes)");
-  needs("runtime", "artifactStore.complete(tenantId, principalId, uploadId)");
+  needs("runtime", "artifactStore.completeWithDisposition(tenantId, principalId, uploadId)");
+  needs("runtime", "if (begin.created())");
+  needs("runtime", "if (completion.completedNow())");
   needs("jobStore", "WHERE tenant_id=? AND job_id=? AND version=?");
   needs("schema", "CONSTRAINT uk_media_job_request UNIQUE (tenant_id, request_id)");
   for (const marker of [

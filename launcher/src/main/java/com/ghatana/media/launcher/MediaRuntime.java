@@ -10,6 +10,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobLease;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore;
+import com.ghatana.media.runtime.MediaUploadRequestFingerprint;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaConsentAuthority;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
@@ -31,6 +32,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaLifecycleEvent;
+import com.ghatana.media.runtime.MediaLifecycleEventPublisher;
 import com.ghatana.media.runtime.MediaJobRequestFingerprint;
 import com.ghatana.media.runtime.MediaJobRequestFingerprint.ProviderDescriptor;
 import org.slf4j.Logger;
@@ -109,7 +111,7 @@ public final class MediaRuntime implements AutoCloseable {
     private final MediaStreamSessionStore streamStore;
     private final MediaConsentAuthority consentAuthority;
     private final MediaSemanticRedactionRuntime semanticRedaction;
-    private final MediaLifecyclePublisher lifecyclePublisher;
+    private final MediaLifecycleEventPublisher lifecyclePublisher;
     private final List<MediaProcessingProvider> processingProviders;
     private final List<MediaStreamingProvider> streamingProviders;
     private final ConcurrentMap<String, JobControl> activeJobs = new ConcurrentHashMap<>();
@@ -135,14 +137,14 @@ public final class MediaRuntime implements AutoCloseable {
                 processingProviders, streamingProviders);
     }
 
-    private MediaRuntime(
+    MediaRuntime(
             MediaRuntimeConfig config,
             MediaArtifactStore artifactStore,
             MediaJobStore jobStore,
             MediaStreamSessionStore streamStore,
             MediaConsentAuthority consentAuthority,
             MediaSemanticRedactionRuntime semanticRedaction,
-            MediaLifecyclePublisher lifecyclePublisher,
+            MediaLifecycleEventPublisher lifecyclePublisher,
             List<MediaProcessingProvider> processingProviders,
             List<MediaStreamingProvider> streamingProviders) {
         this.config = java.util.Objects.requireNonNull(config, "config");
@@ -251,27 +253,44 @@ public final class MediaRuntime implements AutoCloseable {
         }
     }
 
+    /** @deprecated Upload creation without a caller-provided idempotency key is unsafe and fails closed. */
+    @Deprecated
     public UploadSession beginUpload(UploadRequest request) {
+        throw new IllegalArgumentException("Idempotency-Key is required to begin a Media upload");
+    }
+
+    public UploadSession beginUpload(UploadRequest request, String idempotencyKey) {
         ensureOpen();
+        requireIdempotencyKey(idempotencyKey);
         if (request.expectedSizeBytes() > config.maximumArtifactBytes()) {
             throw new IllegalArgumentException(
                     "Media artifact exceeds MEDIA_MAX_ARTIFACT_BYTES");
         }
-        UploadSession session = artifactStore.begin(request);
+        var begin = artifactStore.beginWithDisposition(request, idempotencyKey);
+        UploadSession session = begin.session();
         audit.info("MEDIA_UPLOAD_STARTED tenantId={} uploadId={} contentType={} expectedSize={} classification={}",
                 request.tenantId(), session.uploadId(), request.contentType(), request.expectedSizeBytes(),
                 request.classification());
-        publishLifecycle("media.upload.started", request.tenantId(), request.principalId(),
-                session.uploadId(), "", "upload", session.uploadId(), 1L,
-                request.classification(), Map.of(
-                        "contentType", request.contentType(),
-                        "expectedSizeBytes", request.expectedSizeBytes()));
+        if (begin.created()) {
+            publishLifecycle("media.upload.started", request.tenantId(), request.principalId(),
+                    session.uploadId(), "", "upload", session.uploadId(), 1L,
+                    request.classification(), Map.of(
+                            "contentType", request.contentType(),
+                            "expectedSizeBytes", request.expectedSizeBytes()));
+        }
         return session;
+    }
+
+    private static void requireIdempotencyKey(String value) {
+        if (value == null || value.isBlank() || value.length() > 255) {
+            throw new IllegalArgumentException("Idempotency-Key must contain between 1 and 255 characters");
+        }
     }
 
     public UploadSession appendChunk(String tenantId, String principalId, String uploadId, int chunkIndex, byte[] bytes) {
         ensureOpen();
         if (principalId == null || principalId.isBlank()) throw new SecurityException("Authenticated principal is required");
+        if (chunkIndex < 0) throw new IllegalArgumentException("chunkIndex must not be negative");
         if (bytes == null || bytes.length == 0 || bytes.length > config.maximumChunkBytes()) {
             throw new IllegalArgumentException(
                     "Chunk must contain between 1 and " + config.maximumChunkBytes() + " bytes");
@@ -293,17 +312,20 @@ public final class MediaRuntime implements AutoCloseable {
         if (!upload.principalId().equals(principalId)) {
             throw new IllegalArgumentException("Media upload not found: " + uploadId);
         }
-        MediaArtifact artifact = artifactStore.complete(tenantId, principalId, uploadId);
+        var completion = artifactStore.completeWithDisposition(tenantId, principalId, uploadId);
+        MediaArtifact artifact = completion.artifact();
         audit.info("MEDIA_UPLOAD_COMPLETED tenantId={} uploadId={} artifactId={} size={} sha256={} classification={}",
                 tenantId, uploadId, artifact.artifactId(), artifact.sizeBytes(), artifact.sha256(),
                 artifact.classification());
-        publishLifecycle("media.artifact.completed", tenantId, artifact.principalId(),
-                uploadId, uploadId, "artifact", artifact.artifactId(), 1L,
-                artifact.classification(), Map.of(
-                        "contentType", artifact.contentType(),
-                        "sizeBytes", artifact.sizeBytes(),
-                        "sourceUploadId", uploadId,
-                        "sha256", artifact.sha256()));
+        if (completion.completedNow()) {
+            publishLifecycle("media.artifact.completed", tenantId, artifact.principalId(),
+                    uploadId, uploadId, "artifact", artifact.artifactId(), 1L,
+                    artifact.classification(), Map.of(
+                            "contentType", artifact.contentType(),
+                            "sizeBytes", artifact.sizeBytes(),
+                            "sourceUploadId", uploadId,
+                            "sha256", artifact.sha256()));
+        }
         return artifact;
     }
 

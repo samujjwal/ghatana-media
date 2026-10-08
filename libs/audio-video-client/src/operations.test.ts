@@ -3,6 +3,7 @@ import {
   MediaClientError,
   MediaOperationNotAdmittedError,
   createMediaOperationClient,
+  type CanonicalMediaUploadSessionObservation,
 } from "./operations";
 
 const timestamp = "2026-08-05T12:00:00.000Z";
@@ -71,7 +72,7 @@ function canonicalArtifact(overrides: Record<string, unknown> = {}) {
   } as const;
 }
 
-function uploadSession(overrides: Record<string, unknown> = {}) {
+function uploadSession(overrides: Record<string, unknown> = {}): CanonicalMediaUploadSessionObservation {
   return {
     uploadId: "upload-1",
     tenantId: "tenant-1",
@@ -88,7 +89,7 @@ function uploadSession(overrides: Record<string, unknown> = {}) {
     status: "OPEN",
     metadata: {},
     ...overrides,
-  } as const;
+  } as unknown as CanonicalMediaUploadSessionObservation;
 }
 
 describe("MediaOperationClient", () => {
@@ -123,7 +124,7 @@ describe("MediaOperationClient", () => {
     const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
     const noPrincipal = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl });
     const request = { fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
-      expectedSha256: "a".repeat(64), classification: "INTERNAL", retention: "PT24H", idempotencyKey: "key" };
+      expectedSha256: "a".repeat(64), classification: "INTERNAL" as const, retention: "PT24H", idempotencyKey: "key" };
     await expect(noPrincipal.createUploadSession(request)).rejects.toThrow(/X-Principal-Id/u);
     const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
       defaultHeaders: { "X-Principal-Id": "principal-1" } });
@@ -131,6 +132,49 @@ describe("MediaOperationClient", () => {
     await expect(client.createUploadSession({ ...request, expectedSizeBytes: 0 })).rejects.toThrow(/expectedSizeBytes/u);
     expect(fetchImpl).not.toHaveBeenCalled();
   });
+
+  it("rejects filenames that runtime stores would trim, path-normalize, or rewrite before upload dispatch", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" } });
+    const request = { fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
+      expectedSha256: "a".repeat(64), classification: "INTERNAL" as const, retention: "PT24H", idempotencyKey: "key" };
+    for (const fileName of [" source.wav", "source.wav ", "folder/source.wav", "folder\\source.wav", ".", "..", "source\n.wav", "source\u0000.wav"]) {
+      await expect(client.createUploadSession({ ...request, fileName })).rejects.toThrow(/fileName.*canonical/u);
+    }
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("rejects content-type whitespace normalization and unsupported classifications before upload dispatch", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" } });
+    const request = { fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
+      expectedSha256: "a".repeat(64), classification: "INTERNAL" as const, retention: "PT24H", idempotencyKey: "key" };
+    for (const contentType of [" audio/wav", "audio/wav ", "audio/\twav"]) {
+      await expect(client.createUploadSession({ ...request, contentType })).rejects.toThrow(/contentType.*canonical/u);
+    }
+    for (const classification of [" INTERNAL", "INTERNAL ", "internal", "RESTRICTED\n", "SECRET"]) {
+      await expect(client.createUploadSession({ ...request, classification: classification as never })).rejects.toThrow(/classification must be one of/u);
+    }
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it.each(["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"] as const)(
+    "accepts the exact runtime classification %s without rewriting it",
+    async (classification) => {
+      const fetchImpl = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit): Promise<Response> =>
+        jsonResponse(uploadSession({ classification }))) as unknown as typeof fetch;
+      const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+        defaultHeaders: { "X-Principal-Id": "principal-1" } });
+      await expect(client.createUploadSession({
+        fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
+        expectedSha256: "a".repeat(64), classification, retention: "PT24H", idempotencyKey: "key",
+      })).resolves.toMatchObject({ classification });
+      expect(JSON.parse(String((fetchImpl as unknown as ReturnType<typeof vi.fn>).mock.calls[0]?.[1]?.body)).classification)
+        .toBe(classification);
+    },
+  );
 
   it("rejects a create receipt bound to a different submitted payload", async () => {
     const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({ expectedSha256: "b".repeat(64) }))) as unknown as typeof fetch;
@@ -140,6 +184,16 @@ describe("MediaOperationClient", () => {
       fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
       expectedSha256: "a".repeat(64), classification: "INTERNAL", retention: "PT24H", idempotencyKey: "key",
     })).rejects.toThrow(/does not bind the submitted immutable/u);
+  });
+
+  it("rejects a create response with a classification outside the canonical enum", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({ classification: "SECRET" }))) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" } });
+    await expect(client.createUploadSession({
+      fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
+      expectedSha256: "a".repeat(64), classification: "INTERNAL", retention: "PT24H", idempotencyKey: "key",
+    })).rejects.toThrow(/classification is outside the runtime enum/u);
   });
 
   it("snapshots upload metadata before asynchronous token acquisition", async () => {
@@ -177,6 +231,157 @@ describe("MediaOperationClient", () => {
     expect(captured?.init?.method).toBe("PUT");
     expect(captured?.init?.body).toBeInstanceOf(Blob);
     await expect(client.uploadPart(uploadSession(), 1, new Blob(["x"]))).rejects.toThrow(/next zero-based/u);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects an append response with a classification outside the canonical enum", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({
+      classification: "SECRET", bytesReceived: 1, nextChunkIndex: 1,
+    }))) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" } });
+    await expect(client.uploadPart(uploadSession(), 0, new Blob(["x"])))
+      .rejects.toThrow(/classification is outside the runtime enum/u);
+  });
+
+  it("reads the exact upload-session DTO from the tenant- and principal-scoped canonical route", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+    });
+
+    await expect(client.getUploadSession("upload-1")).resolves.toEqual(uploadSession());
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    const [url, init] = (fetchImpl as unknown as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://media.example.test/api/v1/artifacts/uploads/upload-1");
+    expect(init.method).toBe("GET");
+    expect(init.body).toBeUndefined();
+    const headers = new Headers(init.headers);
+    expect(headers.get("X-Tenant-ID")).toBe("tenant-1");
+    expect(headers.get("X-Principal-Id")).toBe("principal-1");
+    expect(headers.get("X-Request-ID")).toMatch(/^[0-9a-f-]{36}$/u);
+  });
+
+  it("keeps upload-read principal scope immutable across caller header mutation", async () => {
+    const originalHeaders = { "X-Principal-Id": "principal-1" };
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", defaultHeaders: originalHeaders, fetchImpl,
+    });
+    originalHeaders["X-Principal-Id"] = "principal-2";
+
+    await expect(client.getUploadSession("upload-1")).resolves.toEqual(uploadSession());
+    const [, init] = (fetchImpl as unknown as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
+    expect(new Headers(init.headers).get("X-Principal-Id")).toBe("principal-1");
+  });
+
+  it("preserves the scoped upload 404 code, status, and correlation without inferring global absence", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({
+      error: { code: "UPLOAD_NOT_FOUND", message: "Upload session not found", retryable: false, evidenceRefs: [], actionRefs: [] },
+      meta: { requestId: "request-upload-404", correlationId: "correlation-upload-404", timestamp, apiVersion: "1.0.0" },
+    }, 404)) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+    });
+
+    await expect(client.getUploadSession("upload-1")).rejects.toMatchObject({
+      name: "MediaClientError",
+      statusCode: 404,
+      detail: expect.objectContaining({ code: "UPLOAD_NOT_FOUND", correlationId: "correlation-upload-404", retryable: false }),
+    });
+  });
+
+  it("rejects upload reads without a valid principal before transport", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
+    const noPrincipal = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl });
+    await expect(noPrincipal.getUploadSession("upload-1")).rejects.toThrow("X-Principal-Id");
+    const invalidPrincipal = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal with spaces" },
+    });
+    await expect(invalidPrincipal.getUploadSession("upload-1")).rejects.toThrow("Invalid media client request identity field: principalId");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it.each(["", "  ", "upload with spaces", "upload\n1", "é", "a".repeat(256), ".", "..", "a/b", "a\\b"])(
+    "rejects unsafe upload ID %j before transport",
+    async (uploadId) => {
+      const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
+      const client = createMediaOperationClient({
+        baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+        defaultHeaders: { "X-Principal-Id": "principal-1" },
+      });
+      await expect(client.getUploadSession(uploadId)).rejects.toThrow(/upload(?:Id| ID)/u);
+      expect(fetchImpl).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    ["a different tenant", { tenantId: "tenant-2" }],
+    ["a different principal", { principalId: "principal-2" }],
+  ])("rejects upload observations outside %s scope", async (_caseName, scopeOverride) => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({ ...uploadSession(), ...scopeOverride })) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+    });
+    await expect(client.getUploadSession("upload-1")).rejects.toThrow("outside the caller's tenant and principal scope");
+  });
+
+  it("rejects an upload observation whose identity differs from the requested path", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({ uploadId: "different-upload" }))) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+    });
+    await expect(client.getUploadSession("upload-1")).rejects.toThrow("identity does not match the requested upload");
+  });
+
+  it.each([
+    ["an unsupported status", { status: "RETRYABLE" }],
+    ["an unsupported classification", { classification: "SECRET" }],
+    ["an invented response alias", { id: "upload-1" }],
+    ["an invalid expiry timestamp", { expiresAt: "not-a-date" }],
+    ["a nonexistent February day", { expiresAt: "2026-02-30T12:00:00Z" }],
+    ["a nonexistent April day", { expiresAt: "2026-04-31T12:00:00Z" }],
+    ["an hour rollover", { expiresAt: "2026-08-06T24:00:00Z" }],
+    ["a minute rollover", { expiresAt: "2026-08-06T12:60:00Z" }],
+    ["a fraction longer than Java Instant precision", { expiresAt: "2026-08-06T12:00:00.1234567890Z" }],
+    ["an unsafe size", { expectedSizeBytes: Number.MAX_SAFE_INTEGER + 1 }],
+  ])("rejects upload observations with %s", async (_caseName, override) => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({ ...uploadSession(), ...override })) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+    });
+    await expect(client.getUploadSession("upload-1")).rejects.toThrow(TypeError);
+  });
+
+  it("preserves valid leap-day UTC instants at nanosecond precision", async () => {
+    const createdAt = "2024-02-29T12:00:00.123456789Z";
+    const expiresAt = "2024-02-29T12:00:00.123456790Z";
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> =>
+      String(input).endsWith("/api/v1/artifacts/uploads/upload-1")
+        ? jsonResponse(uploadSession({ createdAt, expiresAt }))
+        : jsonResponse(canonicalArtifact({ createdAt, expiresAt }))) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" } });
+
+    await expect(client.getUploadSession("upload-1")).resolves.toMatchObject({ createdAt, expiresAt });
+    await expect(client.getArtifact("artifact-1")).resolves.toMatchObject({ createdAt, expiresAt });
+  });
+
+  it("returns observed terminal status without inferring finality or mutation permission", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({
+      bytesReceived: 3, nextChunkIndex: 1, status: "COMPLETED",
+    }))) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+    });
+    await expect(client.getUploadSession("upload-1")).resolves.toMatchObject({ status: "COMPLETED", bytesReceived: 3 });
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
@@ -517,6 +722,24 @@ describe("MediaOperationClient", () => {
     ["an unsupported classification", { classification: "BIOMETRIC" }],
     ["an unsafe numeric size", { sizeBytes: Number.MAX_SAFE_INTEGER + 1 }],
     ["an invented field alias", { id: "artifact-1" }],
+  ])("rejects artifact responses with %s", async (_caseName, override) => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({ ...canonicalArtifact(), ...override })) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-1",
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+      fetchImpl,
+    });
+
+    await expect(client.getArtifact("artifact-1")).rejects.toThrow(TypeError);
+  });
+
+  it.each([
+    ["a nonexistent February day", { createdAt: "2026-02-30T12:00:00Z" }],
+    ["a nonexistent April day", { expiresAt: "2026-04-31T12:00:00Z" }],
+    ["an hour rollover", { createdAt: "2026-08-05T24:00:00Z" }],
+    ["a minute rollover", { expiresAt: "2026-08-06T12:60:00Z" }],
+    ["a fraction longer than Java Instant precision", { createdAt: "2026-08-05T12:00:00.1234567890Z" }],
   ])("rejects artifact responses with %s", async (_caseName, override) => {
     const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({ ...canonicalArtifact(), ...override })) as unknown as typeof fetch;
     const client = createMediaOperationClient({

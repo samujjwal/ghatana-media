@@ -199,11 +199,13 @@ mediaHandlerImplementationObservation:
     - Closed top-level input fields and type/bound validation for accepted handler parameters.
     - Malformed artifact references and malformed byte inputs fail closed; inline bytes have a 20 MiB adapter bound.
     - Invalid optional values are rejected rather than silently defaulted or coerced.
+    - Successful delegate output is validated with NetworkNT 3.0.6 Draft 2020-12 against the matching ToolContract outputSchema; strict unknown-keyword handling, disabled remote-reference loading, and serialized-character, depth, and node bounds fail closed. Output bounds apply even if the supplied result schema is empty.
   limits:
     - The invocation envelope itself has no idempotency key, deadline, cancellation token, or authority/delegation evidence fields; the runtime supplies idempotency, deadline, cancellation, and attempt context separately through ToolExecutionBudget and ToolTransportInvocationContext.
     - Ghatana Tools ToolExecutionResult now supports non-final OUTCOME_UNKNOWN and CANCELLATION_REQUESTED values with operation/attempt references. Media handlers preserve post-dispatch ambiguity on the promise error channel, validate returned invocation identity, and do not persist or reconcile operation state themselves.
     - Handler checks are schema/context validation only; they do not authorize tenant/resource access or enforce consent, rights, policy, idempotency, or provenance.
-    - Media handlers wrap delegate promises only to reject null or mismatched invocation results; at the Ghatana Tools DefaultToolExecutor boundary, ambiguous effectful failures map to non-final OUTCOME_UNKNOWN while read-only failures map to FAILED.
+    - Empty ToolContract output schemas remain unresolved and pass through; this adapter behavior does not bind the four capability YAML outputSchema descriptors as canonical registered result schemas. Additional properties remain permitted unless the supplied schema prohibits them, and unsupported schema keywords are not enforced.
+    - Structural output checks do not define semantic result meaning, provenance, evidence, completeness, finality, rights, or production qualification. Media handlers preserve delegate rejection and reject malformed successful payloads on the promise error channel; at the Ghatana Tools DefaultToolExecutor boundary, ambiguous effectful failures map to non-final OUTCOME_UNKNOWN while read-only failures map to FAILED.
   executionAdmitted: false
   requiredSharedOwnerIntegration:
     - Publish and qualify the generic invocation SPI with principal/delegation, exact resource scope, invocation deadline, idempotency key, cancellation signal and operation identity.

@@ -31673,7 +31673,7 @@ items:
   itemId: MPSEM-1339
 migrationClaimReconciliations:
   schemaVersion: media.migration-claim-reconciliation.v1
-  scope: MSC-01, MSC-03, MSC-09, and the bounded MSC-10 PDP-3 input-routing claims only; target implementation scope is the 71-task plan; decisions below do not accept PDP phases or refresh sourcePin
+  scope: MSC-01, MSC-03, MSC-09, and individually bounded MSC-10 owner/authority-routing claims only; target implementation scope is the 71-task plan; decisions below do not accept PDP phases or refresh sourcePin
   currentImplementationScope:
     plan: /home/samujjwal/Downloads/Ghatana-Media-PDP-Remaining-TODO-Implementation-Plan-2026-10-07.md
     taskRegister: /home/samujjwal/Downloads/Ghatana-Media-TODO-Checklist-2026-10-07.md
@@ -31771,6 +31771,58 @@ migrationClaimReconciliations:
         - .product-experience/authority-map.yaml#/phaseAuthorities/2
         - .product-experience/authority-map.yaml#/phaseAuthorities/3
       rationale: "The current PDP-3 authority paragraph explicitly names PDP-2 representation as an input, and PXD-003 approves the PDP-2 design/interface authority boundary. This supports the bounded routing assertion only; PDP-2 artifact acceptance and complete PDP-3 scope remain open."
+      acceptanceEffect: none
+    - claimId: MSC-10-C04
+      clusterId: MSC-10
+      masterPlanLines: [1213, 1213]
+      exactClaim: "PDP-2 — Design & Interface System (legacy plan Phase 1)"
+      disposition: supported
+      reviewBasis:
+        - .product-experience/decision-log.md#PXD-003
+        - .product-experience/authority-map.yaml#/phaseAuthorities/2
+      rationale: "PXD-003 and the authority map support PDP-2 as the Media design/interface authority and the changed label as a bounded routing assertion. This does not accept PDP-2 records, the legacy task crosswalk, or the phase."
+      acceptanceEffect: none
+    - claimId: MSC-10-C05
+      clusterId: MSC-10
+      masterPlanLines: [1217, 1217]
+      exactClaim: "A new capability or changed domain/action consequence discovered here returns to its PDP-0 or PDP-1 owner."
+      disposition: supported
+      reviewBasis:
+        - .product-experience/authority-map.yaml#/authorityRules/0
+        - .product-experience/authority-map.yaml#/phaseAuthorities/0
+        - .product-experience/authority-map.yaml#/phaseAuthorities/1
+      rationale: "The one-owner rule and the separate PDP-0/PDP-1 authority scopes support routing a changed product concept to its existing owner. This establishes edit routing only; it does not determine whether a particular change is semantic or accept any PDP proposal."
+      acceptanceEffect: none
+    - claimId: MSC-10-C06
+      clusterId: MSC-10
+      masterPlanLines: [1239, 1239]
+      exactClaim: "PDP-3 — Complete Product Experience (legacy plan Phase 2)"
+      disposition: supported
+      reviewBasis:
+        - .product-experience/decision-log.md#PXD-003
+        - .product-experience/authority-map.yaml#/phaseAuthorities/3
+      rationale: "PXD-003 and the authority map support PDP-3 as the complete-product-experience authority and the changed label as bounded routing. Per-record experience semantics, independent reviews, and phase acceptance remain open."
+      acceptanceEffect: none
+    - claimId: MSC-10-C07
+      clusterId: MSC-10
+      masterPlanLines: [1350, 1350]
+      exactClaim: "Experience Explorer — outside the PDP phases (legacy plan Phase 3)"
+      disposition: supported
+      reviewBasis:
+        - .product-experience/decision-log.md#PXD-003
+        - .product-experience/authority-map.yaml#/canonicalPdpPhases/4
+        - .product-experience/authority-map.yaml#/phaseAuthorities/4
+      rationale: "PXD-003 and the authority map place Explorer outside the four PDP phases as a projection. This supports only the boundary label; Explorer completeness, runtime behavior, and acceptance remain separate."
+      acceptanceEffect: none
+    - claimId: MSC-10-C08
+      clusterId: MSC-10
+      masterPlanLines: [1392, 1392]
+      exactClaim: "Explorer remains outside the PDP authority phases"
+      disposition: supported
+      reviewBasis:
+        - .product-experience/decision-log.md#PXD-003
+        - .product-experience/authority-map.yaml#/canonicalPdpPhases/4
+      rationale: "The exact phase-boundary subclaim is supported by PXD-003 and the canonical Explorer entry. The adjacent assertion that production is separately measured, plus all verification criteria on the line, remain unresolved by this routing decision."
       acceptanceEffect: none
     - claimId: MSC-15-C01
       clusterId: MSC-15
@@ -31891,8 +31943,8 @@ migrationClaimReconciliations:
       rationale: "The plan's task-level decomposition policy requires exact owner and target records; authority-map policy requires one owner and says only the P0-001 boundary is accepted. PDP-0 domain/time/state material is expressly still proposal evidence during handoff."
       acceptanceEffect: none
   remainingDependencies:
-    - "Route current P1 task IDs to exact canonical PDP-1 targets without reusing legacy three-digit IDs; reconcile source records, extract exact semantic mappings, and complete required specialist and PDP-1 owner review. The phase authority boundary is settled for routing only."
-    - "Reconcile all remaining MSC-01/MSC-09 normative assertions and other migration clusters; this partial claim set does not complete P0-03 or justify refreshing the stale master-plan pin."
+    - "Route current P1 task IDs and preserved legacy P0-004/P0-005 content to exact canonical PDP-1 targets without treating the legacy IDs as current task IDs; reconcile source records, extract exact semantic mappings, and complete required specialist and PDP-1 owner review. The phase authority boundary is settled for routing only."
+    - "Reconcile unreviewed taxonomy assertions, preserved task content, and other migration clusters; this bounded routing set does not complete P0-03 or justify refreshing the stale master-plan pin."
 sourceChangeLedger:
   schemaVersion: media.migration-source-change-ledger.v1
   task: P0-03 semantic reconciliation of the stale master-plan source pin
@@ -32222,39 +32274,47 @@ sourceChangeLedger:
     clusterId: MSC-01
     currentSourceLines: [14, 14]
     exactClaim: "legacy Phase/P0 → PDP-0, except P0-004 and P0-005 which are owned by PDP-1"
-    disposition: routing-crosswalk-pending-owner-review
+    disposition: bounded-owner-routing-reconciled
     candidatePdpRefs:
     - .product-experience/authority-map.yaml#/phaseAuthorities/0
     - .product-experience/authority-map.yaml#/phaseAuthorities/1
-    basis: The authority map assigns product requirements and policy to PDP-0 and canonical domain objects, values, operations, and detailed state semantics to PDP-1. That supports the boundary as a routing crosswalk; the task-specific proposals remain unaccepted and require owner review.
+    basis: >-
+      Delegated PXD-003 and the current authority map support the boundary as a routing crosswalk: product requirements
+      and policy route to PDP-0, while canonical domain objects, values, operations, and detailed state semantics route
+      to PDP-1. The historical P0-004/P0-005 content crosswalk is not a current task-ID mapping, and the task-specific
+      proposals remain unaccepted.
+    ownerReconciliationRefs: [MSC-01-C01, MSC-01-C04, MSC-09-C02, MSC-09-C05]
     acceptanceEffect: none
   - claimId: MSC-01-NEW-C04
     clusterId: MSC-01
     currentSourceLines: [14, 14]
     exactClaim: "legacy Phase/P1 → PDP-2; legacy Phase/P2 → PDP-3"
-    disposition: routing-crosswalk-pending-owner-review
+    disposition: bounded-owner-routing-reconciled
     candidatePdpRefs:
     - .product-experience/authority-map.yaml#/phaseAuthorities/2
     - .product-experience/authority-map.yaml#/phaseAuthorities/3
     basis: The authority map identifies PDP-2 as Design & Interface System and PDP-3 as Complete Product Experience. This confirms owner labels only; phase/task acceptance is not established.
+    ownerReconciliationRefs: [MSC-03-C03, MSC-03-C04]
     acceptanceEffect: none
   - claimId: MSC-01-NEW-C05
     clusterId: MSC-01
     currentSourceLines: [14, 14]
     exactClaim: "legacy Phase/P3 → Experience Explorer, outside the PDP phases."
-    disposition: explorer-boundary-crosswalk-pending-review
+    disposition: bounded-owner-routing-reconciled
     candidatePdpRefs:
     - .product-experience/source-manifest.yaml#/authorityModel/explorerOutsidePdpPhases
     basis: The source manifest records Explorer as outside PDP phases. This reconciles the boundary label only and does not map Explorer implementation artifacts into a PDP authority.
+    ownerReconciliationRefs: [MSC-03-C05, MSC-10-C07]
     acceptanceEffect: none
   - claimId: MSC-01-NEW-C06
     clusterId: MSC-01
     currentSourceLines: [14, 14]
     exactClaim: "PDP-1 Domain & Data has no dedicated legacy phase/task prefix; see §18.4 for its current authority and the crosswalk."
-    disposition: source-navigation-with-owner-boundary-reference
+    disposition: bounded-authority-location-reconciled
     candidatePdpRefs:
     - .product-experience/authority-map.yaml#/phaseAuthorities/1
     basis: The current authority map has an independent PDP-1 entry, while the referenced section is in the current source. The claim is a crosswalk/navigation statement and leaves task-specific semantics pending review.
+    ownerReconciliationRefs: [MSC-09-C01]
     acceptanceEffect: none
   - claimId: MSC-01-NEW-C07
     clusterId: MSC-01
@@ -32268,43 +32328,52 @@ sourceChangeLedger:
     clusterId: MSC-09
     currentSourceLines: [1209, 1209]
     exactClaim: "Canonical PDP-1 is nevertheless an independent authority in `.product-experience/pdp-1-domain-data/`."
-    disposition: authority-location-crosswalk-pending-owner-review
+    disposition: bounded-authority-location-reconciled
     candidatePdpRefs:
     - .product-experience/authority-map.yaml#/phaseAuthorities/1
     - .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md
     basis: The authority map declares PDP-1 Domain & Data as a separate authority and the named authority directory exists. This confirms repository organization and routing, not acceptance of the contained domain model.
+    ownerReconciliationRefs: [MSC-09-C01]
     acceptanceEffect: none
   - claimId: MSC-09-NEW-C02
     clusterId: MSC-09
     currentSourceLines: [1209, 1209]
     exactClaim: "`P0-004` (domain/time/unit semantics) and `P0-005` (state/transition semantics) map to PDP-1 where they define domain objects, values, relationships, authority, canonical states or transitions; their IDs remain legacy execution identifiers."
-    disposition: task-routing-crosswalk-pending-pdp1-owner-review
+    disposition: bounded-owner-routing-reconciled
     candidatePdpRefs:
     - .product-experience/authority-map.yaml#/phaseAuthorities/1
     - .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md
-    - .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md#P0-004
-    - .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md#P0-005
-    basis: The authority map routes canonical domain objects and states to PDP-1 and the current plan task cards name P0-004/005 accordingly. The target domain records remain proposals; route correspondence does not accept their semantics.
+    - .product-experience/pdp-1-domain-data/value-objects.yaml
+    - .product-experience/pdp-1-domain-data/states.yaml
+    - .product-experience/pdp-1-domain-data/transitions.yaml
+    basis: >-
+      The authority map routes canonical domain objects, values, and detailed state/transition semantics to PDP-1.
+      P0-004/P0-005 are labels in the retained legacy task crosswalk; the current 71-task register uses current P1 task
+      IDs for that owner scope. The target PDP-1 records remain proposals; route correspondence does not accept their
+      semantics.
+    ownerReconciliationRefs: [MSC-09-C02, MSC-09-C05]
     acceptanceEffect: none
   - claimId: MSC-09-NEW-C03
     clusterId: MSC-09
     currentSourceLines: [1209, 1209]
     exactClaim: Their related PDP-0 requirements, policy and product-boundary decisions remain PDP-0.
-    disposition: owner-boundary-crosswalk-pending-owner-review
+    disposition: bounded-owner-routing-reconciled
     candidatePdpRefs:
     - .product-experience/authority-map.yaml#/phaseAuthorities/0
     - .product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md#P0-001-boundary-slice
     basis: The authority map assigns product meaning, requirements, policy, and product data-boundary requirements to PDP-0. Only the bounded P0-001 boundary slice is accepted; the rest of these PDP-0 records remain proposals.
+    ownerReconciliationRefs: [MSC-09-C03]
     acceptanceEffect: none
   - claimId: MSC-09-NEW-C04
     clusterId: MSC-09
     currentSourceLines: [1209, 1209]
     exactClaim: Do not infer authority from a legacy prefix or copy an unresolved PDP-0 proposal into PDP-1 without reconciliation and owner review.
-    disposition: migration-review-constraint-pending-owner-review
+    disposition: bounded-owner-routing-reconciled
     candidatePdpRefs:
     - .product-experience/authority-map.yaml#/phaseAuthorities/0
     - .product-experience/authority-map.yaml#/phaseAuthorities/1
     basis: The authority map defines distinct phase scopes and records only a bounded accepted slice. The caution is preserved as a review constraint, not counted as semantic acceptance or owner adjudication.
+    ownerReconciliationRefs: [MSC-09-C04]
     acceptanceEffect: none
   linkedPdpClaimReconciliation:
     scope: >-

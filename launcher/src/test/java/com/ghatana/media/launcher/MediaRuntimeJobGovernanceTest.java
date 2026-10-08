@@ -332,7 +332,7 @@ class MediaRuntimeJobGovernanceTest {
         var upload = runtime.beginUpload(new UploadRequest(
                 "tenant-a", "principal-a", "clip.bin", "application/octet-stream", bytes.length,
                 HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)),
-                "confidential", Duration.ofMinutes(10), Map.of()));
+                "CONFIDENTIAL", Duration.ofMinutes(10), Map.of()), "job-governance-upload");
         runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0, bytes);
         return runtime.completeUpload("tenant-a", "principal-a", upload.uploadId());
     }

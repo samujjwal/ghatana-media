@@ -11,8 +11,8 @@ contractObservationPolicy:
   schemaVersion: NOT_DECLARED_BY_HANDLER
   inputSchema: Media adapters enforce closed top-level key sets and local field validation, but these Java checks are not a published JSON Schema and do not establish a canonical public schema.
   delegateInputForwarding: If configured, every handler delegates the original envelope and ToolContract through AgentToolInput.dispatch; it does not construct a filtered or normalized request. The returned result is checked for invocationId equality.
-  outputSchema: Delegate results are passed through; no successful output schema is validated by these handlers.
-  asynchronousFailure: The adapter preserves delegate rejection and synchronous throw, and rejects null promise or mismatched invocationId results. The DefaultToolExecutor boundary maps effectful post-dispatch ambiguity to non-final OUTCOME_UNKNOWN and read-only rejection to FAILED; direct handler use preserves the rejection channel.
+  outputSchema: Successful delegate outputs receive bounded Draft 2020-12 validation against the outputSchema supplied by the matching ToolContract (strict unknown-keyword handling; remote references disabled; serialized-character, depth, and node-count bounds). An empty schema remains unresolved and passes through after output bounds; this does not bind the four YAML descriptors as canonical registered result schemas or prove output meaning, provenance, or finality.
+  asynchronousFailure: The adapter preserves delegate rejection and synchronous throw, and rejects null promises, mismatched invocationId results, and malformed successful payloads on the promise error channel. The DefaultToolExecutor boundary maps effectful post-dispatch ambiguity to non-final OUTCOME_UNKNOWN and read-only rejection to FAILED; direct handler use preserves the rejection channel.
   localFailedResultArguments: ToolExecutionResult.failed receives invocationId for both its first and third arguments, the observed end Instant, and Duration.between(start, end).
   localFailedResultMapping: "Sibling Tools source observation only (runtime/java/tool-contracts/.../ToolExecutionResult.java): the failed(String, String, String, Instant, Duration) factory maps these non-code messages to status FAILED and failure kind INTERNAL/stage EXECUTION; its code normalizer falls back to TOOL_EXECUTION_FAILED for messages that are not a valid code. Installed package resolution and owner acceptance are not established by this Media observation."
   preTryNullArguments: Objects.requireNonNull(envelope/contract) executes before the try block in each handler, so a null argument throws directly. Envelope/contract tool ID, version and action-class mismatch is now rejected inside the validation boundary.
@@ -42,7 +42,7 @@ tools:
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
-      success: Delegate result is returned without output validation after invocationId equality check; result fields/schema remain unresolved.
+      success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; field semantics, provenance, evidence, and output admission remain unresolved.
       noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video STT provider unavailable for <source>: no speech-to-text service delegate configured", invocationId, end, elapsed Duration)'
       preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "STT processing error: " + exception message, invocationId, end, elapsed Duration)'
       finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.
@@ -81,7 +81,7 @@ tools:
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
-      success: Delegate result is returned without output validation after invocationId equality check; result fields/schema remain unresolved.
+      success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; field semantics, provenance, evidence, and output admission remain unresolved.
       noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video TTS provider unavailable: no text-to-speech service delegate configured", invocationId, end, elapsed Duration)'
       preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "TTS processing error: " + exception message, invocationId, end, elapsed Duration)'
       finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.
@@ -119,7 +119,7 @@ tools:
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
-      success: Delegate result is returned without output validation after invocationId equality check; result fields/schema remain unresolved.
+      success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; field semantics, provenance, evidence, and output admission remain unresolved.
       noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video Vision provider unavailable: no vision analysis service delegate configured", invocationId, end, elapsed Duration)'
       preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "Vision analysis error: " + exception message, invocationId, end, elapsed Duration)'
       finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.
@@ -158,7 +158,7 @@ tools:
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
-      success: Delegate result is returned without output validation after invocationId equality check; component and partial-result semantics remain unresolved.
+      success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; component, partial-result, provenance, and output admission semantics remain unresolved.
       noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video Multimodal provider unavailable: no multimodal inference service delegate configured", invocationId, end, elapsed Duration)'
       preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "Multimodal inference error: " + exception message, invocationId, end, elapsed Duration)'
       finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.

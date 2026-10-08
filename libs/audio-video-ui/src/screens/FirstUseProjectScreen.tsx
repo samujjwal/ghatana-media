@@ -55,7 +55,7 @@ export function FirstUseProjectScreen({ project, onProjectNameDraftChange, actio
             <p>Project ID: {item.id}{item.updatedAt ? ` · Updated ${item.updatedAt}` : ""}</p>
           </li>)}
         </ul> : project.projects !== undefined && project.projects.length === 0 && project.accessState === "resolved"
-          ? <EmptyState className="media-empty-state" title="No authorized projects are available in this workspace yet." />
+          ? <EmptyState className="gh-empty-state--panel" title="No authorized projects are available in this workspace yet." />
           : null}
       </>}
       {project.view === "work-in-project" && <p>Project actions and media content are supplied by the active host.</p>}

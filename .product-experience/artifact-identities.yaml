@@ -19,6 +19,12 @@ manifestProjection:
   artifactId: "ART-MEDIA-SOURCE-MANIFEST"
   authorityClass: "CROSS_PHASE_GOVERNANCE"
 records:
+  - path: ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml"
+    artifactId: "ART-MEDIA-CLI-HOST-CONSUMER-REGISTRY"
+    authorityClass: "OBSERVATION_ONLY_SOURCE"
+  - path: ".product-experience/pdp-3-product-experience/cli/source-crosswalk.yaml"
+    artifactId: "ART-MEDIA-CLI-SOURCE-CROSSWALK"
+    authorityClass: "OBSERVATION_ONLY_SOURCE"
   - path: ".product-experience/PRODUCT-CONSTITUTION.md"
     artifactId: "ART-P0-CONSTITUTION-REFERENCE"
     authorityClass: "CROSS_PHASE_GOVERNANCE"

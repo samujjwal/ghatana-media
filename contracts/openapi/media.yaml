@@ -330,6 +330,7 @@ paths:
       parameters:
         - { $ref: "#/components/parameters/TenantHeader" }
         - { $ref: "#/components/parameters/PrincipalHeader" }
+        - { $ref: "#/components/parameters/IdempotencyKeyHeader" }
       requestBody:
         required: true
         content:
@@ -363,7 +364,8 @@ paths:
       x-ghatana-idempotency:
         required: true
         payloadHashRequired: true
-        scopeTemplate: tenantId|uploadRequest
+        scopeTemplate: tenantId|principalId|idempotencyKey
+        payloadBinding: canonical-media-upload-request-v1
   /api/v1/artifacts/uploads/{uploadId}:
     get:
       tags: [Uploads]
@@ -479,8 +481,13 @@ paths:
       x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
       x-ghatana-idempotency:
         required: true
-        payloadHashRequired: true
-        scopeTemplate: tenantId|uploadId|contentHash
+        scopeTemplate: tenantId|principalId|uploadId
+        payloadBinding: persisted-upload-request-fingerprint-and-stable-artifact-id
+        replayConditions:
+          - authenticated-principal-matches-upload-owner
+          - upload-request-fingerprint-is-present-and-valid
+          - completion-record-identifies-the-original-artifact
+        legacyOrUncertainState: fail-closed-without-recreating-the-artifact
   /api/v1/artifacts/{artifactId}:
     get:
       tags: [Artifacts]
@@ -1166,8 +1173,15 @@ components:
             description: Maximum 1 GiB upload.,
           }
         expectedSha256: { type: string, pattern: "^[0-9a-fA-F]{64}$" }
-        classification: { type: string }
-        retention: { type: string, format: duration }
+        classification:
+          type: string
+          enum: [PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED]
+        retention:
+          {
+            type: string,
+            format: duration,
+            description: Positive duration up to 3650 days with millisecond precision.,
+          }
         metadata:
           { type: object, additionalProperties: true, maxProperties: 64 }
     UploadSession: { type: object, additionalProperties: true }

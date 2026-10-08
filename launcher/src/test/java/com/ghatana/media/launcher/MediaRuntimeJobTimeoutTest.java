@@ -62,9 +62,9 @@ class MediaRuntimeJobTimeoutTest {
                     "application/octet-stream",
                     content.length,
                     sha256(content),
-                    "confidential",
+                    "CONFIDENTIAL",
                     Duration.ofHours(1),
-                    Map.of()));
+                    Map.of()), "job-timeout-upload");
             runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0, content);
             var artifact = runtime.completeUpload("tenant-a", "principal-a", upload.uploadId());
 

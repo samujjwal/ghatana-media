@@ -1,7 +1,7 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { EmptyState } from "../foundations";
+import { EmptyState, FileUpload } from "../foundations";
 import { MediaTaskFlow } from "../components/MediaTaskFlow";
 import { MediaTaskScreen } from "./MediaTaskScreen";
 import { FirstUseProjectScreen } from "./FirstUseProjectScreen";
@@ -133,16 +133,16 @@ describe("Shared control reuse in Media screens", () => {
     }))).toHaveLength(1);
 
     expect(projectHtml).toContain('role="status" aria-label="No authorized projects are available in this workspace yet."');
-    expect(projectHtml).toContain('class="flex flex-col items-center justify-center text-center py-12 media-empty-state"');
-    expect(projectHtml).toContain("<h3 class=\"font-semibold text-gray-900 text-lg\">No authorized projects are available in this workspace yet.</h3>");
-    expect(projectHtml).not.toMatch(/<div class="[^"]*flex flex-col[^"]*"[^>]*style=/);
+    expect(projectHtml).toContain('class="gh-empty-state gh-empty-state--panel" data-size="md" role="status"');
+    expect(projectHtml).toContain('<h3 class="gh-empty-state__title">No authorized projects are available in this workspace yet.</h3>');
+    expect(projectHtml).not.toContain('style=');
     expect(artifactHtml).toContain('role="status" aria-label="No artifact records are available in this projection."');
-    expect(artifactHtml).toContain('class="flex flex-col items-center justify-center text-center py-12 media-empty-state"');
-    expect(artifactHtml).toContain("<h3 class=\"font-semibold text-gray-900 text-lg\">No artifact records are available in this projection.</h3>");
-    expect(artifactHtml).not.toMatch(/<div class="[^"]*flex flex-col[^"]*"[^>]*style=/);
+    expect(artifactHtml).toContain('class="gh-empty-state gh-empty-state--panel" data-size="md" role="status"');
+    expect(artifactHtml).toContain('<h3 class="gh-empty-state__title">No artifact records are available in this projection.</h3>');
+    expect(artifactHtml).not.toContain('style=');
   });
 
-  it("keeps source selection native so the host receives the complete selected File list", () => {
+  it("uses Shared FileUpload while forwarding the complete native File selection to the host", () => {
     const onSourceFilesSelected = vi.fn();
     const props = {
       data,
@@ -153,24 +153,35 @@ describe("Shared control reuse in Media screens", () => {
     };
     const element = React.createElement(ArtifactIntakeScreen, props);
     const html = renderToStaticMarkup(element);
-    expect(html).toContain('<input id="media-source-files" type="file" multiple="" aria-describedby="media-upload-disclosure"/>');
-    expect(html).not.toContain("data-ds=");
+    expect(html).toContain('class="gh-file-upload"');
+    expect(html).toContain('<label for="media-source-files" class="gh-file-upload__label">Choose source media</label>');
+    expect(html).toMatch(/<input[^>]*type="file"[^>]*multiple=""[^>]*id="media-source-files"/);
+    expect(html).toContain('class="gh-file-upload__input"');
+    expect(html).toContain('class="gh-file-upload__helper"');
+    expect(html).not.toContain("style=");
 
     const screen = ArtifactIntakeScreen(props);
-    const inputs: React.ReactElement[] = [];
+    const fileUploads: React.ReactElement[] = [];
     const visit = (node: React.ReactNode): void => {
       if (Array.isArray(node)) {
         node.forEach(visit);
         return;
       }
       if (!React.isValidElement(node)) return;
-      if (node.type === "input") inputs.push(node);
+      if (node.type === FileUpload) fileUploads.push(node);
       else visit((node.props as { children?: React.ReactNode }).children);
     };
     visit(screen);
-    expect(inputs).toHaveLength(1);
-    const onChange = (inputs[0]!.props as { onChange: (event: unknown) => void }).onChange;
-    const files = [{ name: "source-a.mov" }, { name: "source-b.wav" }] as File[];
+    expect(fileUploads).toHaveLength(1);
+    const uploadProps = fileUploads[0]!.props as {
+      multiple?: boolean;
+      showPreview?: boolean;
+      dragAndDrop?: boolean;
+      onChange: (event: unknown) => void;
+    };
+    expect(uploadProps).toMatchObject({ multiple: true, showPreview: false, dragAndDrop: false });
+    const onChange = uploadProps.onChange;
+    const files = Array.from({ length: 125 }, (_, index) => ({ name: `source-${index}.mov` })) as File[];
     onChange({ currentTarget: { files } });
     expect(onSourceFilesSelected).toHaveBeenCalledWith(files);
   });

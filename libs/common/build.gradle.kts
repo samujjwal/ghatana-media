@@ -35,6 +35,7 @@ dependencies {
 
     // Jackson for type-safe JSON serialisation in platform clients
     implementation(libs.jackson.databind)
+    implementation(libs.networknt.validator)
 
     // Logging
     implementation(libs.slf4j.api)

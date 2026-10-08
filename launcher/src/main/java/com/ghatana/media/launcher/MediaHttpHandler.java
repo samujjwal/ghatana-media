@@ -39,7 +39,7 @@ public final class MediaHttpHandler implements HttpHandler {
             "/health", "/health/live", "/health/ready", "/health/startup",
             "/ready", "/metrics", "/info", "/api/v1/health");
     private static final Pattern UPLOAD_PATH = Pattern.compile("^/api/v1/artifacts/uploads/([^/]+)$");
-    private static final Pattern CHUNK_PATH = Pattern.compile("^/api/v1/artifacts/uploads/([^/]+)/chunks/(\\d+)$");
+    private static final Pattern CHUNK_PATH = Pattern.compile("^/api/v1/artifacts/uploads/([^/]+)/chunks/(-?\\d+)$");
     private static final Pattern COMPLETE_PATH = Pattern.compile("^/api/v1/artifacts/uploads/([^/]+)/complete$");
     private static final Pattern ARTIFACT_PATH = Pattern.compile("^/api/v1/artifacts/([^/]+)$");
     private static final Pattern JOB_PATH = Pattern.compile("^/api/v1/jobs/([^/]+)$");
@@ -225,8 +225,13 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     private void beginUpload(HttpExchange exchange, String tenantId, String principalId) throws IOException {
-        UploadRequest request = mapper.readValue(
-                boundedBody(exchange, runtime.config().maximumBodyBytes()), UploadRequest.class);
+        UploadRequest request;
+        try {
+            request = mapper.readValue(
+                    boundedBody(exchange, runtime.config().maximumBodyBytes()), UploadRequest.class);
+        } catch (Exception invalidBody) {
+            throw new IllegalArgumentException("Upload request body is invalid", invalidBody);
+        }
         if (!tenantId.equals(request.tenantId())) {
             throw new SecurityException("Upload tenant does not match authenticated tenant");
         }
@@ -243,7 +248,8 @@ public final class MediaHttpHandler implements HttpHandler {
                 request.classification(),
                 request.retention(),
                 MediaMetadataSanitizer.sanitize(request.metadata()));
-        json(exchange, 201, runtime.beginUpload(sanitized));
+        String idempotencyKey = requiredHeader(exchange, "Idempotency-Key");
+        json(exchange, 201, runtime.beginUpload(sanitized, idempotencyKey));
     }
 
     private void appendChunk(

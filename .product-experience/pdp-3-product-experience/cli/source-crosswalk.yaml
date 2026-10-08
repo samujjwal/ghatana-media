@@ -1,0 +1,37 @@
+schemaVersion: media.cli-source-crosswalk.v1
+productId: media
+status: bounded-single-command-source-binding; remaining-cli-identities-unresolved
+populations:
+  explorerFixtureCommands:
+    source: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
+    implementation: libs/media-experience-simulation/src/cli.ts
+    count: 11
+    meaning: deterministic-synthetic-fixture-simulator-only
+    productionRuntimeClaims: 0
+  hostConfiguredRuntimeConsumers:
+    source: .product-experience/pdp-3-product-experience/cli/production-command-registry.yaml
+    count: 1
+    identities:
+      - commandId: media.cli.artifact.inspect
+        executable: libs/audio-video-client/package.json#bin.ghatanamedia-api
+        source: libs/audio-video-client/src/cli.ts
+        sdkMethod: libs/audio-video-client/src/operations.ts#MediaOperationClient.getArtifact
+        httpOperation: getMediaArtifact
+        route: GET-/api/v1/artifacts/{artifactId}
+        canonicalOperation: media.operation-slice.inspect-artifact
+        admission: existing-bounded-query-semantics-PXD-040-and-PXD-044-only
+        productionHost: explicitly-supplied-by-caller; no-host-is-qualified
+  unresolvedHistoricalAndProposedIdentities:
+    source: .product-experience/pdp-3-product-experience/cli-command-registry.yaml
+    sourcePopulation: 12
+    classification: proposed-command-identities-not-equivalent-to-fixture-commands-or-installed-consumer
+    reconciliation: all-12-identities-remain-individually-unresolved; the-new-host-configured-query-does-not-close-or-alias-any-historical-entry
+    nonEquivalentNearbyIdentity:
+      commandId: media.cli.upload.inspect
+      requestIdentity: uploadId-via---upload
+      distinction: upload-session-inspection-is-not-artifact-identity-inspection; no-uploadId-to-artifactId-conversion-is-invented
+identityRule: matching-command-words-do-not-establish-operation-or-runtime-parity
+verification:
+  sourceTest: tests/media-cli-artifact-inspect-source.test.mjs
+  executableWireTest: libs/audio-video-client/src/cli.test.ts
+  status: local-source-and-loopback-fixture-tests-required; production-host-proof-not-claimed

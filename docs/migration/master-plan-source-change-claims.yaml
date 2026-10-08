@@ -622,6 +622,13 @@ claimDecompositions:
     dependency: Resolve this source assertion against its exact canonical PDP record with the responsible owner. For owner,
       consumer, qualification, or public-contract assertions, record the required independent review or runtime/contract
       evidence before adjudication.
+    boundedOwnerReconciliation:
+      reconciliationArtifact: .product-experience/pdp-0-product-truth/migration-semantics-review.yaml
+      reconciliationClaimIds: [MSC-10-C04]
+      disposition: OWNER_ROUTING_SUPPORTED
+      reconciledScope: PDP-2 label and authority routing only.
+      limits: PDP-2 record acceptance, the legacy task crosswalk, and phase acceptance remain unresolved.
+      acceptanceEffect: none
     acceptanceEffect: none
   - claimId: MSC-10-MSD-027-L1217-C01
     clusterId: MSC-10
@@ -658,6 +665,13 @@ claimDecompositions:
     dependency: Resolve this source assertion against its exact canonical PDP record with the responsible owner. For owner,
       consumer, qualification, or public-contract assertions, record the required independent review or runtime/contract
       evidence before adjudication.
+    boundedOwnerReconciliation:
+      reconciliationArtifact: .product-experience/pdp-0-product-truth/migration-semantics-review.yaml
+      reconciliationClaimIds: [MSC-10-C05]
+      disposition: OWNER_ROUTING_SUPPORTED
+      reconciledScope: Route discovered product-semantic changes to their existing PDP-0 or PDP-1 owner.
+      limits: This does not decide whether a particular change is semantic or accept any PDP proposal.
+      acceptanceEffect: none
     acceptanceEffect: none
   - claimId: MSC-10-MSD-028-L1221-C01
     clusterId: MSC-10
@@ -755,6 +769,13 @@ claimDecompositions:
     dependency: Resolve this source assertion against its exact canonical PDP record with the responsible owner. For owner,
       consumer, qualification, or public-contract assertions, record the required independent review or runtime/contract
       evidence before adjudication.
+    boundedOwnerReconciliation:
+      reconciliationArtifact: .product-experience/pdp-0-product-truth/migration-semantics-review.yaml
+      reconciliationClaimIds: [MSC-10-C06]
+      disposition: OWNER_ROUTING_SUPPORTED
+      reconciledScope: PDP-3 label and authority routing only.
+      limits: Per-record experience semantics, independent review, and phase acceptance remain unresolved.
+      acceptanceEffect: none
     acceptanceEffect: none
   - claimId: MSC-10-MSD-033-L1243-C02
     clusterId: MSC-10
@@ -773,6 +794,13 @@ claimDecompositions:
     dependency: Resolve this source assertion against its exact canonical PDP record with the responsible owner. For owner,
       consumer, qualification, or public-contract assertions, record the required independent review or runtime/contract
       evidence before adjudication.
+    boundedOwnerReconciliation:
+      reconciliationArtifact: .product-experience/pdp-0-product-truth/migration-semantics-review.yaml
+      reconciliationClaimIds: [MSC-10-C01, MSC-10-C02, MSC-10-C03]
+      disposition: PARTIAL_OWNER_ROUTING_SUPPORTED
+      reconciledScope: PDP-0, PDP-1, and PDP-2 are the named upstream authorities for PDP-3 input routing.
+      limits: The word accepted, upstream record acceptance, and complete PDP-3 scope are unresolved.
+      acceptanceEffect: none
     acceptanceEffect: none
   - claimId: MSC-10-MSD-034-L1303-C01
     clusterId: MSC-10
@@ -830,6 +858,13 @@ claimDecompositions:
     dependency: Resolve this source assertion against its exact canonical PDP record with the responsible owner. For owner,
       consumer, qualification, or public-contract assertions, record the required independent review or runtime/contract
       evidence before adjudication.
+    boundedOwnerReconciliation:
+      reconciliationArtifact: .product-experience/pdp-0-product-truth/migration-semantics-review.yaml
+      reconciliationClaimIds: [MSC-10-C07]
+      disposition: OWNER_ROUTING_SUPPORTED
+      reconciledScope: Explorer is outside the canonical PDP phases.
+      limits: Explorer completeness, runtime behavior, and acceptance remain unresolved.
+      acceptanceEffect: none
     acceptanceEffect: none
   - claimId: MSC-10-MSD-037-L1392-C01
     clusterId: MSC-10
@@ -869,6 +904,13 @@ claimDecompositions:
     dependency: Resolve this source assertion against its exact canonical PDP record with the responsible owner. For owner,
       consumer, qualification, or public-contract assertions, record the required independent review or runtime/contract
       evidence before adjudication.
+    boundedOwnerReconciliation:
+      reconciliationArtifact: .product-experience/pdp-0-product-truth/migration-semantics-review.yaml
+      reconciliationClaimIds: [MSC-10-C08]
+      disposition: PARTIAL_OWNER_ROUTING_SUPPORTED
+      reconciledScope: Explorer remains outside the PDP authority phases.
+      limits: The adjacent production-measurement assertion and remaining Explorer-verification criteria are unresolved.
+      acceptanceEffect: none
     acceptanceEffect: none
   - claimId: MSC-12-MSD-043-L1506-C01
     clusterId: MSC-12

@@ -2,15 +2,18 @@
   "name": "@audio-video/client",
   "version": "0.1.0-SNAPSHOT",
   "description": "Operation-oriented TypeScript client for governed media artifacts and processing jobs",
+  "bin": {
+    "ghatanamedia-api": "./dist/cli.js"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/ensure-cli-executable.mjs",
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "test": "vitest run",
+    "test": "pnpm build && vitest run",
     "test:watch": "vitest",
     "check": "pnpm typecheck && pnpm test && pnpm build"
   },

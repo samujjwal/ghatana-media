@@ -873,6 +873,14 @@ constitute runtime or phase acceptance.
 - **Unresolved discrepancy:** OpenAPI declares create/completion payload-hash idempotency while the current runtime does not bind the create key or expose a completion request-key contract. Exact authority, replay, provider/storage qualification and complete upload command semantics remain unadmitted.
 - **Excludes:** full operation/interface parity, production host identity, rights/budget authority, independent review, native Lifecycle receipts or release.
 
+### PXD-046 — Define the existing upload commands with bounded replay and expiry semantics
+
+- **Authority:** explicit October 8, 2026 delegated Media Product Semantic Owner authority.
+- **Approved definition:** begin binds tenant, owning principal and caller key to the immutable full versioned request fingerprint. Equal replay returns the original session and its observed progress; unequal payload rejects with HTTP 400 before another upload is created. New chunks are contiguous; manual prior-index replay requires a persisted matching index/length/digest receipt and makes no second write. Conflicting chunks or upload state return HTTP 409. Lost acknowledgements remain unknown and never authorize automatic SDK mutation replay.
+- **Completion:** an unexpired OPEN upload must have all expected bytes and the expected SHA-256 before finalization. Persist the original artifact identity before moving/claiming the effect; repeats return that identity. Completion has no body or caller request key. An artifact receipt does not grant rights, consent, publication or current availability. Begin/completion event attempts occur only on new store transitions; this is not an outbox or exactly-once delivery guarantee.
+- **Evidence and limits:** actual Local and PostgreSQL scoped replay/concurrency tests support the bounded source behavior. Local v2 chunk manifests also verify stored segments and reject malformed, missing or inconsistent receipts; PostgreSQL duplicate acknowledgements compare its persisted receipt. Reopening/store recreation is distinct from process-kill, fsync, cross-process storage, load/soak and production durability qualification. Legacy or uncertain state fails closed.
+- **Acceptance boundary:** these are Media-owned definitions for three existing commands, not complete operation or cross-interface admission. Trusted host identity, current policy/rights/consent, public artifact binding, provider/storage qualification, independent acceptance, native Lifecycle receipts and release remain open. `runtimeAdmission` stays `NOT_ADMITTED`; original 71-task Done criteria are unchanged.
+
 ## Governance decisions for this authority root
 
 ### GOV-AUTH-001 — Use authored partial relations for traceability

@@ -173,24 +173,9 @@
 .media-task-flow dd { margin: .15rem 0 0; overflow-wrap: anywhere; }
 .media-task-flow ul,
 .media-task-flow ol { padding-inline-start: 1.5rem; }
-.media-task-flow [role="status"] { border-inline-start: .2rem solid Highlight; padding-inline-start: .65rem; }
+.media-task-flow [role="status"]:not(.gh-empty-state) { border-inline-start: .2rem solid Highlight; padding-inline-start: .65rem; }
 .media-task-flow .media-screen-body { display: grid; gap: 1rem; }
 .media-task-flow .media-screen-body > header { display: grid; gap: .25rem; }
-.media-task-flow .media-screen-body .media-empty-state {
-  display: grid;
-  justify-items: center;
-  gap: .5rem;
-  min-block-size: 8rem;
-  margin: 0;
-  padding: 1.25rem;
-  border: 1px dashed GrayText;
-  border-radius: .5rem;
-  color: CanvasText;
-  background: Canvas;
-  text-align: center;
-}
-.media-task-flow .media-screen-body .media-empty-state > h3 { margin: 0; color: inherit; font-size: 1rem; }
-.media-task-flow .media-screen-body .media-empty-state > p { max-width: 56ch; margin: 0; color: GrayText; }
 .media-task-flow .media-screen-body > ul,
 .media-task-flow .media-screen-body > ol { margin: 0; }
 .media-task-flow .media-screen-body > ul > li,

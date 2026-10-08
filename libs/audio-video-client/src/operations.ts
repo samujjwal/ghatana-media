@@ -47,12 +47,14 @@ export interface MediaOperationClientConfig {
 }
 
 /** Runtime UploadRequest fields accepted by POST /api/v1/artifacts/uploads. */
+export type CanonicalMediaClassification = "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "RESTRICTED";
+
 export interface CreateUploadSessionRequest {
   readonly fileName: string;
   readonly contentType: string;
   readonly expectedSizeBytes: number;
   readonly expectedSha256: string;
-  readonly classification: string;
+  readonly classification: CanonicalMediaClassification;
   /** ISO-8601 duration parsed by the runtime, for example PT24H. */
   readonly retention: string;
   readonly metadata?: Readonly<Record<string, unknown>>;
@@ -69,7 +71,7 @@ export interface CanonicalMediaUploadSessionObservation {
   readonly contentType: string;
   readonly expectedSizeBytes: number;
   readonly expectedSha256: string;
-  readonly classification: string;
+  readonly classification: CanonicalMediaClassification;
   readonly createdAt: string;
   readonly expiresAt: string;
   readonly bytesReceived: number;
@@ -113,7 +115,7 @@ export interface CanonicalMediaArtifactObservation {
   readonly sizeBytes: number;
   readonly sha256: string;
   readonly objectReference: string;
-  readonly classification: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "RESTRICTED";
+  readonly classification: CanonicalMediaClassification;
   readonly createdAt: string;
   readonly expiresAt: string;
   readonly metadata: Readonly<Record<string, unknown>>;
@@ -134,6 +136,52 @@ function canonicalJson(value: unknown): string {
 
 function sameJson(left: unknown, right: unknown): boolean {
   return canonicalJson(left) === canonicalJson(right);
+}
+
+interface ParsedUtcInstant {
+  readonly value: string;
+  readonly epochSecond: number;
+  readonly nanosecond: number;
+}
+
+/** Validate an exact UTC Java-Instant-shaped value without Date.parse rollover normalization. */
+function parseCanonicalUtcInstant(field: unknown, label: string): ParsedUtcInstant {
+  const match = typeof field === "string"
+    ? /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,9}))?Z$/u.exec(field)
+    : null;
+  if (!match) throw new TypeError(`${label} must be an ISO-8601 UTC timestamp.`);
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+  const second = Number(match[6]);
+  const fraction = match[7] ?? "";
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysPerMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (month < 1 || month > 12 || day < 1 || day > (daysPerMonth[month - 1] ?? 0)
+    || hour > 23 || minute > 59 || second > 59) {
+    throw new TypeError(`${label} must be an ISO-8601 UTC timestamp.`);
+  }
+  const instant = new Date(0);
+  instant.setUTCFullYear(year, month - 1, day);
+  instant.setUTCHours(hour, minute, second, 0);
+  const epochSecond = instant.getTime() / 1000;
+  if (!Number.isFinite(epochSecond)) throw new TypeError(`${label} must be an ISO-8601 UTC timestamp.`);
+  return {
+    value: field as string,
+    epochSecond,
+    nanosecond: Number((fraction + "000000000").slice(0, 9)),
+  };
+}
+
+function isLaterUtcInstant(candidate: ParsedUtcInstant, reference: ParsedUtcInstant): boolean {
+  return candidate.epochSecond > reference.epochSecond
+    || (candidate.epochSecond === reference.epochSecond && candidate.nanosecond > reference.nanosecond);
+}
+
+function isCanonicalMediaClassification(value: unknown): value is CanonicalMediaClassification {
+  return value === "PUBLIC" || value === "INTERNAL" || value === "CONFIDENTIAL" || value === "RESTRICTED";
 }
 
 function uploadImmutableFieldsMatch(
@@ -193,23 +241,21 @@ function parseCanonicalMediaUploadSession(input: unknown): CanonicalMediaUploadS
     && status !== "ABORTED" && status !== "EXPIRED") {
     throw new TypeError("Canonical Media upload status is outside the runtime enum.");
   }
-  const timestamp = (key: string): string => {
-    const field = requiredText(key);
-    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/u.test(field)
-      || !Number.isFinite(Date.parse(field))) throw new TypeError(`Canonical Media upload ${key} must be an ISO-8601 UTC timestamp.`);
-    return field;
-  };
+  const classification = value.classification;
+  if (!isCanonicalMediaClassification(classification)) {
+    throw new TypeError("Canonical Media upload classification is outside the runtime enum.");
+  }
   const metadata = value.metadata;
   if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
     throw new TypeError("Canonical Media upload metadata must be an object.");
   }
-  const createdAt = timestamp("createdAt");
-  const expiresAt = timestamp("expiresAt");
-  if (Date.parse(expiresAt) <= Date.parse(createdAt)) throw new TypeError("Canonical Media upload expiry must follow creation.");
+  const createdAt = parseCanonicalUtcInstant(value.createdAt, "Canonical Media upload createdAt");
+  const expiresAt = parseCanonicalUtcInstant(value.expiresAt, "Canonical Media upload expiresAt");
+  if (!isLaterUtcInstant(expiresAt, createdAt)) throw new TypeError("Canonical Media upload expiry must follow creation.");
   return {
     uploadId: requiredText("uploadId"), tenantId: requiredText("tenantId"), principalId: requiredText("principalId"),
     fileName: requiredText("fileName"), contentType: requiredText("contentType"), expectedSizeBytes,
-    expectedSha256, classification: requiredText("classification"), createdAt, expiresAt, bytesReceived, nextChunkIndex, status,
+    expectedSha256, classification, createdAt: createdAt.value, expiresAt: expiresAt.value, bytesReceived, nextChunkIndex, status,
     metadata: metadata as Readonly<Record<string, unknown>>,
   };
 }
@@ -248,25 +294,18 @@ function parseCanonicalMediaArtifactObservation(input: unknown): CanonicalMediaA
     throw new TypeError("Canonical Media artifact sizeBytes must be a positive safe integer.");
   }
   const classification = value.classification;
-  if (classification !== "PUBLIC" && classification !== "INTERNAL"
-    && classification !== "CONFIDENTIAL" && classification !== "RESTRICTED") {
+  if (!isCanonicalMediaClassification(classification)) {
     throw new TypeError("Canonical Media artifact classification is outside the runtime enum.");
   }
-  const dateTime = (key: string): string => {
-    const field = requiredText(key);
-    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/u.test(field)
-      || !Number.isFinite(Date.parse(field))) {
-      throw new TypeError(`Canonical Media artifact ${key} must be an ISO-8601 UTC timestamp.`);
-    }
-    return field;
-  };
+  const createdAt = parseCanonicalUtcInstant(value.createdAt, "Canonical Media artifact createdAt");
+  const expiresAt = parseCanonicalUtcInstant(value.expiresAt, "Canonical Media artifact expiresAt");
   const metadata = value.metadata;
   if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
     throw new TypeError("Canonical Media artifact metadata must be an object.");
   }
   return {
     tenantId, principalId, artifactId, fileName, contentType, sizeBytes, sha256, objectReference,
-    classification, createdAt: dateTime("createdAt"), expiresAt: dateTime("expiresAt"),
+    classification, createdAt: createdAt.value, expiresAt: expiresAt.value,
     metadata: metadata as Readonly<Record<string, unknown>>,
   };
 }
@@ -291,6 +330,21 @@ function safeIdentityHeader(name: string, value: string | undefined): string | u
     throw new Error(`Invalid media client request identity field: ${name}.`);
   }
   return value;
+}
+
+function validateUploadFileName(value: string): void {
+  if (typeof value !== "string" || !value || value.trim() !== value
+    || value === "." || value === ".." || /[\\/]/u.test(value)
+    || /[\u0000-\u001f\u007f-\u009f]/u.test(value)) {
+    throw new Error("fileName must be a canonical single path segment without surrounding whitespace or control characters.");
+  }
+}
+
+function validateUploadTextField(value: string, field: "contentType"): void {
+  if (typeof value !== "string" || !value || value.trim() !== value
+    || /[\u0000-\u001f\u007f-\u009f]/u.test(value)) {
+    throw new Error(`${field} must be non-empty and canonical without surrounding whitespace or control characters.`);
+  }
 }
 
 function boundedPositive(value: number | undefined, fallback: number): number {
@@ -457,8 +511,8 @@ export class MediaOperationClient {
     }
     const idempotencyKey = safeIdentityHeader("idempotencyKey", request.idempotencyKey);
     if (!idempotencyKey) throw new Error("idempotencyKey is required by the declared HTTP contract.");
-    if (!request.fileName.trim()) throw new Error("fileName is required.");
-    if (!request.contentType.trim()) throw new Error("contentType is required.");
+    validateUploadFileName(request.fileName);
+    validateUploadTextField(request.contentType, "contentType");
     if (!Number.isSafeInteger(request.expectedSizeBytes) || request.expectedSizeBytes < 1
       || request.expectedSizeBytes > 1_073_741_824) {
       throw new Error("expectedSizeBytes must be between 1 byte and the 1 GiB contract limit.");
@@ -466,7 +520,10 @@ export class MediaOperationClient {
     if (!/^[a-fA-F0-9]{64}$/u.test(request.expectedSha256)) {
       throw new Error("expectedSha256 must be a SHA-256 hex digest.");
     }
-    if (!request.classification.trim()) throw new Error("classification is required.");
+    if (request.classification !== "PUBLIC" && request.classification !== "INTERNAL"
+      && request.classification !== "CONFIDENTIAL" && request.classification !== "RESTRICTED") {
+      throw new Error("classification must be one of PUBLIC, INTERNAL, CONFIDENTIAL, or RESTRICTED.");
+    }
     if (!request.retention.trim()) throw new Error("retention ISO-8601 duration is required.");
     if (request.metadata !== undefined && (!request.metadata || typeof request.metadata !== "object"
       || Array.isArray(request.metadata) || Object.keys(request.metadata).length > 64)) {
@@ -549,6 +606,35 @@ export class MediaOperationClient {
       clearTimeout(timeout);
       unlink();
     }
+  }
+
+  /** Read the caller-scoped upload-session observation; this does not authorize or replay a mutation. */
+  public async getUploadSession(
+    uploadId: string,
+    signal?: AbortSignal,
+  ): Promise<CanonicalMediaUploadSessionObservation> {
+    const requestedUploadId = safeIdentityHeader("uploadId", uploadId);
+    if (!requestedUploadId) throw new Error("Canonical upload reads require a non-empty upload ID.");
+    if (requestedUploadId === "." || requestedUploadId === ".." || /[\\/]/u.test(requestedUploadId)) {
+      throw new Error("Canonical upload reads require a safe single path-segment upload ID.");
+    }
+    const principalId = this.requirePrincipalId("upload reads");
+    return this.request(
+      "GET",
+      `/api/v1/artifacts/uploads/${encodeURIComponent(requestedUploadId)}`,
+      undefined,
+      {
+        parse: (input: unknown) => {
+          const observation = parseCanonicalMediaUploadSession(input);
+          this.assertUploadScope(observation, principalId);
+          if (observation.uploadId !== requestedUploadId) {
+            throw new TypeError("Canonical Media upload response identity does not match the requested upload.");
+          }
+          return observation;
+        },
+      },
+      signal,
+    );
   }
 
   /** Complete from an exact upload session and bind artifact size/hash to it. */

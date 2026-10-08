@@ -382,7 +382,7 @@
       "status": "REQUESTED; NOT_GRANTED"
     }
   ],
-  "nextExecutableBatch": "Implement persisted tenant/principal/key/full-payload upload begin deduplication and equal Local/PostgreSQL repeated completion; verify adversarial behavior before claiming command admission. Reconcile individual migration changed claims against authoritative PDP sources.",
+  "nextExecutableBatch": "Reject lossy/non-JSON SDK upload metadata before dispatch; migrate the existing SDK job status read to its exact scoped canonical runtime DTO and reconcile its historical identity; then bind the selected upload journey host controller to already-defined operations.",
   "limitations": [
     "No original task newly satisfies all Done criteria in this batch.",
     "No existing AI provider opts in to typed references.",
@@ -433,6 +433,372 @@
         "receipts": 0
       },
       "worktree": "Concurrent upload/migration/Shared implementation ongoing; only six reviewed root source paths included in this commit."
+    },
+    {
+      "baseMain": "cae6fc6bd60e48a3fe945a4a8873bb928a2d67b1",
+      "branch": "main",
+      "scope": "Persisted upload begin/chunk/completion and event dispositions; bounded owner definitions PXD-046; exact SDK upload read and host-configured CLI query; strict calendar/classification validation; Shared EmptyState/FileUpload actual consumer; bounded Agent Tool successful-result schema validation; individual migration routing reconciliation",
+      "changedFiles": [
+        ".product-experience/artifact-identities.yaml",
+        ".product-experience/decision-log.md",
+        ".product-experience/executable-representation/export-map.yaml",
+        ".product-experience/gaps.yaml",
+        ".product-experience/interface-parity/operation-parity.yaml",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml",
+        ".product-experience/pdp-1-domain-data/events.yaml",
+        ".product-experience/pdp-1-domain-data/evidence.yaml",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/provenance.yaml",
+        ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
+        ".product-experience/pdp-2-design-interface-system/events/conventions.yaml",
+        ".product-experience/pdp-2-design-interface-system/executable-ui-inventory.json",
+        ".product-experience/pdp-2-design-interface-system/executable-ui-inventory.md",
+        ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json",
+        ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml",
+        ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+        ".product-experience/pdp-3-product-experience/cli/source-crosswalk.yaml",
+        ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
+        ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml",
+        ".product-experience/source-manifest.yaml",
+        "apps/media-experience-explorer/specification-artifacts.json",
+        "apps/media-experience-explorer/src/strict-csp-controls.tsx",
+        "config/closure/media-product-definition/l03-proof-route-candidates.json",
+        "config/closure/media-product-definition/obligations.json",
+        "contracts/openapi/media.yaml",
+        "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "docs/migration/master-plan-source-change-claims.yaml",
+        "launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeActiveTest.java",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeJobGovernanceTest.java",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeJobTimeoutTest.java",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java",
+        "libs/audio-video-client/README.md",
+        "libs/audio-video-client/package.json",
+        "libs/audio-video-client/scripts/ensure-cli-executable.mjs",
+        "libs/audio-video-client/src/cli.test.ts",
+        "libs/audio-video-client/src/cli.ts",
+        "libs/audio-video-client/src/operations.test.ts",
+        "libs/audio-video-client/src/operations.ts",
+        "libs/audio-video-ui/src/foundations/index.ts",
+        "libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx",
+        "libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx",
+        "libs/audio-video-ui/src/screens/shared-control-reuse.test.ts",
+        "libs/audio-video-ui/src/styles.css",
+        "libs/common/build.gradle.kts",
+        "libs/common/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java",
+        "libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java",
+        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactStore.java",
+        "providers/aws-postgresql/src/main/resources/db/media-runtime/V009__media_upload_idempotency.sql",
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java",
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaPostgresqlArtifactPurgeCommitFailureTest.java",
+        "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaPostgresqlS3TenantIsolationTest.java",
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java",
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaUploadRequestFingerprint.java",
+        "runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaUploadRequestFingerprintTest.java",
+        "scripts/check-media-contract-parity.mjs",
+        "scripts/check-shared-controls-strict-csp.mjs",
+        "scripts/lib/media-product-definition-residuals.mjs",
+        "tests/media-agent-tool-contracts.test.mjs",
+        "tests/media-capability-review-source-impact.test.mjs",
+        "tests/media-cli-artifact-inspect-source.test.mjs",
+        "tests/media-contract-parity.test.mjs",
+        "tests/media-dependency-inventory.test.mjs",
+        "tests/media-migration-new-source-claims.test.mjs",
+        "tests/media-migration-semantics-ledger.test.mjs",
+        "tests/media-operation-parity-source-denominators.test.mjs",
+        "tests/media-privacy-consistency-source.test.mjs",
+        "tests/media-product-definition-residuals.test.mjs",
+        "tests/media-runtime-openapi-job-status.test.mjs",
+        "tests/media-ui-reuse-inventory.test.mjs",
+        "tests/media-upload-operation-contracts.test.mjs",
+        "tests/product-definition-authority.test.mjs"
+      ],
+      "newlyCompleteOriginalTasks": 0,
+      "taskStatusCounts": {
+        "complete": 6,
+        "partial": 51,
+        "blocked-external/independent": 14
+      },
+      "before": {
+        "projectionBlockers": {
+          "PDP-0": 1,
+          "PDP-2": 0,
+          "PDP-3": 10
+        },
+        "capabilityCoverage": {
+          "leafCount": 462,
+          "acceptedCoverageCount": 0,
+          "unresolvedCount": 383
+        },
+        "migrationSemantics": {
+          "sourceContentBlocks": 1366,
+          "uniqueContentUnits": 1340,
+          "unresolvedCount": 260,
+          "semanticReviewRequiredCount": 260,
+          "ownerClassifiedNonNormativeCount": 89,
+          "originalStructuralUnresolvedCount": 349,
+          "mixedRequiresDecompositionCount": 124,
+          "partiallyMappedUnresolvedCount": 2,
+          "declaredSourceLineCount": 2815,
+          "currentSourceLineCount": 2829,
+          "staleSourcePinCount": 4,
+          "total": 1340,
+          "applicable": 325
+        },
+        "operationParity": {
+          "surfaceCount": 8,
+          "totalObservedIdentities": 284,
+          "unresolvedIdentityCount": 190,
+          "acceptedBindingCount": 0
+        },
+        "designConformance": {
+          "gateCount": 7,
+          "resolvedOwnerGateCount": 4,
+          "openGateCount": 3
+        },
+        "productExperience": {
+          "screenViewCount": 47,
+          "journeyCount": 30,
+          "projectedJourneyCount": 30,
+          "stepCount": 130,
+          "stepsWithScreenContracts": 130,
+          "stepsWithoutScreenContracts": 0,
+          "stepsWithActionBindings": 18,
+          "stepsWithoutActionBindings": 112,
+          "stepsWithoutAcceptedTransitionBindings": 130
+        },
+        "lifecycle": {
+          "obligationCount": 344,
+          "totalProofRoutes": 344,
+          "obligationsWithCaseIds": 62,
+          "obligationsWithoutCaseIds": 282,
+          "observerAssignments": 0,
+          "oracleAssignments": 0,
+          "providerBindingCount": 0,
+          "localReceiptRecordCount": 0,
+          "l02CandidateLinks": 28,
+          "l02LinkedObligations": 7,
+          "l02UnmappedObligations": 337,
+          "nativeAdmissions": 0
+        },
+        "operationConstraints": {
+          "capabilityLeaves": 462,
+          "unboundedLeaves": 445
+        }
+      },
+      "after": {
+        "capabilityCoverage": {
+          "leafCount": 462,
+          "acceptedCoverageCount": 0,
+          "unresolvedCount": 383
+        },
+        "migrationSemantics": {
+          "uniqueContentUnits": 1340,
+          "unresolvedCount": 260,
+          "originalStructuralUnresolvedCount": 349,
+          "mixedRequiresDecompositionCount": 124,
+          "staleSourcePinCount": 4
+        },
+        "operationParity": {
+          "surfaceCount": 9,
+          "totalObservedIdentities": 286,
+          "unresolvedIdentityCount": 190,
+          "acceptedBindingCount": 0
+        },
+        "designConformance": {
+          "gateCount": 7,
+          "resolvedOwnerGateCount": 4,
+          "openGateCount": 3
+        },
+        "productExperience": {
+          "screenViewCount": 47,
+          "journeyCount": 30,
+          "stepCount": 130,
+          "stepsWithScreenContracts": 130,
+          "stepsWithActionBindings": 18,
+          "stepsWithoutActionBindings": 112,
+          "stepsWithoutAcceptedTransitionBindings": 130
+        },
+        "lifecycle": {
+          "obligationCount": 344,
+          "totalProofRoutes": 344,
+          "obligationsWithCaseIds": 62,
+          "obligationsWithoutCaseIds": 282,
+          "observerAssignments": 0,
+          "oracleAssignments": 0,
+          "providerBindingCount": 0,
+          "localReceiptRecordCount": 0,
+          "nativeAdmissions": 0,
+          "l02CandidateLinks": 28,
+          "l02LinkedObligations": 7,
+          "l02UnmappedObligations": 337
+        },
+        "projectionBlockers": {
+          "PDP-0": 1,
+          "PDP-2": 0,
+          "PDP-3": 10
+        }
+      },
+      "ownerCommits": {
+        "ghatana-shared": "1a3f44dbb62a865195413fac18589ac9d838543d",
+        "ghatana-ai-inference": "f2cafcfae75d263927e97670eebd9049d4625fab"
+      },
+      "verification": {
+        "node": {
+          "tests": 353,
+          "pass": 353,
+          "fail": 0,
+          "skipped": 0,
+          "log": "/tmp/media-execution/node-upload-cli-final.log"
+        },
+        "uploadRuntime": {
+          "tests": 128,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "log": "/tmp/media-b01-final-runtime-tests3.log",
+          "xmlManifest": "/tmp/media-execution/upload-runtime-test-results.json"
+        },
+        "agentHandlers": {
+          "tests": 37,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "sdk": {
+          "tests": 127,
+          "typecheck": "PASS",
+          "build": "PASS"
+        },
+        "mediaUI": {
+          "tests": 24,
+          "typecheck": "PASS",
+          "build": "PASS"
+        },
+        "shared": {
+          "tests": 1744,
+          "typecheck": "PASS",
+          "build": "PASS"
+        },
+        "strictCspBrowser": {
+          "log": "/tmp/media-execution/shared-fileupload-csp-selection.log",
+          "result": "PASS;125 native files, keyboard helper association,320px reflow,zero inline style/CSP violations"
+        },
+        "browser": {
+          "log": "/tmp/media-execution/browser-fileupload-current.log",
+          "result": "PASS;47 routes,6 viewports,317 specification artifacts; no specialist acceptance"
+        },
+        "sharedPublicConsumer": {
+          "log": "/tmp/media-execution/shared-fileupload-consumer.log",
+          "result": "PASS;9 locally packed public artifacts, no immutable registry publication"
+        },
+        "validators": [
+          {
+            "command": "node scripts/generate-media-phase-projections.mjs --check --strict",
+            "exitCode": 0,
+            "log": "/tmp/media-execution/upload-validation-0.log"
+          },
+          {
+            "command": "pnpm check:lifecycle-source-inputs",
+            "exitCode": 0,
+            "log": "/tmp/media-execution/upload-validation-1.log"
+          },
+          {
+            "command": "pnpm audit:lifecycle-obligations",
+            "exitCode": 0,
+            "log": "/tmp/media-execution/upload-validation-2.log"
+          },
+          {
+            "command": "pnpm check:product-definition-authority",
+            "exitCode": 0,
+            "log": "/tmp/media-execution/upload-validation-3.log"
+          },
+          {
+            "command": "pnpm check:product-experience-local",
+            "exitCode": 0,
+            "log": "/tmp/media-execution/upload-validation-4.log"
+          },
+          {
+            "command": "pnpm test:owner-source-selections",
+            "exitCode": 0,
+            "log": "/tmp/media-execution/upload-validation-5.log"
+          },
+          {
+            "command": "pnpm test:typed-contract-bindings",
+            "exitCode": 0,
+            "log": "/tmp/media-execution/upload-validation-6.log"
+          },
+          {
+            "command": "pnpm check:contract-parity",
+            "exitCode": 1,
+            "log": "/tmp/media-execution/upload-validation-7.log"
+          },
+          {
+            "command": "pnpm check:design-conformance",
+            "exitCode": 1,
+            "log": "/tmp/media-execution/upload-validation-8.log"
+          },
+          {
+            "command": "pnpm check:presentation-architecture",
+            "exitCode": 0,
+            "log": "/tmp/media-execution/upload-validation-9.log"
+          },
+          {
+            "command": "pnpm check:lifecycle-closure-inputs",
+            "exitCode": 0,
+            "log": "/tmp/media-execution/upload-validation-10.log"
+          },
+          {
+            "command": "pnpm test:lifecycle-input-preflight",
+            "exitCode": 0,
+            "log": "/tmp/media-execution/upload-validation-11.log"
+          },
+          {
+            "command": "pnpm check:release-profile",
+            "exitCode": 0,
+            "log": "/tmp/media-execution/upload-validation-12.log"
+          }
+        ]
+      },
+      "publicDependencyVersions": {
+        "Tools": "0.1.0-rc.1",
+        "LifecycleEvidenceContracts": "0.1.0-rc.1",
+        "Shared": "0.1.0-SNAPSHOT",
+        "DI": "0.1.0",
+        "AIInferenceOpenAPI": "1.1.0",
+        "DataCloudOpenAPI": "1.2.1",
+        "ActionPlaneOpenAPI": "1.2.0",
+        "EventPlaneOpenAPI": "1.3.0",
+        "NetworkNT": "3.0.6"
+      },
+      "sourceCensus": {
+        "manifestRecords": 316,
+        "explorerRecords": 317,
+        "gradleDeclarations": 315,
+        "sdkLogicalIdentities": 30,
+        "sdkRawRecords": 33,
+        "cliFixtureIdentities": 11,
+        "cliHistoricalProposalsUnresolved": 12,
+        "cliHostConfiguredConsumers": 1,
+        "currentParityFindings": 47,
+        "currentDispositioned": 45,
+        "unresolvedFindings": 2,
+        "historicalFindings": 52,
+        "retiredFindings": 5
+      },
+      "limitations": [
+        "No original task newly satisfies all of its Done criteria.",
+        "Store reopening/recreation is not process-kill,fsync,load/soak or production storage qualification.",
+        "Agent validation uses supplied ToolContract schema; four canonical input/result schema/version/operation admissions remain unresolved.",
+        "No trusted-host, rights/consent, specialist approval, native Lifecycle receipt, commercial release or production availability is inferred."
+      ],
+      "nextExecutableBatch": "Reject lossy/non-JSON SDK upload metadata before dispatch; migrate the existing SDK job status read to its exact scoped canonical runtime DTO and reconcile its historical identity; then bind the selected upload journey host controller to already-defined operations."
     }
-  ]
+  ],
+  "latestBatch": 1
 }

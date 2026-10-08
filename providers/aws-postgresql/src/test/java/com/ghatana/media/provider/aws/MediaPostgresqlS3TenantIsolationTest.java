@@ -2,6 +2,7 @@ package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer;
@@ -41,6 +42,41 @@ class MediaPostgresqlS3TenantIsolationTest {
             DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
 
     @Test
+    void idempotentBeginAndCompletionSurviveStoreRecreation() throws Exception {
+        String bucket = createBucketAndStoreName();
+        Map<String, String> environment = integrationEnvironment(bucket);
+        byte[] bytes = "restart-stable-upload".getBytes(StandardCharsets.UTF_8);
+        UploadRequest request = upload("tenant-a", "principal-a", "restart.bin", bytes, Duration.ofDays(30));
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment)) {
+            try (S3PostgresqlMediaArtifactStore initial = new S3PostgresqlMediaArtifactStore()) {
+                UploadSession firstUpload = initial.begin(request, "restart-key");
+                MediaArtifact firstArtifact;
+                try (S3PostgresqlMediaArtifactStore firstStore = new S3PostgresqlMediaArtifactStore()) {
+                    // A separately constructed store resolves the persisted request identity.
+                    var replay = firstStore.begin(request, "restart-key");
+                    assertThat(replay.uploadId()).isEqualTo(firstUpload.uploadId());
+                    firstStore.append("tenant-a", "principal-a", replay.uploadId(), 0, bytes);
+                    firstArtifact = firstStore.complete("tenant-a", "principal-a", replay.uploadId());
+                    try (S3PostgresqlMediaArtifactStore restarted = new S3PostgresqlMediaArtifactStore()) {
+                        firstStore.close();
+                        var afterRestart = restarted.begin(request, "restart-key");
+                        assertThat(afterRestart.uploadId()).isEqualTo(firstUpload.uploadId());
+                        assertThat(afterRestart.createdAt()).isEqualTo(firstUpload.createdAt());
+                        assertThat(afterRestart.expiresAt()).isEqualTo(firstUpload.expiresAt());
+                        assertThat(restarted.complete("tenant-a", "principal-a", afterRestart.uploadId()))
+                                .isEqualTo(firstArtifact);
+                        assertThatThrownBy(() -> restarted.begin(
+                                upload("tenant-a", "principal-a", "different.bin", bytes, Duration.ofDays(30)),
+                                "restart-key"))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("different upload request");
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     void uploadAndArtifactOperationsAreScopedByTenant() throws Exception {
         String bucket = createBucketAndStoreName();
         Map<String, String> environment = integrationEnvironment(bucket);
@@ -48,7 +84,7 @@ class MediaPostgresqlS3TenantIsolationTest {
              AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
              S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
             byte[] bytes = "tenant-scoped-upload".getBytes(StandardCharsets.UTF_8);
-            var upload = store.begin(upload("tenant-a", "principal-a", "a.bin", bytes, Duration.ofDays(30)));
+            var upload = store.begin(upload("tenant-a", "principal-a", "a.bin", bytes, Duration.ofDays(30)), "tenant-a-a");
 
             assertThat(store.upload("tenant-b", upload.uploadId())).isEmpty();
             assertThatThrownBy(() -> store.append("tenant-a", "principal-b", upload.uploadId(), 0, bytes))
@@ -67,6 +103,7 @@ class MediaPostgresqlS3TenantIsolationTest {
             assertThat(store.upload("tenant-a", upload.uploadId()).orElseThrow().bytesReceived()).isZero();
             store.append("tenant-a", upload.principalId(), upload.uploadId(), 0, bytes);
             MediaArtifact artifact = store.complete("tenant-a", upload.principalId(), upload.uploadId());
+            assertThat(store.complete("tenant-a", upload.principalId(), upload.uploadId())).isEqualTo(artifact);
             String objectKey = URI.create(artifact.objectReference()).getPath().substring(1);
             assertThat(store.artifact("tenant-a", artifact.artifactId())).contains(artifact);
             assertThat(store.artifact("tenant-b", artifact.artifactId())).isEmpty();
@@ -91,9 +128,9 @@ class MediaPostgresqlS3TenantIsolationTest {
             byte[] chunkA = "expired-upload-chunk".getBytes(StandardCharsets.UTF_8);
             byte[] chunkB = "retained-upload-chunk".getBytes(StandardCharsets.UTF_8);
             var uploadA = store.begin(upload("tenant-a", "principal-a", "pending-a.bin", chunkA,
-                    Duration.ofDays(30)));
+                    Duration.ofDays(30)), "pending-a");
             var uploadB = store.begin(upload("tenant-b", "principal-b", "pending-b.bin", chunkB,
-                    Duration.ofDays(30)));
+                    Duration.ofDays(30)), "pending-b");
             store.append("tenant-a", uploadA.principalId(), uploadA.uploadId(), 0, chunkA);
             store.append("tenant-b", uploadB.principalId(), uploadB.uploadId(), 0, chunkB);
             String chunkKeyA = chunkObjectKey("tenant-a", uploadA.uploadId());
@@ -163,7 +200,7 @@ class MediaPostgresqlS3TenantIsolationTest {
     private static UploadRequest upload(
             String tenantId, String principalId, String fileName, byte[] bytes, Duration retention) throws Exception {
         return new UploadRequest(tenantId, principalId, fileName, "application/octet-stream", bytes.length,
-                sha256(bytes), "restricted", retention, Map.of());
+                sha256(bytes), "RESTRICTED", retention, Map.of());
     }
 
     private static MediaArtifact complete(
@@ -172,7 +209,8 @@ class MediaPostgresqlS3TenantIsolationTest {
             String principalId,
             String fileName,
             byte[] bytes) throws Exception {
-        var upload = store.begin(upload(tenantId, principalId, fileName, bytes, Duration.ofDays(30)));
+        var upload = store.begin(upload(tenantId, principalId, fileName, bytes, Duration.ofDays(30)),
+                java.util.UUID.randomUUID().toString());
         store.append(tenantId, upload.principalId(), upload.uploadId(), 0, bytes);
         return store.complete(tenantId, upload.principalId(), upload.uploadId());
     }

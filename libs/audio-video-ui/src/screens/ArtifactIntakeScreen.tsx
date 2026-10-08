@@ -1,6 +1,6 @@
 import React from "react";
 import { MediaTaskScreen, type MediaTaskScreenProps } from "./MediaTaskScreen";
-import { EmptyState } from "../foundations";
+import { EmptyState, FileUpload } from "../foundations";
 
 export type ArtifactIntakeView = "browse-media" | "import-media" | "job-status" | "inspect-media";
 
@@ -48,11 +48,10 @@ export function ArtifactIntakeScreen({ intake, onSourceFilesSelected, ...flow }:
       </header>
       {intake.message && <p role="status">{intake.message}</p>}
       {intake.view === "import-media" && <div>
-        <label htmlFor="media-source-files">Choose source media</label>
-        <input id="media-source-files" type="file" multiple aria-describedby="media-upload-disclosure"
+        <FileUpload id="media-source-files" label="Choose source media" multiple dragAndDrop={false} showPreview={false}
+          helperText="Only server-acknowledged transfer and recorded integrity results are shown as confirmed."
           onChange={(event) => onSourceFilesSelected?.(Array.from(event.currentTarget.files ?? []))}
           />
-        <p id="media-upload-disclosure">Only server-acknowledged transfer and recorded integrity results are shown as confirmed.</p>
         {intake.sourceName && <p>Selected source: <strong>{intake.sourceName}</strong></p>}
         {intake.uploadId && <p>Upload ID: <code>{intake.uploadId}</code></p>}
         {intake.acknowledgedTransfer && <p>Server-acknowledged transfer: {intake.acknowledgedTransfer}</p>}
@@ -69,7 +68,7 @@ export function ArtifactIntakeScreen({ intake, onSourceFilesSelected, ...flow }:
             <p>Artifact ID: {artifact.id}</p>
             {(artifact.integrity || artifact.availability) && <p>{[artifact.integrity, artifact.availability].filter(Boolean).join(" · ")}</p>}
           </li>)}
-        </ul> : <EmptyState className="media-empty-state" title="No artifact records are available in this projection." />}
+        </ul> : <EmptyState className="gh-empty-state--panel" title="No artifact records are available in this projection." />}
       </>}
     </section>
   </MediaTaskScreen>;

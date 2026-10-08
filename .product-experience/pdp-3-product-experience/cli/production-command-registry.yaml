@@ -1,0 +1,27 @@
+schemaVersion: media.production-cli-command-registry.v1
+productId: media
+status: one-source-bound-host-configured-query; production-host-qualification-open
+executionScope: explicitly-configured-HTTP-host; read-only-GET-only
+fixtureRegistry: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
+fixturePopulation:
+  count: 11
+  classification: synthetic-Explorer-fixture-commands; not-production-runtime-CLI
+productionCommandPopulation:
+  count: 1
+  classification: installed-package-bin-backed-host-configured-consumer
+  productionHostQualification: not-claimed
+commands:
+  - id: media.cli.artifact.inspect
+    canonicalCommand: ghatanamedia-api artifact inspect
+    package: libs/audio-video-client/package.json#bin.ghatanamedia-api
+    implementation: libs/audio-video-client/src/cli.ts
+    sdkMethod: libs/audio-video-client/src/operations.ts#MediaOperationClient.getArtifact
+    operationRef: .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.inspect-artifact
+    actionRef: media.action.inspect-artifact
+    ownerDecisionRefs: [.product-experience/decision-log.md#PXD-040, .product-experience/decision-log.md#PXD-044]
+    options: [--endpoint, --tenant, --principal, --artifact]
+    credentialSource: GHATANA_MEDIA_BEARER_TOKEN-environment-only
+    output: exact-CanonicalMediaArtifactObservation-in-media.cli-result.v1-JSON-envelope
+    notEstablished: [global-absence, rights, consent, byte-retrieval, publication, downstream-availability, production-host-qualification]
+    readSemantics: scope-safe-point-in-time-observation; GET-only; no-domain-mutation
+    status: implemented-source-bound-consumer; owner-integration-review-pending

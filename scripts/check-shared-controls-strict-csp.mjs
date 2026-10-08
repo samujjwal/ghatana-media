@@ -100,7 +100,7 @@ try {
   await page.keyboard.press("Tab");
   assert.equal(await page.evaluate(() => document.activeElement?.matches(".gh-button:not([data-loading]):not(:disabled)")), true);
   await page.emulateMedia({ forcedColors: "active" });
-  const focusedButton = page.locator(".gh-button:not([data-loading]):not(:disabled)");
+  const focusedButton = page.getByRole("button", { name: "Save", exact: true });
   assert.equal(await focusedButton.evaluate((node) => getComputedStyle(node).outlineStyle), "solid");
   const forcedColorsOutline = await focusedButton.evaluate((node) => getComputedStyle(node).outlineColor);
   assert.match(forcedColorsOutline, /rgba?\(/u);
@@ -115,6 +115,35 @@ try {
   assert.equal(await page.evaluate(() => document.activeElement?.matches(".gh-text-area__input")), true);
   await page.keyboard.press("Tab");
   assert.equal(await page.evaluate(() => document.activeElement?.matches(".gh-text-field__input")), true);
+  await page.keyboard.press("Tab");
+  assert.equal(await page.evaluate(() => document.activeElement?.matches(".gh-file-upload__button")), true);
+  const fileTrigger = page.locator(".gh-file-upload__button");
+  assert.equal(await fileTrigger.evaluate((node) => {
+    const descriptionId = node.getAttribute("aria-describedby");
+    return descriptionId ? document.getElementById(descriptionId)?.textContent : null;
+  }), "The host receives the selected files.");
+  await page.locator(".gh-file-upload__input").setInputFiles(Array.from({ length: 125 }, (_, index) => ({
+    name: `source-${index}.wav`, mimeType: "audio/wav", buffer: Buffer.from([index]),
+  })));
+  assert.equal(await page.locator(".gh-file-upload__input").evaluate((node) => node.files?.length), 125);
+  assert.equal(await page.locator(".gh-file-upload").getAttribute("data-invalid"), null);
+  assert.equal(await page.locator(".gh-file-upload__preview").count(), 0);
+
+  await page.setViewportSize({ width: 320, height: 800 });
+  const emptyState = await page.locator(".gh-empty-state--panel").evaluate((node) => {
+    const style = getComputedStyle(node);
+    const description = node.querySelector(".gh-empty-state__description");
+    return {
+      padding: style.paddingTop, border: style.borderTopStyle,
+      width: node.clientWidth, scrollWidth: node.scrollWidth,
+      descriptionWidth: description?.clientWidth, descriptionScrollWidth: description?.scrollWidth,
+    };
+  });
+  assert.equal(emptyState.padding, "20px");
+  assert.equal(emptyState.border, "dashed");
+  assert.equal(emptyState.scrollWidth, emptyState.width, "panel actions must reflow at 320px");
+  assert.equal(emptyState.descriptionScrollWidth, emptyState.descriptionWidth, "unbreakable descriptions must wrap");
+  assert.equal(await page.locator(".gh-empty-state:not(.gh-empty-state--panel)").evaluate((node) => getComputedStyle(node).paddingTop), "48px");
 
   violations.push(...await page.evaluate(() => window.__cspViolations));
   assert.deepEqual(violations, [], "production controls must produce zero script/style CSP violations");

@@ -3,7 +3,7 @@ productId: media
 source: libs/audio-video-client/src/operations.ts
 status: public-method-inventory; full-language-bindings-pending-owner-review
 sourcePopulation:
-  methodEntryCount: 32
+  methodEntryCount: 33
   classification: source observations only; not a declaration of production SDK support or admitted product operations
   architectureReconciliation: pending; overlapping client surfaces and entry provenance require owner review
   bindingAdmission: none
@@ -68,6 +68,12 @@ methods:
     source: libs/audio-video-client/src/operations.ts
     declaringClass: MediaOperationClient
     experienceBinding: source-backed-runtime-read; GET-/api/v1/artifacts/{artifactId}; returns-CanonicalMediaArtifactObservation-without-domain-or-provenance-aliases; requires-caller-X-Principal-Id; 404-preserves-ARTIFACT_NOT_FOUND-scope-code-and-correlation; consumer-type-migration-documented; semantic-admission-pending
+  - id: media.sdk.getUploadSession
+    method: getUploadSession
+    visibility: public
+    source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
+    experienceBinding: source-backed-runtime-read; GET-/api/v1/artifacts/uploads/{uploadId}; returns-exact-CanonicalMediaUploadSessionObservation; immutable-configured-tenant-and-caller-principal-scope; matches-requested-uploadId; 404-preserves-UPLOAD_NOT_FOUND-scope-code-and-correlation; observation-only-no-finality-rights-or-replay-inference
   - id: media.sdk.listProviderCapabilities
     method: listProviderCapabilities
     visibility: public

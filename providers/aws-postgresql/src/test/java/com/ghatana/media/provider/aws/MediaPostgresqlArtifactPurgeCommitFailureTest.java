@@ -58,7 +58,7 @@ class MediaPostgresqlArtifactPurgeCommitFailureTest {
                 byte[] bytes = "commit-failure-complete-retry".getBytes(StandardCharsets.UTF_8);
                 var upload = artifacts.begin(new UploadRequest("tenant-complete-commit", "principal-complete-commit",
                         "complete.bin", "application/octet-stream", bytes.length, sha256(bytes),
-                        "restricted", Duration.ofDays(30), Map.of()));
+                        "RESTRICTED", Duration.ofDays(30), Map.of()), "complete-commit");
                 artifacts.append(upload.tenantId(), upload.principalId(), upload.uploadId(), 0, bytes);
                 createDeferredArtifactInsertFailureTrigger();
 
@@ -125,7 +125,7 @@ class MediaPostgresqlArtifactPurgeCommitFailureTest {
                 byte[] bytes = "commit-failure-purge-retry".getBytes(StandardCharsets.UTF_8);
                 var upload = artifacts.begin(new UploadRequest("tenant-commit", "principal-commit",
                         "commit.bin", "application/octet-stream", bytes.length, sha256(bytes),
-                        "restricted", Duration.ofDays(30), Map.of()));
+                        "RESTRICTED", Duration.ofDays(30), Map.of()), "purge-commit");
                 artifacts.append(upload.tenantId(), upload.principalId(), upload.uploadId(), 0, bytes);
                 MediaArtifact artifact = artifacts.complete(upload.tenantId(), upload.principalId(), upload.uploadId());
                 String key = java.net.URI.create(artifact.objectReference()).getPath().substring(1);

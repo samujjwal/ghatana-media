@@ -56,6 +56,37 @@ test("new master-plan taxonomy and PDP-1 crosswalk claims are exact, routed, and
   assert.deepEqual(authorityMap.phaseAuthorities.slice(0, 4).map(({ phase }) => phase), ["PDP-0", "PDP-1", "PDP-2", "PDP-3"]);
   assert.equal(authorityMap.phaseAuthorities[0].acceptance, "P0-001-boundary-slice-only");
   assert.match(authorityMap.phaseAuthorities[1].acceptance, /pending/u, "PDP-1 routing evidence does not imply owner acceptance");
+  const claimById = new Map(claims.map((claim) => [claim.claimId, claim]));
+  const ownerReconciliations = new Map(review.migrationClaimReconciliations.claims.map((claim) => [claim.claimId, claim]));
+  for (const [claimId, expectedDisposition] of [
+    ["MSC-01-NEW-C03", "bounded-owner-routing-reconciled"],
+    ["MSC-01-NEW-C04", "bounded-owner-routing-reconciled"],
+    ["MSC-01-NEW-C05", "bounded-owner-routing-reconciled"],
+    ["MSC-01-NEW-C06", "bounded-authority-location-reconciled"],
+    ["MSC-09-NEW-C01", "bounded-authority-location-reconciled"],
+    ["MSC-09-NEW-C02", "bounded-owner-routing-reconciled"],
+    ["MSC-09-NEW-C03", "bounded-owner-routing-reconciled"],
+    ["MSC-09-NEW-C04", "bounded-owner-routing-reconciled"],
+  ]) {
+    const claim = claimById.get(claimId);
+    assert.equal(claim.disposition, expectedDisposition);
+    assert.ok(claim.ownerReconciliationRefs.length > 0, `${claimId} links to a reviewed routing assertion`);
+    for (const ownerRef of claim.ownerReconciliationRefs) {
+      const ownerClaim = ownerReconciliations.get(ownerRef);
+      assert.ok(ownerClaim, `${claimId} links to existing owner-reviewed claim ${ownerRef}`);
+      assert.ok(["supported", "superseded"].includes(ownerClaim.disposition));
+      assert.equal(ownerClaim.acceptanceEffect, "none");
+    }
+    assert.equal(claim.acceptanceEffect, "none");
+  }
+  assert.equal(claimById.get("MSC-01-NEW-C07").disposition, "source-change-assertion-requires-item-level-verification");
+  assert.equal(claimById.get("MSC-01-NEW-C07").ownerReconciliationRefs, undefined, "broad preservation stays unresolved");
+  const pdp1Crosswalk = claimById.get("MSC-09-NEW-C02");
+  assert.ok(pdp1Crosswalk.candidatePdpRefs.includes(".product-experience/pdp-1-domain-data/value-objects.yaml"));
+  assert.ok(pdp1Crosswalk.candidatePdpRefs.includes(".product-experience/pdp-1-domain-data/states.yaml"));
+  assert.ok(pdp1Crosswalk.candidatePdpRefs.includes(".product-experience/pdp-1-domain-data/transitions.yaml"));
+  assert.ok(pdp1Crosswalk.candidatePdpRefs.every((ref) => !/#P0-00[45]$/u.test(ref)), "legacy task IDs are not presented as current PDP-1 record anchors");
+  assert.match(pdp1Crosswalk.basis, /current 71-task register uses current P1 task IDs/u);
   assert.equal(ledger.clusters.find(({ id }) => id === "MSC-01").unmappedStatus, "new-claim-no-historical-MPSEM-item");
   assert.equal(ledger.clusters.find(({ id }) => id === "MSC-09").unmappedStatus, "new-section-and-routing-claims-without-historical-items");
   assert.match(ledger.reconciliationStatus, /partial/u);

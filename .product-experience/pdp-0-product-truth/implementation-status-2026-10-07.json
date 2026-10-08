@@ -2,7 +2,7 @@
   "ledger_version": "1.0",
   "as_of": "2026-10-08",
   "repository": "samujjwal/ghatana-media",
-  "repository_state": "Observed 2026-10-08: bounded B00/B01/B02/B04/B07 batch is committed and pushed on main@ee4ad8fb5c92b780804aa2b6ec9173b7c7ecae8f; origin/main matched and the worktree was clean before the next authorized implementation batch. Earlier repository observations remain historical. No native Lifecycle receipt, phase closure or release admission is claimed.",
+  "repository_state": "Observed on main@cae6fc6bd60e48a3fe945a4a8873bb928a2d67b1: this verified working-tree batch is prepared for integration; earlier main commits and observations remain historical. No native Lifecycle receipt, phase closure or release admission is claimed.",
   "source_documents": [
     {
       "path": "/home/samujjwal/Downloads/Ghatana-Media-PDP-Remaining-TODO-Implementation-Plan-2026-10-07.md",
@@ -22,7 +22,7 @@
   ],
   "status_policy": "Complete requires full task Done evidence. Partial means bounded implementation/evidence exists but the criterion is unmet. Blocked-external/independent means owner action, independent review or authoritative Lifecycle output remains outstanding. Not-started means no material implementation evidence was found. Source decisions or unrun test sources alone do not establish acceptance.",
   "authorization_boundary": "User authorized source-supported Media owner decisions. This ledger claims no independent approval, Lifecycle receipt/current closure, external Shared/Tools owner acceptance, license clearance or PDP phase closure. Decisions are bounded to documented scope.",
-  "verification_boundary": "Current B00/B01/B02 batch on main base 4ab86b9: complete Node suite 344/344 passed, no skips; runtime Java109, Agent handlers30, SDK74, Shared1740, AI191 passed; Tools167 tests with one Cargo-unavailable skip. Strict projections/public validators, Lifecycle source checks, local structure, owner selections, typed bindings, presentation, preflight and release-profile checks passed. Contract parity remains non-green with2 open findings; design remains non-green with3 gates. 344 Lifecycle obligations retain zero provider/observer/oracle admissions and receipts. Evidence: docs/implementation/media-execution-b00-b02-2026-10-08.json. These checks do not establish independent acceptance, availability, release qualification or phase closure.",
+  "verification_boundary": "Latest source batch: complete Node353/353 zero skips; upload runtime128, Agent handlers37, SDK127, MediaUI24, Shared1744 passed. Public validators/projections/source checks pass; parity2 findings and design3 gates remain non-green.344 obligations/zero native admissions. Evidence: docs/implementation/media-execution-b00-b02-2026-10-08.json; bounded owner definitions PXD-046 do not close original Done criteria.",
   "id_reconciliation": {
     "checklist_count": 71,
     "plan_task_count": 71,
@@ -44,7 +44,7 @@
       "priority": "P0",
       "status": "complete",
       "authoritative_sources": "`ghatana-media/package.json`, `pnpm-lock.yaml`, `.product-experience/{source-manifest.yaml,artifact-identities.yaml,closure-dashboard.yaml,gaps.yaml}`, `docs/TESTING.md`.",
-      "implementation_task": "confirm `main@61ab853…`, clean worktree, authorized sibling sources and package versions; enumerate all 306 currently pinned artifacts and compare disk inventory to registry; record versions, mutable source observation IDs and exact test toolchain. The merged PR introduced new Media-owned sources that have not yet been regenerated into the candidate outputs.",
+      "implementation_task": "confirm `main@61ab853\u2026`, clean worktree, authorized sibling sources and package versions; enumerate all 306 currently pinned artifacts and compare disk inventory to registry; record versions, mutable source observation IDs and exact test toolchain. The merged PR introduced new Media-owned sources that have not yet been regenerated into the candidate outputs.",
       "acceptance_criteria_verbatim": "every authored file has a pinned artifact ID; no stale/duplicate IDs or missing files; baseline text distinguishes source observation from admitted currentness. **Dependency:** none.",
       "plan_dependencies_verbatim": "none.",
       "current_evidence": [
@@ -76,7 +76,12 @@
         "tests/product-experience-local.test.mjs"
       ],
       "latest_execution_update_2026_10_08": "Refreshed actual owner-plan base/branch/worktree observation; retained prior f200f44 snapshot as historical.",
-      "historical_verification_or_gap_before_owner_execution": "Complete for G-01 acceptance. A clean isolated checkout at f200f44 was verified as the post-merge baseline; 61ab853 is an ancestor. Source and package observations record sibling revisions, working-tree state, package versions and hashes, and docs/TESTING.md records the exact local toolchain. The constrained identity-registry parser and inventory validator independently reconcile all 314 authored .product-experience files to 314 explicit records and 314 unique IDs, with no missing or stale paths; the reserved source-manifest identity does not collide. Regeneration emits 314 manifest records and 315 Explorer entries. Baseline and currentness wording remains explicit: these are source observations and local structure, not Lifecycle currentness, immutable package admission, or release qualification."
+      "historical_verification_or_gap_before_owner_execution": "Complete for G-01 acceptance. A clean isolated checkout at f200f44 was verified as the post-merge baseline; 61ab853 is an ancestor. Source and package observations record sibling revisions, working-tree state, package versions and hashes, and docs/TESTING.md records the exact local toolchain. The constrained identity-registry parser and inventory validator independently reconcile all 314 authored .product-experience files to 314 explicit records and 314 unique IDs, with no missing or stale paths; the reserved source-manifest identity does not collide. Regeneration emits 314 manifest records and 315 Explorer entries. Baseline and currentness wording remains explicit: these are source observations and local structure, not Lifecycle currentness, immutable package admission, or release qualification.",
+      "upload_execution_update_2026_10_08": {
+        "result": "Complete current Node353 test and public validator/projection/source-diff rerun; real report census and stale generated fingerprints corrected. Existing task status retained.",
+        "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "complete"
+      }
     },
     {
       "id": "G-02",
@@ -283,7 +288,7 @@
       "status": "partial",
       "authoritative_sources": "`.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md`, `.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md`, `.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md`, `.product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md`; `docs/{VISION,REQUIREMENTS,ARCHITECTURE,DESIGN,TESTING}.md`.",
       "implementation_task": "identify each phase's purpose, full named artifact registry, approved normative semantics, contract version, feature/channel coverage, exclusions, dependencies, acceptance cases and reviewer roles. Migrate present meaning out of old `docs/migration/expert-reviewed-master-plan.md` where it still acts as hidden authority; keep the migration plan historical/execution-only. Align current docs with source artifacts automatically where possible.",
-      "acceptance_criteria_verbatim": "an implementer can reconstruct each phase from its own current authority sources and public dependencies without reading the historical plan; no two active semantic owners. **Dependency:** G-05, then revisited in each phase. ## 3. W1 — PDP-0 Product Truth completion",
+      "acceptance_criteria_verbatim": "an implementer can reconstruct each phase from its own current authority sources and public dependencies without reading the historical plan; no two active semantic owners. **Dependency:** G-05, then revisited in each phase. ## 3. W1 \u2014 PDP-0 Product Truth completion",
       "plan_dependencies_verbatim": "G-05, then revisited in each phase.",
       "current_evidence": [
         {
@@ -368,14 +373,19 @@
           "path": ".product-experience/pdp-1-domain-data/operations.yaml"
         }
       ],
-      "verification_or_gap": "Independent source audit found no additional exact leaf targets: of 462 leaves, 79 have evidence-backed dispositions and the remaining 383 have no exact journey, operation, or supporting-view targets; all remain in scope (TARGET). Focused capability/PDP-0 tests pass 9/9 and the local structural check passes. No name-based resolutions were added. A semantic review of the changed PDP-1 domain-object source confirms its added fixture-only CaptionVersionRecord and observed identity wording do not alter leaf coverage; the review pins and records this impact. The local structural checker separately reports 385 empty explicit `journeyRefs`; that narrower counter is distinct from the 383 leaves lacking any exact journey, operation, or supporting-view target. Independent exact-link audit across canonical capability, journey, action, and operation sources found zero additional mappings: unresolved rows have no actionRefs or explicitOperationBindings, and action-to-operation crosswalk IDs do not overlap the unresolved leaf set. Counts remain 79/462 mapped and 383 unresolved. A separate read-only exact-target audit reconfirmed no additional safe matches; the unresolved 383 leaves have no exact journey/operation/supporting-view target and must not be resolved by name similarity. A semantic source-pin follow-on reconciles seven gRPC transport-only health/status/metrics identities removed from domain-operation candidate refs: the operation proposal inventory changes 24→17 while unresolved changes 19→26. The exact seven identities are now semantically unresolved; all 462 capability leaves retain the same links/dispositions (79 mapped, 383 unresolved, zero machine-operation dispositions). No capability leaf binding or acceptance was promoted; the focused impact test passes 4/4. Continuation exact-target scan covered the changed simulation, runtime/provider tests, and canonical links; it found no new exact leaf binding. Coverage remains 79/462 evidence-backed dispositions and 383 unresolved; 385 empty journeyRefs is a distinct structural count.",
+      "verification_or_gap": "Independent source audit found no additional exact leaf targets: of 462 leaves, 79 have evidence-backed dispositions and the remaining 383 have no exact journey, operation, or supporting-view targets; all remain in scope (TARGET). Focused capability/PDP-0 tests pass 9/9 and the local structural check passes. No name-based resolutions were added. A semantic review of the changed PDP-1 domain-object source confirms its added fixture-only CaptionVersionRecord and observed identity wording do not alter leaf coverage; the review pins and records this impact. The local structural checker separately reports 385 empty explicit `journeyRefs`; that narrower counter is distinct from the 383 leaves lacking any exact journey, operation, or supporting-view target. Independent exact-link audit across canonical capability, journey, action, and operation sources found zero additional mappings: unresolved rows have no actionRefs or explicitOperationBindings, and action-to-operation crosswalk IDs do not overlap the unresolved leaf set. Counts remain 79/462 mapped and 383 unresolved. A separate read-only exact-target audit reconfirmed no additional safe matches; the unresolved 383 leaves have no exact journey/operation/supporting-view target and must not be resolved by name similarity. A semantic source-pin follow-on reconciles seven gRPC transport-only health/status/metrics identities removed from domain-operation candidate refs: the operation proposal inventory changes 24\u219217 while unresolved changes 19\u219226. The exact seven identities are now semantically unresolved; all 462 capability leaves retain the same links/dispositions (79 mapped, 383 unresolved, zero machine-operation dispositions). No capability leaf binding or acceptance was promoted; the focused impact test passes 4/4. Continuation exact-target scan covered the changed simulation, runtime/provider tests, and canonical links; it found no new exact leaf binding. Coverage remains 79/462 evidence-backed dispositions and 383 unresolved; 385 empty journeyRefs is a distinct structural count.",
       "remaining_dependencies": "Still required: source/owner evidence for exact per-leaf journey or operation targets, P1-03 canonical operation identities/contracts, and independent P0-010 review; do not bulk-resolve by similarity.",
       "plan_section_line": 93,
       "changed_files": [
         ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
         "tests/media-capability-review-source-impact.test.mjs",
         "tests/pdp-0-final.test.mjs"
-      ]
+      ],
+      "upload_execution_update_2026_10_08": {
+        "result": "No leaf acceptance promoted: exact upload definition source deltas retain462 leaves/383 unresolved.",
+        "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "P0-02",
@@ -626,7 +636,7 @@
       "status": "blocked-external/independent",
       "authoritative_sources": "`.product-experience/{acceptance.yaml,traceability.yaml,gaps.yaml}`, PDP-0 full authority, tests `tests/{pdp-0-final,product-definition-authority}.test.mjs`.",
       "implementation_task": "appoint required qualified reviewers for Product Truth, privacy/rights, scientific/simulation and security where relevant; record reviewed exact source revision, objections and resolution. Run schema, orphan refs, source/migration claim, NFR and negative tests. A delegated owner policy comment may support but not replace required independent review.",
-      "acceptance_criteria_verbatim": "acceptance ledger has actual reviewer outcomes and complete denominator; PDP-0 semantic acceptance inputs are ready for Lifecycle and no unexplained applicable requirement remains. **Dependency:** P0-01 through P0-07. ## 4. W2 — PDP-1 canonical domain/data/state/interface truth",
+      "acceptance_criteria_verbatim": "acceptance ledger has actual reviewer outcomes and complete denominator; PDP-0 semantic acceptance inputs are ready for Lifecycle and no unexplained applicable requirement remains. **Dependency:** P0-01 through P0-07. ## 4. W2 \u2014 PDP-1 canonical domain/data/state/interface truth",
       "plan_dependencies_verbatim": "P0-01 through P0-07.",
       "current_evidence": [
         {
@@ -701,7 +711,7 @@
       "priority": "P0",
       "status": "partial",
       "authoritative_sources": "PDP-1 `{states.yaml,state-adjudication.yaml,transitions.yaml,action-contracts.yaml,events.yaml,evidence.yaml,presentation-projections.yaml}`; PDP-0 `state-models.yaml`; `libs/audio-video-types/src/contracts.ts`; `runtime-contracts`, `launcher`, persistence.",
-      "implementation_task": "encode machine-scoped state IDs and durable transitions with authority/guard, idempotency key, lease/fencing version, dispatch intent and side effects. Formalize request `ACCEPTED ≠ QUEUED`, `RETRY_PENDING ≠ legacy RETRYING`, `CANCELLING` as legacy observer text, cancel request vs provider confirmation, `OUTCOME_UNKNOWN`/`RECONCILING` vs failure or RUNNING, independently accounted partial-success, and distinct external delivery acknowledgement. Map every legacy spelling without pretending lossless equivalence.",
+      "implementation_task": "encode machine-scoped state IDs and durable transitions with authority/guard, idempotency key, lease/fencing version, dispatch intent and side effects. Formalize request `ACCEPTED \u2260 QUEUED`, `RETRY_PENDING \u2260 legacy RETRYING`, `CANCELLING` as legacy observer text, cancel request vs provider confirmation, `OUTCOME_UNKNOWN`/`RECONCILING` vs failure or RUNNING, independently accounted partial-success, and distinct external delivery acknowledgement. Map every legacy spelling without pretending lossless equivalence.",
       "acceptance_criteria_verbatim": "all valid/invalid transition edges are tested; stale fencing, process death, unknown outcome, cancel race, duplicate retry and delivery uncertainty fail safely; owner signs canonical semantics, runtime implementation proof remains separate. **Dependency:** P1-01.",
       "plan_dependencies_verbatim": "P1-01.",
       "current_evidence": [
@@ -802,6 +812,11 @@
         ],
         "verification_and_gap": "Current runtime evidence: requestFingerprint is a versioned canonical digest bound to tenant/principal/request/job type/artifact, recursively frozen provider parameters, governance and ordered provider dispatch descriptors; local and PostgreSQL request replay compare immutable identity/digest and fail closed for legacy records without a digest. Provider fallback preserves the logical fingerprint. Principal-less job reads/list/cancel fail closed; scoped reads filter principal, cancellation rechecks the owner at its mutation boundary. Deep mutation, order-equivalence, payload-difference, unsupported-type and request replay tests pass. Runtime-contracts 22/22, launcher 58/58, aws-postgresql 29/29. Still partial: full append-only attempts, all transition edges and native durability/finality semantics remain unmet; upload begin idempotency and repeat completion are separate open behavior.",
         "status_effect": "none; original Done criterion and status preserved"
+      },
+      "upload_execution_update_2026_10_08": {
+        "result": "Persisted upload progress,receipt reconciliation,stable finalization and expiry tested; job/attempt/stream/delivery whole-machine criteria remain open.",
+        "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
       }
     },
     {
@@ -855,6 +870,11 @@
         ],
         "verification_and_gap": "Current source demonstrates exact principal-scoped upload/artifact/job inspection reads and mutations in runtime/handler, with tenant-only public helpers deprecated and fail-closed. Source contract test checks exact queries/guards. This adds implementation evidence for inspected operations only; it does not bind all applicable interfaces or close missing upload idempotency/finalization semantics. Status remains partial.",
         "status_effect": "none; original Done criterion and status preserved"
+      },
+      "upload_execution_update_2026_10_08": {
+        "result": "PXD-046 accepts three bounded upload definitions; full action/authority/finality/admission criteria remain open.",
+        "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
       }
     },
     {
@@ -903,7 +923,7 @@
       "status": "partial",
       "authoritative_sources": "`contracts/openapi/media.yaml`, `modules/{speech,vision,intelligence}/*/src/main/proto/*.proto`, `libs/audio-video-client/src/{operations.ts,index.ts,canonical-routes.ts}`, `libs/audio-video-types/src/contracts.ts`, `.product-experience/pdp-3-product-experience/{api,grpc,cli,sdk}/`, `scripts/check-media-contract-parity.mjs`.",
       "implementation_task": "reconcile exact method, path, fields, enum/state, status code, headers/identity, pagination, timeouts, streaming and cancellation semantics. Add stable versioned DTO/protobuf projection rules, loss reports and conformance fixtures. Update or replace legacy SDK route calls only behind a consumer-migration and wire-compatibility decision; parser false positives remain excluded by an AST/source-validating regression, not a hidden counter exception. Keep local CLI fixture behavior labeled simulation-only until actual runtime client exists.",
-      "acceptance_criteria_verbatim": "exact wire ↔ logical operation ↔ typed result/error ↔ SDK/CLI/Agent/consumer mapping verified and invalid routes rejected; no client broken by silent endpoint removal. **Dependency:** P1-03/P1-04.",
+      "acceptance_criteria_verbatim": "exact wire \u2194 logical operation \u2194 typed result/error \u2194 SDK/CLI/Agent/consumer mapping verified and invalid routes rejected; no client broken by silent endpoint removal. **Dependency:** P1-03/P1-04.",
       "plan_dependencies_verbatim": "P1-03/P1-04.",
       "current_evidence": [
         {
@@ -950,8 +970,13 @@
           "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java",
           "tests/media-runtime-openapi-job-status.test.mjs"
         ],
-        "verification_and_gap": "Current source parity test verifies serialized ProcessingJob fields/status/job enums, requires PrincipalHeader on nine owner-scoped upload/artifact/job routes, and compares the required UploadRequest principalId body field to the runtime record. Relevant OpenAPI/product-definition tests pass. This is bounded DTO/header parity only. OpenAPI still requires upload Idempotency-Key/payloadHash behavior not implemented by beginUpload; exact full wire↔operation↔SDK/CLI mapping remains open.",
+        "verification_and_gap": "Current source parity test verifies serialized ProcessingJob fields/status/job enums, requires PrincipalHeader on nine owner-scoped upload/artifact/job routes, and compares the required UploadRequest principalId body field to the runtime record. Relevant OpenAPI/product-definition tests pass. This is bounded DTO/header parity only. OpenAPI still requires upload Idempotency-Key/payloadHash behavior not implemented by beginUpload; exact full wire\u2194operation\u2194SDK/CLI mapping remains open.",
         "status_effect": "none; original Done criterion and status preserved"
+      },
+      "upload_execution_update_2026_10_08": {
+        "result": "Exact SDK upload read and one host-configured artifact CLI query tested; all12 historical CLI proposals remain individually unresolved.",
+        "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
       }
     },
     {
@@ -960,7 +985,7 @@
       "priority": "P0",
       "status": "complete",
       "authoritative_sources": "`.product-experience/interface-parity/typed-contract-bindings.json`, `libs/audio-video-types/src/contracts.ts`, `scripts/check-media-contract-parity.mjs`, `tests/media-typed-contract-bindings.test.mjs`.",
-      "implementation_task": "run new negative tests against all 19 exported types and 20 public schemas. Resolve role→PDP-1 ID and ensure specialized unqualified operations remain `NOT_ADMITTED`. Assert the catalog and client source have no stale/duplicate schema identities, unsupported canonical refs or implied runtime support. Keep an independent wire/semantic test rather than marking full parity PASS merely because the type-role catalog passes.",
+      "implementation_task": "run new negative tests against all 19 exported types and 20 public schemas. Resolve role\u2192PDP-1 ID and ensure specialized unqualified operations remain `NOT_ADMITTED`. Assert the catalog and client source have no stale/duplicate schema identities, unsupported canonical refs or implied runtime support. Keep an independent wire/semantic test rather than marking full parity PASS merely because the type-role catalog passes.",
       "acceptance_criteria_verbatim": "type/schema-source role finding independently green; other two historic parity findings still visible until qualified; new types immediately require new bindings. **Dependency:** G-02/P1-01.",
       "plan_dependencies_verbatim": "G-02/P1-01.",
       "current_evidence": [
@@ -1066,7 +1091,7 @@
           "path": "runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaLifecycleEventTest.java"
         }
       ],
-      "verification_or_gap": "The source crosswalk records nine runtime event identities across seven publisher call sites and a separate 15-name client notification population. MediaLifecycleEvent enforces the 255-character Event Plane idempotency boundary. Focused source crosswalk/parity and Event Plane OpenAPI observation checks pass 7/7; focused MediaLifecycleEvent and MediaLifecyclePublisher Java tests pass 6/6, including rejection of HTTP 200 after one request. Taxonomy, lifecycle authority, privacy semantics, ordering/replay/retention, durable delivery/deduplication, acknowledgments/recovery, and external owner acceptance remain unresolved.\n\n2026-10-08 source-currentness correction: offline-sync.yaml now records the runtime’s startup OUTCOME_UNKNOWN transition, blank failureCode, and null completedAt, while preserving that provider reconciliation/replay is unestablished. Architecture and operations guidance use the current status. Runtime and persistence tests plus the focused privacy-source suite passed; event delivery/replay and platform ownership remain unresolved.",
+      "verification_or_gap": "The source crosswalk records nine runtime event identities across seven publisher call sites and a separate 15-name client notification population. MediaLifecycleEvent enforces the 255-character Event Plane idempotency boundary. Focused source crosswalk/parity and Event Plane OpenAPI observation checks pass 7/7; focused MediaLifecycleEvent and MediaLifecyclePublisher Java tests pass 6/6, including rejection of HTTP 200 after one request. Taxonomy, lifecycle authority, privacy semantics, ordering/replay/retention, durable delivery/deduplication, acknowledgments/recovery, and external owner acceptance remain unresolved.\n\n2026-10-08 source-currentness correction: offline-sync.yaml now records the runtime\u2019s startup OUTCOME_UNKNOWN transition, blank failureCode, and null completedAt, while preserving that provider reconciliation/replay is unestablished. Architecture and operations guidance use the current status. Runtime and persistence tests plus the focused privacy-source suite passed; event delivery/replay and platform ownership remain unresolved.",
       "remaining_dependencies": "Still required: owner-approved event taxonomy and authority/privacy semantics, durable delivery/retry/deduplication, ordering/replay/retention, acknowledgment and recovery contracts, plus P1-02/P1-03 and X-06 owner acceptance.",
       "plan_section_line": 170,
       "changed_files": [
@@ -1097,6 +1122,11 @@
         ],
         "verification_and_gap": "Refreshed source ranges for the existing nine runtime event identities against current MediaRuntime publication call sites across events/evidence/provenance and source-bound tests. This is observation inventory only; event authority, durable delivery, ordering/replay, acknowledgments and independent owner acceptance remain unresolved.",
         "status_effect": "none; original Done criterion and status preserved"
+      },
+      "upload_execution_update_2026_10_08": {
+        "result": "Atomic store dispositions prevent repeated begin/completion event attempts; outbox/delivery/crash-window and native event admission remain open.",
+        "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
       }
     },
     {
@@ -1163,7 +1193,7 @@
           "path": "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java"
         }
       ],
-      "verification_or_gap": "Privacy source tests pass 3/3 and focused launcher runtime tests pass 6/6 with multimodal-service:compileJava excluded. A new runtime regression verifies that duplicate submission with the same tenant/principal/request/artifact returns the existing job and does not invoke the provider twice. The earlier local AbstractTypedAgent compile blocker was resolved under X-05 by adapting both Media agents to the current turn.AbstractTypedAgent/AsyncOperation API; multimodal-service compileJava and compileTestJava plus focused AvAgentsTest pass 10/10. The separate launcher runtime suite cited above still excludes multimodal-service:compileJava. Trusted identity proof, revocation race/propagation, legal holds, complete erasure/restore tombstones, offline replay/reconciliation, canonical version/lineage semantics and independent security/privacy review remain incomplete. A bounded observation/test now records that the local request index and PostgreSQL uniqueness constraint are tenant-scoped, local reuse rejects different principal/artifact/job type, and same-scope duplicate submission reuses the job without redispatch; focused event/privacy tests pass 8/8. This does not establish authenticated identity, global replay safety, or provider-effect deduplication.\n\nPrivacy source observation and regression now describe the implemented restart behavior: unknown provider outcomes remain OUTCOME_UNKNOWN, have no failure/completion timestamp, and are not leased for replay. Provider outcome reconciliation, trusted identity, legal holds, and independent privacy/security review remain unresolved. Privacy source suite passes 4/4.\n\n2026-10-08 source-currentness correction: versioning.yaml and offline-sync.yaml now match the runtime’s OUTCOME_UNKNOWN state, blank failureCode, and null completedAt. Regression assertions pin the implementation evidence and tenant-scoped request-deduplication guard. This does not prove authenticated identity, provider reconciliation, legal hold, complete erasure, or offline replay safety. Focused privacy-source tests pass 4/4; runtime, consent, tenant-isolation, and purge tests pass.",
+      "verification_or_gap": "Privacy source tests pass 3/3 and focused launcher runtime tests pass 6/6 with multimodal-service:compileJava excluded. A new runtime regression verifies that duplicate submission with the same tenant/principal/request/artifact returns the existing job and does not invoke the provider twice. The earlier local AbstractTypedAgent compile blocker was resolved under X-05 by adapting both Media agents to the current turn.AbstractTypedAgent/AsyncOperation API; multimodal-service compileJava and compileTestJava plus focused AvAgentsTest pass 10/10. The separate launcher runtime suite cited above still excludes multimodal-service:compileJava. Trusted identity proof, revocation race/propagation, legal holds, complete erasure/restore tombstones, offline replay/reconciliation, canonical version/lineage semantics and independent security/privacy review remain incomplete. A bounded observation/test now records that the local request index and PostgreSQL uniqueness constraint are tenant-scoped, local reuse rejects different principal/artifact/job type, and same-scope duplicate submission reuses the job without redispatch; focused event/privacy tests pass 8/8. This does not establish authenticated identity, global replay safety, or provider-effect deduplication.\n\nPrivacy source observation and regression now describe the implemented restart behavior: unknown provider outcomes remain OUTCOME_UNKNOWN, have no failure/completion timestamp, and are not leased for replay. Provider outcome reconciliation, trusted identity, legal holds, and independent privacy/security review remain unresolved. Privacy source suite passes 4/4.\n\n2026-10-08 source-currentness correction: versioning.yaml and offline-sync.yaml now match the runtime\u2019s OUTCOME_UNKNOWN state, blank failureCode, and null completedAt. Regression assertions pin the implementation evidence and tenant-scoped request-deduplication guard. This does not prove authenticated identity, provider reconciliation, legal hold, complete erasure, or offline replay safety. Focused privacy-source tests pass 4/4; runtime, consent, tenant-isolation, and purge tests pass.",
       "remaining_dependencies": "Still required: P1-02/P1-03, X-03, trusted tenant/principal authentication, revocation race and propagation evidence, legal-hold and complete-erasure semantics, replay/reconciliation guarantees, owner decisions and independent security/privacy review plus exact negative cases.",
       "plan_section_line": 180,
       "changed_files": [
@@ -1188,6 +1218,11 @@
         ],
         "verification_and_gap": "Runtime public reads/list/cancel/upload/artifact reads fail closed without a principal; scoped APIs enforce open runtime, authenticated principal and exact owner filtering. Upload append/finalize are principal-bound in HTTP, runtime, local and PostgreSQL stores. Adversarial cross-tenant/same-tenant wrong-principal, absent-object and closed-runtime cases pass in Java/source tests. This does not prove trusted identity establishment or independent privacy/security review. Upload begin still has no idempotency-key binding; Local and PostgreSQL repeat-completion behavior is not yet equivalent.",
         "status_effect": "none; original Done criterion and status preserved"
+      },
+      "upload_execution_update_2026_10_08": {
+        "result": "Scoped upload idempotency/receipt/symlink/expiry negatives tested; trusted authentication,rights/consent,revocation/legal hold/erasure remain open.",
+        "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
       }
     },
     {
@@ -1197,7 +1232,7 @@
       "status": "blocked-external/independent",
       "authoritative_sources": "`.product-experience/pdp-1-domain-data/{DOMAIN-MODEL.md,decisions.yaml,canonical-reconciliation.yaml,operations.yaml,state-adjudication.yaml}`, `.product-experience/{acceptance.yaml,traceability.yaml}`, current public Tools validators and Lifecycle assurance input.",
       "implementation_task": "appoint domain, distributed-systems, data/privacy/security and interface-compatibility reviewers according to affected claims. Review the accepted object/state/operation/effect taxonomy, representative byte/time and rights invariants, the complete interface-parity population and falsifiable negative test result; record exact source/contract revision and any required correction. Distinguish source semantic acceptance from real runtime deployment or model/provider qualification.",
-      "acceptance_criteria_verbatim": "PDP-1 domain/data authority has actual accepted specialist decisions and no unexplained applicable invariants or interface semantic mappings; qualified proofs can proceed to Lifecycle. **Dependency:** P1-01 through P1-10. ## 5. W3 — PDP-2 reusable design and machine-interface system",
+      "acceptance_criteria_verbatim": "PDP-1 domain/data authority has actual accepted specialist decisions and no unexplained applicable invariants or interface semantic mappings; qualified proofs can proceed to Lifecycle. **Dependency:** P1-01 through P1-10. ## 5. W3 \u2014 PDP-2 reusable design and machine-interface system",
       "plan_dependencies_verbatim": "P1-01 through P1-10.",
       "current_evidence": [
         {
@@ -1224,7 +1259,7 @@
       "priority": "P0",
       "status": "complete",
       "authoritative_sources": "`.product-experience/pdp-2-design-interface-system/{typography-layout.yaml,accessibility.yaml,action-finality-grammar.yaml,gui/recipes/catalog.yaml}`, generator and generated `experience-language.candidate.json`; `tests/media-owner-selection-contracts.test.mjs`.",
-      "implementation_task": "verify explicit public density enum (`simple→minimal`, `guided→standard`, `expert→rich`), three profiles with valid density refs, disclosure triggers, WCAG 2.2 AA normative target, six recovery patterns (only read-only observer operations automatic), and eight media GUI recipe/template/pattern refs. Validate through actual Tools `validateExperienceLanguage` and public owner `resolveRecipe`, including duplicate/invalid reference tests. Never claim source-level WCAG target is an accessibility audit.",
+      "implementation_task": "verify explicit public density enum (`simple\u2192minimal`, `guided\u2192standard`, `expert\u2192rich`), three profiles with valid density refs, disclosure triggers, WCAG 2.2 AA normative target, six recovery patterns (only read-only observer operations automatic), and eight media GUI recipe/template/pattern refs. Validate through actual Tools `validateExperienceLanguage` and public owner `resolveRecipe`, including duplicate/invalid reference tests. Never claim source-level WCAG target is an accessibility audit.",
       "acceptance_criteria_verbatim": "prior six candidate field issues demonstrably resolved after regeneration, or exact residual source blockers output. **Dependency:** G-02/X-01.",
       "plan_dependencies_verbatim": "G-02/X-01.",
       "current_evidence": [
@@ -1296,7 +1331,7 @@
           "path": "tests/media-source-manifest-external-observations.test.mjs"
         }
       ],
-      "verification_or_gap": "The Media foundations facade re-exports Shared public components, and the current Media screens compose Shared EmptyState for resolved empty project/artifact collections. No other component in the current screens is an exact CSP-safe fit. Browser verification showed Shared Button/Badge/Select/TextArea/TextField and Progress/Spinner paths emit or depend on inline styles blocked by Explorer style-src-attr none; Shared FileUpload also caps/retains files unlike Media’s full host-selection contract. Media keeps native semantic controls and its reusable MediaTaskFlow; AI Voice composes MediaTaskFlow as a common action, eligibility, progress, and finality frame. The @ghatana/ui-styles stylesheet is not consumed: 56 recipe variables, zero exact token-name matches, and 50 unresolved names without an approved semantic/unit bridge. `pnpm --dir libs/audio-video-ui check` passes typecheck, 22/22 tests, and build. Installed immutable artifact proof, complete token/theme alias resolution, license/distribution review, Shared owner acceptance, and independent accessibility/design qualification remain open. Final source-snapshot verification confirmed the Media facade export resolves to the exact Shared EmptyState export and emits role=status markup without inline style attributes; nine local Shared source-snapshot artifacts consumed successfully. This remains source-snapshot evidence, not immutable release or owner acceptance.\n\nLatest reuse follow-up confirms there is no safe CSS token/theme binding yet: Media aliases name JS semanticColorRoles, Shared tokens.css uses different scoped property names, ui-styles recipes reference unresolved unscoped names, and the Shared theme runtime writes inline CSS properties blocked by Explorer CSP. The Media system-color stylesheet remains a structural fallback, not a qualified Shared theme. Await a Shared-published bridge or an owner-approved alias/unit mapping and exact consumer review; no Media token mapping was invented.\n\nFresh ecosystem reuse audit considered Shared DataUseNotice and recorded non-adoption: its defaults imply processing location and 90-day retention absent from the current Media/AI Voice rights inputs. No Shared theme/token alias bridge is source-grounded. Existing EmptyState, MediaTaskFlow, and MediaProgress reuse remains the exact-fit set; the reuse inventory regression passes.\n\nFinal UI lane verification: Media UI check 24/24 plus typecheck/build; AI Voice UI check 5/5 plus typecheck/build; reuse inventory 4/4. Exact-fit reuse is Shared EmptyState, MediaTaskFlow in AI Voice, and MediaProgress in both Media and AI Voice. The audit found no additional exact-fit Shared component under the current CSP, semantics, and package boundary. This does not establish Shared owner acceptance, artifact publication, licensing, or independent accessibility review.\n\nPXD-032 adds one REQUIRED source-only obligation for the authored progress-indicator proposal; the current lifecycle denominator is 319 (38/130/74/77), with no proof route or admission.",
+      "verification_or_gap": "The Media foundations facade re-exports Shared public components, and the current Media screens compose Shared EmptyState for resolved empty project/artifact collections. No other component in the current screens is an exact CSP-safe fit. Browser verification showed Shared Button/Badge/Select/TextArea/TextField and Progress/Spinner paths emit or depend on inline styles blocked by Explorer style-src-attr none; Shared FileUpload also caps/retains files unlike Media\u2019s full host-selection contract. Media keeps native semantic controls and its reusable MediaTaskFlow; AI Voice composes MediaTaskFlow as a common action, eligibility, progress, and finality frame. The @ghatana/ui-styles stylesheet is not consumed: 56 recipe variables, zero exact token-name matches, and 50 unresolved names without an approved semantic/unit bridge. `pnpm --dir libs/audio-video-ui check` passes typecheck, 22/22 tests, and build. Installed immutable artifact proof, complete token/theme alias resolution, license/distribution review, Shared owner acceptance, and independent accessibility/design qualification remain open. Final source-snapshot verification confirmed the Media facade export resolves to the exact Shared EmptyState export and emits role=status markup without inline style attributes; nine local Shared source-snapshot artifacts consumed successfully. This remains source-snapshot evidence, not immutable release or owner acceptance.\n\nLatest reuse follow-up confirms there is no safe CSS token/theme binding yet: Media aliases name JS semanticColorRoles, Shared tokens.css uses different scoped property names, ui-styles recipes reference unresolved unscoped names, and the Shared theme runtime writes inline CSS properties blocked by Explorer CSP. The Media system-color stylesheet remains a structural fallback, not a qualified Shared theme. Await a Shared-published bridge or an owner-approved alias/unit mapping and exact consumer review; no Media token mapping was invented.\n\nFresh ecosystem reuse audit considered Shared DataUseNotice and recorded non-adoption: its defaults imply processing location and 90-day retention absent from the current Media/AI Voice rights inputs. No Shared theme/token alias bridge is source-grounded. Existing EmptyState, MediaTaskFlow, and MediaProgress reuse remains the exact-fit set; the reuse inventory regression passes.\n\nFinal UI lane verification: Media UI check 24/24 plus typecheck/build; AI Voice UI check 5/5 plus typecheck/build; reuse inventory 4/4. Exact-fit reuse is Shared EmptyState, MediaTaskFlow in AI Voice, and MediaProgress in both Media and AI Voice. The audit found no additional exact-fit Shared component under the current CSP, semantics, and package boundary. This does not establish Shared owner acceptance, artifact publication, licensing, or independent accessibility review.\n\nPXD-032 adds one REQUIRED source-only obligation for the authored progress-indicator proposal; the current lifecycle denominator is 319 (38/130/74/77), with no proof route or admission.",
       "remaining_dependencies": "Still required: X-03 owner approval, installed or immutable public artifact consumer proof, complete light/dark token/theme alias verification, focus/keyboard/forced-colors/reduced-motion and semantic qualification, and package license/distribution review.",
       "plan_section_line": 197,
       "changed_files": [
@@ -1319,7 +1354,12 @@
         "config/closure/media-product-definition/surface.json",
         "config/closure/media-product-definition/l02-source-case-links.json",
         "config/closure/media-product-definition/l03-proof-route-candidates.json"
-      ]
+      ],
+      "upload_execution_update_2026_10_08": {
+        "result": "Real FileUpload/EmptyState consume Shared external token CSS;1744 Shared tests,24 Media UI tests,9 packed public-artifact consumer packages and strict-CSP/reflow checks pass. Full package/visual/component/specialist criteria remain open.",
+        "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "P2-03",
@@ -1462,7 +1502,12 @@
         "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/index.ts",
         "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/styles.d.ts",
         "tests/media-ui-reuse-inventory.test.mjs"
-      ]
+      ],
+      "upload_execution_update_2026_10_08": {
+        "result": "Real FileUpload/EmptyState consume Shared external token CSS;1744 Shared tests,24 Media UI tests,9 packed public-artifact consumer packages and strict-CSP/reflow checks pass. Full package/visual/component/specialist criteria remain open.",
+        "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "P2-05",
@@ -1470,7 +1515,7 @@
       "priority": "P0",
       "status": "partial",
       "authoritative_sources": "`gui/{templates/catalog.yaml,layout.yaml,recipes/catalog.yaml,screen-composition-schema.yaml,patterns/catalog.yaml}`, PDP-3 `screen-contracts/*.yaml`.",
-      "implementation_task": "validate each of eight Media recipe↔template↔registered-pattern chains, all canonical layout IDs, reading order, required content/data/state ports, responsive variants and recovery behavior. Move screen-local one-off design decisions into reusable accepted PDP-2 primitives; preserve Media specificity without creating alternate token authority. For each applicable PDP-3 view select one accepted template/layout/recipe instead of leaving null placeholders.",
+      "implementation_task": "validate each of eight Media recipe\u2194template\u2194registered-pattern chains, all canonical layout IDs, reading order, required content/data/state ports, responsive variants and recovery behavior. Move screen-local one-off design decisions into reusable accepted PDP-2 primitives; preserve Media specificity without creating alternate token authority. For each applicable PDP-3 view select one accepted template/layout/recipe instead of leaving null placeholders.",
       "acceptance_criteria_verbatim": "all template/layout/recipe references resolve bidirectionally; schema and composition tests reject missing pattern/region/keyboard/focus/unknown-finality semantics. **Dependency:** P2-01/P2-04.",
       "plan_dependencies_verbatim": "P2-01/P2-04.",
       "current_evidence": [
@@ -1642,7 +1687,12 @@
         ".product-experience/pdp-3-product-experience/cli-command-registry.yaml",
         ".product-experience/pdp-3-product-experience/events/event-registry.yaml",
         "tests/product-definition-authority.test.mjs"
-      ]
+      ],
+      "upload_execution_update_2026_10_08": {
+        "result": "Exact scoped SDK upload read, host-configured CLI artifact query and bounded Agent Tool success schema validation implemented and tested; canonical tool schema/version/operation and complete interface admission remain open.",
+        "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "P2-08",
@@ -1690,7 +1740,7 @@
       "status": "blocked-external/independent",
       "authoritative_sources": "PDP-2 `DESIGN-LANGUAGE.md`, generated `experience-language.candidate.json`, `.product-experience/{acceptance.yaml,traceability.yaml}`, Tools public ExperienceLanguage contract.",
       "implementation_task": "reconcile direct schema mapping with source-approved design semantics, machine interfaces, components and recipes. Run external reference owner resolvers, deny missing token/recipe/state source, and collect independent designer/accessibility review. Only then submit PDP-2 source acceptance to Lifecycle; do not require actual full product runtime availability.",
-      "acceptance_criteria_verbatim": "zero PDP-2 semantic/resolver/authority findings and qualified independent review for applicable design claims; actual closure receipt remains Lifecycle-owned. **Dependency:** P2-01 through P2-08. ## 6. W4 — PDP-3 complete product experiences",
+      "acceptance_criteria_verbatim": "zero PDP-2 semantic/resolver/authority findings and qualified independent review for applicable design claims; actual closure receipt remains Lifecycle-owned. **Dependency:** P2-01 through P2-08. ## 6. W4 \u2014 PDP-3 complete product experiences",
       "plan_dependencies_verbatim": "P2-01 through P2-08.",
       "current_evidence": [
         {
@@ -1844,7 +1894,7 @@
       "priority": "P0",
       "status": "partial",
       "authoritative_sources": "PDP-3 `journey-registry.yaml` and `journey-contracts/*.yaml`, PDP-0 `journey-catalog.yaml`, PDP-1 `operations.yaml`, PDP-2 interface contracts.",
-      "implementation_task": "retain stable J-01…J-30 step identities and source order. Assign primary initiating actor/co-actors, per-step view/action/operation, source and resultant object-version, observed state, authorization/decision, transition and handoff, success/failure/degradation/recovery/postcondition and case IDs. Reconcile previously reported 123 null canonical step-operation bindings by real source mapping or explicit non-operation action; do not use a dummy operation to make navigation steps green.",
+      "implementation_task": "retain stable J-01\u2026J-30 step identities and source order. Assign primary initiating actor/co-actors, per-step view/action/operation, source and resultant object-version, observed state, authorization/decision, transition and handoff, success/failure/degradation/recovery/postcondition and case IDs. Reconcile previously reported 123 null canonical step-operation bindings by real source mapping or explicit non-operation action; do not use a dummy operation to make navigation steps green.",
       "acceptance_criteria_verbatim": "30/30 journeys and every applicable step semantically bound, with at least one error/denial/unknown branch per relevant consequential step; orphan/duplicate/missing stage detection. **Dependency:** P0-04, P1-03, P3-02.",
       "plan_dependencies_verbatim": "P0-04, P1-03, P3-02.",
       "current_evidence": [
@@ -1885,7 +1935,12 @@
         "tests/media-product-definition-residuals.test.mjs"
       ],
       "latest_execution_update_2026_10_08": "Eight J-29/J-30 intent/view/screen refs accepted; all130 screen refs resolve,112 action allocations and130 transition refs unresolved.",
-      "historical_verification_or_gap_before_owner_execution": "Historical pre-PXD-030 entries below were superseded; current exact denominator is 30/30 representative journey actors selected and all collaborator refs preserved. PDP-3 projects 30 journeys containing 126 of 130 source steps. Current observed coverage: 122/130 steps have screen refs; 18/130 action refs; 16 step-level operation refs remain proposal-only; 3/30 journeys have scenario refs. All 132 source view-to-journey refs now project directly. Four step rows still lack exact step-intent bindings (including the J-29 rows), and all 130 source transitionRef values remain null/unresolved. Other open step gaps include 8 missing view allocations, 112 missing action refs, 114 null operation refs, 130 empty object/state/requirement refs, 130 null authority refs, verification not-run on 130, and 0 evidence/accepted step bindings. Focused residual/PDP-3 suites pass 23/23; strict projection validation passes. Projection is a source proposal only; no journey acceptance or phase closure is claimed."
+      "historical_verification_or_gap_before_owner_execution": "Historical pre-PXD-030 entries below were superseded; current exact denominator is 30/30 representative journey actors selected and all collaborator refs preserved. PDP-3 projects 30 journeys containing 126 of 130 source steps. Current observed coverage: 122/130 steps have screen refs; 18/130 action refs; 16 step-level operation refs remain proposal-only; 3/30 journeys have scenario refs. All 132 source view-to-journey refs now project directly. Four step rows still lack exact step-intent bindings (including the J-29 rows), and all 130 source transitionRef values remain null/unresolved. Other open step gaps include 8 missing view allocations, 112 missing action refs, 114 null operation refs, 130 empty object/state/requirement refs, 130 null authority refs, verification not-run on 130, and 0 evidence/accepted step bindings. Focused residual/PDP-3 suites pass 23/23; strict projection validation passes. Projection is a source proposal only; no journey acceptance or phase closure is claimed.",
+      "upload_execution_update_2026_10_08": {
+        "result": "Artifact intake Shared file selection forwards full125-file callback without preview/drop retention; complete screen/journey/action criteria remain open.",
+        "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "P3-04",
@@ -1923,7 +1978,7 @@
       "priority": "P0",
       "status": "partial",
       "authoritative_sources": "PDP-3 `{scenario-fixture-registry.yaml,screen-contracts/*.yaml,journey-contracts/*.yaml}`, `.product-experience/explorer/scenario-fixtures.yaml`, `libs/media-experience-simulation/src`, `tests/*experience*`.",
-      "implementation_task": "generate source-versioned deterministic fixtures with exact scenario→starting context/machine state→actions→expected state/effect→oracle. Cover success, loading/empty/partial/stale, denied/expired/revoked authority, unsupported provider, malformed source, offline conflict, duplicate/resume, timeout, unknown external effect, fenced stale attempt, cancel race, retry budget, partial output, quality not-qualified, exact-version approval and destination ack. Synthetic fixtures are explicitly tagged; do not label them model/runtime qualification.",
+      "implementation_task": "generate source-versioned deterministic fixtures with exact scenario\u2192starting context/machine state\u2192actions\u2192expected state/effect\u2192oracle. Cover success, loading/empty/partial/stale, denied/expired/revoked authority, unsupported provider, malformed source, offline conflict, duplicate/resume, timeout, unknown external effect, fenced stale attempt, cancel race, retry budget, partial output, quality not-qualified, exact-version approval and destination ack. Synthetic fixtures are explicitly tagged; do not label them model/runtime qualification.",
       "acceptance_criteria_verbatim": "every applicable critical journey has positive, negative and recovery fixtures; fixtures are versioned and referenced by PDP-3 and verification cases; no cross-tenant or unsafe-effect bypass. **Dependency:** P3-03/P3-04.",
       "plan_dependencies_verbatim": "P3-03/P3-04.",
       "current_evidence": [
@@ -2055,7 +2110,7 @@
           "path": ".product-experience/artifact-identities.yaml"
         }
       ],
-      "verification_or_gap": "The canonical PDP-3 search/inspection source defines three schema-shaped search entries and five inspection entries; PXD-027 selects the bounded owner semantics, while the additional artifact preserves source observations and exact cross-references without redefining identities. Exact PDP-1 type refs resolve. PDP-1 operation refs remain empty/unresolved; `media.http.listMediaJobs` is protocol observation only. Source-observed job behavior records tenant/auth/operator, limit 1–1000 (default 100), jobs array, no count/sort, and limit-only paging; undeclared filters/count/sort/pagination/errors/freshness remain open. Runtime stays NOT_ADMITTED; external/independent acceptance and implementation remain pending. Search/inspection focused suites pass 12/12; the full Node suite passed 244/244 at that historical checkpoint; final full Node suite is 317/317. Continuation audit (2026-10-08) confirmed the existing crosswalk is consistent: three search entries map exact PDP-1 types but have no operationRefs; observed listMediaJobs behavior is tenant/auth/operator scoped with limit 1–1000 (default 100) and a jobs array, while filters/count/sort/cursor/error/freshness semantics remain unselected; five inspection entries have exact source authorities but no runtime authorization/evidence-admission semantics. Focused source-contract tests pass 7/7; no safe new mapping or code change was found.\n\nAdded a schema-derived GET /api/v1/jobs example to docs/EXAMPLES.md for the observed OpenAPI transport shape: tenant header, optional limit, and jobs response preserve OUTCOME_UNKNOWN. It is explicitly not a PDP-1 operation binding, execution transcript, complete search behavior, or runnable inspector. Focused search/inspection contracts pass 8/8; canonical operation semantics, filters/pagination/error distinctions, other machine channels, owner review, and independent acceptance remain open.\n\nA source-exact follow-up links authority inspection to the observed getMediaArtifact route and trace inspection to getMediaJob, recording required tenant/operator access, request and 200/404 shapes while leaving PDP-1 operation binding unresolved and making no freshness/finality claim. Focused search/inspection tests pass 9/9; project/artifact search semantics and inspection evidence behavior remain owner dependencies.",
+      "verification_or_gap": "The canonical PDP-3 search/inspection source defines three schema-shaped search entries and five inspection entries; PXD-027 selects the bounded owner semantics, while the additional artifact preserves source observations and exact cross-references without redefining identities. Exact PDP-1 type refs resolve. PDP-1 operation refs remain empty/unresolved; `media.http.listMediaJobs` is protocol observation only. Source-observed job behavior records tenant/auth/operator, limit 1\u20131000 (default 100), jobs array, no count/sort, and limit-only paging; undeclared filters/count/sort/pagination/errors/freshness remain open. Runtime stays NOT_ADMITTED; external/independent acceptance and implementation remain pending. Search/inspection focused suites pass 12/12; the full Node suite passed 244/244 at that historical checkpoint; final full Node suite is 317/317. Continuation audit (2026-10-08) confirmed the existing crosswalk is consistent: three search entries map exact PDP-1 types but have no operationRefs; observed listMediaJobs behavior is tenant/auth/operator scoped with limit 1\u20131000 (default 100) and a jobs array, while filters/count/sort/cursor/error/freshness semantics remain unselected; five inspection entries have exact source authorities but no runtime authorization/evidence-admission semantics. Focused source-contract tests pass 7/7; no safe new mapping or code change was found.\n\nAdded a schema-derived GET /api/v1/jobs example to docs/EXAMPLES.md for the observed OpenAPI transport shape: tenant header, optional limit, and jobs response preserve OUTCOME_UNKNOWN. It is explicitly not a PDP-1 operation binding, execution transcript, complete search behavior, or runnable inspector. Focused search/inspection contracts pass 8/8; canonical operation semantics, filters/pagination/error distinctions, other machine channels, owner review, and independent acceptance remain open.\n\nA source-exact follow-up links authority inspection to the observed getMediaArtifact route and trace inspection to getMediaJob, recording required tenant/operator access, request and 200/404 shapes while leaving PDP-1 operation binding unresolved and making no freshness/finality claim. Focused search/inspection tests pass 9/9; project/artifact search semantics and inspection evidence behavior remain owner dependencies.",
       "remaining_dependencies": "Still required: PDP-1 owner-selected search operations and request/result/error semantics; authorization-safe search behavior; inspection access and evidence admission; runtime integration; independent review and acceptance.",
       "plan_section_line": 269,
       "changed_files": [
@@ -2076,7 +2131,7 @@
       "priority": "P1",
       "status": "partial",
       "authoritative_sources": "`journey-contracts/*.yaml`, `screen-contracts/*.yaml`, `.product-experience/lanes/*.yaml`, `docs/EXAMPLES.md`, synthetic scenario fixtures.",
-      "implementation_task": "build full contract examples for source upload→verify→transcribe/correct; versioned caption time edits; synthesis with authorized voice; mix/master and loudness; video repair/color/quality comparison; approved render/delivery; scene/animation/simulation and interchange loss; generative media with reference/provenance; offline conflict; live session loss/reconnect; headless CLI batch; API/SDK/Agent bounded result. Mark implementation/availability separately per example. Reuse the same templates/components rather than duplicating semantic surfaces.",
+      "implementation_task": "build full contract examples for source upload\u2192verify\u2192transcribe/correct; versioned caption time edits; synthesis with authorized voice; mix/master and loudness; video repair/color/quality comparison; approved render/delivery; scene/animation/simulation and interchange loss; generative media with reference/provenance; offline conflict; live session loss/reconnect; headless CLI batch; API/SDK/Agent bounded result. Mark implementation/availability separately per example. Reuse the same templates/components rather than duplicating semantic surfaces.",
       "acceptance_criteria_verbatim": "each selected product capability family has a traceable accepted end-to-end example or reviewed explicit exclusion; no example claims an unqualified provider is live. **Dependency:** P0-07/P3-03/P3-05.",
       "plan_dependencies_verbatim": "P0-07/P3-03/P3-05.",
       "current_evidence": [
@@ -2093,7 +2148,7 @@
           "path": ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"
         }
       ],
-      "verification_or_gap": "Examples cover all 12 named feature families across 18 source journey IDs. Corrected J-02 terminal trace to inspect-artifact with its candidate artifact-ingest operation, names J-29 exact ordered views, and distinguishes DEFINITION_ONLY from implementation/license/qualification/runtime/owner acceptance. Tests validate journey/view/action/operation identities and negative stale/ref-promotion cases; focused test passes 5/5. None of the examples is accepted end-to-end, and binding/runtime/qualification gaps remain explicit.\n\nAdded exact ordered screen-view identities for offline reconciliation example J-23: work-in-project → inspect-media → job-status → review-activity. The regression derives the contract views, checks documented order and exact IDs, and preserves unbound action/operation semantics. Focused P3-08 examples test passes 5/5; this is traceability evidence only.\n\n2026-10-08 source/example reconciliation: J-03 now records the exact PDP-1 caption-version-write proposal for save-caption-version with owner acceptance pending. docs/EXAMPLES.md and regression assertions now describe the candidate without claiming accepted operation behavior; compare-caption-versions remains unbound. Focused P3-08 example tests pass.",
+      "verification_or_gap": "Examples cover all 12 named feature families across 18 source journey IDs. Corrected J-02 terminal trace to inspect-artifact with its candidate artifact-ingest operation, names J-29 exact ordered views, and distinguishes DEFINITION_ONLY from implementation/license/qualification/runtime/owner acceptance. Tests validate journey/view/action/operation identities and negative stale/ref-promotion cases; focused test passes 5/5. None of the examples is accepted end-to-end, and binding/runtime/qualification gaps remain explicit.\n\nAdded exact ordered screen-view identities for offline reconciliation example J-23: work-in-project \u2192 inspect-media \u2192 job-status \u2192 review-activity. The regression derives the contract views, checks documented order and exact IDs, and preserves unbound action/operation semantics. Focused P3-08 examples test passes 5/5; this is traceability evidence only.\n\n2026-10-08 source/example reconciliation: J-03 now records the exact PDP-1 caption-version-write proposal for save-caption-version with owner acceptance pending. docs/EXAMPLES.md and regression assertions now describe the candidate without claiming accepted operation behavior; compare-caption-versions remains unbound. Focused P3-08 example tests pass.",
       "remaining_dependencies": "Still required: complete accepted source-bound examples and traceable action/operation/state/scenario/owner/runtime evidence per applicable family, or reviewed explicit exclusions. Dependencies include P0-07, P3-03, and P3-05; no provider/license/runtime qualification is inferred.",
       "plan_section_line": 274,
       "changed_files": [
@@ -2148,7 +2203,7 @@
       "status": "blocked-external/independent",
       "authoritative_sources": "PDP-3 `COMPLETE-PRODUCT-EXPERIENCE.md`, generated `experience-specification.candidate.json`, `.product-experience/{acceptance.yaml,traceability.yaml,gaps.yaml}`, Tools public ExperienceSpecification.",
       "implementation_task": "reviewers inspect every applicable view/journey/channel contract plus representative actual renderer/semantic fixtures; verify all 14 original field families via source and public owner resolvers, no invalid cross-phase reference, no unreviewed simulated runtime promises. Explicitly preserve definition-only acceptance when production host/model/codec is absent. Submit independently reviewed inputs to Lifecycle; Media does not author phase receipts.",
-      "acceptance_criteria_verbatim": "semantic completeness and required independent expertise recorded; PDP-3 has zero unexplained applicable definition obligations and is eligible for actual Lifecycle evaluation. **Dependency:** P3-01 through P3-09. ## 7. W5 — Universal Experience Explorer and product-source parity",
+      "acceptance_criteria_verbatim": "semantic completeness and required independent expertise recorded; PDP-3 has zero unexplained applicable definition obligations and is eligible for actual Lifecycle evaluation. **Dependency:** P3-01 through P3-09. ## 7. W5 \u2014 Universal Experience Explorer and product-source parity",
       "plan_dependencies_verbatim": "P3-01 through P3-09.",
       "current_evidence": [
         {
@@ -2220,7 +2275,7 @@
         "tests/experience-browser-audit.test.mjs"
       ],
       "latest_execution_update_2026_10_08": "Regenerated314 source-manifest records/315 Explorer entries; exact source projections remain candidate-only.",
-      "historical_verification_or_gap_before_owner_execution": "The current canonical manifest contains 314 source records and the Explorer index contains 315 records (including its manifest record). The exact source-to-index mapping regression passes 2/2. The 2026-10-08 local browser audit exercised 29 Explorer scenarios, all 315 indexed artifacts, 47 canonical Product routes across six viewports (282 route/viewport observations), and canonical-ID search through selection to matching trace metadata; it reported zero assertion failures, console errors, or page errors. This is local browser diagnostics; screen-reader and independent visual review remain manual gates. The Specification search now matches canonical artifact IDs as well as titles and paths. A populated query searches all 315 indexed records across phases, and selecting a result switches to that record’s phase; focused source regressions cover both initial rendering and input updates, including result counts and the accessible navigation label. The earlier browser audit verified a canonical-ID result and selected record trace ID. Full semantic cross-phase/bidirectional mapping, Tools host representation/currentness, and owner acceptance remain open. The browser audit asserts rendered/source screenId equality for all 47 routes across six widths (282 observations), and the production-preview rerun reports no CSP policy violations. The isolated 2026-10-08 browser audit now starts in PDP-0, searches for a PDP-2 canonical ID, confirms the PDP-0 phase remains selected while searching, opens the unique result, and verifies PDP-2 selection plus the exact trace ID; clearing search restores the PDP-2 phase-scoped count and label. The scenario passed on the production preview with zero assertion failures, page errors, console errors, or CSP violations. A separate Vite development-server sweep produced only Vite-client CSP diagnostics and is excluded from the production-preview result."
+      "historical_verification_or_gap_before_owner_execution": "The current canonical manifest contains 314 source records and the Explorer index contains 315 records (including its manifest record). The exact source-to-index mapping regression passes 2/2. The 2026-10-08 local browser audit exercised 29 Explorer scenarios, all 315 indexed artifacts, 47 canonical Product routes across six viewports (282 route/viewport observations), and canonical-ID search through selection to matching trace metadata; it reported zero assertion failures, console errors, or page errors. This is local browser diagnostics; screen-reader and independent visual review remain manual gates. The Specification search now matches canonical artifact IDs as well as titles and paths. A populated query searches all 315 indexed records across phases, and selecting a result switches to that record\u2019s phase; focused source regressions cover both initial rendering and input updates, including result counts and the accessible navigation label. The earlier browser audit verified a canonical-ID result and selected record trace ID. Full semantic cross-phase/bidirectional mapping, Tools host representation/currentness, and owner acceptance remain open. The browser audit asserts rendered/source screenId equality for all 47 routes across six widths (282 observations), and the production-preview rerun reports no CSP policy violations. The isolated 2026-10-08 browser audit now starts in PDP-0, searches for a PDP-2 canonical ID, confirms the PDP-0 phase remains selected while searching, opens the unique result, and verifies PDP-2 selection plus the exact trace ID; clearing search restores the PDP-2 phase-scoped count and label. The scenario passed on the production preview with zero assertion failures, page errors, console errors, or CSP violations. A separate Vite development-server sweep produced only Vite-client CSP diagnostics and is excluded from the production-preview result."
     },
     {
       "id": "E-02",
@@ -2343,7 +2398,7 @@
       "status": "blocked-external/independent",
       "authoritative_sources": "`tests/experience-browser-audit.test.mjs`, built app/browser assets, `.product-experience/explorer/verification-matrix.yaml`, human review receipt inputs.",
       "implementation_task": "validate deep links, search, artifact links, mode separation, responsive screenshots, keyboard/screen-reader alternatives, zoom/long copy/forced colors/reduced motion, accepted machine inspection and source-candidate disclosure. Browser audit passing 29 scenarios and 47 proposal routes is a starting smoke test, not qualified 47-screen implementation proof.",
-      "acceptance_criteria_verbatim": "owner-host acceptance, actual independent UX/accessibility findings resolved, publicly installed package consumer verified; no false `CURRENT`/`READY` labels. **Dependency:** E-01..E-04/P2-08. ## 8. W6 — Lifecycle requirements, proof producers and actual closure",
+      "acceptance_criteria_verbatim": "owner-host acceptance, actual independent UX/accessibility findings resolved, publicly installed package consumer verified; no false `CURRENT`/`READY` labels. **Dependency:** E-01..E-04/P2-08. ## 8. W6 \u2014 Lifecycle requirements, proof producers and actual closure",
       "plan_dependencies_verbatim": "E-01..E-04/P2-08.",
       "current_evidence": [
         {
@@ -2416,8 +2471,8 @@
       "status": "partial",
       "authoritative_sources": "new Media source-owned case bindings e.g. `config/closure/media-product-definition/requirement-proof-plan.json`, existing PDP-0 `requirements.yaml` acceptance cases, PDP-1 domain tests, PDP-2 conformance tests, PDP-3 scenario fixtures; Lifecycle public case/proof-class schemas.",
       "implementation_task": "resolve the 256 obligations currently lacking case membership, validate the 62 already linked to case IDs, and assign **every applicable obligation** one or more executable proof cases with selected `STATIC`, `CONTRACT`, `FOCUSED_TEST`, `INTEGRATION_TEST`, `BROWSER` or `NATIVE_EVIDENCE` proof method and registered proof class. Share a validated reusable test across multiple obligations only with individually justified semantic relevance; source existence or generated ID is not a proof. Distinguish specification completeness cases from separate media GPU/model runtime qualification.",
-      "acceptance_criteria_verbatim": "all 318 applicable obligations have real selected case IDs and runnable/admissible methods (or reviewed explicit N/A), with deterministic missing-case/duplicate/stale-test failure. **Dependency:** L-01, W1–W4 accepted subsets can be mapped incrementally.",
-      "plan_dependencies_verbatim": "L-01, W1–W4 accepted subsets can be mapped incrementally.",
+      "acceptance_criteria_verbatim": "all 318 applicable obligations have real selected case IDs and runnable/admissible methods (or reviewed explicit N/A), with deterministic missing-case/duplicate/stale-test failure. **Dependency:** L-01, W1\u2013W4 accepted subsets can be mapped incrementally.",
+      "plan_dependencies_verbatim": "L-01, W1\u2013W4 accepted subsets can be mapped incrementally.",
       "current_evidence": [
         {
           "path": "config/closure/media-product-definition/l02-source-case-links.json"
@@ -2618,7 +2673,7 @@
       "priority": "P0",
       "status": "blocked-external/independent",
       "authoritative_sources": "Lifecycle-generated receipt/currentness/closure output, `ghatana-media/.product-experience/{acceptance.yaml,closure-dashboard.yaml}`, Media source manifest (input-only).",
-      "implementation_task": "ask Lifecycle to evaluate each applicable phase using exact accepted sources, dependency graph and admitted proof. Close a phase only if all its required semantic, source, independent-review and proof gates pass. Maintain dependency rules PDP-1→PDP-0, PDP-2→PDP-0/1, PDP-3→PDP-0/1/2 without forcing unrelated runtime activation. Reopen only the affected closed surface when normative/contract/implementation/proof dependencies materially change.",
+      "implementation_task": "ask Lifecycle to evaluate each applicable phase using exact accepted sources, dependency graph and admitted proof. Close a phase only if all its required semantic, source, independent-review and proof gates pass. Maintain dependency rules PDP-1\u2192PDP-0, PDP-2\u2192PDP-0/1, PDP-3\u2192PDP-0/1/2 without forcing unrelated runtime activation. Reopen only the affected closed surface when normative/contract/implementation/proof dependencies materially change.",
       "acceptance_criteria_verbatim": "four actual Lifecycle-issued current phase receipts, verified against source/dependency fingerprints; no fabricated `CLOSED` or `CURRENT` in Media. **Dependency:** P0-08/P1-11/P2-09/P3-10/L-06.",
       "plan_dependencies_verbatim": "P0-08/P1-11/P2-09/P3-10/L-06.",
       "current_evidence": [
@@ -2647,7 +2702,7 @@
       "status": "partial",
       "authoritative_sources": "`.product-experience/{gaps.yaml,closure-dashboard.yaml,acceptance.yaml,traceability.yaml}`, Media residual report G-04, Lifecycle public currentness projection.",
       "implementation_task": "display closed/open/not-run/excluded units, cases/observers/oracles and material gaps as *different* dimensions. Wire actual Lifecycle outputs as read-only, with generated provenance and affected source fingerprints. A phase completion fraction is computed only if an authoritative enumerated applicable denominator exists; preserve original IDs, no commit-SHA-only authority or hand-authored green.",
-      "acceptance_criteria_verbatim": "report shows exactly how many items changed after each pass and why; can reconstruct every remaining reason/owner/source/action/proof link; source change staleness is detected. **Dependency:** G-04/L-07. ## 9. Cross-repository tasks — each fix lives with its true owner",
+      "acceptance_criteria_verbatim": "report shows exactly how many items changed after each pass and why; can reconstruct every remaining reason/owner/source/action/proof link; source change staleness is detected. **Dependency:** G-04/L-07. ## 9. Cross-repository tasks \u2014 each fix lives with its true owner",
       "plan_dependencies_verbatim": "G-04/L-07.",
       "current_evidence": [
         {
@@ -2676,7 +2731,7 @@
       "priority": "P0",
       "status": "blocked-external/independent",
       "authoritative_sources": "`ghatana-tools/libs/product-development/{product-definition,experience-language,experience-specification,experience-package,experience-explorer-contracts,development-traceability}`, `tools/product-development/explorer`; issue [Tools #30](https://github.com/samujjwal/ghatana-tools/issues/30) addresses the additional stale provider reference.",
-      "implementation_task": "publish/qualify current schema + validator + reference resolvers, phase-to-contract roles, generic Explorer load/render/inspect/dispatch and affected-verification planner. Ensure schema semantics support true Media multi-actor journeys and genuinely optional timestamp/provenance needs where current public schema cannot express them—make compatible owner changes, not local fake placeholders. Fix ghost Tools Evidence Generator executable paths without disturbing Tools-owned physical discovery.",
+      "implementation_task": "publish/qualify current schema + validator + reference resolvers, phase-to-contract roles, generic Explorer load/render/inspect/dispatch and affected-verification planner. Ensure schema semantics support true Media multi-actor journeys and genuinely optional timestamp/provenance needs where current public schema cannot express them\u2014make compatible owner changes, not local fake placeholders. Fix ghost Tools Evidence Generator executable paths without disturbing Tools-owned physical discovery.",
       "acceptance_criteria_verbatim": "verified isolated public package consumers, exact contracts, no stale private imports or duplicate generic product framework. **Parallel start:** W0.",
       "plan_dependencies_verbatim": "parallel start: W0",
       "current_evidence": [
@@ -2983,7 +3038,7 @@
       "status": "partial",
       "authoritative_sources": "Ghatana legacy `services/media`, `ghatana-media/{BOUNDARY.md,docs/migration,adapters,config}`, former consumer imports, Gradle/Docker manifests (including GAP-MEDIA-CLEAN-5).",
       "implementation_task": "inventory reverse consumers across live branches/releases, select exact versioned cutover and compatibility proxy, migrate only executable code with preserved ownership and public contracts, fix stale Gradle/Docker/context paths after verified cutover. Separate semantic-definition closure from actual rollout and rollback. Do not delete the legacy service or change cross-repo import direction on assumptions.",
-      "acceptance_criteria_verbatim": "all consumer contracts version-migrated, no stale source reference at runtime, production cutover/rollback rehearsed, old paths retired only after proof. **Dependency:** X-04/05/06 and implementation readiness; not a blanket PDP gate. ## 10. Separate post-PDP implementation / release qualification — not hidden phase blockers",
+      "acceptance_criteria_verbatim": "all consumer contracts version-migrated, no stale source reference at runtime, production cutover/rollback rehearsed, old paths retired only after proof. **Dependency:** X-04/05/06 and implementation readiness; not a blanket PDP gate. ## 10. Separate post-PDP implementation / release qualification \u2014 not hidden phase blockers",
       "plan_dependencies_verbatim": "X-04/05/06 and implementation readiness; not a blanket PDP gate.",
       "current_evidence": [
         {
@@ -3144,6 +3199,11 @@
         ],
         "verification_and_gap": "Java module suites pass runtime-contracts 22/22, launcher 58/58, PostgreSQL provider 29/29 (109 total, zero failures/skips). Changes include immutable fingerprint schema/store behavior, tenant/principal effect-boundary checks and adversarial regressions. This does not qualify production durability/performance/deployment, cross-system atomicity, codecs, or upload begin idempotency. Begin upload still does not bind Idempotency-Key/payloadHash; local complete rejects a second completion while PostgreSQL may return an already-completed artifact, so repeat-completion parity remains open.",
         "status_effect": "none; original Done criterion and status preserved"
+      },
+      "upload_execution_update_2026_10_08": {
+        "result": "128 runtime tests prove bounded store replay,chunk receipt integrity,expiry and single-transition publication; production/process-kill/fsync/load/soak qualification remains unproved.",
+        "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
       }
     },
     {
@@ -3187,7 +3247,7 @@
       "status": "partial",
       "authoritative_sources": "product release configuration, images/artifact provenance, public package SBOM, consumer cutover matrix and deployment records.",
       "implementation_task": "require secure reproducible builds, public artifact-only installation, release-specific licenses, qualified models/codecs, deployment proof, approved compatibility, rollback and operational SLOs. Decide commercial activation and external certification separately where relevant.",
-      "acceptance_criteria_verbatim": "actual owner-authorized release gates green; no manufactured PDP or Lifecycle phase acceptance. ## 11. Exact commands and verification order From a **configured, authorized multi-repo development checkout** of `ghatana-media` with the matching public/packed Ghatana package dependencies (source-composite development and installed-public-artifact verification are **separate** runs): ```bash # Wave 0: always start with authoritative regeneration, NEVER edit generated JSON directly. pnpm generate:product-definition-manifest node scripts/generate-media-phase-projections.mjs node scripts/generate-media-phase-projections.mjs --check --strict # Fast source/semantic regressions introduced in merged owner decisions. pnpm test:owner-source-selections pnpm test:typed-contract-bindings pnpm check:product-definition-authority pnpm check:product-experience-local pnpm test:product-definition-authority pnpm test:product-experience-local # Source-level parity and design gates. Non-zero is an actionable finding until resolved. node --test tests/media-contract-parity.test.mjs tests/media-design-conformance.test.mjs pnpm check:contract-parity pnpm check:design-conformance pnpm check:presentation-architecture pnpm test:presentation-architecture # Public package/host and Lifecycle input consumers. pnpm test:tools-media-consumer pnpm test:shared-media-consumer pnpm check:lifecycle-closure-inputs pnpm test:lifecycle-input-preflight pnpm test:lifecycle-consumer-artifact # Full affected browser smoke and scenario review when GUI/Explorer sources change. pnpm test:experience-browser git diff --check ``` **Do not run these commands assuming every pre-existing task must pass today.** `check:contract-parity`, `check:design-conformance`, and Lifecycle *phase admission* may legitimately be non-green; isolate the failed source identities and fix them. A Lifecycle **input** preflight PASS with `PENDING`, no providers and zero receipts is **not phase closure**. Native Lifecycle proof commands must be obtained from and invoked through its current supported public CLI; do not guess private scripts/flags or import owner-internal files. ### Required negative test matrix | Change/fault injected | What must fail or be preserved | |---|---| | Unregistered/new ProductDefinition field, component, recipe, type, source ID | Public validator/ref closure and exact field mapper reject it | | Capability removed to reduce denominator | Registry/denominator preservation fails | | Multi-actor journey first-actor inferred silently | Actor/priority/authority mapping fails | | Wire route, SDK method or gRPC RPC silently renamed | Method+route+type+consumer parity fails | | Stale job attempt, expired token or wrong tenant | Canonical operation/effect authorizer rejects write/dispatch | | Cancel request or watcher detach mapped to `CANCELLED` | State/finality invariant fails | | Timeout or lost acknowledgment mapped to `FAILED`, automatically replayed | Outcome-unknown/reconciliation oracle fails | | Partial result accepted without sub-effect accounting | Partial finality contract fails | | Unsupported codec/model/voice or unknown rights | Capability admission rejects and UI/API reports reason | | Unknown Shared token, absent template/layout or private import | Design conformance and package consumer reject it | | Fake browser/AT review or empty human signature | Independent acceptance stays not-run | | Missing case/observer/oracle/provider or forged receipt | Lifecycle preflight/admission rejects premature readiness | | Normative source changed but proof reused with stale fingerprint | Lifecycle currentness/reproof rejects it | ## 12. How to split work into bounded implementation batches **Batch discipline:** Each PR addresses one coherent owner and dependency slice and leaves the repository in a locally honest, testable state. Avoid enormous bulk rewrites of 462 leaves/349 blocks/47 screens in one change. Process by capability/operation family or journey, preserve stable IDs, and regenerate affected projections after source edits. Cross-repository PRs should be submitted to their owners, never copied into Media private trees. **Suggested concurrent batches:** | Lane | Initial bounded changes | Other lane dependency | |---|---|---| | A — Regeneration & source truth | G-01/G-02/G-03/G-04, make 306-source manifest and 12/6/14 truth current | None | | B — PDP-0 semantics | P0-03 migration claim extraction in small source slices; P0-04 actor/intent mapping | G-03, later canonical PDP-1 refs | | C — PDP-1 interfaces | P1-06 TS binding tests; P1-03 caption version/read/write operations; P1-04 parity groups | G-02, authority selected | | D — PDP-2 design | P2-01 fresh six-field mapper; P2-05 recipe/template/layout selection; P2-02 Shared consumer | G-02, Shared public contract | | E — PDP-3 first vertical | P3-03 J-01/J-02/J-03/J-20 verified stages; P3-05 negative fixtures and P3-06 shared renderer | PDP-1 action/state and PDP-2 template semantics | | F — Proof system | L-01 exact 318 scope and L-02 case plan adapter from real tests | None to start; proof admission needs owner X-01/X-02 | | G — Owner-bound public packages | X-01 Tools #30, X-02 Lifecycle #1, X-03 Shared #234 | All can start in parallel | ### Immediate first PR checklist - [ ] Run the post-merge regeneration and capture the **new** actual semantic blocker counts and source diff; fix generator/compiler/public schema errors, not generated outputs by hand. - [ ] Run `pnpm test:typed-contract-bindings` and `pnpm test:owner-source-selections`; resolve real failures in source or assertions and confirm correct case sensitivity/unique semantic refs. - [ ] Make source-mapping residual reporting deterministic and list every remaining ID/owner, not just totals. - [ ] Re-run contract parity and design conformance; preserve the non-green reasons, classify them as schema/source/semantic/independent/external. - [ ] Start the Tools/Lifecycle/Shared owner dependencies in parallel (existing issues linked above). - [ ] Select one vertical (caption source upload → job → transcript → corrected caption version) as an *end-to-end semantic acceptance exemplar*, with real state/operation/interface/source proof, and then roll out the same source-owned pattern by family without copying definitions. ## 13. Definition-of-done matrix (actual phase/owner receipts, not source greenwashing) | Phase | Must be complete **before** asking Lifecycle to close it | Does **not** by itself block definition acceptance | |---|---|---| | PDP-0 | Fully reconciled product scope/462 leaves, all normative migration claims, bounded/testable requirements, actors, non-goals/business intents, quality/NFR and exact trace IDs; ProductDefinition owner/schema/semantic validation and P0-010 independent assessment | GPU/model/provider installed, every capability runtime-qualified, release certification, production host | | PDP-1 | Canonical domain/time/version objects, independent state machines, concrete operation+effect+finality/rights semantics and exact machine interface classification, negative invariant proof, independently accepted domain/security/interface assessment | Native encoder available unless a specific **definition claim** requires qualified observed behavior | | PDP-2 | Reusable accepted design/interaction/interface grammar, exact Shared public contract references, central layout/template/recipe/component bindings, WCAG target and independent relevant design/a11y conformance, verified ExperienceLanguage | Full 47-screen production Web implementation or a production-grade simulator engine | | PDP-3 | All 47 applicable view definitions, 30 journeys/130 steps, actions/guards/effects/states/recovery/fixtures and headless API/CLI/SDK/Agent experiences complete and cross-resolved; full ExperienceSpecification semantic validators and independent applicable experience review | Actual deployed Web host, every ML model, codec or native engine activated | | Lifecycle (cross-phase) | Source-current **actual** selected requirement/case/observer/oracle/provider/evidence for every applicable obligation, admitted package/registry, signed qualified review where needed and generated four current receipts | Hand-written green status, copied screenshot, no-console-error audit, generic owner policy comment | **Overall closure:** `PDP-0 CLOSED + PDP-1 CLOSED + PDP-2 CLOSED + PDP-3 CLOSED` requires authoritative Lifecycle receipts, zero unjustified required semantic gaps and complete applicable independent proof. Product release/readiness is an independent later result. ### Expected deliverables from every implementation pass A pass is not finished until it reports: (a) exact files/owners changed; (b) source inventory and denominators before/after; (c) newly accepted vs still proposed/blocked semantic references; (d) affected positive/negative test names with actual outcomes; (e) public package and consumer compatibility if touched; (f) external/independent evidence still outstanding, without manufactured PASS; (g) updated residual task IDs and dependency next actions; (h) whether Lifecycle generated any *actual* currentness/receipt (usually `NOT_RUN` until L-05 onwards). --- **Source references used for this plan:** merged PR #1, merged PR #2, PXD-026/PXD-027, `.product-experience/reviews/2026-10-07-all-gate-unblocking.md`, current checked-in `main` phase registries/projection candidates, `gaps.yaml`, the 318-obligation JSON and the public cross-repository issue descriptions. These are evidence for **current source obligations and remaining work**, not proof that the proposed fixes or external certifications have already passed.",
+      "acceptance_criteria_verbatim": "actual owner-authorized release gates green; no manufactured PDP or Lifecycle phase acceptance. ## 11. Exact commands and verification order From a **configured, authorized multi-repo development checkout** of `ghatana-media` with the matching public/packed Ghatana package dependencies (source-composite development and installed-public-artifact verification are **separate** runs): ```bash # Wave 0: always start with authoritative regeneration, NEVER edit generated JSON directly. pnpm generate:product-definition-manifest node scripts/generate-media-phase-projections.mjs node scripts/generate-media-phase-projections.mjs --check --strict # Fast source/semantic regressions introduced in merged owner decisions. pnpm test:owner-source-selections pnpm test:typed-contract-bindings pnpm check:product-definition-authority pnpm check:product-experience-local pnpm test:product-definition-authority pnpm test:product-experience-local # Source-level parity and design gates. Non-zero is an actionable finding until resolved. node --test tests/media-contract-parity.test.mjs tests/media-design-conformance.test.mjs pnpm check:contract-parity pnpm check:design-conformance pnpm check:presentation-architecture pnpm test:presentation-architecture # Public package/host and Lifecycle input consumers. pnpm test:tools-media-consumer pnpm test:shared-media-consumer pnpm check:lifecycle-closure-inputs pnpm test:lifecycle-input-preflight pnpm test:lifecycle-consumer-artifact # Full affected browser smoke and scenario review when GUI/Explorer sources change. pnpm test:experience-browser git diff --check ``` **Do not run these commands assuming every pre-existing task must pass today.** `check:contract-parity`, `check:design-conformance`, and Lifecycle *phase admission* may legitimately be non-green; isolate the failed source identities and fix them. A Lifecycle **input** preflight PASS with `PENDING`, no providers and zero receipts is **not phase closure**. Native Lifecycle proof commands must be obtained from and invoked through its current supported public CLI; do not guess private scripts/flags or import owner-internal files. ### Required negative test matrix | Change/fault injected | What must fail or be preserved | |---|---| | Unregistered/new ProductDefinition field, component, recipe, type, source ID | Public validator/ref closure and exact field mapper reject it | | Capability removed to reduce denominator | Registry/denominator preservation fails | | Multi-actor journey first-actor inferred silently | Actor/priority/authority mapping fails | | Wire route, SDK method or gRPC RPC silently renamed | Method+route+type+consumer parity fails | | Stale job attempt, expired token or wrong tenant | Canonical operation/effect authorizer rejects write/dispatch | | Cancel request or watcher detach mapped to `CANCELLED` | State/finality invariant fails | | Timeout or lost acknowledgment mapped to `FAILED`, automatically replayed | Outcome-unknown/reconciliation oracle fails | | Partial result accepted without sub-effect accounting | Partial finality contract fails | | Unsupported codec/model/voice or unknown rights | Capability admission rejects and UI/API reports reason | | Unknown Shared token, absent template/layout or private import | Design conformance and package consumer reject it | | Fake browser/AT review or empty human signature | Independent acceptance stays not-run | | Missing case/observer/oracle/provider or forged receipt | Lifecycle preflight/admission rejects premature readiness | | Normative source changed but proof reused with stale fingerprint | Lifecycle currentness/reproof rejects it | ## 12. How to split work into bounded implementation batches **Batch discipline:** Each PR addresses one coherent owner and dependency slice and leaves the repository in a locally honest, testable state. Avoid enormous bulk rewrites of 462 leaves/349 blocks/47 screens in one change. Process by capability/operation family or journey, preserve stable IDs, and regenerate affected projections after source edits. Cross-repository PRs should be submitted to their owners, never copied into Media private trees. **Suggested concurrent batches:** | Lane | Initial bounded changes | Other lane dependency | |---|---|---| | A \u2014 Regeneration & source truth | G-01/G-02/G-03/G-04, make 306-source manifest and 12/6/14 truth current | None | | B \u2014 PDP-0 semantics | P0-03 migration claim extraction in small source slices; P0-04 actor/intent mapping | G-03, later canonical PDP-1 refs | | C \u2014 PDP-1 interfaces | P1-06 TS binding tests; P1-03 caption version/read/write operations; P1-04 parity groups | G-02, authority selected | | D \u2014 PDP-2 design | P2-01 fresh six-field mapper; P2-05 recipe/template/layout selection; P2-02 Shared consumer | G-02, Shared public contract | | E \u2014 PDP-3 first vertical | P3-03 J-01/J-02/J-03/J-20 verified stages; P3-05 negative fixtures and P3-06 shared renderer | PDP-1 action/state and PDP-2 template semantics | | F \u2014 Proof system | L-01 exact 318 scope and L-02 case plan adapter from real tests | None to start; proof admission needs owner X-01/X-02 | | G \u2014 Owner-bound public packages | X-01 Tools #30, X-02 Lifecycle #1, X-03 Shared #234 | All can start in parallel | ### Immediate first PR checklist - [ ] Run the post-merge regeneration and capture the **new** actual semantic blocker counts and source diff; fix generator/compiler/public schema errors, not generated outputs by hand. - [ ] Run `pnpm test:typed-contract-bindings` and `pnpm test:owner-source-selections`; resolve real failures in source or assertions and confirm correct case sensitivity/unique semantic refs. - [ ] Make source-mapping residual reporting deterministic and list every remaining ID/owner, not just totals. - [ ] Re-run contract parity and design conformance; preserve the non-green reasons, classify them as schema/source/semantic/independent/external. - [ ] Start the Tools/Lifecycle/Shared owner dependencies in parallel (existing issues linked above). - [ ] Select one vertical (caption source upload \u2192 job \u2192 transcript \u2192 corrected caption version) as an *end-to-end semantic acceptance exemplar*, with real state/operation/interface/source proof, and then roll out the same source-owned pattern by family without copying definitions. ## 13. Definition-of-done matrix (actual phase/owner receipts, not source greenwashing) | Phase | Must be complete **before** asking Lifecycle to close it | Does **not** by itself block definition acceptance | |---|---|---| | PDP-0 | Fully reconciled product scope/462 leaves, all normative migration claims, bounded/testable requirements, actors, non-goals/business intents, quality/NFR and exact trace IDs; ProductDefinition owner/schema/semantic validation and P0-010 independent assessment | GPU/model/provider installed, every capability runtime-qualified, release certification, production host | | PDP-1 | Canonical domain/time/version objects, independent state machines, concrete operation+effect+finality/rights semantics and exact machine interface classification, negative invariant proof, independently accepted domain/security/interface assessment | Native encoder available unless a specific **definition claim** requires qualified observed behavior | | PDP-2 | Reusable accepted design/interaction/interface grammar, exact Shared public contract references, central layout/template/recipe/component bindings, WCAG target and independent relevant design/a11y conformance, verified ExperienceLanguage | Full 47-screen production Web implementation or a production-grade simulator engine | | PDP-3 | All 47 applicable view definitions, 30 journeys/130 steps, actions/guards/effects/states/recovery/fixtures and headless API/CLI/SDK/Agent experiences complete and cross-resolved; full ExperienceSpecification semantic validators and independent applicable experience review | Actual deployed Web host, every ML model, codec or native engine activated | | Lifecycle (cross-phase) | Source-current **actual** selected requirement/case/observer/oracle/provider/evidence for every applicable obligation, admitted package/registry, signed qualified review where needed and generated four current receipts | Hand-written green status, copied screenshot, no-console-error audit, generic owner policy comment | **Overall closure:** `PDP-0 CLOSED + PDP-1 CLOSED + PDP-2 CLOSED + PDP-3 CLOSED` requires authoritative Lifecycle receipts, zero unjustified required semantic gaps and complete applicable independent proof. Product release/readiness is an independent later result. ### Expected deliverables from every implementation pass A pass is not finished until it reports: (a) exact files/owners changed; (b) source inventory and denominators before/after; (c) newly accepted vs still proposed/blocked semantic references; (d) affected positive/negative test names with actual outcomes; (e) public package and consumer compatibility if touched; (f) external/independent evidence still outstanding, without manufactured PASS; (g) updated residual task IDs and dependency next actions; (h) whether Lifecycle generated any *actual* currentness/receipt (usually `NOT_RUN` until L-05 onwards). --- **Source references used for this plan:** merged PR #1, merged PR #2, PXD-026/PXD-027, `.product-experience/reviews/2026-10-07-all-gate-unblocking.md`, current checked-in `main` phase registries/projection candidates, `gaps.yaml`, the 318-obligation JSON and the public cross-repository issue descriptions. These are evidence for **current source obligations and remaining work**, not proof that the proposed fixes or external certifications have already passed.",
       "plan_dependencies_verbatim": "none explicitly listed",
       "current_evidence": [
         {
@@ -4469,8 +4529,8 @@
       "limitation": "Does not establish trusted tenant/principal authenticity, global replay safety, or provider-effect deduplication."
     },
     "migration_no_omission_claim_decomposition": {
-      "claim": "MPSEM-0170-C01: “An operation cannot vanish by being relabeled ‘future.’”",
-      "mapping": "Crosswalk rule 0 requires every §6 family/operation to map to a leaf or explicit alias and enumerates all 462 canonical leaf IDs exactly once.",
+      "claim": "MPSEM-0170-C01: \u201cAn operation cannot vanish by being relabeled \u2018future.\u2019\u201d",
+      "mapping": "Crosswalk rule 0 requires every \u00a76 family/operation to map to a leaf or explicit alias and enumerates all 462 canonical leaf IDs exactly once.",
       "disposition": "Bounded source-reviewed scope only; parent MPSEM-0170 remains UNRESOLVED; acceptance effect none; master-plan source pin remains STALE.",
       "focused_verification": "node --test tests/media-migration-semantics-ledger.test.mjs: 5/5 PASS; unresolved and overlay counts remain 349."
     },
@@ -5182,11 +5242,11 @@
       "changed_files_count": 145,
       "manifest_projection_sync": {
         "result": "No generator defect: the first manifest/index pass precedes refreshed PDP-3 generated sourceAuthorities, which then add explicit screen-contract path mentions. The post-projection manifest pass records those provenance-only edges; an immediate subsequent manifest pass produces byte-identical output.",
-        "requiredOrder": "Generate manifest and Explorer index → regenerate all phase candidates → regenerate manifest and Explorer index again → rerun manifest for stability and projection strict checks twice.",
+        "requiredOrder": "Generate manifest and Explorer index \u2192 regenerate all phase candidates \u2192 regenerate manifest and Explorer index again \u2192 rerun manifest for stability and projection strict checks twice.",
         "change": "No source-manifest generator or source files changed for this finding; the final pass synchronized the manifest to regenerated candidate source refs."
       },
       "g02_manifest_authority_regression": {
-        "change": "Added a regression that hashes every generated PDP-3 sourceAuthority against current bytes; requires manifest path/hash equality for PDP sources; keeps the simulation fixture outside the PDP index; and verifies candidate dependency edges cover all 47 canonical screen contracts. docs/TESTING.md now documents manifest → projections → post-projection manifest → stable manifest repeat → strict checks.",
+        "change": "Added a regression that hashes every generated PDP-3 sourceAuthority against current bytes; requires manifest path/hash equality for PDP sources; keeps the simulation fixture outside the PDP index; and verifies candidate dependency edges cover all 47 canonical screen contracts. docs/TESTING.md now documents manifest \u2192 projections \u2192 post-projection manifest \u2192 stable manifest repeat \u2192 strict checks.",
         "focusedTest": "PASS: node --test tests/media-explorer-manifest-authority.test.mjs; 9/9.",
         "interpretation": "Provenance dependency synchronization is expected; the generated edges do not imply semantic dependencies or currentness."
       },
@@ -5513,7 +5573,7 @@
       },
       "p0_03_msc11_dependency_text": {
         "claim": "MPSEM-0636-C02",
-        "source": "Exact P1-001 task-index dependency text “P0-010, GOV-002” is unchanged across historical/current rows.",
+        "source": "Exact P1-001 task-index dependency text \u201cP0-010, GOV-002\u201d is unchanged across historical/current rows.",
         "disposition": "Row-text preservation only. No dependency semantics, task-card scope, owner routing, source currency, or acceptance is inferred.",
         "remaining": "MSC-01/MSC-09 parent clusters remain incompletely reconciled: the bounded current-scope record supports seven claims and supersedes two legacy task-ID claims. The phase authority boundary is settled for routing only; exact PDP-1 source-record mapping and acceptance remain open. MPSEM parent blocks remain unresolved; the master-plan pin remains stale.",
         "verification": "PASS: focused MSC-11 regression in tests/media-migration-semantics-ledger.test.mjs."
@@ -5641,7 +5701,7 @@
         "local": "PASS: 315 Explorer records; local structural check only",
         "nodeTests": "PASS: 290/290 (latest full Node suite after E-04 semantic pin update)",
         "uiPackages": "PASS: Media UI typecheck/build and 22/22 tests; AI Voice UI typecheck/build and 5/5 tests; isolated consumer resolves nine local Shared snapshot artifacts",
-        "explorer": "PASS: TypeScript typecheck and production build; production-preview audit 29 scenarios, 47 routes × six viewports (282), cross-phase canonical-ID search passed, zero failures/console errors/CSP violations/page errors",
+        "explorer": "PASS: TypeScript typecheck and production build; production-preview audit 29 scenarios, 47 routes \u00d7 six viewports (282), cross-phase canonical-ID search passed, zero failures/console errors/CSP violations/page errors",
         "projectionResiduals": {
           "diagnostics": 0,
           "declaredFieldBlockers": {
@@ -5985,7 +6045,7 @@
     },
     "migration_semantic_diff_followup_2026_10_08": {
       "claim": "MSC-03-C01..C05",
-      "source": "docs/migration/expert-reviewed-master-plan.md lines 332–336: bounded phase-owner labels for PDP-0, PDP-1, PDP-2, PDP-3, and Explorer outside PDP",
+      "source": "docs/migration/expert-reviewed-master-plan.md lines 332\u2013336: bounded phase-owner labels for PDP-0, PDP-1, PDP-2, PDP-3, and Explorer outside PDP",
       "basis": [
         "PXD-003",
         "PXD-027",
@@ -6118,7 +6178,7 @@
         "G-01": "complete: 314 authored sources, identity records, unique IDs and manifest records reconcile; source observations are not package admission/currentness.",
         "G-02": "complete: current generation and strict checks are stable; current residuals are 4/0/10, with semantic gaps tracked separately.",
         "P0-03": "partial: all 121 zero-context source diff hunks remain inventoried; added bounded MSC-15-C01 routing claim tied to historical line 2805/current line 2819 and hunk MSD-119, acceptanceEffect none. MSC-10 retains three non-accepting PDP-3 input-routing claims. Master-plan pin remains STALE; parent counts remain 1,340 unique units / 349 unresolved / 124 mixed / 0 owner-reviewed, with 11 clusters still needing claim decomposition and 2 without historical MPSEM IDs.",
-        "P2-04": "partial: ecosystem reuse is verified in call sites—Shared EmptyState in Media project/artifact views, MediaTaskFlow in Media and AI Voice, and MediaProgress in Media and AI Voice. No other exact-fit Shared component fits current CSP and state/action semantics. Owner/license/accessibility/responsive/visual qualification remains.",
+        "P2-04": "partial: ecosystem reuse is verified in call sites\u2014Shared EmptyState in Media project/artifact views, MediaTaskFlow in Media and AI Voice, and MediaProgress in Media and AI Voice. No other exact-fit Shared component fits current CSP and state/action semantics. Owner/license/accessibility/responsive/visual qualification remains.",
         "R-03": "partial: Shared runtime reuse audited; no exact substitution supported; operational/security qualification remains.",
         "P3-05": "partial: 31 registered scenarios, 30 seeds, 15 exact canonical start states, and only 3/30 journeys fully seeded. Eligible retry remains unsupported without canonical prior-attempt/context/action/effect/oracle inputs.",
         "L-02": "partial: 28 exact candidate links across 7/318 obligations; 311 unmapped. Candidates remain non-admitted.",
@@ -6556,7 +6616,7 @@
       },
       "source_supported_changes": {
         "P1-08/P1-10": "Corrected stale restart-state observations in offline-sync.yaml, versioning.yaml, Architecture and Operations docs. Runtime startup marks recoverable non-terminal jobs OUTCOME_UNKNOWN with blank failureCode and null completedAt; it does not query providers or replay. Independent review verified runtime, stores, migration, and tests.",
-        "P3-03/P3-04": "Propagated nine exact step-level operation candidates from the explicit PDP-1 action-operation crosswalk into J-03/J-20. Total step refs 7→16; null refs 123→114. All remain owner-review pending.",
+        "P3-03/P3-04": "Propagated nine exact step-level operation candidates from the explicit PDP-1 action-operation crosswalk into J-03/J-20. Total step refs 7\u219216; null refs 123\u2192114. All remain owner-review pending.",
         "P3-08": "Updated the caption example to match the newly copied proposal-level save operation binding; comparison operation remains unresolved.",
         "L-01": "Refreshed 30 exact PDP-3 obligation source fingerprints after a semantic diff confirmed only journey-registry aggregate coverage metadata changed. Audit now reports 318/318 matching, 0 stale, 0 absent."
       },
@@ -6956,5 +7016,79 @@
       "No upload idempotency contract change or implementation is claimed in this batch.",
       "No independent review, native Lifecycle admission/receipt, phase closure, release qualification, or public release authorization is claimed."
     ]
+  },
+  "upload_execution_batch_2026_10_08": {
+    "baseMain": "cae6fc6bd60e48a3fe945a4a8873bb928a2d67b1",
+    "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+    "after": {
+      "capabilityCoverage": {
+        "leafCount": 462,
+        "acceptedCoverageCount": 0,
+        "unresolvedCount": 383
+      },
+      "migrationSemantics": {
+        "uniqueContentUnits": 1340,
+        "unresolvedCount": 260,
+        "originalStructuralUnresolvedCount": 349,
+        "mixedRequiresDecompositionCount": 124,
+        "staleSourcePinCount": 4
+      },
+      "operationParity": {
+        "surfaceCount": 9,
+        "totalObservedIdentities": 286,
+        "unresolvedIdentityCount": 190,
+        "acceptedBindingCount": 0
+      },
+      "designConformance": {
+        "gateCount": 7,
+        "resolvedOwnerGateCount": 4,
+        "openGateCount": 3
+      },
+      "productExperience": {
+        "screenViewCount": 47,
+        "journeyCount": 30,
+        "stepCount": 130,
+        "stepsWithScreenContracts": 130,
+        "stepsWithActionBindings": 18,
+        "stepsWithoutActionBindings": 112,
+        "stepsWithoutAcceptedTransitionBindings": 130
+      },
+      "lifecycle": {
+        "obligationCount": 344,
+        "totalProofRoutes": 344,
+        "obligationsWithCaseIds": 62,
+        "obligationsWithoutCaseIds": 282,
+        "observerAssignments": 0,
+        "oracleAssignments": 0,
+        "providerBindingCount": 0,
+        "localReceiptRecordCount": 0,
+        "nativeAdmissions": 0,
+        "l02CandidateLinks": 28,
+        "l02LinkedObligations": 7,
+        "l02UnmappedObligations": 337
+      },
+      "projectionBlockers": {
+        "PDP-0": 1,
+        "PDP-2": 0,
+        "PDP-3": 10
+      }
+    },
+    "newlyComplete": 0,
+    "sourceCensus": {
+      "manifestRecords": 316,
+      "explorerRecords": 317,
+      "gradleDeclarations": 315,
+      "sdkLogicalIdentities": 30,
+      "sdkRawRecords": 33,
+      "cliFixtureIdentities": 11,
+      "cliHistoricalProposalsUnresolved": 12,
+      "cliHostConfiguredConsumers": 1,
+      "currentParityFindings": 47,
+      "currentDispositioned": 45,
+      "unresolvedFindings": 2,
+      "historicalFindings": 52,
+      "retiredFindings": 5
+    },
+    "qualification": "NOT_ADMITTED; independent and native Lifecycle authorities pending"
   }
 }

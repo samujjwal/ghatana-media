@@ -389,7 +389,16 @@ export function analyzeContractParity(input) {
       && id === 'media.sdk.getArtifact'
       && input.sdkSourceFiles?.['libs/audio-video-client/src/operations.ts']?.includes('Promise<CanonicalMediaArtifactObservation>')
       && (input.sdkCalls ?? []).some(call => call.method === 'GET' && call.path === '/api/v1/artifacts/{parameter}');
-    if (canonicalRead || (disposition && ["CLIENT_ONLY", "TRANSPORT_ONLY", "PROVIDER_ADMIN", "NOT_ADMITTED"].includes(disposition.disposition))) {
+    const uploadReadSource = input.sdkSourceFiles?.['libs/audio-video-client/src/operations.ts'] ?? '';
+    const canonicalUploadRead = disposition?.disposition === "BOUNDED_CANONICAL_READ"
+      && disposition.type === "DOMAIN_QUERY" && disposition.operationId === 'getMediaUpload'
+      && operationIds.has('getMediaUpload')
+      && disposition.ownerDecisionRef === '.product-experience/decision-log.md#PXD-040'
+      && id === 'media.sdk.getUploadSession'
+      && /public async getUploadSession\([\s\S]*?Promise<CanonicalMediaUploadSessionObservation>[\s\S]*?\n  \}/u.test(uploadReadSource)
+      && /public async getUploadSession\([\s\S]*?"GET"[\s\S]*?\/api\/v1\/artifacts\/uploads\/\$\{encodeURIComponent\(requestedUploadId\)\}[\s\S]*?\n  \}/u.test(uploadReadSource)
+      && (input.sdkCalls ?? []).some(call => call.method === 'GET' && call.path === '/api/v1/artifacts/uploads/{parameter}');
+    if (canonicalRead || canonicalUploadRead || (disposition && ["CLIENT_ONLY", "TRANSPORT_ONLY", "PROVIDER_ADMIN", "NOT_ADMITTED"].includes(disposition.disposition))) {
       reconciledFindings.push({ finding, disposition: disposition.disposition });
     } else {
       gaps.push(finding);
@@ -517,7 +526,7 @@ export function analyzeContractParity(input) {
   };
 }
 
-function collectLiveInput() {
+export function collectLiveInput() {
   const operationFiles = [
     "modules/speech/stt-service/src/main/proto/stt_service.proto",
     "modules/speech/tts-service/src/main/proto/tts_service.proto",

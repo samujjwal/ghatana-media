@@ -5,6 +5,7 @@ export {
   Card,
   Checkbox,
   EmptyState,
+  FileUpload,
   Modal,
   Select,
   Spinner,

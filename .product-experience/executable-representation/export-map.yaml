@@ -1,14 +1,14 @@
 schemaVersion: media.executable-representation-export-map.v1
 productId: media
 package: "@audio-video/ui"
-observationRevision: f200f44d4046bf0bbe9216a570802b4fb984246c
+observationRevision: cae6fc6bd60e48a3fe945a4a8873bb928a2d67b1
 observationNote: >-
   Package exports below reflect the working tree after the initial presentation-boundary implementation. They are inventory/candidate exports, not admissions. Shared package binding and semantic owner review remain pending.
 generatedPackageExports:
   packageName: "@audio-video/ui"
   packageVersion: "0.1.0-SNAPSHOT"
   packageManifestSha256: 92cdda1b01d1be3f1d31151513eb705afddb54f347065d5da7eec0f5853bd12b
-  sourceRevision: f200f44d4046bf0bbe9216a570802b4fb984246c
+  sourceRevision: cae6fc6bd60e48a3fe945a4a8873bb928a2d67b1
   exports:
     - subpath: "."
       importTarget: "./dist/index.js"
@@ -21,7 +21,7 @@ generatedPackageExports:
     - subpath: "./foundations"
       importTarget: "./dist/foundations/index.js"
       source: libs/audio-video-ui/src/foundations/index.ts
-      sourceSha256: a29390ce33065e8e66baeade3dc81278a20f5713bd0483b9c1ed4a60619f43c7
+      sourceSha256: 11620871d55aaa17a4ba307332428099bc8b176ad54ccf77d2ceccf0b090bbac
     - subpath: "./components"
       importTarget: "./dist/components/index.js"
       source: libs/audio-video-ui/src/components/index.ts
@@ -37,15 +37,15 @@ generatedPackageExports:
     - subpath: "./styles.css"
       importTarget: "./src/styles.css"
       source: libs/audio-video-ui/src/styles.css
-      sourceSha256: da07dc272a0bc935561c920f8cbb37f1935635698fd0c29516a3a95d00497a1c
+      sourceSha256: cbbcaa900742bf89e5cc7514b5c76df1f2da8dda8daf4f2dc54572a9b859cb7a
     - subpath: "./screens/first-use-project"
       importTarget: "./dist/screens/FirstUseProjectScreen.js"
       source: libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
-      sourceSha256: 6dcd71af646f766d5309161a31f3fc7fe90198b018a4f4ab60214f0caa24df1d
+      sourceSha256: 9ccd716bf8ca482a6d5ed8ceea0313c274ef7106bd03d74bc5623ebb63d36838
     - subpath: "./screens/artifact-intake"
       importTarget: "./dist/screens/ArtifactIntakeScreen.js"
       source: libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
-      sourceSha256: 487b7bd5776714327da899eee9e696b6c5cbb7ac840c8b51bff28ce55719b78f
+      sourceSha256: ae7378707c941efd78f227709a4f3fc1b7fd3cd47705619213524be3e77ec42d
     - subpath: "./screens/job-recovery"
       importTarget: "./dist/screens/JobRecoveryScreen.js"
       source: libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
@@ -64,7 +64,7 @@ exports:
   - subpath: ./foundations
     publicNames: [Badge, Button, Card, Checkbox, Modal, Select, Spinner, Tabs, Tooltip]
     source: libs/audio-video-ui/src/foundations/index.ts
-    sourceSha256: a29390ce33065e8e66baeade3dc81278a20f5713bd0483b9c1ed4a60619f43c7
+    sourceSha256: 11620871d55aaa17a4ba307332428099bc8b176ad54ccf77d2ceccf0b090bbac
     owner: "@ghatana/design-system"
     layer: shared-foundation-reexports
     status: re-exported; shared-binding-unverified; admission-not-recorded
@@ -83,13 +83,13 @@ exports:
   - subpath: ./screens/first-use-project
     publicNames: [FirstUseProjectScreen]
     source: libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
-    sourceSha256: 6dcd71af646f766d5309161a31f3fc7fe90198b018a4f4ab60214f0caa24df1d
+    sourceSha256: 9ccd716bf8ca482a6d5ed8ceea0313c274ef7106bd03d74bc5623ebb63d36838
     layer: screen-composition
     status: candidate; admission-not-recorded
   - subpath: ./screens/artifact-intake
     publicNames: [ArtifactIntakeScreen]
     source: libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
-    sourceSha256: 487b7bd5776714327da899eee9e696b6c5cbb7ac840c8b51bff28ce55719b78f
+    sourceSha256: ae7378707c941efd78f227709a4f3fc1b7fd3cd47705619213524be3e77ec42d
     layer: screen-composition
     status: candidate; admission-not-recorded
   - subpath: ./screens/job-recovery
@@ -107,7 +107,7 @@ exports:
   - subpath: ./styles.css
     publicNames: []
     source: libs/audio-video-ui/src/styles.css
-    sourceSha256: da07dc272a0bc935561c920f8cbb37f1935635698fd0c29516a3a95d00497a1c
+    sourceSha256: cbbcaa900742bf89e5cc7514b5c76df1f2da8dda8daf4f2dc54572a9b859cb7a
     layer: structural-accessibility-stylesheet
     status: active-public-api; Shared-visual-binding-unverified; admission-not-recorded
   - subpath: ./ports

@@ -1155,6 +1155,20 @@
     "title": "Command Registry"
   },
   {
+    "artifactId": "ART-MEDIA-CLI-HOST-CONSUMER-REGISTRY",
+    "authorityClass": "OBSERVATION_ONLY_SOURCE",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+    "title": "Production Command Registry"
+  },
+  {
+    "artifactId": "ART-MEDIA-CLI-SOURCE-CROSSWALK",
+    "authorityClass": "OBSERVATION_ONLY_SOURCE",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/cli/source-crosswalk.yaml",
+    "title": "Source Crosswalk"
+  },
+  {
     "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-CONTENT-COPY-CATALOG-YAML",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",

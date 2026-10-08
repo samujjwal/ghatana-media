@@ -42,7 +42,7 @@ class MediaRuntimeRestartReconciliationTest {
             var upload = runtime.beginUpload(new UploadRequest(
                     "tenant-a", "principal-a", "clip.bin", "application/octet-stream", bytes.length,
                     HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)),
-                    "confidential", Duration.ofMinutes(10), Map.of()));
+                    "CONFIDENTIAL", Duration.ofMinutes(10), Map.of()), "restart-first-upload");
             runtime.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0, bytes);
             var artifact = runtime.completeUpload("tenant-a", "principal-a", upload.uploadId());
             var request = new ProcessingJobRequest(
@@ -81,7 +81,7 @@ class MediaRuntimeRestartReconciliationTest {
             var upload = first.beginUpload(new UploadRequest(
                     "tenant-a", "principal-a", "clip.bin", "application/octet-stream", bytes.length,
                     HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)),
-                    "confidential", Duration.ofMinutes(10), Map.of()));
+                    "CONFIDENTIAL", Duration.ofMinutes(10), Map.of()), "restart-second-upload");
             first.appendChunk("tenant-a", "principal-a", upload.uploadId(), 0, bytes);
             var artifact = first.completeUpload("tenant-a", "principal-a", upload.uploadId());
             var accepted = first.submit(new ProcessingJobRequest(

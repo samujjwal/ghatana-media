@@ -92,6 +92,30 @@ test("principal-scoped upload, artifact, and job routes declare the principal he
   }
 });
 
+test("upload creation binds required key to tenant, principal, and full payload fingerprint", () => {
+  const operation = openApi.paths["/api/v1/artifacts/uploads"].post;
+  assert.ok(operation.parameters.some(
+    (parameter) => parameter.$ref === "#/components/parameters/IdempotencyKeyHeader",
+  ));
+  assert.equal(operation["x-ghatana-idempotency"].required, true);
+  assert.equal(operation["x-ghatana-idempotency"].payloadHashRequired, true);
+  assert.equal(operation["x-ghatana-idempotency"].scopeTemplate, "tenantId|principalId|idempotencyKey");
+  assert.equal(operation["x-ghatana-idempotency"].payloadBinding, "canonical-media-upload-request-v1");
+  assert.match(openApi.components.parameters.IdempotencyKeyHeader.description, /different payload is rejected/u);
+});
+
+test("upload completion replay binds to the persisted request and original artifact", () => {
+  const operation = openApi.paths["/api/v1/artifacts/uploads/{uploadId}/complete"].post;
+  const contract = operation["x-ghatana-idempotency"];
+  assert.equal(contract.scopeTemplate, "tenantId|principalId|uploadId");
+  assert.equal(contract.payloadBinding,
+    "persisted-upload-request-fingerprint-and-stable-artifact-id");
+  assert.equal(contract.legacyOrUncertainState,
+    "fail-closed-without-recreating-the-artifact");
+  assert.ok(!operation.parameters.some((parameter) =>
+    parameter.$ref === "#/components/parameters/IdempotencyKeyHeader"));
+});
+
 test("UploadRequest mirrors the runtime body identity fields and requires its principal", () => {
   const record = runtime.match(/public record UploadRequest\(([\s\S]*?)\)\s*\{/u)?.[1];
   assert.ok(record, "runtime UploadRequest record is present");
@@ -103,4 +127,7 @@ test("UploadRequest mirrors the runtime body identity fields and requires its pr
   assert.deepEqual(Object.keys(schema.properties), names, "OpenAPI describes the exact UploadRequest record fields");
   assert.deepEqual(schema.required, names, "all UploadRequest constructor fields are required on the HTTP request");
   assert.equal(schema.properties.principalId.type, "string");
+  assert.deepEqual(schema.properties.classification.enum, ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]);
+  assert.match(runtime, /requestedClassification\.equals\(classification\)/u);
+  assert.match(runtime, /"PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"/u);
 });

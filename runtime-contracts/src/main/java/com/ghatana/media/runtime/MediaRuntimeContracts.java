@@ -286,12 +286,27 @@ public final class MediaRuntimeContracts {
             contentType = required(contentType, "contentType");
             if (expectedSizeBytes < 1) throw new IllegalArgumentException("expectedSizeBytes must be positive");
             expectedSha256 = requireSha256(expectedSha256);
-            classification = required(classification, "classification");
+            String requestedClassification = required(classification, "classification");
+            if (!requestedClassification.equals(classification)
+                    || !java.util.Set.of("PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED")
+                            .contains(requestedClassification)) {
+                throw new IllegalArgumentException(
+                        "classification must be PUBLIC, INTERNAL, CONFIDENTIAL, or RESTRICTED");
+            }
+            classification = requestedClassification;
             if (retention == null || retention.isZero() || retention.isNegative()
                     || retention.compareTo(Duration.ofDays(3_650)) > 0) {
                 throw new IllegalArgumentException("retention must be between 1 ms and 3650 days");
             }
-            metadata = Map.copyOf(metadata == null ? Map.of() : metadata);
+            if (retention.getNano() % 1_000_000 != 0) {
+                throw new IllegalArgumentException("retention must use millisecond precision");
+            }
+            metadata = immutableJsonObject(metadata == null ? Map.of() : metadata);
+        }
+
+        @Override
+        public Map<String, Object> metadata() {
+            return immutableJsonObject(metadata);
         }
 
         public String purpose() { return metadataPurpose(metadata); }
@@ -561,11 +576,31 @@ public final class MediaRuntimeContracts {
         }
     }
 
+    /** Store-atomic disposition for an idempotent upload begin. */
+    public record UploadBeginResult(UploadSession session, boolean created) {
+        public UploadBeginResult { java.util.Objects.requireNonNull(session, "session"); }
+    }
+
+    /** Store-atomic disposition for upload finalization. */
+    public record UploadCompletionResult(MediaArtifact artifact, boolean completedNow) {
+        public UploadCompletionResult { java.util.Objects.requireNonNull(artifact, "artifact"); }
+    }
+
     public interface MediaArtifactStore extends AutoCloseable {
         String storeId();
-        UploadSession begin(UploadRequest request);
+        UploadSession begin(UploadRequest request, String idempotencyKey);
+        default UploadBeginResult beginWithDisposition(UploadRequest request, String idempotencyKey) {
+            throw new UnsupportedOperationException("Atomic upload begin disposition is not supported by this store");
+        }
+        /** @deprecated A begin without a caller idempotency key cannot prevent duplicate upload creation. */
+        @Deprecated default UploadSession begin(UploadRequest request) {
+            throw new IllegalArgumentException("Idempotency-Key is required to begin a Media upload");
+        }
         UploadSession append(String tenantId, String principalId, String uploadId, int chunkIndex, byte[] bytes);
         MediaArtifact complete(String tenantId, String principalId, String uploadId);
+        default UploadCompletionResult completeWithDisposition(String tenantId, String principalId, String uploadId) {
+            throw new UnsupportedOperationException("Atomic upload completion disposition is not supported by this store");
+        }
         /** @deprecated Principal-less mutation cannot prove upload ownership and always fails closed. */
         @Deprecated default UploadSession append(String tenantId, String uploadId, int chunkIndex, byte[] bytes) {
             throw new SecurityException("Authenticated principal is required to append an upload");

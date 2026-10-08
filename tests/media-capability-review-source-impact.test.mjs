@@ -85,7 +85,7 @@ test("operation source changes reconcile affected leaf links without promoting c
   assert.ok(sourcePin, "canonical operation families remain an explicit capability-review source");
   assert.ok(impact, "the changed canonical operation source has a semantic reconciliation");
   assert.equal(hash(sourceText), sourcePin.sha256);
-  assert.equal(sourcePin.sha256, review.canonicalReadSourceReconciliation.currentSha256);
+  assert.equal(sourcePin.sha256, review.uploadOwnerDefinitionSourceReconciliation.currentSha256);
   assert.equal(review.canonicalReadSourceReconciliation.previousSha256, impact.sceneTextAdapterSourceDelta.currentSha256);
   assert.deepEqual(review.canonicalReadSourceReconciliation.exactChangedRecords, [
     'media.operation-slice.inspect-upload', 'media.operation-slice.inspect-artifact',
@@ -94,6 +94,24 @@ test("operation source changes reconcile affected leaf links without promoting c
     'media.operation-slice.begin-upload',
   ]);
   assert.match(review.canonicalReadSourceReconciliation.capabilityImpact, /No leaf-level operation/u);
+  const uploadDelta = review.uploadMutationSourceReconciliation;
+  assert.equal(uploadDelta.previousSha256, review.canonicalReadSourceReconciliation.currentSha256);
+  assert.equal(uploadDelta.currentSha256, review.uploadOwnerDefinitionSourceReconciliation.previousSha256);
+  assert.equal(review.uploadOwnerDefinitionSourceReconciliation.currentSha256, hash(sourceText));
+  assert.equal(review.uploadOwnerDefinitionSourceReconciliation.ownerDecisionRef, ".product-experience/decision-log.md#PXD-046");
+  assert.deepEqual(uploadDelta.exactChangedRecords, [
+    "media.operation-slice.begin-upload",
+    "media.operation-slice.append-upload-chunk",
+    "media.operation-slice.complete-upload",
+  ]);
+  const changedUploadRecords = operations.individualOperationContracts.records.filter(({ id }) => uploadDelta.exactChangedRecords.includes(id));
+  assert.equal(changedUploadRecords.length, 3);
+  assert.ok(changedUploadRecords.every(({ status, ownerSemantics }) =>
+    status === "accepted-bounded-owner-definition; trusted-host-storage-and-independent-admission-open" && ownerSemantics?.reviewStatus === "media-owner-accepted-bounded-definition; implementation-and-independent-qualification-open"));
+  assert.match(uploadDelta.semanticImpact, /proposed full-request replay binding, next-index-only chunk sequencing and completion identity constraints/u);
+  assert.match(uploadDelta.capabilityImpact, /462-leaf population remains 383 unresolved, with zero machine-operation dispositions/u);
+  assert.match(uploadDelta.proofImpact, /do not create Lifecycle cases or receipts/u);
+  assert.match(uploadDelta.acceptanceEffect, /No operation family or leaf is accepted/u);
   assert.equal(impact.previousSha256, "e680643b45a5c3f25638b4f06ec0f9d544e2190c69c2c25f9a054445dcb3e085");
   assert.notEqual(impact.previousSha256, impact.currentSha256);
   assert.match(impact.result, /semantic-source-change-reconciled/u);

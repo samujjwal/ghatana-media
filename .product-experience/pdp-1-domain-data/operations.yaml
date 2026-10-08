@@ -756,54 +756,107 @@ individualOperationContracts:
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1uploads/post
       runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.begin
       requestFields: [tenantId, principalId, fileName, contentType, expectedSizeBytes, expectedSha256, classification, retention, metadata]
+      contractVersion: 1
+      ownerSemantics:
+        reviewStatus: media-owner-accepted-bounded-definition; implementation-and-independent-qualification-open
+        replay:
+          keyScope: [tenantId, principalId, idempotencyKey]
+          requestBinding: canonical-full-upload-request-v1
+          sameKeySamePayload: return-the-existing-upload-identity-and-current-persisted-session-projection
+          sameKeyDifferentPayload: reject-without-creating-or-mutating-an-upload
+          durableUntil: retain-the-binding-across-restart-while-the-associated-upload-or-effect-can-be-reconciled
+        authority:
+          tenantAndPrincipal: must-be-derived-from-trusted-host-authentication-context; request-fields-or-headers-alone-do-not-authenticate
+          rightsAndConsent: upload-or-classification-does-not-grant-rights-consent-or-publication-permission
+        qualificationProofRequired: [local-restart-replay, postgres-restart-replay, concurrent-same-key-single-session, full-payload-mismatch-no-mutation, failed-persistence-no-false-replay]
       sourceBounds: >-
         Runtime constructor requires tenant/principal, filename, content type,
         positive expected size, SHA-256, classification, and retention in the
         1 ms–3650 day range. HTTP requires authenticated OPERATOR access and tenant
-        context, policy and audit; declares idempotency scoped to tenantId|uploadRequest
-        with payload hash. HTTP 201 returns an open UploadSession.
+        context, policy and audit; declares Idempotency-Key scoped to
+        tenantId|principalId|idempotencyKey with canonical full-request payload
+        binding. HTTP 201 returns the existing or newly created UploadSession observation; replay may report later progress or a terminal state.
       authority: requester identity and tenant are source fields; actual identity, policy, and storage authority remain host-owned and unresolved.
       preconditions: input validation and current tenant authorization; declared HTTP policy check; no proof of byte receipt or artifact availability.
       finality: successful response establishes only an upload-session receipt; upload completion and artifact verification are separate operations.
       implementationDiscrepancies:
-        - Declared HTTP Idempotency-Key/payload binding is not implemented; local and PostgreSQL begin currently allocate a new session on every call. Key transmission is not replay admission.
-      sdkWireObservation: Existing createUploadSession uses the actual runtime route/body/DTO and configured tenant/principal; full command authority and create replay remain unqualified.
+        - Same-key/different-payload is invalid reuse of the caller key and maps to HTTP 400 without mutation; upload state conflicts map to HTTP 409. This is the bounded version-1 compatibility decision.
+        - Local reopening and PostgreSQL store recreation have focused replay tests; actual process-kill, fsync, deployment and storage qualification remain unproved. Local still declares durable=false and productionEligible=false.
+      sdkWireObservation: Existing createUploadSession uses the actual runtime route/body/DTO, configured tenant/principal and Idempotency-Key header; header transmission alone is not server replay proof.
       negativeCases: [missing-or-wrong-tenant, invalid-size-or-digest, expired-or-invalid-retention, duplicate-idempotency-key-with-different-payload, treat-session-receipt-as-artifact]
-      status: proposed-local-source-contract
+      status: accepted-bounded-owner-definition; trusted-host-storage-and-independent-admission-open
+      ownerDecisionRef: .product-experience/decision-log.md#PXD-046
+      runtimeAdmission: NOT_ADMITTED
     - id: media.operation-slice.append-upload-chunk
       sourceOperation: appendMediaChunk
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1uploads~1{uploadId}~1chunks~1{chunkIndex}/put
       runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.append
       requestFields: [tenantId, principalId, uploadId, chunkIndex, bytes]
+      contractVersion: 1
+      ownerSemantics:
+        reviewStatus: media-owner-accepted-bounded-definition; implementation-and-independent-qualification-open
+        ordering: new-chunks-accept-only-the-current-nextChunkIndex; zero-based-and-contiguous; prior-index-replay-requires-persisted-payload-receipt
+        acknowledgement: upload-session-projection-is-an-observation-of-accepted-progress-not-artifact-finality
+        unknownOutcome:
+          afterLostAcknowledgement: preserve-unknown; inspect-the-upload-before-any-further-command
+          automaticReplay: prohibited
+          sameChunkManualResubmission: acknowledge-only-a-matching-persisted-index-length-digest-receipt; reject-conflicting-content-without-a-second-write; storage-integrity-and-provider-qualification-remain-required
+        authority:
+          tenantAndPrincipal: must-be-derived-from-trusted-host-authentication-context; request-fields-or-headers-alone-do-not-authenticate
+          rightsAndConsent: upload-or-classification-does-not-grant-rights-consent-or-publication-permission
+        qualificationProofRequired: [wrong-principal-no-byte-mutation, concurrent-index-serialization, lost-ack-no-automatic-replay, restart-progress-reconciliation, checksum-preserving-finalization]
       sourceBounds: >-
         HTTP chunkIndex is an integer >= 0 and body is binary; runtime store takes
         tenantId/principalId/uploadId/index/bytes. HTTP requires authenticated OPERATOR access,
         tenant context, policy and audit. No replay-safe idempotency is declared;
-        clients must not automatically retry. HTTP exposes 400 and 409.
+        clients must not automatically retry. The SDK requires exactly the current
+        nextChunkIndex; manual repeated chunks require a matching persisted receipt. This never authorizes automatic SDK replay.
+        HTTP exposes 400 and 409.
       authority: tenant and owning principal are checked at the upload mutation boundary under the local upload lock or PostgreSQL locked row; trusted principal authentication and permission remain host-owned.
-      preconditions: upload exists for tenant, chunk index accepted by source store, and session permits append; no canonical ordering/duplicate-chunk rule is established here.
+      preconditions: upload exists for tenant, session permits append, is unexpired, and a new chunk index equals the current nextChunkIndex; a repeated prior index requires a matching persisted receipt. Trusted host authorization and storage qualification remain required.
       finality: updated upload-session receipt reports observed bytesReceived/nextChunkIndex/status; it does not establish complete bytes or artifact availability.
+      implementationDiscrepancies:
+        - Both stores compare persisted index/length/digest receipts for a manual duplicate and avoid a second write; Local additionally verifies the stored byte segment. Cross-process storage integrity and durability remain qualification gaps, and clients must not infer automatic replay authorization.
       negativeCases: [negative-chunk-index, wrong-tenant-or-unknown-upload, conflicting-chunk-replay, automatic-retry-after-lost-ack, treat-chunk-ack-as-completed-artifact]
-      status: proposed-local-source-contract
+      status: accepted-bounded-owner-definition; trusted-host-storage-and-independent-admission-open
+      ownerDecisionRef: .product-experience/decision-log.md#PXD-046
+      runtimeAdmission: NOT_ADMITTED
     - id: media.operation-slice.complete-upload
       sourceOperation: completeMediaUpload
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1uploads~1{uploadId}~1complete/post
       runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.complete
       requestFields: [tenantId, principalId, uploadId]
+      contractVersion: 1
+      ownerSemantics:
+        reviewStatus: media-owner-accepted-bounded-definition; implementation-and-independent-qualification-open
+        commandIdentity: tenant-and-owning-principal-scoped-uploadId; no-request-body-or-request-idempotency-key-exists-on-this-wire-operation
+        completionReplay:
+          completedUpload: return-the-original-artifact-identity-and-immutable-content-observation
+          concurrentOrRestartRecovery: preserve-unknown-until-persisted-finalization-is-reconciled; never-create-a-second-artifact-for-one-upload
+          payloadHashIdempotency: not-a-valid-description-of-the-current-wire-contract
+        authority:
+          tenantAndPrincipal: must-be-derived-from-trusted-host-authentication-context; request-fields-or-headers-alone-do-not-authenticate
+          rightsAndConsent: artifact-finality-does-not-grant-rights-consent-publication-or-downstream-use
+        qualificationProofRequired: [local-process-restart-same-artifact-id, postgres-process-restart-same-artifact-id, concurrent-finalization-single-artifact, lost-response-reconciliation, checksum-and-storage-reference-integrity]
       sourceBounds: >-
         HTTP requires authenticated OPERATOR access and tenant context, policy and
-        audit; declares payload-hash idempotency scoped to tenantId|uploadId|contentHash.
-        HTTP 201 describes a checksum-verified artifact and 409 conflict. Runtime
+        audit; binds replay to tenantId/principalId/uploadId and the persisted request
+        fingerprint plus original artifact identity. The route has no request body,
+        Idempotency-Key or payload-hash input. HTTP 201 describes a checksum-verified
+        artifact and 409 conflict. Runtime
         complete returns MediaArtifact, whose constructor requires tenant/principal,
         artifactId, positive size, SHA-256, objectReference, classification, and expiry.
       authority: tenant and owning principal are checked before the locked finalization claim; principal-less legacy mutation fails closed. Trusted identity, storage and policy qualification remain host-owned.
       preconditions: source upload state and integrity must permit completion; exact missing-byte/quarantine rules are not specified by these source contracts.
       finality: returned artifact is source-described checksum-verified and references opaque storage; it does not prove downstream job use, rights clearance, or delivery.
       implementationDiscrepancies:
-        - Declared payload-hash idempotency has no request key/body binding. PostgreSQL returns the same artifact for a completed upload, while the local store rejects repeat completion; provider parity remains open.
-      sdkWireObservation: Existing completeUploadSession sends a bodyless request to the actual runtime path and parses exact artifact observation; it grants no replay authority.
+        - The historical payload-hash metadata contradiction is corrected; completion uses persisted upload identity, not an invented request-key or request-body contract.
+        - Stable artifact identity has repeated completion and store-recreation tests; actual process-kill/crash, outbox delivery and production storage qualification remain unproved.
+      sdkWireObservation: Existing completeUploadSession sends a bodyless request to the actual runtime path and parses the artifact observation; replay safety depends on a verified persisted upload-to-artifact association, not the OpenAPI payload-hash declaration.
       negativeCases: [wrong-tenant-or-unknown-upload, incomplete-or-digest-mismatch, conflicting-completion, equate-storage-reference-with-public-availability, infer-rights-from-upload]
-      status: proposed-local-source-contract
+      status: accepted-bounded-owner-definition; trusted-host-storage-and-independent-admission-open
+      ownerDecisionRef: .product-experience/decision-log.md#PXD-046
+      runtimeAdmission: NOT_ADMITTED
     - id: media.operation-slice.inspect-upload
       sourceOperation: getMediaUpload
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1uploads~1{uploadId}/get

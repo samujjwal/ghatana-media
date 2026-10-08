@@ -73,12 +73,17 @@ test("residual report validates exact projection dispositions and pinned sources
   assert.equal(report.migrationSemantics.applicable, 325);
   assert.equal(report.migrationSemantics.unresolvedItems.length, 260);
   assert.ok(report.migrationSemantics.unresolvedItems.every((item) => item.id && item.sourceLocations.length && item.classificationBasis));
-  assert.equal(report.operationParity.surfaceCount, 8);
-  assert.equal(report.operationParity.totalObservedIdentities, 284);
+  assert.equal(report.operationParity.surfaceCount, 9);
+  assert.equal(report.operationParity.totalObservedIdentities, 286);
   assert.equal(report.operationParity.unresolvedIdentityCount, 190);
   assert.ok(report.operationParity.surfaces.every((surface) => surface.observedIdentities.length === surface.denominator));
   assert.ok(report.operationParity.surfaces.every((surface) => surface.unresolvedIdentities.length === (surface.counts.unresolved ?? 0)));
   const sdkSurface = report.operationParity.surfaces.find(({ name }) => name === "SDK registry");
+  assert.ok(sdkSurface.observedIdentities.includes("media.sdk.getArtifact"));
+  assert.ok(sdkSurface.observedIdentities.includes("media.sdk.getUploadSession"));
+  const cliRuntimeSurface = report.operationParity.surfaces.find(({ name }) => name === "CLI host-configured runtime consumers");
+  assert.equal(cliRuntimeSurface.denominator, 1);
+  assert.deepEqual(cliRuntimeSurface.observedIdentities, ["media.cli.artifact.inspect"]);
   assert.deepEqual(sdkSurface.observedIdentities.filter((id) => [
     "media.sdk.getServiceStatus",
     "media.sdk.getAllServicesStatus",

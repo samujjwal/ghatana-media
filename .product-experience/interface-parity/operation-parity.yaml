@@ -95,16 +95,17 @@ surfaces:
       priorTwelveFixtureObservation: unresolved-source-discrepancy; inspected-current-registry-and-parser-evidence-support-eleven-fixture-command-identities-only
     bindingStatus: nine-proposals-follow-existing-command/action references or operation intent; caption-version commands remain unresolved; acceptance-pending
   - surface: SDK registry
-    denominator: 29
-    rawRegistryRecordCount: 32
+    denominator: 30
+    rawRegistryRecordCount: 33
     source: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
     proposedSemanticCandidates:
       job-lifecycle: [media.sdk.getStatus, media.sdk.cancel, media.sdk.getResult, media.sdk.wait, media.sdk.getOperation, media.sdk.cancelOperation]
-      artifact-ingest: [media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact]
+      artifact-ingest: [media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession]
       transcription: [media.sdk.transcribe]
       synthesis: [media.sdk.synthesize]
       multimodal-analysis: [media.sdk.analyzeMultimodal]
     unresolved: [media.sdk.listProviderCapabilities, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.getOperationResult]
+    boundedCanonicalReads: [media.sdk.getArtifact, media.sdk.getUploadSession]
     sourceBackedNonOperationDispositions:
       TRANSPORT_ONLY: [media.sdk.getServiceStatus, media.sdk.getAllServicesStatus]
       CLIENT_ONLY: [media.sdk.addEventListener, media.sdk.removeEventListener]
@@ -112,10 +113,10 @@ surfaces:
       NOT_ADMITTED: [media.sdk.retry, media.sdk.retryOperation]
     parserArtifactTokensExcludedFromMethodDenominator: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
     parserArtifactEvidence: public-declaration-parser-scans-recursively-discovered-production-TypeScript-sources-under-the-SDK-src-tree; none-of-the-three-token-names-has-a-public-method-declaration; raw-records-retained-for-audit
-    dispositionCounts: {mappedProposal: 13, transportOnly: 2, clientOnly: 2, providerAdapter: 1, unadmitted: 2, unresolved: 9}
+    dispositionCounts: {mappedProposal: 12, boundedCanonicalRead: 2, transportOnly: 2, clientOnly: 2, providerAdapter: 1, unadmitted: 2, unresolved: 9}
     legacyClientSource: libs/audio-video-client/src/index.ts
     sourcePairInventory: public-method-pairs-include-source-and-declaring-class; duplicate-transcribe-and-synthesize-identities-are-separated-by-legacy-source-class
-    bindingStatus: thirteen family associations remain proposals; six exact source-backed non-operation identities (including two retry methods) are classified below; nine domain-relevant identities remain unresolved; three source-parser artifacts are explicitly excluded; no runtime route or client admission is implied
+    bindingStatus: twelve family associations remain proposals; two exact SDK reads bind to individually approved bounded queries; six exact source-backed non-operation identities (including two retry methods) are classified below; nine domain-relevant identities remain unresolved; three source-parser artifacts are explicitly excluded; no production reachability or trusted-host identity is implied
   - surface: Agent Tool handlers
     denominator: 4
     source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
@@ -147,6 +148,25 @@ surfaces:
     dynamicEventPattern: media.job.<terminal.status-lowercase>
     dispositionCounts: {unresolved: 9}
     bindingStatus: source-callsite-observation-does-not-establish-public-event-contract-or-operation-equivalence
+  - surface: CLI host-configured runtime consumers
+    denominator: 1
+    source: .product-experience/pdp-3-product-experience/cli/production-command-registry.yaml
+    identities: [media.cli.artifact.inspect]
+    executable: libs/audio-video-client/package.json#bin.ghatanamedia-api
+    exactBindings:
+      - commandId: media.cli.artifact.inspect
+        implementation: libs/audio-video-client/src/cli.ts
+        sdkMethod: libs/audio-video-client/src/operations.ts#MediaOperationClient.getArtifact
+        httpMethod: GET
+        httpOperationId: getMediaArtifact
+        route: /api/v1/artifacts/{artifactId}
+        operationRef: media.operation-slice.inspect-artifact
+        ownerDecisions: [PXD-040, PXD-044]
+        bindingEvidence: installed-bin-loopback-HTTP-test; exact-DTO-and-requested-scope-validation; read-only-no-rights-or-global-absence-inference
+    dispositionCounts: {boundedCanonicalRead: 1, unresolved: 0}
+    populationSeparation: fixture-registry-still-has-11-synthetic-identities; historical-proposal-registry-still-has-12-separate-identities; no-history-entry-is-aliased
+    qualification: explicit-host-configuration-and-CLI-source-verified; backend-host-identity-and-production-qualification-open
+    bindingStatus: one-local-host-configured-consumer-is-bound-to-the-existing-accepted-artifact-query; no-runtime-host-or-release-claim
 crossSurfaceRules:
   - proposedSemanticCandidates-are-source-grounded-crosswalk-inputs-not-owner-accepted-bindings
   - same-name-or-similar-name-is-not-a-binding
@@ -221,6 +241,14 @@ typedMethodDispositions:
   openApiOperationId: getMediaArtifact
   ownerDecisionRef: .product-experience/decision-log.md#PXD-044
   bindingEvidence: canonical-GET-route-and-exact-runtime-DTO; strict-scope-and-malformed-response-tests; no-legacy-domain-alias-or-rights-inference
+- identity: media.sdk.getUploadSession
+  type: DOMAIN_QUERY
+  semanticBinding: accepted-bounded-wire-read; trusted-host-identity-and-runtime-qualification-open
+  basis: exact-principal-scoped-upload-session-observation
+  openApiBindingDisposition: BOUNDED_CANONICAL_READ
+  openApiOperationId: getMediaUpload
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-040
+  bindingEvidence: exact-upload-session-DTO; configured-tenant-and-caller-principal; requested-upload-identity-match; scoped-UPLOAD_NOT_FOUND-preserved; no-state-mutation-rights-or-finality-inference
 - identity: media.sdk.listProviderCapabilities
   type: PROVIDER_ADMIN
   semanticBinding: unresolved

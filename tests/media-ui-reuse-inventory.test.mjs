@@ -160,7 +160,7 @@ test("PDP-2 reuse audit covers the broader Ghatana workspace and dependency boun
   assert.ok(review.scope.filesystemAccessibleButOutsideMediaWorkspace.some((entry) => entry.repository === "../ghatana-kernel"));
   assert.ok(review.scope.filesystemAccessibleButOutsideMediaWorkspace.some((entry) => entry.repository === "../gharbatai"));
 
-  assert.equal(packages.get("@ghatana/design-system")?.disposition, "exact-empty-state-reuse; other-observed-controls-excluded");
+  assert.equal(packages.get("@ghatana/design-system")?.disposition, "exact-empty-state-and-file-picker-reuse; other-observed-controls-excluded");
   assert.match(packages.get("@ghatana/design-system")?.surfaceMapping["artifact-and-project-collections"], /sort\/filter\/page semantics/u);
   assert.equal(packages.get("@ghatana/product-shell")?.disposition, "future-host-integration-candidate; not-current-workflow-body");
   assert.equal(packages.get("@ghatana/ui-styles")?.disposition, "candidate-not-consumed; unresolved-token-contract");

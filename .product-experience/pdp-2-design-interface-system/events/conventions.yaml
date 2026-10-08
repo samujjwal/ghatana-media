@@ -74,7 +74,8 @@ committedFactsAndRequests:
     - {eventType: media.job.cancel_requested, observation: cancellation outcome remained unconfirmed and requested state was stored, doesNotEstablish: cancellation-finality}
     - {eventType: media.job.cancelled, observation: provider-confirmed cancellation and updated job were stored, doesNotEstablish: independent delivery receipt}
     - {eventType: media.job.completed, observation: terminal ProcessingJob with COMPLETED status was persisted, doesNotEstablish: independent quality-assessment-or-delivery-evidence}
-    - {eventType: media.artifact.completed, observation: artifact was returned by artifactStore.complete, doesNotEstablish: immutable-version-identity-or-independent-content-verification}
+    - {eventType: media.upload.started, observation: artifactStore.beginWithDisposition atomically reported a new upload session created, doesNotEstablish: matching idempotent replay, durable event delivery, or downstream receipt}
+    - {eventType: media.artifact.completed, observation: artifactStore.completeWithDisposition atomically reported the first completion transition and returned the artifact, doesNotEstablish: matching completion replay, immutable-version-identity, independent content verification, or durable event delivery}
   authority: per-event semantic owner, producer authority, transition boundary, and authoritative finality evidence remain pending; observed call sites do not confer owner approval
 privacyAndProvenance:
   proposalRules:

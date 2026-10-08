@@ -110,7 +110,7 @@
       "sourceDigests": {
         "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
         "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
-        "test": "sha256:5d7969600df1eacafadc6f47ffc91a10ea1a8942ae046d9547f297e8d0fa60bf"
+        "test": "sha256:c98863ec149d50f6945abf57f21fe261a1afe21eaaaf0af3f0838b8a28f9dab8"
       },
       "caseDependency": "L-02_CASE_ID_AND_EXECUTION_BINDING_NOT_ADMITTED",
       "independentReview": "NOT_RUN",
@@ -139,6 +139,24 @@
             "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
             "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
             "test": "sha256:43567cef563547c8e8e647d5f133fdb2c091ec5ffe30dadc374b4ddb7a0b1c4c"
+          },
+          "status": "SUPERSEDED_SOURCE_FINGERPRINTS"
+        },
+        {
+          "recordedAt": "2026-10-08",
+          "sourceDigests": {
+            "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
+            "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
+            "test": "sha256:5d7969600df1eacafadc6f47ffc91a10ea1a8942ae046d9547f297e8d0fa60bf"
+          },
+          "status": "SUPERSEDED_SOURCE_FINGERPRINTS"
+        },
+        {
+          "recordedAt": "2026-10-08",
+          "sourceDigests": {
+            "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
+            "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
+            "test": "sha256:e0a69a3f292c2a723c9a031d82f503be1dbe9e6c1be8dc5a78aa28646cd41500"
           },
           "status": "SUPERSEDED_SOURCE_FINGERPRINTS"
         }
@@ -173,7 +191,7 @@
       "sourceDigests": {
         "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
         "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
-        "test": "sha256:5d7969600df1eacafadc6f47ffc91a10ea1a8942ae046d9547f297e8d0fa60bf"
+        "test": "sha256:c98863ec149d50f6945abf57f21fe261a1afe21eaaaf0af3f0838b8a28f9dab8"
       },
       "caseDependency": "L-02_CASE_ID_AND_EXECUTION_BINDING_NOT_ADMITTED",
       "independentReview": "NOT_RUN",
@@ -202,6 +220,24 @@
             "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
             "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
             "test": "sha256:43567cef563547c8e8e647d5f133fdb2c091ec5ffe30dadc374b4ddb7a0b1c4c"
+          },
+          "status": "SUPERSEDED_SOURCE_FINGERPRINTS"
+        },
+        {
+          "recordedAt": "2026-10-08",
+          "sourceDigests": {
+            "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
+            "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
+            "test": "sha256:5d7969600df1eacafadc6f47ffc91a10ea1a8942ae046d9547f297e8d0fa60bf"
+          },
+          "status": "SUPERSEDED_SOURCE_FINGERPRINTS"
+        },
+        {
+          "recordedAt": "2026-10-08",
+          "sourceDigests": {
+            "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
+            "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
+            "test": "sha256:e0a69a3f292c2a723c9a031d82f503be1dbe9e6c1be8dc5a78aa28646cd41500"
           },
           "status": "SUPERSEDED_SOURCE_FINGERPRINTS"
         }
@@ -236,7 +272,7 @@
       "sourceDigests": {
         "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
         "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
-        "test": "sha256:5d7969600df1eacafadc6f47ffc91a10ea1a8942ae046d9547f297e8d0fa60bf"
+        "test": "sha256:c98863ec149d50f6945abf57f21fe261a1afe21eaaaf0af3f0838b8a28f9dab8"
       },
       "caseDependency": "L-02_CASE_ID_AND_EXECUTION_BINDING_NOT_ADMITTED",
       "independentReview": "NOT_RUN",
@@ -265,6 +301,24 @@
             "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
             "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
             "test": "sha256:43567cef563547c8e8e647d5f133fdb2c091ec5ffe30dadc374b4ddb7a0b1c4c"
+          },
+          "status": "SUPERSEDED_SOURCE_FINGERPRINTS"
+        },
+        {
+          "recordedAt": "2026-10-08",
+          "sourceDigests": {
+            "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
+            "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
+            "test": "sha256:5d7969600df1eacafadc6f47ffc91a10ea1a8942ae046d9547f297e8d0fa60bf"
+          },
+          "status": "SUPERSEDED_SOURCE_FINGERPRINTS"
+        },
+        {
+          "recordedAt": "2026-10-08",
+          "sourceDigests": {
+            "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
+            "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
+            "test": "sha256:e0a69a3f292c2a723c9a031d82f503be1dbe9e6c1be8dc5a78aa28646cd41500"
           },
           "status": "SUPERSEDED_SOURCE_FINGERPRINTS"
         }

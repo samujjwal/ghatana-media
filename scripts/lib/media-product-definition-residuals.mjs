@@ -639,9 +639,12 @@ function operationParityReport(root, diagnostics) {
       observedIdentities = [...proposedIdentities, ...unresolvedIdentities].sort();
     } else if (name === "CLI fixture commands") {
       observedIdentities = identities;
+    } else if (name === "CLI host-configured runtime consumers") {
+      observedIdentities = identities;
     } else if (name === "SDK registry") {
       const nonOperationDispositions = nestedInlineArrays(block, "sourceBackedNonOperationDispositions");
-      observedIdentities = [...new Set([...proposedIdentities, ...unresolvedIdentities, ...nonOperationDispositions])].sort();
+      const boundedCanonicalReads = declaredInlineArray(block, "boundedCanonicalReads", 4);
+      observedIdentities = [...new Set([...proposedIdentities, ...boundedCanonicalReads, ...unresolvedIdentities, ...nonOperationDispositions])].sort();
     } else if (name === "Agent Tool handlers") {
       observedIdentities = identities;
     } else if (name === "lifecycle event names") {

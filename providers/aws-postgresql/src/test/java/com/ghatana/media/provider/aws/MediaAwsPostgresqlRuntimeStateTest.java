@@ -92,19 +92,103 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     byte[] content = new byte[5 * 1024 * 1024 + 257];
                     Arrays.fill(content, (byte) 7);
                     String digest = sha256(content);
-                    var upload = artifacts.begin(new UploadRequest(
+                    UploadRequest uploadRequest = new UploadRequest(
                             "tenant-a", "principal-a", "clip.bin", "application/octet-stream", content.length,
-                            digest, "restricted", Duration.ofDays(30), Map.of("source", "test")));
+                            digest, "RESTRICTED", Duration.ofDays(30), Map.of("source", "test"));
+                    var upload = artifacts.begin(uploadRequest, "runtime-state-primary");
+                    var initialReplay = artifacts.begin(uploadRequest, "runtime-state-primary");
+                    assertThat(initialReplay.uploadId()).isEqualTo(upload.uploadId());
+                    assertThat(initialReplay.createdAt()).isEqualTo(upload.createdAt());
+                    assertThat(initialReplay.expiresAt()).isEqualTo(upload.expiresAt());
+                    var pool = Executors.newFixedThreadPool(8);
+                    var ready = new CountDownLatch(8);
+                    var start = new CountDownLatch(1);
+                    try {
+                        var parallel = java.util.stream.IntStream.range(0, 8).mapToObj(index -> pool.submit(() -> {
+                            ready.countDown();
+                            start.await();
+                            return artifacts.begin(uploadRequest, "parallel-upload-key");
+                        })).toList();
+                        assertThat(ready.await(5, TimeUnit.SECONDS)).isTrue();
+                        start.countDown();
+                        var replayIds = new java.util.HashSet<String>();
+                        for (Future<UploadSession> future : parallel) replayIds.add(future.get(10, TimeUnit.SECONDS).uploadId());
+                        assertThat(replayIds).hasSize(1);
+                    } finally {
+                        start.countDown();
+                        pool.shutdownNow();
+                    }
+                    assertThatThrownBy(() -> artifacts.begin(new UploadRequest(
+                            "tenant-a", "principal-a", "changed.bin", "application/octet-stream", content.length,
+                            digest, "RESTRICTED", Duration.ofDays(30), Map.of("source", "test")),
+                            "runtime-state-primary"))
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("different upload request");
+                    var sameKeyOtherPrincipal = artifacts.begin(new UploadRequest(
+                            "tenant-a", "principal-b", "clip.bin", "application/octet-stream", content.length,
+                            digest, "RESTRICTED", Duration.ofDays(30), Map.of("source", "test")),
+                            "runtime-state-primary");
+                    assertThat(sameKeyOtherPrincipal.uploadId()).isNotEqualTo(upload.uploadId());
+                    byte[] expiredBytes = "expired-finalization".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                    UploadRequest expiredRequest = new UploadRequest("tenant-expired-complete", "principal-a",
+                            "expired.bin", "application/octet-stream", expiredBytes.length, sha256(expiredBytes),
+                            "INTERNAL", Duration.ofDays(1), Map.of());
+                    var expiredUpload = artifacts.begin(expiredRequest, "expired-complete-key");
+                    artifacts.append(expiredUpload.tenantId(), expiredUpload.principalId(),
+                            expiredUpload.uploadId(), 0, expiredBytes);
+                    try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                         var update = connection.prepareStatement(
+                                 "UPDATE media_upload_sessions SET expires_at=? WHERE tenant_id=? AND upload_id=?")) {
+                        update.setLong(1, System.currentTimeMillis() - 1_000L);
+                        update.setString(2, expiredUpload.tenantId());
+                        update.setString(3, expiredUpload.uploadId());
+                        assertThat(update.executeUpdate()).isEqualTo(1);
+                    }
+                    assertThatThrownBy(() -> artifacts.complete(
+                            expiredUpload.tenantId(), expiredUpload.principalId(), expiredUpload.uploadId()))
+                            .isInstanceOf(IllegalStateException.class).hasMessageContaining("Upload session expired");
+                    assertThat(artifacts.upload(expiredUpload.tenantId(), expiredUpload.uploadId())
+                            .orElseThrow().status()).isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.EXPIRED);
+                    try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                         var query = connection.prepareStatement(
+                                 "SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?")) {
+                        query.setString(1, expiredUpload.tenantId());
+                        try (var result = query.executeQuery()) {
+                            result.next();
+                            assertThat(result.getLong(1)).isZero();
+                        }
+                    }
+                    UploadRequest legacyRequest = new UploadRequest("tenant-legacy-key", "principal-a", "legacy.bin",
+                            "application/octet-stream", 1, sha256(new byte[] { 1 }), "RESTRICTED",
+                            Duration.ofDays(1), Map.of());
+                    var legacyKeyUpload = artifacts.begin(legacyRequest, "legacy-key");
+                    try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                         var update = connection.prepareStatement(
+                                 "UPDATE media_upload_sessions SET request_fingerprint=NULL WHERE tenant_id=? AND upload_id=?")) {
+                        update.setString(1, legacyKeyUpload.tenantId());
+                        update.setString(2, legacyKeyUpload.uploadId());
+                        update.executeUpdate();
+                    }
+                    assertThatThrownBy(() -> artifacts.begin(legacyRequest, "legacy-key"))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("no request fingerprint");
                     int split = 3 * 1024 * 1024;
                     artifacts.append("tenant-a", upload.principalId(), upload.uploadId(), 0, Arrays.copyOfRange(content, 0, split));
                     var progress = artifacts.append(
                             "tenant-a", upload.principalId(), upload.uploadId(), 1, Arrays.copyOfRange(content, split, content.length));
                     assertThat(progress.bytesReceived()).isEqualTo(content.length);
+                    assertThat(progress.createdAt()).isEqualTo(upload.createdAt());
+                    assertThat(progress.expiresAt()).isEqualTo(upload.expiresAt());
+                    assertThat(artifacts.upload(upload.tenantId(), upload.uploadId()).orElseThrow().createdAt())
+                            .isEqualTo(upload.createdAt());
                     assertThat(artifacts.append(
                             "tenant-a", upload.principalId(), upload.uploadId(), 1,
                             Arrays.copyOfRange(content, split, content.length))).isEqualTo(progress);
 
                     var artifact = artifacts.complete("tenant-a", upload.principalId(), upload.uploadId());
+                    assertThat(artifacts.complete("tenant-a", upload.principalId(), upload.uploadId())).isEqualTo(artifact);
+                    assertThat(artifacts.begin(uploadRequest, "runtime-state-primary").uploadId())
+                            .isEqualTo(upload.uploadId());
                     assertThat(artifact.sha256()).isEqualTo(digest);
                     assertThat(artifact.principalId()).isEqualTo("principal-a");
                     assertThat(artifact.objectReference()).startsWith("s3://" + bucket + "/");
@@ -286,7 +370,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
         byte[] abandonedBytes = "expired-abandoned-upload".getBytes(StandardCharsets.UTF_8);
         UploadSession abandoned = artifacts.begin(new UploadRequest(
                 "tenant-expired", "principal-expired", "expired.bin", "application/octet-stream",
-                abandonedBytes.length, sha256(abandonedBytes), "restricted", Duration.ofDays(1), Map.of()));
+                abandonedBytes.length, sha256(abandonedBytes), "RESTRICTED", Duration.ofDays(1), Map.of()), "expired-abandoned");
         artifacts.append("tenant-expired", abandoned.principalId(), abandoned.uploadId(), 0, abandonedBytes);
 
         Instant completedAt = Instant.now().truncatedTo(ChronoUnit.MILLIS);
@@ -338,8 +422,8 @@ class MediaAwsPostgresqlRuntimeStateTest {
                      new PostgresqlMediaPrivacyMaintenance(maintenanceEnvironment)) {
             var report = maintenance.purgeExpired(Instant.now());
             assertThat(report.artifactsDeleted()).isEqualTo(1);
-            assertThat(report.uploadsDeleted()).isEqualTo(1);
-            assertThat(report.chunksDeleted()).isEqualTo(1);
+            assertThat(report.uploadsDeleted()).isEqualTo(2);
+            assertThat(report.chunksDeleted()).isEqualTo(2);
             assertThat(report.jobsDeleted()).isEqualTo(1);
             assertThat(report.streamsDeleted()).isEqualTo(1);
         }
@@ -365,7 +449,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
             String bucket) throws Exception {
         MediaArtifact artifact = upload(
                 artifacts, "purge-retry-after-object-delete".getBytes(StandardCharsets.UTF_8),
-                "retry.bin", "application/octet-stream", "restricted", Duration.ofDays(30), Map.of());
+                "retry.bin", "application/octet-stream", "RESTRICTED", Duration.ofDays(30), Map.of());
         String key = objectKey(artifact.objectReference());
         try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
              var update = connection.prepareStatement(
@@ -441,7 +525,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
             String bucket) throws Exception {
         MediaArtifact artifact = upload(
                 artifacts, "renew-during-purge".getBytes(StandardCharsets.UTF_8),
-                "renew.bin", "application/octet-stream", "restricted", Duration.ofDays(30), Map.of());
+                "renew.bin", "application/octet-stream", "RESTRICTED", Duration.ofDays(30), Map.of());
         long expiredAt = Instant.now().minus(Duration.ofDays(2)).toEpochMilli();
         long renewedUntil = Instant.now().plus(Duration.ofDays(30)).toEpochMilli();
         String jdbcUrl = environment.get("MEDIA_POSTGRES_JDBC_URL");
@@ -541,8 +625,8 @@ class MediaAwsPostgresqlRuntimeStateTest {
         byte[] chunk = "active-finalization-chunk".getBytes(StandardCharsets.UTF_8);
         UploadSession upload = artifacts.begin(new UploadRequest(
                 "tenant-active-finalization", "principal-active-finalization", "finalizing.bin",
-                "application/octet-stream", chunk.length, sha256(chunk), "restricted",
-                Duration.ofDays(30), Map.of()));
+                "application/octet-stream", chunk.length, sha256(chunk), "RESTRICTED",
+                Duration.ofDays(30), Map.of()), "active-finalization");
         artifacts.append(upload.tenantId(), upload.principalId(), upload.uploadId(), 0, chunk);
 
         String jdbcUrl = environment.get("MEDIA_POSTGRES_JDBC_URL");
@@ -634,7 +718,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
         byte[] bytes = "rollback-cleanup".getBytes(StandardCharsets.UTF_8);
         UploadSession upload = artifacts.begin(new UploadRequest(
                 "tenant-rollback", "principal-rollback", "rollback.bin", "application/octet-stream", bytes.length,
-                sha256(bytes), "restricted", Duration.ofDays(1), Map.of("source", "rollback")));
+                sha256(bytes), "RESTRICTED", Duration.ofDays(1), Map.of("source", "rollback")), "rollback-upload");
         String jdbcUrl = environment.get("MEDIA_POSTGRES_JDBC_URL");
         try (var connection = DriverManager.getConnection(jdbcUrl);
              var statement = connection.createStatement()) {
@@ -667,22 +751,22 @@ class MediaAwsPostgresqlRuntimeStateTest {
         Map<String, Object> metadata = Map.of("source", "dedup", "consent", "verified");
         MediaArtifact original = upload(
                 artifacts, bytes, "dedup.bin", "application/octet-stream",
-                "restricted", Duration.ofDays(30), metadata);
+                "RESTRICTED", Duration.ofDays(30), metadata);
         MediaArtifact compatible = upload(
                 artifacts, bytes, "dedup.bin", "application/octet-stream",
-                "restricted", Duration.ofDays(29), metadata);
+                "RESTRICTED", Duration.ofDays(29), metadata);
         assertThat(compatible.artifactId()).isEqualTo(original.artifactId());
 
         assertConflict(artifacts, bytes, "different.bin", "application/octet-stream",
-                "restricted", Duration.ofDays(29), metadata, "fileName");
+                "RESTRICTED", Duration.ofDays(29), metadata, "fileName");
         assertConflict(artifacts, bytes, "dedup.bin", "text/plain",
-                "restricted", Duration.ofDays(29), metadata, "contentType");
+                "RESTRICTED", Duration.ofDays(29), metadata, "contentType");
         assertConflict(artifacts, bytes, "dedup.bin", "application/octet-stream",
-                "internal", Duration.ofDays(29), metadata, "classification");
+                "INTERNAL", Duration.ofDays(29), metadata, "classification");
         assertConflict(artifacts, bytes, "dedup.bin", "application/octet-stream",
-                "restricted", Duration.ofDays(29), Map.of("source", "other"), "metadata");
+                "RESTRICTED", Duration.ofDays(29), Map.of("source", "other"), "metadata");
         assertConflict(artifacts, bytes, "dedup.bin", "application/octet-stream",
-                "restricted", Duration.ofDays(31), metadata, "retention");
+                "RESTRICTED", Duration.ofDays(31), metadata, "retention");
     }
 
     private static void verifiesConcurrentGovernedByteDeduplication(
@@ -691,10 +775,10 @@ class MediaAwsPostgresqlRuntimeStateTest {
         Map<String, Object> metadata = Map.of("source", "concurrent-dedup", "consent", "verified");
         UploadSession first = prepareUpload(
                 artifacts, bytes, "concurrent.bin", "application/octet-stream",
-                "restricted", Duration.ofDays(30), metadata);
+                "RESTRICTED", Duration.ofDays(30), metadata);
         UploadSession second = prepareUpload(
                 artifacts, bytes, "concurrent.bin", "application/octet-stream",
-                "restricted", Duration.ofDays(30), metadata);
+                "RESTRICTED", Duration.ofDays(30), metadata);
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
         CountDownLatch ready = new CountDownLatch(2);
@@ -738,7 +822,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
             Map<String, Object> metadata) throws Exception {
         UploadSession upload = artifacts.begin(new UploadRequest(
                 "tenant-dedup", "principal-dedup", fileName, contentType, bytes.length, sha256(bytes),
-                classification, retention, metadata));
+                classification, retention, metadata), java.util.UUID.randomUUID().toString());
         artifacts.append("tenant-dedup", upload.principalId(), upload.uploadId(), 0, bytes);
         return upload;
     }

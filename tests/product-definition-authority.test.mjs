@@ -453,15 +453,15 @@ test("PDP1 event inventory preserves lifecycle and local-client populations with
   assert.equal(new Set(provenanceEventTypes).size, 9);
   assert.equal(new Set(proposalEventTypes).size, 9);
   const expectedSourceRefs = [
-    ["media.upload.started", "MediaRuntime.java#L264-L268", "UploadSession", "session.uploadId", "literal-1"],
-    ["media.artifact.completed", "MediaRuntime.java#L300-L306", "MediaArtifact", "artifact.artifactId", "literal-1"],
-    ["media.job.accepted", "MediaRuntime.java#L382-L388", "ProcessingJob", "accepted.jobId", "accepted.version"],
-    ["media.job.cancelled", "MediaRuntime.java#L448-L484", "ProcessingJob", "current.jobId", "stored.version"],
-    ["media.job.cancel_requested", "MediaRuntime.java#L448-L484", "ProcessingJob", "current.jobId", "stored.version"],
-    ["media.stream.opened", "MediaRuntime.java#L510-L514", "StreamSession", "sessionId", "session.version"],
-    ["media.stream.closed", "MediaRuntime.java#L650-L656", "StreamSession", "sessionId", "closed.version"],
-    ["media.job.completed", "MediaRuntime.java#L1189-L1196", "ProcessingJob", "value.jobId", "terminal.version"],
-    ["media.job.failed", "MediaRuntime.java#L1189-L1196", "ProcessingJob", "value.jobId", "terminal.version"],
+    ["media.upload.started", "MediaRuntime.java#L275-L280", "UploadSession", "session.uploadId", "literal-1"],
+    ["media.artifact.completed", "MediaRuntime.java#L321-L328", "MediaArtifact", "artifact.artifactId", "literal-1"],
+    ["media.job.accepted", "MediaRuntime.java#L404-L410", "ProcessingJob", "accepted.jobId", "accepted.version"],
+    ["media.job.cancelled", "MediaRuntime.java#L472-L506", "ProcessingJob", "current.jobId", "stored.version"],
+    ["media.job.cancel_requested", "MediaRuntime.java#L472-L506", "ProcessingJob", "current.jobId", "stored.version"],
+    ["media.stream.opened", "MediaRuntime.java#L532-L536", "StreamSession", "sessionId", "session.version"],
+    ["media.stream.closed", "MediaRuntime.java#L672-L678", "StreamSession", "sessionId", "closed.version"],
+    ["media.job.completed", "MediaRuntime.java#L1211-L1218", "ProcessingJob", "value.jobId", "terminal.version"],
+    ["media.job.failed", "MediaRuntime.java#L1211-L1218", "ProcessingJob", "value.jobId", "terminal.version"],
   ];
   const proposalStart = events.indexOf("    evidenceProvenanceProposals:\n");
   const proposalEnd = events.indexOf("  clientNotificationInventory:\n", proposalStart);
@@ -718,9 +718,9 @@ test("HTTP route, SDK, and interface projections retain canonical ownership", ()
   assert.match(output, /Media contract parity: NON-GREEN/u);
   assert.match(output, /"openapiRoutes":27,"runtimeRoutes":27,"httpRegistryRoutes":27/u);
   assert.match(output, /semantic binding: UNRESOLVED/u);
-  assert.match(output, /source findings audited: 46 \(44 dispositioned; 2 unresolved\)/u);
-  assert.match(output, /source-dispositioned findings: 44/u);
-  assert.match(output, /historical source findings: 51 \(49 dispositioned; 2 unresolved; 5 retired routes\)/u);
+  assert.match(output, /source findings audited: 47 \(45 dispositioned; 2 unresolved\)/u);
+  assert.match(output, /source-dispositioned findings: 45/u);
+  assert.match(output, /historical source findings: 52 \(50 dispositioned; 2 unresolved; 5 retired routes\)/u);
 });
 
 test("screen composition records retain Shared-boundary design metadata", () => {

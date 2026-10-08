@@ -3,9 +3,12 @@ package com.ghatana.media.provider.aws;
 import tools.jackson.core.type.TypeReference;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore;
+import com.ghatana.media.runtime.MediaRuntimeContracts.UploadBeginResult;
+import com.ghatana.media.runtime.MediaRuntimeContracts.UploadCompletionResult;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus;
+import com.ghatana.media.runtime.MediaUploadRequestFingerprint;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.model.AbortMultipartUploadRequest;
@@ -58,45 +61,98 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
     @Override public String storeId() { return "s3-postgresql"; }
 
     @Override
-    public UploadSession begin(UploadRequest request) {
+    public UploadSession begin(UploadRequest request, String idempotencyKey) {
+        return beginWithDisposition(request, idempotencyKey).session();
+    }
+
+    @Override
+    public UploadBeginResult beginWithDisposition(UploadRequest request, String idempotencyKey) {
         ensureOpen();
         java.util.Objects.requireNonNull(request, "request");
+        require(idempotencyKey, "Idempotency-Key");
+        if (idempotencyKey.length() > 255) throw new IllegalArgumentException("Idempotency-Key must not exceed 255 characters");
+        String fingerprint = MediaUploadRequestFingerprint.compute(request);
         String uploadId = UUID.randomUUID().toString();
-        Instant now = Instant.now();
+        Instant now = Instant.ofEpochMilli(System.currentTimeMillis());
         Instant expiresAt = now.plus(Duration.ofHours(1));
-        try (Connection connection = state.connection();
-             PreparedStatement statement = connection.prepareStatement(
+        try (Connection connection = state.connection()) {
+            connection.setAutoCommit(false);
+            try {
+                UploadRow existing = readUploadByIdempotencyKey(
+                        connection, request.tenantId(), request.principalId(), idempotencyKey, true);
+                if (existing != null) {
+                    verifyUploadReplay(existing, fingerprint);
+                    connection.commit();
+                    return new UploadBeginResult(existing.session(), false);
+                }
+                try (PreparedStatement statement = connection.prepareStatement(
                      "INSERT INTO media_upload_sessions "
                              + "(tenant_id,upload_id,principal_id,file_name,content_type,expected_size_bytes,expected_sha256,"
                              + "classification,retention_millis,created_at,expires_at,bytes_received,next_chunk_index,"
-                             + "status,metadata_json,artifact_id,updated_at,finalization_token,finalization_started_at) "
-                             + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
-            statement.setString(1, request.tenantId());
-            statement.setString(2, uploadId);
-            statement.setString(3, request.principalId());
-            statement.setString(4, safeFileName(request.fileName()));
-            statement.setString(5, request.contentType());
-            statement.setLong(6, request.expectedSizeBytes());
-            statement.setString(7, request.expectedSha256());
-            statement.setString(8, request.classification());
-            statement.setLong(9, request.retention().toMillis());
-            statement.setLong(10, now.toEpochMilli());
-            statement.setLong(11, expiresAt.toEpochMilli());
-            statement.setLong(12, 0L);
-            statement.setInt(13, 0);
-            statement.setString(14, UploadStatus.OPEN.name());
-            statement.setString(15, json(request.metadata()));
-            statement.setNull(16, java.sql.Types.VARCHAR);
-            statement.setLong(17, now.toEpochMilli());
-            statement.setNull(18, java.sql.Types.VARCHAR);
-            statement.setNull(19, java.sql.Types.BIGINT);
-            statement.executeUpdate();
-            return new UploadSession(
-                    uploadId, request.tenantId(), request.principalId(), safeFileName(request.fileName()), request.contentType(),
-                    request.expectedSizeBytes(), request.expectedSha256(), request.classification(),
-                    now, expiresAt, 0L, 0, UploadStatus.OPEN, request.metadata());
+                             + "status,metadata_json,artifact_id,updated_at,finalization_token,finalization_started_at,"
+                             + "idempotency_key,request_fingerprint) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+                    statement.setString(1, request.tenantId());
+                    statement.setString(2, uploadId);
+                    statement.setString(3, request.principalId());
+                    statement.setString(4, safeFileName(request.fileName()));
+                    statement.setString(5, request.contentType());
+                    statement.setLong(6, request.expectedSizeBytes());
+                    statement.setString(7, request.expectedSha256());
+                    statement.setString(8, request.classification());
+                    statement.setLong(9, request.retention().toMillis());
+                    statement.setLong(10, now.toEpochMilli());
+                    statement.setLong(11, expiresAt.toEpochMilli());
+                    statement.setLong(12, 0L);
+                    statement.setInt(13, 0);
+                    statement.setString(14, UploadStatus.OPEN.name());
+                    statement.setString(15, json(request.metadata()));
+                    statement.setNull(16, java.sql.Types.VARCHAR);
+                    statement.setLong(17, now.toEpochMilli());
+                    statement.setNull(18, java.sql.Types.VARCHAR);
+                    statement.setNull(19, java.sql.Types.BIGINT);
+                    statement.setString(20, idempotencyKey);
+                    statement.setString(21, fingerprint);
+                    statement.executeUpdate();
+                }
+                connection.commit();
+                return new UploadBeginResult(new UploadSession(
+                        uploadId, request.tenantId(), request.principalId(), safeFileName(request.fileName()), request.contentType(),
+                        request.expectedSizeBytes(), request.expectedSha256(), request.classification(),
+                        now, expiresAt, 0L, 0, UploadStatus.OPEN, request.metadata()), true);
+            } catch (SQLException | RuntimeException failure) {
+                rollback(connection, failure);
+                if (failure instanceof SQLException sql && duplicateKey(sql)) {
+                    return new UploadBeginResult(
+                            findConcurrentUploadReplay(request, idempotencyKey, fingerprint, sql), false);
+                }
+                if (failure instanceof RuntimeException runtime) throw runtime;
+                throw databaseFailure("begin Media upload", (SQLException) failure);
+            }
         } catch (SQLException failure) {
-            throw databaseFailure("begin Media upload", failure);
+            throw databaseFailure("open Media upload transaction", failure);
+        }
+    }
+
+    private UploadSession findConcurrentUploadReplay(
+            UploadRequest request, String idempotencyKey, String fingerprint, SQLException conflict) {
+        try (Connection connection = state.connection()) {
+            UploadRow existing = readUploadByIdempotencyKey(
+                    connection, request.tenantId(), request.principalId(), idempotencyKey, false);
+            if (existing == null) throw conflict;
+            verifyUploadReplay(existing, fingerprint);
+            return existing.session();
+        } catch (SQLException failure) {
+            failure.addSuppressed(conflict);
+            throw databaseFailure("resolve concurrent Media upload replay", failure);
+        }
+    }
+
+    private static void verifyUploadReplay(UploadRow existing, String fingerprint) {
+        if (existing.requestFingerprint() == null || existing.requestFingerprint().isBlank()) {
+            throw new IllegalStateException("Legacy Media upload idempotency state has no request fingerprint");
+        }
+        if (!existing.requestFingerprint().equals(fingerprint)) {
+            throw new IllegalArgumentException("Idempotency-Key was already used with a different upload request");
         }
     }
 
@@ -196,10 +252,15 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
 
     @Override
     public MediaArtifact complete(String tenantId, String principalId, String uploadId) {
+        return completeWithDisposition(tenantId, principalId, uploadId).artifact();
+    }
+
+    @Override
+    public UploadCompletionResult completeWithDisposition(String tenantId, String principalId, String uploadId) {
         ensureOpen();
         require(principalId, "principalId");
         FinalizationClaim claim = claimFinalization(tenantId, principalId, uploadId);
-        if (claim.existingArtifact() != null) return claim.existingArtifact();
+        if (claim.existingArtifact() != null) return new UploadCompletionResult(claim.existingArtifact(), false);
 
         String finalKey = artifactKey(tenantId, claim.row().expectedSha256());
         String multipartId = null;
@@ -255,7 +316,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                     .build());
             MediaArtifact artifact = persistArtifact(claim, finalKey, totalBytes, actualDigest);
             deleteChunks(chunks);
-            return artifact;
+            return new UploadCompletionResult(artifact, true);
         } catch (RuntimeException failure) {
             if (multipartId != null) {
                 try {
@@ -382,6 +443,9 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                 }
                 if (row.status() == UploadStatus.COMPLETED && row.artifactId() != null) {
                     MediaArtifact artifact = artifactForUpdate(connection, tenantId, row.artifactId());
+                    if (artifact == null) {
+                        throw new IllegalStateException("Completed Media upload is missing its stored artifact");
+                    }
                     connection.commit();
                     return new FinalizationClaim(row, token, artifact);
                 }
@@ -538,11 +602,28 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         return readUpload(connection, tenantId, uploadId, true);
     }
 
+    private UploadRow readUploadByIdempotencyKey(
+            Connection connection, String tenantId, String principalId, String idempotencyKey, boolean lock)
+            throws SQLException {
+        String sql = "SELECT upload_id FROM media_upload_sessions "
+                + "WHERE tenant_id=? AND principal_id=? AND idempotency_key=?"
+                + (lock ? " FOR UPDATE" : "");
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, tenantId);
+            statement.setString(2, principalId);
+            statement.setString(3, idempotencyKey);
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next() ? readUpload(connection, tenantId, result.getString(1), false) : null;
+            }
+        }
+    }
+
     private UploadRow readUpload(Connection connection, String tenantId, String uploadId, boolean lock)
             throws SQLException {
         String sql = "SELECT principal_id,file_name,content_type,expected_size_bytes,expected_sha256,classification,"
                 + "retention_millis,created_at,expires_at,bytes_received,next_chunk_index,status,metadata_json,"
-                + "artifact_id,finalization_token,finalization_started_at FROM media_upload_sessions "
+                + "artifact_id,finalization_token,finalization_started_at,idempotency_key,request_fingerprint "
+                + "FROM media_upload_sessions "
                 + "WHERE tenant_id=? AND upload_id=?" + (lock ? " FOR UPDATE" : "");
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, tenantId);
@@ -559,7 +640,8 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                         result.getLong("bytes_received"), result.getInt("next_chunk_index"),
                         UploadStatus.valueOf(result.getString("status")),
                         objectMap(result.getString("metadata_json")), result.getString("artifact_id"),
-                        result.getString("finalization_token"), finalizationStarted);
+                        result.getString("finalization_token"), finalizationStarted,
+                        result.getString("idempotency_key"), result.getString("request_fingerprint"));
             }
         }
     }
@@ -764,7 +846,7 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             long expectedSizeBytes, String expectedSha256, String classification, long retentionMillis,
             long createdAt, long expiresAt, long bytesReceived, int nextChunkIndex, UploadStatus status,
             Map<String, Object> metadata, String artifactId, String finalizationToken,
-            Long finalizationStartedAt) {
+            Long finalizationStartedAt, String idempotencyKey, String requestFingerprint) {
         UploadSession session() {
             return new UploadSession(uploadId, tenantId, principalId, fileName, contentType, expectedSizeBytes,
                     expectedSha256, classification, Instant.ofEpochMilli(createdAt),
@@ -773,7 +855,8 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         UploadRow withProgress(long bytes, int next) {
             return new UploadRow(tenantId, uploadId, principalId, fileName, contentType, expectedSizeBytes,
                     expectedSha256, classification, retentionMillis, createdAt, expiresAt, bytes, next,
-                    status, metadata, artifactId, finalizationToken, finalizationStartedAt);
+                    status, metadata, artifactId, finalizationToken, finalizationStartedAt,
+                    idempotencyKey, requestFingerprint);
         }
     }
 }

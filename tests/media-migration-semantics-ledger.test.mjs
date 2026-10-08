@@ -1427,6 +1427,11 @@ test("MSC-10 PDP-3 upstream input routing is decomposed without accepting the in
     ["MSC-10-C01", "Consume accepted PDP-0 meaning"],
     ["MSC-10-C02", "PDP-1 domain/data semantics"],
     ["MSC-10-C03", "PDP-2 representation"],
+    ["MSC-10-C04", "PDP-2 — Design & Interface System (legacy plan Phase 1)"],
+    ["MSC-10-C05", "A new capability or changed domain/action consequence discovered here returns to its PDP-0 or PDP-1 owner."],
+    ["MSC-10-C06", "PDP-3 — Complete Product Experience (legacy plan Phase 2)"],
+    ["MSC-10-C07", "Experience Explorer — outside the PDP phases (legacy plan Phase 3)"],
+    ["MSC-10-C08", "Explorer remains outside the PDP authority phases"],
   ]);
 
   assert.equal(review.sourcePin.sha256, ledger.historicalSource.sha256);
@@ -1436,13 +1441,32 @@ test("MSC-10 PDP-3 upstream input routing is decomposed without accepting the in
   for (const [claimId, exactClaim] of expected) {
     const claim = claims.find((item) => item.claimId === claimId);
     assert.ok(claim, `${claimId} is recorded`);
-    assert.deepEqual(claim.masterPlanLines, [1243, 1243]);
+    assert.ok(claim.masterPlanLines[0] === claim.masterPlanLines[1]);
     assert.ok(current[1242].includes("Consume accepted PDP-0 meaning, PDP-1 domain/data semantics, and PDP-2 representation."));
     assert.ok(historical[1228].includes("Consume accepted Phase0 meaning and Phase1 representation."));
+    assert.ok(current[claim.masterPlanLines[0] - 1].includes(exactClaim));
     assert.equal(claim.exactClaim, exactClaim);
     assert.equal(claim.disposition, "supported");
     assert.equal(claim.acceptanceEffect, "none");
-    assert.ok(claim.rationale.includes("only"));
+    assert.ok(claim.rationale.length);
+  }
+  const allChangedClaims = readYaml("docs/migration/master-plan-source-change-claims.yaml").claimDecompositions;
+  const sourceClaimById = new Map(allChangedClaims.map((claim) => [claim.claimId, claim]));
+  for (const [sourceClaimId, reconciliationIds] of [
+    ["MSC-10-MSD-026-L1213-C02", ["MSC-10-C04"]],
+    ["MSC-10-MSD-027-L1217-C04", ["MSC-10-C05"]],
+    ["MSC-10-MSD-032-L1239-C02", ["MSC-10-C06"]],
+    ["MSC-10-MSD-033-L1243-C02", ["MSC-10-C01", "MSC-10-C02", "MSC-10-C03"]],
+    ["MSC-10-MSD-036-L1350-C02", ["MSC-10-C07"]],
+    ["MSC-10-MSD-037-L1392-C02", ["MSC-10-C08"]],
+  ]) {
+    const sourceClaim = sourceClaimById.get(sourceClaimId);
+    assert.deepEqual(sourceClaim.boundedOwnerReconciliation.reconciliationClaimIds, reconciliationIds);
+    assert.equal(sourceClaim.boundedOwnerReconciliation.reconciliationArtifact, reviewPath);
+    assert.ok(reconciliationIds.every((id) => claims.some((claim) => claim.claimId === id)));
+    assert.equal(sourceClaim.boundedOwnerReconciliation.acceptanceEffect, "none");
+    if (sourceClaimId === "MSC-10-MSD-033-L1243-C02") assert.match(sourceClaim.boundedOwnerReconciliation.limits, /accepted/u);
+    assert.equal(sourceClaim.disposition, "SEMANTIC_EQUIVALENCE_UNRESOLVED", "the whole changed claim remains unresolved beyond its routed slice");
   }
   assert.deepEqual(ledger.reviewCountsAfterOwnerDispositions, {
     uniqueUnits: 1340,

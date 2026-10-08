@@ -98,3 +98,51 @@ type, classification, and metadata against the session. The legacy
 `completeUploadSession(uploadId)` overload remains source-compatible but cannot
 bind the returned artifact to an expected upload payload because the wire
 artifact contains no source upload ID.
+
+## Host-configured artifact inspection CLI
+
+The package exposes `ghatanamedia-api artifact inspect` as a read-only consumer
+of the accepted `getMediaArtifact` query through `MediaOperationClient.getArtifact()`.
+It requires an explicit endpoint and caller scope; the bearer token is read only
+from `GHATANA_MEDIA_BEARER_TOKEN` and is never accepted in command arguments.
+
+```sh
+GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_TOKEN" ghatanamedia-api artifact inspect \
+  --endpoint https://media.example.test \
+  --tenant tenant-1 \
+  --principal principal-1 \
+  --artifact artifact-1
+```
+
+The command writes a `media.cli-result.v1` JSON envelope to stdout containing
+the exact `CanonicalMediaArtifactObservation`. Errors use a JSON
+`media.cli-error.v1` envelope on stderr and preserve the server correlation ID
+when available. A 404 means the artifact was not visible in the supplied tenant
+and principal scope; it does not establish global absence. The result is a
+point-in-time metadata observation and does not establish rights, content
+retrieval, publication, or downstream availability. Remote endpoints require
+HTTPS; plain HTTP is accepted only for loopback testing. Redirects are rejected
+so bearer credentials are not forwarded to another endpoint.
+
+This host-configured command is separate from the 11 deterministic fixture
+commands in the Explorer simulator. The local consumer implementation does not
+qualify any production host or release.
+
+## Canonical upload-session read
+
+`MediaOperationClient.getUploadSession(uploadId)` reads the existing
+`getMediaUpload` query at `GET /api/v1/artifacts/uploads/{uploadId}` and returns
+the exact `CanonicalMediaUploadSessionObservation` runtime DTO. It requires the
+configured tenant and `defaultHeaders: { 'X-Principal-Id': callerPrincipalId }`;
+the SDK rejects a response whose tenant, principal, or upload ID differs from
+that request. The method accepts only a safe single path-segment upload ID.
+
+```ts
+const observation = await client.getUploadSession(uploadId);
+```
+
+The response is a point-in-time stored observation. It does not establish
+currentness, completion finality, rights, artifact availability, or permission
+to replay a mutation. A 404 preserves `UPLOAD_NOT_FOUND` and its correlation
+identity and means only that the upload was not visible in the supplied tenant
+and principal scope.

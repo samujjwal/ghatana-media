@@ -20,9 +20,9 @@ sharedStylesheetBindingReview:
     exactNameMatches: 0
     semanticBridge: absent
     dimensionalUnitBridge: absent
-  disposition: not-consumed; package CSS exports are public, but current token CSS does not define the variable names required by the recipe stylesheet and no source-backed Shared bridge was identified
-  evidence: Explorer CSP permits same-origin stylesheets and blocks inline style attributes; no Shared stylesheet binding is admitted until variable parity, semantic mappings, dimensional units, and runtime behavior are verified against an owner-approved release. Theme provider output is not a CSS-only bridge because its runtime path applies inline styles.
-  nextAction: Shared owner to publish a compatible bridge or approve a complete alias/unit mapping; keep only CSP-compatible Shared components in Media, and use native controls with Media-owned CSS where Shared inline styles are blocked.
+  disposition: ui-styles-recipe-css-not-consumed; Media imports the public design-system strict-csp-controls.css for selected class-based controls, while recipe/token name and unit parity remains unresolved
+  evidence: Explorer CSP permits same-origin stylesheets and blocks inline style attributes. Media consumes the Shared strict-CSP control stylesheet for EmptyState and ArtifactIntakeScreen FileUpload; the separate ui-styles recipe stylesheet still has unresolved token names and dimensional units. This source binding does not establish owner approval, visual qualification, or full recipe compatibility.
+  nextAction: Keep the exact public strict-CSP stylesheet binding limited to tested controls; use native controls where interaction contracts do not fit. Shared owner to publish a compatible ui-styles bridge or approve a complete alias/unit mapping before consuming recipes.
   reviewState: design-system-owner-and-consumer-binding-review-pending
   uiStylesRecipeCandidate:
     package: "@ghatana/ui-styles"
@@ -83,11 +83,11 @@ additionalSharedCandidates:
   - candidate: "@ghatana/design-system/molecules#LoadingState"
     evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/AsyncState.tsx; sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/Spinner.tsx
     disposition: not-adopted
-    rationale: The shared component adds a spinner and class-only utility styling; Media's current access-loading projection is a text status with no measured or animation contract. Its Spinner emits inline style attributes and a style element blocked by Explorer CSP, and the utility stylesheet is not loaded.
+    rationale: Media's current access-loading projection is a text status with no measured or animation contract. Spinner uses external class styling in the Shared strict-CSP stylesheet, but AsyncState/LoadingState add utility-class layout and status semantics that are not represented by the current Media projection or CSS bundle.
   - candidate: "@ghatana/design-system/molecules#StatusBadge"
     evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/StatusBadge.tsx; sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/Badge.tsx
     disposition: excluded-from-current-media-status-projections
-    rationale: StatusBadge delegates to Badge, whose current renderer/theme path applies inline styles blocked by Explorer style-src-attr 'none'. Its generic status mappings also do not establish Media job finality or OUTCOME_UNKNOWN semantics.
+    rationale: Badge defaults use external class styling in the Shared strict-CSP stylesheet, but StatusBadge's generic status mappings do not establish Media job finality or OUTCOME_UNKNOWN semantics.
   - candidate: "@ghatana/design-system/atoms#Divider"
     evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/Divider.tsx
     disposition: not-adopted
@@ -158,8 +158,8 @@ componentFamilyCrosswalk:
     progress: excluded-from-Shared-reuse
     progressReason: Shared Progress emits inline style attributes; Explorer enforces style-src-attr 'none'. Media uses native HTML progress for measured and indeterminate states; unknown and no-measurement remain text-only.
     stepNavigation: native-button-retained
-    stepNavigationReason: Native buttons preserve the host-gated step semantics and direct-child navigation structure. Shared Button emits inline style attributes blocked by Explorer style-src-attr 'none'.
-  reviewState: Explorer browser verification confirmed Shared Badge and Button inline styles are blocked by style-src-attr 'none'; Media now uses native state labels and buttons with Media-owned stylesheet rules. Shared Progress remains excluded for the same CSP reason. Consumer, accessibility, responsive, Shared theme, and owner review remain pending
+    stepNavigationReason: Native buttons preserve the host-gated step semantics and direct-child navigation structure; Shared Button's default class-based styling is CSP-compatible, but no exact Media action binding is admitted.
+  reviewState: Historical Explorer browser verification found CSP violations in the then-current Shared Badge and Button renderer. Current Shared defaults use external CSS; Media still uses native state labels and buttons for its explicit host-gated projections. Shared Progress remains excluded because its renderer emits inline styles and a style element. Consumer, accessibility, responsive, Shared theme, and owner review remain pending.
 - componentRef: media.component.voice-production-workflow
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.voice-production-workflow
   contractStatus: authored-proposal; Media-and-AI-Voice-owner-review-pending
@@ -201,9 +201,9 @@ componentFamilyCrosswalk:
     publicExport: "."
     components: [EmptyState]
     mediaFacade: libs/audio-video-ui/src/foundations/index.ts
-    status: Shared EmptyState retained; Button and TextField use native CSP-safe controls
-    emptyStateCspEvidence: Public Shared EmptyState source emits class-based markup without inline style attributes; its title-only status behavior matches the resolved-empty project list.
-    mediaStyling: Media applies the media-empty-state class and external system-color rules in libs/audio-video-ui/src/styles.css because the Shared utility classes are not part of the Explorer stylesheet pipeline.
+    status: Shared EmptyState retained; native Button and TextField remain for their current host action and draft bindings; Shared defaults now use external CSS
+    emptyStateCspEvidence: Public Shared EmptyState emits stable gh-empty-state part and size classes without inline styles; the Media UI stylesheet imports the public strict-csp-controls.css asset and its token CSS dependency.
+    mediaStyling: Media opts into the Shared gh-empty-state--panel appearance on the two resolved empty collections; all panel layout and typography are provided by Shared external CSS and token custom properties.
   crosswalkNote: FirstUseProjectScreen.tsx is a screen candidate; PhraseTimeline is a timeline editor export and is not evidence of a project-browser implementation.
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.project-context-summary
@@ -232,10 +232,10 @@ componentFamilyCrosswalk:
   publicExport: no PDP-2 family-specific export binding established; source path evidence only
   sharedReuse:
     package: "@ghatana/design-system"
-    publicExport: "."
-    components: []
+    publicExport: ".#FileUpload"
+    components: [FileUpload]
     mediaFacade: libs/audio-video-ui/src/foundations/index.ts
-    status: native CSP-safe controls; Shared controls are not composed because browser verification showed their inline styles blocked by Explorer CSP
+    status: ArtifactIntakeScreen composes Shared FileUpload with multiple selection, no preview retention, and no drag-and-drop; TranscriptCaptionScreen keeps its native source selection. FileUpload defaults use external CSS; this partial source-picker mapping and owner review remain pending.
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.source-player
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.source-player
@@ -256,7 +256,7 @@ componentFamilyCrosswalk:
     publicExport: "."
     components: []
     mediaFacade: libs/audio-video-ui/src/foundations/index.ts
-    status: native CSP-safe controls; Shared controls are not composed because browser verification showed their inline styles blocked by Explorer CSP
+    status: native labeled controls retain the caption review callbacks; Shared TextArea/TextField defaults use external CSS, but exact field bindings and owner review remain pending.
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.caption-track-editor
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.caption-track-editor
@@ -270,7 +270,7 @@ componentFamilyCrosswalk:
     publicExport: "."
     components: []
     mediaFacade: libs/audio-video-ui/src/foundations/index.ts
-    status: native CSP-safe controls; Shared controls are not composed because browser verification showed their inline styles blocked by Explorer CSP
+    status: native labeled controls retain caption-track editing callbacks; Shared TextArea/TextField defaults use external CSS, but exact field bindings and owner review remain pending.
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.job-status-card
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.job-status-card
@@ -301,7 +301,7 @@ componentFamilyCrosswalk:
     publicExport: ".#FileUpload"
     observedSnapshotVersion: 0.1.0-SNAPSHOT
     observedRetentionLimit: 100
-    disposition: not-composed; current Shared FileUpload truncates the retained selection at its local maximum, while Media has no owner-selected file-count bound and forwards the complete selection to its host callback
+    disposition: composed in ArtifactIntakeScreen with showPreview=false and dragAndDrop=false; this mode retains no private file preview list and forwards the complete native selection to the host. Default preview mode remains bounded at 100 files; no upload or content-acceptance behavior is implied.
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.artifact-transfer-status
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-transfer-status
@@ -331,8 +331,8 @@ componentFamilyCrosswalk:
     publicExport: ".#EmptyState"
     mediaFacade: libs/audio-video-ui/src/foundations/index.ts
     status: source-consumer-candidate; installed-artifact-and-owner-review-pending
-    emptyStateCspEvidence: Public Shared EmptyState source emits class-based markup without inline style attributes; Media uses it only for the empty artifact collection.
-    mediaStyling: Media applies the media-empty-state class and external system-color rules in libs/audio-video-ui/src/styles.css because the Shared utility classes are not part of the Explorer stylesheet pipeline.
+    emptyStateCspEvidence: Public Shared EmptyState emits stable gh-empty-state part and size classes without inline styles; the Media UI stylesheet imports the public strict-csp-controls.css asset and its token CSS dependency.
+    mediaStyling: Media opts into the Shared gh-empty-state--panel appearance on the two resolved empty collections; all panel layout and typography are provided by Shared external CSS and token custom properties.
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.waveform-spectrogram
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.waveform-spectrogram
@@ -493,7 +493,7 @@ publicExportInventory:
   - media.component.rights-retention-review
   - media.component.activity-recovery-feed
   - media.component.cli-output
-  sharedConsumerObservation: Shared EmptyState is source/test-verified supporting markup for resolved empty project/artifact collections, not an export for a whole PDP-2 component family. Shared Progress, Stepper, and FormStepper remain excluded for the recorded CSP or semantic mismatches.
+  sharedConsumerObservation: Shared EmptyState is source/test-verified supporting markup for resolved empty project/artifact collections, and Shared FileUpload renders the ArtifactIntakeScreen chooser with preview retention and drag-and-drop disabled while forwarding the full native file selection. These are component uses, not exports for whole PDP-2 component families. Shared Progress, Stepper, and FormStepper remain excluded for their recorded CSP or semantic mismatches.
   acceptanceBoundary: These are exact local source/package export and consumer observations. Package resolution, Shared owner approval, component accessibility/visual qualification, and PDP-2 acceptance remain pending.
 
 templateCrosswalk:
@@ -840,14 +840,14 @@ mediaPdp3PublicReuseReview:
     reason: Remaining canonical contracts describe distinct component anatomies and/or operation/effect consequences; the current public screen prop families do not supply exact matching data and action ports. Proposal action consequences remain unresolved, so no family adapter is inferred.
   existingSharedReuse:
     mediaFacade: libs/audio-video-ui/src/foundations/index.ts
-    controls: [EmptyState]
+    controls: [EmptyState, FileUpload]
     evidence: libs/audio-video-ui/src/screens/shared-control-reuse.test.ts
-    status: source/test-verified Shared EmptyState markup remains CSP-compatible for title-only empty project/artifact states; Shared Button, Badge, Select, TextArea, and TextField are excluded from current Media screens because Explorer CSP blocks their inline styles. External owner and accessibility acceptance remain pending.
+    status: Shared EmptyState and ArtifactIntakeScreen FileUpload have source/test-verified class-based defaults. Shared Button, Badge, Select, TextArea, TextField, and Spinner also use external CSS by default; Media keeps native action/draft controls where host-gated semantics remain the current exact implementation. External owner, visual, and accessibility acceptance remain pending.
   browserEvidence:
     route: Explorer #product; current caption workflow
     csp: Explorer response header enforces style-src-attr 'none'
-    result: Before correction, Chromium logged CSP violations on the caption workflow for Shared inline style attributes; affected control styles were blocked. After correction, the same production Preview route rendered with no inline style attributes inside the Media workflow and no console errors. Shared EmptyState source renders class-only markup, which remains asserted in its source test.
-    scope: local current Explorer browser run; no external owner/accessibility acceptance inferred
+    result: Historical Chromium run logged CSP violations for the then-current Shared control renderers; after their CSS correction, that route rendered without inline style attributes. Shared EmptyState and FileUpload now have source-level class-only regression coverage. This historical browser observation did not exercise the current FileUpload composition.
+    scope: prior local Explorer route run; the current FileUpload browser check is pending, and no external owner/accessibility acceptance is inferred
 crossProductReuse:
   componentReuse:
     implementation: libs/audio-video-ui/src/components/MediaProgress.tsx
@@ -868,15 +868,13 @@ crossProductReuse:
   excludedCandidates:
   - component: Progress
     reason: Shared implementation emits inline style attributes prohibited by Explorer style-src-attr 'none'; native progress is already tested for determinate and indeterminate measurement, while unknown/no measurement remain text.
-  - component: FileUpload
-    reason: Shared implementation retains a bounded internal file list and offers drag/drop/preview behavior; ArtifactIntakeScreen hands the selected FileList to the host without those extra retention or upload semantics. The native input preserves the exact selection callback contract.
   - component: OperationStatus
     reason: Shared state domain is idle/running/completed/failed/paused and cannot represent Media OUTCOME_UNKNOWN/finality without an unapproved mapping; it also emits semantic styling outside the current Media facade.
   - component: ResponsiveTable
     reason: PDP-3 artifact and project projections are ordered collections with list semantics, not tabular row/column contracts.
   nativeControlsRetained:
-  - workflow-step buttons: selection is host-gated and the current direct-child navigation markup is required; Shared Button adds a wrapper and inline style attributes.
-  - source file input: native multiple-file selection forwards the complete host File[] projection without FileUpload's internal retention, preview, or drop behavior.
+  - workflow-step buttons: selection is host-gated and the current direct-child navigation markup is required; Shared Button defaults use external CSS, but the Media step contract retains native markup.
+  - ArtifactIntakeScreen source selection: Shared FileUpload supplies the chooser UI around a native file input; Media disables preview and drag-and-drop so the full selection is forwarded without upload behavior.
   - definition lists and ordered/unordered lists: existing projections are key/value observations and ordered media collections; no exact Shared data-component contract is bound.
 ecosystemReuseReview:
   status: local-source-review; no additional implementation binding admitted
@@ -914,17 +912,21 @@ ecosystemReuseReview:
   packageReviews:
   - package: "@ghatana/design-system"
     workspacePackage: true
-    disposition: exact-empty-state-reuse; other-observed-controls-excluded
+    disposition: exact-empty-state-and-file-picker-reuse; other-observed-controls-excluded
     surfaceMapping:
       project-and-artifact-empty-collections: "EmptyState exact role=status/title projection; used by FirstUseProjectScreen and ArtifactIntakeScreen"
-      workflow-actions-and-step-navigation: "Shared Button adds markup/style behavior and does not preserve current host-gated direct-child workflow contract under Explorer CSP"
-      project-name-and-caption-drafts: "Shared TextField/TextArea wrappers emit inline styles; native labeled controls preserve host callbacks and pass the current CSP boundary"
+      workflow-actions-and-step-navigation: "Media retains native buttons for host-gated action eligibility and direct workflow-step semantics; Shared Button defaults use external CSS, but no exact Media action binding is admitted"
+      project-name-and-caption-drafts: "Media retains native labeled inputs/textarea for existing host draft callbacks; Shared TextField/TextArea defaults use external CSS, with exact field bindings and owner review pending"
+      artifact-source-selection: "ArtifactIntakeScreen composes Shared FileUpload with preview and drag-and-drop disabled; the callback forwards the complete native FileList and adds no upload side effect"
       artifact-and-project-collections: "DataGrid/ResponsiveTable require row/column, sort/filter/page semantics absent from the current ordered list projections"
       access-and-operation-states: "AsyncState/LoadingState and OperationStatus add role, styling, spinner, or state vocabulary not equivalent to host-projected Media states and unknown finality"
     evidence:
     - sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/EmptyState.tsx
     - sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/TextField.tsx
     - sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/TextArea.tsx
+    - sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/FileUpload.tsx
+    - sibling-repository:ghatana-shared/platform/typescript/design-system/src/styles/strict-csp-controls.css
+    - sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/__tests__/strict-csp-controls.test.tsx
     - sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/Progress.tsx
     - sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/AsyncState.tsx
     - libs/audio-video-ui/src/screens/shared-control-reuse.test.ts

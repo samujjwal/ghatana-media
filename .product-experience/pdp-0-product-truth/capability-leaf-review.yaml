@@ -18,7 +18,7 @@ sourceInventory:
 - path: .product-experience/pdp-0-product-truth/applications-channels.yaml
   sha256: e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d
 - path: .product-experience/pdp-1-domain-data/operations.yaml
-  sha256: 2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e
+  sha256: 073f43e1c74950889de080cb64279d08927e5144385ba02b01f3c205482b81eb
 - path: .product-experience/pdp-3-product-experience/action-registry.yaml
   sha256: a0e67cb434c5a8af867a1667f5ded9c57fe613170e877db347a845b339fea118
 - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
@@ -61708,3 +61708,23 @@ canonicalReadSourceReconciliation:
   capabilityImpact: No leaf-level operation, actor, bounds, implementation, qualification, rights or availability disposition changes.
   proofImpact: Regenerate source fingerprints; prior source-bound results are not reusable without exact dependency review.
   acceptanceEffect: Only the three named tenant/principal-scoped QUERY semantics, immutable submission fingerprint behavior and upload mutation principal checks; no family, capability, transport-equivalence or phase acceptance.
+uploadMutationSourceReconciliation:
+  path: .product-experience/pdp-1-domain-data/operations.yaml
+  previousSha256: 2949396310b545a037461b7f859d6ebe8b9c87aa332c2235647a7e65de0bbf4e
+  currentSha256: d632acf77bef36f98de4eca1628d5279b4f0a09c1bb0545fa4b097d75fd1cab4
+  exactChangedRecords: [media.operation-slice.begin-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+  semanticImpact: The three source records now separately describe proposed full-request replay binding, next-index-only chunk sequencing and completion identity constraints. These are source proposals awaiting runtime freeze and principal review; recorded implementation discrepancies remain explicit.
+  capabilityImpact: No capability-leaf operation binding, leaf applicability, implementation, qualification, rights, availability, or migration semantic disposition changed. Existing 462-leaf population remains 383 unresolved, with zero machine-operation dispositions.
+  proofImpact: New proposed proof obligations do not create Lifecycle cases or receipts. Prior source-bound proof fingerprints are stale against the current operations digest and require root-controlled refresh.
+  acceptanceEffect: No operation family or leaf is accepted; no retry, replay, completion finality, provider parity, production durability, or phase acceptance is inferred.
+
+uploadOwnerDefinitionSourceReconciliation:
+  source: .product-experience/pdp-1-domain-data/operations.yaml
+  previousSha256: d632acf77bef36f98de4eca1628d5279b4f0a09c1bb0545fa4b097d75fd1cab4
+  currentSha256: 073f43e1c74950889de080cb64279d08927e5144385ba02b01f3c205482b81eb
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-046
+  exactChangedRecords: [media.operation-slice.begin-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+  semanticImpact: Media owner defines full-request replay, persisted manual chunk receipt matching, expiry and stable completion identity; historical OpenAPI payload-hash contradiction corrected. Local byte verification and PostgreSQL receipt comparison remain distinct observations.
+  capabilityImpact: No leaf-level operation association or accepted coverage changed; 462 leaves remain 383 unresolved with zero machine-operation dispositions.
+  qualificationImpact: Store recreation does not prove process-kill, fsync, cross-process storage or production qualification. Runtime admission, trusted host, rights/consent and independent reviews remain open.
+  acceptanceEffect: Three bounded owner definitions only; no operation family, capability leaf, whole interface, PDP phase or Lifecycle proof accepted.

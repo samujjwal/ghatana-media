@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { analyzeContractParity, discoverSdkSourceFiles, parseNotAdmittedSdkRoutes, parseSdkHttpCalls, parseSdkOpenApiDispositions, parseSdkRegistryMethods, validateTypedContractBindings } from "../scripts/check-media-contract-parity.mjs";
+import { analyzeContractParity, collectLiveInput, discoverSdkSourceFiles, parseNotAdmittedSdkRoutes, parseSdkHttpCalls, parseSdkOpenApiDispositions, parseSdkRegistryMethods, validateTypedContractBindings } from "../scripts/check-media-contract-parity.mjs";
 
 const typedBindingFixture = {
   schemaVersion: "media.interface-parity.typed-contract-bindings.v1",
@@ -93,7 +93,9 @@ test("keeps the two remaining parity findings open because current sources lack 
   assert.equal(resultSchemaVersions.length, 4);
   assert.equal(unresolvedToolBindings.length, 4);
   assert.match(toolRegistry, /inputSchema: Media adapters enforce closed top-level key sets and local field validation, but these Java checks are not a published JSON Schema/u);
-  assert.match(toolRegistry, /outputSchema: Delegate results are passed through; no successful output schema is validated by these handlers/u);
+  assert.match(toolRegistry, /outputSchema: Successful delegate outputs receive bounded Draft 2020-12 validation/u);
+  assert.match(toolRegistry, /does not bind the four YAML descriptors as canonical registered result schemas/u);
+  assert.match(toolRegistry, /An empty schema remains unresolved/u);
   assert.match(conventions, /no tool is admitted, callable, or authorized by this convention/u);
 
   // The operation catalog explicitly remains proposal-only, with cross-
@@ -174,6 +176,57 @@ test("four SDK identities without OpenAPI routes have explicit NOT_ADMITTED pari
     sdkOpenApiDispositions: dispositions.filter((entry) => entry.identity !== unresolvedRouteMethods[0]),
   }));
   assert.ok(missingOne.gaps.includes(`SDK operation has no explicit OpenAPI binding: ${unresolvedRouteMethods[0]}`));
+});
+
+test("binds the exact existing upload-session SDK read to the individually approved inspect-upload query only", () => {
+  const parity = readFileSync(".product-experience/interface-parity/operation-parity.yaml", "utf8");
+  const disposition = parseSdkOpenApiDispositions(parity).find((entry) => entry.identity === "media.sdk.getUploadSession");
+  assert.deepEqual(disposition, {
+    identity: "media.sdk.getUploadSession",
+    type: "DOMAIN_QUERY",
+    operationId: "getMediaUpload",
+    ownerDecisionRef: ".product-experience/decision-log.md#PXD-040",
+    disposition: "BOUNDED_CANONICAL_READ",
+  });
+  const source = [
+    "export class MediaOperationClient {",
+    "  public async getUploadSession(uploadId: string): Promise<CanonicalMediaUploadSessionObservation> {",
+    "    return this.request(\"GET\", `/api/v1/artifacts/uploads/${encodeURIComponent(requestedUploadId)}`, undefined, parser, signal);",
+    "  }",
+    "}",
+  ].join("\n");
+  const routes = {
+    openapi: "  /api/v1/artifacts/uploads/{uploadId}:\n    get:\n      operationId: getMediaUpload\n",
+    runtimeManifest: JSON.stringify({ routes: [{ method: "GET", path: "/api/v1/artifacts/uploads/{uploadId}", operationId: "getMediaUpload" }] }),
+    httpRegistry: '    method: GET\n    path: "/api/v1/artifacts/uploads/{uploadId}"\n    operationId: getMediaUpload\n',
+  };
+  const result = analyzeContractParity(validStructuralInput({
+    ...routes,
+    sdkOperationIds: ["media.sdk.getUploadSession"],
+    sdkCalls: [{ source: "libs/audio-video-client/src/operations.ts", method: "GET", path: "/api/v1/artifacts/uploads/{parameter}" }],
+    sdkSourceFiles: { "libs/audio-video-client/src/operations.ts": source },
+    sdkOpenApiDispositions: [disposition],
+  }));
+  assert.equal(result.gaps.some((gap) => gap.startsWith("SDK operation has no explicit OpenAPI binding:")), false);
+  assert.equal(result.reconciledFindings.filter((entry) => entry.disposition === "BOUNDED_CANONICAL_READ").length, 1);
+
+  const wrongRoute = analyzeContractParity(validStructuralInput({
+    ...routes,
+    sdkOperationIds: ["media.sdk.getUploadSession"],
+    sdkCalls: [{ source: "libs/audio-video-client/src/operations.ts", method: "GET", path: "/api/v1/artifacts/{parameter}" }],
+    sdkSourceFiles: { "libs/audio-video-client/src/operations.ts": source },
+    sdkOpenApiDispositions: [disposition],
+  }));
+  assert.ok(wrongRoute.gaps.includes("SDK operation has no explicit OpenAPI binding: media.sdk.getUploadSession"));
+
+  const wrongAuthority = analyzeContractParity(validStructuralInput({
+    ...routes,
+    sdkOperationIds: ["media.sdk.getUploadSession"],
+    sdkCalls: [{ source: "libs/audio-video-client/src/operations.ts", method: "GET", path: "/api/v1/artifacts/uploads/{parameter}" }],
+    sdkSourceFiles: { "libs/audio-video-client/src/operations.ts": source },
+    sdkOpenApiDispositions: [{ ...disposition, ownerDecisionRef: ".product-experience/decision-log.md#PXD-045" }],
+  }));
+  assert.ok(wrongAuthority.gaps.includes("SDK operation has no explicit OpenAPI binding: media.sdk.getUploadSession"));
 });
 
 test("reports stale route dispositions instead of silently changing the parity denominator", () => {
@@ -486,4 +539,19 @@ test("retired unsafe retry remains in historical finding census only while sourc
   assert.equal(analyzeContractParity(legacyArtifact).retiredFindings.length, 4);
   const legacyUpload = {...input, sdkSourceFiles: {'libs/audio-video-client/src/operations.ts': source.replaceAll('/api/v1/artifacts/uploads', '/api/v1/media/uploads')}};
   assert.equal(analyzeContractParity(legacyUpload).retiredFindings.length, 2);
+});
+
+test("live source finding census keeps unresolved owner gaps and retired routes explicit", () => {
+  const result = analyzeContractParity(collectLiveInput());
+  // The 45 reconciled findings are individually source-dispositioned. Two
+  // authoritative semantic gaps remain (Agent Tool contracts and PDP-1
+  // owner-reviewed cross-interface bindings); neither can be closed by names.
+  assert.equal(result.observedFindingCount, 47);
+  assert.equal(result.reconciledFindings.length, 45);
+  assert.equal(result.gaps.length, 2);
+  assert.equal(result.historicalFindingCount, 52);
+  assert.equal(result.historicalDispositionedCount, 50);
+  assert.equal(result.retiredFindings.length, 5);
+  assert.match(result.gaps.join("\n"), /Agent Tool structural inventory found 4 tools/u);
+  assert.match(result.gaps.join("\n"), /PDP-1 operations remain proposal-only/u);
 });

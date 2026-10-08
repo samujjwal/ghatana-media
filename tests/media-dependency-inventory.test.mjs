@@ -13,7 +13,7 @@ const EXPECTED_DENOMINATORS = Object.freeze({
   cargoManifestCount: 4,
   cargoLockfileCount: 2,
   cargoLockedPackageCount: 114,
-  gradleDeclarationCount: 314,
+  gradleDeclarationCount: 315,
   dockerfileCount: 9,
   pythonDependencyManifestCount: 0,
   trackedAssetOrFixtureCount: 21,
