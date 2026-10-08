@@ -260,6 +260,22 @@ const externalOwnerObservations = [
     { path: "config/service-contract-source.json" },
     { path: "services/media/service-contract.yaml" },
     { path: "services/media/service-contract-supplements/source-overlay.json" },
+    { packageName: "@ghatana/document-intelligence-client", path: "services/document-intelligence/clients/typescript/package.json" },
+    { path: "services/document-intelligence/contracts/protocol-v1.md" },
+    { path: "services/document-intelligence/contracts/shared-contract.lock.json" },
+    { path: "services/ai-inference/contracts/openapi/ai-inference.yaml" },
+    { path: "services/data-cloud/contracts/openapi/data-cloud-lifecycle.yaml" },
+    { path: "services/action-plane/contracts/openapi/action-plane.yaml" },
+    { path: "services/event-plane/contracts/openapi/event-plane.yaml" },
+  ]),
+  repositoryObservation("ghatana-products", "../ghatana-products", [
+    { path: "config/product-extraction-records/media.yaml" },
+    { path: "products/tutorputor/config/dependency-requests/TP-GHATANA-AI-001.json" },
+    { path: "products/tutorputor/config/dependency-requests/TP-GHATANA-MEDIA-001.json" },
+  ]),
+  repositoryObservation("gharbatai", "../gharbatai", [
+    { path: "pnpm-lock.yaml" },
+    { path: "products/org/apps/api/src/modules/document-extraction/document-intelligence.config.ts" },
   ]),
   repositoryObservation("ghatana-tools", "../ghatana-tools", [
     { packageName: "@ghatana/product-definition", path: "libs/product-development/product-definition/package.json" },

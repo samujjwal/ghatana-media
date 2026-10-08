@@ -103,6 +103,42 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
     }
 
     @Override
+    public ProcessingJob update(JobLease lease, ProcessingJob expected, ProcessingJob updated) {
+        ensureOpen();
+        java.util.Objects.requireNonNull(lease, "lease");
+        validateUpdate(expected, updated);
+        if (!lease.tenantId().equals(expected.tenantId()) || !lease.jobId().equals(expected.jobId())) {
+            throw new IllegalArgumentException("Media job lease identity is invalid");
+        }
+        ProcessingJob persistable = sanitizeForPersistence(updated);
+        String sql = "UPDATE media_processing_jobs SET provider_id=?,status=?,started_at=?,completed_at=?,"
+                + "result_json=?,failure_code=?,version=? WHERE tenant_id=? AND job_id=? AND version=? "
+                + "AND lease_owner=? AND lease_token=? AND lease_expires_at>?";
+        try (Connection connection = state.connection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, persistable.providerId());
+            statement.setString(2, persistable.status().name());
+            nullableLong(statement, 3, persistable.startedAt());
+            nullableLong(statement, 4, persistable.completedAt());
+            statement.setString(5, json(persistable.result()));
+            statement.setString(6, persistable.failureCode());
+            statement.setLong(7, persistable.version());
+            statement.setString(8, expected.tenantId());
+            statement.setString(9, expected.jobId());
+            statement.setLong(10, expected.version());
+            statement.setString(11, lease.ownerId());
+            statement.setLong(12, lease.fencingToken());
+            statement.setLong(13, System.currentTimeMillis());
+            if (statement.executeUpdate() != 1) {
+                throw new IllegalStateException("Media job lease fence or version changed concurrently");
+            }
+            return persistable;
+        } catch (SQLException failure) {
+            throw databaseFailure("update fenced Media job", failure);
+        }
+    }
+
+    @Override
     public Optional<ProcessingJob> find(String tenantId, String jobId) {
         ensureOpen();
         try (Connection connection = state.connection();
@@ -158,9 +194,12 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 select.setString(2, expected.jobId());
                 long token;
                 try (ResultSet result = select.executeQuery()) {
-                    if (!result.next()
+                    boolean found = result.next();
+                    JobStatus status = found ? JobStatus.valueOf(result.getString("status")) : null;
+                    if (!found
                             || result.getLong("version") != expected.version()
-                            || terminal(JobStatus.valueOf(result.getString("status")))) {
+                            || terminal(status)
+                            || status == JobStatus.OUTCOME_UNKNOWN) {
                         throw new IllegalStateException("Media job cannot be leased from stale state");
                     }
                     Long priorExpiry = result.getObject("lease_expires_at") == null
@@ -211,7 +250,9 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             statement.setLong(4, lease.fencingToken());
             statement.setLong(5, System.currentTimeMillis());
             try (ResultSet result = statement.executeQuery()) {
-                return result.next() && !terminal(JobStatus.valueOf(result.getString("status")));
+                if (!result.next()) return false;
+                JobStatus status = JobStatus.valueOf(result.getString("status"));
+                return !terminal(status) && status != JobStatus.OUTCOME_UNKNOWN;
             }
         } catch (SQLException failure) {
             throw databaseFailure("verify Media job worker lease", failure);

@@ -1,10 +1,10 @@
 # Executable UI source inventory
 
-The source-pinned row inventory is [`executable-ui-inventory.json`](./executable-ui-inventory.json). It contains 157 source records from the current workspace observation at Git baseline `d4caa874f822e1737a88d0a6056e4f2faaeb78c1`. Every entry carries a SHA-256 of observed bytes and a dirty/untracked marker so the baseline does not hide working-tree edits.
+The source-pinned row inventory is [`executable-ui-inventory.json`](./executable-ui-inventory.json). It contains 158 source records from the current workspace observation at Git baseline `f200f44d4046bf0bbe9216a570802b4fb984246c`. Every entry carries a SHA-256 of observed bytes and a dirty/untracked marker so the baseline does not hide working-tree edits.
 
 | Source scope | Records | First disposition | Main consumers/runtime |
 |---|---:|---|---|
-| `libs/audio-video-ui/**` | 22 | FIX | Active Media package; `MediaTaskFlow` is used by AI Voice |
+| `libs/audio-video-ui/**` | 23 | FIX | Active Media package; `MediaTaskFlow` and `MediaProgress` are reused by AI Voice |
 | `modules/intelligence/ai-voice/libs/ai-voice-ui-react/**` | 16 | REUSE | AI Voice React package; audio playback, waveform, stem and transcript workflows |
 | `apps/media-experience-explorer/**` | 8 | UNRESOLVED | Explorer host, simulation adapter, browser DOM and fixture stylesheet |
 | `archive/media-desktop-apps/**` | 111 | ARCHIVE_ONLY | Historical desktop sources and tests; no active surface admission |

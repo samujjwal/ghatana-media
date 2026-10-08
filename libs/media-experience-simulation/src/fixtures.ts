@@ -399,6 +399,15 @@ const seeds: Record<FixtureId, MediaExperienceState> = {
       finality: "UNKNOWN",
     },
   },
+  "job-retry-ineligible": {
+    ...baseState("media.scenario.job-retry-ineligible"),
+    job: {
+      jobId: "fixture-transcription-job-unknown",
+      state: "OUTCOME_UNKNOWN",
+      attemptState: "OUTCOME_UNKNOWN",
+      finality: "UNKNOWN",
+    },
+  },
   "caption-conflict": {
     ...readyState("media.scenario.caption-conflict"),
     registeredCaptionVersions: ["caption-v0", "caption-v1"],

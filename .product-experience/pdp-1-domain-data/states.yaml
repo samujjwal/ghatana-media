@@ -138,6 +138,10 @@ crossSourceReconciliation:
     disposition: proposal-only; every mapping requires source-owner review and must not alter runtime behavior
     proposals: []
     unresolvedObservedMappings:
+      - source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#JobStatus
+        values: [ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED]
+        disposition: current Media runtime job enum observed; request/job spelling does not establish canonical job-state mapping
+        owner: Media runtime and domain owners
       - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvTranscriptionJob.java#JobStatus
         values: [CREATED, QUEUED, PROCESSING, RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, FAILED, CANCELLED, RETRYING]
         disposition: observed Java enum; no state-machine or product-meaning authority inferred
@@ -186,3 +190,38 @@ crossSourceReconciliation:
         observation: no matching job-lifecycle state enum was found in the four inspected active Media service proto files; the listed enums describe engine/health dimensions
         disposition: absence is an inventory observation, not an unsupported-state decision
         owner: protobuf/API owners
+      - source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamState
+        machineDimension: stream-session-state
+        values: [OPEN, CONNECTED, DEGRADED, DRAINING, CLOSED, FAILED]
+        disposition: implementation-observed runtime enum; state meanings and transition authority remain unresolved
+        owner: Media runtime and domain owners
+      - source: launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java#StreamStore.allowed
+        observedTransitionRelations:
+          OPEN: [CONNECTED, CLOSED, FAILED]
+          CONNECTED: [DEGRADED, DRAINING, CLOSED, FAILED]
+          DEGRADED: [CONNECTED, DRAINING, CLOSED, FAILED]
+          DRAINING: [CLOSED, FAILED]
+          CLOSED: []
+          FAILED: []
+        disposition: implementation-observed local-store guard; differs from PDP-0 proposal edges and is not accepted as product transition policy
+        owner: Media runtime and domain owners
+      - source: providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java#allowed
+        observedTransitionRelations:
+          OPEN: [CONNECTED, CLOSED, FAILED]
+          CONNECTED: [DEGRADED, DRAINING, CLOSED, FAILED]
+          DEGRADED: [CONNECTED, DRAINING, CLOSED, FAILED]
+          DRAINING: [CLOSED, FAILED]
+          CLOSED: []
+          FAILED: []
+        additionalBehavior: same-state transition accepted before the listed edge guard
+        disposition: implementation-observed PostgreSQL-store guard; differs from PDP-0 proposal edges and is not accepted as product transition policy
+        owner: Media runtime and PostgreSQL provider owners
+      - source: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#closeStream
+        observedPath: OPEN closes directly; CONNECTED or DEGRADED transitions to DRAINING before CLOSED; DRAINING closes directly; CLOSED and FAILED return unchanged
+        disposition: implementation-observed orchestration path; this does not prove provider-effect finality or establish the product stream machine
+        owner: Media runtime and domain owners
+      - source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java; launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java; providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws
+        inventoryScope: inspected active runtime contract, launcher, and PostgreSQL/AWS provider Java sources
+        observation: no delivery-state enum, delivery store, or recipient-acknowledgment state transition was found in this scope
+        disposition: scoped inventory absence only; does not mean delivery states are unsupported and does not supply delivery ACK evidence
+        owner: Media runtime, delivery, and domain owners

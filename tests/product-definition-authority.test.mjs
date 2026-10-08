@@ -325,10 +325,11 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
 
 test("gRPC source inventory status matches the active proto census without changing pending bindings", () => {
   const registry = readFileSync(resolve(root, ".product-experience/pdp-3-product-experience/grpc/service-registry.yaml"), "utf8");
+  const operations = readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/operations.yaml"), "utf8");
   assert.match(registry, /^status: active-source-inventory; observed-proto-projections; protocol-authority-unselected; operation-bindings-proposal-only; owner-review-pending$/mu);
   assert.match(registry, /^observedRpcCount: 43$/mu);
   assert.match(registry, /^requestedRpcCount: 43\nunresolvedRpcCount: 0$/mu);
-  assert.match(registry, /^explicitProposedLogicalOperationBindings: 24\nunresolvedLogicalOperationBindings: 19$/mu);
+  assert.match(operations, /all 43 identities accounted for; 17 domain-operation family refs remain proposals; 26 identities are unresolved including transport-only\/provider-admin roles/u);
   assert.equal([...registry.matchAll(/^    experienceBinding: pending-owner-review$/gmu)].length, 43);
 });
 
@@ -363,13 +364,36 @@ test("PDP1 operation proposal preserves source denominators and the complete pro
   assert.match(registry, /^  httpOperations:\n    count: 27$/mu);
   assert.match(registry, /all 27 exact OpenAPI operationIds accounted for; exact route-to-logical-operation links remain unresolved/u);
   assert.match(registry, /^  grpcRpcs:\n    count: 43$/mu);
-  assert.match(registry, /all 43 identities accounted for; exact observed family refs receive proposal IDs; remaining identities unresolved/u);
+  assert.match(registry, /all 43 identities accounted for; 17 domain-operation family refs remain proposals; 26 identities are unresolved including transport-only\/provider-admin roles/u);
   assert.match(registry, /^  cliSimulationCommands:\n    planDenominator: 11\n    currentFixtureRegistryRecords: 11$/mu);
   assert.match(registry, /^      count: 12$/mu);
-  assert.match(registry, /^  sdkMethods:\n    registryRecords: 27$/mu);
+  assert.match(registry, /^  sdkMethods:\n    registryRecords: 31$/mu);
   assert.match(registry, /^  agentToolHandlers:\n    count: 4$/mu);
   assert.match(registry, /^  lifecycleEventNames:\n    count: 15$/mu);
   assert.match(registry, /^ownerReview: pending-owner-review$/mu);
+});
+
+test("active G-05 mirrors match current proposal counts without implying acceptance", () => {
+  const acceptance = readFileSync(resolve(root, ".product-experience/acceptance.yaml"), "utf8");
+  const gap = readFileSync(resolve(root, ".product-experience/gaps.yaml"), "utf8");
+  const closureMatrix = readFileSync(resolve(root, ".product-experience/mandatory-surface-closure-matrix.yaml"), "utf8");
+  const dashboard = readFileSync(resolve(root, ".product-experience/closure-dashboard.yaml"), "utf8");
+  const decisionLog = readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8");
+
+  assert.match(acceptance, /14 of 146 UI actions have exact proposed operation refs, zero are ambiguous, and 132 remain unresolved/u);
+  assert.match(acceptance, /17 proposed family refs and 26 unresolved identities/u);
+  assert.match(gap, /14 exact proposed\s+operation refs and 132 unresolved; none is ambiguous/u);
+  assert.match(gap, /PDP1 proposes 17 family links and\s+leaves 26 unresolved/u);
+  assert.match(gap, /Resolve the 132 unmatched UI action links; bind the 27 HTTP IDs and 26\s+gRPC identities/u);
+  assert.match(closureMatrix, /14 exact proposed operation refs, zero ambiguous links, and 132 unresolved/u);
+  assert.match(closureMatrix, /17 proposed family refs and 26 unresolved identities/u);
+  assert.match(dashboard, /^observationDate: '2026-10-08'$/mu);
+  assert.match(dashboard, /- id: domain-objects\n      target: all-applicable\n      observed: 38/u);
+  assert.match(dashboard, /- id: logical-operations\n      target: all-applicable\n      observed: 14/u);
+  assert.match(dashboard, /- id: templates\n      target: all-applicable\n      observed: 8/u);
+  assert.match(dashboard, /- id: layouts\n      target: all-applicable\n      observed: 8/u);
+  assert.match(decisionLog, /2026-10-08 source-status update:[\s\S]*?Fourteen of 146 UI actions[\s\S]*?17 proposed\s+family refs and 26 unresolved identities/u);
+  assert.match(acceptance, /These source links remain proposals; no operation semantics, mappings, runtime reachability, or wire behavior are accepted/u);
 });
 
 test("PDP1 event inventory preserves lifecycle and local-client populations without inventing contracts", () => {
@@ -498,7 +522,7 @@ test("PDP1-005 registries preserve observed facts, proposal boundaries, and owne
   assert.match(versioning, /checksum-and-sourceArtifactIds-fields; neither-proves-immutable-source-bytes-canonical-version-identity-or-complete-ancestry/u);
   assert.match(versioning, /run-and-attempt-history[\s\S]*?do-not-claim-durable-attempt-history/u);
   assert.match(versioning, /job-version-and-lease-fencing-do-not-establish-durable-attempt-history/u);
-  assert.match(versioning, /startup-handler-marks-recoverable-persisted-nonterminal-jobs-FAILED-with-RESTART_RECONCILIATION_REQUIRED-and-provider-outcome-unknown; this-is-not-outcome-reconciliation/u);
+  assert.match(versioning, /startup-handler-marks-recoverable-persisted-nonterminal-jobs-OUTCOME_UNKNOWN-without-failure-code-or-completion-timestamp; this-is-not-outcome-reconciliation/u);
   assert.match(versioning, /cancellation-uncertainty-is-represented-but-resolution-and-finality-semantics-remain-unaccepted/u);
   assert.match(versioning, /canonical-version-reference-and-consumer-contract-pending/u);
 
@@ -656,6 +680,7 @@ test("Explorer index exposes source paths without workstation identity", () => {
 test("generated Explorer index covers every current source-manifest artifact exactly once", () => {
   const manifest = readFileSync(resolve(root, ".product-experience/source-manifest.yaml"), "utf8");
   const index = JSON.parse(readFileSync(resolve(root, "apps/media-experience-explorer/specification-artifacts.json"), "utf8"));
+  const gaps = readFileSync(resolve(root, ".product-experience/gaps.yaml"), "utf8");
   const sourceRecords = [...manifest.matchAll(/^  - artifactId: ([^\s]+)\n(?:.*\n){0,20}?    owningPhase: ([^\n]+)\n    path: ([^\n]+)$/gmu)]
     .map(([, artifactId, phase, path]) => ({ artifactId, phase: phase.trim(), path: path.trim() }));
   const indexedSourceRecords = index.filter((artifact) => artifact.path !== ".product-experience/source-manifest.yaml");
@@ -663,6 +688,9 @@ test("generated Explorer index covers every current source-manifest artifact exa
 
   assert.equal(byPath.size, indexedSourceRecords.length, "each canonical source path must occur once");
   assert.deepEqual([...byPath.keys()].sort(), sourceRecords.map(({ path }) => path).sort(), "index paths must exactly match generated source-manifest paths");
+  assert.equal(index.length, sourceRecords.length + 1, "Explorer index must include each source artifact plus its manifest projection");
+  assert.ok(gaps.includes(`${sourceRecords.length} source-derived records plus the manifest projection (${index.length} total)`),
+    "active Explorer gap mirrors must report the current source and index denominators");
   for (const record of sourceRecords) {
     assert.deepEqual(
       { artifactId: byPath.get(record.path)?.artifactId, phase: byPath.get(record.path)?.phase },
@@ -690,8 +718,8 @@ test("HTTP route, SDK, and interface projections retain canonical ownership", ()
   assert.match(output, /Media contract parity: NON-GREEN/u);
   assert.match(output, /"openapiRoutes":27,"runtimeRoutes":27,"httpRegistryRoutes":27/u);
   assert.match(output, /semantic binding: UNRESOLVED/u);
-  assert.match(output, /source findings audited: 46 \(44 dispositioned; 2 unresolved\)/u);
-  assert.match(output, /source-dispositioned findings: 44/u);
+  assert.match(output, /source findings audited: 50 \(48 dispositioned; 2 unresolved\)/u);
+  assert.match(output, /source-dispositioned findings: 48/u);
 });
 
 test("screen composition records retain Shared-boundary design metadata", () => {

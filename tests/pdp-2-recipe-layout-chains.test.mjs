@@ -21,6 +21,7 @@ test("PDP-2 recipe review keeps recipe identity distinct from template, pattern,
   const layoutCatalog = readYaml(`${gui}/layout.yaml`);
   const compositionSchema = readYaml(`${gui}/screen-composition-schema.yaml`);
   const screenRegistry = readYaml(`${experience}/screen-registry.yaml`);
+  const ownerReview = screenRegistry.compositionLinkOwnerReview;
   const processingCapabilities = readYaml(".product-experience/pdp-0-product-truth/capabilities.yaml");
   const recipeCatalogPath = `${gui}/recipes/catalog.yaml`;
 
@@ -88,6 +89,40 @@ test("PDP-2 recipe review keeps recipe identity distinct from template, pattern,
 
   const views = [...screenRegistry.screens, ...screenRegistry.laneViews];
   assert.equal(views.length, 47);
+  assert.equal(ownerReview.decision, "MEDIA_OWNER_APPROVED_COMPOSITION_LINKS_ONLY");
+  assert.equal(ownerReview.approved.length, 41);
+  assert.equal(ownerReview.withheld.length, 6);
+  const approvedById = new Map(ownerReview.approved.map((record) => [record.screenId, record]));
+  const withheldById = new Map(ownerReview.withheld.map((record) => [record.screenId, record]));
+  assert.deepEqual([...withheldById.keys()].sort(), [
+    "media.view.check-processing-readiness",
+    "media.view.compose-media",
+    "media.view.inspect-media",
+    "media.view.inspect-provenance",
+    "media.view.review-workspace-settings",
+    "media.view.work-in-project",
+  ]);
+  assert.deepEqual(Object.fromEntries([...withheldById].map(([screenId, decision]) => [screenId, decision.reason])), {
+    "media.view.check-processing-readiness": "Task setup is for choosing inputs/outcomes before submission; this screen is diagnostics, freshness, capacity/dependency disposition, and safe recovery guidance.",
+    "media.view.compose-media": "Template and layout describe render preparation/review; this screen is an active composition editor with a multitrack timeline and track/clip editing.",
+    "media.view.inspect-media": "The workbench template is for time-based review/editing; this screen inspects an exact artifact version, integrity, metadata, and governed lifecycle actions.",
+    "media.view.inspect-provenance": "The review-and-compare template conflicts with the record-detail layout selected for a single provenance record.",
+    "media.view.review-workspace-settings": "Consent gate/layout is for rights, consent, and access decisions; this screen reviews workspace policy/settings and save/reset actions.",
+    "media.view.work-in-project": "The time-based media workbench does not fit a project identity, pending-work summary, intent launcher, and navigation/recovery view.",
+  }, "all six source-documented purpose mismatches remain explicitly withheld until an exact registered template/layout fit exists");
+  assert.equal(new Set([...approvedById.keys(), ...withheldById.keys()]).size, 47);
+  const observation = screenRegistry.coverage.currentContractObservation;
+  assert.equal(observation.canonicalScreenContractCount, views.length);
+  assert.deepEqual(observation.templateId, {
+    recordedExactCatalogIdCandidates: 47,
+    unresolvedOrNull: 0,
+    acceptance: "41 composition-link approvals; 6 remain owner-review-pending; no screen admission",
+  });
+  assert.deepEqual(observation.layoutIds, {
+    recordedExactCatalogIdCandidates: 47,
+    empty: 0,
+    acceptance: "41 composition-link approvals; 6 remain owner-review-pending; no screen admission",
+  });
   let screenLayoutLinkCount = 0;
   const layoutsByTemplate = new Map();
   for (const view of views) {
@@ -98,6 +133,24 @@ test("PDP-2 recipe review keeps recipe identity distinct from template, pattern,
     assert.equal(Object.hasOwn(contract, "recipeRef"), false, `${view.id} must not invent a recipe ref`);
     assert.equal(Object.hasOwn(contract, "recipeBinding"), false, `${view.id} must not infer a recipe binding`);
     assert.ok(templates.has(contract.templateId), `${view.id} template is not canonical`);
+    const ownerApproved = approvedById.has(view.id);
+    assert.equal(ownerApproved || withheldById.has(view.id), true, `${view.id} is missing an owner decision`);
+    if (ownerApproved) {
+      const decision = approvedById.get(view.id);
+      assert.equal(decision.templateId, contract.templateId, `${view.id} owner-reviewed template mismatch`);
+      assert.deepEqual(decision.layoutIds, contract.layoutIds, `${view.id} owner-reviewed layout mismatch`);
+      assert.equal(decision.contract, `${experience}/${view.contractRefs[0]}`, `${view.id} owner-review contract path mismatch`);
+      assert.equal(contract.templateBindingStatus, "media-owner-composition-link-approved; screen-admission-pending");
+      assert.equal(contract.layoutBindingStatus, "media-owner-composition-link-approved; screen-admission-pending");
+      assert.equal(contract.fieldBindingStatus.templateId, "media-owner-composition-link-approved; screen-admission-pending");
+      assert.equal(contract.fieldBindingStatus.layoutIds, "media-owner-composition-link-approved; screen-admission-pending");
+    } else {
+      assert.equal(contract.templateBindingStatus, "candidate-by-screen-purpose; owner-review-pending");
+      assert.equal(contract.layoutBindingStatus, "candidate-by-template-and-screen-purpose; owner-review-pending");
+      assert.equal(contract.fieldBindingStatus.templateId, "candidate-template-link-owner-review-pending");
+      assert.equal(contract.fieldBindingStatus.layoutIds, "candidate-layout-link-owner-review-pending");
+      assert.match(withheldById.get(view.id).reason, /.+/u);
+    }
     assert.ok(Array.isArray(contract.layoutIds) && contract.layoutIds.length > 0, `${view.id} has no layout binding`);
     for (const layoutId of contract.layoutIds) {
       assert.ok(layouts.has(layoutId), `${view.id} layout is not canonical: ${layoutId}`);
@@ -110,6 +163,31 @@ test("PDP-2 recipe review keeps recipe identity distinct from template, pattern,
     }
   }
   assert.equal(screenLayoutLinkCount, 47);
+  assert.equal(views.filter((view) => {
+    const contract = readYaml(`${experience}/${view.contractRefs[0]}`);
+    return contract.validation?.status !== "validated";
+  }).length, 47, "candidate references do not admit a screen composition");
+  assert.match(ownerReview.boundaries, /no screen-composition\/admission/u);
+  assert.match(ownerReview.boundaries, /per-screen recipe binding/u);
+  assert.match(ownerReview.boundaries, /Shared binding/u);
+  assert.match(ownerReview.boundaries, /accessibility\/specialist review/u);
+  assert.match(ownerReview.boundaries, /phase acceptance/u);
+  const acceptance = readYaml(".product-experience/acceptance.yaml");
+  const ownerInput = acceptance.recordedHumanDecisionInputs.find(({ id }) => id === "ACCEPT-INPUT-MEDIA-OWNER-PDP3-COMPOSITION-LINKS-20261008");
+  assert.equal(ownerInput.decisionInput, "accepted");
+  assert.match(ownerInput.acceptedScope.join(" "), /41 PDP-3 screen contracts/u);
+  assert.match(ownerInput.acceptedScope.join(" "), /Six mismatched.*withheld/u);
+  assert.match(ownerInput.comments.join(" "), /Zero screen compositions are admitted/u);
+  assert.match(ownerInput.exclusions.join(" "), /PDP-3.*phase acceptance/u);
+  const decisionLog = readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8");
+  assert.match(decisionLog, /### PXD-028 — Approve bounded PDP-3 template\/layout composition links[\s\S]*?41 of the 47 canonical PDP-3 screen contracts[\s\S]*?six mismatched/u);
+  assert.match(decisionLog, /PXD-028[\s\S]*?zero screen compositions/u);
+  const gapRegister = readFileSync(resolve(root, ".product-experience/gaps.yaml"), "utf8");
+  assert.match(gapRegister, /approves 41 exact top-level template\/layout links and withholds six mismatches/u);
+  const overview = readFileSync(resolve(root, `${experience}/COMPLETE-PRODUCT-EXPERIENCE.md`), "utf8");
+  assert.match(overview, /approves 41\s+exact top-level template\/layout links and withholds six mismatches/u);
+  const closureMatrix = readFileSync(resolve(root, ".product-experience/mandatory-surface-closure-matrix.yaml"), "utf8");
+  assert.match(closureMatrix, /PXD-028 approves only 41 top-level PDP-3 template\/layout composition links/u);
   assert.deepEqual([...new Set([...layoutsByTemplate.values()].flatMap((refs) => [...refs]))].sort(), [...layouts].sort(),
     "every canonical layout has at least one exact screen-contract binding");
   for (const template of templateCatalog.templates) {

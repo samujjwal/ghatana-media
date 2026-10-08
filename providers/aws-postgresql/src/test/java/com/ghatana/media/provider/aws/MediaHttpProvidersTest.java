@@ -41,6 +41,20 @@ class MediaHttpProvidersTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("requires HTTPS");
 
+        assertThatThrownBy(() -> new HttpMediaProcessingProvider(Map.of(
+                "MEDIA_RUNTIME_ENVIRONMENT", " production ",
+                "MEDIA_HTTP_PROVIDER_ENDPOINT", "http://processor.example",
+                "MEDIA_HTTP_PROVIDER_TOKEN_REFERENCE", "secret:env:MEDIA_TOKEN",
+                "MEDIA_TOKEN", "token")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("requires HTTPS");
+
+        assertThatThrownBy(() -> new HttpMediaStreamingProvider(Map.of(
+                "MEDIA_RUNTIME_ENVIRONMENT", " STAGING ",
+                "MEDIA_HTTP_PROVIDER_ENDPOINT", "https://processor.example")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("reference is required");
+
         assertThatThrownBy(() -> new HttpMediaStreamingProvider(Map.of(
                 "MEDIA_RUNTIME_ENVIRONMENT", "production",
                 "MEDIA_HTTP_PROVIDER_ENDPOINT", "https://processor.example")))

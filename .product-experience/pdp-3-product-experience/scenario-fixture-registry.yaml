@@ -140,10 +140,10 @@ fixtures:
     expected: create-one-new-fenced-attempt-under-the-same-job-identity; preserve-the-classified-prior-attempt-and-do-not-claim-the-new-attempt-completed
     pdp3PayloadState: proposal-only; no-local-retry-reducer
   - id: media.scenario.job-retry-ineligible
-    sourceFixtureRef: FIXTURE-PARTIAL-COMPLETION
+    sourceFixtureRef: FIXTURE-PROVIDER-AMBIGUITY
     initialConditions: prior-outcome-is-unknown-or-current-authority-policy-or-retry-budget-does-not-permit-another-attempt
     expected: do-not-dispatch; retain-the-job-and-prior-attempt-history; check-an-unknown-outcome-or-explain-the-blocking-condition
-    pdp3PayloadState: proposal-only; no-local-retry-reducer
+    pdp3PayloadState: synthetic-unknown-outcome-branch-seeded; retry-action-remains-proposal-only; no-local-retry-reducer
   - id: media.scenario.caption-version-comparison
     sourceFixtureRef: FIXTURE-PODCAST-INTERVIEW
     initialConditions: prior-and-candidate-caption-versions-share-the-same-source

@@ -8,6 +8,8 @@ package com.ghatana.media.common.validation;
 
 import com.ghatana.media.common.ValidationError;
 
+import java.nio.charset.StandardCharsets;
+
 
 /**
  * Validates media file formats using magic numbers and header parsing.
@@ -187,7 +189,8 @@ public final class MediaFormatValidator {
             return AudioValidationResult.error("Unable to detect audio format - not a valid audio file");
         }
 
-        return AudioValidationResult.success(detectedFormat, data.length);
+        return AudioValidationResult.error(
+            "Detected " + detectedFormat + " header, but no complete decode profile is qualified for validation");
     }
 
     /**
@@ -201,17 +204,46 @@ public final class MediaFormatValidator {
             // WAVE at 8-11
             // fmt chunk at 12-15
 
+            long riffSize = Integer.toUnsignedLong((data[4] & 0xFF) |
+                    ((data[5] & 0xFF) << 8) |
+                    ((data[6] & 0xFF) << 16) |
+                    ((data[7] & 0xFF) << 24));
+            long riffEnd = 8L + riffSize;
+            if (riffSize < 4) {
+                return AudioValidationResult.error("WAV RIFF chunk is shorter than the WAVE signature");
+            }
+            if (riffEnd > data.length) {
+                return AudioValidationResult.error("WAV RIFF chunk exceeds available data");
+            }
+
             int offset = 12; // Start after RIFF + WAVE
 
             // Find fmt chunk
-            while (offset < data.length - 8) {
-                String chunkId = new String(data, offset, 4);
-                int chunkSize = (data[offset + 4] & 0xFF) |
+            while ((long) offset <= riffEnd - 8L) {
+                String chunkId = new String(data, offset, 4, StandardCharsets.US_ASCII);
+                long chunkSize = Integer.toUnsignedLong((data[offset + 4] & 0xFF) |
                                ((data[offset + 5] & 0xFF) << 8) |
                                ((data[offset + 6] & 0xFF) << 16) |
-                               ((data[offset + 7] & 0xFF) << 24);
+                               ((data[offset + 7] & 0xFF) << 24));
+                long chunkEnd = (long) offset + 8L + chunkSize;
+                if (chunkEnd > data.length) {
+                    return AudioValidationResult.error("WAV chunk exceeds available data");
+                }
+                if (chunkEnd > riffEnd) {
+                    return AudioValidationResult.error("WAV chunk exceeds RIFF bounds");
+                }
+                long paddedChunkEnd = chunkEnd + (chunkSize & 1L);
+                if (paddedChunkEnd > data.length) {
+                    return AudioValidationResult.error("WAV chunk padding exceeds available data");
+                }
+                if (paddedChunkEnd > riffEnd) {
+                    return AudioValidationResult.error("WAV chunk padding exceeds RIFF bounds");
+                }
 
                 if (chunkId.equals("fmt ")) {
+                    if (chunkSize < 16) {
+                        return AudioValidationResult.error("WAV fmt chunk is shorter than the PCM header");
+                    }
                     // Found fmt chunk
                     int audioFormat = (data[offset + 8] & 0xFF) | ((data[offset + 9] & 0xFF) << 8);
                     int numChannels = (data[offset + 10] & 0xFF) | ((data[offset + 11] & 0xFF) << 8);
@@ -225,6 +257,10 @@ public final class MediaFormatValidator {
                         return AudioValidationResult.error("Unsupported audio format: " + audioFormat + " (only PCM supported)");
                     }
 
+                    if (numChannels < 1 || sampleRate < 1 || bitsPerSample < 1) {
+                        return AudioValidationResult.error("WAV PCM channel, sample-rate, and bit-depth values must be positive");
+                    }
+
                     if (expectedSampleRate > 0 && sampleRate != expectedSampleRate) {
                         return AudioValidationResult.warning("Sample rate mismatch: expected " +
                             expectedSampleRate + " Hz but got " + sampleRate + " Hz");
@@ -233,9 +269,8 @@ public final class MediaFormatValidator {
                     return AudioValidationResult.success("WAV", data.length, sampleRate, numChannels, bitsPerSample);
                 }
 
-                offset += 8 + chunkSize;
-                // Align to word boundary
-                if (chunkSize % 2 == 1) offset++;
+                // RIFF chunks with odd payload lengths include one pad byte.
+                offset = (int) paddedChunkEnd;
             }
 
             return AudioValidationResult.error("WAV file missing fmt chunk");

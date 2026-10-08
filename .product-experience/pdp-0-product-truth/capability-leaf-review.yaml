@@ -18,7 +18,7 @@ sourceInventory:
 - path: .product-experience/pdp-0-product-truth/applications-channels.yaml
   sha256: e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d
 - path: .product-experience/pdp-1-domain-data/operations.yaml
-  sha256: 0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9
+  sha256: ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654
 - path: .product-experience/pdp-3-product-experience/action-registry.yaml
   sha256: a0e67cb434c5a8af867a1667f5ded9c57fe613170e877db347a845b339fea118
 - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
@@ -464,7 +464,7 @@ sourcePinReconciliations:
     result: source-pin-reconciled; coverage counts and dispositions unchanged
   - path: .product-experience/pdp-1-domain-data/operations.yaml
     previousSha256: e680643b45a5c3f25638b4f06ec0f9d544e2190c69c2c25f9a054445dcb3e085
-    currentSha256: 0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9
+    currentSha256: ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654
     changedClaims:
       - The prior request/review/correct/align action family no longer maps uniformly to media.operation.transcription. The current source assigns request-transcription to media.operation.transcription-submission, review-transcript to media.operation.transcript-version-read, and correct-caption plus align-caption-timing to media.operation.caption-draft-write.
       - Exact caption-version actions now map to media.operation.caption-version-write and media.operation.caption-version-read. These remain proposal-only; the source audit does not establish production runtime, transport parity, or owner acceptance.
@@ -504,6 +504,61 @@ sourcePinReconciliations:
         disposition: proposal-level RPC family observation; no UI equivalence or runtime acceptance inferred
       impact: changed; six exact UI action bindings were reconciled against the source proposal registry and five capability leaves were re-reviewed. Submission, recognition execution, transcript read, draft edit, caption-version write, and caption-version comparison remain semantically distinct.
       reviewImpact: Capability links for the five affected leaves now match exact source action-to-operation proposals. No capability applicability, implementation, qualification, availability, or accepted-coverage status is promoted; all 383 unresolved capability dispositions remain unresolved.
+    followOnSourceDelta:
+      previousSha256: 0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9
+      currentSha256: 173450e104b355820163cecf995e72180730e26ef954ad78be4c4e1c1599f471
+      changedClaims:
+        - Removed seven health/status/metrics RPC assignments to media.operation.health-capability: STTService.HealthCheck; TTSService.GetStatus and TTSService.GetMetrics; VisionService.GetStatus and VisionService.HealthCheck; MultimodalService.GetStatus and MultimodalService.HealthCheck.
+        - All seven exact RPC identities are now unresolved; the source still accounts for all 43 identities, with domain-operation family refs reduced from 24 to 17 and unresolved identities increased from 19 to 26. Remaining identities include transport-only/provider-admin roles.
+      reviewedCapabilityEvidence:
+        currentActionBindingsUnchanged: true
+        impact: No UI action-to-operation proposal or capability-leaf operation binding changed in this follow-on source delta; the existing six currentActionBindings and five historical leaf-link reconciliations remain valid.
+        capabilityLeafOperationBindingsSha256: 09894846a1c5896f368a83a0d17d9579df4e41256aa91299ddfaed2b1b269076
+        previousCapabilityLeafOperationBindingsSha256: 09894846a1c5896f368a83a0d17d9579df4e41256aa91299ddfaed2b1b269076
+        coverageCounts: {total: 462, unresolved: 383, journeySteps: 77, platformDependencies: 2, machineOperations: 0}
+        acceptanceImpact: No applicability, implementation, qualification, availability, or accepted-coverage status is promoted.
+      result: semantic-source-change-reconciled; RPC proposal inventory narrowed; capability leaf links and coverage dispositions unchanged
+    subsequentSourceDelta:
+      previousSha256: 173450e104b355820163cecf995e72180730e26ef954ad78be4c4e1c1599f471
+      currentSha256: 986f0db469ad3999edd6a89015b161015ae4ae0be08d3008b3bdebe1195e54dc
+      changedClaims:
+        - The SDK inventory now records 31 registry entries: 28 source/class/method-qualified public identities and three parser artifacts. It adds retryOperation and getOperationResult, and qualifies legacy AudioVideoClient.transcribe/synthesize separately from the root client methods.
+        - Seven legacy methods are corrected to the exported AudioVideoClient declaration source; duplicate transcribe and synthesize names retain distinct class-qualified identities. All 28 public method bindings remain unresolved.
+        - Parser artifacts are explicitly identified as media.sdk.for, media.sdk.if, and media.sdk.clearTimeout; none is counted as a public method. The SDK channel remains unconnected to production runtime and semantic operation bindings.
+        - media.operation.transcription-submission.evidenceAudit now records only STTService.Transcribe as execution evidence; media.action.request-transcription remains a separate submission action and is not treated as recognition execution evidence.
+      reviewedCapabilityEvidence:
+        currentActionBindingsUnchanged: true
+        capabilityLeafOperationBindingsSha256: 09894846a1c5896f368a83a0d17d9579df4e41256aa91299ddfaed2b1b269076
+        previousCapabilityLeafOperationBindingsSha256: 09894846a1c5896f368a83a0d17d9579df4e41256aa91299ddfaed2b1b269076
+        impact: No capability-leaf operation binding or coverage disposition changed; the SDK method census and submission-versus-execution evidence correction do not establish capability applicability or runtime support.
+        coverageCounts: {total: 462, unresolved: 383, journeySteps: 77, platformDependencies: 2, machineOperations: 0}
+        acceptanceImpact: No applicability, implementation, qualification, availability, or accepted-coverage status is promoted.
+      unchangedObligationSourceRecords:
+        media.operation.artifact-ingest: b84a132e253f377aec5cbf30c391f5b9ba166c49e2dcac09b271b9c52ee65463
+        media.operation.job-lifecycle: b06acf804df69640999682127ce9758b3be5bbb1118039126aa2d4ded22d3b3f
+        media.operation.transcription: 118fe73f82829fb2aefa933a32d740633e17fad3910a55f63256879419a0657d
+        media.operation.synthesis: 45817f80711548286e392e840836ccd43aa99347bf2e4a68b714316b681c05d2
+        media.operation.vision-analysis: 5b54ceb493f318c6a4a232125476661b1c8c319966118ad08ed244123d33ca71
+        media.operation.multimodal-analysis: 560e7dbfad38b7ee8cdbfb07e177b131871d9ac43f41ab5556f12711692090a9
+        media.operation.stream-session: de3690412d43ad287a909b3cc30de59dc7502ff9b8f5bcf5de726b5bd7334c1f
+        media.operation.consent: a77e6883baee3f445e603824eb2c21d7bf9df4701039e367aedbb5dd6a0d37ff
+        media.operation.health-capability: 19afc96777bf425e75f6817ec3d8b7b03605531c8511bd3ed48b18d0897e1010
+      result: semantic-source-change-reconciled; SDK source census and submission/execution evidence corrected; no capability-leaf impact
+    ownerDispositionSourceDelta:
+      previousSha256: 986f0db469ad3999edd6a89015b161015ae4ae0be08d3008b3bdebe1195e54dc
+      currentSha256: ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654
+      changedClaims:
+        - Four exact AudioVideoClient identities now have source-backed non-operation dispositions: getServiceStatus and getAllServicesStatus are transport-only service-health observations; addEventListener and removeEventListener are client-only local listener operations.
+        - Four identities were removed from unresolved domain-operation IDs. The raw registry denominator remains 31 records / 28 public source methods / 3 parser artifacts; 14 family associations remain proposals, four identities are classified as non-domain operations, and ten remain unresolved.
+        - No SDK route was admitted and no method was bound to a PDP-1 logical operation.
+      reviewedCapabilityEvidence:
+        currentActionBindingsUnchanged: true
+        impact: The exact SDK role classification changes no capability-leaf operation binding, applicability, or coverage disposition.
+        capabilityLeafOperationBindingsSha256: 09894846a1c5896f368a83a0d17d9579df4e41256aa91299ddfaed2b1b269076
+        previousCapabilityLeafOperationBindingsSha256: 09894846a1c5896f368a83a0d17d9579df4e41256aa91299ddfaed2b1b269076
+        coverageCounts: {total: 462, unresolved: 383, journeySteps: 77, platformDependencies: 2, machineOperations: 0}
+        acceptanceImpact: No capability applicability, implementation, qualification, availability, or accepted-coverage status is promoted.
+      result: exact-sdk-non-operation-dispositions-reconciled; capability leaf bindings and coverage unchanged
     result: semantic-source-change-reconciled; capability links updated; coverage counts and acceptance dispositions unchanged
   - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
     previousSha256: b958fc9c56449d87b0113d17eb97838801cbe7d4ec73bf4dc8f1a21d04bc173f

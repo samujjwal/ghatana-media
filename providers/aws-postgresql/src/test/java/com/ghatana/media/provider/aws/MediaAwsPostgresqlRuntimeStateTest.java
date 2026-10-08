@@ -147,12 +147,35 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             accepted.jobId(), accepted.requestId(), accepted.tenantId(), accepted.principalId(), accepted.artifactId(),
                             accepted.jobType(), accepted.providerId(), JobStatus.RUNNING, accepted.createdAt(),
                             Instant.now().truncatedTo(ChronoUnit.MILLIS), null, Map.of(), "", 2);
-                    assertThat(jobs.update(accepted, running)).isEqualTo(running);
+                    assertThat(jobs.update(lease, accepted, running)).isEqualTo(running);
                     assertThat(jobs.leaseValid(lease)).isTrue();
+                    try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                         var expireLease = connection.prepareStatement(
+                                 "UPDATE media_processing_jobs SET lease_expires_at=? WHERE tenant_id=? AND job_id=?")) {
+                        expireLease.setLong(1, Instant.now().minusSeconds(1).toEpochMilli());
+                        expireLease.setString(2, running.tenantId());
+                        expireLease.setString(3, running.jobId());
+                        assertThat(expireLease.executeUpdate()).isEqualTo(1);
+                    }
+                    var replacementLease = jobs.claim(running, "worker-b", Instant.now().plusSeconds(60));
+                    ProcessingJob staleCompletion = new ProcessingJob(
+                            running.jobId(), running.requestId(), running.tenantId(), running.principalId(), running.artifactId(),
+                            running.jobType(), running.providerId(), JobStatus.COMPLETED, running.createdAt(),
+                            running.startedAt(), Instant.now().truncatedTo(ChronoUnit.MILLIS), Map.of(), "", 3);
+                    assertThatThrownBy(() -> jobs.update(lease, running, staleCompletion))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("lease fence");
+                    ProcessingJob replacementRunning = new ProcessingJob(
+                            running.jobId(), running.requestId(), running.tenantId(), running.principalId(), running.artifactId(),
+                            running.jobType(), running.providerId(), JobStatus.RUNNING, running.createdAt(),
+                            running.startedAt(), null, Map.of(), "", 3);
+                    assertThat(jobs.update(replacementLease, running, replacementRunning)).isEqualTo(replacementRunning);
+                    assertThat(jobs.find("tenant-a", running.jobId())).contains(replacementRunning);
+                    jobs.release(replacementLease);
                     jobs.release(lease);
                     assertThat(jobs.leaseValid(lease)).isFalse();
-                    assertThat(jobs.recoverable(10)).contains(running);
-                    assertThatThrownBy(() -> jobs.update(accepted, running))
+                    assertThat(jobs.recoverable(10)).contains(replacementRunning);
+                    assertThatThrownBy(() -> jobs.update(running, replacementRunning))
                             .isInstanceOf(IllegalStateException.class)
                             .hasMessageContaining("version changed");
                     assertThat(jobs.find("tenant-b", accepted.jobId())).isEmpty();
@@ -200,7 +223,28 @@ class MediaAwsPostgresqlRuntimeStateTest {
 
                     verifiesPhysicalRetentionDeletesBlobsAndDerivedRuntimeState(
                             environment, admin, bucket, artifacts, jobs, streams,
-                            artifact, objectKey, running, closed);
+                            artifact, objectKey, replacementRunning, closed);
+                    ProcessingJob unknownAccepted = new ProcessingJob(
+                            "job-unknown", "request-unknown", "tenant-a", "principal-a",
+                            artifact.artifactId(), JobType.VISION, "http-media-processing",
+                            JobStatus.ACCEPTED, Instant.now().truncatedTo(ChronoUnit.MILLIS),
+                            null, null, Map.of(), "", 1);
+                    assertThat(jobs.create(unknownAccepted)).isEqualTo(unknownAccepted);
+                    var unknownLease = jobs.claim(unknownAccepted, "worker-before-reconciliation",
+                            Instant.now().plusSeconds(60));
+                    ProcessingJob unknownFromLeased = new ProcessingJob(
+                            unknownAccepted.jobId(), unknownAccepted.requestId(), unknownAccepted.tenantId(),
+                            unknownAccepted.principalId(), unknownAccepted.artifactId(), unknownAccepted.jobType(),
+                            unknownAccepted.providerId(), JobStatus.OUTCOME_UNKNOWN, unknownAccepted.createdAt(),
+                            null, null, Map.of("reconciliation", "provider outcome unknown after runtime restart"),
+                            "", 2);
+                    assertThat(jobs.update(unknownAccepted, unknownFromLeased)).isEqualTo(unknownFromLeased);
+                    assertThat(jobs.leaseValid(unknownLease)).isFalse();
+                    assertThat(jobs.recoverable(10)).doesNotContain(unknownFromLeased);
+                    assertThatThrownBy(() -> jobs.claim(
+                            unknownFromLeased, "worker-after-restart", Instant.now().plusSeconds(60)))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("cannot be leased");
                 }
             }
         }
@@ -228,7 +272,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                 running.jobId(), running.requestId(), running.tenantId(), running.principalId(),
                 running.artifactId(), running.jobType(), running.providerId(), JobStatus.COMPLETED,
                 running.createdAt(), running.startedAt(), completedAt,
-                Map.of("derivedFaceCount", 2, "transcriptSummary", "sensitive-result"), "", 3);
+                Map.of("derivedFaceCount", 2, "transcriptSummary", "sensitive-result"), "", running.version() + 1);
         assertThat(jobs.update(running, completed)).isEqualTo(completed);
 
         long expiredAt = Instant.now().minus(Duration.ofDays(2)).toEpochMilli();
@@ -287,6 +331,84 @@ class MediaAwsPostgresqlRuntimeStateTest {
 
         verifiesArtifactRenewalCannotRaceBlobDeletion(environment, admin, artifacts, bucket);
         verifiesActiveUploadCannotRaceChunkDeletion(environment, admin, artifacts, bucket);
+        verifiesRetryReconcilesArtifactAfterObjectWasAlreadyDeleted(environment, admin, artifacts, bucket);
+    }
+
+    /** Injects a metadata-delete failure after S3 deletion, then verifies purge retry recovery. */
+    private static void verifiesRetryReconcilesArtifactAfterObjectWasAlreadyDeleted(
+            Map<String, String> environment,
+            S3Client admin,
+            S3PostgresqlMediaArtifactStore artifacts,
+            String bucket) throws Exception {
+        MediaArtifact artifact = upload(
+                artifacts, "purge-retry-after-object-delete".getBytes(StandardCharsets.UTF_8),
+                "retry.bin", "application/octet-stream", "restricted", Duration.ofDays(30), Map.of());
+        String key = objectKey(artifact.objectReference());
+        try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+             var update = connection.prepareStatement(
+                     "UPDATE media_artifacts SET expires_at=? WHERE tenant_id=? AND artifact_id=?")) {
+            update.setLong(1, Instant.now().minus(Duration.ofDays(2)).toEpochMilli());
+            update.setString(2, artifact.tenantId());
+            update.setString(3, artifact.artifactId());
+            assertThat(update.executeUpdate()).isEqualTo(1);
+        }
+
+        try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+             var statement = connection.createStatement()) {
+            statement.execute("CREATE TRIGGER fail_media_artifact_delete BEFORE DELETE ON media_artifacts "
+                    + "FOR EACH ROW CALL 'com.ghatana.media.provider.aws.MediaAwsPostgresqlRuntimeStateTest$"
+                    + "FailArtifactDeleteTrigger'");
+        }
+        Map<String, String> maintenanceEnvironment = new LinkedHashMap<>(environment);
+        try (PostgresqlMediaPrivacyMaintenance maintenance =
+                     new PostgresqlMediaPrivacyMaintenance(maintenanceEnvironment)) {
+            assertThatThrownBy(() -> maintenance.purgeExpired(Instant.now()))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("delete expired Media artifact metadata");
+        }
+        assertThat(artifactRowExists(environment, artifact)).isTrue();
+        assertThatThrownBy(() -> admin.headObject(HeadObjectRequest.builder().bucket(bucket).key(key).build()))
+                .isInstanceOf(software.amazon.awssdk.services.s3.model.NoSuchKeyException.class);
+
+        try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+             var statement = connection.createStatement()) {
+            statement.execute("DROP TRIGGER fail_media_artifact_delete");
+        }
+        try (PostgresqlMediaPrivacyMaintenance maintenance =
+                     new PostgresqlMediaPrivacyMaintenance(maintenanceEnvironment)) {
+            assertThat(maintenance.purgeExpired(Instant.now()).artifactsDeleted()).isEqualTo(1);
+        }
+        assertThat(artifactRowExists(environment, artifact)).isFalse();
+        assertThatThrownBy(() -> admin.headObject(HeadObjectRequest.builder().bucket(bucket).key(key).build()))
+                .isInstanceOf(software.amazon.awssdk.services.s3.model.NoSuchKeyException.class);
+    }
+
+    /** Test-only H2 fault injection for the metadata half of the S3/PostgreSQL purge sequence. */
+    public static final class FailArtifactDeleteTrigger implements org.h2.api.Trigger {
+        @Override public void init(java.sql.Connection connection, String schemaName, String triggerName,
+                                   String tableName, boolean before, int type) { }
+
+        @Override public void fire(java.sql.Connection connection, Object[] oldRow, Object[] newRow)
+                throws java.sql.SQLException {
+            throw new java.sql.SQLException("injected metadata deletion failure");
+        }
+
+        @Override public void close() { }
+        @Override public void remove() { }
+    }
+
+    private static boolean artifactRowExists(Map<String, String> environment, MediaArtifact artifact)
+            throws Exception {
+        try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+             var statement = connection.prepareStatement(
+                     "SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=? AND artifact_id=?")) {
+            statement.setString(1, artifact.tenantId());
+            statement.setString(2, artifact.artifactId());
+            try (var result = statement.executeQuery()) {
+                result.next();
+                return result.getInt(1) == 1;
+            }
+        }
     }
 
     private static void verifiesArtifactRenewalCannotRaceBlobDeletion(

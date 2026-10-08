@@ -8,7 +8,8 @@ import com.ghatana.agent.AgentDescriptor;
 import com.ghatana.agent.AgentResult;
 import com.ghatana.agent.AgentType;
 import com.ghatana.agent.framework.api.AgentContext;
-import com.ghatana.agent.framework.runtime.AbstractTypedAgent;
+import com.ghatana.agent.runtime.turn.AbstractTypedAgent;
+import com.ghatana.core.async.AsyncOperation;
 import com.ghatana.agent.framework.tools.ToolActionClass;
 import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
 import com.ghatana.agent.framework.tools.ToolExecutionStatus;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.CompletableFuture;
 import java.util.Objects;
 
 /**
@@ -69,7 +71,7 @@ public final class AudioTranscriptionAgent extends AbstractTypedAgent<AudioTrans
     }
 
     @Override
-    protected Promise<AgentResult<AudioTranscriptionResult>> doProcess(
+    protected AsyncOperation<AgentResult<AudioTranscriptionResult>> doProcess(
             @NotNull AgentContext ctx,
             @NotNull AudioTranscriptionRequest input) {
 
@@ -85,7 +87,7 @@ public final class AudioTranscriptionAgent extends AbstractTypedAgent<AudioTrans
                 "1.0",
                 input.toToolInput());
 
-        return toolExecutor.execute(envelope, sttContract())
+        Promise<AgentResult<AudioTranscriptionResult>> resultPromise = toolExecutor.execute(envelope, sttContract())
                 .map(result -> {
                     Duration elapsed = Duration.between(start, Instant.now());
                     if (result.status() == ToolExecutionStatus.SUCCESS) {
@@ -98,6 +100,12 @@ public final class AudioTranscriptionAgent extends AbstractTypedAgent<AudioTrans
                     log.warn("STT tool failed for agent [{}]: {}", AGENT_ID, errorMsg);
                     return AgentResult.failure(new RuntimeException(errorMsg), AGENT_ID, elapsed);
                 });
+        CompletableFuture<AgentResult<AudioTranscriptionResult>> future = new CompletableFuture<>();
+        resultPromise.whenComplete((value, error) -> {
+            if (error == null) future.complete(value);
+            else future.completeExceptionally(error);
+        });
+        return AsyncOperation.from(future);
     }
 
     private static ToolContract sttContract() {

@@ -55,6 +55,21 @@ class LocalMediaJobStoreGovernanceTest {
         assertThat(store.recoverable(10)).isEmpty();
     }
 
+    @Test
+    void outcomeUnknownInvalidatesAnExistingWorkerLease() {
+        var store = new LocalMediaRuntimeSupport.JobStore();
+        ProcessingJob accepted = store.create(job("job-unknown", "request-unknown", "artifact-1"));
+        var lease = store.claim(accepted, "worker-a", Instant.now().plusSeconds(60));
+        ProcessingJob unknown = new ProcessingJob(
+                accepted.jobId(), accepted.requestId(), accepted.tenantId(), accepted.principalId(),
+                accepted.artifactId(), accepted.jobType(), accepted.providerId(), JobStatus.OUTCOME_UNKNOWN,
+                accepted.createdAt(), null, null, Map.of("reconciliation", "outcome unknown"), "", 2);
+
+        store.update(accepted, unknown);
+
+        assertThat(store.leaseValid(lease)).isFalse();
+    }
+
     private static ProcessingJob job(String jobId, String requestId, String artifactId) {
         return new ProcessingJob(
                 jobId, requestId, "tenant-a", "principal-a", artifactId, JobType.VISION,

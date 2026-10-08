@@ -23,6 +23,8 @@ domainRules:
     semantics. Those rules remain owned by PDP-1 and are not projected until
     their source record and owner decision are accepted.
   pendingSources:
+    - ref: .product-experience/pdp-1-domain-data/state-adjudication.yaml
+      reason: The owner-approved decisions are bounded to canonical policy distinctions; they do not accept the proposal-only state machines, transition guards, operation bindings, or a ProductDefinition domainRules mapping.
     - ref: .product-experience/pdp-1-domain-data/states.yaml
       reason: State records are proposal-only and their meaningDisposition remains pending-owner-review.
     - ref: .product-experience/pdp-1-domain-data/transitions.yaml

@@ -87,11 +87,101 @@ test("operation source changes reconcile affected leaf links without promoting c
   assert.notEqual(impact.previousSha256, impact.currentSha256);
   assert.match(impact.result, /semantic-source-change-reconciled/u);
 
+  const followOn = impact.followOnSourceDelta;
+  assert.ok(followOn, "the later RPC proposal narrowing has a separate semantic impact record");
+  assert.equal(followOn.previousSha256, "0b73da4d6a57b110393be94405f55289ffa3a938166c2d7d1d17ea39c8b597e9");
+  assert.equal(followOn.currentSha256, "173450e104b355820163cecf995e72180730e26ef954ad78be4c4e1c1599f471");
+  const removedRpcCandidates = [
+    ["STTService", "HealthCheck"],
+    ["TTSService", "GetStatus"],
+    ["TTSService", "GetMetrics"],
+    ["VisionService", "GetStatus"],
+    ["VisionService", "HealthCheck"],
+    ["MultimodalService", "GetStatus"],
+    ["MultimodalService", "HealthCheck"],
+  ];
+  const explicitRpcBindings = operations.sourceDenominators.grpcRpcs.explicitMemberOperationIds;
+  const unresolvedRpcsByService = operations.sourceDenominators.grpcRpcs.unresolvedIdentitiesByService;
+  for (const [service, rpc] of removedRpcCandidates) {
+    assert.equal(`${service}.${rpc}` in explicitRpcBindings, false, `${service}.${rpc} is no longer proposed as a domain-operation binding`);
+    assert.ok(unresolvedRpcsByService[service].includes(rpc), `${service}.${rpc} remains accounted for as unresolved`);
+  }
+  assert.equal(Object.keys(explicitRpcBindings).length, 17);
+  assert.equal(Object.values(unresolvedRpcsByService).flat().length, 26);
+
   const actionBindings = operations.sourceDenominators.uiProductActions.explicitOperationIds;
   const reconciledActions = impact.reviewedCapabilityEvidence.currentActionBindings;
+  assert.equal(followOn.reviewedCapabilityEvidence.currentActionBindingsUnchanged, true);
   for (const [actionRef, operationRef] of Object.entries(reconciledActions)) {
     assert.equal(actionBindings[actionRef], operationRef, `${actionRef} maps to the reconciled canonical operation`);
   }
+  const leafOperationBindings = review.leaves.map(({ id, operation }) => ({
+    id,
+    explicitOperationBindings: operation.explicitOperationBindings,
+    ambiguousOperationBindings: operation.ambiguousOperationBindings,
+  }));
+  const leafOperationBindingsSha256 = hash(JSON.stringify(leafOperationBindings));
+  assert.equal(leafOperationBindingsSha256, followOn.reviewedCapabilityEvidence.capabilityLeafOperationBindingsSha256);
+  assert.equal(leafOperationBindingsSha256, followOn.reviewedCapabilityEvidence.previousCapabilityLeafOperationBindingsSha256);
+  assert.deepEqual(followOn.reviewedCapabilityEvidence.coverageCounts, {
+    total: 462,
+    unresolved: 383,
+    journeySteps: 77,
+    platformDependencies: 2,
+    machineOperations: 0,
+  });
+
+  const subsequent = impact.subsequentSourceDelta;
+  assert.ok(subsequent, "the SDK census and submission/execution evidence correction have a separate impact record");
+  assert.equal(subsequent.previousSha256, followOn.currentSha256);
+  const ownerDispositions = impact.ownerDispositionSourceDelta;
+  assert.ok(ownerDispositions, "the later four-method source-role decision has a separate impact record");
+  assert.equal(subsequent.currentSha256, ownerDispositions.previousSha256);
+  assert.equal(ownerDispositions.currentSha256, impact.currentSha256);
+  assert.equal(ownerDispositions.currentSha256, sourcePin.sha256);
+  assert.deepEqual(operations.sourceDenominators.sdkMethods.exactObservedRegistryIds, [
+    "media.sdk.getStatus", "media.sdk.cancel", "media.sdk.retry", "media.sdk.getResult", "media.sdk.wait",
+    "media.sdk.createUploadSession", "media.sdk.uploadPart", "media.sdk.completeUploadSession", "media.sdk.getArtifact",
+    "media.sdk.listProviderCapabilities", "media.sdk.transcribe", "media.sdk.synthesize", "media.sdk.trainVoiceModel",
+    "media.sdk.convertVoice", "media.sdk.analyzeMultimodal", "media.sdk.getOperation", "media.sdk.cancelOperation",
+    "media.sdk.retryOperation", "media.sdk.getOperationResult", "media.sdk.for", "media.sdk.processAIVoice",
+    "media.sdk.processVision", "media.sdk.processMultimodal", "media.sdk.getServiceStatus", "media.sdk.getAllServicesStatus",
+    "media.sdk.addEventListener", "media.sdk.if", "media.sdk.removeEventListener", "media.sdk.clearTimeout",
+    "media.sdk.legacy.AudioVideoClient.transcribe", "media.sdk.legacy.AudioVideoClient.synthesize",
+  ]);
+  assert.equal(operations.sourceDenominators.sdkMethods.registryRecords, 31);
+  assert.equal(operations.sourceDenominators.sdkMethods.parserDerivedPublicMethodIdentities, 28);
+  assert.deepEqual(operations.sourceDenominators.sdkMethods.parserArtifactTokensExcludedFromMethodIdentityInventory,
+    ["media.sdk.for", "media.sdk.if", "media.sdk.clearTimeout"]);
+  assert.equal(operations.sourceDenominators.sdkMethods.legacySourceMethods.sourceBackedNonOperationDispositions.length, 4);
+  for (const id of ["media.sdk.getServiceStatus", "media.sdk.getAllServicesStatus", "media.sdk.addEventListener", "media.sdk.removeEventListener"]) {
+    assert.equal(operations.sourceDenominators.sdkMethods.unresolvedOperationIds.includes(id), false, `${id} has an exact non-operation disposition`);
+  }
+  assert.match(operations.sourceDenominators.sdkMethods.bindingStatus, /14 family associations remain proposals, four identities have source-backed transport\/client-only dispositions, and ten domain operation identities remain unresolved/u);
+  const transcriptionSubmission = operations.operations.find(({ id }) => id === "media.operation.transcription-submission");
+  assert.deepEqual(transcriptionSubmission.evidenceAudit.observedRefs, ["STTService.Transcribe"]);
+  assert.equal(subsequent.reviewedCapabilityEvidence.currentActionBindingsUnchanged, true);
+  assert.equal(subsequent.reviewedCapabilityEvidence.impact, "No capability-leaf operation binding or coverage disposition changed; the SDK method census and submission-versus-execution evidence correction do not establish capability applicability or runtime support.");
+  assert.equal(leafOperationBindingsSha256, subsequent.reviewedCapabilityEvidence.capabilityLeafOperationBindingsSha256);
+  assert.equal(leafOperationBindingsSha256, subsequent.reviewedCapabilityEvidence.previousCapabilityLeafOperationBindingsSha256);
+  assert.equal(subsequent.result.endsWith("no capability-leaf impact"), true);
+  assert.deepEqual(subsequent.reviewedCapabilityEvidence.coverageCounts, {
+    total: 462,
+    unresolved: 383,
+    journeySteps: 77,
+    platformDependencies: 2,
+    machineOperations: 0,
+  });
+  assert.equal(ownerDispositions.reviewedCapabilityEvidence.currentActionBindingsUnchanged, true);
+  assert.equal(ownerDispositions.reviewedCapabilityEvidence.capabilityLeafOperationBindingsSha256, leafOperationBindingsSha256);
+  assert.equal(ownerDispositions.reviewedCapabilityEvidence.previousCapabilityLeafOperationBindingsSha256, leafOperationBindingsSha256);
+  assert.equal(ownerDispositions.reviewedCapabilityEvidence.coverageCounts.unresolved, 383);
+  assert.match(ownerDispositions.result, /capability leaf bindings and coverage unchanged/u);
+  const unchangedObligationRecords = Object.fromEntries(operations.operations
+    .filter(({ id }) => id in subsequent.unchangedObligationSourceRecords)
+    .map((record) => [record.id, hash(JSON.stringify(record))]));
+  assert.deepEqual(unchangedObligationRecords, subsequent.unchangedObligationSourceRecords,
+    "the nine operation records referenced by obligations did not change semantically");
   for (const binding of impact.reviewedCapabilityEvidence.changedCapabilityLeafBindings) {
     const leaf = review.leaves.find(({ id }) => id === binding.leaf);
     assert.ok(leaf, `${binding.leaf} is still in the preserved capability denominator`);

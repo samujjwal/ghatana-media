@@ -7,7 +7,8 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -16,6 +17,8 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const sharedRoot = resolve(root, "../ghatana-shared/platform/typescript");
 const mediaRoot = join(root, "libs/audio-video-ui");
 const mediaManifest = JSON.parse(readFileSync(join(mediaRoot, "package.json"), "utf8"));
+const { parse: parseYaml } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
+const tokenAliases = parseYaml(readFileSync(join(root, ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"), "utf8")).aliases;
 const tempRoot = mkdtempSync(join(tmpdir(), "media-shared-artifact-consumer-"));
 const npm = process.platform === "win32" ? "npm.cmd" : "npm";
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
@@ -33,6 +36,29 @@ function publicTargets(manifest) {
   });
 }
 function digest(path) { return createHash("sha256").update(readFileSync(path)).digest("hex"); }
+function canonicalJson(value) {
+  if (Array.isArray(value)) return value.map(canonicalJson);
+  if (value && typeof value === "object") return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonicalJson(value[key])]));
+  return value;
+}
+function publishedContentDigest(packageRoot) {
+  const hash = createHash("sha256");
+  const visit = (directory, prefix = "") => {
+    for (const name of readdirSync(directory).sort()) {
+      const path = join(directory, name);
+      const relative = prefix ? `${prefix}/${name}` : name;
+      if (statSync(path).isDirectory()) visit(path, relative);
+      else {
+        const bytes = name.endsWith(".json")
+          ? Buffer.from(`${JSON.stringify(canonicalJson(JSON.parse(readFileSync(path, "utf8"))))}\n`)
+          : readFileSync(path);
+        hash.update(relative).update("\0").update(bytes).update("\0");
+      }
+    }
+  };
+  visit(packageRoot);
+  return hash.digest("hex");
+}
 
 try {
   assert.ok(existsSync(sharedRoot), `Shared TypeScript package source is unavailable: ${sharedRoot}`);
@@ -87,7 +113,13 @@ try {
         `${manifest.name} packed dependency was not normalized: ${dependency}`);
     }
     for (const target of publicTargets(manifest)) assert.ok(existsSync(join(packedRoot, target)), `${manifest.name} is missing packed public export ${target}`);
-    sharedByName.set(manifest.name, { archive, packedRoot, manifest, sha256: digest(archive) });
+    sharedByName.set(manifest.name, {
+      archive,
+      packedRoot,
+      manifest,
+      archiveSha256: digest(archive),
+      publishedContentSha256: publishedContentDigest(packedRoot),
+    });
   }
   assert.deepEqual([...sharedByName.keys()].sort(), [...closure.keys()].sort(), "packed Shared identities must match Media's transitive dependency closure");
 
@@ -116,19 +148,35 @@ try {
   assert.equal(mediaArchives.length, 1, "Media pack must produce one artifact");
   const mediaArchive = mediaArchives[0];
 
+  const publicTokenAliases = tokenAliases.map(({ id, sharedTokenRef, darkModeEquivalent }) => {
+    const parseRole = (reference) => {
+      const match = /^@ghatana\/tokens\/semantic-roles#semanticColorRoles\.(light|dark)\.([A-Za-z][A-Za-z0-9]*)$/u.exec(reference ?? "");
+      assert.ok(match, `${id} must reference an exact role from the public @ghatana/tokens/semantic-roles export`);
+      return { mode: match[1], role: match[2] };
+    };
+    const light = parseRole(sharedTokenRef);
+    const dark = parseRole(darkModeEquivalent);
+    assert.equal(light.mode, "light", `${id} light alias must resolve through semanticColorRoles.light`);
+    assert.equal(dark.mode, "dark", `${id} dark alias must resolve through semanticColorRoles.dark`);
+    return { id, light: light.role, dark: dark.role };
+  });
+
   writeFileSync(join(consumerDir, "package.json"), JSON.stringify({ name: "media-public-artifact-consumer", private: true, type: "module" }, null, 2));
   const publicConsumerPackages = [mediaArchive, ...sharedTarballs, ...buildTools];
   run(npm, ["install", "--no-save", "--package-lock=false", "--ignore-scripts", "--no-audit", "--no-fund", "--prefix", consumerDir, ...publicConsumerPackages], root, 300_000);
 
   const consumerTs = `import { MediaTaskScreen } from "@audio-video/ui/screens";\n` +
     `import type { MediaActionPort, MediaActionDispatchResult, MediaDataPort } from "@audio-video/ui/ports";\n` +
+    `import { EmptyState as MediaEmptyState } from "@audio-video/ui/foundations";\n` +
+    `import { EmptyState as SharedEmptyState } from "@ghatana/design-system";\n` +
     `import { Badge, Button } from "@ghatana/design-system";\n` +
     `import * as Theme from "@ghatana/theme";\n` +
     `import { semanticColorRoles } from "@ghatana/tokens/semantic-roles";\n` +
     `const result: MediaActionDispatchResult = { status: "request-started", requestId: "consumer-request" };\n` +
     `const actionPort: MediaActionPort = { invoke: async () => result };\n` +
     `declare const data: MediaDataPort;\n` +
-    `void [MediaTaskScreen, actionPort, data, Badge, Button, Theme, semanticColorRoles];\n`;
+    publicTokenAliases.map(({ light, dark }, index) => `const tokenAlias_${index}: string = semanticColorRoles.light.${light};\nconst darkTokenAlias_${index}: string = semanticColorRoles.dark.${dark};`).join("\n") + "\n" +
+    `void [MediaTaskScreen, actionPort, data, MediaEmptyState, SharedEmptyState, Badge, Button, Theme, semanticColorRoles];\n`;
   writeFileSync(join(consumerDir, "consumer.ts"), consumerTs);
   writeFileSync(join(consumerDir, "tsconfig.json"), JSON.stringify({
     compilerOptions: { noEmit: true, strict: true, skipLibCheck: true, target: "ES2022", module: "NodeNext", moduleResolution: "NodeNext", jsx: "react-jsx", types: ["node"] },
@@ -138,8 +186,18 @@ try {
 
   const runtimeSpecifiers = ["@audio-video/ui", "@audio-video/ui/screens", "@audio-video/ui/components", "@audio-video/ui/foundations", "@audio-video/ui/hooks", "@ghatana/design-system", "@ghatana/theme", "@ghatana/tokens", "@ghatana/tokens/semantic-roles"];
   const runtimeConsumer = `import assert from "node:assert/strict";\n` +
+    `import React from "react";\n` +
+    `import { renderToStaticMarkup } from "react-dom/server";\n` +
+    `import { EmptyState as MediaEmptyState } from "@audio-video/ui/foundations";\n` +
+    `import { EmptyState as SharedEmptyState } from "@ghatana/design-system";\n` +
+    `import { semanticColorRoles } from "@ghatana/tokens/semantic-roles";\n` +
     runtimeSpecifiers.map((specifier, index) => `import * as entry${index} from ${JSON.stringify(specifier)};`).join("\n") + "\n" +
-    runtimeSpecifiers.map((specifier, index) => `assert.ok(Object.keys(entry${index}).length, ${JSON.stringify(specifier)} + " must expose public runtime exports");`).join("\n") + "\n";
+    runtimeSpecifiers.map((specifier, index) => `assert.ok(Object.keys(entry${index}).length, ${JSON.stringify(specifier)} + " must expose public runtime exports");`).join("\n") + "\n" +
+    publicTokenAliases.map(({ id, light, dark }) => `assert.equal(typeof semanticColorRoles.light.${light}, "string", ${JSON.stringify(`${id} light role must resolve from the installed public package`)});\nassert.equal(typeof semanticColorRoles.dark.${dark}, "string", ${JSON.stringify(`${id} dark role must resolve from the installed public package`)});`).join("\n") + "\n" +
+    `assert.equal(MediaEmptyState, SharedEmptyState, "Media foundation facade must re-export the public Shared EmptyState without wrapping it");\n` +
+    `const emptyStateMarkup = renderToStaticMarkup(React.createElement(MediaEmptyState, { title: "No authorized projects are available." }));\n` +
+    `assert.match(emptyStateMarkup, /role="status" aria-label="No authorized projects are available\\."/);\n` +
+    `assert.doesNotMatch(emptyStateMarkup, /\\sstyle=/, "Shared EmptyState must remain compatible with style-src-attr 'none'");\n`;
   writeFileSync(join(consumerDir, "consumer.mjs"), runtimeConsumer);
   writeFileSync(join(consumerDir, "vite.config.mjs"), `export default { ssr: { noExternal: true } };\n`);
   run(join(consumerDir, "node_modules", ".bin", process.platform === "win32" ? "vite.cmd" : "vite"), ["build", "--config", "vite.config.mjs", "--ssr", "consumer.mjs", "--outDir", "bundle", "--emptyOutDir"], consumerDir);
@@ -148,8 +206,8 @@ try {
   const bundledRuntime = join(consumerDir, "bundle", bundledFiles[0]);
   run(process.execPath, [bundledRuntime], consumerDir);
 
-  console.log(`Media isolated public-artifact consumer passed: Media UI ${mediaManifest.version} compiled and packed; ${sharedByName.size} Shared source-snapshot artifacts at 0.1.0-SNAPSHOT installed from tarballs; consumer type and runtime entrypoints resolved. SHA-256: ${JSON.stringify(Object.fromEntries([...sharedByName].map(([name, value]) => [name, value.sha256])))}.`);
-  console.log("Scope: this proves consumption of locally packed source snapshots only; it does not prove registry publication, immutable release binding, or semantic acceptance.");
+  console.log(`Media isolated public-artifact consumer passed: Media UI ${mediaManifest.version} compiled and packed; ${sharedByName.size} Shared source-snapshot artifacts at 0.1.0-SNAPSHOT installed from tarballs; consumer type and runtime entrypoints resolved. SHA-256 (raw archive, package JSON key order may vary): ${JSON.stringify(Object.fromEntries([...sharedByName].map(([name, value]) => [name, value.archiveSha256])))}. SHA-256 (canonical published files): ${JSON.stringify(Object.fromEntries([...sharedByName].map(([name, value]) => [name, value.publishedContentSha256])))}.`);
+  console.log("Scope: this proves consumption of locally packed source snapshots only; canonical file digests normalize JSON object key order and do not prove registry publication, immutable release binding, or semantic acceptance.");
 } catch (error) {
   if (error?.stdout || error?.stderr) {
     process.stderr.write(String(error.stdout ?? ""));

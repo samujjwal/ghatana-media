@@ -9,10 +9,16 @@ test("browser audit retains the six ordered responsive viewport sweeps", () => {
 });
 
 test("report declares requested browser coverage without equating geometry with design quality", () => {
+  const policyViolations = [{
+    effectiveDirective: "style-src-elem",
+    sourceFile: "http://127.0.0.1:4179/@vite/client",
+    lineNumber: 1070,
+  }];
   const report = createAuditReport({
     baseUrl: "http://127.0.0.1:4179/",
     viewports,
     observations: ["text sizing 200%: exercised"],
+    policyViolations,
     screenshots: ["review.png"],
   });
   for (const coverage of ["100% and 200% text sizing", "browser zoom/reflow", "keyboard", "forced colors", "reduced motion", "long-label localization stress", "RTL when admitted", "touch targets", "focus not obscured"]) {
@@ -20,6 +26,7 @@ test("report declares requested browser coverage without equating geometry with 
   }
   assert.deepEqual(report.manualGates, manualGates);
   assert.equal(report.failures.length, 0);
+  assert.deepEqual(report.policyViolations, policyViolations);
   assert.equal(report.screenshots[0], "review.png");
   assert.equal(JSON.stringify(report).includes('"status":"PASS"'), false);
 });

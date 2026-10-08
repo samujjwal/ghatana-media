@@ -19,7 +19,7 @@ const paths = {
   candidate: ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json",
 };
 
-test("P0-06 keeps ProductDefinition measures unmapped until metric, outcome, and capability evidence is explicit", () => {
+test("P0-06 maps exact business-intent measure descriptions while keeping metric, profile, and qualification gaps open", () => {
   const goals = readYaml(paths.goals);
   const quality = readYaml(paths.quality);
   const candidate = JSON.parse(readFileSync(resolve(root, paths.candidate), "utf8"));
@@ -32,10 +32,26 @@ test("P0-06 keeps ProductDefinition measures unmapped until metric, outcome, and
   assert.ok(quality.metricDefinitions.every(({ capabilityRefs, capabilityRefState, calibrationState, qualificationState }) =>
     capabilityRefs.length === 0 && /pending/u.test(capabilityRefState) && /pending/u.test(calibrationState) && qualificationState === "NOT_EVALUATED"));
 
-  assert.deepEqual(candidate.candidateModel.successMeasures, []);
-  assert.equal(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, "TARGETS_AND_BASELINES_OPEN");
-  assert.equal(candidate.candidateMappingReview.fieldDispositions.successMeasures.source, "quality-policy.yaml dimensions and metricDefinitions; ProductDefinition targets are not assigned");
-  assert.ok(candidate.fieldMappingBlockers.some(({ field }) => field === "successMeasures"));
+  const measureById = new Map(candidate.candidateModel.successMeasures.map((measure) => [measure.id, measure]));
+  assert.equal(goals.businessIntents.filter(({ measuredBy }) => measuredBy).length, 4);
+  assert.equal(measureById.size, 4, "only the four source-authored business-intent measuredBy statements become proposals");
+  for (const businessIntent of goals.businessIntents) {
+    const measureId = `${businessIntent.id}.measure`;
+    const measure = measureById.get(measureId);
+    assert.deepEqual(measure, { id: measureId, description: businessIntent.measuredBy });
+    assert.equal(candidate.candidateModel.businessIntents.find(({ id }) => id === businessIntent.id).measuredBy, measureId);
+  }
+  assert.ok(candidate.candidateModel.successMeasures.every((measure) =>
+    !Object.hasOwn(measure, "metric") && !Object.hasOwn(measure, "baseline") && !Object.hasOwn(measure, "target")));
+  assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /PARTIAL_SOURCE_PROPOSAL_MAPPING/u);
+  assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /P0-06_METRIC_PROFILE_APPLICABILITY_TARGET_BASELINE_AND_QUALIFICATION_OPEN/u);
+  assert.equal(candidate.candidateMappingReview.businessIntentMeasureProposals.length, 4);
+  assert.ok(candidate.candidateMappingReview.businessIntentMeasureProposals.every(({ disposition }) => /SOURCE_PROPOSAL_ONLY/u.test(disposition)));
+  const blocker = candidate.fieldMappingBlockers.find(({ field }) => field === "successMeasures");
+  assert.ok(blocker, "partial direct mapping retains the unresolved P0-06 blocker");
+  assert.match(blocker.reasons.join(" "), /no accepted metric\/profile applicability/u);
+  assert.match(blocker.reasons.join(" "), /target\/baseline/u);
+  assert.match(blocker.reasons.join(" "), /qualification mapping/u);
 });
 
 test("P0-06 retains source-defined measurement applicability without turning it into a pass or target", () => {

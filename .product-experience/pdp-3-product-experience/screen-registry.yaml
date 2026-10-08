@@ -645,12 +645,13 @@ coverage:
     status: source-inventory-only; semantic-acceptance-pending
     canonicalScreenContractCount: 47
     templateId:
-      recordedExactCatalogIdCandidates: 3
-      unresolvedOrNull: 44
-      acceptance: pending; catalog-candidate-reference-does-not-prove-template-composition
+      recordedExactCatalogIdCandidates: 47
+      unresolvedOrNull: 0
+      acceptance: 41 composition-link approvals; 6 remain owner-review-pending; no screen admission
     layoutIds:
-      empty: 47
-      blocker: PDP-2-has-no-registered-layout-ids-to-bind
+      recordedExactCatalogIdCandidates: 47
+      empty: 0
+      acceptance: 41 composition-link approvals; 6 remain owner-review-pending; no screen admission
     tokenDependencies:
       empty: 47
       blocker: screen-specific-token-dependencies-are-not-bound
@@ -672,6 +673,199 @@ coverage:
       notRun: 47
       accepted: 0
     evidenceBasis: parsed-screen-contract-directory; counts-are-inventory-only-and-do-not-establish-behavior-design-acceptance-or-currentness
+compositionLinkOwnerReview:
+  decision: MEDIA_OWNER_APPROVED_COMPOSITION_LINKS_ONLY
+  approvedCount: 41
+  approved:
+  - screenId: media.view.adjust-color
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml
+    templateId: media.gui.template.workbench
+    layoutIds: [media.gui.layout.media-workbench]
+  - screenId: media.view.animate-media
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml
+    templateId: media.gui.template.workbench
+    layoutIds: [media.gui.layout.media-workbench]
+  - screenId: media.view.arrange-scenes
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml
+    templateId: media.gui.template.workbench
+    layoutIds: [media.gui.layout.media-workbench]
+  - screenId: media.view.authenticate-and-select-context
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml
+    templateId: media.gui.template.task-setup
+    layoutIds: [media.gui.layout.task-setup]
+  - screenId: media.view.browse-media
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
+    templateId: media.gui.template.collection
+    layoutIds: [media.gui.layout.collection]
+  - screenId: media.view.check-job-outcome
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
+    templateId: media.gui.template.job-observation
+    layoutIds: [media.gui.layout.job-observation]
+  - screenId: media.view.check-processing-options
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml
+    templateId: media.gui.template.task-setup
+    layoutIds: [media.gui.layout.task-setup]
+  - screenId: media.view.choose-eligible-processing-option
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+    templateId: media.gui.template.task-setup
+    layoutIds: [media.gui.layout.task-setup]
+  - screenId: media.view.compare-caption-versions
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml
+    templateId: media.gui.template.review-and-compare
+    layoutIds: [media.gui.layout.review]
+  - screenId: media.view.compare-results
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml
+    templateId: media.gui.template.review-and-compare
+    layoutIds: [media.gui.layout.review]
+  - screenId: media.view.compose-scene
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml
+    templateId: media.gui.template.workbench
+    layoutIds: [media.gui.layout.media-workbench]
+  - screenId: media.view.correct-captions
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml
+    templateId: media.gui.template.workbench
+    layoutIds: [media.gui.layout.media-workbench]
+  - screenId: media.view.create-audio
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml
+    templateId: media.gui.template.task-setup
+    layoutIds: [media.gui.layout.task-setup]
+  - screenId: media.view.create-image
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml
+    templateId: media.gui.template.task-setup
+    layoutIds: [media.gui.layout.task-setup]
+  - screenId: media.view.create-media
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml
+    templateId: media.gui.template.task-setup
+    layoutIds: [media.gui.layout.task-setup]
+  - screenId: media.view.create-video
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
+    templateId: media.gui.template.task-setup
+    layoutIds: [media.gui.layout.task-setup]
+  - screenId: media.view.deliver-output
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml
+    templateId: media.gui.template.render-preparation-and-review
+    layoutIds: [media.gui.layout.render]
+  - screenId: media.view.edit-captions
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml
+    templateId: media.gui.template.workbench
+    layoutIds: [media.gui.layout.media-workbench]
+  - screenId: media.view.edit-media-region
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml
+    templateId: media.gui.template.workbench
+    layoutIds: [media.gui.layout.media-workbench]
+  - screenId: media.view.edit-media
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml
+    templateId: media.gui.template.workbench
+    layoutIds: [media.gui.layout.media-workbench]
+  - screenId: media.view.explore-simulation
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml
+    templateId: media.gui.template.workbench
+    layoutIds: [media.gui.layout.media-workbench]
+  - screenId: media.view.find-projects
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml
+    templateId: media.gui.template.collection
+    layoutIds: [media.gui.layout.collection]
+  - screenId: media.view.find-task-guidance
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml
+    templateId: media.gui.template.collection
+    layoutIds: [media.gui.layout.collection]
+  - screenId: media.view.import-media
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
+    templateId: media.gui.template.task-setup
+    layoutIds: [media.gui.layout.task-setup]
+  - screenId: media.view.improve-media
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml
+    templateId: media.gui.template.workbench
+    layoutIds: [media.gui.layout.media-workbench]
+  - screenId: media.view.inspect-output
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
+    templateId: media.gui.template.review-and-compare
+    layoutIds: [media.gui.layout.review]
+  - screenId: media.view.job-status
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
+    templateId: media.gui.template.job-observation
+    layoutIds: [media.gui.layout.job-observation]
+  - screenId: media.view.prepare-render
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml
+    templateId: media.gui.template.render-preparation-and-review
+    layoutIds: [media.gui.layout.render]
+  - screenId: media.view.resume-work
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml
+    templateId: media.gui.template.collection
+    layoutIds: [media.gui.layout.collection]
+  - screenId: media.view.review-activity
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml
+    templateId: media.gui.template.collection
+    layoutIds: [media.gui.layout.collection]
+  - screenId: media.view.review-creation-plan
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml
+    templateId: media.gui.template.task-setup
+    layoutIds: [media.gui.layout.task-setup]
+  - screenId: media.view.review-dubbing
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml
+    templateId: media.gui.template.review-and-compare
+    layoutIds: [media.gui.layout.review]
+  - screenId: media.view.review-exact-version
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml
+    templateId: media.gui.template.review-and-compare
+    layoutIds: [media.gui.layout.review]
+  - screenId: media.view.review-outputs
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
+    templateId: media.gui.template.review-and-compare
+    layoutIds: [media.gui.layout.review]
+  - screenId: media.view.review-quality
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
+    templateId: media.gui.template.review-and-compare
+    layoutIds: [media.gui.layout.review]
+  - screenId: media.view.review-rights-and-consent
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml
+    templateId: media.gui.template.consent-gate
+    layoutIds: [media.gui.layout.consent]
+  - screenId: media.view.review-transcript
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml
+    templateId: media.gui.template.workbench
+    layoutIds: [media.gui.layout.media-workbench]
+  - screenId: media.view.select-source
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml
+    templateId: media.gui.template.task-setup
+    layoutIds: [media.gui.layout.task-setup]
+  - screenId: media.view.monitor-transcription
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml
+    templateId: media.gui.template.job-observation
+    layoutIds: [media.gui.layout.job-observation]
+  - screenId: media.view.use-authorized-voice
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml
+    templateId: media.gui.template.consent-gate
+    layoutIds: [media.gui.layout.consent]
+  - screenId: media.view.work-with-speech
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml
+    templateId: media.gui.template.workbench
+    layoutIds: [media.gui.layout.media-workbench]
+  withheldCount: 6
+  withheld:
+  - screenId: media.view.check-processing-readiness
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml
+    reason: "Task setup is for choosing inputs/outcomes before submission; this screen is diagnostics, freshness, capacity/dependency disposition, and safe recovery guidance."
+  - screenId: media.view.compose-media
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml
+    reason: "Template and layout describe render preparation/review; this screen is an active composition editor with a multitrack timeline and track/clip editing."
+  - screenId: media.view.inspect-media
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml
+    reason: "The workbench template is for time-based review/editing; this screen inspects an exact artifact version, integrity, metadata, and governed lifecycle actions."
+  - screenId: media.view.inspect-provenance
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml
+    reason: "The review-and-compare template conflicts with the record-detail layout selected for a single provenance record."
+  - screenId: media.view.review-workspace-settings
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml
+    reason: "Consent gate/layout is for rights, consent, and access decisions; this screen reviews workspace policy/settings and save/reset actions."
+  - screenId: media.view.work-in-project
+    contract: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml
+    reason: "The time-based media workbench does not fit a project identity, pending-work summary, intent launcher, and navigation/recovery view."
+  evidence:
+  - .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+  - .product-experience/pdp-2-design-interface-system/gui/layout.yaml
+  - screen contract purpose and anatomy fields referenced by each decision
+  boundaries: Composition links only; no screen-composition/admission, per-screen recipe binding, Shared binding, accessibility/specialist review, or phase acceptance. Action/state bindings and nested templateContract/layoutContract statuses remain unchanged.
 contextualSpecializations:
 - viewRef: media.view.select-source
   contractRef: screen-contracts/select-source.yaml

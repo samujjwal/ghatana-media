@@ -99,7 +99,7 @@ orderingDuplicatesAndConsumers:
 deliveryAndFailure:
   observedBehavior:
     publisherReadyFalse: MediaRuntime skips publication
-    acceptedHttpStatuses: [200, 201]
+    acceptedHttpStatuses: [201]
     otherStatus: publisher-throws
     failurePath: MediaRuntime logs publication as unconfirmed and continues
     source: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java

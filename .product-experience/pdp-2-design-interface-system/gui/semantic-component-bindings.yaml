@@ -3,6 +3,22 @@ productId: media
 authority: semantic aliases are defined in ../media-token-aliases.yaml; Shared owns primitive token values and styling behavior
 status: SOURCE_INCOMPLETE
 bindings:
+  - componentRefs: [media.component.progress-indicator]
+    implementationCandidate: libs/audio-video-ui/src/components/MediaProgress.tsx
+    implementationExport: MediaProgress
+    semanticRole: measured-or-indeterminate-progress-presentation-without-finality-inference
+    stateBindings:
+      determinate: native-progress-with-clamped-value-and-caller-supplied-label
+      indeterminate: native-progress-without-value-and-explicit-unknown-amount
+    forbiddenInference:
+      - business-completion-from-progress-value
+      - operation-finality-from-progress-tone
+      - percentage-when-no-measured-value-exists
+    sharedReuseCandidate:
+      package: "@ghatana/design-system"
+      publicExport: Progress
+      disposition: excluded-under-current-Explorer-CSP-because-Shared-Progress-emits-inline-style-and-style-elements
+    status: candidate-contract-derived-rendering; Shared-binding-accessibility-and-owner-review-pending
   - componentRefs: [media.component.task-flow]
     implementationCandidate: libs/audio-video-ui/src/components/MediaTaskFlow.tsx
     implementationExport: MediaTaskFlow

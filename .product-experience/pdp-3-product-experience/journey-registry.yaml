@@ -196,7 +196,7 @@ coverageObservation:
     screenContractRef:
       linked: 122
       unresolved: 8
-      blocker: J-29-and-J-30-step-views-are-not-explicitly-allocated; do-not-infer-one-to-one-mapping-from-orderedViews
+      blocker: unresolved-identities-J-29-detect-loss-or-consent-change,fence-new-frame-submission,reconcile-dispatched-frame-effects,present-bounded-return-state-and-J-30-establish-scope-and-permissions,inspect-profile-and-provider-dimensions,preserve-unknown-or-unavailable-reasons,return-eligible-options-with-provenance; source-dependency-is-an-owner-reviewed-step-to-view-crosswalk-or-equivalent-explicit-step-view-ref; journey-level-orderedViews,source-viewRefs,and-screen-journeyRefs-do-not-allocate-views-to-individual-steps
     action:
       linked: 18
       unresolved: 112
@@ -208,8 +208,8 @@ coverageObservation:
       empty: 130
       blocker: accepted-state-machine-binding-and-step-transition-allocation-remain-unresolved
     canonicalOperationRef:
-      null: 123
-      nonNullCandidateRefs: 7
+      null: 114
+      nonNullCandidateRefs: 16
       acceptance: pending; non-null-proposal-references-do-not-establish-operation-equivalence
     authorityRef:
       null: 130

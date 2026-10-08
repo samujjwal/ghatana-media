@@ -10,7 +10,7 @@
  * authority or write Evidence Generator artifacts.
  */
 
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
@@ -33,7 +33,7 @@ export const manualGates = Object.freeze({
   canonicalVisualReferences: { status: "NOT_SUPPLIED", reason: "No accepted canonical visual references are indexed for this browser audit." },
 });
 
-export function createAuditReport({ baseUrl, viewports: auditedViewports, scenarioCount = "unknown", productRouteCount = 0, observations = [], consoleErrors = [], instrumentationWarnings = [], pageErrors = [], failures = [], screenshots = [] }) {
+export function createAuditReport({ baseUrl, viewports: auditedViewports, scenarioCount = "unknown", productRouteCount = 0, observations = [], consoleErrors = [], instrumentationWarnings = [], policyViolations = [], pageErrors = [], failures = [], screenshots = [] }) {
   return {
     baseUrl,
     viewports: auditedViewports,
@@ -44,6 +44,7 @@ export function createAuditReport({ baseUrl, viewports: auditedViewports, scenar
     observations,
     consoleErrors,
     instrumentationWarnings,
+    policyViolations,
     pageErrors,
     failures,
     screenshots,
@@ -78,7 +79,7 @@ export function classifyTouchTarget(target) {
 const artifacts = (await import("../apps/media-experience-explorer/specification-artifacts.json", { with: { type: "json" } })).default;
 const productRoutes = artifacts
   .filter(({ path }) => path.includes("/pdp-3-product-experience/screen-contracts/") && !path.endsWith("/artifact-verification-job-family.yaml"))
-  .map(({ path }) => path);
+  .map(({ path }) => ({ path, title: artifacts.find((artifact) => artifact.path === path)?.title ?? path }));
 const artifactVerificationSpecialization = artifacts.find(({ path }) => path.endsWith("/artifact-verification-job-family.yaml"))?.path;
 
 async function runAudit() {
@@ -182,7 +183,25 @@ const context = await browser.newContext({ reducedMotion: "reduce", colorScheme:
 const page = await context.newPage({ viewport: viewports[1] });
 const consoleErrors = [];
 const instrumentationWarnings = [];
+const policyViolations = [];
 const pageErrors = [];
+await page.exposeFunction("__recordAuditPolicyViolation", (detail) => {
+  policyViolations.push({ ...detail, pageUrl: page.url() });
+});
+await page.addInitScript(() => {
+  window.addEventListener("securitypolicyviolation", (event) => {
+    void window.__recordAuditPolicyViolation({
+      effectiveDirective: event.effectiveDirective,
+      violatedDirective: event.violatedDirective,
+      blockedURI: event.blockedURI,
+      sourceFile: event.sourceFile,
+      lineNumber: event.lineNumber,
+      columnNumber: event.columnNumber,
+      sample: event.sample,
+      disposition: event.disposition,
+    });
+  });
+});
 page.on("console", (message) => {
   if (message.type() !== "error") return;
   const detail = message.text();
@@ -191,7 +210,8 @@ page.on("console", (message) => {
     instrumentationWarnings.push("The browser blocked the audit-only inline text-scale fixture under the app's CSP; the CDP-measured computed font-size checks still passed.");
     return;
   }
-  consoleErrors.push(detail);
+  const location = message.location();
+  consoleErrors.push(`${detail} (source=${location.url || "unknown"}:${location.lineNumber ?? "?"}:${location.columnNumber ?? "?"}; page=${page.url()})`);
 });
 page.on("pageerror", (error) => pageErrors.push(error.message));
 
@@ -211,18 +231,18 @@ try {
 
   await gotoHash(page, "#explore");
   await page.locator("#mode-explore").focus();
-  const modes = await page.locator('[role="tab"][data-mode]').evaluateAll((tabs) => tabs.map((tab) => tab.dataset.mode));
+  const modes = await page.locator('nav[aria-label="Primary Explorer activities"] button[data-mode]').evaluateAll((tabs) => tabs.map((tab) => tab.dataset.mode));
   const exploreIndex = modes.indexOf("explore");
   const nextMode = modes[(exploreIndex + 1) % modes.length];
   await page.keyboard.press("ArrowRight");
-  if (await page.locator(`#mode-${nextMode}`).getAttribute("aria-selected") !== "true") fail("keyboard/mode-tabs", `ArrowRight did not select ${nextMode}`);
+  if (await page.locator(`#mode-${nextMode}`).getAttribute("aria-current") !== "page") fail("keyboard/mode-navigation", `ArrowRight did not select ${nextMode}`);
   await page.locator(`#mode-${nextMode}`).focus();
   await page.keyboard.press("Enter");
   await inspectPage(page, `keyboard/${nextMode}`);
   await page.locator("#phase-tab-pdp-0").focus();
   await page.keyboard.press("ArrowDown");
   if (await page.locator("#phase-tab-pdp-1").getAttribute("aria-checked") !== "true") fail("keyboard/phase-tabs", "ArrowDown did not select PDP-1");
-  observations.push("keyboard mode-tab and phase-radio navigation exercised");
+  observations.push("keyboard primary-mode navigation and phase-radio navigation exercised");
 
   // Focused proof that the review-only route invokes the existing Media Tools
   // consumer and preserves its deliberately local, non-acceptance scope.
@@ -322,6 +342,43 @@ try {
 
   await page.setViewportSize({ width: 1280, height: 800 });
   await gotoHash(page, "#specification");
+  const idSearchTarget = artifacts.find(({ phase }) => phase === "PDP-2");
+  if (!idSearchTarget) fail("specification/canonical-id-search", "no PDP-2 artifact is available for the cross-phase ID search");
+  else {
+    await page.locator('button[role="radio"][data-phase="PDP-0"]').click();
+    await page.locator("#artifact-filter").fill(idSearchTarget.artifactId);
+    const idSearchPaths = await page.locator("button[data-artifact]").evaluateAll((buttons) => buttons.map((button) => button.dataset.artifact));
+    if (idSearchPaths.length !== 1 || idSearchPaths[0] !== idSearchTarget.path) {
+      fail("specification/canonical-id-search", `search for ${idSearchTarget.artifactId} returned ${JSON.stringify(idSearchPaths)}`);
+    } else {
+      if (await page.locator('button[role="radio"][data-phase="PDP-0"]').getAttribute("aria-checked") !== "true") {
+        fail("specification/canonical-id-search", "cross-phase search changed the selected phase before a result was opened");
+      }
+      if (await page.locator(".artifact-list").getAttribute("aria-label") !== "Matching source records across all phases") {
+        fail("specification/canonical-id-search", "cross-phase results did not expose the matching-record navigation label");
+      }
+      await page.locator("button[data-artifact]").evaluateAll((buttons, path) => {
+        buttons.find((button) => button.dataset.artifact === path)?.click();
+      }, idSearchTarget.path);
+      if (await page.locator('button[role="radio"][data-phase="PDP-2"]').getAttribute("aria-checked") !== "true") {
+        fail("specification/canonical-id-search", "opening the search result did not select its PDP-2 owner phase");
+      }
+      const canonicalTraceId = await page.locator(".trace-metadata-grid > div").evaluateAll((rows, artifactId) => rows.some((row) =>
+        row.querySelector("dt")?.textContent?.trim() === "Canonical artifact ID"
+        && row.querySelector("dd")?.textContent?.trim() === artifactId), idSearchTarget.artifactId);
+      if (!canonicalTraceId) fail("specification/canonical-id-search", `selected trace did not show ${idSearchTarget.artifactId}`);
+      else observations.push(`cross-phase search from PDP-0 selected PDP-2 record and exact canonical trace: ${idSearchTarget.artifactId}`);
+    }
+    await page.locator("#artifact-filter").fill("");
+    const emptyQueryCount = await page.locator("#artifact-count").textContent();
+    const expectedPdp2Count = artifacts.filter(({ phase }) => phase === "PDP-2").length;
+    if (emptyQueryCount !== `${expectedPdp2Count} of ${expectedPdp2Count}`) {
+      fail("specification/canonical-id-search", `empty query did not restore PDP-2 phase-scoped count: ${emptyQueryCount}`);
+    }
+    if (await page.locator(".artifact-list").getAttribute("aria-label") !== "Phase artifacts") {
+      fail("specification/canonical-id-search", "empty query did not restore the phase-scoped navigation label");
+    }
+  }
   const phaseButtons = await page.locator("button[role=radio][data-phase]").evaluateAll((buttons) => buttons.map((button) => button.dataset.phase));
   let artifactCount = 0;
   for (const phase of phaseButtons) {
@@ -353,17 +410,23 @@ try {
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     for (const route of productRoutes) {
-      await gotoHash(page, `#product/view/${encodeURIComponent(route)}`);
+      await gotoHash(page, `#product/view/${encodeURIComponent(route.path)}`);
       await page.locator(".view-contract-preview").waitFor({ state: "visible", timeout: 5000 }).catch(() => {});
-      const result = await inspectPage(page, `legacy-proposal/${route}/${viewport.name}`, { requireMain: true, requireNoHorizontalOverflow: true });
-      if (await page.locator("#app").getAttribute("data-mode") !== "specification") fail(`legacy-proposal/${route}/${viewport.name}`, "legacy proposal URL did not resolve to Specification mode");
-      if (await page.locator(".view-contract-preview").count() !== 1) fail(`legacy-proposal/${route}/${viewport.name}`, "read-only Specification proposal preview is missing");
-      if (await page.locator("#shared-presentation-mount").count()) fail(`legacy-proposal/${route}/${viewport.name}`, "legacy proposal route mounted a Product presentation");
-      if (result.h1[0] !== "Specification") fail(`legacy-proposal/${route}/${viewport.name}`, "proposal route is not headed as Specification");
+      const scope = `legacy-proposal/${route.path}/${viewport.name}`;
+      const result = await inspectPage(page, scope, { requireMain: true, requireNoHorizontalOverflow: true });
+      if (await page.locator("#app").getAttribute("data-mode") !== "specification") fail(scope, "legacy proposal URL did not resolve to Specification mode");
+      if (await page.locator(".view-contract-preview").count() !== 1) fail(scope, "read-only Specification proposal preview is missing");
+      if (await page.locator("#shared-presentation-mount").count()) fail(scope, "legacy proposal route mounted a Product presentation");
+      if (result.h1[0] !== "Specification") fail(scope, "proposal route is not headed as Specification");
+      const sourceContract = await readFile(resolve(route.path), "utf8");
+      const sourceScreenId = sourceContract.match(/^screenId:\s*(.+)$/mu)?.[1]?.trim();
+      const renderedScreenId = await page.locator(".view-contract-preview").getAttribute("data-screen-id");
+      if (!sourceScreenId) fail(scope, `source contract for ${route.title} has no top-level screenId`);
+      else if (renderedScreenId !== sourceScreenId) fail(scope, `rendered screen ID ${renderedScreenId ?? "(missing)"} does not match source ${sourceScreenId}`);
       routeCount += 1;
     }
   }
-  observations.push(`Legacy proposal URLs exercised in read-only Specification mode: ${routeCount}`);
+  observations.push(`Legacy proposal URLs exercised in read-only Specification mode with source screenId equality: ${routeCount}`);
 
   const candidateScenarios = [
     { id: "media.scenario.first-use-empty", heading: "Projects in this workspace" },
@@ -463,20 +526,23 @@ try {
   await page.emulateMedia({ forcedColors: "none", reducedMotion: "no-preference" });
   await page.setViewportSize({ width: 390, height: 844 });
   await gotoHash(page, "#explore");
-  const longLabelAudit = await page.locator('[role="tab"][data-mode]').evaluateAll((tabs) => {
-    const originals = tabs.map((tab) => ({ tab, markup: tab.innerHTML }));
-    for (const { tab } of originals) tab.append(document.createTextNode(" — Übersetzte Bezeichnung mit zusätzlichem erklärendem Text"));
-    const result = originals.map(({ tab }) => ({
-      label: tab.textContent?.trim() ?? "",
-      width: tab.getBoundingClientRect().width,
-      scrollWidth: tab.scrollWidth,
-      clientWidth: tab.clientWidth,
+  const longLabelAudit = await page.locator('nav[aria-label="Primary Explorer activities"] button[data-mode], nav[aria-label="Additional Explorer views"] button[data-mode]').evaluateAll((controls) => {
+    const originals = controls.map((control) => ({ control, markup: control.innerHTML }));
+    for (const { control } of originals) {
+      const label = control.querySelector("span");
+      label?.append(document.createTextNode(" — Übersetzte Bezeichnung mit zusätzlichem erklärendem Text"));
+    }
+    const result = originals.map(({ control }) => ({
+      label: control.textContent?.trim() ?? "",
+      width: control.getBoundingClientRect().width,
+      scrollWidth: control.scrollWidth,
+      clientWidth: control.clientWidth,
     }));
-    for (const { tab, markup } of originals) tab.innerHTML = markup;
+    for (const { control, markup } of originals) control.innerHTML = markup;
     return result;
   });
   for (const label of longLabelAudit.filter(({ scrollWidth, clientWidth }) => scrollWidth > clientWidth + 1)) {
-    fail("long-label-localization", `expanded label overflows its mode tab (${label.scrollWidth}px > ${label.clientWidth}px)`);
+    fail("long-label-localization", `expanded label overflows its mode control (${label.scrollWidth}px > ${label.clientWidth}px)`);
   }
   observations.push(`long-label localization stress: ${longLabelAudit.length} mode labels expanded with a deterministic long-label fixture (not a translation claim)`);
   const rtlAdmitted = await page.locator("html[data-rtl-supported='true'], [data-rtl-supported='true']").count() > 0;
@@ -579,6 +645,7 @@ const report = createAuditReport({
   observations,
   consoleErrors,
   instrumentationWarnings,
+  policyViolations,
   pageErrors,
   failures,
   screenshots: [

@@ -26,15 +26,21 @@ are inventory counts, not completeness or semantic-acceptance claims.
 
 ### Coverage and reconciliation findings
 
-The current registries contain **37 proposed/observed-only domain-object records, 13
-value-object records, and 11 proposed relationship records**. The domain
-catalog intentionally combines PDP-0 proposed concepts with observed runtime
-projections; it does not mean all listed concepts exist in code. Seven
+The current registries contain **38 domain-object records: 37 proposed or
+runtime/persistence-observed candidates and one simulation-fixture-only
+`CaptionVersionRecord`; 13 value-object records and 11 proposed relationship
+records**. The domain catalog intentionally combines PDP-0 proposed concepts
+with observed runtime projections; it does not mean all listed concepts exist
+in code. Seven
 additional source-visible record families are now called out in
 `domain-objects.yaml` as observed-only candidates: upload session, upload
 chunk, stream session, stream frame, consent record/decision, persisted audio
 file, and transcription. No canonical relationship/cardinality is inferred
 from their storage keys or method signatures.
+
+`media.domain.caption-version` is a separate local simulation-fixture
+observation. It is not an observed runtime or persistence record, and its
+canonical key and immutable-version/durable-history semantics remain unbound.
 
 The following crosswalk records only what the cited implementation or
 persistence sources expose. “Not applicable” means that source family was not
@@ -64,11 +70,13 @@ Important omissions and conflicts to resolve before semantic acceptance:
   `artifactId`/`sizeBytes`/`sha256`, TypeScript `id`/`sizeBytes`/
   `checksumSha256`, the permissive OpenAPI component, and persistence
   tenant-scoped artifact IDs. Existing APIs are not adjudicated here.
-- Processing-job projections differ: Java and SQL use `ACCEPTED`, `RUNNING`,
-  `COMPLETED`, `FAILED`, `CANCELLED`; TypeScript includes `QUEUED`,
-  `RETRY_PENDING`, `OUTCOME_UNKNOWN`, `RECONCILING`, and
-  `PARTIALLY_SUCCEEDED`; PDP-0 has separate job/attempt machines. No
-  cross-generation winner or conversion is selected.
+- Processing-job projections differ: current Media Java and PostgreSQL use
+  `ACCEPTED`, `RUNNING`, `OUTCOME_UNKNOWN`, `COMPLETED`, `FAILED`, and
+  `CANCELLED`; the current SQL status constraint was widened by V007 to retain
+  unknown outcomes. TypeScript includes `QUEUED`, `RETRY_PENDING`,
+  `OUTCOME_UNKNOWN`, `RECONCILING`, and `PARTIALLY_SUCCEEDED`; PDP-0 has
+  separate job/attempt machines. No cross-generation winner or conversion is
+  selected, and `ACCEPTED` does not establish durable queueing.
 - Project/revision, asset, recipe, processing graph, resolved plan, run,
   checkpoint, scene/animation/simulation, timeline, quality assessment,
   render/delivery outcome, and provenance concepts are PDP-0 proposals with
@@ -178,7 +186,7 @@ carried from the host/domain adapter.
 
 The current operation-parity report inventories 279 identities across eight
 surface families: 146 UI actions, 27 HTTP operations, 43 gRPC methods, CLI,
-SDK, Agent Tools, events, and related interfaces. It reports 175 unresolved
+SDK, Agent Tools, events, and related interfaces. It reports 191 unresolved
 identities and zero owner-accepted bindings. Proposed family associations do
 not eliminate source-specific gaps or establish semantic equivalence.
 

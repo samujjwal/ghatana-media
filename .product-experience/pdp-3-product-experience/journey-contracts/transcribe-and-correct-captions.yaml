@@ -103,7 +103,7 @@ steps:
     - media.surface.web
     objectRefs: []
     stateRefs: []
-    canonicalOperationRef: null
+    canonicalOperationRef: media.operation.transcription-submission
     authorityRef: null
     decisionRef: null
     transitionRef: null
@@ -160,7 +160,7 @@ steps:
       surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
       objectRefs: pending-explicit-step-domain-object-reference
       stateRefs: pending-explicit-step-state-reference-and-transition
-      canonicalOperationRef: pending-ambiguous-PDP1-action-operation-crosswalk
+      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
       authorityRef: pending-explicit-step-authority-binding
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-explicit-legal-transition-binding
@@ -503,7 +503,7 @@ steps:
     - media.surface.web
     objectRefs: []
     stateRefs: []
-    canonicalOperationRef: null
+    canonicalOperationRef: media.operation.caption-version-write
     authorityRef: null
     decisionRef: null
     transitionRef: null
@@ -560,7 +560,7 @@ steps:
       surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
       objectRefs: pending-explicit-step-domain-object-reference
       stateRefs: pending-explicit-step-state-reference-and-transition
-      canonicalOperationRef: pending-no-explicit-canonical-operation-crosswalk-for-step-action
+      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
       authorityRef: pending-explicit-step-authority-binding
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-explicit-legal-transition-binding
@@ -583,7 +583,7 @@ steps:
     - media.surface.web
     objectRefs: []
     stateRefs: []
-    canonicalOperationRef: null
+    canonicalOperationRef: media.operation.caption-version-read
     authorityRef: null
     decisionRef: null
     transitionRef: null
@@ -640,7 +640,7 @@ steps:
       surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
       objectRefs: pending-explicit-step-domain-object-reference
       stateRefs: pending-explicit-step-state-reference-and-transition
-      canonicalOperationRef: pending-no-explicit-canonical-operation-crosswalk-for-step-action
+      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
       authorityRef: pending-explicit-step-authority-binding
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-explicit-legal-transition-binding

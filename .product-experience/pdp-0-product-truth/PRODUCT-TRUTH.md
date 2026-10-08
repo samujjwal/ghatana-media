@@ -99,17 +99,21 @@ cross-owner calls and unresolved contracts are recorded in
 
 ## Domain, states, authority, and quality
 
-PDP-0 states product purpose, outcomes, and policy boundaries. PDP-1 is the
-intended canonical authority for domain objects, relationships, operations,
-data values, and detailed domain/state semantics. The PDP-0
+PDP-0 owns product purpose, outcomes, requirements, policy boundaries, and
+high-level domain responsibility. It may state product requirements for
+temporal/fidelity preservation and lifecycle/finality. PDP-1 owns canonical
+domain objects, values and units, relationships, time bases and conversions,
+operations, and detailed state/transition/effect semantics. The PDP-0
 [`domain-model.yaml`](domain-model.yaml),
 [`state-models.yaml`](state-models.yaml), and
 [`time-units-fidelity.yaml`](time-units-fidelity.yaml) remain proposed source
 material and observed-contract evidence during that handoff; they are not
-accepted canonical domain/data records. Existing PDP-1 projections still
-refer to these PDP-0 sources, and state/time/domain authority reconciliation
-is an explicit open item. No unique semantics are silently discarded or
-claimed relocated by this wave.
+accepted canonical domain/data records. The phase authority boundary is settled
+for task routing by the delegated owner decisions; record-level source
+crosswalks, extraction, exact mappings, specialist review, and PDP-1 owner
+acceptance remain open. Existing PDP-1 projections still refer to these PDP-0
+sources. No unique semantics are silently discarded or claimed relocated by
+this wave.
 
 [`policy-authority-model.yaml`](policy-authority-model.yaml) records product
 authority and enforcement boundaries. [`dependency-contracts.yaml`](dependency-contracts.yaml)
@@ -159,18 +163,19 @@ not accepted scope semantics or implementation/availability.
 Only the P0-001 migration boundary slice is accepted as a PDP-0 input. PXD-026
 also records 11 bounded owner-policy dispositions; it does not accept leaf,
 requirement, intent, journey, or state mappings. The ProductDefinition
-candidate currently passes the sibling public schema and validator, with four
-semantic field blockers: `requirements`, `userIntents`, `domainRules`, and
-`successMeasures`. Five explicit product non-goals and four owner-selected
-business intents now map from `goals-jtbd.yaml`; unbound `measuredBy` prose is
-retained in candidate review metadata because the public validator requires a
-success-measure ID reference. The candidate contains 462 capabilities, 52
-requirement projections, 8 of 19 user intents, 30
-journeys with 11 resolved initiating actors, 7 invariants, 4 trust contexts,
-and 5 ownership rules. The 8 resolved user intents have initiating actors;
-the other 11 intents and 19 journey initiators remain unresolved and outside
-the candidate's resolved mappings. They are not accepted by projection.
-Installed-package verification and P0-010 remain open.
+candidate has been regenerated after PXD-030. `requirements` and `userIntents`
+now map all exact source references, leaving two semantic field blockers:
+`domainRules` and `successMeasures`. Five explicit product non-goals and four
+owner-selected business intents map from `goals-jtbd.yaml`; their source-authored
+`measuredBy` descriptions now map to deterministic description-only proposal
+records and exact business-intent references. No metric, profile applicability,
+qualitative acceptance criterion, target, baseline, or qualification is inferred,
+so the `successMeasures` blocker and P0-06 remain open. The candidate contains
+all 19 source intents and
+30 journeys with representative initiators selected by PXD-030; all source actor
+lists remain intact as collaborators. These owner choices do not grant runtime
+permission or execution authority. Final candidate regeneration, installed-package
+verification, and P0-010 independent review remain open.
 
 PDP-1 depends on independent P0-010 acceptance; PDP-2 depends on accepted
 PDP-1; PDP-3 depends on accepted PDP-2. Explorer is a projection outside these
@@ -180,7 +185,7 @@ phases. Later-phase artifacts and local implementation remain provisional.
 read-only projection using `ghatana.product-definition.v1` and the
 `@ghatana/product-definition` v1 schema (`0.1.0-SNAPSHOT` source package).
 Its sibling-source schema/public-validator pass is structural evidence only;
-the four semantic blockers above, installed-package verification, independent
+the two semantic blockers above, installed-package verification, independent
 P0-010 review, and Lifecycle currentness remain separate.
 
 ## Authority, dependencies, review, and proof

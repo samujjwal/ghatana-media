@@ -1,7 +1,7 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { Button, EmptyState, Select, TextArea, TextField } from "../foundations";
+import { EmptyState } from "../foundations";
 import { MediaTaskFlow } from "../components/MediaTaskFlow";
 import { MediaTaskScreen } from "./MediaTaskScreen";
 import { FirstUseProjectScreen } from "./FirstUseProjectScreen";
@@ -27,11 +27,11 @@ function sharedControls(root: React.ReactNode): React.ReactElement[] {
       return;
     }
     if (!React.isValidElement(node)) return;
-    if ([Button, EmptyState, Select, TextArea, TextField].includes(node.type as never)) {
+    if (node.type === EmptyState) {
       controls.push(node);
       return;
     }
-    if (node.type === FirstUseProjectScreen || node.type === TranscriptCaptionScreen || node.type === MediaTaskScreen || node.type === MediaTaskFlow) {
+    if (node.type === FirstUseProjectScreen || node.type === TranscriptCaptionScreen || node.type === ArtifactIntakeScreen || node.type === MediaTaskScreen || node.type === MediaTaskFlow) {
       visit((node.type as (props: never) => React.ReactNode)(node.props as never));
       return;
     }
@@ -43,6 +43,28 @@ function sharedControls(root: React.ReactNode): React.ReactElement[] {
 
 function controlProps(control: React.ReactElement): Record<string, unknown> {
   return control.props as Record<string, unknown>;
+}
+
+function nativeControls(root: React.ReactNode): React.ReactElement[] {
+  const controls: React.ReactElement[] = [];
+  const visit = (node: React.ReactNode): void => {
+    if (Array.isArray(node)) {
+      node.forEach(visit);
+      return;
+    }
+    if (!React.isValidElement(node)) return;
+    if (["button", "input", "select", "textarea"].includes(node.type as string)) {
+      controls.push(node);
+      return;
+    }
+    if ([FirstUseProjectScreen, TranscriptCaptionScreen, ArtifactIntakeScreen, MediaTaskScreen, MediaTaskFlow].includes(node.type as never)) {
+      visit((node.type as (props: never) => React.ReactNode)(node.props as never));
+      return;
+    }
+    visit((node.props as { children?: React.ReactNode }).children);
+  };
+  visit(root);
+  return controls;
 }
 
 describe("Shared control reuse in Media screens", () => {
@@ -101,16 +123,59 @@ describe("Shared control reuse in Media screens", () => {
       context,
       intake: { view: "browse-media", artifacts: [] },
     }));
+    expect(sharedControls(React.createElement(FirstUseProjectScreen, {
+      data, actionPort, context,
+      project: { view: "find-projects", accessState: "resolved", projects: [] },
+    }))).toHaveLength(1);
+    expect(sharedControls(React.createElement(ArtifactIntakeScreen, {
+      data, actionPort, context,
+      intake: { view: "browse-media", artifacts: [] },
+    }))).toHaveLength(1);
 
     expect(projectHtml).toContain('role="status" aria-label="No authorized projects are available in this workspace yet."');
+    expect(projectHtml).toContain('class="flex flex-col items-center justify-center text-center py-12 media-empty-state"');
     expect(projectHtml).toContain("<h3 class=\"font-semibold text-gray-900 text-lg\">No authorized projects are available in this workspace yet.</h3>");
     expect(projectHtml).not.toMatch(/<div class="[^"]*flex flex-col[^"]*"[^>]*style=/);
     expect(artifactHtml).toContain('role="status" aria-label="No artifact records are available in this projection."');
+    expect(artifactHtml).toContain('class="flex flex-col items-center justify-center text-center py-12 media-empty-state"');
     expect(artifactHtml).toContain("<h3 class=\"font-semibold text-gray-900 text-lg\">No artifact records are available in this projection.</h3>");
     expect(artifactHtml).not.toMatch(/<div class="[^"]*flex flex-col[^"]*"[^>]*style=/);
   });
 
-  it("keeps project field labels and action behavior on Shared controls", () => {
+  it("keeps source selection native so the host receives the complete selected File list", () => {
+    const onSourceFilesSelected = vi.fn();
+    const props = {
+      data,
+      actionPort: { invoke: async () => ({ status: "request-acknowledged" as const, requestId: "request-file" }) },
+      context,
+      intake: { view: "import-media" as const },
+      onSourceFilesSelected,
+    };
+    const element = React.createElement(ArtifactIntakeScreen, props);
+    const html = renderToStaticMarkup(element);
+    expect(html).toContain('<input id="media-source-files" type="file" multiple="" aria-describedby="media-upload-disclosure"/>');
+    expect(html).not.toContain("data-ds=");
+
+    const screen = ArtifactIntakeScreen(props);
+    const inputs: React.ReactElement[] = [];
+    const visit = (node: React.ReactNode): void => {
+      if (Array.isArray(node)) {
+        node.forEach(visit);
+        return;
+      }
+      if (!React.isValidElement(node)) return;
+      if (node.type === "input") inputs.push(node);
+      else visit((node.props as { children?: React.ReactNode }).children);
+    };
+    visit(screen);
+    expect(inputs).toHaveLength(1);
+    const onChange = (inputs[0]!.props as { onChange: (event: unknown) => void }).onChange;
+    const files = [{ name: "source-a.mov" }, { name: "source-b.wav" }] as File[];
+    onChange({ currentTarget: { files } });
+    expect(onSourceFilesSelected).toHaveBeenCalledWith(files);
+  });
+
+  it("keeps project field labels and action behavior on native CSP-safe controls", () => {
     const onProjectNameDraftChange = vi.fn();
     const invoke = vi.fn(async () => ({ status: "request-acknowledged" as const, requestId: "request-1" }));
     const actionPort: MediaActionPort = { invoke };
@@ -126,12 +191,13 @@ describe("Shared control reuse in Media screens", () => {
 
     expect(html).toContain('<label for="new-project-name">Project name</label>');
     expect(html).toContain('id="new-project-name"');
-    expect(html).toContain('data-ds="button"');
+    expect(html).not.toContain("data-ds=");
+    expect(html).not.toContain(" style=");
     expect(html).toContain("Create project");
 
-    const controls = sharedControls(React.createElement(FirstUseProjectScreen, props));
-    const field = controls.find((control) => control.type === TextField && controlProps(control).id === "new-project-name");
-    const button = controls.find((control) => control.type === Button && controlProps(control).children === "Create project");
+    const controls = nativeControls(React.createElement(FirstUseProjectScreen, props));
+    const field = controls.find((control) => control.type === "input" && controlProps(control).id === "new-project-name");
+    const button = controls.find((control) => control.type === "button" && controlProps(control).children === "Create project");
     expect(field).toBeDefined();
     expect(button).toBeDefined();
     (controlProps(field!).onChange as (event: unknown) => void)({ currentTarget: { value: "New name" } });
@@ -179,11 +245,12 @@ describe("Shared control reuse in Media screens", () => {
     expect(html).toContain('id="caption-seg-1"');
     expect(html).toContain('id="caption-start-seg-1"');
     expect(html).toContain('id="caption-end-seg-1"');
-    expect(html).toContain('data-ds="button"');
+    expect(html).not.toContain("data-ds=");
+    expect(html).not.toContain(" style=");
 
-    const controls = sharedControls(React.createElement(TranscriptCaptionScreen, props));
-    const caption = controls.find((control) => control.type === TextArea && controlProps(control).id === "caption-seg-1");
-    const start = controls.find((control) => control.type === TextField && controlProps(control).id === "caption-start-seg-1");
+    const controls = nativeControls(React.createElement(TranscriptCaptionScreen, props));
+    const caption = controls.find((control) => control.type === "textarea" && controlProps(control).id === "caption-seg-1");
+    const start = controls.find((control) => control.type === "input" && controlProps(control).id === "caption-start-seg-1");
     expect(caption).toBeDefined();
     expect(start).toBeDefined();
     (controlProps(caption!).onChange as (event: unknown) => void)({ currentTarget: { value: "Hello there" } });
@@ -205,8 +272,8 @@ describe("Shared control reuse in Media screens", () => {
     expect(compareHtml).toContain('<label for="caption-version-left">Earlier or source version</label>');
     expect(compareHtml).toContain('id="caption-version-left"');
     expect(compareHtml).toContain("Draft one — v1");
-    const compareControl = sharedControls(compareElement)
-      .find((control) => control.type === Select && controlProps(control).id === "caption-version-left");
+    const compareControl = nativeControls(compareElement)
+      .find((control) => control.type === "select" && controlProps(control).id === "caption-version-left");
     expect(compareControl).toBeDefined();
     (controlProps(compareControl!).onChange as (event: unknown) => void)({ currentTarget: { value: "v2" } });
     expect(onCompareVersionSelection).toHaveBeenCalledWith("left", "v2");

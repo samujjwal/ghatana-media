@@ -74,33 +74,26 @@ sourceDenominators:
       STTService.Transcribe: media.operation.transcription
       STTService.StreamTranscribe: media.operation.transcription
       STTService.SubmitCorrection: media.operation.transcription
-      STTService.HealthCheck: media.operation.health-capability
       TTSService.Synthesize: media.operation.synthesis
       TTSService.StreamSynthesize: media.operation.synthesis
       TTSService.GetVoices: media.operation.synthesis
       TTSService.CloneVoice: media.operation.synthesis
-      TTSService.GetStatus: media.operation.health-capability
-      TTSService.GetMetrics: media.operation.health-capability
       VisionService.DetectObjects: media.operation.vision-analysis
       VisionService.AnalyzeImage: media.operation.vision-analysis
       VisionService.ClassifyImage: media.operation.vision-analysis
       VisionService.AnalyzeVideoFile: media.operation.vision-analysis
       VisionService.ProcessVideo: media.operation.vision-analysis
-      VisionService.GetStatus: media.operation.health-capability
-      VisionService.HealthCheck: media.operation.health-capability
       MultimodalService.ProcessMultimodal: media.operation.multimodal-analysis
       MultimodalService.AnalyzeVideoWithAudio: media.operation.multimodal-analysis
       MultimodalService.GenerateDescription: media.operation.multimodal-analysis
       MultimodalService.AnalyzeCrossModal: media.operation.multimodal-analysis
       MultimodalService.GetInsights: media.operation.multimodal-analysis
-      MultimodalService.GetStatus: media.operation.health-capability
-      MultimodalService.HealthCheck: media.operation.health-capability
     unresolvedIdentitiesByService:
-      STTService: [LoadModel, UnloadModel, ListModels, AdaptModel, GetStatus, CreateProfile, GetProfile, UpdateProfile]
-      TTSService: [LoadVoice, CreateProfile, GetProfile, UpdateProfile, SubmitFeedback]
-      VisionService: [LoadModel, UnloadModel, ListModels]
-      MultimodalService: [LoadModel, UnloadModel, ListModels]
-    bindingStatus: all 43 identities accounted for; exact observed family refs receive proposal IDs; remaining identities unresolved; no similarly named RPCs are treated as equivalent
+      STTService: [LoadModel, UnloadModel, ListModels, AdaptModel, GetStatus, HealthCheck, CreateProfile, GetProfile, UpdateProfile]
+      TTSService: [GetStatus, GetMetrics, LoadVoice, CreateProfile, GetProfile, UpdateProfile, SubmitFeedback]
+      VisionService: [GetStatus, HealthCheck, LoadModel, UnloadModel, ListModels]
+      MultimodalService: [GetStatus, HealthCheck, LoadModel, UnloadModel, ListModels]
+    bindingStatus: all 43 identities accounted for; 17 domain-operation family refs remain proposals; 26 identities are unresolved including transport-only/provider-admin roles; no similarly named RPCs are treated as equivalent
   cliSimulationCommands:
     planDenominator: 11
     currentFixtureRegistryRecords: 11
@@ -115,28 +108,46 @@ sourceDenominators:
       operationIdsByExistingActionRef: {media.cli.upload.inspect: media.operation.artifact-ingest, media.cli.upload.resume: media.operation.artifact-ingest, media.cli.transcribe: media.operation.transcription, media.cli.transcript.review: media.operation.transcription, media.cli.job.status: media.operation.job-lifecycle, media.cli.job.cancel: media.operation.job-lifecycle, media.cli.caption.correct-text: media.operation.transcription, media.cli.caption.align-timing: media.operation.transcription, media.cli.caption.save-version: media.operation.caption-version-write, media.cli.caption.compare-versions: media.operation.caption-version-read, media.cli.job.check-outcome: media.operation.job-lifecycle, media.cli.job.retry: media.operation.job-lifecycle}
     bindingStatus: all 11 fixture-registry IDs remain unresolved; the separate 12-record canonical proposal registry has actionRef crosswalks, including these two caption-version proposal bindings; production CLI runtime remains unconnected
   sdkMethods:
-    registryRecords: 27
-    parserDerivedPublicMethodIdentities: 24
-    exactObservedRegistryIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.for, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.if, media.sdk.removeEventListener, media.sdk.clearTimeout]
+    registryRecords: 31
+    parserDerivedPublicMethodIdentities: 28
+    exactObservedRegistryIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.retryOperation, media.sdk.getOperationResult, media.sdk.for, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.if, media.sdk.removeEventListener, media.sdk.clearTimeout, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize]
     legacySourceMethods:
       source: libs/audio-video-client/src/index.ts
+      declaringClass: AudioVideoClient
       exactObservedMethods: [transcribe, synthesize, processAIVoice, processVision, processMultimodal, getServiceStatus, getAllServicesStatus, addEventListener, removeEventListener]
-      unresolvedOperationIds: [transcribe, synthesize, processAIVoice, processVision, processMultimodal, getServiceStatus, getAllServicesStatus, addEventListener, removeEventListener]
+      unresolvedOperationIds: [media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal]
+      sourceBackedNonOperationDispositions:
+        - id: media.sdk.getServiceStatus
+          type: TRANSPORT_ONLY
+          evidence: configured-provider-endpoint-GET-/health
+          source: libs/audio-video-client/src/index.ts#AudioVideoClient.getServiceStatus
+        - id: media.sdk.getAllServicesStatus
+          type: TRANSPORT_ONLY
+          evidence: Promise.all-over-getServiceStatus-for-five-configured-services
+          source: libs/audio-video-client/src/index.ts#AudioVideoClient.getAllServicesStatus
+        - id: media.sdk.addEventListener
+          type: CLIENT_ONLY
+          evidence: appends-callback-to-in-process-eventListeners-map
+          source: libs/audio-video-client/src/index.ts#AudioVideoClient.addEventListener
+        - id: media.sdk.removeEventListener
+          type: CLIENT_ONLY
+          evidence: removes-callback-from-in-process-eventListeners-map
+          source: libs/audio-video-client/src/index.ts#AudioVideoClient.removeEventListener
     sources:
       - .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml#/methods
       - libs/audio-video-client/src/operations.ts
       - libs/audio-video-client/src/index.ts
     operationsTsPublicMethodNames: [getStatus, cancel, retry, getResult, wait, createUploadSession, uploadPart, completeUploadSession, getArtifact, listProviderCapabilities, transcribe, synthesize, trainVoiceModel, convertVoice, analyzeMultimodal, getOperation, cancelOperation, retryOperation, getOperationResult]
     operationsTsUnresolvedOperationMethods: [getStatus, cancel, retry, getResult, wait, createUploadSession, uploadPart, completeUploadSession, getArtifact, listProviderCapabilities, transcribe, synthesize, trainVoiceModel, convertVoice, analyzeMultimodal, getOperation, cancelOperation, retryOperation, getOperationResult]
-    unresolvedOperationIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.removeEventListener]
+    unresolvedOperationIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.retryOperation, media.sdk.getOperationResult, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize]
     parserArtifactTokensExcludedFromMethodIdentityInventory: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
-    parserArtifactDisposition: source-parser-correction; none-is-a-public-method-declaration-in-its-recorded-source; retained-in-raw-registry-evidence-but-excluded-from-SDK-method-denominator
+    parserArtifactDisposition: source-parser-correction; media.sdk.for, media.sdk.if, and media.sdk.clearTimeout have no public method declaration in their recorded source; retained as raw registry evidence and excluded from the SDK method denominator
     legacyRegistrySourceDiscrepancies:
-      declaredInRegistryAs: libs/audio-video-client/src/operations.ts
-      declarationObservedIn: libs/audio-video-client/src/index.ts
-      exactMethods: [processAIVoice, processVision, processMultimodal, getServiceStatus, getAllServicesStatus, addEventListener, removeEventListener]
-      disposition: preserve-client-method-identities-and-record-both-sources; registry-source-location-is-not-runtime-route-or-operation-evidence
-    bindingStatus: 24 public method identities retained; three raw registry tokens classified as parser artifacts; legacy source client remains distinct
+      status: corrected-from-exported-class-declarations
+      correctedMethods: [processAIVoice, processVision, processMultimodal, getServiceStatus, getAllServicesStatus, addEventListener, removeEventListener]
+      duplicateMethodNames: [transcribe, synthesize]
+      duplicateDisposition: source-and-declaring-class-qualified-legacy-identities-added; semantic-equivalence-remains-unresolved
+    bindingStatus: 28 public source/class/method identities retained; three raw registry tokens classified as parser artifacts; 14 family associations remain proposals, four identities have source-backed transport/client-only dispositions, and ten domain operation identities remain unresolved; no cross-interface binding is accepted
   agentToolHandlers:
     count: 4
     source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml#/tools
@@ -310,7 +321,7 @@ operations:
     unknownOutcome: {proposal: inspect-the-existing-job-before-any-repeat, status: pending-owner-review}
     retry: {status: unresolved; no duplicate submission or replay policy inferred}
     recovery: {proposal: resolve-existing-job-identity-and-finality-before-retry, status: pending-review}
-    evidenceAudit: {observedRefs: [media.action.request-transcription, STTService.Transcribe], canonicalEvidenceContract: unresolved}
+    evidenceAudit: {observedRefs: [STTService.Transcribe], canonicalEvidenceContract: unresolved}
     nextSafeAction: {proposal: inspect-the-returned-job-reference-and-status, status: pending-review}
     actionRefs: [media.action.request-transcription]
     observedBindings: {HTTP: unresolved, SDK: legacy-client-identity-only, CLI: media.fixture-cli.transcribe-is-not-bound-without-crosswalk-review, gRPC: STTService.Transcribe-is-execution-interface-not-proven-equivalent}
@@ -716,7 +727,7 @@ channelFamilies:
   http: contracts/openapi/media.yaml; 27 operationIds; wire projection only; exact route-to-operation crosswalk incomplete
   grpc: four listed service protobufs; 43 exact RPC identities enumerated above; preserve service/method identity; conflict resolution not inferred
   cli: .product-experience/pdp-3-product-experience/cli/command-registry.yaml has 11 synthetic fixture commands; separate root cli-command-registry.yaml has 12 proposal records; production CLI remains unconnected
-  sdk: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml; 27 raw records, of which 24 are public method identities and three are parser artifacts; legacy AudioVideoClient is distinct; consumer parity and operation links unresolved
+  sdk: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml; 31 raw records, of which 28 are exported public source/class/method identities and three are parser artifacts; legacy AudioVideoClient is distinct; consumer parity and operation links unresolved
   tool: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml; four handler identities; no admitted Media domain-tool schema/binding established
   event: .product-experience/pdp-3-product-experience/events/event-registry.yaml; 15 separate local client-listener notifications. PDP1-004 events.yaml separately inventories 7 runtime publisher call sites/9 concrete event types; populations are not equivalent. Event triggers are source observations only; canonical taxonomy, producer authority, delivery guarantees, evidence links, and operation links unresolved
 ownerReview: pending-owner-review

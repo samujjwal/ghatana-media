@@ -106,6 +106,37 @@ test("inspection identities carry explicit resolvable source authorities", () =>
   }
 });
 
+test("artifact and job inspectors record observed read routes without semantic or freshness claims", () => {
+  const observationPath = ".product-experience/pdp-3-product-experience/search-inspection-source-proposals.yaml";
+  const observations = parseYaml(readFileSync(resolve(root, observationPath), "utf8"));
+  const artifact = observations.inspectionObservations.authority;
+  const trace = observations.inspectionObservations.trace;
+  assert.deepEqual(artifact.observedProtocolOperationRefs, ["media.http.getMediaArtifact"]);
+  assert.equal(artifact.observedRequest, "tenant-header-and-required-artifactId-path");
+  assert.equal(artifact.observedResponse, "200-MediaArtifact; 404-ErrorEnvelope");
+  assert.equal(artifact.observedAccessMetadata, "requires-authentication-and-tenant; required-access-operator");
+  assert.equal(artifact.semanticBindingStatus, "observation-only; PDP-1-operation-binding-unresolved");
+  assert.deepEqual(trace.observedProtocolOperationRefs, ["media.http.getMediaJob"]);
+  assert.equal(trace.observedRequest, "tenant-header-and-required-jobId-path");
+  assert.equal(trace.observedResponse, "200-ProcessingJob; 404-ErrorEnvelope");
+  assert.equal(trace.observedAccessMetadata, "requires-authentication-and-tenant; required-access-operator");
+  assert.equal(trace.semanticBindingStatus, "observation-only; PDP-1-operation-binding-unresolved; job-freshness-and-finality-not-established");
+
+  const openApi = readFileSync(resolve(root, "contracts/openapi/media.yaml"), "utf8");
+  const artifactRoute = openApi.split("  /api/v1/artifacts/{artifactId}:")[1]?.split("  /api/v1/jobs:")[0];
+  const jobRoute = openApi.split("  /api/v1/jobs/{jobId}:")[1]?.split("  /api/v1/jobs/{jobId}/cancel:")[0];
+  assert.ok(artifactRoute && jobRoute);
+  for (const route of [artifactRoute, jobRoute]) {
+    assert.match(route, /requiredAccess: OPERATOR[\s\S]*?requiresAuth: true[\s\S]*?requiresTenant: true/u);
+    assert.match(route, /"200"[\s\S]*?"404": \{ \$ref: "#\/components\/responses\/Error" \}/u);
+  }
+  assert.match(artifactRoute, /name: artifactId,[\s\S]*?in: path,[\s\S]*?required: true/u);
+  assert.match(jobRoute, /parameters:[\s\S]*?#\/components\/parameters\/JobId/u);
+  assert.match(jobRoute, /schema: \{ \$ref: "#\/components\/schemas\/ProcessingJob" \}/u);
+  assert.equal(bindings.inspectionBindings.find(({ inspectionId }) => inspectionId === "media.inspection.authority").pdp1OperationRefs, undefined);
+  assert.equal(bindings.inspectionBindings.find(({ inspectionId }) => inspectionId === "media.inspection.trace").pdp1OperationRefs, undefined);
+});
+
 test("observed job-search protocol details do not claim unprovided query or continuation semantics", () => {
   const openApi = readFileSync(resolve(root, "contracts/openapi/media.yaml"), "utf8");
   const listJobs = readFileSync(resolve(root, ".product-experience/pdp-3-product-experience/api/operations/listMediaJobs.yaml"), "utf8");
@@ -118,6 +149,18 @@ test("observed job-search protocol details do not claim unprovided query or cont
   assert.match(listJobs, /logicalOperationRef: null/u);
   assert.match(contractText, /runtimeBinding: NOT_ADMITTED/u);
   assert.deepEqual(bindings.searchBindings.find(({ searchId }) => searchId === "media.search.authorized-jobs").pdp1OperationRefs, []);
+});
+
+test("job-list example stays within the observed HTTP transport contract", () => {
+  const examples = readFileSync(resolve(root, "docs/EXAMPLES.md"), "utf8");
+  const section = examples.split("### Observed HTTP transport example: list processing jobs\n")[1]?.split("\n## P3-08 coverage and remaining gaps")[0];
+  assert.ok(section, "document the observed list-jobs transport example");
+  assert.match(section, /not an execution transcript, PDP-1 operation binding, or implementation of[\s\S]*?media\.search\.authorized-jobs/u);
+  assert.match(section, /GET \/api\/v1\/jobs\?limit=25/u);
+  assert.match(section, /X-Tenant-Id: <current-tenant>/u);
+  assert.match(section, /"status": "OUTCOME_UNKNOWN"/u);
+  assert.match(section, /The route declares no search filters, continuation token,[\s\S]*?crosswalk explicitly leaves its PDP-1 logical operation null and owner review\s+pending/u);
+  assert.equal(bindings.searchBindings.find(({ searchId }) => searchId === "media.search.authorized-jobs").pdp1OperationRefs.length, 0);
 });
 
 test("the source-observation artifact cross-references canonical identities without redefining them", () => {

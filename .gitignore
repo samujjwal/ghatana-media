@@ -15,6 +15,7 @@ node_modules/
 .pnpm-store/
 coverage/
 dist/
+*.tsbuildinfo
 
 # Python environments and caches
 .venv/

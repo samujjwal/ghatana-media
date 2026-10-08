@@ -7,19 +7,19 @@ checks:
   implementation: scripts/check-product-experience-local.mjs
   command: node scripts/check-product-experience-local.mjs
   observation: PASS
-  detail: The current read-only local check found 200 generated source records, 462 PDP-0 capability leaves with the required definition shape, 38 capability families, 38 requirement IDs, 10 vision outcomes with journey/supporting-view coverage, 28 PDP-2 component contracts with required fields, 47 PDP-3 screen proposal contracts with required fields, 43 journey view references and 16 journey action references resolving, 30 indexed journeys with 28 baseline proposal files plus J-29/J-30 extensions, complete 33-area matrix coverage, proposal actions disabled in the Product projection, and no generated currentness.yaml while Lifecycle generation remains unresolved. This is local invariant evidence only; it is not Lifecycle owner admission or phase acceptance.
+  detail: The current read-only local check found 200 generated source records, 462 PDP-0 capability leaves with the required definition shape, 38 capability families, 38 requirement IDs, 10 vision outcomes with journey/supporting-view coverage, 31 PDP-2 component contracts with required fields, 47 PDP-3 screen proposal contracts with required fields, 43 journey view references and 16 journey action references resolving, 30 indexed journeys with 28 baseline proposal files plus J-29/J-30 extensions, complete 33-area matrix coverage, proposal actions disabled in the Product projection, and no generated currentness.yaml while Lifecycle generation remains unresolved. This is local invariant evidence only; it is not Lifecycle owner admission or phase acceptance.
 - id: media.explorer.check.vision-requirements-phase-alignment
   scope: master-prompt-vision-outcome-requirement-journey-view-and-phase-crosswalk
   implementation: .product-experience/vision-requirements-coverage.yaml; docs/PRODUCT-DEFINITION-COVERAGE.md
   command: node scripts/check-product-experience-local.mjs
   observation: PASS
-  detail: The alignment ledger captures the pasted master prompt's eight auditable section bands, the PDP-0 through PDP-3 crosswalk, all 10 vision outcomes, all 38 requirement groups, all 13 NFR and decision records, 462 capability leaves, 28 components, 47 screen contracts, 30 journeys, 146 actions, and the generated Explorer source index. The permitted-settings outcome is explicitly covered by the supporting settings view and project requirement. This is a source-coverage and traceability observation, not owner acceptance or Lifecycle-owned evidence.
+  detail: The alignment ledger captures the pasted master prompt's eight auditable section bands, the PDP-0 through PDP-3 crosswalk, all 10 vision outcomes, all 38 requirement groups, all 13 NFR and decision records, 462 capability leaves, 31 component contracts, 47 screen contracts, 30 journeys, 146 actions, and the generated Explorer source index. The permitted-settings outcome is explicitly covered by the supporting settings view and project requirement. This is a source-coverage and traceability observation, not owner acceptance or Lifecycle-owned evidence.
 - id: media.explorer.check.product-definition-local-invariant-regression
   scope: regression-test-for-the-cross-phase-local-invariant-check
   implementation: tests/product-experience-local.test.mjs
   command: pnpm test:product-experience-local
   observation: PASS
-  detail: The focused Node test invokes the canonical local checker and asserts the published denominators for 462 PDP-0 capability leaves, 28 PDP-2 components, 47 PDP-3 screen contracts, 28 baseline journey proposals plus J-29/J-30 extensions, and the intentional absence of generated currentness.yaml. This is a regression guard for local source integrity, not native evidence or phase acceptance.
+  detail: The focused Node test invokes the canonical local checker and asserts the published denominators for 462 PDP-0 capability leaves, 31 PDP-2 component contracts, 47 PDP-3 screen contracts, 28 baseline journey proposals plus J-29/J-30 extensions, and the intentional absence of generated currentness.yaml. This is a regression guard for local source integrity, not native evidence or phase acceptance.
 - id: media.explorer.check.browser-experience-sweep
   scope: all-Explorer-scenarios-source-artifacts-Product-proposal-routes-Verify-keyboard-and-responsive-geometry
   implementation: scripts/check-experience-browser.mjs

@@ -49,6 +49,25 @@ test("source-clock timing must be complete before registering a caption version"
   assert.equal(saved.state.captionHistory.at(-1).sourceArtifactVersion, initial.source.artifactVersion);
 });
 
+test("synthetic source seek uses segment start-inclusive and end-exclusive tick boundaries", () => {
+  const initial = createFixtureState("media.scenario.transcript-ready");
+
+  const atStart = reduceMediaExperience(initial, { type: "media.action.seek-source", timeTick: 0 });
+  assert.equal(atStart.applied, true);
+  assert.equal(atStart.state.selectedSegmentId, "segment-001");
+
+  const atEnd = reduceMediaExperience(initial, { type: "media.action.seek-source", timeTick: 3100 });
+  assert.equal(atEnd.applied, true);
+  assert.equal(atEnd.state.selectedSegmentId, null);
+
+  const atSourceDuration = reduceMediaExperience(initial, {
+    type: "media.action.seek-source",
+    timeTick: initial.source.durationTicks,
+  });
+  assert.equal(atSourceDuration.applied, true);
+  assert.equal(atSourceDuration.state.playbackPositionTick, initial.source.durationTicks);
+});
+
 test("an unknown job remains bound to the same identity through outcome checking", () => {
   const initial = createFixtureState("media.scenario.job-outcome-unknown");
   const duplicate = reduceMediaExperience(initial, {
@@ -72,6 +91,23 @@ test("an unknown job remains bound to the same identity through outcome checking
   assert.equal(result.state.job.jobId, initial.job.jobId);
   assert.equal(result.state.job.state, "OUTCOME_UNKNOWN");
   assert.equal(result.state.job.finality, "UNKNOWN");
+});
+
+test("retry-ineligible fixture covers only the source-declared unknown-outcome no-dispatch branch", () => {
+  const state = createFixtureState("media.scenario.job-retry-ineligible");
+  const projection = projectExperience(state);
+  assert.equal(state.job.jobId, "fixture-transcription-job-unknown");
+  assert.equal(state.job.state, "OUTCOME_UNKNOWN");
+  assert.equal(state.job.attemptState, "OUTCOME_UNKNOWN");
+  assert.equal(state.job.finality, "UNKNOWN");
+  assert.ok(projection.safeActionIds.includes("media.action.check-job-outcome"));
+  assert.ok(!projection.safeActionIds.includes("media.action.retry-job"));
+
+  const attemptedRetry = reduceMediaExperience(state, { type: "media.action.retry-job" });
+  assert.equal(attemptedRetry.applied, false);
+  assert.equal(attemptedRetry.state.job.jobId, state.job.jobId);
+  assert.equal(attemptedRetry.state.job.state, "OUTCOME_UNKNOWN");
+  assert.equal(attemptedRetry.state.eventLog.length, state.eventLog.length);
 });
 
 test("a result is not materialized after consent is revoked during processing", () => {

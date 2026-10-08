@@ -1042,7 +1042,7 @@ public final class MediaRuntime implements AutoCloseable {
                 accepted, workerId, Instant.now().plus(config.jobTimeout()).plusSeconds(30));
         final ProcessingJob running;
         try {
-            running = jobStore.update(accepted, new ProcessingJob(
+            running = jobStore.update(lease, accepted, new ProcessingJob(
                     accepted.jobId(), accepted.requestId(), accepted.tenantId(), accepted.principalId(), accepted.artifactId(),
                     accepted.jobType(), accepted.providerId(), JobStatus.RUNNING, accepted.createdAt(),
                     Instant.now(), null, Map.of(), "", accepted.version() + 1));
@@ -1051,7 +1051,7 @@ public final class MediaRuntime implements AutoCloseable {
             throw failure;
         }
         if (!concurrency.tryAcquire()) {
-            jobStore.update(running, transition(running, JobStatus.FAILED, Map.of(), "CONCURRENCY_LIMIT"));
+            jobStore.update(lease, running, transition(running, JobStatus.FAILED, Map.of(), "CONCURRENCY_LIMIT"));
             jobStore.release(lease);
             return CompletableFuture.failedFuture(new IllegalStateException("Media job concurrency limit reached"));
         }
@@ -1128,7 +1128,7 @@ public final class MediaRuntime implements AutoCloseable {
                 }
             }
             try {
-                jobStore.update(value, terminal);
+                jobStore.update(lease, value, terminal);
                 audit.info("MEDIA_JOB_TERMINAL tenantId={} jobId={} type={} provider={} status={} failureCode={}",
                         value.tenantId(), value.jobId(), value.jobType(), value.providerId(),
                         terminal.status(), terminal.failureCode());
@@ -1230,10 +1230,12 @@ public final class MediaRuntime implements AutoCloseable {
     private void reconcileJobsAfterRestart() {
         for (ProcessingJob job : jobStore.recoverable(1_000)) {
             try {
-                ProcessingJob reconciled = transition(
-                        job, JobStatus.FAILED,
+                ProcessingJob reconciled = new ProcessingJob(
+                        job.jobId(), job.requestId(), job.tenantId(), job.principalId(), job.artifactId(),
+                        job.jobType(), job.providerId(), JobStatus.OUTCOME_UNKNOWN, job.createdAt(),
+                        job.startedAt(), null,
                         Map.of("reconciliation", "provider outcome unknown after runtime restart"),
-                        "RESTART_RECONCILIATION_REQUIRED");
+                        "", job.version() + 1);
                 jobStore.update(job, reconciled);
                 audit.warn("MEDIA_JOB_RECONCILED_AFTER_RESTART tenantId={} jobId={} priorStatus={}",
                         job.tenantId(), job.jobId(), job.status());

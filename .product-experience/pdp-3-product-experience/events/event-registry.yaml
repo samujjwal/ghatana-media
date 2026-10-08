@@ -28,7 +28,7 @@ populations:
         - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#publishLifecycle
       readyFalse: publication-skipped
       transport: bounded-synchronous-http-post
-      acceptedHttpStatuses: [200, 201]
+      acceptedHttpStatuses: [201]
       otherHttpStatus: publisher-throws
       runtimeFailure: logs-publication-unconfirmed-and-continues
       idempotencyKeyHeader: {name: Idempotency-Key, value: eventId, durableDeduplication: unverified}

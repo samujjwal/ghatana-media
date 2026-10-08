@@ -11,6 +11,7 @@ resolutionPolicy:
   actor: Select one initiating actor only where the intent/job/journey semantics identify that actor; retain all collaborator actorRefs in the source catalog. Do not infer authorization from the selected actor.
   priority: must means the intent is part of the stated core Media mission; should means it supports a core intent or governance/operations without defining a primary media outcome. No in-scope intent is marked wont.
   splitting: Do not split mixed-looking intent descriptions unless the source establishes separate actions with stable references.
+  mixedInitiatorChoice: For source-authored intents that name multiple valid initiating actors, select one product-owner representative initiator for ProductDefinition while retaining the complete source actorRefs; the selection does not exclude collaborators, split the intent, or grant authorization.
   acceptance: These are Media-owner decisions only; independent P0-010 review remains pending.
 intents:
   - id: media.intent.create
@@ -22,9 +23,9 @@ intents:
     priorityRationale: Creating governed media is a primary outcome in the stated product scope and is covered by the included creation families.
     priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/0]
   - id: media.intent.improve
-    actorRef: null
-    actorStatus: unresolved
-    actorRationale: Creator and editor both appear in the intent and improvement job; neither is identified as the initiating actor.
+    actorRef: media.editor
+    actorStatus: resolved
+    actorRationale: The owner selects the editor as the representative initiator for source-preserving restoration and enhancement because these are reviewable transformations; creator and reviewer remain collaborators, and the selection grants no processing permission.
     actorEvidenceRefs: [goals-jtbd.yaml#/intents/1, goals-jtbd.yaml#/jobs/6]
     priority: must
     priorityRationale: Restoration and enhancement are explicit included Media families and must preserve source material with disclosed tradeoffs.
@@ -38,9 +39,9 @@ intents:
     priorityRationale: Versioned editing is a primary included Media capability and supports the mission to create useful governed results.
     priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/2]
   - id: media.intent.animate
-    actorRef: null
-    actorStatus: unresolved
-    actorRationale: Creator and editor are both listed for the animation job; the source does not select which initiates this intent.
+    actorRef: media.creator
+    actorStatus: resolved
+    actorRationale: The owner selects the creator as the representative initiator for first-class animation creation; editor remains a collaborator for editing, and the selection grants no execution permission.
     actorEvidenceRefs: [goals-jtbd.yaml#/intents/3, goals-jtbd.yaml#/jobs/4]
     priority: must
     priorityRationale: Animation is explicitly an included first-class Media workflow, not merely a generation implementation detail.
@@ -54,9 +55,9 @@ intents:
     priorityRationale: Simulation and procedural workflows are explicit included scope, with fidelity boundaries required by the mission.
     priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/4]
   - id: media.intent.understand
-    actorRef: null
-    actorStatus: unresolved
-    actorRationale: Creator/editor users and developer-integrator consumers are all listed; the intent does not distinguish human inspection from integration requests.
+    actorRef: media.creator
+    actorStatus: resolved
+    actorRationale: The owner selects the creator as the representative human initiator for understanding supplied media; editor and developer-integrator remain collaborators for editing and consumer use, and the selection grants no access or processing permission.
     actorEvidenceRefs: [goals-jtbd.yaml#/intents/5, goals-jtbd.yaml#/jobs/1]
     priority: must
     priorityRationale: Media understanding, speech, and scene observations are explicit included scope and support declared downstream purposes.
@@ -70,9 +71,9 @@ intents:
     priorityRationale: Authorized delivery is an explicit included product outcome and its effect boundary is central to the governed-media mission.
     priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/6]
   - id: media.intent.review-workspace-settings
-    actorRef: null
-    actorStatus: unresolved
-    actorRationale: User preferences and workspace policy settings have different possible initiators among creator, editor, and administrator; the source combines them without a stable split.
+    actorRef: media.administrator
+    actorStatus: resolved
+    actorRationale: The owner selects the administrator as the representative initiator for the combined workspace-settings intent because it includes policy settings; creator and editor remain collaborators for personal preferences, and this role choice grants no unrestricted privilege.
     actorEvidenceRefs: [goals-jtbd.yaml#/intents/7, goals-jtbd.yaml#/outcomes/9]
     priority: should
     priorityRationale: Settings support governed use of the core product but are not themselves a primary media outcome.
@@ -94,49 +95,49 @@ intents:
     priorityRationale: Guidance and safe next steps support the core product and consumer integration mission but do not themselves produce a primary media outcome.
     priorityEvidenceRefs: [goals-jtbd.yaml#/intents/9, goals-jtbd.yaml#/scope/includedFamilies]
   - id: media.intent.restore-project
-    actorRef: null
-    actorStatus: unresolved
-    actorRationale: Creator, editor, and operator can initiate different archive, restore, branch, or recovery actions; the linked journeys do not select one actor for the combined intent.
+    actorRef: media.creator
+    actorStatus: resolved
+    actorRationale: The owner selects the creator as the representative initiator for restoring a project to continue a media task; editor and operator remain collaborators for revision work and operational recovery, and no restore authority is implied.
     actorEvidenceRefs: [goals-jtbd.yaml#/intents/10, journey-catalog.yaml#/journeys/0, journey-catalog.yaml#/journeys/25]
     priority: must
     priorityRationale: Project restoration and revision preservation are core to the stated source-preserving Media mission.
     priorityEvidenceRefs: [goals-jtbd.yaml#/intents/10, goals-jtbd.yaml#/outcomes/1]
   - id: media.intent.manage-artifact-lifecycle
-    actorRef: null
-    actorStatus: unresolved
-    actorRationale: The intent includes creator/editor use and administrator/privacy-rights authority; J-26 has several actors and does not identify one initiator for all lifecycle actions.
+    actorRef: media.administrator
+    actorStatus: resolved
+    actorRationale: The owner selects the administrator as the representative initiator for the combined retention, revocation, and erasure lifecycle intent; creator/editor requests and privacy-rights review remain collaborators, and this selection grants no deletion or policy permission.
     actorEvidenceRefs: [goals-jtbd.yaml#/intents/11, journey-catalog.yaml#/journeys/25]
     priority: must
     priorityRationale: Retention, revocation, and erasure are required governance boundaries for the mission's governed media and source preservation scope.
     priorityEvidenceRefs: [goals-jtbd.yaml#/intents/11, goals-jtbd.yaml#/outcomes/8]
   - id: media.intent.resolve-job
-    actorRef: null
-    actorStatus: unresolved
-    actorRationale: The intent covers user, operator, automation-client, and worker observations/actions; J-20 and J-27 preserve these as collaborators and do not choose a single initiator.
+    actorRef: media.operator
+    actorStatus: resolved
+    actorRationale: The owner selects the operator as the representative initiator for blocked-work diagnosis and recovery; creators, automation clients, and workers remain collaborators, and the role choice grants no retry or provider authority.
     actorEvidenceRefs: [goals-jtbd.yaml#/intents/12, journey-catalog.yaml#/journeys/19, journey-catalog.yaml#/journeys/26]
     priority: must
     priorityRationale: Safe status, cancellation, retry, and reconciliation are core requirements for long-running governed media work.
     priorityEvidenceRefs: [goals-jtbd.yaml#/intents/12, goals-jtbd.yaml#/outcomes/8]
   - id: media.intent.recover-live-session
-    actorRef: null
-    actorStatus: unresolved
-    actorRationale: Creator/editor sessions and operator/automation recovery are all explicit, and J-29 preserves each role without identifying a single initiator.
+    actorRef: media.creator
+    actorStatus: resolved
+    actorRationale: The owner selects the creator as the representative session owner who initiates a live-session recovery journey; editor, operator, and automation remain collaborators, and consent or provider effects still require their own authority checks.
     actorEvidenceRefs: [goals-jtbd.yaml#/intents/13, journey-catalog.yaml#/journeys/28]
     priority: must
     priorityRationale: Live streaming/session recovery is part of the explicit processing and streaming scope and must preserve consent and effect boundaries.
     priorityEvidenceRefs: [goals-jtbd.yaml#/scope/includedFamilies, goals-jtbd.yaml#/intents/13]
   - id: media.intent.choose-eligible-processing-option
-    actorRef: null
-    actorStatus: unresolved
-    actorRationale: The intent spans creators, editors, integrators, and operators; J-30 records several eligible callers but does not establish one initiator.
+    actorRef: media.creator
+    actorStatus: resolved
+    actorRationale: The owner selects the creator as the representative human who chooses among eligible options for a media outcome; editor, integrator, and operator remain collaborators, and eligibility does not imply authorization or availability.
     actorEvidenceRefs: [goals-jtbd.yaml#/intents/14, journey-catalog.yaml#/journeys/29]
     priority: should
     priorityRationale: Option selection supports safe use of core media operations but is a supporting choice rather than a primary media outcome.
     priorityEvidenceRefs: [goals-jtbd.yaml#/intents/14, goals-jtbd.yaml#/scope/includedFamilies]
   - id: media.intent.check-processing-options
-    actorRef: null
-    actorStatus: unresolved
-    actorRationale: Developer-integrator and operator are both named, representing distinct compatibility and operational needs that the source has not separated.
+    actorRef: media.developer-integrator
+    actorStatus: resolved
+    actorRationale: The owner selects the developer-integrator as the representative initiator for checking processing options against a consumer contract; operator remains a collaborator for operational inspection, and no provider availability is implied.
     actorEvidenceRefs: [goals-jtbd.yaml#/intents/15, journey-catalog.yaml#/journeys/29]
     priority: should
     priorityRationale: Processing-option inspection supports integration and operations but does not itself produce or review the user's media outcome.
@@ -160,9 +161,9 @@ intents:
     priorityRationale: Rights and consent review are explicit constraints on governed media processing and publication.
     priorityEvidenceRefs: [goals-jtbd.yaml#/intents/17, goals-jtbd.yaml#/scope/documentIntelligenceBoundary]
   - id: media.intent.inspect-provenance
-    actorRef: null
-    actorStatus: unresolved
-    actorRationale: Creators, editors, reviewers, and rights reviewers have different provenance inspection purposes; neither the description nor linked journeys select one actor for the combined intent.
+    actorRef: media.reviewer
+    actorStatus: resolved
+    actorRationale: The owner selects the reviewer as the representative initiator for inspecting provenance as part of trustworthy-output review; creators, editors, and rights reviewers remain collaborators, and inspection does not grant rights or approval authority.
     actorEvidenceRefs: [goals-jtbd.yaml#/intents/18, journey-catalog.yaml#/journeys/20, journey-catalog.yaml#/journeys/25]
     priority: must
     priorityRationale: Source lineage and transformation provenance are required to preserve source truth and review trustworthy output.

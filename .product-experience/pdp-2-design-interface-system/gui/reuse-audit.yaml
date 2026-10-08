@@ -22,28 +22,116 @@ sharedStylesheetBindingReview:
     dimensionalUnitBridge: absent
   disposition: not-consumed; package CSS exports are public, but current token CSS does not define the variable names required by the recipe stylesheet and no source-backed Shared bridge was identified
   evidence: Explorer CSP permits same-origin stylesheets and blocks inline style attributes; no Shared stylesheet binding is admitted until variable parity, semantic mappings, dimensional units, and runtime behavior are verified against an owner-approved release. Theme provider output is not a CSS-only bridge because its runtime path applies inline styles.
-  nextAction: Shared owner to publish a compatible bridge or approve a complete alias/unit mapping; keep Media on qualified Shared React controls and documented Media-owned structural styles until then.
+  nextAction: Shared owner to publish a compatible bridge or approve a complete alias/unit mapping; keep only CSP-compatible Shared components in Media, and use native controls with Media-owned CSS where Shared inline styles are blocked.
   reviewState: design-system-owner-and-consumer-binding-review-pending
+  uiStylesRecipeCandidate:
+    package: "@ghatana/ui-styles"
+    packageManifest: sibling-repository:ghatana-shared/platform/typescript/ui-styles/package.json
+    publicStylesheetExport: "./styles.css -> ./dist/styles.css"
+    publicStylesheetProducer: sibling-repository:ghatana-shared/platform/typescript/ui-styles/scripts/build-stylesheet.mjs
+    version: 0.1.0-SNAPSHOT
+    declaredLicense: MIT
+    dependencyClosure: ["@ghatana/ds-schema@workspace:*"]
+    packageBinding: absent-from-libs/audio-video-ui/package.json
+    observedBuiltAsset: sibling-repository:ghatana-shared/platform/typescript/ui-styles/dist/styles.css
+    stylesheetBoundary: package documentation states CSS text/assets only; host/bundler owns stylesheet loading and CSP/hydration/order
+    variableAudit:
+      generatedStylesheetReferences: 56
+      generatedStylesheetDefines: 6
+      exactTokenCssReferenceMatches: 0
+      unresolvedReferenceNames: 50
+      tokenCssUsesLightDarkScopedNames: true
+      recipeCssUsesUnscopedNames: true
+      themeRuntimeBridge: excluded; Theme provider runtime applies inline styles and Explorer blocks style-src-attr
+      aliasesOrUnitConversions: none admitted
+    disposition: candidate-not-consumed
+    rationale: The public generated stylesheet is a deterministic CSP-compatible asset boundary, but its recipe references do not resolve against the public token CSS names. Token CSS exposes light/dark scoped semantic names and numeric dimensional values, while recipes reference unscoped names and dimensional CSS values. No owner-published bridge or complete approved semantic/unit mapping is present. Importing the stylesheet would leave required declarations unresolved; synthesizing aliases, units, or theme projection in Media would create an unapproved Shared token authority.
+    ownerAndLicenseBinding: declared MIT metadata observed for ui-styles; transitive license review, immutable package artifact binding, Shared owner approval, and Media consumer verification remain pending
+    evidenceScope: Source package manifests, README, public exports, stylesheet build script, token stylesheet, and built stylesheet inspected; no sibling source changed. This does not claim accessibility, visual qualification, owner acceptance, or production binding.
+    followUp: Shared owner to publish a compatible token-to-recipe CSS bridge with explicit semantic and dimensional mappings, then validate the exact public artifact in an isolated CSP-enforced Media consumer before recording a binding.
 inRepoConsumerEvidence:
   source: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components
   observations:
   - StemTrack, TrainingProgress, and VoiceProductionWorkflow import Button from @ghatana/design-system.
+  - TrainingProgress imports MediaProgress from @audio-video/ui; it uses the same native determinate progress presentation as MediaTaskFlow.
   - useSemanticColors composes useTheme from @ghatana/theme/react with semanticColorRoles from @ghatana/tokens/semantic-roles.
   limit: Existing imports are ecosystem usage evidence only; they do not establish a new Media component binding or CSP compatibility for other components.
+additionalSharedCandidates:
+  - candidate: "@ghatana/design-system/data-grid#DataGrid"
+    evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/data-grid/DataGrid.tsx
+    observedCapabilities: [sorting, filtering, pagination, row-selection, row-actions, loading-and-empty-messages]
+    disposition: rejected-for-current-artifact-browser
+    rationale: The current Media artifact-browser contract is a media-oriented browse/review surface; the DataGrid API exposes tabular rows and generic row actions, with no evidence that its interaction model or presentation matches that contract. Public export alone is insufficient to justify adapting the browser to a table.
+    followUp: Reconsider only if a tabular Media inventory view is explicitly designed and verified against DataGrid's renderer, styling, and CSP behavior.
+  - candidate: "@ghatana/design-system/atoms#DataUseNotice"
+    evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/DataUseNotice.tsx; modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
+    disposition: not-adopted
+    rationale: DataUseNotice defaults to asserting either local or external AI processing plus 90-day retention. AI Voice's current rights/consent inputs do not establish processing location or a retention period, so composing this public component would add unsupported privacy claims. Keep the rights attestation and consent-reference contract explicit until a source selects those values.
+    followUp: Reconsider when an owner-approved screen contract supplies processing location and retention scope and the Shared renderer passes the host CSP check.
+  - candidate: "@ghatana/design-system/primitives/react"
+    evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/primitives/react/primitives.tsx
+    disposition: not-adopted
+    rationale: Primitives are generic building blocks; no concrete Media UI duplication or missing behavior was identified that their adoption would remove. Adding a wrapper solely to increase package reuse would create another abstraction without a source-backed need.
+  - candidate: "@ghatana/design-system/molecules#EmptyState"
+    evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/EmptyState.tsx; libs/audio-video-ui/src/screens/shared-control-reuse.test.ts
+    disposition: adopted-through-existing-public-foundations-facade
+    rationale: The class-only component emits the same role=status and title label needed by resolved empty project and artifact collections; Explorer confirms CSP-safe markup. Media adds its own external class because Explorer does not load the Shared utility stylesheet. No additional screen substitution is needed.
+  - candidate: "@ghatana/design-system/molecules#AccessDeniedState"
+    evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/AsyncState.tsx
+    disposition: not-adopted
+    rationale: It renders class-only markup, but announces access denial as role=alert while FirstUseProjectScreen currently uses role=status with explicit disclosure that project data stays hidden until access is granted. Its utility classes are not supplied by the Explorer stylesheet pipeline. Replacing the current projection would change announcement semantics and require unverified styling.
+  - candidate: "@ghatana/design-system/molecules#LoadingState"
+    evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/AsyncState.tsx; sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/Spinner.tsx
+    disposition: not-adopted
+    rationale: The shared component adds a spinner and class-only utility styling; Media's current access-loading projection is a text status with no measured or animation contract. Its Spinner emits inline style attributes and a style element blocked by Explorer CSP, and the utility stylesheet is not loaded.
+  - candidate: "@ghatana/design-system/molecules#StatusBadge"
+    evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/StatusBadge.tsx; sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/Badge.tsx
+    disposition: excluded-from-current-media-status-projections
+    rationale: StatusBadge delegates to Badge, whose current renderer/theme path applies inline styles blocked by Explorer style-src-attr 'none'. Its generic status mappings also do not establish Media job finality or OUTCOME_UNKNOWN semantics.
+  - candidate: "@ghatana/design-system/atoms#Divider"
+    evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/Divider.tsx
+    disposition: not-adopted
+    rationale: Divider has a matching structural separator role but its Tailwind utility classes are not loaded in Explorer and its API accepts inline style overrides. Current Media structures do not need a semantic separator that native section/heading boundaries fail to express.
+  - candidate: "@ghatana/design-system/molecules#ReviewRequiredBanner"
+    evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/ReviewRequiredBanner.tsx
+    disposition: not-adopted
+    rationale: The candidate is class-only but encodes pending/approved/rejected review states and affordances that are not represented by the current Media screen projections. Importing it would invent decision semantics rather than reuse an exact contract.
+  - candidate: "@ghatana/design-system/molecules#Stepper"
+    evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/Stepper.tsx; libs/audio-video-ui/src/components/MediaTaskFlow.tsx
+    disposition: not-adopted
+    rationale: Shared Stepper models only index-based completed/active/pending states, and its interactive mode allows arbitrary step clicks. MediaTaskFlow carries host-authored available/current/completed/blocked state, block reasons, selectable permission, current action eligibility, and typed operation outcomes. Its renderer also uses inline styles blocked by Explorer style-src-attr 'none'. Replacing MediaTaskFlow would lose state and interaction semantics.
+  - candidate: "@ghatana/design-system/molecules/FormStepper#FormStepper"
+    evidence: sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/FormStepper/FormStepper.tsx; libs/audio-video-ui/src/components/MediaTaskFlow.tsx
+    disposition: not-adopted
+    rationale: FormStepper represents completed/current/upcoming form steps and only allows clicks on completed steps; it has no blocked state or block reason and uses utility classes absent from the Explorer host stylesheet. MediaTaskFlow is an operation/workflow projection with host-gated selectable steps and operation finality, not a form-progress contract.
+ecosystemComponentCandidates:
+  - candidate: "@ghatana/product-shell#ProductShell/DashboardLayout/PageHeader/PageContent"
+    evidence: sibling-repository:ghatana-shared/platform/typescript/product-shell/package.json; sibling-repository:ghatana-shared/platform/typescript/product-shell/src/components/ProductShell.tsx; sibling-repository:ghatana-shared/platform/typescript/product-shell/src/components/PagePrimitives.tsx; sibling-repository:ghatana-shared/platform/typescript/design-system/src/layout/Box.tsx; sibling-repository:ghatana-shared/platform/typescript/design-system/src/layout/Container.tsx
+    disposition: not-adopted-current-media-workflow-body
+    rationale: ProductShell and DashboardLayout compose host-level application chrome, while the current Media public components are workflow bodies. PageHeader would add another h1 around MediaTaskFlow's existing h1; PageContent outside DashboardLayout emits a main and inside it emits a section, while MediaTaskFlow already emits main, so direct composition risks duplicate main landmarks. These exports compose Shared Box, Container, Stack, and Typography; the inspected layout primitives emit inline styles, which conflict with Explorer style-src-attr 'none'. @ghatana/product-shell is also not a dependency of @audio-video/ui, and no Explorer host binding or CSP/accessibility qualification is admitted.
+    followUp: Keep as a future host-integration candidate. Reconsider if the Explorer host adopts ProductShell at the application boundary, the Media workflow body is composed without duplicate headings or main landmarks, the package dependency is explicitly bound, and the exact composition passes CSP and accessibility review.
+  - candidate: "@gharbatai/ui-mui#EmptyStateCard"
+    evidence: sibling-repository:gharbatai/packages/gharbatai/ui-mui/src/EmptyStateCard.tsx; sibling-repository:gharbatai/packages/gharbatai/ui-mui/package.json
+    disposition: not-adopted
+    rationale: This is a private Gharbatai MUI adapter with profile-specific card, icon, typography, and optional-action semantics. It adds MUI/Emotion package coupling and does not match Media's title-only role=status empty collection projection. Media already composes the public Shared EmptyState for the exact matching state.
+  - candidate: "@gharbatai/ui-mui#LoadingCard"
+    evidence: sibling-repository:gharbatai/packages/gharbatai/ui-mui/src/LoadingCard.tsx; sibling-repository:gharbatai/packages/gharbatai/ui-mui/package.json
+    disposition: not-adopted
+    rationale: This private MUI card always adds a circular spinner and card layout; Media's current access-loading state is text-only and has no measured-progress or animation contract. It would add MUI/Emotion coupling without matching the current meaning.
 sourceInventory:
   path: .product-experience/pdp-2-design-interface-system/executable-ui-inventory.json
   sourceRevision: d4caa874f822e1737a88d0a6056e4f2faaeb78c1
-  entryCount: 157
+  entryCount: 158
   dispositionCounts:
     ARCHIVE_ONLY: 111
-    FIX: 25
+    FIX: 26
     REUSE: 21
     UNRESOLVED: 0
   dispositionRule: Every row uses REUSE, FIX, CONSOLIDATE, REPLACE, ARCHIVE_ONLY, or UNRESOLVED with unresolvedReason.
     Existing observed hashes and working-tree states remain source observations, not freshness or acceptance evidence.
   reviewLimits:
   - Source presence/public exports do not prove an independently reusable component.
-  - No runtime, rendered accessibility, responsive behavior, or visual acceptance is inferred.
+  - The focused Explorer CSP runtime check does not establish general rendered accessibility, responsive behavior, or visual acceptance.
   - Explorer rows remain host/proposal evidence and do not admit product screens.
 componentFamilyCrosswalk:
 - componentRef: media.component.task-flow
@@ -51,26 +139,40 @@ componentFamilyCrosswalk:
   contractStatus: authored-proposal; shared-binding-and-review-pending
   implementationEvidence:
   - libs/audio-video-ui/src/components/MediaTaskFlow.tsx
-  bindingStatus: candidate-public-export-needs-owner-review
+  bindingStatus: exact-source-and-public-export-identity-observed; owner-accessibility-and-package-acceptance-pending
   publicExport: "@audio-video/ui/components#MediaTaskFlow"
+  publicExportEvidence:
+  - libs/audio-video-ui/package.json#./components
+  - libs/audio-video-ui/src/index.tsx#export*from-components
+  - libs/audio-video-ui/src/components/index.ts#MediaTaskFlow
+  actualConsumers:
+  - libs/audio-video-ui/src/screens/MediaTaskScreen.tsx
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
+  consumerObservation: Media and AI Voice compose the same exported workflow-progress and operation-observation family; host-specific step content and action projections remain caller supplied.
   sharedReuse:
     package: "@ghatana/design-system"
     publicExport: "."
-    components: [Badge, Button]
+    components: []
     mediaFacade: libs/audio-video-ui/src/foundations/index.ts
     status: source-consumer-candidate; installed-artifact-and-owner-review-pending
     progress: excluded-from-Shared-reuse
     progressReason: Shared Progress emits inline style attributes; Explorer enforces style-src-attr 'none'. Media uses native HTML progress for measured and indeterminate states; unknown and no-measurement remain text-only.
     stepNavigation: native-button-retained
-    stepNavigationReason: Shared Button emits an inline style attribute blocked by Explorer style-src-attr 'none' and wraps its children in a label span that breaks Media's direct-child nav layout selectors; native button matches the host-gated step contract.
-  reviewState: MediaTaskFlow composes Shared Badge and Button through the public Media foundations facade; Shared Progress is excluded because its inline style attributes violate the Explorer CSP. Consumer, accessibility, responsive, Shared theme, and owner review remain pending
+    stepNavigationReason: Native buttons preserve the host-gated step semantics and direct-child navigation structure. Shared Button emits inline style attributes blocked by Explorer style-src-attr 'none'.
+  reviewState: Explorer browser verification confirmed Shared Badge and Button inline styles are blocked by style-src-attr 'none'; Media now uses native state labels and buttons with Media-owned stylesheet rules. Shared Progress remains excluded for the same CSP reason. Consumer, accessibility, responsive, Shared theme, and owner review remain pending
 - componentRef: media.component.voice-production-workflow
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.voice-production-workflow
   contractStatus: authored-proposal; Media-and-AI-Voice-owner-review-pending
   implementationEvidence:
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
-  bindingStatus: candidate-public-export-needs-owner-review
+  bindingStatus: exact-source-and-public-export-identity-observed; owner-accessibility-and-package-acceptance-pending
   publicExport: "@ghatana/ai-voice-ui-react/components#VoiceProductionWorkflow"
+  publicExportEvidence:
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/package.json#./components
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/index.ts#VoiceProductionWorkflow
+  actualConsumers: []
+  consumerObservation: No external runtime consumer was found; the package publicly exports this exact source-bound family, and VoiceProductionWorkflow.test.tsx imports the implementation for component verification.
+  testConsumer: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.test.tsx
   reviewState: no admission; consent, provider, visual, and accessibility conformance remain pending
 - componentRef: media.component.identity-context-boundary
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.identity-context-boundary
@@ -97,10 +199,11 @@ componentFamilyCrosswalk:
   sharedReuse:
     package: "@ghatana/design-system"
     publicExport: "."
-    components: [Button, EmptyState, TextField]
+    components: [EmptyState]
     mediaFacade: libs/audio-video-ui/src/foundations/index.ts
-    status: source-consumer-candidate; installed-artifact-and-owner-review-pending
+    status: Shared EmptyState retained; Button and TextField use native CSP-safe controls
     emptyStateCspEvidence: Public Shared EmptyState source emits class-based markup without inline style attributes; its title-only status behavior matches the resolved-empty project list.
+    mediaStyling: Media applies the media-empty-state class and external system-color rules in libs/audio-video-ui/src/styles.css because the Shared utility classes are not part of the Explorer stylesheet pipeline.
   crosswalkNote: FirstUseProjectScreen.tsx is a screen candidate; PhraseTimeline is a timeline editor export and is not evidence of a project-browser implementation.
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.project-context-summary
@@ -130,9 +233,9 @@ componentFamilyCrosswalk:
   sharedReuse:
     package: "@ghatana/design-system"
     publicExport: "."
-    components: [Button, Select, TextArea, TextField]
+    components: []
     mediaFacade: libs/audio-video-ui/src/foundations/index.ts
-    status: source-consumer-candidate; installed-artifact-and-owner-review-pending
+    status: native CSP-safe controls; Shared controls are not composed because browser verification showed their inline styles blocked by Explorer CSP
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.source-player
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.source-player
@@ -151,9 +254,9 @@ componentFamilyCrosswalk:
   sharedReuse:
     package: "@ghatana/design-system"
     publicExport: "."
-    components: [Button, Select, TextArea, TextField]
+    components: []
     mediaFacade: libs/audio-video-ui/src/foundations/index.ts
-    status: source-consumer-candidate; installed-artifact-and-owner-review-pending
+    status: native CSP-safe controls; Shared controls are not composed because browser verification showed their inline styles blocked by Explorer CSP
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.caption-track-editor
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.caption-track-editor
@@ -165,9 +268,9 @@ componentFamilyCrosswalk:
   sharedReuse:
     package: "@ghatana/design-system"
     publicExport: "."
-    components: [Button, Select, TextArea, TextField]
+    components: []
     mediaFacade: libs/audio-video-ui/src/foundations/index.ts
-    status: source-consumer-candidate; installed-artifact-and-owner-review-pending
+    status: native CSP-safe controls; Shared controls are not composed because browser verification showed their inline styles blocked by Explorer CSP
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.job-status-card
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.job-status-card
@@ -229,6 +332,7 @@ componentFamilyCrosswalk:
     mediaFacade: libs/audio-video-ui/src/foundations/index.ts
     status: source-consumer-candidate; installed-artifact-and-owner-review-pending
     emptyStateCspEvidence: Public Shared EmptyState source emits class-based markup without inline style attributes; Media uses it only for the empty artifact collection.
+    mediaStyling: Media applies the media-empty-state class and external system-color rules in libs/audio-video-ui/src/styles.css because the Shared utility classes are not part of the Explorer stylesheet pipeline.
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.waveform-spectrogram
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.waveform-spectrogram
@@ -327,6 +431,71 @@ componentFamilyCrosswalk:
   bindingStatus: contract-only-no-observed-reusable-export
   publicExport: none established
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
+- componentRef: media.component.progress-indicator
+  contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.progress-indicator
+  contractStatus: authored-proposal; Shared-binding-and-owner-review-pending
+  implementationEvidence:
+  - libs/audio-video-ui/src/components/MediaProgress.tsx
+  bindingStatus: exact-source-and-public-export-identity-observed; owner-accessibility-and-package-acceptance-pending
+  publicExport: "@audio-video/ui/components#MediaProgress"
+  publicExportEvidence:
+  - libs/audio-video-ui/package.json#./components
+  - libs/audio-video-ui/src/index.tsx#export*from-components
+  - libs/audio-video-ui/src/components/index.ts#MediaProgress
+  actualConsumers:
+  - libs/audio-video-ui/src/components/MediaTaskFlow.tsx
+  - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/TrainingProgress.tsx
+  consumerObservation: MediaTaskFlow uses the export for operation progress; AI Voice TrainingProgress imports it from @audio-video/ui for training progress. This records source identity/use only; visual, accessibility and owner acceptance remain pending.
+  sharedReuse:
+    package: "@ghatana/design-system"
+    publicExport: ".#Progress"
+    status: excluded-from-Shared-reuse
+    reason: Shared Progress emits inline style attributes blocked by the Explorer style-src-attr 'none' policy; no Shared component binding is claimed.
+  reviewState: exact local identity and consumers observed; Shared, accessibility, visual, responsive, and owner acceptance remain pending
+
+publicExportInventory:
+  source: .product-experience/pdp-2-design-interface-system/component-contracts.yaml
+  packageExportBoundary: libs/audio-video-ui/package.json#./components
+  sourceBarrel: libs/audio-video-ui/src/components/index.ts
+  contractFamilyCount: 31
+  exactSourceAndPublicExportIdentityCount: 3
+  unboundFamilyCount: 28
+  exactBindings:
+  - media.component.progress-indicator
+  - media.component.task-flow
+  - media.component.voice-production-workflow
+  unboundFamilies:
+  - media.component.identity-context-boundary
+  - media.component.intent-launcher
+  - media.component.project-browser
+  - media.component.project-context-summary
+  - media.component.creation-plan-summary
+  - media.component.source-picker
+  - media.component.source-player
+  - media.component.transcript-review
+  - media.component.caption-track-editor
+  - media.component.job-status-card
+  - media.component.provenance-summary
+  - media.component.artifact-source-picker
+  - media.component.artifact-transfer-status
+  - media.component.artifact-integrity-summary
+  - media.component.artifact-browser
+  - media.component.waveform-spectrogram
+  - media.component.storyboard
+  - media.component.timeline-keyframe-editor
+  - media.component.audio-mixer
+  - media.component.mask-tracking-editor
+  - media.component.scene-inspector
+  - media.component.simulation-instruments
+  - media.component.result-comparison
+  - media.component.quality-inspector
+  - media.component.delivery-profile-picker
+  - media.component.rights-retention-review
+  - media.component.activity-recovery-feed
+  - media.component.cli-output
+  sharedConsumerObservation: Shared EmptyState is source/test-verified supporting markup for resolved empty project/artifact collections, not an export for a whole PDP-2 component family. Shared Progress, Stepper, and FormStepper remain excluded for the recorded CSP or semantic mismatches.
+  acceptanceBoundary: These are exact local source/package export and consumer observations. Package resolution, Shared owner approval, component accessibility/visual qualification, and PDP-2 acceptance remain pending.
+
 templateCrosswalk:
 - templateId: media.gui.template.collection
   catalogSource: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
@@ -458,10 +627,11 @@ styleAuthority:
     but public registry/immutable release binding and design owner review are pending. Local stylesheet geometry/system
     fallbacks remain unqualified implementation details; no raw style is promoted.
 blockers:
-- The AI Voice exports and Media screen implementations are source candidates, not owner-reviewed equivalence to
-  PDP-2 component family contracts.
-- PDP-2 component contracts do not yet record exact public export and independently reusable implementation bindings
-  for all 28 families.
+- Three source-bound public component identities are recorded below; their mappings remain local observations and
+  have not received owner equivalence, accessibility, or visual acceptance.
+- The reuse audit records two exact local source/public-export identity observations across the 31 PDP-2 component
+  families; 29 families remain unbound, and package, accessibility, Shared-owner, and component-owner acceptance
+  remain pending.
 - gui/layout.yaml defines rules but registers zero canonical layout IDs; reusable layout identity and template-to-layout
   binding remain unresolved.
 - Seven template identities exist, but their proposal status and screen-instance bindings require review; do not
@@ -470,21 +640,21 @@ blockers:
   registry resolution, immutable release binding, and Shared/design-owner review remain open.
 - No component/template/layout visual or accessibility acceptance is established by this audit.
 componentContractCompleteness:
-  componentCount: 28
+  componentCount: 31
   fieldCounts:
-    anatomy: 28
-    states: 28
-    variants: 28
-    actions: 28
-    accessibility: 28
-    localization: 28
-    prohibitedUse: 28
-    sourceRef: 28
+    anatomy: 31
+    states: 31
+    variants: 31
+    actions: 31
+    accessibility: 31
+    localization: 31
+    prohibitedUse: 31
+    sourceRef: 31
     events: 0
     publicExport: 0
-  finding: All 28 contracts currently record anatomy, states, variants, action IDs, accessibility, localization
-    and misuse boundaries. None records an events contract or exact public export. Do not fill events or export
-    bindings without source and owner evidence.
+  finding: All 31 contracts currently record anatomy, states, variants, action IDs, accessibility, localization,
+    misuse boundaries, and source references. None records an events contract or exact public export. Do not fill
+    events or export bindings without source and owner evidence.
   status: proposal-contracts-incomplete; owner-review-pending
 patternCoverage:
   catalogSource: .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml
@@ -657,3 +827,170 @@ visualAccessibilityAcceptance:
   - human-reviewer-and-version
   currentEvidence: PDP-2 declarations and source observations only; no human visual/accessibility review result
     or accepted composed-use evidence is recorded.
+mediaPdp3PublicReuseReview:
+  status: source-audit-only; no new component or renderer binding admitted
+  rendererEntry: libs/audio-video-ui/src/screens/MediaProductRenderer.tsx#MediaProductRenderer
+  implementedPublicFamilies:
+  - first-use-project: FirstUseProjectScreen; host projections and action port are typed
+  - artifact-intake: ArtifactIntakeScreen; host projections and file-selection callback are typed
+  - job-recovery: JobRecoveryScreen; host job projection and shared workflow ports are typed
+  - transcript-caption: TranscriptCaptionScreen; host transcript projection and draft callbacks are typed
+  contractInventory: 48 files represent 47 canonical screens plus the artifact-verification job-family specialization
+  noAdditionalRendererFamily:
+    reason: Remaining canonical contracts describe distinct component anatomies and/or operation/effect consequences; the current public screen prop families do not supply exact matching data and action ports. Proposal action consequences remain unresolved, so no family adapter is inferred.
+  existingSharedReuse:
+    mediaFacade: libs/audio-video-ui/src/foundations/index.ts
+    controls: [EmptyState]
+    evidence: libs/audio-video-ui/src/screens/shared-control-reuse.test.ts
+    status: source/test-verified Shared EmptyState markup remains CSP-compatible for title-only empty project/artifact states; Shared Button, Badge, Select, TextArea, and TextField are excluded from current Media screens because Explorer CSP blocks their inline styles. External owner and accessibility acceptance remain pending.
+  browserEvidence:
+    route: Explorer #product; current caption workflow
+    csp: Explorer response header enforces style-src-attr 'none'
+    result: Before correction, Chromium logged CSP violations on the caption workflow for Shared inline style attributes; affected control styles were blocked. After correction, the same production Preview route rendered with no inline style attributes inside the Media workflow and no console errors. Shared EmptyState source renders class-only markup, which remains asserted in its source test.
+    scope: local current Explorer browser run; no external owner/accessibility acceptance inferred
+crossProductReuse:
+  componentReuse:
+    implementation: libs/audio-video-ui/src/components/MediaProgress.tsx
+    consumers:
+      - libs/audio-video-ui/src/components/MediaTaskFlow.tsx
+      - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/TrainingProgress.tsx
+    observation: Both products use one MediaProgress implementation for determinate or indeterminate progress semantics; the caller supplies operation meaning and finality remains separate.
+    status: existing cross-product implementation reuse; source-only evidence, accessibility, visual, responsive, and owner acceptance pending
+  codeReuse:
+    implementation: libs/audio-video-ui/src/components/MediaTaskFlow.tsx
+    consumer: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
+    observation: VoiceProductionWorkflow imports MediaTaskFlow from @audio-video/ui and composes it around its workflow content.
+    status: existing cross-product implementation reuse; source-only evidence, accessibility, visual, responsive, and owner acceptance pending
+  workflowConcept:
+    consumer: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
+    observation: AI Voice uses the shared action, eligibility, progress, and finality frame supplied by MediaTaskFlow; its product-specific step content remains local to VoiceProductionWorkflow.
+    status: shared workflow concept in use; source-only evidence, accessibility, visual, responsive, and owner acceptance pending
+  excludedCandidates:
+  - component: Progress
+    reason: Shared implementation emits inline style attributes prohibited by Explorer style-src-attr 'none'; native progress is already tested for determinate and indeterminate measurement, while unknown/no measurement remain text.
+  - component: FileUpload
+    reason: Shared implementation retains a bounded internal file list and offers drag/drop/preview behavior; ArtifactIntakeScreen hands the selected FileList to the host without those extra retention or upload semantics. The native input preserves the exact selection callback contract.
+  - component: OperationStatus
+    reason: Shared state domain is idle/running/completed/failed/paused and cannot represent Media OUTCOME_UNKNOWN/finality without an unapproved mapping; it also emits semantic styling outside the current Media facade.
+  - component: ResponsiveTable
+    reason: PDP-3 artifact and project projections are ordered collections with list semantics, not tabular row/column contracts.
+  nativeControlsRetained:
+  - workflow-step buttons: selection is host-gated and the current direct-child navigation markup is required; Shared Button adds a wrapper and inline style attributes.
+  - source file input: native multiple-file selection forwards the complete host File[] projection without FileUpload's internal retention, preview, or drop behavior.
+  - definition lists and ordered/unordered lists: existing projections are key/value observations and ordered media collections; no exact Shared data-component contract is bound.
+ecosystemReuseReview:
+  status: local-source-review; no additional implementation binding admitted
+  scope:
+    mediaPnpmWorkspace: pnpm-workspace.yaml
+    includedSiblingWorkspaces:
+    - ../ghatana-shared/platform/typescript/*
+    - ../ghatana-tools/libs/product-development/*
+    - ../ghatana-tools/tools/product-development/explorer
+    - ../ghatana-lifecycle/libs/*
+    - ../ghatana-lifecycle/tools/*
+    - apps/*
+    - libs/*
+    - modules/**/libs/*
+    inspectedMediaSurfaces:
+    - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
+    - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+    - libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
+    - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+    - libs/audio-video-ui/src/components/MediaTaskFlow.tsx
+    - libs/audio-video-ui/src/components/MediaProgress.tsx
+    - apps/media-experience-explorer/src/product-review.tsx
+    - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
+    - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/TrainingProgress.tsx
+    filesystemAccessibleButOutsideMediaWorkspace:
+    - repository: ../ghatana-kernel
+      reviewedPackages: ["@ghatana/auth-core", "@ghatana/auth-contracts", "@ghatana/sso-client"]
+      finding: Auth packages expose framework-neutral contracts/state and a repository-private SSO client, not reusable Media UI. They are not included by Media pnpm-workspace.yaml; the current Media screen receives host-projected accessState and does not implement login, token, or session handling.
+    - repository: ../gharbatai
+      reviewedPackages: ["@gharbatai/ui-react", "@gharbatai/ui-web", "@gharbatai/ui-mui", "@gharbatai/forms-react-hook-form", "@gharbatai/table-tanstack", "@gharbatai/auth-session"]
+      finding: These packages are outside the Media pnpm workspace; the inspected React/forms/table/MUI packages are private product-family adapters or contracts, and current UI-kit renderers include inline styles. No exact Media contract fit or dependency binding is established.
+    - repository: ../ghatana-products
+      reviewedPackages: ["@ghatana/phr-web", "@ghatana/phr-experience-package"]
+      finding: Product-specific PHR UI and experience contracts, outside the Media pnpm workspace; no generic Media component binding identified.
+  packageReviews:
+  - package: "@ghatana/design-system"
+    workspacePackage: true
+    disposition: exact-empty-state-reuse; other-observed-controls-excluded
+    surfaceMapping:
+      project-and-artifact-empty-collections: "EmptyState exact role=status/title projection; used by FirstUseProjectScreen and ArtifactIntakeScreen"
+      workflow-actions-and-step-navigation: "Shared Button adds markup/style behavior and does not preserve current host-gated direct-child workflow contract under Explorer CSP"
+      project-name-and-caption-drafts: "Shared TextField/TextArea wrappers emit inline styles; native labeled controls preserve host callbacks and pass the current CSP boundary"
+      artifact-and-project-collections: "DataGrid/ResponsiveTable require row/column, sort/filter/page semantics absent from the current ordered list projections"
+      access-and-operation-states: "AsyncState/LoadingState and OperationStatus add role, styling, spinner, or state vocabulary not equivalent to host-projected Media states and unknown finality"
+    evidence:
+    - sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/EmptyState.tsx
+    - sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/TextField.tsx
+    - sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/TextArea.tsx
+    - sibling-repository:ghatana-shared/platform/typescript/design-system/src/atoms/Progress.tsx
+    - sibling-repository:ghatana-shared/platform/typescript/design-system/src/molecules/AsyncState.tsx
+    - libs/audio-video-ui/src/screens/shared-control-reuse.test.ts
+  - package: "@ghatana/product-shell"
+    workspacePackage: true
+    disposition: future-host-integration-candidate; not-current-workflow-body
+    evidence: .product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#ecosystemComponentCandidates/@ghatana/product-shell
+    finding: Host-level shell/layout is distinct from the Media workflow body. Current MediaTaskFlow already supplies main and h1; direct shell/page composition can duplicate landmarks/headings, underlying Shared layout primitives emit inline style attributes, and @audio-video/ui has no package dependency or Explorer host binding.
+  - package: "@ghatana/tokens"
+    workspacePackage: true
+    disposition: existing-package-dependency; no-new-media-token-binding
+    finding: Media package already depends on and re-exports Shared tokens. Current Media stylesheet deliberately uses browser/OS system colors; the audited Shared token CSS and ui-styles recipes still have no exact variable-name matches or admitted semantic/unit bridge. Do not synthesize aliases in Media.
+    evidence:
+    - libs/audio-video-ui/package.json
+    - libs/audio-video-ui/src/index.tsx
+    - libs/audio-video-ui/src/styles.css
+    - .product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#sharedStylesheetBindingReview
+  - package: "@ghatana/theme"
+    workspacePackage: true
+    disposition: existing-dependency; no-direct-media-renderer-binding
+    finding: Media does not own host theme resolution; AI Voice's useSemanticColors uses the Shared theme/tokens path. Theme provider output applies inline style variables and is not a CSS-only bridge for the current Explorer CSP.
+    evidence:
+    - libs/audio-video-ui/package.json
+    - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/useSemanticColors.ts
+    - .product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#sharedStylesheetBindingReview
+  - package: "@ghatana/ui-styles"
+    workspacePackage: true
+    disposition: candidate-not-consumed; unresolved-token-contract
+    evidence: .product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#sharedStylesheetBindingReview/uiStylesRecipeCandidate
+    finding: Public stylesheet is CSP-compatible as an asset but its generated recipe references do not resolve to token CSS exports; adding it would not style current Media controls without an owner-published semantic and unit bridge.
+  - package: "@ghatana/ds-headless"
+    workspacePackage: true
+    disposition: no-exact-behavioral-duplication
+    finding: Exposes generic interaction state and React adapters, but the current Media workflow uses native button/input/select elements with host-owned eligibility, callback ports, and operation projection. No missing behavior requiring a headless adapter was identified.
+    evidence: sibling-repository:ghatana-shared/platform/typescript/ds-headless/package.json
+  - package: "@ghatana/accessibility"
+    workspacePackage: true
+    disposition: verification-tooling-not-renderer
+    finding: Public package provides accessibility auditing, interaction contracts, focus management, and live-region utilities. It is not a drop-in screen component; current native controls have no missing focus/overlay primitive use case. Human keyboard, screen-reader, zoom/reflow, forced-colors, and reduced-motion observations remain required separately.
+    evidence:
+    - sibling-repository:ghatana-shared/platform/typescript/accessibility/package.json
+    - sibling-repository:ghatana-shared/platform/typescript/accessibility/src/index.ts
+  - package: "@ghatana/experience-package and product-development Explorer"
+    workspacePackage: true
+    disposition: specification-and-review-tooling-not-product-runtime-ui
+    finding: These workspace packages define, validate, or display PDP artifacts and Explorer review surfaces; the Media Explorer already consumes their packages for specification/review. They do not provide a matching end-user Media screen renderer to replace MediaProductRenderer or MediaTaskFlow.
+    evidence:
+    - apps/media-experience-explorer/package.json
+    - apps/media-experience-explorer/src/product-review.tsx
+    - apps/media-experience-explorer/src/specification.ts
+  - package: "@gharbatai/ui-react and @gharbatai/ui-web"
+    workspacePackage: false
+    disposition: not-adopted-private-out-of-workspace
+    finding: ui-web exports component/layout/theme contracts rather than a Media-ready renderer; ui-react provides an ExperienceUiKit including native elements, but package is private, outside the Media workspace, and its current controls assign inline styles. It would introduce another theming/provider contract and does not improve on the exact Shared EmptyState plus existing native Media controls.
+    evidence:
+    - sibling-repository:gharbatai/packages/gharbatai/ui-react/package.json
+    - sibling-repository:gharbatai/packages/gharbatai/ui-react/src/native-kit.tsx
+    - sibling-repository:gharbatai/packages/gharbatai/ui-web/package.json
+  - package: "@gharbatai/forms-react-hook-form and @gharbatai/table-tanstack"
+    workspacePackage: false
+    disposition: not-adopted-private-out-of-workspace
+    finding: These are private provider adapters for React Hook Form and TanStack Table. Current PDP-3 screens have individual host-projected draft callbacks and ordered collections without form-schema, sorting, filtering, pagination, or saved-view contracts; adopting them would add unrelated provider semantics.
+    evidence:
+    - sibling-repository:gharbatai/packages/gharbatai/forms-react-hook-form/package.json
+    - sibling-repository:gharbatai/packages/gharbatai/table-tanstack/package.json
+  verificationBoundary:
+    sourceReview: Local sibling package source/manifests/exports and current Media/AI Voice consumer source; not package registry resolution, release verification, or external owner acceptance.
+    styleBoundary: Explorer CSP enforces style-src-attr 'none'; local Media CSS remains structural/system-color fallback, not Shared visual qualification.
+    acceptanceBoundary: No new component, package, theme, shell, auth/session, form, table/filter, loading/error, accessibility, or token binding is admitted by this review. Existing owner/accessibility and visual review gates remain open.

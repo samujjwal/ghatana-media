@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
@@ -21,13 +22,13 @@ test("PDP-0 ProductDefinition candidate is schema and public-validator conforman
   assert.equal(projection.acceptance, "NOT_CLAIMED");
   assert.match(projection.candidateMappingReview.ownerDecisionStatus, /PENDING/u);
   assert.ok(projection.candidateMappingReview.omittedCollections.timestamps.includes("omitted intentionally"));
-  assert.ok(projection.candidateMappingReview.omittedCollections.journeys.includes("19 initiating actorRefs remain omitted"));
-  assert.ok(projection.candidateMappingReview.omittedCollections.userIntents.includes("11 actor resolutions remain unresolved"));
+  assert.ok(projection.candidateMappingReview.mappedCollections.journeys.includes("30 of 30 source journeys have exact representative initiators"));
+  assert.ok(projection.candidateMappingReview.mappedCollections.userIntents.includes("19 of 19 source intents have exact actor/priority decisions"));
   assert.equal(projection.candidateModel.capabilities.length, 462);
   assert.equal(projection.candidateModel.requirements.length, 52);
-  assert.equal(projection.candidateModel.userIntents.length, 8, "only exact P0-04 resolved actor and priority decisions are projected");
+  assert.equal(projection.candidateModel.userIntents.length, 19, "all source intents have owner-selected actor and priority decisions");
   assert.equal(projection.candidateModel.journeys.length, 30, "all source collaborator actor lists are projected");
-  assert.equal(projection.candidateModel.journeys.filter(({ actorRef }) => actorRef !== undefined).length, 11, "only exact P0-04 initiating actors are projected");
+  assert.equal(projection.candidateModel.journeys.filter(({ actorRef }) => actorRef !== undefined).length, 30, "all source journeys have owner-selected representative initiating actors");
   assert.equal(Object.hasOwn(projection.candidateModel, "createdAt"), false, "optional authored timestamp omitted without provenance");
   assert.equal(Object.hasOwn(projection.candidateModel, "updatedAt"), false, "optional authored timestamp omitted without provenance");
   const goalSource = readYaml(".product-experience/pdp-0-product-truth/goals-jtbd.yaml");
@@ -37,10 +38,10 @@ test("PDP-0 ProductDefinition candidate is schema and public-validator conforman
   assert.ok(functionalRequirements.some((item) => item.traceToIntentIds.length > 0), "the source intent traces remain available for crosswalk resolution");
   const resolvedIntentIds = new Set(projection.candidateModel.userIntents.map((item) => item.id));
   assert.ok(projection.candidateModel.requirements.every((item) => item.traceToIntentIds.every((id) => resolvedIntentIds.has(id))), "unresolved userIntent targets are not emitted as dangling refs");
-  assert.equal(projection.candidateMappingReview.unresolvedUserIntentIds.length, 11);
-  assert.equal(projection.candidateMappingReview.unresolvedJourneyIds.length, 19);
-  assert.equal(projection.candidateMappingReview.intentTracesWithUnresolvedTargets.length, 26);
-  assert.equal(projection.candidateMappingReview.intentTracesWithUnresolvedTargets.reduce((count, row) => count + row.unresolvedIntentRefs.length, 0), 35);
+  assert.equal(projection.candidateMappingReview.unresolvedUserIntentIds.length, 0);
+  assert.equal(projection.candidateMappingReview.unresolvedJourneyIds.length, 0);
+  assert.equal(projection.candidateMappingReview.intentTracesWithUnresolvedTargets.length, 0);
+  assert.equal(projection.candidateMappingReview.intentTracesWithUnresolvedTargets.reduce((count, row) => count + row.unresolvedIntentRefs.length, 0), 0);
   assert.equal(projection.candidateModel.actors.find(({ id }) => id === "media.external-provider").kind, "external-service");
   assert.equal(projection.candidateModel.policies.length, 9, "explicit fail-closed enforcement points map to strict product policies");
   assert.ok(!projection.fieldMappingBlockers.some(({ field }) => ["createdAt", "updatedAt", "journeys"].includes(field)));
@@ -48,7 +49,59 @@ test("PDP-0 ProductDefinition candidate is schema and public-validator conforman
   assert.ok(projection.fieldMappingBlockers.every((item) => !/ACCEPTED|CLOSED/u.test(item.status)));
   assert.match(projection.candidateMappingReview.fieldDispositions.policies.status, /DIRECT_FAIL_CLOSED_ENFORCEMENT_MAPPING/u);
   assert.match(projection.candidateMappingReview.fieldDispositions.capabilities.status, /DIRECT_SOURCE_MAPPING/u);
-  assert.match(projection.candidateMappingReview.fieldDispositions.requirements.status, /REQUIREMENTS_HAVE_UNRESOLVED_INTENT_TARGETS/u);
+  assert.match(projection.candidateMappingReview.fieldDispositions.requirements.status, /DIRECT_SOURCE_MAPPING; ALL_INTENT_TARGETS_RESOLVED/u);
+});
+
+test("ProductDefinition mapping coverage is explicit, source-pinned, and rejects invalid semantic fixtures", () => {
+  const projection = JSON.parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json"), "utf8"));
+  const schema = JSON.parse(readFileSync(resolve(root, "../ghatana-tools/libs/product-development/product-definition/schemas/product-definition.v1.schema.json"), "utf8"));
+  const sourceFields = projection.candidateFieldSources;
+  assert.deepEqual(Object.keys(sourceFields).sort(), Object.keys(schema.properties).sort(), "every public ProductDefinition property has exactly one mapping disposition");
+  for (const [field, mapping] of Object.entries(sourceFields)) {
+    assert.ok(typeof mapping.mapping === "string" && mapping.mapping.trim(), `${field} needs transformation or omission semantics`);
+    if (mapping.sourceRef === null || mapping.sourcePath === null) {
+      assert.equal(mapping.sourceRef, null, `${field} null sourceRef must be paired with null sourcePath`);
+      assert.equal(mapping.sourcePath, null, `${field} null sourcePath must be paired with null sourceRef`);
+      assert.ok(field === "id" || field === "domainRules" || field === "createdAt" || field === "updatedAt",
+        `${field} cannot silently omit its source path`);
+    }
+  }
+  for (const field of schema.required) assert.ok(Object.hasOwn(projection.candidateModel, field), `${field} is required by the public schema`);
+  for (const field of ["createdAt", "updatedAt"]) assert.equal(Object.hasOwn(projection.candidateModel, field), false, `${field} stays omitted without authored timestamp provenance`);
+  for (const field of ["domainRules", "successMeasures"]) {
+    assert.ok(projection.fieldMappingBlockers.some((blocker) => blocker.field === field), `${field} mapping gap remains an explicit blocker`);
+  }
+  assert.equal(projection.candidateModel.successMeasures.length, 4, "source-authored business-intent measurement descriptions are proposal-mapped");
+  assert.ok(projection.candidateModel.successMeasures.every((measure) => Object.keys(measure).sort().join(",") === "description,id"), "the candidate invents no metric, baseline, or target");
+  for (const source of projection.sourceAuthorities) {
+    const text = readFileSync(resolve(root, source.sourceRef), "utf8");
+    assert.equal(createHash("sha256").update(text).digest("hex"), source.sha256, `${source.sourceRef} drifted since projection generation`);
+    const driftFixture = `${text}\n# G-03 source-drift fixture\n`;
+    assert.notEqual(createHash("sha256").update(driftFixture).digest("hex"), source.sha256,
+      `${source.sourceRef} source drift fixture must invalidate the pinned projection fingerprint`);
+  }
+
+  const valid = projection.candidateModel;
+  const rejected = (mutate, label) => {
+    const fixture = structuredClone(valid);
+    mutate(fixture);
+    assert.throws(() => validateProductDefinition(fixture), undefined, label);
+  };
+  rejected((fixture) => { fixture.schemaVersion = "ghatana.product-definition.v999"; }, "schema version enum drift must fail");
+  rejected((fixture) => { fixture.userIntents[0].priority = "urgent"; }, "illegal priority must fail rather than be coerced");
+  rejected((fixture) => { fixture.actors[0].kind = "guessed-principal-kind"; }, "actor kind conversion must use an allowed discriminator");
+  rejected((fixture) => { fixture.requirements[0].traceToIntentIds = ["media.intent.stale"];
+    fixture.userIntents = fixture.userIntents.filter(({ id }) => id !== "media.intent.stale");
+  }, "stale cross-phase intent references must fail referential closure");
+  rejected((fixture) => { delete fixture.purpose.statement; }, "missing required properties must fail");
+  rejected((fixture) => { fixture.journeys[0].actorRefs = []; }, "journey actor guards must reject an empty participant list");
+  rejected((fixture) => { fixture.actors[1].id = fixture.actors[0].id; }, "duplicate target IDs must fail uniqueness validation");
+  assert.throws(() => validateProductDefinition({}), undefined, "an empty schema-shaped object must not validate as green");
+
+  const ownerRules = readYaml(".product-experience/pdp-0-product-truth/actors-responsibilities.yaml").ownershipRules.rules;
+  assert.deepEqual(valid.ownershipRules.map(({ id, owner }) => [id, owner]),
+    ownerRules.map(({ id, accountableRoleRef }) => [id, accountableRoleRef]),
+    "owner values must come from the explicit accountableRoleRef source, not inferred principals");
 });
 
 test("all 462 capability leaves have operation-specific inputs, outcomes, preconditions, constraints, and acceptance cases", () => {
@@ -146,7 +199,7 @@ test("P0-05 policy invariants, trust contexts, and ownership remain source-bound
   const policy = readYaml(".product-experience/pdp-0-product-truth/policy-authority-model.yaml").productPolicy;
   const domainRules = constitution.domainRules;
   assert.match(domainRules.status, /pending-PDP-1-owner-review/u);
-  assert.equal(domainRules.pendingSources.length, 3, "PDP-1 state, transition, and authority semantics remain explicit owner gates");
+  assert.equal(domainRules.pendingSources.length, 4, "PDP-1 adjudication, state, transition, and authority mapping dispositions remain explicit");
   assert.ok(domainRules.pendingSources.every(({ ref }) => ref.startsWith(".product-experience/pdp-1-domain-data/")));
 
   const invariants = constitution.invariants.records;
@@ -221,8 +274,8 @@ test("P0-04 owner intent decisions are auditable and preserve collaborative acto
     }
     for (const ref of decision.actorEvidenceRefs) validateEvidenceRef(ref, decision.id);
   }
-  assert.equal(decisions.intents.filter(({ actorStatus }) => actorStatus === "resolved").length, 8);
-  assert.equal(decisions.intents.filter(({ actorStatus }) => actorStatus === "unresolved").length, 11);
+  assert.equal(decisions.intents.filter(({ actorStatus }) => actorStatus === "resolved").length, 19);
+  assert.equal(decisions.intents.filter(({ actorStatus }) => actorStatus === "unresolved").length, 0);
   const readiness = decisions.intents.find(({ id }) => id === "media.intent.check-processing-readiness");
   const healthRequirement = requirementSource.requirements.find(({ id }) => id === "MEDIA-REQ-CAP-HEALTH");
   assert.equal(readiness.actorRef, "media.operator");
@@ -281,8 +334,8 @@ test("P0-04 journey actors and requirement intent targets remain source-bound", 
       }
     }
   }
-  assert.equal(decisions.journeys.filter(({ actorStatus }) => actorStatus === "resolved").length, 11);
-  assert.equal(decisions.journeys.filter(({ actorStatus }) => actorStatus === "unresolved").length, 19);
+  assert.equal(decisions.journeys.filter(({ actorStatus }) => actorStatus === "resolved").length, 30);
+  assert.equal(decisions.journeys.filter(({ actorStatus }) => actorStatus === "unresolved").length, 0);
   const firstUseDecision = decisions.journeys.find(({ id }) => id === "J-01");
   assert.ok(goals.firstUse.actorRefs.includes(firstUseDecision.initiatingActorRef));
   assert.match(decisions.policy.disclosure, /do not select an initiating actor/u);
@@ -310,16 +363,16 @@ test("P0-04 journey actors and requirement intent targets remain source-bound", 
   }
   assert.equal(requirements.length, 38);
   assert.equal(traceRefs, 66);
-  assert.equal(resolvedTraceRefs, 31);
-  assert.equal(fullyResolvableRequirements, 12);
-  assert.equal(partlyResolvableRequirements, 9);
-  assert.equal(noResolvedActorTargetRequirements, 17);
+  assert.equal(resolvedTraceRefs, 66);
+  assert.equal(fullyResolvableRequirements, 38);
+  assert.equal(partlyResolvableRequirements, 0);
+  assert.equal(noResolvedActorTargetRequirements, 0);
 });
 
 test("migration extraction keeps the mixed blocks and unresolved owner review visible", () => {
   const review = readYaml(".product-experience/pdp-0-product-truth/migration-semantics-review.yaml");
-  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 349);
-  assert.equal(review.counts.blockStructureProposalCounts.MIXED_REQUIRES_DECOMPOSITION, 123);
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 263);
+  assert.equal(review.counts.blockStructureProposalCounts.MIXED_REQUIRES_DECOMPOSITION, 124);
   assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 0);
   assert.match(review.blockStructureProposalAuthority, /Proposal-only/u);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);

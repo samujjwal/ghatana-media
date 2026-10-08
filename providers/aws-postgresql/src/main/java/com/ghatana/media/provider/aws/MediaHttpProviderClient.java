@@ -188,8 +188,9 @@ final class MediaHttpProviderClient {
     }
 
     private static boolean productionLike(String profile) {
-        return "production".equalsIgnoreCase(profile)
-                || "staging".equalsIgnoreCase(profile)
-                || "sovereign".equalsIgnoreCase(profile);
+        String normalized = profile == null ? "" : profile.trim();
+        return "production".equalsIgnoreCase(normalized)
+                || "staging".equalsIgnoreCase(normalized)
+                || "sovereign".equalsIgnoreCase(normalized);
     }
 }

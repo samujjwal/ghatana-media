@@ -22,6 +22,7 @@ export type FixtureId =
   | "alignment-required"
   | "consent-revoked"
   | "job-outcome-unknown"
+  | "job-retry-ineligible"
   | "caption-conflict"
   | "caption-corrected"
   | "job-running"

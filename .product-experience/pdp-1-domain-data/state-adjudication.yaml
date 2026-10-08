@@ -43,6 +43,9 @@ machineDimensions:
       PARTIALLY_DELIVERED: only declared subset of intended delivery is acknowledged
     separation: same spelling in media-job or media-attempt is not same state identity; retain machine id
 crossProjectionDispositions:
+  - source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#JobStatus
+    observation: Media runtime emits ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED; it has no RETRY_PENDING, RECONCILING, or PARTIALLY_SUCCEEDED value
+    disposition: current-runtime-enum-observed; per-state canonical and wire mapping unresolved; ACCEPTED is not evidence of durable job queueing
   - source: Java AvJobLifecycleAdapter.mapStatus
     observation: OUTCOME_UNKNOWN and RECONCILING project to RUNNING
     disposition: lossy-implementation-projection; rejected-as-canonical-equivalence

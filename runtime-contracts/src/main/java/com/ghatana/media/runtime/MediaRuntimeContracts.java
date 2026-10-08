@@ -22,7 +22,8 @@ public final class MediaRuntimeContracts {
     private MediaRuntimeContracts() { }
 
     public enum UploadStatus { OPEN, FINALIZING, COMPLETED, ABORTED, EXPIRED }
-    public enum JobStatus { ACCEPTED, RUNNING, COMPLETED, FAILED, CANCELLED }
+    /** Logical job outcome and observation; OUTCOME_UNKNOWN is never a replay or failure signal. */
+    public enum JobStatus { ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED }
     public enum CancellationOutcome { CONFIRMED, REQUESTED_UNCONFIRMED, UNSUPPORTED }
     public enum JobType { TRANSCODE, SPEECH_TO_TEXT, TEXT_TO_SPEECH, VISION, MULTIMODAL }
     public enum StreamKind { AUDIO, VIDEO, MULTIMODAL }
@@ -550,6 +551,8 @@ public final class MediaRuntimeContracts {
         String storeId();
         ProcessingJob create(ProcessingJob job);
         ProcessingJob update(ProcessingJob expected, ProcessingJob updated);
+        /** Update a worker-owned job only while the supplied lease fence is current and unexpired. */
+        ProcessingJob update(JobLease lease, ProcessingJob expected, ProcessingJob updated);
         Optional<ProcessingJob> find(String tenantId, String jobId);
         List<ProcessingJob> list(String tenantId, int limit);
         JobLease claim(ProcessingJob expected, String ownerId, Instant expiresAt);

@@ -61,9 +61,10 @@ constitute runtime or phase acceptance.
      interoperability registries must define Media meaning and explicit
      projection status; observed OpenAPI/protobuf/SDK/runtime shapes are not
      semantic acceptance. The initial PDP1-002 preflight reported 133 of 146
-     proposal actions without operation references. PXD-007's later exact
-     partition is 11 single proposed links, one ambiguous link, and 134
-     unresolved actions; its nine logical families still do not establish
+     proposal actions without operation references. At the 2026-10-07 owner-
+     decision snapshot, PXD-007's 2026-10-06 exact
+     partition was 11 single proposed links, one ambiguous link, and 134
+     unresolved actions; its nine logical families did not establish
      complete per-operation contracts. PDP3-002 confirms 27 HTTP operation IDs match the OpenAPI and
      runtime route inventories, while all 15 experience route/action mappings
      remain unresolved and no per-operation HTTP contract records exist. Its
@@ -151,9 +152,10 @@ constitute runtime or phase acceptance.
       and no fixtures. Preserve the 30-journey and 130-step denominators and do
       not infer behavioral proof from local structural checks or Explorer
       proposals.
-  12. PDP1-002's current proposal partitions 146 actions into 11 single
+  12. At the 2026-10-07 owner-decision snapshot, PDP1-002's 2026-10-06
+      decision inventory partitioned 146 actions into 11 single
       proposed mappings, one ambiguous mapping, and 134 unresolved actions;
-      it inventories 27 HTTP IDs, 43 gRPC identities (24 proposed family links,
+      it then inventoried 27 HTTP IDs, 43 gRPC identities (24 proposed family links,
       19 unresolved), 11 fixture CLI commands, 12 distinct broader CLI
       proposals, 27 SDK registry IDs, four tool handlers, and 15 event names.
       The HTTP, SDK, tool, and event operation bindings remain unresolved; the
@@ -267,10 +269,11 @@ constitute runtime or phase acceptance.
   only; no operation semantics or PDP-1 phase acceptance.
 - **Authority:** the user's explicit 2026-10-06 delegation to act as Media
   product owner and review the supplied hardening plan.
-- **Approved:** `operations.yaml` contains nine distinct logical-operation
-  proposals, each with the plan's 22 required contract fields. Source inventory
+- **Approved:** at the 2026-10-06 decision snapshot, `operations.yaml` contained
+  nine distinct logical-operation proposals, each with the plan's 22 required
+  contract fields. Source inventory
   and proposal mappings are explicitly separated. The current source
-  denominators are recorded without collapsing scopes: 146 UI actions split
+  decision-date denominators are recorded without collapsing scopes: 146 UI actions split
   into 11 single proposed links, one ambiguous link, and 134 unresolved; 27
   HTTP operation IDs; 43 service-qualified gRPC RPCs with 24 proposed family
   links and 19 unresolved identities; 11 synthetic fixture CLI commands plus
@@ -278,7 +281,7 @@ constitute runtime or phase acceptance.
   Agent Tool handlers; and 15 observed event names. Duplicate-key-safe local
   YAML and source-set checks passed. This approves the inventory/proposal
   structure, not any operation boundary, field meaning, or mapping.
-- **Comments returned:** 134 UI action links remain unresolved and
+- **Decision-date comments returned:** 134 UI action links remained unresolved and
   `media.action.request-transcription` remains ambiguous. All 27 HTTP operation
   identities are inventoried but their logical-operation links remain
   unresolved. The 24 gRPC family links are proposals only; 19 RPC identities
@@ -301,6 +304,13 @@ constitute runtime or phase acceptance.
   duplicate-key-safe PyYAML 6.0.3 check of all 22 fields and exact source ID
   sets; `test:product-definition-authority` regression; authority/local checks;
   and `git diff --check`.
+- **2026-10-08 source-status update:** `operations.yaml` now contains 14 proposal
+  records: nine logical-operation families and five source-specific records.
+  Fourteen of 146 UI actions have exact proposed operation refs; zero are
+  ambiguous and 132 remain unresolved. The 43-RPC inventory has 17 proposed
+  family refs and 26 unresolved identities. This refresh changes inventory
+  only; it accepts no operation semantics, mapping, runtime reachability, or
+  wire behavior.
 
 ### PXD-008 — Approve PDP1-003 state/transition extraction structure, with comments
 
@@ -586,14 +596,23 @@ constitute runtime or phase acceptance.
 - **Comments returned:** `surfaceId: media.surface.web` remains a candidate because the channel-to-surface mapping is not accepted. No canonical layout IDs are registered; 44 template IDs remain null; token/package, domain, operation, state/transition, entry/exit, fixture, behavior, responsive, visual, keyboard, and accessibility proof remain open. Existing inline anatomy/template/layout fields remain proposal provenance and have not been centralized; the no-screen-local-design-rule target is not fully achieved.
 - **Excludes:** full screen or PDP-3 acceptance; PDP-1/PDP-2 semantics; Shared package binding; Web availability; behavior, visual/accessibility, or localization acceptance; Lifecycle-owned receipts/currentness, qualification, publication, or release readiness.
 - **Evidence:** `ACCEPT-INPUT-PDP3-001`; the 47 canonical v2 screen contracts; `.product-experience/pdp-3-product-experience/screen-contract-schema.yaml`; the 47-screen regression in `tests/product-definition-authority.test.mjs`; exact template-catalog match count; structural test pass.
+- **2026-10-08 source-status update:** a separate bounded Media owner review
+  approves 41 exact top-level template/layout links and withholds six
+  mismatches with reasons. Nested contract links, per-screen recipe binding,
+  screen composition admission, behavior, Shared binding, and phase acceptance
+  remain open.
 
 ### PXD-018 — Approve PDP3-002 machine-interface source registries, with comments
 
 - **Status:** approved for exact interface inventories and proposal-level protocol records only; no wire or operation semantics are accepted.
 - **Approved:** all 27 OpenAPI operationIds match the observed runtime route manifest; all 43 active gRPC RPCs across the four governed proto services have records with directly available message and streaming metadata. OpenAPI and protobuf remain projection/implementation observations. PDP-1 is the intended semantic authority only after its acceptance.
-- **Comments returned:** all 27 HTTP logical-operation bindings and 19 gRPC logical-operation bindings remain unresolved; 24 gRPC source-explicit crosswalks are still proposals. Route/proto membership proves neither semantic parity nor auth, state/effect, finality, privacy, idempotency, retry, cancellation, or event guarantees. Owner review found and corrected four unquoted JSON Pointer scalars in `api-registry.yaml`; `#` begins a YAML comment unless the value is quoted.
+- **Decision-date comments returned:** all 27 HTTP logical-operation bindings and 19 gRPC logical-operation bindings remained unresolved; 24 gRPC source-explicit crosswalks were proposals. Route/proto membership proves neither semantic parity nor auth, state/effect, finality, privacy, idempotency, retry, cancellation, or event guarantees. Owner review found and corrected four unquoted JSON Pointer scalars in `api-registry.yaml`; `#` begins a YAML comment unless the value is quoted.
 - **Excludes:** canonical wire-authority selection, PDP-1/PDP-3 semantic acceptance, API/provider owner acceptance, production support, or release readiness.
 - **Evidence:** `ACCEPT-INPUT-PDP3-002`; 27 HTTP and 43 gRPC per-operation records; route-manifest identity parity; duplicate-key-safe YAML checks; `node scripts/check-media-contract-parity.mjs`.
+- **2026-10-08 source-status update:** the PDP-1 gRPC proposal inventory now
+  records 17 family associations and 26 unresolved RPC identities after
+  removing seven health/status/metrics associations. This does not change the
+  43-RPC protocol inventory, select wire authority, or accept any mapping.
 
 ### PXD-019 — Approve PDP3-003 SDK architecture direction, with comments
 
@@ -678,9 +697,70 @@ constitute runtime or phase acceptance.
 - **Approved PDP-3 search/inspection semantics:** Media owns three permission-scoped project/artifact/job search queries and five specification/authority/evidence/trace/simulation inspector identities in `pdp-3-product-experience/search-inspection-contracts.yaml`, distinct from Tools' generic Explorer host. Their schema projections can be derived; none implies a production endpoint or accessible GUI implementation.
 - **Approved PDP-3 policy:** applicable 47 GUI contracts, 30 journeys, CLI/API/SDK/event/Agent experiences must be complete and independently falsifiable; no real production Web host is required to accept definition-only semantics, while publication/release/adoption remains independently qualified. Do not accept bare proposal routes as implemented screens.
 - **Approved Lifecycle strategy:** all 318 source-anchored obligations must receive actual admitted proof-case memberships, owner-qualified observers, executable oracles, current source dependencies and evidence-producer bindings. Use the physical Lifecycle Evidence Generator owner, preserving its observed legacy `ghatana-tools.evidence-generator` provider identity until owner-qualified registry migration. Empty binding or `UNLICENSED` package is not a release qualifier.
-- **Comments and uncompleted checks:** The reported 383 remaining capability leaves, 349 unresolved and 123 mixed migration blocks, remaining PDP-0/3 field crosswalks, Agent Tool contract parity, PDP-2 Shared/adjudication and independent visual/assistive review, and Lifecycle provider licensing/receipts are still genuine work items. Proposed generator outputs must be refreshed and tested; approvals here cannot be fabricated into runtime evidence or currentness.
+- **Comments and uncompleted checks:** The reported 383 remaining capability leaves, 349 unresolved migration blocks (133 SINGLE_SEMANTIC_CLASS, 124 MIXED_REQUIRES_DECOMPOSITION, 92 NO_NORMATIVE_CONTENT; 0 owner-reviewed), remaining PDP-0/3 field crosswalks, Agent Tool contract parity, PDP-2 Shared/adjudication and independent visual/assistive review, and Lifecycle provider licensing/receipts are still genuine work items. Approvals here cannot be fabricated into runtime evidence or currentness.
+- **2026-10-08 continuation:** all three generated phase candidates were refreshed and strict checks passed; the current residual report and candidate metadata agree on semantic field blockers 4/0/10. This completes only the source-generation follow-up. Semantic blockers, independent/external approvals, Lifecycle proof, currentness, receipts, and phase acceptance remain open.
 - **Evidence/decision:** [All-gate owner decision and exact exit criteria](./reviews/2026-10-07-all-gate-unblocking.md), `.product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml`, `.product-experience/interface-parity/typed-contract-bindings.json`, `ACCEPT-INPUT-MEDIA-OWNER-GATES-20261007`.
 - **Excludes:** per-leaf blanket acceptances, independent domain/legal/accessibility certifications, broad external API owner approval, production media codec/model admission, phase acceptance and Lifecycle issuance of receipts.
+
+### PXD-028 — Approve bounded PDP-3 template/layout composition links
+
+- **Status:** delegated Media owner decision for top-level composition links only; no screen or PDP-3 acceptance.
+- **Authority:** the user's explicit delegation in the current thread to resolve appropriate Media owner-level decisions without repeated approval requests.
+- **Approved:** a purpose-by-purpose review selects exact top-level `templateId` and `layoutIds` links for 41 of the 47 canonical PDP-3 screen contracts.
+- **Withheld:** six mismatched template/layout pairs remain owner-review-pending, each with a source-linked reason; the 47-screen denominator is unchanged.
+- **Reuse boundary:** approved Media templates and layouts provide consistent reusable composition links across screen proposals. This does not admit Shared components, screen implementations, renderer/runtime behavior, or a production UI.
+- **Critical scope:** zero screen compositions are admitted. Nested `templateContract`/`layoutContract` links, per-screen recipe binding, action/effect/state semantics, Shared binding, accessibility/specialist review, and phase acceptance remain open.
+- **Evidence:** `.product-experience/pdp-3-product-experience/screen-registry.yaml#compositionLinkOwnerReview`; PDP-2 GUI template and layout catalogs; `tests/pdp-2-recipe-layout-chains.test.mjs`.
+- **Excludes:** per-screen recipe binding, Shared package/component approval, independent visual/accessibility review, Lifecycle currentness/receipts, and all PDP phase closure.
+
+### PXD-029 — Approve six PDP-3 UI action to PDP-1 operation intent associations
+
+- **Status:** owner-approved semantic intent/action associations only; no accepted cross-interface bindings.
+- **Authority:** the user's explicit delegation in the current task to approve exactly six source-supported UI action → operation associations.
+- **Approved:** `media.action.request-transcription` → `media.operation.transcription-submission`; `media.action.review-transcript` → `media.operation.transcript-version-read`; `media.action.correct-caption` and `media.action.align-caption-timing` → `media.operation.caption-draft-write`; `media.action.save-caption-version` → `media.operation.caption-version-write`; `media.action.compare-caption-versions` → `media.operation.caption-version-read`.
+- **Scope:** semantic intent/action association only, grounded in the PDP-3 action registry and exact PDP-1 source-denominator proposal refs. The six decisions are recorded in a separate owner-intent overlay; all 14 exact refs remain proposals, the action denominator remains 146, and 132 actions without exact operation refs remain unresolved.
+- **Excludes:** PDP-1 operation behavior acceptance or promotion of proposal status; transport, wire, schema, actor, authority, finality, runtime reachability, or operation behavior; accepted cross-interface bindings (count remains zero); full parity acceptance; P1-11; any PDP phase acceptance; Lifecycle currentness, receipts, or closure.
+- **Evidence:** `.product-experience/pdp-3-product-experience/action-registry.yaml`, `.product-experience/pdp-1-domain-data/operations.yaml`, `.product-experience/interface-parity/operation-parity.yaml`, `ACCEPT-INPUT-MEDIA-OWNER-PDP3-ACTION-INTENT-ASSOCIATIONS-20261008`.
+
+### PXD-030 — Resolve PDP-0 representative initiating actors
+
+- **Status:** owner-selected actor projections only; independent PDP-0 semantic review remains pending.
+- **Authority:** the user's explicit delegation in the current thread to resolve reversible Media owner-level decisions within the existing vision and requirements.
+- **Approved:** the selected initiating actors recorded in `.product-experience/pdp-0-product-truth/intent-resolutions.yaml` and `journey-actor-resolutions.yaml`, including the previously ambiguous source-authored intents and journeys.
+- **Scope:** choose one representative initiator from each exact source actor list so ProductDefinition can project a single `actorRef`; preserve every original collaborator `actorRef` in the source catalog and candidate model. This settles only the Media product's primary initiator convention for these combined intents/journeys.
+- **Limits:** an initiating actor is not an authenticated principal, permission, accountable owner, reviewer, provider/operator binding, or runtime execution authority. The selections do not split source intents, change requirements or outcomes, establish feature/channel admission, qualify any operation, or prove implementation.
+- **Evidence:** `.product-experience/pdp-0-product-truth/intent-resolutions.yaml`, `.product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml`, `.product-experience/pdp-0-product-truth/goals-jtbd.yaml`, `.product-experience/pdp-0-product-truth/journey-catalog.yaml`, and `tests/media-product-definition-resolved-intents.test.mjs`.
+- **Excludes:** P0-010 independent review; PDP-0 or any phase acceptance/closure; Lifecycle currentness, receipts, or closure.
+
+### PXD-031 — Classify four legacy SDK methods as non-domain operations
+
+- **Status:** owner-approved source-role classifications only; no client or route admission.
+- **Authority:** the user's explicit delegation in the current thread to resolve appropriate Media owner-level decisions within the existing vision and requirements.
+- **Approved:** `AudioVideoClient.getServiceStatus` and `getAllServicesStatus` are `TRANSPORT_ONLY` health observations over configured service `/health` endpoints; `addEventListener` and `removeEventListener` are `CLIENT_ONLY` in-process listener registration/removal.
+- **Scope:** these four exact public method identities have source-backed non-operation dispositions in the SDK parity inventory. The remaining 14 SDK family associations are proposals and 10 public methods remain unresolved; all method identities and parser artifacts remain in the source denominator.
+- **Limits:** classification does not establish successful health semantics, provider availability, Media API routes, logical operation bindings, delivery/finality, client conformance, or production SDK admission.
+- **Evidence:** `libs/audio-video-client/src/index.ts#AudioVideoClient.getServiceStatus`, `#AudioVideoClient.getAllServicesStatus`, `#AudioVideoClient.addEventListener`, and `#AudioVideoClient.removeEventListener`; `.product-experience/interface-parity/operation-parity.yaml#typedInterfaceIdentityDispositions.sdk`; `.product-experience/pdp-1-domain-data/operations.yaml#sourceDenominators.sdkMethods`.
+- **Excludes:** SDK/API owner acceptance, P1-11, wire or runtime qualification, any PDP phase acceptance, and Lifecycle currentness, receipts, or closure.
+
+### PXD-032 — Preserve Lifecycle denominator coverage for the progress-indicator component proposal
+
+- **Status:** bounded Media-owner denominator decision only; component proposal and PDP-2 acceptance remain open.
+- **Authority:** the user's explicit delegation to resolve appropriate Media-owner decisions, as coordinated by the parent task.
+- **Approved:** add `media.pdp-2.requirement.media.component.progress-indicator` as a REQUIRED PDP-2 closure obligation because `media.component.progress-indicator` is now an authored Media source contract included in the phase projections and reuse inventory.
+- **Scope:** preserve one required closure obligation per authored/projected component-contract record. The denominator becomes 319 total obligations, including 74 PDP-2 obligations. The new obligation source-ref is exact and source-resolvable.
+- **Limits:** this adds a source proposal to the required denominator only. It does not admit the component, assert its implementation or conformance, provide a case/provider/observer/oracle/receipt, or satisfy any proof route.
+- **Evidence:** `.product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.progress-indicator`, `libs/audio-video-ui/src/components/MediaProgress.tsx#MediaProgressProps`, `config/closure/media-product-definition/obligations.json`, and `tests/media-obligation-denominator-audit.test.mjs`.
+- **Excludes:** PDP-2 acceptance, Shared publication/licensing/owner approval, independent accessibility/design review, Lifecycle proof admission/currentness/receipts, and any PDP phase closure.
+
+
+### PXD-033 — Classify exact migration structure and crosswalk blocks without semantic acceptance
+
+- **Status:** bounded Media-owner classification only; P0-03 and all product-semantic acceptance remain open.
+- **Authority:** the user's explicit delegation to resolve appropriate owner-level decisions within the established product vision, coordinated through the parent task.
+- **Approved:** classify only the 86 exact migration-review item IDs recorded under `MEDIA-OWNER-2026-10-08-NONNORMATIVE-01`: 18 as `EXECUTION_ONLY` and 68 as `EVIDENCE_REFERENCE`. These cover table headers, horizontal separators, an explicitly non-implementation example cue, document/review provenance, navigation context, and Appendix A section/task-ID crosswalk rows.
+- **Effect:** the migration ledger now distinguishes 86 bounded non-normative classifications from 263 unresolved semantic-content items. The existing 124 mixed blocks and 133 single-class proposals remain unresolved; six non-normative proposals are not covered. Semantic owner-reviewed/accepted count remains zero.
+- **Limits:** crosswalk target meanings remain unresolved. Task IDs do not transfer receipts or establish task completion, semantic equivalence, implementation, acceptance, or Lifecycle evidence. MPSEM-0001 is covered only by its existing exact lines 4–5 metadata slice; its status and authority-phase assertions remain unresolved. The historical master-plan source pin stays stale and P0-03 remains open.
+- **Evidence:** `.product-experience/pdp-0-product-truth/migration-semantics-review.yaml#MEDIA-OWNER-2026-10-08-NONNORMATIVE-01` and `tests/media-migration-semantics-ledger.test.mjs` exact-ID regression.
 
 ## Governance decisions for this authority root
 

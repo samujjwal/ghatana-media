@@ -46,7 +46,7 @@ sourceObservations:
   runtimeRestart:
     source: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java
     observations:
-      - startup-reconciliation-selects-recoverable-jobs-and-transitions-them-to-failed-with-outcome-unknown
+      - startup-reconciliation-selects-recoverable-jobs-and-transitions-them-to-OUTCOME_UNKNOWN-without-a-failure-code-or-completion-timestamp
       - this-runtime-path-is-not-a-client-offline-command-queue-or-provider-outcome-reconciliation-proof
 unboundProtocol:
   commandQueue:

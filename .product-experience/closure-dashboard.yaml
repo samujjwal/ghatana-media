@@ -4,7 +4,7 @@ artifactType: source-grounded-closure-scoreboard
 authority: Media source observations and target tracking only; product owners own semantic decisions; ghatana-lifecycle owns
   generated currentness, evidence admission, receipts, and closure.
 status: PENDING
-observationDate: '2026-10-07'
+observationDate: '2026-10-08'
 observationMethod: Counts below are derived from the cited current-worktree source registries/files where practical. Counts
   establish record presence only, never semantic completeness, correctness, acceptance, verification, or currentness.
 nonClaims:
@@ -128,10 +128,10 @@ phases:
     sourceObservations:
     - id: domain-objects
       target: all-applicable
-      observed: 37
+      observed: 38
       unit: proposal-or-observed-object-records
       source: .product-experience/pdp-1-domain-data/domain-objects.yaml#/objects
-      observation: Count includes proposal/observation records, not accepted canonical meanings.
+      observation: Count includes proposal/observation records, including one simulation-fixture-only candidate, not accepted canonical meanings.
     - id: value-objects
       target: all-applicable
       observed: 13
@@ -158,10 +158,10 @@ phases:
       observation: Source inventory does not accept guards or transition legality.
     - id: logical-operations
       target: all-applicable
-      observed: 9
+      observed: 14
       unit: proposal-operation-records
       source: .product-experience/pdp-1-domain-data/operations.yaml#/operations
-      observation: Count only; bindings and operation semantics remain pending.
+      observation: Count includes nine logical-operation families and five source-specific proposal records; bindings and operation semantics remain pending.
     - id: presentation-projections
       target: all-applicable
       observed: 12
@@ -215,22 +215,22 @@ phases:
         none has an events field or exact public family export.
     - id: templates
       target: all-applicable
-      observed: 7
+      observed: 8
       unit: proposal-template-identities
       source: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates
-      observation: Catalog identities only; reviewed screen use is not inferred.
+      observation: Catalog identities only; 41 exact top-level screen template/layout links are Media-owner-approved and six mismatches are withheld; no screen composition is admitted.
     - id: patterns
       target: all-applicable
       observed: 18
       unit: proposal-pattern-identities
       source: .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns
-      observation: Catalog identities only; owner review remains pending.
+      observation: Catalog identities only; owner review status is recorded per screen in PDP-3.
     - id: layouts
       target: all-applicable
-      observed: 0
+      observed: 8
       unit: registered-canonical-layout-identities
       source: .product-experience/pdp-2-design-interface-system/gui/layout.yaml
-      observation: Layout rules exist; no canonical reusable layout IDs are registered.
+      observation: Eight canonical layout IDs are registered; 41 exact top-level screen template/layout links are Media-owner-approved and six mismatches are withheld; no screen composition is admitted.
     - id: semantic-token-aliases
       target: all-applicable
       observed: 9

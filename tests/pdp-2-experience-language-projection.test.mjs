@@ -15,9 +15,9 @@ const templateRefsAndPatterns = [
   ['media.gui.template.lifecycle-confirmation', 'media.gui.pattern.destructive-lifecycle-action, media.gui.pattern.safe-confirmation-and-unknown-outcome'],
   ['media.gui.template.task-setup', 'media.gui.pattern.intent-launcher, media.gui.pattern.creation-plan-review, media.gui.pattern.source-picker, media.gui.pattern.safe-confirmation-and-unknown-outcome'],
 ];
-const outcomeIds = [
-  'media.action-outcome.applied', 'media.action-outcome.completed', 'media.action-outcome.partial',
-  'media.action-outcome.cancellation-pending', 'media.action-outcome.unknown', 'media.action-outcome.blocked',
+const recoveryPatternIds = [
+  'media.recovery.unknown-outcome', 'media.recovery.observer-reconnect', 'media.recovery.policy-blocked',
+  'media.recovery.partial-output', 'media.recovery.cancel-requested', 'media.recovery.conflicted-offline-edit',
 ];
 
 test('PDP-2 disclosure density mapping follows the selected simple/guided/expert taxonomy', () => {
@@ -36,10 +36,17 @@ test('PDP-2 disclosure density mapping follows the selected simple/guided/expert
 });
 
 test('PDP-2 recovery and accessibility projections preserve their authored scope', () => {
-  assert.deepEqual(model.recoveryPatterns.map(({ id }) => id), outcomeIds);
+  assert.deepEqual(model.recoveryPatterns.map(({ id }) => id), recoveryPatternIds);
   assert.deepEqual(model.recoveryPatterns.filter(({ automaticRecovery }) => automaticRecovery).map(({ id }) => id), [
-    'media.action-outcome.cancellation-pending', 'media.action-outcome.unknown',
+    'media.recovery.observer-reconnect', 'media.recovery.cancel-requested',
   ]);
+  assert.deepEqual(model.recoveryPatterns[0], {
+    id: 'media.recovery.unknown-outcome',
+    name: 'Reconcile an uncertain external effect',
+    description: 'Preserve original job and attempt identities and query authoritative status before any retry or duplicate effect.',
+    automaticRecovery: false,
+  });
+  assert.equal(candidate.candidateFieldSources.recoveryPatterns.sourcePath, 'recoveryPatterns');
   assert.equal(model.accessibilityRules.length, 8);
   assert.ok(model.accessibilityRules.every(({ standard, level }) => standard === 'WCAG 2.2' && level === 'AA'));
   assert.match(candidate.candidateMappingReview.ownerDecisionStatus, /PENDING/);

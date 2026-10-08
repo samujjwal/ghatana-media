@@ -1,6 +1,7 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
+import { TrainingProgress } from "./TrainingProgress";
 import { VoiceProductionWorkflow } from "./VoiceProductionWorkflow";
 
 const activeCapabilities = {
@@ -14,6 +15,17 @@ const activeCapabilities = {
 } as const;
 
 describe("VoiceProductionWorkflow", () => {
+  it("reuses the CSP-safe Media progress primitive for voice training", () => {
+    const html = renderToStaticMarkup(
+      <TrainingProgress status="training" progress={32} />,
+    );
+
+    expect(html).toMatch(/<progress[^>]*class="media-progress media-progress--primary"/);
+    expect(html).toContain('aria-label="Voice-model training progress"');
+    expect(html).toContain('aria-valuetext="Training voice model, 32 percent"');
+    expect(html).not.toMatch(/<progress[^>]*style=/);
+  });
+
   it("renders the complete outcome-oriented workflow", () => {
     const html = renderToStaticMarkup(
       <VoiceProductionWorkflow

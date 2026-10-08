@@ -330,8 +330,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-      "sha256": "c9716c25ba3d6009f6c1a70c9c754af6d6c260dc29e452d9733fb8524fe0c615",
-      "bytes": 9336,
+      "sha256": "4ff490fe561c19de829156210c534c4b9c85a0b48e6ddfbd3ef5b03deec4fb9c",
+      "bytes": 10268,
       "format": "yaml",
       "schemaVersion": "media.gui-semantic-component-bindings.v1",
       "authority": "semantic aliases are defined in ../media-token-aliases.yaml; Shared owns primitive token values and styling behavior",
@@ -348,8 +348,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
-      "sha256": "3d827331ced21766e3b3a5aa8f0a339206bf05296d256813102ff25f6c3d6516",
-      "bytes": 5949,
+      "sha256": "4c06c5ad25fbba4cddea43b83f2f39ad4295eb3e2f898a9b50ab5b8cff8c6dbc",
+      "bytes": 7469,
       "format": "yaml",
       "schemaVersion": "media.design-token-aliases.v1",
       "authority": "media-semantic-aliases; Shared owns token values and primitive tokens",
@@ -379,8 +379,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
-      "sha256": "47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493",
-      "bytes": 73858,
+      "sha256": "3f653e0ca8777041e43a0670f88626d9b0521955f5fa5eed465ec894dd69a279",
+      "bytes": 75691,
       "format": "yaml",
       "schemaVersion": "media.component-contracts.v1",
       "authority": "Media component anatomy and behavior; Shared owns generic component primitives",
@@ -408,6 +408,7 @@
         "media.component.intent-launcher",
         "media.component.job-status-card",
         "media.component.mask-tracking-editor",
+        "media.component.progress-indicator",
         "media.component.project-browser",
         "media.component.project-context-summary",
         "media.component.provenance-summary",
@@ -823,39 +824,39 @@
     ],
     "recoveryPatterns": [
       {
-        "id": "media.action-outcome.applied",
-        "name": "Request recorded",
-        "description": "Show the stable job reference and current state; this does not mean the result was reviewed or approved.",
+        "id": "media.recovery.unknown-outcome",
+        "name": "Reconcile an uncertain external effect",
+        "description": "Preserve original job and attempt identities and query authoritative status before any retry or duplicate effect.",
         "automaticRecovery": false
       },
       {
-        "id": "media.action-outcome.completed",
-        "name": "Result ready to review",
-        "description": "Link the result to its exact source version and provenance.",
-        "automaticRecovery": false
-      },
-      {
-        "id": "media.action-outcome.partial",
-        "name": "Some results are ready",
-        "description": "Identify completed and unfinished items separately.",
-        "automaticRecovery": false
-      },
-      {
-        "id": "media.action-outcome.cancellation-pending",
-        "name": "Cancellation requested",
-        "description": "Keep observing until the stop is confirmed or a racing result is reconciled.",
+        "id": "media.recovery.observer-reconnect",
+        "name": "Reattach to existing observation",
+        "description": "A client may reconnect and resume bounded read-only observation using a stable job identity and current authorization.",
         "automaticRecovery": true
       },
       {
-        "id": "media.action-outcome.unknown",
-        "name": "Outcome not confirmed",
-        "description": "View the existing job status or check its uncertain outcome; do not offer blind retry.",
+        "id": "media.recovery.policy-blocked",
+        "name": "Resolve an unmet rights or capability prerequisite",
+        "description": "Explain denied or missing rights, consent, owner or provider qualifications; require a fresh authorized decision.",
+        "automaticRecovery": false
+      },
+      {
+        "id": "media.recovery.partial-output",
+        "name": "Inspect partial output and preserve known completed effects",
+        "description": "Show exact completed and uncertain sub-effects; do not automatically submit replacement operations.",
+        "automaticRecovery": false
+      },
+      {
+        "id": "media.recovery.cancel-requested",
+        "name": "Observe cancellation finality",
+        "description": "Observe attempt or provider cancellation acknowledgment without changing logical job finality before confirmed.",
         "automaticRecovery": true
       },
       {
-        "id": "media.action-outcome.blocked",
-        "name": "This action is not available",
-        "description": "Name the missing authority, rights, integrity, language, or qualification prerequisite.",
+        "id": "media.recovery.conflicted-offline-edit",
+        "name": "Reconcile concurrent or stale revisions",
+        "description": "Preserve both identities and edits, display the conflicting changes and require an explicit approved merge.",
         "automaticRecovery": false
       }
     ],
@@ -985,6 +986,12 @@
       "description": "Media owns semantic aliases and composition; Shared owns primitive token values and styling behavior."
     },
     "componentBindings": [
+      {
+        "id": "media.language.component-binding.media.component.progress.indicator",
+        "semanticConcept": "measured-or-indeterminate-progress-presentation-without-finality-inference",
+        "componentRef": "media.component.progress-indicator",
+        "notes": "candidate-contract-derived-rendering; Shared-binding-accessibility-and-owner-review-pending"
+      },
       {
         "id": "media.language.component-binding.media.component.task.flow",
         "semanticConcept": "workflow-progress-and-operation-observation",
@@ -1136,8 +1143,8 @@
         "presentationEffect": "Processing stopped by consent change: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy."
       }
     ],
-    "createdAt": "2026-10-08T06:45:52.864Z",
-    "updatedAt": "2026-10-08T06:45:52.864Z"
+    "createdAt": "2026-10-08T18:40:53.471Z",
+    "updatedAt": "2026-10-08T18:40:53.471Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
@@ -1206,8 +1213,8 @@
         "source": "action-finality-grammar.yaml#rules"
       },
       "recoveryPatterns": {
-        "status": "DIRECT_OUTCOME_MAPPING_WITH_READ_ONLY_AUTO_RECOVERY",
-        "source": "action-finality-grammar.yaml#outcomes"
+        "status": "DIRECT_AUTHORED_RECOVERY_PATTERN_MAPPING",
+        "source": "action-finality-grammar.yaml#recoveryPatterns"
       },
       "progressiveDisclosureRules": {
         "status": "DIRECT_MASTER_PLAN_MAPPING",
@@ -1255,10 +1262,99 @@
       "presentationProfiles": "Presentation profiles bind one-to-one to the three source density descriptions; no additional layouts are implied.",
       "progressiveDisclosureRules": "Triggers are selection of each disclosure level; revealed content is taken from master plan §14.1. Concealment is unspecified.",
       "accessibilityRules": "WCAG 2.2 AA is the declared target; mapped requirements do not establish conformance or replace specialist review.",
-      "recoveryPatterns": "Outcome next steps map directly; automatic recovery is enabled only for read-only observation of cancellation/unknown outcomes.",
+      "recoveryPatterns": "Authored recovery IDs, names, descriptions, and automaticRecovery decisions map directly; unknown outcomes require reconciliation and are not automatically recovered.",
       "recipeBindings": "Eight owner-approved GUI recipe identities and their exact primary pattern refs are projected. Shared public-package binding and all 47 screen-instance admissions remain pending."
     },
     "ownerDecisionStatus": "PENDING; direct source projection and public validation do not establish semantic acceptance or phase closure."
+  },
+  "projectionFieldInventory": {
+    "schemaId": "https://schemas.ghatana.com/experience-language/v1.schema.json",
+    "fields": [
+      {
+        "name": "id",
+        "required": true
+      },
+      {
+        "name": "subjectId",
+        "required": true
+      },
+      {
+        "name": "schemaVersion",
+        "required": true
+      },
+      {
+        "name": "informationHierarchy",
+        "required": false
+      },
+      {
+        "name": "densityProfiles",
+        "required": true
+      },
+      {
+        "name": "presentationProfiles",
+        "required": true
+      },
+      {
+        "name": "semanticStates",
+        "required": true
+      },
+      {
+        "name": "navigationPrinciples",
+        "required": true
+      },
+      {
+        "name": "interactionPatterns",
+        "required": true
+      },
+      {
+        "name": "decisionPatterns",
+        "required": true
+      },
+      {
+        "name": "recoveryPatterns",
+        "required": true
+      },
+      {
+        "name": "progressiveDisclosureRules",
+        "required": true
+      },
+      {
+        "name": "responsiveRules",
+        "required": true
+      },
+      {
+        "name": "accessibilityRules",
+        "required": true
+      },
+      {
+        "name": "localizationRules",
+        "required": true
+      },
+      {
+        "name": "visualAuthority",
+        "required": false
+      },
+      {
+        "name": "componentBindings",
+        "required": true
+      },
+      {
+        "name": "recipeBindings",
+        "required": true
+      },
+      {
+        "name": "domainStatePresentationMappings",
+        "required": true
+      },
+      {
+        "name": "createdAt",
+        "required": true
+      },
+      {
+        "name": "updatedAt",
+        "required": true
+      }
+    ]
   },
   "candidateFieldSources": {
     "id": {
@@ -1313,8 +1409,8 @@
     },
     "recoveryPatterns": {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
-      "sourcePath": "outcomes",
-      "mapping": "direct outcome ID/label/next; auto recovery only for read-only observers"
+      "sourcePath": "recoveryPatterns",
+      "mapping": "direct authored recovery pattern ID/name/description and automaticRecovery decision"
     },
     "progressiveDisclosureRules": {
       "sourceRef": "docs/migration/expert-reviewed-master-plan.md",

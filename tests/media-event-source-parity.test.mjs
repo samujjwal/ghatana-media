@@ -133,10 +133,47 @@ function validate({ registry, domainEvents, conventions, runtime, publisher, cli
   if (!runtimePopulation.includes("deliveryFinalityOrderingReplayGuarantees: not-established")) errors.push("runtime delivery/finality/ordering/replay guarantees must remain not established");
   if (!registry.includes("deliveryFinalityOrderingReplayGuarantees: not-established")) errors.push("client-local delivery/finality/ordering/replay guarantees must remain not established");
   if (!registry.includes("status: implementation-observed; not-an-accepted-delivery-contract")) errors.push("runtime delivery claims must remain implementation observations");
-  for (const marker of ["readyFalse: publication-skipped", "transport: bounded-synchronous-http-post", "acceptedHttpStatuses: [200, 201]", "otherHttpStatus: publisher-throws", "runtimeFailure: logs-publication-unconfirmed-and-continues"]) {
+  for (const marker of ["readyFalse: publication-skipped", "transport: bounded-synchronous-http-post", "otherHttpStatus: publisher-throws", "runtimeFailure: logs-publication-unconfirmed-and-continues"]) {
     if (!runtimePopulation.includes(marker)) errors.push(`runtime delivery observation missing ${marker}`);
   }
+  if (![domainEvents, conventions, registry].every((source) => source.includes("acceptedHttpStatuses: [201]"))
+      || !domainEvents.includes("acceptedStatus: 201")) {
+    errors.push("PDP1/PDP2/PDP3 Event Plane append observations must accept only the contract's 201 response");
+  }
+  if (!publisher.includes("if (response.statusCode() != 201)")) errors.push("publisher must accept only Event Plane AppendEventResponse status 201");
+  if (!publisher.includes("Event Plane rejected Media lifecycle event with status")) errors.push("non-201 Event Plane responses must remain publication failures");
   if (!publisher.includes('.header("Idempotency-Key", event.eventId())')) errors.push("publisher source no longer sets Idempotency-Key from eventId");
+  const projection = section(domainEvents, "    transportProjection:\n", "    eventVersion:");
+  const expectedProjectionBindings = [
+    ['X-Tenant-Id', '.header("X-Tenant-Id", event.tenantId())', 'event.tenantId()'],
+    ['X-Principal-Id', '.header("X-Principal-Id", event.principalId())', 'event.principalId()'],
+    ['X-Correlation-Id', '.header("X-Correlation-Id", event.correlationId())', 'event.correlationId()'],
+    ['Idempotency-Key', '.header("Idempotency-Key", event.eventId())', 'event.eventId()'],
+    ['eventId', 'body.put("eventId", event.eventId())', 'event.eventId()'],
+    ['eventType', 'body.put("eventType", event.eventType())', 'event.eventType()'],
+    ['eventVersion', 'body.put("eventVersion", "1.0")', 'literal-1.0'],
+    ['timestamp', 'body.put("timestamp", event.occurredAt().toString())', 'event.occurredAt().toString()'],
+    ['correlationId', 'body.put("correlationId", event.correlationId())', 'event.correlationId()'],
+    ['causationId', 'if (!event.causationId().isBlank()) body.put("causationId", event.causationId())', 'event.causationId()'],
+    ['source', 'body.put("source", "media")', 'literal-media'],
+    ['userId', 'body.put("userId", event.principalId())', 'event.principalId()'],
+    ['contentType', 'body.put("contentType", "application/json")', 'literal-application/json'],
+    ['payload', 'body.put("payload", payload)', 'nested-payload-map'],
+    ['aggregateType', 'payload.put("aggregateType", event.aggregateType())', 'event.aggregateType()'],
+    ['aggregateId', 'payload.put("aggregateId", event.aggregateId())', 'event.aggregateId()'],
+    ['aggregateVersion', 'payload.put("aggregateVersion", event.aggregateVersion())', 'event.aggregateVersion()'],
+    ['classification', 'payload.put("classification", event.classification())', 'event.classification()'],
+    ['attributes', 'payload.put("attributes", event.attributes())', 'event.attributes()'],
+  ];
+  if (!projection.includes("status: publisher-source-mapping-observed")
+      || !projection.includes("interpretation: source-level mapping only; no schema authority")) {
+    errors.push("PDP1 transport projection must remain a non-authoritative source observation");
+  }
+  for (const [field, sourceBinding, mappedValue] of expectedProjectionBindings) {
+    if (!projection.includes(`name: ${field}, value: ${mappedValue}`) || !publisher.includes(sourceBinding)) {
+      errors.push(`PDP1 transport projection binding ${field} must match publisher source and mapped value`);
+    }
+  }
   if (!registry.includes("durableDeduplication: unverified")) errors.push("Idempotency-Key must not imply durable deduplication");
   for (const marker of ["durable-outbox", "retry-policy", "replay", "retention", "ordering", "delivery-cardinality", "consumer-acknowledgement", "recovery"]) {
     if (!runtimePopulation.includes(marker)) errors.push(`unproven delivery guarantee ${marker} must remain explicitly not established`);

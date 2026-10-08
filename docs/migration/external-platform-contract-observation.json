@@ -1,0 +1,248 @@
+{
+  "schemaVersion": "media.external-platform-contract-observation.v1",
+  "recordedOn": "2026-10-08",
+  "authority": "SOURCE_OBSERVATION_ONLY",
+  "sourceSnapshots": [
+    {
+      "repository": "samujjwal/ghatana",
+      "path": "/home/samujjwal/Developments/ghatana",
+      "head": "7079f0bd1d73722cfc4b416a17cfe3ea502dde43",
+      "branch": "main",
+      "worktree": "dirty at inspection; 21 paths",
+      "dirtyPaths": [
+        "M gradle/selected-binary-artifact-integrity.gradle",
+        "M scripts/__tests__/shared-compatibility-gradle-functional.test.mjs",
+        "M scripts/__tests__/shared-development-test-options.test.mjs",
+        "M scripts/__tests__/shared-gradle-dependency-checks.test.mjs",
+        "M scripts/__tests__/test_prepare_native_descriptor_qualification.py",
+        "M scripts/check-shared-compatibility.mjs",
+        "M scripts/prepare-native-descriptor-qualification.py",
+        "M scripts/record-native-gradle-descriptor-closure.py",
+        "M scripts/run-shared-development-tests.mjs",
+        "M scripts/shared-development-test-options.mjs",
+        "M scripts/shared-gradle-dependency-checks.mjs",
+        "M services/aep/docs/research/eni/ENI-Research-Review-and-Execution-Backlog.md",
+        "M services/aep/docs/research/eni/ENI_M2_TO_M3_REMAINING_IMPLEMENTATION_PLAN.md",
+        "M services/aep/lab/scripts/lanl-ucaat/real-owner/lib/eni_m2_change_impact.py",
+        "M services/aep/lab/scripts/lanl-ucaat/real-owner/lib/eni_m2_m3_transition.py",
+        "M services/aep/lab/scripts/lanl-ucaat/real-owner/tests/test_eni_m2_m3_transition.py",
+        "M services/aep/lab/scripts/lanl-ucaat/real-owner/tests/test_m2_change_impact.py",
+        "M services/ai-inference/delivery/api/src/test/java/com/ghatana/aiinference/delivery/openapi/AiInferenceOpenApiContractConsumptionTest.java",
+        "M settings.gradle.kts",
+        "?? scripts/shared-tools-selection.mjs",
+        "?? scripts/shared-tools-selection.test.mjs"
+      ],
+      "dirtyPathClassification": {
+        "aiInference": {
+          "path": "services/ai-inference/delivery/api/src/test/java/com/ghatana/aiinference/delivery/openapi/AiInferenceOpenApiContractConsumptionTest.java",
+          "change": "test-parser tolerance only: accepts whitespace inside the OpenAPI enum brackets; API contract semantics are unchanged",
+          "pathCount": 1
+        },
+        "sharedBuildToolingAndTests": {
+          "pathCount": 14,
+          "paths": [
+            "gradle/selected-binary-artifact-integrity.gradle",
+            "scripts/__tests__/shared-compatibility-gradle-functional.test.mjs",
+            "scripts/__tests__/shared-development-test-options.test.mjs",
+            "scripts/__tests__/shared-gradle-dependency-checks.test.mjs",
+            "scripts/__tests__/test_prepare_native_descriptor_qualification.py",
+            "scripts/check-shared-compatibility.mjs",
+            "scripts/prepare-native-descriptor-qualification.py",
+            "scripts/record-native-gradle-descriptor-closure.py",
+            "scripts/run-shared-development-tests.mjs",
+            "scripts/shared-development-test-options.mjs",
+            "scripts/shared-gradle-dependency-checks.mjs",
+            "settings.gradle.kts",
+            "scripts/shared-tools-selection.mjs",
+            "scripts/shared-tools-selection.test.mjs"
+          ],
+          "change": "Shared compatibility/build tooling, development-test options, dependency checks, selected binary integrity, native descriptor qualification tooling and selection tests. This sibling infrastructure context does not establish Media consumer acceptance, licensing, publication, qualification, or owner acceptance."
+        },
+        "unrelatedAepEniPlanning": {
+          "pathCount": 2,
+          "paths": [
+            "services/aep/docs/research/eni/ENI-Research-Review-and-Execution-Backlog.md",
+            "services/aep/docs/research/eni/ENI_M2_TO_M3_REMAINING_IMPLEMENTATION_PLAN.md"
+          ],
+          "change": "ENI research and execution planning; not mapped to a Media 71-task acceptance criterion."
+        },
+        "unrelatedAepEniNativeDescriptorQualification": {
+          "pathCount": 4,
+          "paths": [
+            "services/aep/lab/scripts/lanl-ucaat/real-owner/lib/eni_m2_change_impact.py",
+            "services/aep/lab/scripts/lanl-ucaat/real-owner/lib/eni_m2_m3_transition.py",
+            "services/aep/lab/scripts/lanl-ucaat/real-owner/tests/test_eni_m2_m3_transition.py",
+            "services/aep/lab/scripts/lanl-ucaat/real-owner/tests/test_m2_change_impact.py"
+          ],
+          "change": "AEP ENI native descriptor qualification source and tests; they are not Media qualification or Lifecycle receipts."
+        }
+      }
+    },
+    {
+      "repository": "samujjwal/gharbatai",
+      "path": "/home/samujjwal/Developments/gharbatai",
+      "head": "9803ad9a93dcab2898763d8d2083a2d6e5699b65",
+      "branch": "main",
+      "worktree": "dirty at inspection; cited source files were read without modification"
+    },
+    {
+      "repository": "samujjwal/ghatana-products",
+      "path": "/home/samujjwal/Developments/ghatana-products",
+      "head": "7c008d932f6ed6c2e6d7df0d1e43b82fc592d08f",
+      "branch": "main",
+      "worktree": "source records inspected; no files modified"
+    }
+  ],
+  "gates": [
+    {
+      "id": "X-04",
+      "status": "CLIENT_SOURCE_AND_CONSUMER_BINDING_OBSERVED; PUBLICATION_AND_QUALIFICATION_UNPROVEN",
+      "sourceEvidence": [
+        {
+          "repository": "samujjwal/ghatana",
+          "path": "services/document-intelligence/clients/typescript/package.json",
+          "facts": [
+            "name @ghatana/document-intelligence-client",
+            "version 0.1.0",
+            "private false",
+            "peer dependency @ghatana/document-extraction 0.1.0-SNAPSHOT"
+          ]
+        },
+        {
+          "repository": "samujjwal/ghatana",
+          "path": "services/document-intelligence/contracts/protocol-v1.md",
+          "facts": [
+            "worker responses carry protocolVersion, operationId and providerRef",
+            "parse uses multipart metadata plus opaque binary file",
+            "DELETE operation cancellation uses generation fencing"
+          ]
+        },
+        {
+          "repository": "samujjwal/ghatana",
+          "path": "services/document-intelligence/contracts/shared-contract.lock.json",
+          "facts": [
+            "shared package @ghatana/document-extraction 0.1.0-SNAPSHOT",
+            "public type API snapshot is locked by SHA-256"
+          ]
+        },
+        {
+          "repository": "samujjwal/gharbatai",
+          "path": "pnpm-lock.yaml",
+          "facts": [
+            "@ghatana/document-intelligence-client is linked by local filesystem path into the consumer checkout"
+          ]
+        },
+        {
+          "repository": "samujjwal/gharbatai",
+          "path": "products/org/apps/api/src/modules/document-extraction/document-intelligence.config.ts",
+          "facts": [
+            "consumer binds to loopback HTTP worker",
+            "explicit enablement and profile/admission gates remain in consumer"
+          ]
+        },
+        {
+          "repository": "samujjwal/ghatana-products",
+          "path": "config/product-extraction-records/media.yaml",
+          "facts": [
+            "Media extraction remains in progress with ghatana:services/media canonical and target migration-only",
+            "consumer commitment explicitly requires Gharbatai rebind to a target artifact or approved public client while preserving frozen-contract and qualification constraints"
+          ]
+        }
+      ],
+      "mediaWork": "A Media-side adapter/conformance crosswalk can now target the concrete worker v1 protocol and TypeScript client API. Treat the local Gharbatai link as source integration only; it does not establish a published artifact, released version, or qualified consumer rollout."
+    },
+    {
+      "id": "X-05",
+      "status": "VERSIONED_AI_INFERENCE_API_OBSERVED; TYPED_MEDIA_MODALITY_CONTRACT_NOT_OBSERVED",
+      "sourceEvidence": [
+        {
+          "repository": "samujjwal/ghatana",
+          "path": "services/ai-inference/contracts/openapi/ai-inference.yaml",
+          "facts": [
+            "OpenAPI info version 1.1.0",
+            "contract versions api/event/semantic 1.0.0",
+            "request families TEXT_GENERATION (LLM, COMPLETION) and EMBEDDING (EMBEDDING)",
+            "InferenceRequest.type is LLM, EMBEDDING or COMPLETION and input is a string bounded to 256 KiB",
+            "no modality field in InferenceRequest"
+          ]
+        },
+        {
+          "repository": "samujjwal/ghatana-products",
+          "path": "products/tutorputor/config/dependency-requests/TP-GHATANA-AI-001.json",
+          "facts": [
+            "consumer request selects executeAiInference and getAiInferenceProviders",
+            "fulfillment status OPEN",
+            "provider and consumer conformance remain separately required"
+          ]
+        }
+      ],
+      "mediaWork": "Do not map Media audio, image, video, speech or multimodal operations onto the current text/embedding request enum. Media can record exact non-matches and defer a typed modality/provider crosswalk until the external schema exposes those modalities."
+    },
+    {
+      "id": "X-06",
+      "status": "VERSIONED_PLATFORM_APIS_OBSERVED; MEDIA_OPERATION_AND_LIFECYCLE_CROSSWALK_NOT_OBSERVED",
+      "sourceEvidence": [
+        {
+          "repository": "samujjwal/ghatana",
+          "path": "services/data-cloud/contracts/openapi/data-cloud-lifecycle.yaml",
+          "facts": [
+            "OpenAPI 1.2.1",
+            "contract marked executable and active",
+            "generic collection create/get/list/evolve/retire and governance extension operations"
+          ]
+        },
+        {
+          "repository": "samujjwal/ghatana",
+          "path": "services/action-plane/contracts/openapi/action-plane.yaml",
+          "facts": [
+            "OpenAPI info version 1.2.0",
+            "contract versions api/event/semantic 1.0.0",
+            "governed pattern action submission/status/run/approval boundary"
+          ]
+        },
+        {
+          "repository": "samujjwal/ghatana",
+          "path": "services/event-plane/contracts/openapi/event-plane.yaml",
+          "facts": [
+            "OpenAPI info version 1.3.0",
+            "contract versions api/event/semantic 1.0.0",
+            "POST /api/v1/streams/{streamId}/events operationId appendStreamEvent declares 201 success with AppendEventResponse and no 200 success",
+            "requires X-Tenant-Id and Idempotency-Key headers",
+            "AppendEventRequest requires eventId/eventType and additionalProperties is false",
+            "eventId/eventType/correlationId/causationId/userId and tenant/idempotency headers have maxLength 255",
+            "tenant-scoped durable event transport with append/read/checkpoint operations"
+          ]
+        },
+        {
+          "repository": "samujjwal/ghatana-media",
+          "path": "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java",
+          "facts": [
+            "Media defines a content-free lifecycle event with tenant/principal/correlation/causation, aggregate identity/version and sanitized attributes"
+          ]
+        },
+        {
+          "repository": "samujjwal/ghatana-products",
+          "path": "config/product-extraction-records/media.yaml",
+          "facts": [
+            "preserve Data Cloud governed /api/v1/media read-model/navigation surfaces without transferring Media lifecycle authority"
+          ]
+        },
+        {
+          "repository": "samujjwal/ghatana-products",
+          "path": "products/tutorputor/config/dependency-requests/TP-GHATANA-MEDIA-001.json",
+          "facts": [
+            "request selects 11 explicit Media operations",
+            "fulfillment status OPEN",
+            "consumerMayWriteCanonicalLifecycle false"
+          ]
+        }
+      ],
+      "mediaWork": "Record the exact Event Plane append route/request/201 response crosswalk and enforce the schema's 255-character top-level wire-field bounds in MediaLifecycleEvent. These files do not define Media's public operation semantics or adopt MediaLifecycleEvent as lifecycle authority; retain lifecycle/event semantic mapping as unresolved and do not infer cutover or ownership transfer."
+    }
+  ],
+  "limits": [
+    "Local checkout source presence does not prove remote publication, deployment, release branch coverage, or production use.",
+    "No owner approval, qualification result, rollback rehearsal, or cutover evidence was observed.",
+    "The source repositories are external sibling checkouts; this record is an observation, not a live cross-repository CI guarantee."
+  ]
+}

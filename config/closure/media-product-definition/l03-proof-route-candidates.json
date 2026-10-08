@@ -3,6 +3,22 @@
   "status": "CANDIDATES_ONLY_NOT_LIFECYCLE_ADMITTED",
   "authority": "ghatana-media.product-definition.consumer-inputs",
   "description": "Source-resolvable L-03 proof-route candidates. These records document actual local producer/criterion/test identities and method results; they are not Lifecycle observer/oracle registrations, case admission, independent review, or proof receipts.",
+  "l02CaseLinkReview": {
+    "sourcePath": "config/closure/media-product-definition/l02-source-case-links.json",
+    "reviewedLinkCount": 28,
+    "reviewedObligationCount": 7,
+    "obligationDenominator": 319,
+    "unmappedObligationCount": 312,
+    "candidateRouteCount": 0,
+    "status": "NO_CASE_SPECIFIC_OBSERVER_OR_ORACLE_CANDIDATE_IDENTIFIED",
+    "missingSemantics": [
+      "The linked declarations are deterministic simulation assertions; no registered Evidence Generator producer declares libs/media-experience-simulation or its test command in unitScope.",
+      "The producer and criterion registries contain no case-specific input/result schema, oracle ID, positive/negative expectation, or comparison rule for the linked simulation assertions. assertionEvidence literals in L-02 prove source presence only, not a named L-03 oracle.",
+      "The existing runtime, provider-fallback, and production-state routes target different PDP-1 obligations and methods; they do not observe the linked PDP-3 scenarios or their simulation test outcomes.",
+      "A local Node test result is not an admitted Lifecycle observer, an independent review, or a qualified production/browser observation. Case execution and Lifecycle binding remain deferred."
+    ],
+    "authoritativeAssignments": "UNCHANGED_ZERO_OF_319"
+  },
   "routes": [
     {
       "id": "media.l03.candidate.runtime-authority",
@@ -94,7 +110,73 @@
       "sourceDigests": {
         "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
         "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
-        "test": "sha256:3933662fffbfc4897505f5ff3495cd4590f8089ef47ad4a17af8b80c43f0aebb"
+        "test": "sha256:2ade41199aebace197ce2778e8756aeea7948d841391d895ac67eac4f1cefee4"
+      },
+      "caseDependency": "L-02_CASE_ID_AND_EXECUTION_BINDING_NOT_ADMITTED",
+      "independentReview": "NOT_RUN"
+    },
+    {
+      "id": "media.l03.candidate.production-artifact-ingestion",
+      "obligationIds": [
+        "media.pdp-1.requirement.media.operation.artifact-ingest"
+      ],
+      "candidateObserver": {
+        "kind": "registered-local-evidence-producer",
+        "id": "media-production-state-streaming",
+        "sourceRef": "scripts/conformance/evidence-definitions/producers/media-production-state-streaming.producer.json#/producerId",
+        "admission": "NOT_REGISTERED_AS_LIFECYCLE_OBSERVER"
+      },
+      "candidateOracle": {
+        "kind": "registered-local-evidence-criterion",
+        "id": "durable-artifact-job-stream-state",
+        "sourceRef": "scripts/conformance/evidence-definitions/criteria/media-production-state-streaming.criteria.json#/criteria/0",
+        "testIdentity": "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java",
+        "testDeclaration": "MediaAwsPostgresqlRuntimeStateTest#persistsChecksumVerifiedArtifactsIdempotentJobsAndLeasedStreams",
+        "assertionScope": "PARTIAL_ARTIFACT_INGEST_ASSERTIONS_ONLY",
+        "resultCriteria": {
+          "positive": "The exact test declaration completes with assertions for acknowledged chunks, exact-size and SHA-256 completion, stored object bytes, principal identity, expiry, tenant isolation, and governed compatible-byte reuse.",
+          "negative": "Any assertion failure, test failure, or nonzero focused Gradle task rejects this candidate; it does not establish production operation admission, owner-approved artifact semantics, or every criterion in the composite provider test.",
+          "comparison": "Exact JUnit test outcome; no remote production effect or Lifecycle result is inferred.",
+          "executionState": "deferred"
+        }
+      },
+      "sourceDigests": {
+        "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
+        "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
+        "test": "sha256:2ade41199aebace197ce2778e8756aeea7948d841391d895ac67eac4f1cefee4"
+      },
+      "caseDependency": "L-02_CASE_ID_AND_EXECUTION_BINDING_NOT_ADMITTED",
+      "independentReview": "NOT_RUN"
+    },
+    {
+      "id": "media.l03.candidate.production-stream-session",
+      "obligationIds": [
+        "media.pdp-1.requirement.media.operation.stream-session"
+      ],
+      "candidateObserver": {
+        "kind": "registered-local-evidence-producer",
+        "id": "media-production-state-streaming",
+        "sourceRef": "scripts/conformance/evidence-definitions/producers/media-production-state-streaming.producer.json#/producerId",
+        "admission": "NOT_REGISTERED_AS_LIFECYCLE_OBSERVER"
+      },
+      "candidateOracle": {
+        "kind": "registered-local-evidence-criterion",
+        "id": "durable-artifact-job-stream-state",
+        "sourceRef": "scripts/conformance/evidence-definitions/criteria/media-production-state-streaming.criteria.json#/criteria/0",
+        "testIdentity": "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java",
+        "testDeclaration": "MediaAwsPostgresqlRuntimeStateTest#persistsChecksumVerifiedArtifactsIdempotentJobsAndLeasedStreams",
+        "assertionScope": "PARTIAL_STREAM_SESSION_ASSERTIONS_ONLY",
+        "resultCriteria": {
+          "positive": "The exact test declaration completes with assertions for tenant isolation, token-gated connect/reconnect, contiguous frame sequencing, draining and close transitions, and persistence across store restart.",
+          "negative": "Any assertion failure, test failure, or nonzero focused Gradle task rejects this candidate; it does not establish transport equivalence, production stream qualification, or every criterion in the composite provider test.",
+          "comparison": "Exact JUnit test outcome; no remote production effect or Lifecycle result is inferred.",
+          "executionState": "deferred"
+        }
+      },
+      "sourceDigests": {
+        "producer": "sha256:a24e034766954739851ae5ad799d0e103dc69fa9396b9f848210d24e361fcab6",
+        "criteria": "sha256:2f387e8b7c730a354bb5f08b7530de240cbec63bf22969afdcd444d8498c19a7",
+        "test": "sha256:2ade41199aebace197ce2778e8756aeea7948d841391d895ac67eac4f1cefee4"
       },
       "caseDependency": "L-02_CASE_ID_AND_EXECUTION_BINDING_NOT_ADMITTED",
       "independentReview": "NOT_RUN"

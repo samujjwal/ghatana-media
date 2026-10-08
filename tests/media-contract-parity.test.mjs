@@ -1,7 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { analyzeContractParity, parseNotAdmittedSdkRoutes, parseSdkHttpCalls, parseSdkRegistryMethods, validateTypedContractBindings } from "../scripts/check-media-contract-parity.mjs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { analyzeContractParity, discoverSdkSourceFiles, parseNotAdmittedSdkRoutes, parseSdkHttpCalls, parseSdkOpenApiDispositions, parseSdkRegistryMethods, validateTypedContractBindings } from "../scripts/check-media-contract-parity.mjs";
 
 const typedBindingFixture = {
   schemaVersion: "media.interface-parity.typed-contract-bindings.v1",
@@ -76,6 +78,42 @@ test("preserves matching OpenAPI/runtime/PDP-3 route identity while reporting se
   assert.match(result.gaps.join("\n"), /not accepted mappings/);
 });
 
+test("keeps the two remaining parity findings open because current sources lack authoritative contracts", () => {
+  const toolRegistry = readFileSync(".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml", "utf8");
+  const operations = readFileSync(".product-experience/pdp-1-domain-data/operations.yaml", "utf8");
+  const conventions = readFileSync(".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml", "utf8");
+  const inputSchemaVersions = [...toolRegistry.matchAll(/schemaVersion: \{value: null, status: not-declared-by-handler\}/gu)];
+  const resultSchemaVersions = [...toolRegistry.matchAll(/schemaVersion: \{value: null, status: not-declared-by-handler-or-delegate-contract\}/gu)];
+  const unresolvedToolBindings = [...toolRegistry.matchAll(/operationBinding: \{value: null, status: unresolved-owner-and-operation-mapping\}/gu)];
+
+  // Current handler observations do not define versioned canonical inputs or
+  // outputs, and no PDP-1 mapping has been selected. Replacing the finding
+  // with inferred contracts would invent owner-level semantics.
+  assert.equal(inputSchemaVersions.length, 4);
+  assert.equal(resultSchemaVersions.length, 4);
+  assert.equal(unresolvedToolBindings.length, 4);
+  assert.match(toolRegistry, /inputSchema: Dynamic Map<String,Object> observations are incomplete, open, and not a canonical validated schema/u);
+  assert.match(toolRegistry, /outputSchema: Delegate results are passed through; no successful output schema is validated by these handlers/u);
+  assert.match(conventions, /no tool is admitted, callable, or authorized by this convention/u);
+
+  // The operation catalog explicitly remains proposal-only, with cross-
+  // interface bindings and owner review pending. Those source facts make the
+  // second finding a real semantic dependency, not a structural mismatch.
+  assert.match(operations, /^scopeStatus: proposal-only;.*cross-interface-bindings-and-owner-review-pending$/mu);
+  const parity = readFileSync(".product-experience/interface-parity/operation-parity.yaml", "utf8");
+  assert.match(parity, /bindingStatus: names align to existing operation family names; handler schema\/authority contract and semantic-owner acceptance remain pending/u);
+  assert.match(parity, /bindingStatus: 17-domain-operation-candidates; 26-identities-remain-unresolved-including-transport-only-and-provider-admin-roles/u);
+
+  const actual = analyzeContractParity(validStructuralInput({
+    agentToolRegistry: toolRegistry,
+    pdp1Operations: operations,
+  }));
+  assert.deepEqual(actual.gaps.filter((gap) => gap.startsWith("Agent Tool structural inventory") || gap.startsWith("semantic binding unresolved:")), [
+    "Agent Tool structural inventory found 4 tools; operation bindings and complete input/result contract parity remain pending",
+    "semantic binding unresolved: PDP-1 operations remain proposal-only; nine-organizational-families-with-distinct-operation-identities; cross-interface-bindings-and-owner-review-pending; structural identities are not accepted mappings",
+  ]);
+});
+
 test("detects HTTP route or operation identity drift", () => {
   const result = analyzeContractParity(validStructuralInput({
     runtimeManifest: JSON.stringify({ routes: [{ method: "POST", path: "/api/v1/jobs", operationId: "differentOperation" }] }),
@@ -103,6 +141,39 @@ test("source-dispositioned legacy paths reconcile individually without becoming 
   assert.equal(result.gaps.some((gap) => /client path divergence/u.test(gap)), false);
   assert.equal(result.observedFindingCount, result.gaps.length + 1);
   assert.equal(result.passed, false, "other unresolved structural/semantic findings remain non-green");
+});
+
+test("four SDK identities without OpenAPI routes have explicit NOT_ADMITTED parity dispositions", () => {
+  const parity = readFileSync(".product-experience/interface-parity/operation-parity.yaml", "utf8");
+  const dispositions = parseSdkOpenApiDispositions(parity);
+  const unresolvedRouteMethods = [
+    "media.sdk.legacy.AudioVideoClient.transcribe",
+    "media.sdk.legacy.AudioVideoClient.synthesize",
+    "media.sdk.retryOperation",
+    "media.sdk.getOperationResult",
+  ];
+  const byIdentity = new Map(dispositions.map((entry) => [entry.identity, entry]));
+
+  for (const identity of unresolvedRouteMethods) {
+    assert.equal(byIdentity.get(identity)?.disposition, "NOT_ADMITTED", `${identity} must stay outside OpenAPI binding`);
+  }
+  assert.match(parity, /media\.sdk\.legacy\.AudioVideoClient\.transcribe[\s\S]*?semanticBinding: unresolved[\s\S]*?openApiBindingDisposition: NOT_ADMITTED/u);
+  assert.match(parity, /media\.sdk\.legacy\.AudioVideoClient\.synthesize[\s\S]*?semanticBinding: unresolved[\s\S]*?openApiBindingDisposition: NOT_ADMITTED/u);
+  assert.match(parity, /media\.sdk\.retryOperation[\s\S]*?semanticBinding: unresolved[\s\S]*?openApiBindingDisposition: NOT_ADMITTED/u);
+  assert.match(parity, /media\.sdk\.getOperationResult[\s\S]*?semanticBinding: unresolved[\s\S]*?openApiBindingDisposition: NOT_ADMITTED/u);
+
+  const reconciled = analyzeContractParity(validStructuralInput({
+    sdkOperationIds: unresolvedRouteMethods,
+    sdkOpenApiDispositions: dispositions.filter((entry) => unresolvedRouteMethods.includes(entry.identity)),
+  }));
+  assert.equal(reconciled.gaps.some((gap) => gap.startsWith("SDK operation has no explicit OpenAPI binding:")), false);
+  assert.equal(reconciled.reconciledFindings.filter((item) => item.finding.startsWith("SDK operation has no explicit OpenAPI binding:")).length, 4);
+
+  const missingOne = analyzeContractParity(validStructuralInput({
+    sdkOperationIds: unresolvedRouteMethods,
+    sdkOpenApiDispositions: dispositions.filter((entry) => entry.identity !== unresolvedRouteMethods[0]),
+  }));
+  assert.ok(missingOne.gaps.includes(`SDK operation has no explicit OpenAPI binding: ${unresolvedRouteMethods[0]}`));
 });
 
 test("reports stale route dispositions instead of silently changing the parity denominator", () => {
@@ -173,6 +244,33 @@ test("SDK registry method extraction excludes control tokens and built-in calls 
   assert.deepEqual(methods.map(({ method }) => method), ["getStatus", "cancel"]);
 });
 
+test("SDK source discovery includes a third recursively discovered public class source", () => {
+  const temporaryRoot = mkdtempSync(join(tmpdir(), "ghatana-media-sdk-sources-"));
+  try {
+    const src = join(temporaryRoot, "libs/audio-video-client/src");
+    mkdirSync(join(src, "extra"), { recursive: true });
+    writeFileSync(join(src, "index.ts"), "export class MainClient {\n  public open(): void {}\n}\n");
+    writeFileSync(join(src, "operations.ts"), "export class OperationClient {\n  public submit(): void {}\n}\n");
+    writeFileSync(join(src, "extra", "derived.ts"), "export class DerivedClient {\n  public inspect(): void {}\n}\n");
+
+    const discovered = discoverSdkSourceFiles(temporaryRoot);
+    assert.deepEqual(Object.keys(discovered), [
+      "libs/audio-video-client/src/extra/derived.ts",
+      "libs/audio-video-client/src/index.ts",
+      "libs/audio-video-client/src/operations.ts",
+    ]);
+    const registry = "  - id: media.sdk.derived.inspect\n    method: inspect\n    visibility: public\n    source: libs/audio-video-client/src/extra/derived.ts\n    declaringClass: DerivedClient\n";
+    assert.deepEqual(parseSdkRegistryMethods(registry, discovered), [{
+      id: "media.sdk.derived.inspect",
+      method: "inspect",
+      source: "libs/audio-video-client/src/extra/derived.ts",
+      declaringClass: "DerivedClient",
+    }]);
+  } finally {
+    rmSync(temporaryRoot, { recursive: true, force: true });
+  }
+});
+
 test("typed UI action dispositions reconcile exactly to the 146 source identities", () => {
   const actionRegistry = readFileSync(".product-experience/pdp-3-product-experience/action-registry.yaml", "utf8");
   const parity = readFileSync(".product-experience/interface-parity/operation-parity.yaml", "utf8");
@@ -241,10 +339,11 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
   assert.ok(typedSection, "typed UI action section is present");
 
   const parseCounts = (section) => {
-    const match = section.match(/operationBindingCounts:\s*\{mappedProposal:\s*(\d+),\s*ambiguous:\s*(\d+),\s*unresolved:\s*(\d+)\}/u)
-      ?? section.match(/operationBindingCounts:\s*\n\s+mappedProposal:\s*(\d+)\n\s+ambiguous:\s*(\d+)\n\s+unresolved:\s*(\d+)/u);
+    const match = section.match(/operationBindingCounts:\s*\{([^}]+)\}/u)?.[1]
+      ?? section.match(/operationBindingCounts:\s*\n([\s\S]*?)(?=\n\s+dispositionCounts:)/u)?.[1];
     assert.ok(match, "operation binding counts are explicit");
-    return { mappedProposal: Number(match[1]), ambiguous: Number(match[2]), unresolved: Number(match[3]) };
+    return Object.fromEntries([...match.matchAll(/(mappedProposal|ambiguous|unresolved):\s*(\d+)/gu)]
+      .map(([, key, value]) => [key, Number(value)]));
   };
   const sourceCounts = parseCounts(sourceSection);
   const typedCounts = parseCounts(typedSection);
@@ -260,13 +359,27 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
     if (!identity) return [];
     const operationRef = body.match(/^    operationRef: (media\.operation\.[^\n]+)$/mu)?.[1];
     const type = body.match(/^    type: ([A-Z_]+)$/mu)?.[1];
-    return [{ identity, operationRef, type }];
+    return [{ identity, operationRef, type, body }];
   });
   const typedRefs = new Map(typedEntries.filter((entry) => entry.operationRef).map(({ identity, operationRef }) => [identity, operationRef]));
   assert.deepEqual([...typedRefs].sort(), [...explicitOperationIds].sort(), "typed refs match only exact source-denominator mappings");
   assert.equal(typedRefs.size, 14);
   assert.equal(explicitOperationIds.size, 14);
   assert.match(sourceDenominatorSection, /^    ambiguousOperationCandidates: \[\]$/mu);
+  const ownerAssociations = sourceSection.match(/ownerApprovedActionIntentAssociations:\n([\s\S]*?)(?=\n    ambiguous:)/u)?.[1] ?? "";
+  const ownerAssociationIds = [...ownerAssociations.matchAll(/media\.action\.[a-z0-9.-]+/gu)].filter((match) => match[0] !== "media.action").map((match) => match[0]);
+  const expectedOwnerAssociations = [
+    "media.action.request-transcription", "media.action.review-transcript", "media.action.correct-caption",
+    "media.action.align-caption-timing", "media.action.save-caption-version", "media.action.compare-caption-versions",
+  ];
+  assert.deepEqual([...new Set(ownerAssociationIds)].sort(), [...expectedOwnerAssociations].sort());
+  assert.match(parity, /^  accepted: 0$/mu, "cross-interface accepted binding count remains zero");
+  assert.match(ownerAssociations, /semantic-intent-association-only/u);
+  for (const identity of expectedOwnerAssociations) {
+    const entry = typedEntries.find((candidate) => candidate.identity === identity);
+    assert.equal(entry?.operationRef, explicitOperationIds.get(identity));
+    assert.match(entry?.body ?? "", /operationAssociationStatus: owner-approved-semantic-intent-only; PXD-029/u);
+  }
 
   const sourceDispositionText = sourceSection.match(/dispositionCounts:\s*\{([^}]+)\}/u)?.[1] ?? "";
   const sourceDispositionCounts = Object.fromEntries([...sourceDispositionText.matchAll(/([A-Z_]+):\s*(\d+)/gu)]
@@ -305,4 +418,47 @@ test("compares protobuf RPC identities with the gRPC registry", () => {
     protoFiles: [`service STTService {\n  rpc Transcribe (Request) returns (Response);\n  rpc StreamTranscribe (Request) returns (Response);\n}`],
   }));
   assert.ok(result.gaps.some((gap) => gap.includes("protobuf RPC missing from gRPC registry: STTService.StreamTranscribe")));
+});
+
+test("semantic candidates never contradict the HTTP and gRPC typed role dispositions", () => {
+  const parity = readFileSync(".product-experience/interface-parity/operation-parity.yaml", "utf8");
+  const operations = readFileSync(".product-experience/pdp-1-domain-data/operations.yaml", "utf8");
+  const httpSurface = parity.match(/- surface: HTTP\n([\s\S]*?)(?=\n  - surface: gRPC)/u)?.[1];
+  const grpcSurface = parity.match(/- surface: gRPC\n([\s\S]*?)(?=\n  - surface: CLI fixture commands)/u)?.[1];
+  const typed = parity.match(/typedInterfaceIdentityDispositions:\n([\s\S]*?)(?=\ncompatibilityRouteFindings:)/u)?.[1];
+  const typedHttp = typed?.match(/^  http:\n([\s\S]*?)(?=^  grpc:)/mu)?.[1];
+  const typedGrpc = typed?.match(/^  grpc:\n([\s\S]*?)(?=^  cliFixture:)/mu)?.[1];
+  assert.ok(httpSurface && grpcSurface && typedHttp && typedGrpc, "HTTP/gRPC source and typed role sections exist");
+
+  const inlineList = (text, field) => {
+    const body = text.match(new RegExp(`^    ${field}: \\[([^\\]]*)\\]$`, "mu"))?.[1] ?? "";
+    return body.split(",").map((value) => value.trim()).filter(Boolean);
+  };
+  const candidateIds = (surface) => {
+    const candidateBlock = surface.match(/proposedSemanticCandidates:\n([\s\S]*?)(?=\n    unresolved:|\n    dispositionCounts:)/u)?.[1] ?? "";
+    return [...candidateBlock.matchAll(/\[([^\]]*)\]/gu)].flatMap((match) => match[1].split(",").map((id) => id.trim()));
+  };
+  const httpRoleOnly = [...inlineList(typedHttp, "transportOnly"), ...inlineList(typedHttp, "providerAdmin")];
+  const httpUnresolved = inlineList(httpSurface, "unresolved");
+  assert.deepEqual(httpUnresolved.sort(), httpRoleOnly.sort(), "all role-only HTTP identities remain unresolved as operation bindings");
+  assert.equal(httpRoleOnly.some((identity) => candidateIds(httpSurface).includes(identity)), false,
+    "transport-only/provider-admin HTTP identities cannot be proposed as domain operations");
+  assert.match(httpSurface, /dispositionCounts: \{mappedProposal: 18, unresolved: 9\}/u);
+
+  const grpcRoleOnly = [...inlineList(typedGrpc, "transportOnly"), ...inlineList(typedGrpc, "providerAdmin")];
+  const grpcCandidateIds = candidateIds(grpcSurface);
+  const grpcUnresolved = [...grpcSurface.matchAll(/^      (\w+): \[([^\]]*)\]$/gmu)]
+    .flatMap((match) => match[2].split(",").map((method) => `${match[1]}.${method.trim()}`));
+  assert.deepEqual(grpcUnresolved.sort(), grpcRoleOnly.sort(), "all role-only gRPC identities remain unresolved as operation bindings");
+  assert.equal(grpcRoleOnly.some((identity) => grpcCandidateIds.includes(identity)), false,
+    "transport-only/provider-admin gRPC identities cannot be proposed as domain operations");
+  assert.match(grpcSurface, /dispositionCounts: \{mappedProposal: 17, unresolved: 26\}/u);
+
+  const grpcSource = operations.match(/^  grpcRpcs:\n([\s\S]*?)(?=^  cliSimulationCommands:)/mu)?.[1];
+  assert.ok(grpcSource, "PDP-1 gRPC source observation section exists");
+  const memberProposals = grpcSource.match(/^    explicitMemberOperationIds:\n([\s\S]*?)(?=^    unresolvedIdentitiesByService:)/mu)?.[1] ?? "";
+  for (const identity of grpcRoleOnly) {
+    assert.doesNotMatch(memberProposals, new RegExp(`^      ${identity.replace(".", "\\.")}:`, "mu"),
+      `${identity} must not carry a proposed logical-operation binding`);
+  }
 });

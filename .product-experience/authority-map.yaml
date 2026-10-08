@@ -61,8 +61,13 @@ phaseAuthorities:
 - phase: PDP-0
   name: Product Truth
   owner: ghatana-media-product-owners
-  scope: product meaning, outcomes, actors, requirements, capabilities, domain/time/units, authority, states, quality,
-    dependencies, and nonfunctional behavior
+  scope: >-
+    Product meaning, outcomes, actors, requirements, capabilities, product-level
+    policy, high-level domain responsibility, product data-boundary requirements,
+    authority, quality, dependencies, and nonfunctional behavior. PDP-0 may state
+    product requirements for temporal/fidelity preservation and lifecycle/finality;
+    PDP-1 owns canonical domain objects, values and units, relationships, time
+    bases and conversions, operations, and detailed state/transition/effect semantics.
   acceptance: P0-001-boundary-slice-only
   artifacts:
   - id: ART-P0-PRODUCT-TRUTH-BOUNDARY
@@ -237,7 +242,10 @@ phaseAuthorities:
 - phase: PDP-1
   name: Canonical Domain and Data Model
   owner: ghatana-media-domain-owners
-  scope: canonical-meaning-proposals-for-domain-objects-operations-states-events-evidence-and-projections
+  scope: >-
+    Canonical domain objects, values and units, relationships, time bases and
+    conversions, operations, states, events, evidence, projections, and detailed
+    transition/effect semantics
   acceptance: pending-PDP-0-independent-review-and-domain-owner-acceptance
   artifacts:
   - id: ART-P1-ACTION-CONTRACTS

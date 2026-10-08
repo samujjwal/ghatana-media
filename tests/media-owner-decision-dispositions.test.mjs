@@ -79,3 +79,29 @@ test("bounded PXD-026 policy approval does not alter independent PDP phase accep
   }
   assert.equal(acceptance.acceptanceAuthority.independentReviewRequiredForFullPDP0, "P0-010");
 });
+
+test("PXD-030 records only representative initiating actors and preserves independent P0-010 review", () => {
+  const record = acceptance.recordedHumanDecisionInputs.find(({ id }) => id === "ACCEPT-INPUT-MEDIA-OWNER-PDP0-REPRESENTATIVE-INITIATORS-20261008");
+  assert.ok(record);
+  assert.equal(record.phaseTask, "P0-04");
+  assert.equal(record.decisionInput, "accepted");
+  assert.equal(record.sourceOfDecision, "explicit-user-delegation-in-current-thread-for-reversible-Media-owner-decisions-within-vision-and-requirements");
+  assert.ok(record.acceptedScope.some((scope) => scope.includes("one representative initiating actor")));
+  assert.ok(record.exclusions.some((scope) => scope.includes("Independent P0-010 review")));
+
+  const intentResolutions = parse(read(".product-experience/pdp-0-product-truth/intent-resolutions.yaml"));
+  const journeyResolutions = parse(read(".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml"));
+  assert.equal(intentResolutions.intents.length, 19);
+  assert.ok(intentResolutions.intents.every(({ actorStatus }) => actorStatus === "resolved"));
+  assert.equal(journeyResolutions.journeys.length, 30);
+  assert.ok(journeyResolutions.journeys.every(({ actorStatus }) => actorStatus === "resolved"));
+  assert.match(intentResolutions.resolutionPolicy.acceptance, /P0-010/u);
+  assert.match(journeyResolutions.policy.acceptance, /P0-010/u);
+
+  const decisionLog = read(".product-experience/decision-log.md");
+  assert.match(decisionLog, /^### PXD-030 — Resolve PDP-0 representative initiating actors$/mu);
+  assert.match(decisionLog, /not an authenticated principal, permission/u);
+  assert.match(decisionLog, /runtime execution authority/u);
+  assert.equal(acceptance.phaseAcceptanceInputs.find(({ phase, phaseTask }) => phase === "PDP-0" && phaseTask === "P0-010").decisionInput,
+    "pending-independent-review-not-executed");
+});

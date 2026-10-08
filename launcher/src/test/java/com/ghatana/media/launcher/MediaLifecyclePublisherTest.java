@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,5 +56,32 @@ class MediaLifecyclePublisherTest {
                 Map.of("MEDIA_EVENT_PLANE_URL", "http://event-plane.example"), true))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("HTTPS");
+    }
+
+    @Test
+    void rejectsOkResponseBecauseAppendContractRequiresCreatedAndDoesNotRetry() throws Exception {
+        AtomicInteger requests = new AtomicInteger();
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/api/v1/streams/media-lifecycle/events", exchange -> {
+            try (exchange) {
+                requests.incrementAndGet();
+                exchange.getRequestBody().readAllBytes();
+                exchange.sendResponseHeaders(200, -1);
+            }
+        });
+        server.start();
+        try (MediaLifecyclePublisher publisher = MediaLifecyclePublisher.compose(Map.of(
+                "MEDIA_EVENT_PLANE_URL", "http://127.0.0.1:" + server.getAddress().getPort()), false)) {
+            assertThatThrownBy(() -> publisher.publish(new MediaLifecycleEvent(
+                    "media:media.job.completed:job-1:3", "media.job.completed",
+                    "tenant-a", "principal-a", "correlation-a", "request-a",
+                    "job", "job-1", 3, "CONFIDENTIAL", Instant.now(), Map.of())))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("status 200");
+        } finally {
+            server.stop(0);
+        }
+
+        assertThat(requests).hasValue(1);
     }
 }

@@ -1216,7 +1216,34 @@ components:
               }
         governanceContext:
           { $ref: "#/components/schemas/MediaGovernanceContext" }
-    ProcessingJob: { type: object, additionalProperties: true }
+    ProcessingJob:
+      type: object
+      additionalProperties: true
+      description: >-
+        Current Media launcher ProcessingJob response projection. The status enum mirrors the
+        serialized runtime JobStatus; it is an observed transport contract, not a canonical
+        PDP-1 state mapping. In particular, ACCEPTED does not establish durable queueing and
+        OUTCOME_UNKNOWN must not be collapsed into RUNNING or failure.
+      properties:
+        jobId: { type: string }
+        requestId: { type: string }
+        tenantId: { type: string }
+        principalId: { type: string }
+        artifactId: { type: string }
+        jobType:
+          type: string
+          enum: [TRANSCODE, SPEECH_TO_TEXT, TEXT_TO_SPEECH, VISION, MULTIMODAL]
+        providerId: { type: [string, "null"] }
+        status:
+          type: string
+          enum: [ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED]
+          description: Current runtime response spelling; canonical job-state equivalence remains unresolved.
+        createdAt: { type: string, format: date-time }
+        startedAt: { type: [string, "null"], format: date-time }
+        completedAt: { type: [string, "null"], format: date-time }
+        result: { type: object, additionalProperties: true }
+        failureCode: { type: [string, "null"] }
+        version: { type: integer, format: int64, minimum: 1 }
     StreamSessionRequest:
       type: object
       required:

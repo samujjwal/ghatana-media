@@ -7,6 +7,7 @@
  * @doc.pattern StatusComponent
  */
 import { Button } from "@ghatana/design-system";
+import { MediaProgress } from "@audio-video/ui";
 import React, { useMemo } from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -114,21 +115,12 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
           <span>{statusLabels[status]}</span>
           <span>{Math.round(boundedProgress)}%</span>
         </div>
-        <div
-          className="h-2 overflow-hidden rounded-full"
-          role="progressbar"
-          aria-label="Voice-model training progress"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(boundedProgress)}
-          aria-valuetext={`${statusLabels[status]}, ${Math.round(boundedProgress)} percent`}
-          style={{ backgroundColor: colors.surfaceElevated }}
-        >
-          <div
-            className={clsx("h-full transition-[width] duration-300 motion-reduce:transition-none", active && "animate-pulse motion-reduce:animate-none")}
-            style={{ width: `${boundedProgress}%`, backgroundColor: statusColors[status] }}
-          />
-        </div>
+        <MediaProgress
+          value={boundedProgress}
+          label="Voice-model training progress"
+          valueText={`${statusLabels[status]}, ${Math.round(boundedProgress)} percent`}
+          tone={status === "completed" ? "success" : status === "failed" ? "error" : status === "pending" ? "neutral" : "primary"}
+        />
       </div>
 
       <ol className="mt-5 grid grid-cols-4 gap-2" aria-label="Training stages">

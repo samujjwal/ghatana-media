@@ -1,6 +1,8 @@
 /**
  * @ghatana/ai-voice-ui-react — components.
  */
+import "@audio-video/ui/styles.css";
+
 export { Waveform } from "./Waveform";
 export type { WaveformProps } from "./Waveform";
 

@@ -5,13 +5,14 @@
   "sourceAuthorities": [
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
-      "sha256": "d7c9385137e83d2d4d1af4dc1ae691ffdbbebf996ceaed84bd53842ea4873ccd",
-      "bytes": 24299,
+      "sha256": "580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf",
+      "bytes": 36452,
       "format": "yaml",
       "schemaVersion": "media.screen-registry.v1",
       "authority": null,
       "status": "41-baseline-view-contract-proposals-authored; channel-bindings-action-closure-fixture-coverage-and-owner-review-pending",
       "topLevelFields": [
+        "compositionLinkOwnerReview",
         "contextualSpecializations",
         "contractSchemaRef",
         "coverage",
@@ -76,8 +77,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-      "sha256": "44e08762ab3b9b3f17f78dc4787dde8a4113c978750da475594d9de104d9f10c",
-      "bytes": 12088,
+      "sha256": "d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196",
+      "bytes": 12502,
       "format": "yaml",
       "schemaVersion": "media.journey-registry.v1",
       "authority": null,
@@ -309,8 +310,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
-      "sha256": "f93b763618765dd008c8c1a96836831402c3c53034741fb3092da9f686bc6aa2",
-      "bytes": 10988,
+      "sha256": "d55af8c6648dc20fe60202b82de2347e4b6a1656865ebb24d3d65df92da75a08",
+      "bytes": 11050,
       "format": "yaml",
       "schemaVersion": "media.scenario-fixture-registry.v1",
       "authority": null,
@@ -399,8 +400,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
-      "sha256": "350a6380f5b42b1b21af2f21b71598b3fc1e69e5f4ca52358e9abe9338ab001d",
-      "bytes": 10324,
+      "sha256": "dd0249680f1fc87b83cfacbe99ab38ea4e01d877f421a2e77e9919b3a0094cbf",
+      "bytes": 11125,
       "format": "yaml",
       "schemaVersion": "media.experience-source-bindings.v1",
       "authority": "Media PDP-3 scenario fixture registry, existing deterministic simulation seeds, and PDP-0 canonical state proposals",
@@ -420,8 +421,8 @@
     },
     {
       "sourceRef": "libs/media-experience-simulation/src/fixtures.ts",
-      "sha256": "53de214a23fb916ed405b6c1d509d891f98a80fc66a27830675578a4154fdda4",
-      "bytes": 17934,
+      "sha256": "178585922cf4860cb47d5e45406c5495958374651fb4f73dbaca77bf2325b4c0",
+      "bytes": 18190,
       "format": "markdown"
     },
     {
@@ -536,8 +537,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
-      "sha256": "47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493",
-      "bytes": 73858,
+      "sha256": "3f653e0ca8777041e43a0670f88626d9b0521955f5fa5eed465ec894dd69a279",
+      "bytes": 75691,
       "format": "yaml",
       "schemaVersion": "media.component-contracts.v1",
       "authority": "Media component anatomy and behavior; Shared owns generic component primitives",
@@ -565,6 +566,7 @@
         "media.component.intent-launcher",
         "media.component.job-status-card",
         "media.component.mask-tracking-editor",
+        "media.component.progress-indicator",
         "media.component.project-browser",
         "media.component.project-context-summary",
         "media.component.provenance-summary",
@@ -581,6 +583,271 @@
         "media.component.transcript-review",
         "media.component.voice-production-workflow",
         "media.component.waveform-spectrogram"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+      "sha256": "5ff75c37d816290bad071c4fa887126bbed4e6b7a10bfe8182b394cd5fdce677",
+      "bytes": 16936,
+      "format": "yaml",
+      "schemaVersion": "media.journey-actor-resolutions.v1",
+      "authority": "User-delegated Media product-owner decisions for P0-04",
+      "status": "Media-owner-initiator-decisions-recorded; P0-010-independent-semantic-review-pending",
+      "topLevelFields": [
+        "authority",
+        "journeys",
+        "policy",
+        "productId",
+        "schemaVersion",
+        "sourceRefs",
+        "status"
+      ],
+      "declaredIds": [
+        "J-01",
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-06",
+        "J-07",
+        "J-08",
+        "J-09",
+        "J-10",
+        "J-11",
+        "J-12",
+        "J-13",
+        "J-14",
+        "J-15",
+        "J-16",
+        "J-17",
+        "J-18",
+        "J-19",
+        "J-20",
+        "J-21",
+        "J-22",
+        "J-23",
+        "J-24",
+        "J-25",
+        "J-26",
+        "J-27",
+        "J-28",
+        "J-29",
+        "J-30"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+      "sha256": "9f077be079a1815ea15988fd0a01a142351ab8137f299d24d1be7b72c8bd2af1",
+      "bytes": 22353,
+      "format": "yaml",
+      "schemaVersion": "media.actors-responsibilities.v1",
+      "authority": null,
+      "status": "proposed-for-phase-0-review",
+      "topLevelFields": [
+        "accountability",
+        "actors",
+        "interpretation",
+        "ownershipRules",
+        "personas",
+        "principals",
+        "productId",
+        "responsibilityRoles",
+        "schemaVersion",
+        "sourceRefs",
+        "status",
+        "trustContexts"
+      ],
+      "declaredIds": [
+        "media.administrator",
+        "media.automation-client",
+        "media.creator",
+        "media.developer-integrator",
+        "media.domain-reviewer",
+        "media.editor",
+        "media.external-provider",
+        "media.operator",
+        "media.ownership.audit",
+        "media.ownership.domain-state",
+        "media.ownership.identity",
+        "media.ownership.privileged-effects",
+        "media.ownership.product-semantics",
+        "media.persona.archive-restorer",
+        "media.persona.campaign-producer",
+        "media.persona.educator-or-researcher",
+        "media.persona.independent-creator",
+        "media.persona.integrator",
+        "media.principal.automation-client",
+        "media.principal.external-provider",
+        "media.principal.human-user",
+        "media.principal.media-worker",
+        "media.privacy-rights-reviewer",
+        "media.reviewer",
+        "media.role.accessibility-lead",
+        "media.role.administrator",
+        "media.role.automation-client",
+        "media.role.creator",
+        "media.role.developer-integrator",
+        "media.role.domain-reviewer",
+        "media.role.editor",
+        "media.role.external-provider",
+        "media.role.fidelity-reviewer",
+        "media.role.media-domain-lead",
+        "media.role.operator",
+        "media.role.platform-owner",
+        "media.role.privacy-rights-reviewer",
+        "media.role.product-manager",
+        "media.role.publication-approver",
+        "media.role.quality-fidelity-reviewer",
+        "media.role.reviewer",
+        "media.role.security-privacy-lead",
+        "media.role.sre",
+        "media.role.ux-architect",
+        "media.role.worker",
+        "media.trust.admin",
+        "media.trust.authenticated",
+        "media.trust.privileged",
+        "media.trust.public",
+        "media.worker"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+      "sha256": "c09396068115f86bae21addc69520d0529c6ba48a4d08eda246e7d75430f0711",
+      "bytes": 28386,
+      "format": "yaml",
+      "schemaVersion": "media.goals-jtbd.v1",
+      "authority": null,
+      "status": "proposed-for-phase-0-review",
+      "topLevelFields": [
+        "authorityMapping",
+        "businessIntents",
+        "disclosureLevels",
+        "firstUse",
+        "intents",
+        "jobs",
+        "nonGoals",
+        "outcomes",
+        "productId",
+        "schemaVersion",
+        "scope",
+        "scopeStatement",
+        "sourceRefs",
+        "status"
+      ],
+      "declaredIds": [
+        "media.business.bounded-provider-execution",
+        "media.business.reuse-media-capabilities",
+        "media.business.safe-recoverable-operations",
+        "media.business.trustworthy-versioned-outputs",
+        "media.disclosure.expert",
+        "media.disclosure.guided",
+        "media.disclosure.simple",
+        "media.first-use.choose-intent",
+        "media.first-use.provide-context",
+        "media.first-use.review-plan",
+        "media.first-use.review-result",
+        "media.first-use.start-work",
+        "media.goal.apply-permitted-settings",
+        "media.goal.deliver-approved-output",
+        "media.goal.explain-or-demonstrate",
+        "media.goal.finished-asset",
+        "media.goal.improve-with-disclosure",
+        "media.goal.integrate-repeatably",
+        "media.goal.preserve-source",
+        "media.goal.resolve-safely",
+        "media.goal.review-trustworthy-output",
+        "media.goal.understand-media",
+        "media.intent.animate",
+        "media.intent.check-processing-options",
+        "media.intent.check-processing-readiness",
+        "media.intent.choose-eligible-processing-option",
+        "media.intent.create",
+        "media.intent.deliver",
+        "media.intent.edit",
+        "media.intent.find-task-guidance",
+        "media.intent.improve",
+        "media.intent.inspect-provenance",
+        "media.intent.manage-artifact-lifecycle",
+        "media.intent.recover-live-session",
+        "media.intent.resolve-job",
+        "media.intent.restore-project",
+        "media.intent.review-exact-version",
+        "media.intent.review-rights-and-consent",
+        "media.intent.review-workspace-settings",
+        "media.intent.simulate",
+        "media.intent.understand",
+        "media.job.animate",
+        "media.job.create-compose",
+        "media.job.deliver-authorized",
+        "media.job.edit-versioned",
+        "media.job.import-and-understand",
+        "media.job.improve-preserve",
+        "media.job.integrate-public-contract",
+        "media.job.resolve-blocked-work",
+        "media.job.review-exact-version",
+        "media.job.simulate",
+        "media.job.start-from-intent",
+        "media.journey.first-use",
+        "media.non-goal.generic-document-intelligence",
+        "media.non-goal.generic-platform-control-plane",
+        "media.non-goal.generic-product-tooling",
+        "media.non-goal.universal-unqualified-provider-support",
+        "media.non-goal.unqualified-scientific-authority"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+      "sha256": "fd955e1b4b038c42806a514a1a3e24466b8f6a339cf30b3b15060eb32860fa75",
+      "bytes": 42257,
+      "format": "yaml",
+      "schemaVersion": null,
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "accessibilityDisposition",
+        "artifactVersion",
+        "capabilityApplicabilityDecision",
+        "dependencies",
+        "journeyRecordRequirements",
+        "journeys",
+        "outcomeCoverage",
+        "phaseTask",
+        "scopeStatus",
+        "sourceReferences",
+        "status"
+      ],
+      "declaredIds": [
+        "J-01",
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-06",
+        "J-07",
+        "J-08",
+        "J-09",
+        "J-10",
+        "J-11",
+        "J-12",
+        "J-13",
+        "J-14",
+        "J-15",
+        "J-16",
+        "J-17",
+        "J-18",
+        "J-19",
+        "J-20",
+        "J-21",
+        "J-22",
+        "J-23",
+        "J-24",
+        "J-25",
+        "J-26",
+        "J-27",
+        "J-28",
+        "J-29",
+        "J-30",
+        "media.a11y.baseline"
       ]
     },
     {
@@ -708,8 +975,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml",
-      "sha256": "46b43a7139bd8d9d5949380e20447336acad7e283a18f08feb94bd63173445a3",
-      "bytes": 13199,
+      "sha256": "b5ca6c7478006221c04cc3c18aacaa579fc69aa7c5bbf23d273e2d89977da4f4",
+      "bytes": 16397,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.states.v1",
       "authority": null,
@@ -729,8 +996,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
-      "sha256": "b328ba63fb1b06ca4870bf689f671ec173d1db93cd98d0ff14f80e54e8a6bf9b",
-      "bytes": 7068,
+      "sha256": "f1c9183a18e362108296288b51a16e1a57dfbe1520e93f8c1770f0007b92f5c2",
+      "bytes": 7123,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -789,8 +1056,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
-      "sha256": "5fa860516241327fd461d159abbe875ca377ff169003d991f112d54e3ee9caaa",
-      "bytes": 7340,
+      "sha256": "e26c165e9a7ff747c533dda6aac3a934441ac47ce8f8bb857127d140d3441094",
+      "bytes": 7395,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -849,8 +1116,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
-      "sha256": "97f718ba4a4c573d549baebfc3965f4b72ef4764f663b4b592645f41cb8e6cf5",
-      "bytes": 7213,
+      "sha256": "1a273eb9b7e1a2e24551e1f481e14259d55182e38ed9445646828ad94935bd99",
+      "bytes": 7268,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -941,8 +1208,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml",
-      "sha256": "da7373c764fce3b7a1560bb043cfc76f160fcac1a3abcc149c609dbbfbe68d87",
-      "bytes": 5880,
+      "sha256": "29153e00e27e5fc20e323f81e5b40beebdfa9fd1f67b1d707cb8358c94563cde",
+      "bytes": 5935,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1001,8 +1268,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml",
-      "sha256": "4f1e4306ac4199cf31e356f68f6e234ebc1f5a74e70cdfa85b991275fe51725a",
-      "bytes": 5627,
+      "sha256": "95b4680e7026fbab91dae7f6789b364721d0fc20a3b86ffd8617016da1d64260",
+      "bytes": 5682,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1060,8 +1327,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml",
-      "sha256": "7fc16e0e649db40c2cc273e497e58b97701d280e66362bb4010ef9176dcfe0dd",
-      "bytes": 5187,
+      "sha256": "8dc7e94143adac2e55ade0b3cf08803cd59fc3d80315e3dd22f7aa43df25fe4d",
+      "bytes": 5242,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1118,8 +1385,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml",
-      "sha256": "0a5f00c34b997c909fc12e04ef4abf36ee29877f50d966f3fb0fda9260b14ad4",
-      "bytes": 6366,
+      "sha256": "35633db5765efdce91831f93d4a8169fb89b1ef4b7d72a6b2669685fae9dd749",
+      "bytes": 6421,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1238,8 +1505,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml",
-      "sha256": "42bf87d036c0f016036c743267ab6b8d58c4f44af773ba35e5fa24e11dd95805",
-      "bytes": 6732,
+      "sha256": "69b9a8ee98962a4dee7448582420db9709800be892435d1955478df6df38c447",
+      "bytes": 6787,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1298,8 +1565,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml",
-      "sha256": "a5eab5f80c36ed2d9acbc72c33bb268939665fb7722e6b332bc77c8f2534234f",
-      "bytes": 5385,
+      "sha256": "cb5861126077ca106186d7935ea76e0c821047f804a4170b47045f339680ad63",
+      "bytes": 5440,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1356,8 +1623,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml",
-      "sha256": "3fbc220fc47b982d23b9070aea972b48ae899d93475989be052ca6cb08a3fd0f",
-      "bytes": 7521,
+      "sha256": "73266094d433397406a675f0ba487afbf3933ec941a064a6cee9e2c7a11d7800",
+      "bytes": 7576,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1476,8 +1743,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml",
-      "sha256": "1955f17550407182d07e15bd8d9b5278046cf38bc2dd99d0c6a8d6b0309a5a34",
-      "bytes": 7543,
+      "sha256": "57534ed9d4ac9c2ddb613cdcfc742e9b273b241da250e8ebfd3d6a013b1c3b75",
+      "bytes": 7598,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1545,8 +1812,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml",
-      "sha256": "9d20222b731eb175c916a0436ed4c133f924bdce07d7c5f9a7f1f70b03bcf8c5",
-      "bytes": 6502,
+      "sha256": "215718543f028ab8d8edb8cb9dc5243609a36313a2ff7ec5ccae10ae3455572b",
+      "bytes": 6557,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1612,8 +1879,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml",
-      "sha256": "07d35b4eb4ad0ea00ea543c2c64ba4a6bc34dde5bdf5da2b7dc7bf14bb3c3c43",
-      "bytes": 7447,
+      "sha256": "2d7edcfc07a89e457ce8b66ab692e847185cd2c718bd580903eae7221eb0d5d2",
+      "bytes": 7502,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1681,8 +1948,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml",
-      "sha256": "9016d68dc6871800a3051781b365cfcc9d4ffa864915bd2533408575a485cbf0",
-      "bytes": 7006,
+      "sha256": "14c854e244b6698faeaaa8687ab2f31ea30bfd7940d887854ee8931e65e126ab",
+      "bytes": 7061,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1750,8 +2017,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml",
-      "sha256": "5110f827cc8acf8f41519e3e991e6946d00bd6d1f3f93df261a863e3d83b8d6f",
-      "bytes": 5483,
+      "sha256": "279a6928a527c9fcbd0809297a886e3232998ef6d02a7a47fa5cab3a9b211a65",
+      "bytes": 5538,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1818,8 +2085,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml",
-      "sha256": "d52230df6a99da248637938a8322eafa5a27a847d8da4e3d7984f239f4bcc94f",
-      "bytes": 7822,
+      "sha256": "03234cfd14a1a2c13f31951182147327b10e7b0d95f63c8c574768bd7cc786a8",
+      "bytes": 7877,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1887,8 +2154,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml",
-      "sha256": "cfc605d10adac8f256e05c1f923e66ba3a1b6bbe235a245cc0de05c2e423fa9f",
-      "bytes": 7198,
+      "sha256": "f15de84a9e805c584e21effb0d13e690e7dc93a375faa53736a918722bfbd7c7",
+      "bytes": 7253,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -1956,8 +2223,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml",
-      "sha256": "1acc0e2299911c7e4152689c17f5e780d8f713ef91aa7cab00c25dbe993d31f2",
-      "bytes": 7796,
+      "sha256": "eb854e8c503755ec12a75c442a52086315dfaaada36ee2cce26b30d310f3586c",
+      "bytes": 7851,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2025,8 +2292,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml",
-      "sha256": "9725acd45636ef9733997220119c4dee86f240b746fef86ed21d108dac67efc6",
-      "bytes": 7300,
+      "sha256": "e7274811c1d1298f36e0e3bc62fed3fd5200cc55625c1b68ccbf6f24f8f4d3d2",
+      "bytes": 7355,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2094,8 +2361,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml",
-      "sha256": "231ba048f17422a29e583acdf9eafe3ea09c04248371043bd9c52d280e84b18c",
-      "bytes": 7319,
+      "sha256": "654fc98c174a894f894029bc9b982d7cb12c2782ac4e98b56ea49bfa713e3601",
+      "bytes": 7374,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2163,8 +2430,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml",
-      "sha256": "aaaab6c3f2b6e573111f630fa9cd458cbe7ebb51acf28180cc7f379196aee850",
-      "bytes": 7445,
+      "sha256": "a5e169d717f7c922b7ef52602978e917b3c4eaf7d47ef2f3e5efd3d2bf9c20ed",
+      "bytes": 7500,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2232,8 +2499,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml",
-      "sha256": "50cf30cdf9e6f572447fc65bc08e025572b8cdead46c2d5862c05f4049259d53",
-      "bytes": 5722,
+      "sha256": "3fdc72687aa71bd74f40dc5da771d760ac5fe0702e2a3a6fe977d822fcabb6c4",
+      "bytes": 5777,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2300,8 +2567,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml",
-      "sha256": "2c801d22419039e3181f9ba8d7fa5ab1b6b6c63fe50f78a1200b36e13a6003eb",
-      "bytes": 6371,
+      "sha256": "3b887096b6250fcae251c28f9705b9d66c5211edfbd1123a74b2470e72c48714",
+      "bytes": 6426,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2359,8 +2626,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml",
-      "sha256": "bbddce0bb0cc6d4b8625ff430d2a6784acb6b45c5bec8e6f3a409bf7b7767c41",
-      "bytes": 6107,
+      "sha256": "7d8609b97ea5ea884cac7ddcde6fcb4870822f79f8b2eb533f7a86d3a946bb68",
+      "bytes": 6162,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2417,8 +2684,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml",
-      "sha256": "03175ca6425d0492f9e9c981b2d91dcee2a11cb60e009e9d6b5e886e22255250",
-      "bytes": 6741,
+      "sha256": "02fa9e3ee0bc30100092f69d4614979eb06d0e84dbade8d25837d5bff7e29fa8",
+      "bytes": 6796,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2534,8 +2801,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml",
-      "sha256": "20a10bd005084f04e53450c134b84ae34b3691e6337f3e58d6475046665ee374",
-      "bytes": 6936,
+      "sha256": "fa0147852742f9f93f63316778d7684029eb10f045b1f8b1a1cf57129a80b123",
+      "bytes": 6991,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2652,8 +2919,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml",
-      "sha256": "a31a4f6adb92f244e8f64ae6245846e707508207de6b349617feebd12db0d602",
-      "bytes": 8305,
+      "sha256": "29d79226eeeece307de5420cb9bcede53bd0a151a29b7dec9b29ee193686309e",
+      "bytes": 8360,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2719,8 +2986,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml",
-      "sha256": "59906aa4b917534f72245b67c31489723c1b87d17a462fbac150b79df4a8cb97",
-      "bytes": 6624,
+      "sha256": "c90061734aaf4390378fa5384205fb320de228917d61e12712c6907d7432da50",
+      "bytes": 6679,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2778,8 +3045,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml",
-      "sha256": "199029c96ecc54fe755b452dc84a5c42a4f6b2fe6c21e51dafafee5d4743e2dc",
-      "bytes": 4652,
+      "sha256": "c33edb2dec1118427246b239dd991a510f47824903156cb5901f171c26f205d8",
+      "bytes": 4707,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2836,8 +3103,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml",
-      "sha256": "ec746c48e1fccccf51e19cc3265c04d30ebdd817fa547a58c5d90735a24035c8",
-      "bytes": 5243,
+      "sha256": "fe56506036ea990bc29bc20f8ee051606fa4d2bfd2a2a75eda807054a5d9818e",
+      "bytes": 5298,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2894,8 +3161,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml",
-      "sha256": "54c3d58ef02343c6b83adf4bc9dc6523815fc41f0c65b24b2206b1281044b2dc",
-      "bytes": 6093,
+      "sha256": "f7bcc069d191ed2d17133a80b647c5c7bf804e5f3b7c8c0c7bf9e7844529b373",
+      "bytes": 6148,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2953,8 +3220,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml",
-      "sha256": "474762c6098207170fd605cf746d151258cebcdaf9bcc0ae25dcab9d4a88a94f",
-      "bytes": 6527,
+      "sha256": "85c242437eaf681419bcf803922e4fb1c87afc85e860c2967bb5e5d48fcc8bf1",
+      "bytes": 6582,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3012,8 +3279,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml",
-      "sha256": "805faf167c2b8177430bec96f6e61b07f5b6485f99c10cbc79912642b314d7ef",
-      "bytes": 7698,
+      "sha256": "9d08bdb3ff105d5794799a2938f3804533c4666b4b3ae72d27b940413e3b9f1d",
+      "bytes": 7753,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3084,8 +3351,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml",
-      "sha256": "288ff6c3da6a21b7d8b506ab81a2080ae4a9cbe9133e0abd23b8619d7ad53726",
-      "bytes": 8544,
+      "sha256": "bacd365566377fa43c2450a38c73681a76cccb5731ef3f8f873f878eb3ed6a36",
+      "bytes": 8599,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3156,8 +3423,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml",
-      "sha256": "82230e807efdd5e96710340ecb9f42e852c5f42de608455ca59d460e45a252a6",
-      "bytes": 7699,
+      "sha256": "d81ad992caf10d73a3c431016ac22a07dfcc317953f03f93915837c607ceaea4",
+      "bytes": 7754,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3228,8 +3495,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml",
-      "sha256": "f41ed733b9e82777cbed3e903d1efa318ed0216212b845b5c98c569ceb750327",
-      "bytes": 8013,
+      "sha256": "76e1312cb3e1f311cc9480f7687b309bbd713beae1f2ed73f71b21c3bc1a1cd8",
+      "bytes": 8068,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3300,8 +3567,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml",
-      "sha256": "324f11e6658e86ea97c7faccf5c7356a2481b1944d8700183e4ac38968c9172f",
-      "bytes": 6682,
+      "sha256": "965851fd759a5c3b3fb9713ac49bbdc5ed0969c62d4d5ef0beec0bf364f0684b",
+      "bytes": 6737,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3442,8 +3709,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml",
-      "sha256": "bf338984a3c0da5cd0e03e67e619f8ce2b283aa225299bd4bb1476766ce01b11",
-      "bytes": 6127,
+      "sha256": "f4f073a07ec99520481976033fd49138a7f5851d38002458cd88c559bd278eff",
+      "bytes": 6182,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3512,8 +3779,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml",
-      "sha256": "739c7b8f283e396c46f06139c16a606a632f356d1a4413d78b65f2657f6a83d5",
-      "bytes": 7019,
+      "sha256": "32a450702b19fb62ee0ab15b5ba5942e5cdddc571ce232c77f1c5a2d69fbe027",
+      "bytes": 7074,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3582,8 +3849,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml",
-      "sha256": "afeb426e2f6a3a53fb5d209862ed510af0c4a18319e5bee9566fb80f2b1154a8",
-      "bytes": 7625,
+      "sha256": "d9720e80821cfa34642f97500b15a1c61023c73b2ebccb9570aac56ebd866188",
+      "bytes": 7680,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -3725,8 +3992,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml",
-      "sha256": "5a61db7d3e05a0d834cd9c98005cfc7b897fd0d6bb772e00e95da257d5381532",
-      "bytes": 9054,
+      "sha256": "6a88cd3219176e983695733a38dabdaaf38660c9854cab9165c4fc6bff331b99",
+      "bytes": 9109,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -4508,8 +4775,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
-      "sha256": "63b89635ef805f2e2f2776d929a65720e9eb6ab3d9fccb02fc82fd5e9511d7c2",
-      "bytes": 26687,
+      "sha256": "27a2c72d1f7c013ab190f6b326c2147f32318ed1746d0b61e0fa84176ca51a8c",
+      "bytes": 26795,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -4816,8 +5083,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
-      "sha256": "6f40d750f3bdb550393f723e4bb175cd4458f776ce53271c0a9e9a8a0d78d101",
-      "bytes": 34491,
+      "sha256": "ba42268b29264efd42123d41ac7b76480a4183309cdcc820cabf887df186d350",
+      "bytes": 34677,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -5189,16 +5456,31 @@
         "requiredProps": []
       },
       {
+        "id": "media.component.progress-indicator",
+        "name": "media.component.progress-indicator",
+        "semanticPurpose": "present measured or unmeasured operation progress as a labeled native progress control",
+        "requiredProps": [
+          "label"
+        ]
+      },
+      {
         "id": "media.component.task-flow",
         "name": "media.component.task-flow",
         "semanticPurpose": "present a host-projected Media workflow, operation observation, and explicitly supplied safe actions",
-        "requiredProps": []
+        "requiredProps": [
+          "children"
+        ]
       },
       {
         "id": "media.component.voice-production-workflow",
         "name": "media.component.voice-production-workflow",
         "semanticPurpose": "coordinate governed voice production while keeping source, consent, model/provider, and output review distinct",
-        "requiredProps": []
+        "requiredProps": [
+          "capabilities",
+          "consent",
+          "currentStep",
+          "projectName"
+        ]
       },
       {
         "id": "media.component.cli-output",
@@ -5216,7 +5498,9 @@
           "media.component.project-context-summary",
           "media.component.intent-launcher"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-01"
+        ],
         "stateRefs": []
       },
       {
@@ -5226,7 +5510,9 @@
         "componentRefs": [
           "media.component.project-browser"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-01"
+        ],
         "stateRefs": []
       },
       {
@@ -5237,7 +5523,11 @@
           "media.component.project-context-summary",
           "media.component.intent-launcher"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-01",
+          "J-20",
+          "J-23"
+        ],
         "stateRefs": []
       },
       {
@@ -5249,7 +5539,9 @@
           "media.component.artifact-integrity-summary",
           "media.component.artifact-source-picker"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-02"
+        ],
         "stateRefs": []
       },
       {
@@ -5260,7 +5552,11 @@
           "media.component.artifact-integrity-summary",
           "media.component.provenance-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-02",
+          "J-23",
+          "J-26"
+        ],
         "stateRefs": []
       },
       {
@@ -5271,7 +5567,9 @@
           "media.component.artifact-source-picker",
           "media.component.artifact-transfer-status"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-02"
+        ],
         "stateRefs": []
       },
       {
@@ -5283,7 +5581,11 @@
           "media.component.intent-launcher",
           "media.component.creation-plan-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-01",
+          "J-09",
+          "J-24"
+        ],
         "stateRefs": []
       },
       {
@@ -5295,7 +5597,15 @@
           "media.component.delivery-profile-picker",
           "media.component.rights-retention-review"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-09",
+          "J-10",
+          "J-15",
+          "J-19",
+          "J-24",
+          "J-25",
+          "J-27"
+        ],
         "stateRefs": []
       },
       {
@@ -5307,7 +5617,9 @@
           "media.component.artifact-browser",
           "media.component.provenance-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-09"
+        ],
         "stateRefs": []
       },
       {
@@ -5320,7 +5632,9 @@
           "media.component.result-comparison",
           "media.component.rights-retention-review"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-05"
+        ],
         "stateRefs": []
       },
       {
@@ -5334,7 +5648,14 @@
           "media.component.job-status-card",
           "media.component.result-comparison"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-03",
+          "J-05",
+          "J-08",
+          "J-09",
+          "J-10",
+          "J-29"
+        ],
         "stateRefs": []
       },
       {
@@ -5348,7 +5669,13 @@
           "media.component.creation-plan-summary",
           "media.component.result-comparison"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-03",
+          "J-07",
+          "J-09",
+          "J-16",
+          "J-17"
+        ],
         "stateRefs": []
       },
       {
@@ -5362,7 +5689,11 @@
           "media.component.job-status-card",
           "media.component.rights-retention-review"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-03",
+          "J-04",
+          "J-16"
+        ],
         "stateRefs": []
       },
       {
@@ -5374,7 +5705,9 @@
           "media.component.provenance-summary",
           "media.component.creation-plan-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-04"
+        ],
         "stateRefs": []
       },
       {
@@ -5387,7 +5720,11 @@
           "media.component.transcript-review",
           "media.component.provenance-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-03",
+          "J-16",
+          "J-18"
+        ],
         "stateRefs": []
       },
       {
@@ -5401,7 +5738,9 @@
           "media.component.result-comparison",
           "media.component.provenance-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-16"
+        ],
         "stateRefs": []
       },
       {
@@ -5414,7 +5753,10 @@
           "media.component.result-comparison",
           "media.component.provenance-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-07",
+          "J-08"
+        ],
         "stateRefs": []
       },
       {
@@ -5426,7 +5768,19 @@
           "media.component.quality-inspector",
           "media.component.provenance-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-03",
+          "J-04",
+          "J-05",
+          "J-07",
+          "J-08",
+          "J-10",
+          "J-11",
+          "J-12",
+          "J-15",
+          "J-16",
+          "J-19"
+        ],
         "stateRefs": []
       },
       {
@@ -5439,7 +5793,10 @@
           "media.component.creation-plan-summary",
           "media.component.result-comparison"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-11",
+          "J-18"
+        ],
         "stateRefs": []
       },
       {
@@ -5452,7 +5809,9 @@
           "media.component.result-comparison",
           "media.component.provenance-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-11"
+        ],
         "stateRefs": []
       },
       {
@@ -5465,7 +5824,12 @@
           "media.component.scene-inspector",
           "media.component.result-comparison"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-10",
+          "J-12",
+          "J-13",
+          "J-28"
+        ],
         "stateRefs": []
       },
       {
@@ -5478,7 +5842,11 @@
           "media.component.simulation-instruments",
           "media.component.artifact-browser"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-13",
+          "J-14",
+          "J-28"
+        ],
         "stateRefs": []
       },
       {
@@ -5491,7 +5859,10 @@
           "media.component.creation-plan-summary",
           "media.component.quality-inspector"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-14",
+          "J-15"
+        ],
         "stateRefs": []
       },
       {
@@ -5505,7 +5876,11 @@
           "media.component.delivery-profile-picker",
           "media.component.rights-retention-review"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-09",
+          "J-17",
+          "J-18"
+        ],
         "stateRefs": []
       },
       {
@@ -5518,7 +5893,9 @@
           "media.component.quality-inspector",
           "media.component.scene-inspector"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-18"
+        ],
         "stateRefs": []
       },
       {
@@ -5530,7 +5907,16 @@
           "media.component.result-comparison",
           "media.component.provenance-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-05",
+          "J-08",
+          "J-10",
+          "J-14",
+          "J-15",
+          "J-17",
+          "J-19",
+          "J-27"
+        ],
         "stateRefs": []
       },
       {
@@ -5543,7 +5929,14 @@
           "media.component.rights-retention-review",
           "media.component.job-status-card"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-09",
+          "J-13",
+          "J-14",
+          "J-18",
+          "J-19",
+          "J-28"
+        ],
         "stateRefs": []
       },
       {
@@ -5553,7 +5946,15 @@
         "componentRefs": [
           "media.component.job-status-card"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-02",
+          "J-20",
+          "J-23",
+          "J-26",
+          "J-27",
+          "J-29",
+          "J-30"
+        ],
         "stateRefs": []
       },
       {
@@ -5564,7 +5965,16 @@
           "media.component.job-status-card",
           "media.component.activity-recovery-feed"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-02",
+          "J-20",
+          "J-22",
+          "J-23",
+          "J-24",
+          "J-25",
+          "J-27",
+          "J-29"
+        ],
         "stateRefs": []
       },
       {
@@ -5578,7 +5988,10 @@
           "media.component.quality-inspector",
           "media.component.provenance-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-20",
+          "J-24"
+        ],
         "stateRefs": []
       },
       {
@@ -5591,7 +6004,18 @@
           "media.component.provenance-summary",
           "media.component.quality-inspector"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-04",
+          "J-06",
+          "J-07",
+          "J-12",
+          "J-13",
+          "J-17",
+          "J-18",
+          "J-21",
+          "J-22",
+          "J-25"
+        ],
         "stateRefs": []
       },
       {
@@ -5604,7 +6028,11 @@
           "media.component.artifact-integrity-summary",
           "media.component.provenance-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-09",
+          "J-22",
+          "J-28"
+        ],
         "stateRefs": []
       },
       {
@@ -5617,7 +6045,10 @@
           "media.component.quality-inspector",
           "media.component.rights-retention-review"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-09",
+          "J-21"
+        ],
         "stateRefs": []
       },
       {
@@ -5629,7 +6060,9 @@
           "media.component.provenance-summary",
           "media.component.artifact-integrity-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-26"
+        ],
         "stateRefs": []
       },
       {
@@ -5641,7 +6074,10 @@
           "media.component.artifact-integrity-summary",
           "media.component.scene-inspector"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-06",
+          "J-21"
+        ],
         "stateRefs": []
       },
       {
@@ -5653,7 +6089,9 @@
           "media.component.creation-plan-summary",
           "media.component.quality-inspector"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-30"
+        ],
         "stateRefs": []
       },
       {
@@ -5665,7 +6103,9 @@
           "media.component.creation-plan-summary",
           "media.component.quality-inspector"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-30"
+        ],
         "stateRefs": []
       },
       {
@@ -5677,7 +6117,9 @@
           "media.component.job-status-card",
           "media.component.provenance-summary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-30"
+        ],
         "stateRefs": []
       },
       {
@@ -5699,7 +6141,9 @@
         "componentRefs": [
           "media.component.identity-context-boundary"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-01"
+        ],
         "stateRefs": []
       },
       {
@@ -5711,7 +6155,9 @@
           "media.component.provenance-summary",
           "media.component.rights-retention-review"
         ],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-06"
+        ],
         "stateRefs": []
       },
       {
@@ -5719,7 +6165,9 @@
         "name": "Select a source",
         "intent": "Contextual view for the transcription and caption-correction journey.",
         "componentRefs": [],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-03"
+        ],
         "stateRefs": []
       },
       {
@@ -5727,7 +6175,9 @@
         "name": "Monitor transcription",
         "intent": "Contextual view for the transcription and caption-correction journey.",
         "componentRefs": [],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-03"
+        ],
         "stateRefs": []
       },
       {
@@ -5735,7 +6185,9 @@
         "name": "Review a transcript",
         "intent": "Contextual view for the transcription and caption-correction journey.",
         "componentRefs": [],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-03"
+        ],
         "stateRefs": []
       },
       {
@@ -5743,7 +6195,9 @@
         "name": "Correct captions",
         "intent": "Contextual view for the transcription and caption-correction journey.",
         "componentRefs": [],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-03"
+        ],
         "stateRefs": []
       },
       {
@@ -5751,7 +6205,9 @@
         "name": "Compare caption versions",
         "intent": "Contextual view for the transcription and caption-correction journey.",
         "componentRefs": [],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-03"
+        ],
         "stateRefs": []
       },
       {
@@ -5759,11 +6215,982 @@
         "name": "Check job outcome",
         "intent": "Contextual view for the transcription and caption-correction journey.",
         "componentRefs": [],
-        "journeyRefs": [],
+        "journeyRefs": [
+          "J-03",
+          "J-20",
+          "J-27"
+        ],
         "stateRefs": []
       }
     ],
-    "journeys": [],
+    "journeys": [
+      {
+        "id": "J-01",
+        "name": "First use, authentication, context, and project creation",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-01.step-01",
+            "intent": "Ghatana identity, context selection, expiry/re-auth and denial",
+            "viewRef": "media.view.authenticate-and-select-context",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-01.step-02",
+            "intent": "Resume work; launch intent; meaningful first-use/empty state",
+            "viewRef": "media.view.resume-work",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-01.step-03",
+            "intent": "Search/filter/create/open projects",
+            "viewRef": "media.view.find-projects",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-01.step-04",
+            "intent": "Project context, source/output versions and next action",
+            "viewRef": "media.view.work-in-project",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-02",
+        "name": "Upload/import, inspect, and produce a usable artifact",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-02.step-01",
+            "intent": "Governed library, import/upload/search/filter",
+            "viewRef": "media.view.browse-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-02.step-02",
+            "intent": "Progress/resume/integrity/quarantine/permission recovery",
+            "viewRef": "media.view.import-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-02.step-03",
+            "intent": "Progress/resume/integrity/quarantine/permission recovery",
+            "viewRef": "media.view.import-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-02.step-04",
+            "intent": "View progress and outputs, request a stop, retry eligible work, or check an uncertain outcome",
+            "viewRef": "media.view.job-status",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-02.step-05",
+            "intent": "Playback/technical metadata, versions, rights and actions",
+            "viewRef": "media.view.inspect-media",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-03",
+        "name": "Audio/video transcription through corrected captions",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-03.step-01",
+            "intent": "Contextual view for the transcription and caption-correction journey.",
+            "viewRef": "media.view.select-source",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-03.step-02",
+            "intent": "Contextual view for the transcription and caption-correction journey.",
+            "viewRef": "media.view.monitor-transcription",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-03.step-03",
+            "intent": "Contextual view for the transcription and caption-correction journey.",
+            "viewRef": "media.view.monitor-transcription",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-03.step-04",
+            "intent": "Contextual view for the transcription and caption-correction journey.",
+            "viewRef": "media.view.review-transcript",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-03.step-05",
+            "intent": "Contextual view for the transcription and caption-correction journey.",
+            "viewRef": "media.view.correct-captions",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-03.step-06",
+            "intent": "Contextual view for the transcription and caption-correction journey.",
+            "viewRef": "media.view.correct-captions",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-03.step-07",
+            "intent": "Contextual view for the transcription and caption-correction journey.",
+            "viewRef": "media.view.correct-captions",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-03.step-08",
+            "intent": "Contextual view for the transcription and caption-correction journey.",
+            "viewRef": "media.view.compare-caption-versions",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-04",
+        "name": "Authorized text-to-speech to approved audio",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-04.step-01",
+            "intent": "Transcription/TTS/pronunciation/language/voice choices",
+            "viewRef": "media.view.work-with-speech",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-04.step-02",
+            "intent": "Training/conversion permissions and model references",
+            "viewRef": "media.view.use-authorized-voice",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-04.step-03",
+            "intent": "Before/after, candidate ranking and applicable measurements",
+            "viewRef": "media.view.compare-results",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-04.step-04",
+            "intent": "Playback/download/review/provenance and delivery action",
+            "viewRef": "media.view.inspect-output",
+            "transitionRefs": []
+          }
+        ],
+        "desiredOutcomeRef": "media.goal.finished-asset"
+      },
+      {
+        "id": "J-05",
+        "name": "Image/video analysis, geometry, and tracks",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-05.step-01",
+            "intent": "Generation/conditioning/candidate selection",
+            "viewRef": "media.view.create-image",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-05.step-02",
+            "intent": "Generation strategy, controls, progress and alternatives",
+            "viewRef": "media.view.create-video",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-05.step-03",
+            "intent": "Applicable dimensions, abstentions, defects and repair plan",
+            "viewRef": "media.view.review-quality",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-05.step-04",
+            "intent": "Before/after, candidate ranking and applicable measurements",
+            "viewRef": "media.view.compare-results",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-06",
+        "name": "Multimodal or document consumer request to grounded typed result",
+        "actorRef": "media.developer-integrator",
+        "steps": [
+          {
+            "stepId": "J-06.step-01",
+            "intent": "Product-specific assistance and safe diagnostic sharing",
+            "viewRef": "media.view.find-task-guidance",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-06.step-02",
+            "intent": "Playback/download/review/provenance and delivery action",
+            "viewRef": "media.view.inspect-output",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-06.step-03",
+            "intent": "Source/edit/model/simulation lineage and disclosure limits",
+            "viewRef": "media.view.inspect-provenance",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-07",
+        "name": "Noisy/clipped interview cleanup with preservation and comparison",
+        "actorRef": "media.editor",
+        "steps": [
+          {
+            "stepId": "J-07.step-01",
+            "intent": "Sources/stems/cleanup/mix/mastering",
+            "viewRef": "media.view.create-audio",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-07.step-02",
+            "intent": "Preserve/enhance/creative choice, measured defects, safe plan",
+            "viewRef": "media.view.improve-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-07.step-03",
+            "intent": "Before/after, candidate ranking and applicable measurements",
+            "viewRef": "media.view.compare-results",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-07.step-04",
+            "intent": "Playback/download/review/provenance and delivery action",
+            "viewRef": "media.view.inspect-output",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-08",
+        "name": "Low-quality video repair with measured comparison",
+        "actorRef": "media.editor",
+        "steps": [
+          {
+            "stepId": "J-08.step-01",
+            "intent": "Generation strategy, controls, progress and alternatives",
+            "viewRef": "media.view.create-video",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-08.step-02",
+            "intent": "Preserve/enhance/creative choice, measured defects, safe plan",
+            "viewRef": "media.view.improve-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-08.step-03",
+            "intent": "Before/after, candidate ranking and applicable measurements",
+            "viewRef": "media.view.compare-results",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-08.step-04",
+            "intent": "Applicable dimensions, abstentions, defects and repair plan",
+            "viewRef": "media.view.review-quality",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-09",
+        "name": "Prompt/brief to storyboard, composition, render, review, and delivery",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-09.step-01",
+            "intent": "Intent/recipe and safe outcome settings",
+            "viewRef": "media.view.create-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-09.step-02",
+            "intent": "Proposed graph, estimates, material decisions and validation",
+            "viewRef": "media.view.review-creation-plan",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-09.step-03",
+            "intent": "Scenes, timing, references, versions and transitions",
+            "viewRef": "media.view.arrange-scenes",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-09.step-04",
+            "intent": "Generation strategy, controls, progress and alternatives",
+            "viewRef": "media.view.create-video",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-09.step-05",
+            "intent": "Sources/stems/cleanup/mix/mastering",
+            "viewRef": "media.view.create-audio",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-09.step-06",
+            "intent": "Timeline/graphics/brand/audio/captions/transition assembly",
+            "viewRef": "media.view.compose-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-09.step-07",
+            "intent": "Snapshot/profile, validation, cost and submission",
+            "viewRef": "media.view.prepare-render",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-09.step-08",
+            "intent": "Scoped exact-version review/comment/approve/reject",
+            "viewRef": "media.view.review-exact-version",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-09.step-09",
+            "intent": "Destination/format/rights/approval and publication finality",
+            "viewRef": "media.view.deliver-output",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-10",
+        "name": "Controlled generation with references and continuity review",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-10.step-01",
+            "intent": "Proposed graph, estimates, material decisions and validation",
+            "viewRef": "media.view.review-creation-plan",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-10.step-02",
+            "intent": "Generation strategy, controls, progress and alternatives",
+            "viewRef": "media.view.create-video",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-10.step-03",
+            "intent": "Timeline/keyframes/curves/rig/path/control actions",
+            "viewRef": "media.view.animate-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-10.step-04",
+            "intent": "Applicable dimensions, abstentions, defects and repair plan",
+            "viewRef": "media.view.review-quality",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-10.step-05",
+            "intent": "Before/after, candidate ranking and applicable measurements",
+            "viewRef": "media.view.compare-results",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-11",
+        "name": "Region mask/tracking edit with comparison and undo",
+        "actorRef": "media.editor",
+        "steps": [
+          {
+            "stepId": "J-11.step-01",
+            "intent": "Region/track operations, exact constraints and undo",
+            "viewRef": "media.view.edit-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-11.step-02",
+            "intent": "Region selection, propagation uncertainty and correction",
+            "viewRef": "media.view.edit-media-region",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-11.step-03",
+            "intent": "Before/after, candidate ranking and applicable measurements",
+            "viewRef": "media.view.compare-results",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-12",
+        "name": "Deterministic 2D/vector/procedural animation",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-12.step-01",
+            "intent": "Timeline/keyframes/curves/rig/path/control actions",
+            "viewRef": "media.view.animate-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-12.step-02",
+            "intent": "Before/after, candidate ranking and applicable measurements",
+            "viewRef": "media.view.compare-results",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-12.step-03",
+            "intent": "Playback/download/review/provenance and delivery action",
+            "viewRef": "media.view.inspect-output",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-13",
+        "name": "3D character, rig, path, or control animation",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-13.step-01",
+            "intent": "Scene entities/material/camera/light and model bindings",
+            "viewRef": "media.view.compose-scene",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-13.step-02",
+            "intent": "Timeline/keyframes/curves/rig/path/control actions",
+            "viewRef": "media.view.animate-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-13.step-03",
+            "intent": "Snapshot/profile, validation, cost and submission",
+            "viewRef": "media.view.prepare-render",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-13.step-04",
+            "intent": "Playback/download/review/provenance and delivery action",
+            "viewRef": "media.view.inspect-output",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-14",
+        "name": "Explore a domain simulation and its measurements",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-14.step-01",
+            "intent": "Scene entities/material/camera/light and model bindings",
+            "viewRef": "media.view.compose-scene",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-14.step-02",
+            "intent": "Initial conditions, domain fidelity, time control and instruments",
+            "viewRef": "media.view.explore-simulation",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-14.step-03",
+            "intent": "Applicable dimensions, abstentions, defects and repair plan",
+            "viewRef": "media.view.review-quality",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-14.step-04",
+            "intent": "Snapshot/profile, validation, cost and submission",
+            "viewRef": "media.view.prepare-render",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-15",
+        "name": "Simulation/procedural passes with protected semantic validation",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-15.step-01",
+            "intent": "Initial conditions, domain fidelity, time control and instruments",
+            "viewRef": "media.view.explore-simulation",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-15.step-02",
+            "intent": "Proposed graph, estimates, material decisions and validation",
+            "viewRef": "media.view.review-creation-plan",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-15.step-03",
+            "intent": "Applicable dimensions, abstentions, defects and repair plan",
+            "viewRef": "media.view.review-quality",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-15.step-04",
+            "intent": "Before/after, candidate ranking and applicable measurements",
+            "viewRef": "media.view.compare-results",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-16",
+        "name": "Existing-video translation/dubbing and voice/timing review",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-16.step-01",
+            "intent": "Translation, voice, timing, meaning review and sync",
+            "viewRef": "media.view.review-dubbing",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-16.step-02",
+            "intent": "Transcription/TTS/pronunciation/language/voice choices",
+            "viewRef": "media.view.work-with-speech",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-16.step-03",
+            "intent": "Edit caption wording, timing, and language for accessibility and review.",
+            "viewRef": "media.view.edit-captions",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-16.step-04",
+            "intent": "Sources/stems/cleanup/mix/mastering",
+            "viewRef": "media.view.create-audio",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-16.step-05",
+            "intent": "Before/after, candidate ranking and applicable measurements",
+            "viewRef": "media.view.compare-results",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-17",
+        "name": "Music, effects, Foley, stems, mix, and mastering",
+        "actorRef": "media.editor",
+        "steps": [
+          {
+            "stepId": "J-17.step-01",
+            "intent": "Sources/stems/cleanup/mix/mastering",
+            "viewRef": "media.view.create-audio",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-17.step-02",
+            "intent": "Timeline/graphics/brand/audio/captions/transition assembly",
+            "viewRef": "media.view.compose-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-17.step-03",
+            "intent": "Applicable dimensions, abstentions, defects and repair plan",
+            "viewRef": "media.view.review-quality",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-17.step-04",
+            "intent": "Playback/download/review/provenance and delivery action",
+            "viewRef": "media.view.inspect-output",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-18",
+        "name": "Compose clips, captions, exact graphics, color, and audio master",
+        "actorRef": "media.editor",
+        "steps": [
+          {
+            "stepId": "J-18.step-01",
+            "intent": "Timeline/graphics/brand/audio/captions/transition assembly",
+            "viewRef": "media.view.compose-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-18.step-02",
+            "intent": "Region/track operations, exact constraints and undo",
+            "viewRef": "media.view.edit-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-18.step-03",
+            "intent": "Input/output color interpretation and shot matching",
+            "viewRef": "media.view.adjust-color",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-18.step-04",
+            "intent": "Edit caption wording, timing, and language for accessibility and review.",
+            "viewRef": "media.view.edit-captions",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-18.step-05",
+            "intent": "Snapshot/profile, validation, cost and submission",
+            "viewRef": "media.view.prepare-render",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-18.step-06",
+            "intent": "Playback/download/review/provenance and delivery action",
+            "viewRef": "media.view.inspect-output",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-19",
+        "name": "Review media quality and improve it within declared limits",
+        "actorRef": "media.editor",
+        "steps": [
+          {
+            "stepId": "J-19.step-01",
+            "intent": "Applicable dimensions, abstentions, defects and repair plan",
+            "viewRef": "media.view.review-quality",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-19.step-02",
+            "intent": "Proposed graph, estimates, material decisions and validation",
+            "viewRef": "media.view.review-creation-plan",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-19.step-03",
+            "intent": "Before/after, candidate ranking and applicable measurements",
+            "viewRef": "media.view.compare-results",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-19.step-04",
+            "intent": "Snapshot/profile, validation, cost and submission",
+            "viewRef": "media.view.prepare-render",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-20",
+        "name": "Observe a long-running job and check its outcome",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-20.step-01",
+            "intent": "Contextual view for the transcription and caption-correction journey.",
+            "viewRef": "media.view.monitor-transcription",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-20.step-02",
+            "intent": "View progress and outputs, request a stop, retry eligible work, or check an uncertain outcome",
+            "viewRef": "media.view.job-status",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-20.step-03",
+            "intent": "View progress and outputs, request a stop, retry eligible work, or check an uncertain outcome",
+            "viewRef": "media.view.job-status",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-20.step-04",
+            "intent": "View progress and outputs, request a stop, retry eligible work, or check an uncertain outcome",
+            "viewRef": "media.view.job-status",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-20.step-05",
+            "intent": "View progress and outputs, request a stop, retry eligible work, or check an uncertain outcome",
+            "viewRef": "media.view.job-status",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-20.step-06",
+            "intent": "View progress and outputs, request a stop, retry eligible work, or check an uncertain outcome",
+            "viewRef": "media.view.job-status",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-20.step-07",
+            "intent": "Contextual view for the transcription and caption-correction journey.",
+            "viewRef": "media.view.check-job-outcome",
+            "transitionRefs": []
+          }
+        ],
+        "desiredOutcomeRef": "media.goal.resolve-safely"
+      },
+      {
+        "id": "J-21",
+        "name": "Review/comment/approve exact version and re-review changed material",
+        "actorRef": "media.reviewer",
+        "steps": [
+          {
+            "stepId": "J-21.step-01",
+            "intent": "Scoped exact-version review/comment/approve/reject",
+            "viewRef": "media.view.review-exact-version",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-21.step-02",
+            "intent": "Playback/download/review/provenance and delivery action",
+            "viewRef": "media.view.inspect-output",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-21.step-03",
+            "intent": "Source/edit/model/simulation lineage and disclosure limits",
+            "viewRef": "media.view.inspect-provenance",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-22",
+        "name": "Export/download/publish with destination acknowledgement",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-22.step-01",
+            "intent": "Playback/download/review/provenance and delivery action",
+            "viewRef": "media.view.inspect-output",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-22.step-02",
+            "intent": "Destination/format/rights/approval and publication finality",
+            "viewRef": "media.view.deliver-output",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-22.step-03",
+            "intent": "Progress, outputs, cancel, retry/reconcile and uncertainty",
+            "viewRef": "media.view.job-status",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-23",
+        "name": "Private/local workflow while disconnected and reconnect",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-23.step-01",
+            "intent": "Project context, source/output versions and next action",
+            "viewRef": "media.view.work-in-project",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-23.step-02",
+            "intent": "Playback/technical metadata, versions, rights and actions",
+            "viewRef": "media.view.inspect-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-23.step-03",
+            "intent": "Progress, outputs, cancel, retry/reconcile and uncertainty",
+            "viewRef": "media.view.job-status",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-23.step-04",
+            "intent": "Jobs/notifications requiring attention; not infrastructure dashboard",
+            "viewRef": "media.view.review-activity",
+            "transitionRefs": []
+          }
+        ],
+        "desiredOutcomeRef": "media.goal.resolve-safely"
+      },
+      {
+        "id": "J-24",
+        "name": "CLI batch/JSON plan through verified outputs",
+        "actorRef": "media.developer-integrator",
+        "steps": [
+          {
+            "stepId": "J-24.step-01",
+            "intent": "Intent/recipe and safe outcome settings",
+            "viewRef": "media.view.create-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-24.step-02",
+            "intent": "Proposed graph, estimates, material decisions and validation",
+            "viewRef": "media.view.review-creation-plan",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-24.step-03",
+            "intent": "Progress, outputs, cancel, retry/reconcile and uncertainty",
+            "viewRef": "media.view.job-status",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-24.step-04",
+            "intent": "Master/renditions/version/approval status",
+            "viewRef": "media.view.review-outputs",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-25",
+        "name": "Agent or product integration with bounded delegated Media action",
+        "actorRef": "media.automation-client",
+        "steps": [
+          {
+            "stepId": "J-25.step-01",
+            "intent": "Proposed graph, estimates, material decisions and validation",
+            "viewRef": "media.view.review-creation-plan",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-25.step-02",
+            "intent": "Progress, outputs, cancel, retry/reconcile and uncertainty",
+            "viewRef": "media.view.job-status",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-25.step-03",
+            "intent": "Playback/download/review/provenance and delivery action",
+            "viewRef": "media.view.inspect-output",
+            "transitionRefs": []
+          }
+        ],
+        "desiredOutcomeRef": "media.goal.integrate-repeatably"
+      },
+      {
+        "id": "J-26",
+        "name": "Delete/revoke/retention/hold and visible lifecycle",
+        "actorRef": "media.administrator",
+        "steps": [
+          {
+            "stepId": "J-26.step-01",
+            "intent": "Consent/license/likeness/processing restrictions and remediation",
+            "viewRef": "media.view.review-rights-and-consent",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-26.step-02",
+            "intent": "Playback/technical metadata, versions, rights and actions",
+            "viewRef": "media.view.inspect-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-26.step-03",
+            "intent": "Jobs/notifications requiring attention; not infrastructure dashboard",
+            "viewRef": "media.view.review-activity",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-27",
+        "name": "Continue safely when processing is unavailable",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-27.step-01",
+            "intent": "Jobs/notifications requiring attention; not infrastructure dashboard",
+            "viewRef": "media.view.review-activity",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-27.step-02",
+            "intent": "Progress, outputs, cancel, retry/reconcile and uncertainty",
+            "viewRef": "media.view.job-status",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-27.step-03",
+            "intent": "Proposed graph, estimates, material decisions and validation",
+            "viewRef": "media.view.review-creation-plan",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-27.step-04",
+            "intent": "Applicable dimensions, abstentions, defects and repair plan",
+            "viewRef": "media.view.review-quality",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-28",
+        "name": "Spatial/360/interactive/synthetic-data export to declared consumer",
+        "actorRef": "media.creator",
+        "steps": [
+          {
+            "stepId": "J-28.step-01",
+            "intent": "Scene entities/material/camera/light and model bindings",
+            "viewRef": "media.view.compose-scene",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-28.step-02",
+            "intent": "Timeline/keyframes/curves/rig/path/control actions",
+            "viewRef": "media.view.animate-media",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-28.step-03",
+            "intent": "Snapshot/profile, validation, cost and submission",
+            "viewRef": "media.view.prepare-render",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "J-28.step-04",
+            "intent": "Destination/format/rights/approval and publication finality",
+            "viewRef": "media.view.deliver-output",
+            "transitionRefs": []
+          }
+        ]
+      },
+      {
+        "id": "J-29",
+        "name": "Live session loss, consent change, and bounded recovery",
+        "actorRef": "media.creator",
+        "steps": [],
+        "desiredOutcomeRef": "media.goal.resolve-safely"
+      },
+      {
+        "id": "J-30",
+        "name": "Check which processing options are eligible",
+        "actorRef": "media.developer-integrator",
+        "steps": [
+          {
+            "stepId": "establish-scope-and-permissions",
+            "intent": "establish-scope-and-permissions",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "inspect-profile-and-provider-dimensions",
+            "intent": "inspect-profile-and-provider-dimensions",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "preserve-unknown-or-unavailable-reasons",
+            "intent": "preserve-unknown-or-unavailable-reasons",
+            "transitionRefs": []
+          },
+          {
+            "stepId": "return-eligible-options-with-provenance",
+            "intent": "return-eligible-options-with-provenance",
+            "transitionRefs": []
+          }
+        ]
+      }
+    ],
     "interactions": [
       {
         "id": "media.interaction.select-artifact-source",
@@ -8495,6 +9922,13 @@
         "contextDimensions": {},
         "startingStateRef": "media-job.COMPLETED",
         "description": "owner-issued-verification-job-has-confirmed-completion-evidence"
+      },
+      {
+        "id": "media.scenario.job-retry-ineligible",
+        "name": "media.scenario.job-retry-ineligible",
+        "contextDimensions": {},
+        "startingStateRef": "media-job.OUTCOME_UNKNOWN",
+        "description": "prior-outcome-is-unknown-or-current-authority-policy-or-retry-budget-does-not-permit-another-attempt"
       }
     ],
     "fixtures": [
@@ -8651,6 +10085,17 @@
           "initialConditions": "owner-issued-verification-job-has-confirmed-completion-evidence",
           "expected": "show-completion-finality-and-recorded-verification-evidence-without-inferencing-from-upload-status"
         }
+      },
+      {
+        "id": "media.fixture.job-retry-ineligible",
+        "scenarioRef": "media.scenario.job-retry-ineligible",
+        "data": {
+          "sourceFixtureRef": "FIXTURE-PROVIDER-AMBIGUITY",
+          "sourcePath": "libs/media-experience-simulation/src/fixtures.ts",
+          "sourceFixtureKey": "job-retry-ineligible",
+          "initialConditions": "prior-outcome-is-unknown-or-current-authority-policy-or-retry-budget-does-not-permit-another-attempt",
+          "expected": "do-not-dispatch; retain-the-job-and-prior-attempt-history; check-an-unknown-outcome-or-explain-the-blocking-condition"
+        }
       }
     ],
     "search": [
@@ -8707,8 +10152,8 @@
         "description": "Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification."
       }
     ],
-    "createdAt": "2026-10-08T06:45:52.864Z",
-    "updatedAt": "2026-10-08T06:45:52.864Z"
+    "createdAt": "2026-10-08T18:40:53.471Z",
+    "updatedAt": "2026-10-08T18:40:53.471Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
@@ -8720,6 +10165,7 @@
       "renderTargets",
       "componentContracts",
       "views",
+      "journeys",
       "interactions",
       "states",
       "actions",
@@ -8753,16 +10199,16 @@
         "source": "application-channel-registry.yaml#channels"
       },
       "componentContracts": {
-        "status": "PARTIAL_DIRECT_MAPPING; REQUIRED_PROPS_UNRESOLVED",
-        "source": "component-contracts.yaml#components"
+        "status": "PARTIAL_DIRECT_MAPPING; EXACT_PROPS_FOR_SOURCE_BOUND_SUBSET",
+        "source": "component-contracts.yaml#components[].requiredProps; components[].propsSourceRef"
       },
       "views": {
-        "status": "DIRECT_IDENTITY_PURPOSE_AND_COMPONENT_REF_MAPPING; JOURNEY_AND_STATE_REFS_PENDING",
-        "source": "screen-registry.yaml#screens,laneViews; screen-contracts/*.yaml#componentIds"
+        "status": "DIRECT_IDENTITY_PURPOSE_COMPONENT_AND_JOURNEY_REF_MAPPING; PDP1_STATE_REFS_PENDING",
+        "source": "screen-registry.yaml#screens,laneViews,journeyRefs; screen-contracts/*.yaml#componentIds"
       },
       "journeys": {
-        "status": "BLOCKED_PRIMARY_ACTOR_AND_STEP_BINDINGS",
-        "source": "journey-registry.yaml#journeys"
+        "status": "PARTIAL_SOURCE_PROJECTION_30_OF_30_JOURNEYS_126_OF_130_STEPS; OWNER_REVIEW_PENDING",
+        "source": "journey-registry.yaml#journeys; journey-contracts/*.yaml#steps; pdp-0-product-truth/journey-actor-resolutions.yaml#journeys; journey-catalog.yaml#journeys; goals-jtbd.yaml#outcomes; screen-registry.yaml#screens,laneViews"
       },
       "interactions": {
         "status": "DIRECT_INTERACTION_AND_ACTION_PRECONDITION_MAPPING",
@@ -8820,15 +10266,1740 @@
     "collectionCounts": {
       "views": 47,
       "registryJourneys": 30,
-      "projectedJourneys": 0,
+      "projectedJourneys": 30,
       "registryActions": 146,
       "registryInteractions": 20,
       "projectedStates": 49,
       "explicitFinalityCandidates": 18,
-      "linkedScenarioCandidates": 14,
-      "linkedFixtureCandidates": 14,
+      "linkedScenarioCandidates": 15,
+      "linkedFixtureCandidates": 15,
       "searchContracts": 3,
       "inspectionContracts": 5
+    },
+    "journeyBindingAudit": {
+      "p0InitiatorAvailability": {
+        "sourceRef": ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        "resolvedCount": 30,
+        "sourceCount": 30,
+        "projectedAsCandidateActorRefs": 30,
+        "disposition": "BOUNDED_MEDIA_OWNER_REPRESENTATIVE_INITIATORS_PROJECTED_AS_CANDIDATE_ACTOR_REFS; COLLABORATORS_AND_AUTHORIZATION_UNCHANGED; P0-010_AND_PDP3_OWNER_REVIEW_PENDING"
+      },
+      "p3OrderedStepCount": 130,
+      "sourceJourneyCount": 30,
+      "projectedJourneyCount": 30,
+      "projectedStepCount": 126,
+      "desiredOutcomeProjection": {
+        "projectedCount": 5,
+        "omittedMultipleOrMismatchedSourceOutcomeCount": 25,
+        "source": "PDP-0 and PDP-3 exact singleton outcome intersection"
+      },
+      "stepIntentProjection": {
+        "explicitSourceIntentCount": 102,
+        "linkedViewPurposeProposalOnlyCount": 24,
+        "omitted": [
+          {
+            "journeyId": "J-29",
+            "stepOrdinal": 1,
+            "sourceStepId": "detect-loss-or-consent-change",
+            "projectionStepIdCandidate": "detect-loss-or-consent-change",
+            "reason": "no exact authored intent, label, or directly linked view purpose; result text is not an intent",
+            "sourceRef": "journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0"
+          },
+          {
+            "journeyId": "J-29",
+            "stepOrdinal": 2,
+            "sourceStepId": "fence-new-frame-submission",
+            "projectionStepIdCandidate": "fence-new-frame-submission",
+            "reason": "no exact authored intent, label, or directly linked view purpose; result text is not an intent",
+            "sourceRef": "journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/1"
+          },
+          {
+            "journeyId": "J-29",
+            "stepOrdinal": 3,
+            "sourceStepId": "reconcile-dispatched-frame-effects",
+            "projectionStepIdCandidate": "reconcile-dispatched-frame-effects",
+            "reason": "no exact authored intent, label, or directly linked view purpose; result text is not an intent",
+            "sourceRef": "journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2"
+          },
+          {
+            "journeyId": "J-29",
+            "stepOrdinal": 4,
+            "sourceStepId": "present-bounded-return-state",
+            "projectionStepIdCandidate": "present-bounded-return-state",
+            "reason": "no exact authored intent, label, or directly linked view purpose; result text is not an intent",
+            "sourceRef": "journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/3"
+          }
+        ],
+        "viewPurposeDisposition": "SOURCE_PROPOSAL_ONLY; DIRECT_VIEW_PURPOSE_TEXT_COPIED_VERBATIM; OWNER_REVIEW_AND_SEMANTIC_ACCEPTANCE_PENDING; RESULT_TEXT_NEVER_USED_AS_INTENT",
+        "idTransformation": "Preserve unique source-authored stepId; otherwise use <journeyId>.step-<two-digit source ordinal> as deterministic projection-only ID, including missing or repeated IDs."
+      },
+      "transitionProjection": {
+        "sourceNullCount": 130,
+        "rows": [
+          {
+            "journeyId": "J-01",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-01.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-01",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-01.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-01",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-01.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-01",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-01.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-02",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-02.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-02",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-02.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-02",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-02.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-02",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-02.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-02",
+            "stepOrdinal": 5,
+            "sourceStepId": null,
+            "projectedStepId": "J-02.step-05",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-03",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-03.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-03",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-03.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-03",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-03.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-03",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-03.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-03",
+            "stepOrdinal": 5,
+            "sourceStepId": null,
+            "projectedStepId": "J-03.step-05",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-03",
+            "stepOrdinal": 6,
+            "sourceStepId": null,
+            "projectedStepId": "J-03.step-06",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-03",
+            "stepOrdinal": 7,
+            "sourceStepId": null,
+            "projectedStepId": "J-03.step-07",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-03",
+            "stepOrdinal": 8,
+            "sourceStepId": null,
+            "projectedStepId": "J-03.step-08",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-04",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-04.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-04",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-04.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-04",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-04.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-04",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-04.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-05",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-05.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-05",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-05.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-05",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-05.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-05",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-05.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-06",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-06.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-06",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-06.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-06",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-06.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-07",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-07.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-07",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-07.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-07",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-07.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-07",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-07.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-08",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-08.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-08",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-08.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-08",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-08.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-08",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-08.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-09",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-09.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-09",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-09.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-09",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-09.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-09",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-09.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-09",
+            "stepOrdinal": 5,
+            "sourceStepId": null,
+            "projectedStepId": "J-09.step-05",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-09",
+            "stepOrdinal": 6,
+            "sourceStepId": null,
+            "projectedStepId": "J-09.step-06",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-09",
+            "stepOrdinal": 7,
+            "sourceStepId": null,
+            "projectedStepId": "J-09.step-07",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-09",
+            "stepOrdinal": 8,
+            "sourceStepId": null,
+            "projectedStepId": "J-09.step-08",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-09",
+            "stepOrdinal": 9,
+            "sourceStepId": null,
+            "projectedStepId": "J-09.step-09",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-10",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-10.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-10",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-10.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-10",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-10.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-10",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-10.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-10",
+            "stepOrdinal": 5,
+            "sourceStepId": null,
+            "projectedStepId": "J-10.step-05",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-11",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-11.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-11",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-11.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-11",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-11.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-12",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-12.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-12",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-12.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-12",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-12.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-13",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-13.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-13",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-13.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-13",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-13.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-13",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-13.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-14",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-14.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-14",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-14.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-14",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-14.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-14",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-14.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-15",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-15.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-15",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-15.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-15",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-15.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-15",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-15.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-16",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-16.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-16",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-16.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-16",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-16.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-16",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-16.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-16",
+            "stepOrdinal": 5,
+            "sourceStepId": null,
+            "projectedStepId": "J-16.step-05",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-17",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-17.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-17",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-17.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-17",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-17.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-17",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-17.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-18",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-18.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-18",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-18.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-18",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-18.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-18",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-18.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-18",
+            "stepOrdinal": 5,
+            "sourceStepId": null,
+            "projectedStepId": "J-18.step-05",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-18",
+            "stepOrdinal": 6,
+            "sourceStepId": null,
+            "projectedStepId": "J-18.step-06",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-19",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-19.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-19",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-19.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-19",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-19.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-19",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-19.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-20",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-20.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-20",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-20.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-20",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-20.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-20",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-20.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-20",
+            "stepOrdinal": 5,
+            "sourceStepId": null,
+            "projectedStepId": "J-20.step-05",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-20",
+            "stepOrdinal": 6,
+            "sourceStepId": null,
+            "projectedStepId": "J-20.step-06",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-20",
+            "stepOrdinal": 7,
+            "sourceStepId": null,
+            "projectedStepId": "J-20.step-07",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-21",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-21.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-21",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-21.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-21",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-21.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-22",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-22.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-22",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-22.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-22",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-22.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-23",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-23.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-23",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-23.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-23",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-23.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-23",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-23.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-24",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-24.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-24",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-24.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-24",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-24.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-24",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-24.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-25",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-25.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-25",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-25.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-25",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-25.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-26",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-26.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-26",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-26.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-26",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-26.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-27",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-27.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-27",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-27.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-27",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-27.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-27",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-27.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-28",
+            "stepOrdinal": 1,
+            "sourceStepId": null,
+            "projectedStepId": "J-28.step-01",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-28",
+            "stepOrdinal": 2,
+            "sourceStepId": null,
+            "projectedStepId": "J-28.step-02",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-28",
+            "stepOrdinal": 3,
+            "sourceStepId": null,
+            "projectedStepId": "J-28.step-03",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-28",
+            "stepOrdinal": 4,
+            "sourceStepId": null,
+            "projectedStepId": "J-28.step-04",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-29",
+            "stepOrdinal": 1,
+            "sourceStepId": "detect-loss-or-consent-change",
+            "projectedStepId": null,
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": null,
+            "disposition": "UNRESOLVED_SOURCE_NULL; STEP_OMITTED_FOR_MISSING_INTENT"
+          },
+          {
+            "journeyId": "J-29",
+            "stepOrdinal": 2,
+            "sourceStepId": "fence-new-frame-submission",
+            "projectedStepId": null,
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": null,
+            "disposition": "UNRESOLVED_SOURCE_NULL; STEP_OMITTED_FOR_MISSING_INTENT"
+          },
+          {
+            "journeyId": "J-29",
+            "stepOrdinal": 3,
+            "sourceStepId": "reconcile-dispatched-frame-effects",
+            "projectedStepId": null,
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": null,
+            "disposition": "UNRESOLVED_SOURCE_NULL; STEP_OMITTED_FOR_MISSING_INTENT"
+          },
+          {
+            "journeyId": "J-29",
+            "stepOrdinal": 4,
+            "sourceStepId": "present-bounded-return-state",
+            "projectedStepId": null,
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": null,
+            "disposition": "UNRESOLVED_SOURCE_NULL; STEP_OMITTED_FOR_MISSING_INTENT"
+          },
+          {
+            "journeyId": "J-30",
+            "stepOrdinal": 1,
+            "sourceStepId": "establish-scope-and-permissions",
+            "projectedStepId": "establish-scope-and-permissions",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-30",
+            "stepOrdinal": 2,
+            "sourceStepId": "inspect-profile-and-provider-dimensions",
+            "projectedStepId": "inspect-profile-and-provider-dimensions",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-30",
+            "stepOrdinal": 3,
+            "sourceStepId": "preserve-unknown-or-unavailable-reasons",
+            "projectedStepId": "preserve-unknown-or-unavailable-reasons",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          },
+          {
+            "journeyId": "J-30",
+            "stepOrdinal": 4,
+            "sourceStepId": "return-eligible-options-with-provenance",
+            "projectedStepId": "return-eligible-options-with-provenance",
+            "sourceTransitionRef": null,
+            "projectedTransitionRefs": [],
+            "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
+          }
+        ],
+        "disposition": "Source transitionRef null means unresolved metadata. Public transitionRefs: [] is only a required schema placeholder and is not evidence that no transitions exist."
+      },
+      "projectedSourceRows": [
+        {
+          "journeyId": "J-01",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/0",
+          "actorRef": "media.creator",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.finished-asset",
+            "media.goal.resolve-safely",
+            "media.goal.preserve-source"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 0,
+            "linkedViewPurposeProposalOnly": 4
+          }
+        },
+        {
+          "journeyId": "J-02",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/1",
+          "actorRef": "media.creator",
+          "projectedStepCount": 5,
+          "sourceOutcomeRefs": [
+            "media.goal.understand-media",
+            "media.goal.preserve-source",
+            "media.goal.resolve-safely"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 0,
+            "linkedViewPurposeProposalOnly": 5
+          }
+        },
+        {
+          "journeyId": "J-03",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/2",
+          "actorRef": "media.creator",
+          "projectedStepCount": 8,
+          "sourceOutcomeRefs": [
+            "media.goal.understand-media",
+            "media.goal.review-trustworthy-output"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 0,
+            "linkedViewPurposeProposalOnly": 8
+          }
+        },
+        {
+          "journeyId": "J-04",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/3",
+          "actorRef": "media.creator",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.finished-asset"
+          ],
+          "desiredOutcomeRef": "media.goal.finished-asset",
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-05",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/4",
+          "actorRef": "media.creator",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.understand-media",
+            "media.goal.review-trustworthy-output"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-06",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/5",
+          "actorRef": "media.developer-integrator",
+          "projectedStepCount": 3,
+          "sourceOutcomeRefs": [
+            "media.goal.understand-media",
+            "media.goal.integrate-repeatably"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 3,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-07",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/6",
+          "actorRef": "media.editor",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.improve-with-disclosure",
+            "media.goal.preserve-source",
+            "media.goal.finished-asset"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-08",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/7",
+          "actorRef": "media.editor",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.improve-with-disclosure",
+            "media.goal.preserve-source",
+            "media.goal.finished-asset"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-09",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/8",
+          "actorRef": "media.creator",
+          "projectedStepCount": 9,
+          "sourceOutcomeRefs": [
+            "media.goal.finished-asset",
+            "media.goal.explain-or-demonstrate",
+            "media.goal.review-trustworthy-output",
+            "media.goal.deliver-approved-output"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 9,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-10",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/9",
+          "actorRef": "media.creator",
+          "projectedStepCount": 5,
+          "sourceOutcomeRefs": [
+            "media.goal.finished-asset",
+            "media.goal.explain-or-demonstrate"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 5,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-11",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/10",
+          "actorRef": "media.editor",
+          "projectedStepCount": 3,
+          "sourceOutcomeRefs": [
+            "media.goal.finished-asset",
+            "media.goal.preserve-source",
+            "media.goal.improve-with-disclosure"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 3,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-12",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/11",
+          "actorRef": "media.creator",
+          "projectedStepCount": 3,
+          "sourceOutcomeRefs": [
+            "media.goal.finished-asset",
+            "media.goal.explain-or-demonstrate"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 3,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-13",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/12",
+          "actorRef": "media.creator",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.finished-asset",
+            "media.goal.explain-or-demonstrate"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-14",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/13",
+          "actorRef": "media.creator",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.explain-or-demonstrate",
+            "media.goal.finished-asset"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-15",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/14",
+          "actorRef": "media.creator",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.explain-or-demonstrate",
+            "media.goal.improve-with-disclosure"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-16",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/15",
+          "actorRef": "media.creator",
+          "projectedStepCount": 5,
+          "sourceOutcomeRefs": [
+            "media.goal.finished-asset",
+            "media.goal.review-trustworthy-output",
+            "media.goal.deliver-approved-output"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 5,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-17",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/16",
+          "actorRef": "media.editor",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.finished-asset",
+            "media.goal.deliver-approved-output"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-18",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/17",
+          "actorRef": "media.editor",
+          "projectedStepCount": 6,
+          "sourceOutcomeRefs": [
+            "media.goal.finished-asset",
+            "media.goal.preserve-source",
+            "media.goal.review-trustworthy-output",
+            "media.goal.deliver-approved-output"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 6,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-19",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/18",
+          "actorRef": "media.editor",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.improve-with-disclosure",
+            "media.goal.preserve-source"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-20",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/19",
+          "actorRef": "media.creator",
+          "projectedStepCount": 7,
+          "sourceOutcomeRefs": [
+            "media.goal.resolve-safely"
+          ],
+          "desiredOutcomeRef": "media.goal.resolve-safely",
+          "intentSources": {
+            "explicit": 0,
+            "linkedViewPurposeProposalOnly": 7
+          }
+        },
+        {
+          "journeyId": "J-21",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/20",
+          "actorRef": "media.reviewer",
+          "projectedStepCount": 3,
+          "sourceOutcomeRefs": [
+            "media.goal.review-trustworthy-output",
+            "media.goal.deliver-approved-output",
+            "media.goal.resolve-safely",
+            "media.goal.preserve-source"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 3,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-22",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/21",
+          "actorRef": "media.creator",
+          "projectedStepCount": 3,
+          "sourceOutcomeRefs": [
+            "media.goal.deliver-approved-output",
+            "media.goal.review-trustworthy-output"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 3,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-23",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/22",
+          "actorRef": "media.creator",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.resolve-safely"
+          ],
+          "desiredOutcomeRef": "media.goal.resolve-safely",
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-24",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/23",
+          "actorRef": "media.developer-integrator",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.integrate-repeatably",
+            "media.goal.deliver-approved-output",
+            "media.goal.resolve-safely"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-25",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/24",
+          "actorRef": "media.automation-client",
+          "projectedStepCount": 3,
+          "sourceOutcomeRefs": [
+            "media.goal.integrate-repeatably"
+          ],
+          "desiredOutcomeRef": "media.goal.integrate-repeatably",
+          "intentSources": {
+            "explicit": 3,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-26",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/25",
+          "actorRef": "media.administrator",
+          "projectedStepCount": 3,
+          "sourceOutcomeRefs": [
+            "media.goal.resolve-safely",
+            "media.goal.preserve-source",
+            "media.goal.review-trustworthy-output"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 3,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-27",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/26",
+          "actorRef": "media.creator",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.resolve-safely",
+            "media.goal.finished-asset",
+            "media.goal.review-trustworthy-output",
+            "media.goal.integrate-repeatably"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-28",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/27",
+          "actorRef": "media.creator",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.finished-asset",
+            "media.goal.explain-or-demonstrate",
+            "media.goal.deliver-approved-output"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-29",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/28",
+          "actorRef": "media.creator",
+          "projectedStepCount": 0,
+          "sourceOutcomeRefs": [
+            "media.goal.resolve-safely"
+          ],
+          "desiredOutcomeRef": "media.goal.resolve-safely",
+          "intentSources": {
+            "explicit": 0,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        },
+        {
+          "journeyId": "J-30",
+          "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/29",
+          "actorRef": "media.developer-integrator",
+          "projectedStepCount": 4,
+          "sourceOutcomeRefs": [
+            "media.goal.integrate-repeatably",
+            "media.goal.resolve-safely"
+          ],
+          "desiredOutcomeRef": null,
+          "intentSources": {
+            "explicit": 4,
+            "linkedViewPurposeProposalOnly": 0
+          }
+        }
+      ],
+      "omittedJourneys": [],
+      "stepBindingCounts": {
+        "stepViewLinked": 122,
+        "stepViewUnresolved": 8,
+        "stepActionLinked": 18,
+        "stepActionUnresolved": 112,
+        "stepObjectRefsEmpty": 130,
+        "stepStateRefsEmpty": 130,
+        "canonicalOperationRefsNull": 114,
+        "canonicalOperationCandidateRefs": 16,
+        "authorityRefsNull": 130,
+        "transitionRefsNull": 130,
+        "requirementRefsEmpty": 130,
+        "verificationNotRun": 130,
+        "verificationEvidencePresent": 0,
+        "verificationAccepted": 0
+      },
+      "stepViewBindingSourceAudit": {
+        "linked": 122,
+        "unresolved": 8,
+        "blocker": "unresolved-identities-J-29-detect-loss-or-consent-change,fence-new-frame-submission,reconcile-dispatched-frame-effects,present-bounded-return-state-and-J-30-establish-scope-and-permissions,inspect-profile-and-provider-dimensions,preserve-unknown-or-unavailable-reasons,return-eligible-options-with-provenance; source-dependency-is-an-owner-reviewed-step-to-view-crosswalk-or-equivalent-explicit-step-view-ref; journey-level-orderedViews,source-viewRefs,and-screen-journeyRefs-do-not-allocate-views-to-individual-steps"
+      },
+      "journeyScenarioReferenceCounts": {
+        "withRefs": 3,
+        "withoutRefs": 27
+      },
+      "remainingGap": "A partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 126/130 steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view 122 linked/8 unresolved; step-action 18 linked/112 unresolved. Remaining gaps: 4 step rows lack an exact intent source (including J-29's four rows); 130 source transitionRef values are null and remain unresolved. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty 130, stateRefs empty 130, authorityRef null 130, requirementRefs empty 130, verification not-run 130. 3/30 journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending."
     },
     "ownerDecisionStatus": "PENDING; directly projected records and schema validation do not establish semantic acceptance or phase closure.",
     "recoverySourceProposals": [
@@ -8917,6 +12088,95 @@
       }
     ]
   },
+  "projectionFieldInventory": {
+    "schemaId": "https://schemas.ghatana.dev/product-development/experience-specification/v1",
+    "fields": [
+      {
+        "name": "id",
+        "required": true
+      },
+      {
+        "name": "subjectId",
+        "required": true
+      },
+      {
+        "name": "schemaVersion",
+        "required": true
+      },
+      {
+        "name": "contextDimensions",
+        "required": true
+      },
+      {
+        "name": "renderTargets",
+        "required": true
+      },
+      {
+        "name": "componentContracts",
+        "required": true
+      },
+      {
+        "name": "views",
+        "required": true
+      },
+      {
+        "name": "journeys",
+        "required": true
+      },
+      {
+        "name": "interactions",
+        "required": true
+      },
+      {
+        "name": "states",
+        "required": true
+      },
+      {
+        "name": "transitions",
+        "required": true
+      },
+      {
+        "name": "actions",
+        "required": true
+      },
+      {
+        "name": "effects",
+        "required": true
+      },
+      {
+        "name": "finality",
+        "required": true
+      },
+      {
+        "name": "recovery",
+        "required": true
+      },
+      {
+        "name": "scenarios",
+        "required": true
+      },
+      {
+        "name": "fixtures",
+        "required": true
+      },
+      {
+        "name": "search",
+        "required": true
+      },
+      {
+        "name": "inspections",
+        "required": true
+      },
+      {
+        "name": "createdAt",
+        "required": true
+      },
+      {
+        "name": "updatedAt",
+        "required": true
+      }
+    ]
+  },
   "candidateFieldSources": {
     "id": {
       "sourceRef": null,
@@ -8945,18 +12205,18 @@
     },
     "componentContracts": {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
-      "sourcePath": "components[].id and purpose",
-      "mapping": "direct identity and purpose; public required-prop contracts remain unresolved"
+      "sourcePath": "components[].id, purpose, requiredProps, and propsSourceRef",
+      "mapping": "direct identity and purpose; required prop names are copied only when explicitly bound to a typed public component interface; all other component records remain unresolved"
     },
     "views": {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
-      "sourcePath": "screens and laneViews; screen-contracts/*.yaml#componentIds",
-      "mapping": "all 47 exact view identities, names, purposes and resolvable component refs; journey/state refs remain unresolved"
+      "sourcePath": "screens and laneViews with exact journeyRefs; screen-contracts/*.yaml#componentIds",
+      "mapping": "all 47 exact view identities, names, purposes, resolvable component refs, and 132 journeyRefs are projected directly; only PDP-1 stateRefs remain unbound"
     },
     "journeys": {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-      "sourcePath": "journeys",
-      "mapping": "not projected because the public contract requires one actorRef and current journey actor lists are multi-actor"
+      "sourcePath": "journeys; journey-contracts/*.yaml#steps; P0 journey-actor-resolutions.yaml; journey-catalog.yaml; goals-jtbd.yaml; screen-registry view purposes",
+      "mapping": "project source-grounded journey IDs/names and bounded representative actor refs; preserve unique authored step IDs, otherwise derive ordinal projection IDs; use explicit intent or exact linked view purpose as a proposal-only intent; map only matching singleton desired outcomes; preserve null transitions as unresolved review metadata and schema-required empty-array placeholders; withhold steps lacking exact intent"
     },
     "interactions": {
       "sourceRef": ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
@@ -9027,10 +12287,10 @@
   "fieldMappingBlockers": [
     {
       "field": "componentContracts",
-      "status": "PARTIAL_DIRECT_MAPPING; REQUIRED_PROPS_UNRESOLVED",
-      "sourceDisposition": "component-contracts.yaml#components",
+      "status": "PARTIAL_DIRECT_MAPPING; EXACT_PROPS_FOR_SOURCE_BOUND_SUBSET",
+      "sourceDisposition": "component-contracts.yaml#components[].requiredProps; components[].propsSourceRef",
       "reasons": [
-        "Required public component props are not supplied by component anatomy; the candidate leaves requiredProps empty rather than reclassifying anatomy as props."
+        "Required props are directly mapped only for component contracts with exact typed public-interface source refs; the remaining component families have no source-bound typed prop contract and retain empty candidate arrays."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -9047,6 +12307,10 @@
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
         ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
         ".product-experience/pdp-1-domain-data/domain-objects.yaml",
         ".product-experience/pdp-1-domain-data/states.yaml",
@@ -9132,10 +12396,10 @@
     },
     {
       "field": "views",
-      "status": "DIRECT_IDENTITY_PURPOSE_AND_COMPONENT_REF_MAPPING; JOURNEY_AND_STATE_REFS_PENDING",
-      "sourceDisposition": "screen-registry.yaml#screens,laneViews; screen-contracts/*.yaml#componentIds",
+      "status": "DIRECT_IDENTITY_PURPOSE_COMPONENT_AND_JOURNEY_REF_MAPPING; PDP1_STATE_REFS_PENDING",
+      "sourceDisposition": "screen-registry.yaml#screens,laneViews,journeyRefs; screen-contracts/*.yaml#componentIds",
       "reasons": [
-        "View identity, purpose, and exact resolvable component refs are projected; screen journey refs use J-xx source IDs with no schema-shaped journeys, and PDP-1 state refs remain unbound."
+        "View identity, purpose, exact resolvable component refs, and all 132 source journeyRefs are directly projected; only PDP-1 stateRefs remain unbound."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -9152,6 +12416,10 @@
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
         ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
         ".product-experience/pdp-1-domain-data/domain-objects.yaml",
         ".product-experience/pdp-1-domain-data/states.yaml",
@@ -9237,10 +12505,10 @@
     },
     {
       "field": "journeys",
-      "status": "BLOCKED_PRIMARY_ACTOR_AND_STEP_BINDINGS",
-      "sourceDisposition": "journey-registry.yaml#journeys",
+      "status": "PARTIAL_SOURCE_PROJECTION_30_OF_30_JOURNEYS_126_OF_130_STEPS; OWNER_REVIEW_PENDING",
+      "sourceDisposition": "journey-registry.yaml#journeys; journey-contracts/*.yaml#steps; pdp-0-product-truth/journey-actor-resolutions.yaml#journeys; journey-catalog.yaml#journeys; goals-jtbd.yaml#outcomes; screen-registry.yaml#screens,laneViews",
       "reasons": [
-        "P0-04 resolves 11 of 30 initiating actors, while 19 remain unresolved; the public journey projection still lacks schema-shaped per-step intent/transition bindings and exact ordered step IDs, so no P3 journey is emitted."
+        "A partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 126/130 steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view 122 linked/8 unresolved; step-action 18 linked/112 unresolved. Remaining gaps: 4 step rows lack an exact intent source (including J-29's four rows); 130 source transitionRef values are null and remain unresolved. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty 130, stateRefs empty 130, authorityRef null 130, requirementRefs empty 130, verification not-run 130. 3/30 journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -9257,6 +12525,10 @@
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
         ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
         ".product-experience/pdp-1-domain-data/domain-objects.yaml",
         ".product-experience/pdp-1-domain-data/states.yaml",
@@ -9362,6 +12634,10 @@
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
         ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
         ".product-experience/pdp-1-domain-data/domain-objects.yaml",
         ".product-experience/pdp-1-domain-data/states.yaml",
@@ -9467,6 +12743,10 @@
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
         ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
         ".product-experience/pdp-1-domain-data/domain-objects.yaml",
         ".product-experience/pdp-1-domain-data/states.yaml",
@@ -9572,6 +12852,10 @@
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
         ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
         ".product-experience/pdp-1-domain-data/domain-objects.yaml",
         ".product-experience/pdp-1-domain-data/states.yaml",
@@ -9677,6 +12961,10 @@
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
         ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
         ".product-experience/pdp-1-domain-data/domain-objects.yaml",
         ".product-experience/pdp-1-domain-data/states.yaml",
@@ -9782,6 +13070,10 @@
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
         ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
         ".product-experience/pdp-1-domain-data/domain-objects.yaml",
         ".product-experience/pdp-1-domain-data/states.yaml",
@@ -9870,7 +13162,7 @@
       "status": "DIRECT_LINKED_FIXTURE_AND_CANONICAL_START_STATE_SUBSET; CONTEXT_AND_REMAINDER_UNRESOLVED",
       "sourceDisposition": "scenario-fixture-registry.yaml#fixtures; experience-source-bindings.yaml#scenarioStartingStateBindings; journey-contracts/*.yaml#scenarioRefs; state-models.yaml#models[].states",
       "reasons": [
-        "Only 14 of 31 registry records have an exact source-fixture state that maps to a canonical PDP-0 state; 17 remain unresolved, and context dimensions are not asserted."
+        "Only 15 of 31 registry records have an exact source-fixture state that maps to a canonical PDP-0 state; 16 remain unresolved, and context dimensions are not asserted."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -9887,6 +13179,10 @@
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
         ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
         ".product-experience/pdp-1-domain-data/domain-objects.yaml",
         ".product-experience/pdp-1-domain-data/states.yaml",
@@ -9992,6 +13288,10 @@
         ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
         ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
         ".product-experience/pdp-0-product-truth/state-models.yaml",
         ".product-experience/pdp-1-domain-data/domain-objects.yaml",
         ".product-experience/pdp-1-domain-data/states.yaml",

@@ -61,17 +61,18 @@ gaps:
   scope: exact-route-DTO-protobuf-and-client-parity
   owner: Media-and-consumer-contract-owners
   evidence: >-
-    PXD-007's PDP1-002 proposal records nine logical families and the plan's 22
-    required fields per operation, with source identities separated from
-    proposed mappings. The 146 UI actions partition as 11 single proposed
-    links, one ambiguous request-transcription link, and 134 unresolved; the
+    PDP1-002 now records 14 proposals: nine logical-operation families with
+    the plan's 22 required fields, plus five source-specific records. Source
+    identities remain separate from proposed mappings.
+    The 146 UI actions partition as 14 exact proposed
+    operation refs and 132 unresolved; none is ambiguous. The
     stale review-rights-and-consent reference is explicitly identified as not
     present in the action registry. PDP3-002 found all 27 HTTP operation IDs
     match OpenAPI/runtime route inventories, but all 27 logical-operation
     links remain unresolved, all 15 API/action experience mappings are
     unresolved, and no per-operation HTTP contract records exist. All 43 gRPC
-    entries match four active proto files; PDP1 proposes family links for 24
-    and leaves 19 unresolved, while PDP3 experience bindings remain pending
+    entries match four active proto files; PDP1 proposes 17 family links and
+    leaves 26 unresolved, while PDP3 experience bindings remain pending
     and per-operation gRPC contract records are absent. SDK's 27 registry IDs
     are inventoried but all remain unbound; `for`, `if`, and `clearTimeout` are
     unresolved parser candidates, and the legacy client methods are a separate
@@ -81,9 +82,9 @@ gaps:
     canonical bindings. These are source-scoped definition/registry
     observations, not support or runtime reachability claims.
   remaining: >-
-    Resolve the 134 unmatched and one ambiguous UI action links; bind the 27
-    HTTP IDs and 19 gRPC identities still unresolved to owner-approved
-    operations, and review the 24 proposed gRPC family links without treating
+    Resolve the 132 unmatched UI action links; bind the 27 HTTP IDs and 26
+    gRPC identities still unresolved to owner-approved operations, and review
+    the 17 proposed gRPC family links without treating
     them as canonical. Reconcile the 27 SDK entries and separate legacy methods
     against actual public methods; preserve the 11 fixture versus 12 proposal
     CLI distinction; define per-tool formal input/result schemas,
@@ -146,15 +147,15 @@ gaps:
   status: open
   scope: built-Explorer-browser-visual-accessibility-and-human-review-evidence
   owner: independent-experience-reviewer
-evidence: The rebuilt Media-owned Vite preview was audited after source-manifest regeneration. Playwright exercised all six viewports, 29 Explore scenarios, 296 indexed artifacts at that audit snapshot, 47 canonical Product routes (282 route/viewport observations), Verify’s not-supplied state, the dedicated Tools Review route, keyboard navigation, 100%/200% text scaling, zoom/reflow, forced colors, reduced motion, and long-label stress. That historical run had zero failed assertions, console errors, or page errors. It checked 25 enabled visible touch targets against 24 CSS px; two visually-hidden controls were represented by visible associated labels, and five disabled/hidden/non-rendered controls were excluded. Later source additions raised the current generated index to 311 records; the historical browser run does not cover those additions. This is local browser evidence, not visual or accessibility acceptance.
-localProgress: The previous browser audit emits a structured report and screenshots under /tmp/media-experience-browser-audit; CSP remained enabled while text scaling was injected through Chromium’s DevTools CSS domain and verified at 16px/32px. The current index contains 310 source-derived records plus the manifest projection (311 total); a current source-to-index regression covers all current paths, but no browser run has been recorded for all 311 items. RTL is not admitted by the rendered surface. Screen-reader testing, canonical visual references, and independent expert visual review remain manual/unverified.
+  evidence: On 2026-10-08, the rebuilt Media-owned Vite preview was audited across all six viewports, 29 Explore scenarios, all 315 current Specification records, 47 canonical Product routes (282 route/viewport observations), Verify, Tools Review, keyboard navigation, 100%/200% text scaling, zoom/reflow, forced colors, reduced motion, long-label stress, and canonical artifact-ID search through to matching trace metadata. The run had zero assertion failures, console errors, or page errors. It checked 25 enabled visible touch targets against 24 CSS px; two visually-hidden controls were represented by visible associated labels, and five disabled/hidden/non-rendered controls were excluded. This is local browser evidence, not visual or accessibility acceptance.
+  localProgress: The current browser audit emits a structured report and screenshots under /tmp/media-experience-browser-audit; CSP remained enabled while text scaling was injected through Chromium’s DevTools CSS domain and verified at 16px/32px. The current index contains 314 source-derived records plus the manifest projection (315 total); the browser audit exercised all 315 records and verified canonical-ID search selects one exact source and displays the same ID in trace metadata. A focused current Preview check also verified that the corrected caption workflow has no inline style attributes or console errors. RTL is not admitted by the rendered surface. Screen-reader testing, canonical visual references, and independent expert visual review remain manual/unverified.
   remaining: complete-supported-screen-reader-and-independent-human-visual-review; collect-canonical-visual-reference-and-all-admitted-view/channel-variant-evidence
   impact: blocks-PDP-3-acceptance
 - id: GAP-MEDIA-EXPLORER-CONTENT-COVERAGE
   status: open
   scope: structured-Explorer-Truth-Domain-Overview-Traceability-and-Dependency-inspection
   owner: Media-Explorer-and-Ghatana-Tools-Explorer-owners
-  evidence: The current generated 311-record Specification index (310 source-derived records plus the manifest projection) and dedicated Overview, Truth, Domain, Design System, Experience,
+  evidence: The current generated 315-record Specification index (314 source-derived records plus the manifest projection) and dedicated Overview, Truth, Domain, Design System, Experience,
     Interfaces, Journeys, States/Data, Traceability, and Dependencies modes expose source-linked read-only projections.
     The groupings and direct-scalar interface extraction remain partial; they do not establish exhaustive requirement/domain,
     object/state/operation, design-composition, or bidirectional traceability semantics. Product actions remain proposal-only.
@@ -179,8 +180,8 @@ localProgress: The previous browser audit emits a structured report and screensh
   status: open
   scope: complete-view-journey-action-state-and-channel-contracts-for-the-pdp-3-baseline
   owner: ghatana-media-product-design-and-experience-owners
-  evidence: 47 canonical screens each have a v2 PDP-3 proposal contract; the separate artifact-verification-job-family specialization remains outside the 47-screen denominator. Three template IDs resolve in the PDP-2 catalog, 44 remain null, no canonical layout IDs are registered, and the Web surface/component/pattern/action-consequence refs remain candidates. Token/domain-object/operation/state/entry/exit bindings are unresolved; one screen carries source fixture refs; inline anatomy/template/layout proposals have not been centralized. All 30 journeys now have 130 structured ordered steps with the plan-required per-step fields; J-29/J-30 each preserve their four source step IDs. A candidate crosswalk normalized 148 step surface refs. Seven source-crosswalk PDP-1 logical-operation refs remain proposals and 123 canonical operation refs are null. Journey-level success/failure/recovery/context remain proposal-only and are not consistently allocated to individual steps; degraded behavior, postconditions, object/state/authority/decision/transition/handoff/requirements, scenarios, and step verification remain incomplete.
-  localProgress: Focused regressions cover 47 v2 screen structures and all 30 journey contracts/130 ordered steps, including route-ID nonpromotion and J-29/J-30 ordering. VER-001 now checks all 47 required screen shapes, journey-step structure, selected IDs and source references, and reports unresolved semantic bindings explicitly. Three template IDs resolve and 44 remain null; canonical layouts are absent, 123 canonical operation refs remain null, and only 135 of 146 distinct screen action references resolve. No behavior, semantic phase acceptance, qualification, native currentness, or release evidence is claimed.
+  evidence: 47 canonical screens each have a v2 PDP-3 proposal contract; the separate artifact-verification-job-family specialization remains outside the 47-screen denominator. A purpose-by-purpose Media owner review approves 41 exact top-level template/layout links and withholds six mismatches with reasons. All 47 catalog references resolve, but nested templateContract refs remain proposal-only and zero screen compositions are admitted. The Web surface/component/pattern/action-consequence refs remain candidates. Token/domain-object/operation/state/entry/exit bindings are unresolved; one screen carries source fixture refs; inline anatomy/template/layout proposals have not been centralized. All 30 journeys now have 130 structured ordered steps with the plan-required per-step fields; J-29/J-30 each preserve their four source step IDs. A candidate crosswalk normalized 148 step surface refs. Seven source-crosswalk PDP-1 logical-operation refs remain proposals and 123 canonical operation refs are null. Journey-level success/failure/recovery/context remain proposal-only and are not consistently allocated to individual steps; degraded behavior, postconditions, object/state/authority/decision/transition/handoff/requirements, scenarios, and step verification remain incomplete.
+  localProgress: Focused regressions cover 47 v2 screen structures and all 30 journey contracts/130 ordered steps, including route-ID nonpromotion and J-29/J-30 ordering. VER-001 now checks all 47 required screen shapes, journey-step structure, selected IDs and source references, and reports unresolved semantic bindings explicitly. The 41 exact top-level template/layout links are owner-approved; six remain withheld and zero screen compositions are admitted. Nested templateContract refs, 123 canonical operation refs, and 11 of 146 distinct screen action refs remain unresolved. No behavior, semantic phase acceptance, qualification, native currentness, or release evidence is claimed.
   remaining: bind-all-screen-and-step-semantics-to-accepted-PDP-1-and-PDP-2-authorities; resolve-123-null-canonical-operation-bindings-and-step-object-state-authority-decision-transition-handoff-requirement-contracts; allocate-success-failure-degraded-recovery-and-postconditions-per-step; centralize-inline-screen-design-proposals-into-accepted-layouts-and-templates; add-owner-reviewed-scenarios-and-behavior/accessibility/localization-evidence; define-and-accept-full-Web-CLI-API-embedded-and-wire-behavior
   impact: blocks-P2-008-full-PDP-3-acceptance-and-PDP-3-coverage
 - id: GAP-MEDIA-DI-PUBLIC-CLIENT
@@ -290,10 +291,10 @@ localProgress: The previous browser audit emits a structured report and screensh
     PDP-2 registries and reports zero unexplained product-source findings;
     those references and registries remain proposals. It reports 650
     Explorer-fixture observations, which are not product design authority.
-    Seven independent authority/review blockers remain in that check: style
-    authority status, Shared package binding, PDP-2 conformance review,
-    semantic-alias status, component-to-Shared binding, template-catalog
-    status, and layout-authority status. PXD-014 approves structure only;
+    Four of seven design-governance gates are resolved Media owner decisions;
+    three remain open: Shared package binding (external), PDP-2 conformance and
+    specialist review (independent), and concrete component bindings
+    (source-incomplete). PXD-014 approves structure only;
     state/action/operation semantics, screen behavior, accessibility, and
     visual review remain unaccepted. Package binding remains blocked under
     GAP-02. GAP-12 separately records that independent visual review and
@@ -313,13 +314,15 @@ localProgress: The previous browser audit emits a structured report and screensh
   owner: media-product-owners-and-relevant-domain-interface-design-and-experience-owners
   evidence: >-
     docs/migration/expert-reviewed-master-plan.md is an execution reference and its source-pinned review register now covers
-    1,340 unique content blocks. The 349 unresolved semantic blocks each have a proposal-only block-composition label:
-    134 SINGLE_SEMANTIC_CLASS, 123 MIXED_REQUIRES_DECOMPOSITION, and 92 NO_NORMATIVE_CONTENT. None of these labels changes
-    the existing UNRESOLVED disposition; owner review is pending. The Lifecycle ownership row is extracted to the exact
-    AUTH-RULE-CLOSURE-AND-EVIDENCE record, without accepting that rule or closing this gap.
-  remaining: Obtain owner review for the 349 block-composition proposals; decompose only owner-confirmed mixed blocks; reconcile
-    remaining semantic claims to their owning PDP records; preserve task/provenance references; and obtain applicable owner
-    acceptance before treating any proposal as accepted.
+    1,340 unique content blocks. A bounded owner classification covers 86 exact structural, provenance, navigation,
+    and Appendix A crosswalk items (18 EXECUTION_ONLY; 68 EVIDENCE_REFERENCE), with no semantic acceptance. Current
+    unresolved semantic content is 263 items: 133 SINGLE_SEMANTIC_CLASS, 124 MIXED_REQUIRES_DECOMPOSITION, and 6
+    still-proposed NO_NORMATIVE_CONTENT blocks. Semantic owner review remains 0; 86 non-normative classifications are
+    recorded separately. Task crosswalks do not establish equivalence, completion, or receipt transfer. The Lifecycle
+    ownership row is extracted to the exact AUTH-RULE-CLOSURE-AND-EVIDENCE record, without accepting that rule or closing this gap.
+  remaining: Reconcile 263 unresolved semantic content items to their owning PDP records; decompose only owner-confirmed
+    mixed blocks; preserve crosswalk/provenance references without inferring task completion or equivalence; and obtain
+    applicable semantic owner acceptance before treating any proposal as accepted. P0-03 remains open.
   impact: blocks-full-CROSS-004-acceptance-and-affected-PDP-semantic-acceptance; does-not-change-bounded-CROSS-001-approval
 - id: GAP-MEDIA-CLEAN-5-STALE-DOCKER-GRADLE-PATHS
   taskRef: CLEAN-5

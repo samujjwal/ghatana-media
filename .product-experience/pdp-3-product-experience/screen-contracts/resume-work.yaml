@@ -2,9 +2,9 @@ schemaVersion: media.screen-contract.v2
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
 templateId: media.gui.template.collection
-templateBindingStatus: candidate-by-screen-purpose; owner-review-pending
+templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 layoutIds: [media.gui.layout.collection]
-layoutBindingStatus: candidate-by-template-and-screen-purpose; owner-review-pending
+layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds: [media.component.project-context-summary, media.component.intent-launcher]
 patternIds: [media.gui.pattern.project-browser]
 tokenDependencies: []
@@ -32,8 +32,8 @@ verification:
   checks: {structural: not-proven, rendering: not-proven, behavior: not-proven, responsive: not-proven, keyboard: not-proven, accessibility: not-proven}
 fieldBindingStatus:
   surfaceId: candidate-binding-pending-owner-review
-  templateId: candidate-template-link-owner-review-pending
-  layoutIds: candidate-layout-link-owner-review-pending
+  templateId: media-owner-composition-link-approved; screen-admission-pending
+  layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
   patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
   tokenDependencies: no-canonical-references-declared

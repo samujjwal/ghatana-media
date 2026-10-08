@@ -96,6 +96,10 @@ fixtures:
     payloadId: job-outcome-unknown
     pdp3Ref: media.scenario.job-outcome-unknown
     content: synthetic-dispatch-evidence-only
+  - scenarioId: media.scenario.job-retry-ineligible
+    payloadId: job-retry-ineligible
+    pdp3Ref: media.scenario.job-retry-ineligible
+    content: synthetic-prior-attempt-outcome-unknown; retry-not-dispatched; same-job-identity-preserved
   - scenarioId: media.scenario.caption-corrected
     payloadId: caption-corrected
     pdp3Ref: media.scenario.caption-corrected

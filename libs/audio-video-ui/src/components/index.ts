@@ -1,4 +1,6 @@
 export { MediaTaskFlow } from "./MediaTaskFlow";
+export { MediaProgress } from "./MediaProgress";
+export type { MediaProgressProps, MediaProgressTone } from "./MediaProgress";
 export type {
   MediaTaskAction,
   MediaTaskCurrentProjection,

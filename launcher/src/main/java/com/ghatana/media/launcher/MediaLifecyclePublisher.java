@@ -116,7 +116,7 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
                     .POST(HttpRequest.BodyPublishers.ofByteArray(mapper.writeValueAsBytes(body)));
             if (!bearerToken.isBlank()) request.header("Authorization", "Bearer " + bearerToken);
             HttpResponse<Void> response = client.send(request.build(), HttpResponse.BodyHandlers.discarding());
-            if (response.statusCode() != 200 && response.statusCode() != 201) {
+            if (response.statusCode() != 201) {
                 throw new IllegalStateException(
                         "Event Plane rejected Media lifecycle event with status " + response.statusCode());
             }

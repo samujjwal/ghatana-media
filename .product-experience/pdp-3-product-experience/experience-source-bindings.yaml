@@ -64,6 +64,14 @@ scenarioStartingStateBindings:
     sourceFixtureKey: job-outcome-unknown
     startingStateRef: media-job.OUTCOME_UNKNOWN
     rationale: The exact transcription fixture records job and attempt state OUTCOME_UNKNOWN with unknown finality.
+  - scenarioRef: media.scenario.job-retry-ineligible
+    sourceFixtureKey: job-retry-ineligible
+    startingStateRef: media-job.OUTCOME_UNKNOWN
+    rationale: The retry-ineligible proposal explicitly includes an unknown prior outcome as a no-dispatch case; its synthetic seed reuses the exact existing unknown-outcome job and attempt state, preserving the same job identity. This seeds only that branch and does not define retry policy or implement retry.
+  - scenarioRef: media.scenario.consent-revoked
+    sourceFixtureKey: consent-revoked
+    startingStateRef: media-rights-and-consent.consent.REVOKED
+    rationale: The exact transcription fixture records consentState REVOKED, matching the PDP-0 proposal state identity; the PDP-1 rights/consent state machine remains empty pending owner review.
   - scenarioRef: media.scenario.job-outcome-confirmed
     sourceFixtureKey: job-outcome-confirmed
     startingStateRef: media-job.COMPLETED

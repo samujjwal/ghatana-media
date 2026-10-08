@@ -95,6 +95,36 @@ It runs integration-tagged workflows and requires Docker/Testcontainers. Use
 it when durable infrastructure and external test dependencies are available,
 not as the fast local closure command.
 
+## Product-definition generation order
+
+After changing Product Definition sources, regenerate the manifest and Explorer
+index before projecting the three phase candidates. Then regenerate the manifest
+and index to capture refreshed candidate source references, run that generation
+again to confirm byte-stable output, and perform strict projection checks:
+
+    pnpm generate:product-definition-manifest
+    node scripts/generate-media-phase-projections.mjs
+    pnpm generate:product-definition-manifest
+    pnpm generate:product-definition-manifest
+    node scripts/generate-media-phase-projections.mjs --check --strict
+    node scripts/generate-media-phase-projections.mjs --check --strict
+
+Each generated candidate carries the current public schema's top-level field
+inventory. Generation fails when a schema field lacks a candidate mapping or
+disposition, when a required field is omitted, or when an empty collection has
+neither a blocker nor an explicit empty-source disposition. The residual audit
+independently rereads the public schema and checks that inventory against the
+candidate and mapping records. These checks catch top-level omissions; they do
+not establish nested semantic completeness, owner acceptance, or Lifecycle
+currentness. The regression is covered by
+`tests/media-product-definition-residuals.test.mjs`.
+
+The phase candidates are themselves indexed Product Definition files. Their
+generated `sourceAuthorities` can add explicit source-path mentions, including
+PDP-3 screen-contract paths, so the post-projection manifest pass updates the
+provenance-only dependency edges. This is an expected synchronization step; it
+does not make those edges semantic dependencies or currentness evidence.
+
 Current isolated-build note: the focused STT compile is still blocked during
 external sibling composite configuration by
 `ghatana/integration-tests/service-contract-test-utils/build.gradle.kts:16`;
@@ -112,7 +142,7 @@ viewports. It writes screenshots and a JSON report to
 evidence and visual-review input; it is not independent human approval,
 pixel-reference conformance, or lifecycle-owned acceptance evidence.
 
-The 2026-10-07 rerun against the regenerated 296-record index passed across all
+The 2026-10-08 rerun against the regenerated 315-record index passed across all
 29 scenarios, 47 Product proposal routes, the dedicated `#tools-review` route,
 and six viewports, with no assertion, console, or page errors. The Tools Review
 assertion verifies the consumer result, local SNAPSHOT label, absent Lifecycle

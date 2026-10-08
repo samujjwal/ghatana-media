@@ -277,6 +277,7 @@ const allowedScreenBindingStatuses = new Set([
   "action-capability-crosswalk-recorded; semantic-review-pending",
   "candidate-template-link-owner-review-pending",
   "candidate-layout-link-owner-review-pending",
+  "media-owner-composition-link-approved; screen-admission-pending",
   "candidate-pending-acceptance",
   "candidate-pending-owner-binding",
   "candidate; owner-binding-pending",

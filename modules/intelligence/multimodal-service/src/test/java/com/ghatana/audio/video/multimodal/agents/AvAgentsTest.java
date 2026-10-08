@@ -8,6 +8,7 @@ import com.ghatana.agent.AgentConfig;
 import com.ghatana.agent.AgentResult;
 import com.ghatana.agent.AgentType;
 import com.ghatana.agent.framework.api.AgentContext;
+import com.ghatana.core.async.AsyncOperation;
 import com.ghatana.agent.framework.tools.ToolContract;
 import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
 import com.ghatana.agent.framework.tools.ToolExecutionResult;
@@ -27,6 +28,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,7 +80,7 @@ class AvAgentsTest extends EventloopTestBase {
         void transcribesFromAudioSource() { 
             AudioTranscriptionRequest request = AudioTranscriptionRequest.fromSource("artifact-001", "en-US"); 
 
-            AgentResult<AudioTranscriptionResult> result = runPromise(() -> agent.process(ctx, request)); 
+            AgentResult<AudioTranscriptionResult> result = runPromise(() -> asPromise(() -> agent.process(ctx, request)));
 
             assertThat(result.isSuccess()).isTrue(); 
             AudioTranscriptionResult transcription = result.getOutput(); 
@@ -91,7 +94,7 @@ class AvAgentsTest extends EventloopTestBase {
             AudioTranscriptionRequest request = AudioTranscriptionRequest.fromBytes( 
                     new byte[]{0x00, 0x01, 0x02}, "fr-FR");
 
-            AgentResult<AudioTranscriptionResult> result = runPromise(() -> agent.process(ctx, request)); 
+            AgentResult<AudioTranscriptionResult> result = runPromise(() -> asPromise(() -> agent.process(ctx, request)));
 
             assertThat(result.isSuccess()).isTrue(); 
         }
@@ -150,7 +153,7 @@ class AvAgentsTest extends EventloopTestBase {
         void processesWithoutVision() { 
             MultimodalAnalysisRequest request = MultimodalAnalysisRequest.forArtifact("artifact-999");
 
-            AgentResult<MultimodalAnalysisResult> result = runPromise(() -> agent.process(ctx, request)); 
+            AgentResult<MultimodalAnalysisResult> result = runPromise(() -> asPromise(() -> agent.process(ctx, request)));
 
             assertThat(result.isSuccess()).isTrue(); 
             MultimodalAnalysisResult analysis = result.getOutput(); 
@@ -166,7 +169,7 @@ class AvAgentsTest extends EventloopTestBase {
                     "artifact-v1", List.of("objects", "scenes"), 
                     "FULL", false, null, null);
 
-            AgentResult<MultimodalAnalysisResult> result = runPromise(() -> agent.process(ctx, request)); 
+            AgentResult<MultimodalAnalysisResult> result = runPromise(() -> asPromise(() -> agent.process(ctx, request)));
 
             assertThat(result.isSuccess()).isTrue(); 
             MultimodalAnalysisResult analysis = result.getOutput(); 
@@ -179,7 +182,7 @@ class AvAgentsTest extends EventloopTestBase {
             MultimodalAnalysisRequest request = new MultimodalAnalysisRequest( 
                     "artifact-t1", List.of(), "SUMMARY", true, "en-US", null); 
 
-            AgentResult<MultimodalAnalysisResult> result = runPromise(() -> agent.process(ctx, request)); 
+            AgentResult<MultimodalAnalysisResult> result = runPromise(() -> asPromise(() -> agent.process(ctx, request)));
 
             assertThat(result.isSuccess()).isTrue(); 
             MultimodalAnalysisResult analysis = result.getOutput(); 
@@ -249,5 +252,18 @@ class AvAgentsTest extends EventloopTestBase {
             }
             return "";
         }
+    }
+
+    private static <T> Promise<T> asPromise(Supplier<AsyncOperation<T>> operationSupplier) {
+        return Promise.ofCallback(callback -> {
+            CompletableFuture<T> future = new CompletableFuture<>();
+            operationSupplier.get().whenComplete((value, error) -> {
+                if (error == null) future.complete(value);
+                else future.completeExceptionally(error);
+            });
+            future.whenComplete((value, error) -> callback.accept(value,
+                    error == null ? null : error instanceof Exception exception
+                            ? exception : new RuntimeException(error)));
+        });
     }
 }

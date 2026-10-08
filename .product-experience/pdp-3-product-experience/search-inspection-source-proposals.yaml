@@ -50,16 +50,34 @@ inspectionObservations:
     observation: Indexed records describe proposals and their declared source locations; indexing alone does not show semantic acceptance or currentness.
   authority:
     canonicalInspectionRef: media.inspection.authority
-    sourceRefs: [.product-experience/authority-map.yaml, .product-experience/source-manifest.yaml]
+    sourceRefs:
+      - .product-experience/authority-map.yaml
+      - .product-experience/source-manifest.yaml
+      - .product-experience/pdp-3-product-experience/api/operations/getMediaArtifact.yaml
+      - contracts/openapi/media.yaml
     observation: Declared ownership and authority references do not establish current lifecycle admission.
+    observedProtocolOperationRefs: [media.http.getMediaArtifact]
+    observedRequest: tenant-header-and-required-artifactId-path
+    observedResponse: 200-MediaArtifact; 404-ErrorEnvelope
+    observedAccessMetadata: requires-authentication-and-tenant; required-access-operator
+    semanticBindingStatus: observation-only; PDP-1-operation-binding-unresolved
   evidence:
     canonicalInspectionRef: media.inspection.evidence
     sourceRefs: [.product-experience/explorer/verification-matrix.yaml, .product-experience/acceptance.yaml]
     observation: Evidence availability and acceptance records do not imply a receipt or pass.
   trace:
     canonicalInspectionRef: media.inspection.trace
-    sourceRefs: [.product-experience/source-manifest.yaml, .product-experience/traceability.yaml]
+    sourceRefs:
+      - .product-experience/source-manifest.yaml
+      - .product-experience/traceability.yaml
+      - .product-experience/pdp-3-product-experience/api/operations/getMediaJob.yaml
+      - contracts/openapi/media.yaml
     observation: Listed identifiers and authored relations do not imply missing dependency closure.
+    observedProtocolOperationRefs: [media.http.getMediaJob]
+    observedRequest: tenant-header-and-required-jobId-path
+    observedResponse: 200-ProcessingJob; 404-ErrorEnvelope
+    observedAccessMetadata: requires-authentication-and-tenant; required-access-operator
+    semanticBindingStatus: observation-only; PDP-1-operation-binding-unresolved; job-freshness-and-finality-not-established
   syntheticSimulation:
     canonicalInspectionRef: media.inspection.synthetic-simulation
     sourceRefs: [.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml, .product-experience/pdp-3-product-experience/simulation-semantics.yaml]

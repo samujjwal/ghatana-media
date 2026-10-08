@@ -8,7 +8,7 @@
  * @doc.pattern TaskFlow
  */
 import React from "react";
-import { Badge, Button } from "../foundations";
+import { MediaProgress } from "./MediaProgress";
 
 /** Host-defined step IDs keep the composition independent of one workflow vocabulary. */
 export type MediaTaskStepId = string;
@@ -100,13 +100,6 @@ export interface MediaTaskFlowProps {
   readonly className?: string;
 }
 
-const stateTone = {
-  available: "neutral",
-  current: "info",
-  complete: "success",
-  blocked: "warning",
-} as const;
-
 function legacyObservation(operation?: MediaTaskOperation): MediaTaskOperationObservation | undefined {
   if (!operation) return undefined;
   const kind = operation.progressKind ?? "determinate";
@@ -174,7 +167,7 @@ export function MediaTaskFlow({
                 >
                 <span >
                   <span >{index + 1}</span>
-                  <Badge tone={stateTone[step.state]} variant="soft">{step.state}</Badge>
+                  <span className="media-step-state">{step.state}</span>
                 </span>
                 <span >{step.title}</span>
                 <span >{step.description}</span>
@@ -195,11 +188,11 @@ export function MediaTaskFlow({
           </div>
         </div>
         {progress?.kind === "determinate" && boundedProgress !== undefined && <>
-          <progress max={100} value={boundedProgress} aria-label={progress.label ?? "Media operation progress"} />
+          <MediaProgress max={100} value={boundedProgress} label={progress.label ?? "Media operation progress"} />
           <p >{Math.round(boundedProgress)}%</p>
         </>}
         {progress?.kind === "indeterminate" && <div>
-          <progress aria-busy="true" aria-label={progress.label ?? "Media operation progress"} />
+          <MediaProgress label={progress.label ?? "Media operation progress"} />
           <p >Progress is ongoing; amount is not measured.</p>
         </div>}
         {progress?.kind === "none" && <p >No meaningful progress measurement is available.</p>}
@@ -220,11 +213,11 @@ export function MediaTaskFlow({
           {(primary || actions.length > 0) && <section >
             <h2 >Next action</h2>
             <div >
-              {primary && <Button fullWidth onClick={primary.onAction} disabled={primary.disabled} aria-describedby={primary.disabledReason ? "media-primary-action-reason" : undefined}>{primary.label}</Button>}
+              {primary && <button type="button" className="media-action-button media-action-button--primary" onClick={primary.onAction} disabled={primary.disabled} aria-describedby={primary.disabledReason ? "media-primary-action-reason" : undefined}>{primary.label}</button>}
               {primary?.disabledReason && <p id="media-primary-action-reason" >{primary.disabledReason}</p>}
               {actions.map((action) => <React.Fragment key={action.id}>
-                <Button fullWidth variant="soft" tone={action.destructive ? "danger" : "neutral"} onClick={action.onAction} disabled={action.disabled}
-                  aria-describedby={action.disabledReason ? `media-action-${action.id}-reason` : undefined}>{action.label}</Button>
+                <button type="button" className={`media-action-button media-action-button--${action.destructive ? "destructive" : "secondary"}`} onClick={action.onAction} disabled={action.disabled}
+                  aria-describedby={action.disabledReason ? `media-action-${action.id}-reason` : undefined}>{action.label}</button>
                 {action.disabledReason && <p id={`media-action-${action.id}-reason`} >{action.disabledReason}</p>}
               </React.Fragment>)}
             </div>

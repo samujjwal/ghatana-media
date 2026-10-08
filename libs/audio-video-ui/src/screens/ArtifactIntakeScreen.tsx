@@ -69,7 +69,7 @@ export function ArtifactIntakeScreen({ intake, onSourceFilesSelected, ...flow }:
             <p>Artifact ID: {artifact.id}</p>
             {(artifact.integrity || artifact.availability) && <p>{[artifact.integrity, artifact.availability].filter(Boolean).join(" · ")}</p>}
           </li>)}
-        </ul> : <EmptyState title="No artifact records are available in this projection." />}
+        </ul> : <EmptyState className="media-empty-state" title="No artifact records are available in this projection." />}
       </>}
     </section>
   </MediaTaskScreen>;

@@ -4,6 +4,12 @@
 **Scope:** source and dependency declarations in this Media checkout only. This is a gap audit, not a supported-format list, profile selection, provider admission, or release qualification.
 **Qualification status:** every row is `NOT_EVALUATED` for correctness, security, performance, hardware, and licensing/patent clearance unless the row explicitly describes a narrow source-level test observation. No row is promoted by a compile, unit test, format-name declaration, or dependency declaration.
 
+## Local fail-closed parser observation (2026-10-08)
+
+The Media Java `MediaFormatValidator` previously returned `valid=true` for MP3, FLAC, and OGG based only on a recognized magic header, despite having no complete decoder/profile validation path for those formats. It now reports those signatures through the separate detection API but rejects `validateAudio` for formats without a qualified decode profile. The WAV parser now treats RIFF and subchunk lengths as unsigned values, checks the declared outer RIFF boundary as well as the supplied byte-array boundary before offset arithmetic, enforces odd-length chunk padding, and rejects undersized PCM format chunks and zero-valued channel/sample/bit-depth fields. `MediaFormatValidatorQualificationTest` covers an MP3 header that is recognizable but not admitted, oversized RIFF/subchunk lengths, a subchunk crossing the declared RIFF boundary, missing odd-chunk padding, and an undersized `fmt ` chunk.
+
+This is fail-closed input validation, not evidence that WAV/PCM is a qualified deployment profile. The parser still needs specialist malformed-input review, a representative corpus, decode/runtime integration, time/resource bounds, performance and hardware evidence, and exact distribution-license/patent review. All codec/container profiles remain `NOT_EVALUATED`.
+
 R-01 requires profile-level correctness, security, performance, licensing, and hardware evidence, with explicit rejection for unsupported formats. This checkout does not contain a complete, release-pinned transcode matrix or specialist/legal/runtime evidence for such admission. This page records what source declares and what remains unknown; it does not choose a codec/provider or infer a supported profile.
 
 ## Source-pinned observation and qualification matrix

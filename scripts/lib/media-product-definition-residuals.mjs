@@ -123,6 +123,135 @@ function readText(root, path) {
   return readFileSync(join(root, path), "utf8");
 }
 
+function resolveTopLevelSchema(schema) {
+  let current = schema;
+  const visited = new Set();
+  while (typeof current?.$ref === "string") {
+    const reference = current.$ref;
+    if (!reference.startsWith("#/")) throw new Error(`unsupported top-level schema reference: ${reference}`);
+    if (visited.has(reference)) throw new Error(`recursive top-level schema reference: ${reference}`);
+    visited.add(reference);
+    current = reference.slice(2).split("/").map((part) => part.replaceAll("~1", "/").replaceAll("~0", "~"))
+      .reduce((value, part) => value?.[part], schema);
+    if (!current || typeof current !== "object") throw new Error(`schema reference does not resolve: ${reference}`);
+  }
+  return current;
+}
+
+export function validateProjectionFieldCoverage(root, source, projection) {
+  const diagnostics = [];
+  const schemaPath = projection.validation?.schemaContract;
+  if (typeof schemaPath !== "string" || !schemaPath.trim()) {
+    return [`${source.phase} projection has no public schema contract path`];
+  }
+
+  let schema;
+  let schemaTarget;
+  try {
+    schema = readJson(root, schemaPath);
+    schemaTarget = resolveTopLevelSchema(schema);
+  } catch (error) {
+    return [`${source.phase} public schema inventory cannot be read: ${error instanceof Error ? error.message : String(error)}`];
+  }
+
+  if (projection.validation?.schemaId !== schema.$id) {
+    diagnostics.push(`${source.phase} generated schema ID does not match the current public schema`);
+  }
+  const schemaProperties = schemaTarget.properties ?? {};
+  const expectedFields = Object.keys(schemaProperties);
+  const expectedFieldSet = new Set(expectedFields);
+  const requiredFields = new Set(schemaTarget.required ?? []);
+  const generatedInventory = projection.projectionFieldInventory;
+  const generatedInventoryFields = Array.isArray(generatedInventory?.fields)
+    ? generatedInventory.fields.map(({ name, required }) => `${name}:${required}`)
+    : [];
+  const currentInventoryFields = expectedFields.map((name) => `${name}:${requiredFields.has(name)}`);
+  if (generatedInventory?.schemaId !== schema.$id
+    || JSON.stringify(generatedInventoryFields) !== JSON.stringify(currentInventoryFields)) {
+    diagnostics.push(`${source.phase} generated public schema field inventory is stale or incomplete`);
+  }
+
+  const candidateModel = projection.candidateModel ?? {};
+  const fieldSources = projection.candidateFieldSources ?? {};
+  const fieldDispositions = projection.candidateMappingReview?.fieldDispositions ?? {};
+  const blockers = new Set((projection.fieldMappingBlockers ?? [])
+    .filter((blocker) => {
+      const disposition = fieldDispositions[blocker?.field];
+      const hasReason = Array.isArray(blocker?.reasons)
+        && blocker.reasons.some((reason) => typeof reason === "string" && reason.trim());
+      return typeof blocker?.field === "string"
+        && typeof blocker.status === "string"
+        && blocker.status === disposition?.status
+        && blocker.sourceDisposition === disposition?.source
+        && typeof disposition?.source === "string"
+        && disposition.source.trim()
+        && hasReason;
+    })
+    .map(({ field }) => field));
+  const explicitEmptySources = projection.candidateMappingReview?.emptyCollectionDispositions ?? {};
+  const timestampsDisposition = fieldDispositions.timestamps;
+
+  for (const field of expectedFields) {
+    const mapping = fieldSources[field];
+    if (!mapping || typeof mapping.mapping !== "string" || !mapping.mapping.trim()) {
+      diagnostics.push(`${source.phase} public schema field has no candidate field source: ${field}`);
+    }
+
+    const disposition = fieldDispositions[field]
+      ?? (["createdAt", "updatedAt"].includes(field) ? timestampsDisposition : undefined);
+    if (!disposition?.status || !disposition?.source) {
+      diagnostics.push(`${source.phase} public schema field has no mapping disposition: ${field}`);
+    }
+
+    if (!Object.hasOwn(candidateModel, field)) {
+      const intentionallyOmittedOptionalField = !requiredFields.has(field)
+        && disposition?.status === "OPTIONAL_AUTHORED_METADATA_OMITTED_INTENTIONALLY"
+        && /omitted intentionally/iu.test(mapping?.mapping ?? "");
+      if (requiredFields.has(field) || !intentionallyOmittedOptionalField) {
+        diagnostics.push(`${source.phase} public schema field is omitted from candidateModel without an explicit optional omission disposition: ${field}`);
+      }
+    } else if (Array.isArray(candidateModel[field]) && candidateModel[field].length === 0
+      && !blockers.has(field)
+      && !(explicitEmptySources[field]?.status === "EMPTY_SOURCE_SET_CONFIRMED" && explicitEmptySources[field]?.source)) {
+      diagnostics.push(`${source.phase} empty candidate collection has no blocker or explicit empty-source disposition: ${field}`);
+    }
+  }
+
+  for (const field of Object.keys(candidateModel)) {
+    if (!expectedFieldSet.has(field)) diagnostics.push(`${source.phase} candidateModel field is absent from the public schema: ${field}`);
+  }
+  for (const field of Object.keys(fieldSources)) {
+    if (!expectedFieldSet.has(field)) diagnostics.push(`${source.phase} candidate field source is absent from the public schema: ${field}`);
+  }
+  for (const field of Object.keys(fieldDispositions)) {
+    if (!expectedFieldSet.has(field) && field !== "timestamps") {
+      diagnostics.push(`${source.phase} mapping disposition is absent from the public schema: ${field}`);
+    }
+  }
+  for (const blocker of projection.fieldMappingBlockers ?? []) {
+    const field = blocker?.field;
+    if (!expectedFieldSet.has(field)) {
+      diagnostics.push(`${source.phase} blocker is absent from the public schema: ${field}`);
+      continue;
+    }
+    const disposition = fieldDispositions[field];
+    if (blocker.status !== disposition?.status) {
+      diagnostics.push(`${source.phase} blocker status does not match its field disposition: ${field}`);
+    }
+    if (blocker.sourceDisposition !== disposition?.source) {
+      diagnostics.push(`${source.phase} blocker source does not match its field disposition: ${field}`);
+    }
+    if (!Array.isArray(blocker.reasons)
+      || !blocker.reasons.some((reason) => typeof reason === "string" && reason.trim())) {
+      diagnostics.push(`${source.phase} blocker has no substantive reason: ${field}`);
+    }
+  }
+  for (const field of Object.keys(explicitEmptySources)) {
+    if (!expectedFieldSet.has(field)) diagnostics.push(`${source.phase} empty-source disposition is absent from the public schema: ${field}`);
+  }
+  return diagnostics;
+}
+
 export function validateProjectionSourceReferences(root, source, projection) {
   const diagnostics = [];
   const sourceAuthorities = new Map((projection.sourceAuthorities ?? []).map((authority) => [authority.sourceRef, authority]));
@@ -162,9 +291,13 @@ export function validateProjectionSourceReferences(root, source, projection) {
 function projectionReport(root, source, diagnostics) {
   const projection = readJson(root, source.path);
   diagnostics.push(...validateProjectionSourceReferences(root, source, projection));
+  diagnostics.push(...validateProjectionFieldCoverage(root, source, projection));
   const fieldSources = projection.candidateFieldSources ?? {};
   const dispositions = projection.candidateMappingReview?.fieldDispositions ?? {};
   const blockers = projection.fieldMappingBlockers ?? [];
+  const emptyCollections = Object.entries(projection.candidateModel ?? {})
+    .filter(([, value]) => Array.isArray(value) && value.length === 0)
+    .map(([field]) => ({ field, declaredBlocker: blockers.some((blocker) => blocker.field === field) }));
   const blockerFields = new Set();
   const residualFields = [];
   const ownerReviewPendingFields = [];
@@ -203,7 +336,11 @@ function projectionReport(root, source, diagnostics) {
     if (!disposition?.status || blocker.status !== disposition.status) {
       diagnostics.push(`${source.phase} ${blocker.field} blocker does not match its field disposition`);
     }
-    if (!Array.isArray(blocker.reasons) || blocker.reasons.length === 0) {
+    if (blocker.sourceDisposition !== disposition?.source) {
+      diagnostics.push(`${source.phase} ${blocker.field} blocker source does not match its field disposition`);
+    }
+    if (!Array.isArray(blocker.reasons)
+      || !blocker.reasons.some((reason) => typeof reason === "string" && reason.trim())) {
       diagnostics.push(`${source.phase} ${blocker.field} blocker has no reason`);
     }
     residualFields.push({
@@ -231,12 +368,14 @@ function projectionReport(root, source, diagnostics) {
     path: source.path,
     projectionKind: projection.projectionKind,
     projectionStatus: projection.projectionStatus,
+    schemaFieldCount: projection.projectionFieldInventory?.fields?.length ?? 0,
     mappedFieldCount: Object.keys(fieldSources).length,
     unresolvedFieldCount: residualFields.length,
     unresolvedFields: residualFields,
     ownerReviewPendingFieldCount: ownerReviewPendingFields.length,
     ownerReviewPendingFields,
     intentionalOmissions,
+    emptyCollections,
     ownerDecisionStatus: projection.candidateMappingReview?.ownerDecisionStatus ?? null,
   };
 }
@@ -387,6 +526,10 @@ function migrationSemanticsReport(root, diagnostics) {
         affectedItemIds: list("affectedItemIds"),
         unmappedStatus: stringField("unmappedStatus"),
         disposition: stringField("disposition"),
+        claimDecompositionStatus: stringField("claimDecompositionStatus"),
+        decomposedClaimCount: Number(block.match(/^    decomposedClaimCount: (\d+)/mu)?.[1] ?? 0),
+        semanticReconciliationStatus: stringField("semanticReconciliationStatus"),
+        claimEvidenceRef: stringField("claimEvidenceRef"),
         changedClaims: stringField("changedClaims"),
       };
     });
@@ -403,7 +546,9 @@ function migrationSemanticsReport(root, diagnostics) {
     diffAgainstHistorical: sourceChangeLedger.match(/^\s{4}diffAgainstHistorical: ([^\n]+)/mu)?.[1]?.trim() ?? null,
     changedClusterCount: changeClusters.length,
     unmappedClusterIds: changeClusters.filter((cluster) => cluster.unmappedStatus).map(({ id }) => id),
-    clustersNeedingDecomposition: changeClusters.filter((cluster) => /needs decomposition/iu.test(cluster.disposition ?? "")).map(({ id }) => id),
+    clustersNeedingDecomposition: changeClusters.filter((cluster) => cluster.claimDecompositionStatus !== "exact-claims-recorded" && /needs decomposition/iu.test(cluster.disposition ?? "")).map(({ id }) => id),
+    clustersDecomposedSemanticUnresolved: changeClusters.filter((cluster) => cluster.claimDecompositionStatus === "exact-claims-recorded" && cluster.semanticReconciliationStatus === "unresolved").map(({ id }) => id),
+    decomposedSourceClaimCount: changeClusters.reduce((total, cluster) => total + cluster.decomposedClaimCount, 0),
     clusters: changeClusters,
     remainingReview: sourceChangeLedger.match(/^\s{2}remainingReview: ([^\n]*(?:\n    [^\n]*)*)/mu)?.[1]?.replace(/\n\s+/gu, " ").trim() ?? null,
   };
@@ -477,7 +622,8 @@ function operationParityReport(root, diagnostics) {
     } else if (name === "CLI fixture commands") {
       observedIdentities = identities;
     } else if (name === "SDK registry") {
-      observedIdentities = [...proposedIdentities, ...unresolvedIdentities].sort();
+      const nonOperationDispositions = nestedInlineArrays(block, "sourceBackedNonOperationDispositions");
+      observedIdentities = [...new Set([...proposedIdentities, ...unresolvedIdentities, ...nonOperationDispositions])].sort();
     } else if (name === "Agent Tool handlers") {
       observedIdentities = identities;
     } else if (name === "lifecycle event names") {
@@ -716,6 +862,15 @@ export function buildMediaProductDefinitionResidualReport(rootPath = resolve(new
   const report = {
     schemaVersion: "media.product-definition-residual-work.v1",
     authority: "diagnostic-only; source mappings, lifecycle evidence, owner acceptance, and phase closure remain separately governed",
+    projectionMappingAudit: {
+      blockerSource: "generated candidate fieldMappingBlockers",
+      completeness: "TOP_LEVEL_SCHEMA_FIELDS_AND_EMPTY_COLLECTION_DECLARATIONS_VALIDATED; NESTED_SEMANTICS_NOT_INFERRED",
+      checks: [
+        "Current public schema properties are compared with generated candidate keys, field-source mappings, dispositions, and recorded schema-field inventory.",
+        "Missing optional fields require an explicit omission disposition; empty candidate collections require a blocker whose status and source match the field disposition and whose reason is nonblank, or an explicit empty-source disposition.",
+      ],
+      limitation: "These checks detect top-level omissions and unreported empty collections; they do not infer nested record completeness, mapping semantics, owner decisions, or acceptance.",
+    },
     projections,
     capabilityCoverage,
     migrationSemantics,
@@ -751,6 +906,7 @@ export function renderMediaProductDefinitionResidualMarkdown(report) {
     "# Media Product Definition residual work",
     "",
     `Authority: ${report.authority}.`,
+    `Projection blocker coverage: ${report.projectionMappingAudit.completeness}; source is ${report.projectionMappingAudit.blockerSource}. ${report.projectionMappingAudit.limitation}`,
     "",
     "## Projection mappings",
     "",
@@ -763,7 +919,7 @@ export function renderMediaProductDefinitionResidualMarkdown(report) {
     `- Capability coverage: ${report.capabilityCoverage.leafCount} leaves; ${report.capabilityCoverage.dispositionCounts.JOURNEY_STEP ?? 0} journey steps, ${report.capabilityCoverage.dispositionCounts.MACHINE_OPERATION ?? 0} machine operations, ${report.capabilityCoverage.dispositionCounts.PLATFORM_DEPENDENCY ?? 0} platform dependencies, ${report.capabilityCoverage.unresolvedCount} unresolved.` ,
     `- Migration semantics: ${report.migrationSemantics.uniqueContentUnits} unique content units; ${report.migrationSemantics.unresolvedCount} unresolved and ${report.migrationSemantics.mixedRequiresDecompositionCount} mixed blocks requiring decomposition.` ,
     `  Master-plan pin: ${report.migrationSemantics.sourcePinState}; recorded/current line counts ${report.migrationSemantics.declaredSourceLineCount}/${report.migrationSemantics.currentSourceLineCount}.`,
-    `  Master-plan semantic diff: ${report.migrationSemantics.sourceChangeLedger.changedClusterCount} clusters; ${report.migrationSemantics.sourceChangeLedger.unmappedClusterIds.length} lack historical MPSEM IDs; ${report.migrationSemantics.sourceChangeLedger.clustersNeedingDecomposition.length} still need claim decomposition. Pin disposition: ${report.migrationSemantics.sourceChangeLedger.pinDisposition}.`,
+    `  Master-plan semantic diff: ${report.migrationSemantics.sourceChangeLedger.changedClusterCount} clusters; ${report.migrationSemantics.sourceChangeLedger.unmappedClusterIds.length} lack historical MPSEM IDs; ${report.migrationSemantics.sourceChangeLedger.decomposedSourceClaimCount} exact source claims across ${report.migrationSemantics.sourceChangeLedger.clustersDecomposedSemanticUnresolved.length} clusters are decomposed, with semantic reconciliation unresolved for those clusters. Pin disposition: ${report.migrationSemantics.sourceChangeLedger.pinDisposition}.`,
     `- Interface parity: ${report.operationParity.surfaceCount} surfaces and ${report.operationParity.totalObservedIdentities} observed identities; ${report.operationParity.unresolvedIdentityCount} source identities remain unresolved, with ${report.operationParity.acceptedBindingCount} owner-accepted bindings recorded.` ,
     `- Design conformance: ${report.designConformance.openGateCount}/${report.designConformance.gateCount} recorded authority/review gates remain open.` ,
     `- Product experience: ${report.productExperience.screenViewCount} indexed screen views, ${report.productExperience.journeyCount} journey candidates, ${report.productExperience.stepsWithScreenContracts}/${report.productExperience.stepCount} steps linked to screens, ${report.productExperience.stepsWithActionBindings}/${report.productExperience.stepCount} with action bindings, ${report.productExperience.projectedJourneyCount} projected journeys.` ,

@@ -71,8 +71,8 @@ test("linked PDP source changes remain stale until their migration item claims a
   }
 
   assert.equal(review.counts.uniqueContentUnits, 1340);
-  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 349);
-  assert.equal(review.counts.blockStructureProposalCounts.MIXED_REQUIRES_DECOMPOSITION, 123);
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 263);
+  assert.equal(review.counts.blockStructureProposalCounts.MIXED_REQUIRES_DECOMPOSITION, 124);
   assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 0);
 });
 
@@ -90,6 +90,22 @@ test("the stale pin impact describes the exact newly added PDP claims", () => {
   assert.equal(constitution.invariants.records.length, 7);
   assert.match(constitution.domainRules.status, /pending-PDP-1-owner-review/u);
   assert.match(records.get(".product-experience/pdp-0-product-truth/constitution.yaml").rationale, /do not demonstrate equivalence/u);
+  const constitutionImpact = records.get(".product-experience/pdp-0-product-truth/constitution.yaml");
+  assert.match(constitutionImpact.changedClaims, /bounded PDP-1 owner-approved canonical policy distinctions/u);
+  assert.match(constitutionImpact.changedClaims, /distinguishes them from proposal-only state machines/u);
+  assert.match(constitutionImpact.rationale, /LPR-CONST-009/u);
+  assert.match(constitutionImpact.rationale, /does not constitute owner acceptance/u);
+  const claim = review.sourceChangeLedger.linkedPdpClaimReconciliation.sourceBlocks
+    .find(({ path }) => path === ".product-experience/pdp-0-product-truth/constitution.yaml")
+    .claims.find(({ claimId }) => claimId === "LPR-CONST-009");
+  assert.deepEqual(claim.sourceSpan, [26, 27]);
+  assert.equal(claim.ownerPhase, "PDP-0");
+  assert.equal(claim.targetRef, ".product-experience/pdp-0-product-truth/constitution.yaml#/domainRules");
+  assert.equal(claim.disposition, "ROUTED_PENDING_PDP1_OWNER_REVIEW");
+  assert.match(claim.assertion, /bounded to canonical policy distinctions/u);
+  assert.match(claim.assertion, /do not accept the proposal-only state machines/u);
+  assert.match(claim.assertion, /ProductDefinition domainRules mapping/u);
+  assert.match(claim.dependency, /state, transition, operation-binding, and domainRules mappings remain pending/u);
 });
 
 test("new linked-PDP assertions are atomized, source-located, and routed without implying acceptance", () => {
@@ -133,7 +149,7 @@ test("new linked-PDP assertions are atomized, source-located, and routed without
     }
   }
 
-  assert.equal(claimIds.length, 29, "the three source blocks are decomposed into atomic claims");
+  assert.equal(claimIds.length, 30, "the three source blocks are decomposed into atomic claims");
   assert.equal(new Set(claimIds).size, claimIds.length, "claim IDs are stable and unique");
   assert.ok(reconciliation.unresolvedDependencies.length >= 6, "external and independent review dependencies remain explicit");
   assert.equal(review.sourceChangeLedger.linkedPdpPinImpact.masterPlanPinDisposition, "unchanged-keep-stale");

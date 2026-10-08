@@ -143,7 +143,8 @@ recordedHumanDecisionInputs:
   decisionDate: '2026-10-06'
   comments:
   - This approves proposal structure and source-denominator inventory only. It does not approve operation boundaries, field semantics, actor/authority decisions, mappings, runtime reachability, or wire behavior.
-  - HTTP/SDK/Tool/event bindings remain unresolved; gRPC family links remain proposals; 134 UI actions remain unresolved and one is ambiguous. Local structural tests are not portable YAML CI proof or phase acceptance.
+  - 2026-10-08 source refresh: operations.yaml now has 14 proposal records (nine logical-operation families plus five source-specific records); 14 of 146 UI actions have exact proposed operation refs, zero are ambiguous, and 132 remain unresolved. The gRPC inventory has 17 proposed family refs and 26 unresolved identities. These source links remain proposals; no operation semantics, mappings, runtime reachability, or wire behavior are accepted.
+  - HTTP/SDK/Tool/event bindings remain unresolved. Local structural tests are not portable YAML CI proof or phase acceptance.
   exclusions:
   - Semantic acceptance of any PDP-1 operation or projection, or full PDP-1 phase acceptance
   - API/protobuf/SDK/CLI/Agent Tool/event/platform/consumer owner decisions or runtime qualification
@@ -354,7 +355,7 @@ recordedHumanDecisionInputs:
   sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
   decisionDate: '2026-10-06'
   comments:
-  - This approves v2 contract shape and source-grounded proposal references only. Three exact template IDs resolve in the PDP-2 catalog; other template IDs remain null, and no canonical layout IDs are registered.
+  - This approves v2 contract shape and source-grounded proposal references only. As of 2026-10-08, a separate bounded Media owner review approves 41 exact top-level template/layout links and withholds six mismatches with reasons. This link-level review does not admit any screen composition, per-screen recipe, Shared binding, behavior, or phase.
   - surfaceId is a candidate based on the proposed Web channel/surface inventory, not an accepted channel-to-surface binding. Shared token/package binding, PDP-1 objects/operations/states/transitions, step-level behavior, fixtures, accessibility, responsive rendering, and behavioral verification remain open.
   - Existing anatomy, templateContract, and layoutContract content remains proposal provenance and has not been centralized into owner-accepted template/layout authority; the no-screen-local-design-rule target is therefore not fully achieved.
   exclusions:
@@ -380,7 +381,7 @@ recordedHumanDecisionInputs:
   sourceOfDecision: delegated-media-owner-review-explicitly-authorized-by-user-on-2026-10-06
   decisionDate: '2026-10-06'
   comments:
-  - This approves exact source-inventory and protocol-record structure only. All 27 HTTP logical-operation mappings and 19 gRPC logical-operation mappings remain unresolved; 24 gRPC source-explicit crosswalks remain unaccepted proposals.
+  - This approves exact source-inventory and protocol-record structure only. The 2026-10-08 source refresh records 17 proposed gRPC family associations and 26 unresolved identities; none has owner-approved wire semantics. All 27 HTTP logical-operation mappings remain unresolved.
   - Route/proto membership does not establish product meaning, auth, idempotency, cancellation, retry, finality, state effects, privacy, event guarantees, runtime qualification, or OpenAPI/protobuf canonical-wire authority.
   exclusions:
   - Semantic acceptance of PDP-1 or PDP-3 operations; canonical wire authority; API/provider owner decisions; protocol/runtime parity beyond the observed route/proto identity checks; production admission or release readiness
@@ -677,6 +678,119 @@ recordedHumanDecisionInputs:
     - Unverified package/schema artifact publication or external Tools/Shared/DI/Lifecycle owner approval
     - Independent domain/visual/screen-reader/security/licensing signoff or codec/model/provider activation
     - Lifecycle admitted proof or generated closure/currentness/receipts
+
+- id: ACCEPT-INPUT-MEDIA-OWNER-PDP3-ACTION-INTENT-ASSOCIATIONS-20261008
+  phaseTask: CROSS-PDP3-OWNER-ACTION-INTENT-ASSOCIATIONS-20261008
+  decisionInput: accepted
+  acceptedScope:
+    - The six exact PDP-3 UI action identities are associated with their listed PDP-1 operation identities as semantic intent/action associations only.
+  associations:
+    media.action.request-transcription: media.operation.transcription-submission
+    media.action.review-transcript: media.operation.transcript-version-read
+    media.action.correct-caption: media.operation.caption-draft-write
+    media.action.align-caption-timing: media.operation.caption-draft-write
+    media.action.save-caption-version: media.operation.caption-version-write
+    media.action.compare-caption-versions: media.operation.caption-version-read
+  evidenceRefs:
+    - .product-experience/pdp-3-product-experience/action-registry.yaml
+    - .product-experience/pdp-1-domain-data/operations.yaml
+    - .product-experience/interface-parity/operation-parity.yaml#surfaces.UI-action-registry.ownerApprovedActionIntentAssociations
+    - .product-experience/decision-log.md#PXD-029
+  sourceOfDecision: explicit-user-delegation-in-current-thread-for-these-six-action-intent-associations-only
+  decisionDate: '2026-10-08'
+  comments:
+    - This accepts semantic intent/action association only. It does not accept transport, wire, schema, actor, authority, finality, runtime reachability, or PDP-1 operation behavior.
+    - These are not accepted cross-interface bindings; the accepted cross-interface binding count remains zero.
+  exclusions:
+    - Any action or operation identity outside the six listed associations
+    - PDP-1 proposal status, operation behavior, transport/wire/schema binding, actor/authority, finality, or runtime reachability
+    - P1-11 or any phase acceptance, full parity acceptance, Lifecycle currentness/receipts, or closure
+
+- id: ACCEPT-INPUT-MEDIA-OWNER-PDP0-REPRESENTATIVE-INITIATORS-20261008
+  phaseTask: P0-04
+  decisionInput: accepted
+  acceptedScope:
+    - Select one representative initiating actor for each source-authored PDP-0 intent and journey so the ProductDefinition projection can name a primary actor.
+    - Preserve every source actorRef as a collaborator; keep initiating actor selection separate from permission, authentication, accountability, and runtime execution authority.
+  evidenceRefs:
+    - .product-experience/pdp-0-product-truth/intent-resolutions.yaml
+    - .product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml
+    - .product-experience/pdp-0-product-truth/goals-jtbd.yaml
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml
+    - .product-experience/decision-log.md#PXD-030
+    - tests/media-product-definition-resolved-intents.test.mjs
+  sourceOfDecision: explicit-user-delegation-in-current-thread-for-reversible-Media-owner-decisions-within-vision-and-requirements
+  decisionDate: '2026-10-08'
+  comments:
+    - Owner-selected initiators are ProductDefinition projection choices only; all source collaborators remain listed and no actor gains permission or execution authority.
+    - P0-010 independent review remains required before PDP-0 acceptance.
+  exclusions:
+    - Any change to actor catalogs, collaborator lists, requirements, outcomes, or operation authority
+    - Independent P0-010 review, PDP-0 or any phase acceptance/closure, Lifecycle currentness/receipts, or closure
+
+- id: ACCEPT-INPUT-MEDIA-OWNER-SDK-NON-OPERATION-DISPOSITIONS-20261008
+  phaseTask: P1-04
+  decisionInput: accepted
+  acceptedScope:
+    - Classify AudioVideoClient.getServiceStatus and getAllServicesStatus as TRANSPORT_ONLY service-health observations over configured provider health endpoints.
+    - Classify AudioVideoClient.addEventListener and removeEventListener as CLIENT_ONLY in-process listener registration/removal.
+    - Preserve all other public SDK identities, family proposals, unresolved identities, and raw parser-artifact records in their separate denominators.
+  evidenceRefs:
+    - libs/audio-video-client/src/index.ts
+    - .product-experience/interface-parity/operation-parity.yaml#typedInterfaceIdentityDispositions.sdk
+    - .product-experience/pdp-1-domain-data/operations.yaml#sourceDenominators.sdkMethods
+    - .product-experience/decision-log.md#PXD-031
+    - tests/media-operation-parity-source-denominators.test.mjs
+  sourceOfDecision: explicit-user-delegation-in-current-thread-for-source-backed-Media-owner-dispositions
+  decisionDate: '2026-10-08'
+  comments:
+    - These are source-role classifications only, not Media logical operations, HTTP route mappings, delivery guarantees, or client/runtime acceptance.
+    - The updated inventory has 14 family-association proposals, four exact non-operation dispositions, and 10 unresolved public method identities; three parser artifacts remain excluded from the public method denominator.
+  exclusions:
+    - Any route or PDP-1 logical-operation binding for these four SDK methods
+    - SDK/API owner acceptance, runtime qualification, P1-11 or phase acceptance, Lifecycle currentness/receipts, or closure
+
+- id: ACCEPT-INPUT-MEDIA-OWNER-PDP2-PROGRESS-OBLIGATION-20261008
+  phaseTask: P2-06
+  decisionInput: accepted
+  acceptedScope:
+    - Add the required closure obligation `media.pdp-2.requirement.media.component.progress-indicator` for the new source-authored Media progress-indicator component contract so the Lifecycle obligation denominator covers every authored/projected component contract.
+  evidenceRefs:
+    - .product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.progress-indicator
+    - libs/audio-video-ui/src/components/MediaProgress.tsx#MediaProgressProps
+    - .product-experience/decision-log.md#PXD-032
+    - tests/media-obligation-denominator-audit.test.mjs
+  sourceOfDecision: explicit-user-delegation-in-current-thread-to-preserve-required-coverage-for-each-authored-component-contract
+  decisionDate: '2026-10-08'
+  comments:
+    - This is denominator coverage for an authored source proposal only; it does not admit the component, assert behavior/conformance, or qualify a Shared package.
+    - The new obligation has no case, provider, observer, oracle, receipt, or accepted proof route. The Lifecycle evidence gap remains open.
+  exclusions:
+    - Component behavior or accessibility/conformance acceptance
+    - Shared package publication, licensing, or owner approval
+    - PDP-2 or any other phase acceptance, Lifecycle currentness/receipts, or closure
+
+- id: ACCEPT-INPUT-MEDIA-OWNER-PDP3-COMPOSITION-LINKS-20261008
+  phaseTask: CROSS-PDP3-OWNER-COMPOSITION-LINK-REVIEW-20261008
+  decisionInput: accepted
+  acceptedScope:
+    - A purpose-by-purpose Media owner review approves the exact top-level templateId and layoutIds composition links for 41 PDP-3 screen contracts.
+    - Six mismatched top-level template/layout pairs are withheld with explicit reasons; the full 47-screen denominator is preserved.
+  evidenceRefs:
+    - .product-experience/pdp-3-product-experience/screen-registry.yaml#compositionLinkOwnerReview
+    - .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+    - .product-experience/pdp-2-design-interface-system/gui/layout.yaml
+    - .product-experience/decision-log.md#PXD-028
+    - tests/pdp-2-recipe-layout-chains.test.mjs
+  sourceOfDecision: explicit-user-delegation-in-current-thread-to-resolve-media-owner-level-decisions
+  decisionDate: '2026-10-08'
+  comments:
+    - This is a top-level composition-link decision only. Zero screen compositions are admitted; nested templateContract/layoutContract links, recipe binding, actions/effects/states, Shared binding, behavior, independent review, and PDP-3 acceptance remain open.
+  exclusions:
+    - Per-screen recipe binding or screen-composition admission
+    - Shared package/component approval or independent accessibility/visual review
+    - PDP-3 or any other PDP phase acceptance, Lifecycle currentness/receipts, or phase closure
+
 phaseAcceptanceInputs:
 - id: ACCEPT-INPUT-P0-002
   phase: PDP-0

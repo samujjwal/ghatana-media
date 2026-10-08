@@ -25,6 +25,26 @@ sharedPublicContract:
   sourceAvailability: local-sibling-built-tarballs; all-nine-consumer-packages-0.1.0-SNAPSHOT
   verifiedConsumption: isolated-Media-UI-TypeScript-and-Vite-public-export-consumer-pass; see-explorer-verification-matrix
   consumerBinding: local-development-source-snapshot-proven; ordinary-workspace-lockfile-and-registry-resolution-unverified; design-review-pending
+  aliasResolutionObservation:
+    source: scripts/verify-media-shared-artifact-consumer.mjs
+    checkedAliasCount: 9
+    checkedModes: [light, dark]
+    method: Compile-time-and-runtime-resolution-of-each-authored-semanticColorRoles-path-through-the-isolated-packed-public-@ghatana/tokens/semantic-roles-export
+    status: PASS_LOCAL_SOURCE_SNAPSHOT_ONLY
+    observedAt: '2026-10-08'
+    limitations: [registry-publication-unverified, immutable-release-binding-unverified, Shared-owner-review-pending, visual-and-accessibility-acceptance-pending, CSS-recipe-variable-and-unit-bridge-unresolved]
+    packagingReproducibility:
+      package: "@ghatana/design-system"
+      sourceRepository: samujjwal/ghatana-shared
+      sourceRevision: 30861c4e4463884178429a24070b85964703a988
+      repositoryWorkingTreeAtObservation: clean
+      generatedDistFileSetSha256: 87426d2b62f5e156ce8b2dcba40b8668acd153aeaff481eb30bb8bba219d04ac
+      canonicalPublishedContentSha256: 4e005577447e377c0c72476f446755420c705abe93e7fd0702aafa53d0a23119
+      repeatedConsumerRuns: 2
+      rawArchiveHash: NOT_STABLE; direct repeated pnpm pack archives differed only in packed package.json dependency-key order
+      canonicalDigestMethod: Sorted relative file paths; JSON object keys sorted before hashing; non-JSON file bytes preserved
+      status: LOCAL_SOURCE_SNAPSHOT_CONTENT_REPRODUCIBLE_ONLY
+      limitation: [no-immutable-release-admission, raw-tarball-hash-not-reproducible, ignored-dist-is-observed-output-not-source-commit-evidence]
 
 sharedPackageInventory:
   observation: package-manifest-source-versions-at-inspected-head; not-publication-or-consumption-evidence

@@ -49,8 +49,8 @@ test('PDP-0 projects only the exact resolved P0-04 user intent actor and priorit
       : [];
   });
   assert.deepEqual(model.userIntents, expected);
-  assert.equal(model.userIntents.length, 8);
-  assert.equal(projection.candidateMappingReview.unresolvedUserIntentIds.length, 11);
+  assert.equal(model.userIntents.length, 19);
+  assert.equal(projection.candidateMappingReview.unresolvedUserIntentIds.length, 0);
   assert.ok(projection.sourceAuthorities.some(({ sourceRef }) => sourceRef.endsWith('/intent-resolutions.yaml')));
   assert.equal(projection.acceptance, 'NOT_CLAIMED');
 });
@@ -85,14 +85,14 @@ test('PDP-0 preserves exact collaborator actor lists and only resolved initiatin
   }).flat();
   assert.deepEqual(model.journeys, expected);
   assert.equal(model.journeys.length, 30);
-  assert.equal(model.journeys.filter(({ actorRef }) => actorRef !== undefined).length, 11);
-  assert.equal(model.journeys.filter(({ actorRef }) => actorRef === undefined).length, 19);
+  assert.equal(model.journeys.filter(({ actorRef }) => actorRef !== undefined).length, 30);
+  assert.equal(model.journeys.filter(({ actorRef }) => actorRef === undefined).length, 0);
   assert.equal(model.journeys.reduce((count, journey) => count + journey.actorRefs.length, 0), 95);
   for (const journey of model.journeys) {
     assert.equal(new Set(journey.actorRefs).size, journey.actorRefs.length, `${journey.id} has no duplicate source actor refs`);
     if (journey.actorRef) assert.ok(journey.actorRefs.includes(journey.actorRef), `${journey.id} primary actor is a source collaborator`);
   }
-  assert.equal(projection.candidateMappingReview.unresolvedJourneyIds.length, 19);
+  assert.equal(projection.candidateMappingReview.unresolvedJourneyIds.length, 0);
   assert.deepEqual(
     new Set(projection.candidateMappingReview.unresolvedJourneyIds),
     new Set(journeyCatalog.journeys.filter(({ id }) => resolutions.get(id).actorStatus !== 'resolved').map(({ id }) => id)),
@@ -108,9 +108,8 @@ test('PDP-0 requirement trace targets are limited to resolvable intents and unre
     assert.deepEqual(projected.traceToIntentIds, requirement.traceToIntentIds.filter((id) => resolved.has(id)));
     for (const target of projected.traceToIntentIds) assert.ok(resolved.has(target));
   }
-  assert.equal(projection.candidateMappingReview.intentTracesWithUnresolvedTargets.length, 26);
-  assert.equal([...unresolved.values()].flat().length, 35);
-  assert.ok([...unresolved.values()].flat().some((id) => !resolved.has(id)));
+  assert.equal(projection.candidateMappingReview.intentTracesWithUnresolvedTargets.length, 0);
+  assert.equal([...unresolved.values()].flat().length, 0);
 });
 
 test('PDP-0 maps owner-resolved invariants, trust contexts, and accountability without merging authority types', () => {

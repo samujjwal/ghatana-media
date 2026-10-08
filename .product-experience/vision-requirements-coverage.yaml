@@ -129,7 +129,7 @@ coverageChecks:
   requirements: {expected: 38, rule: every-requirement-has-capability-and-outcome-trace}
   nonfunctionalRequirements: {expected: 13, rule: security-privacy-observability-accessibility-localization-performance-cost-time-fidelity-recovery-deployment-and-SLO-coverage}
   capabilities: {expected: 462, rule: every-leaf-has-requirement-intent-outcome-state-authority-recovery-provenance-and-channel-fields}
-  componentContracts: {expected: 28, rule: every-component-has-design-state-action-accessibility-localization-and-misuse-fields}
+  componentContracts: {expected: 31, rule: every-component-has-design-state-action-accessibility-localization-and-misuse-fields}
   screenContracts: {expected: 47, rule: every-contract-is-indexed-source-linked-and-proposal-actions-are-disabled}
   journeys: {expected: 30, proposalFiles: 28, rule: every-journey-has-outcome-actor-step-success-failure-recovery-context-channel-and-accessibility-fields}
   explorerArtifacts: {rule: generated-count-equals-current-source-manifest-records-plus-the-manifest-projection}

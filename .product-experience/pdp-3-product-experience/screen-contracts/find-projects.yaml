@@ -3,9 +3,9 @@ contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-
 surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-existing-web-channel-surface-inventory; acceptance-pending
 templateId: media.gui.template.collection
-templateBindingStatus: candidate-by-screen-purpose; owner-review-pending
+templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 layoutIds: [media.gui.layout.collection]
-layoutBindingStatus: candidate-by-template-and-screen-purpose; owner-review-pending
+layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
   - media.component.project-browser
 componentBindingStatus: proposal-copied-from-componentRefs; Shared-binding-pending
@@ -63,8 +63,8 @@ verification:
     accessibility: not-yet-proven
 fieldBindingStatus:
   surfaceId: candidate-pending-acceptance
-  templateId: candidate-template-link-owner-review-pending
-  layoutIds: candidate-layout-link-owner-review-pending
+  templateId: media-owner-composition-link-approved; screen-admission-pending
+  layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: proposal-copy-shared-binding-pending
   patternIds: proposal-copy-PDP-2-acceptance-pending
   tokenDependencies: pending

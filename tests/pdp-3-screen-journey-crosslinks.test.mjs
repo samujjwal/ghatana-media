@@ -146,9 +146,32 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
   assert.equal(seededJourneyIds.size, 3);
   assert.equal(linkedSteps, 122);
   assert.equal(unresolvedViewSteps, 8);
+  const unresolvedStepIds = [
+    "J-29:detect-loss-or-consent-change",
+    "J-29:fence-new-frame-submission",
+    "J-29:reconcile-dispatched-frame-effects",
+    "J-29:present-bounded-return-state",
+    "J-30:establish-scope-and-permissions",
+    "J-30:inspect-profile-and-provider-dimensions",
+    "J-30:preserve-unknown-or-unavailable-reasons",
+    "J-30:return-eligible-options-with-provenance",
+  ];
+  const unresolvedContracts = ["J-29", "J-30"].map((id) => {
+    const journey = journeys.journeys.find((candidate) => candidate.id === id);
+    const contract = readYaml(`${experience}/${journey.contract}`);
+    return { journey, contract };
+  });
+  assert.deepEqual(unresolvedContracts.flatMap(({ contract }) => contract.steps.map((step) => `${contract.journeyId}:${step.stepId}`)),
+    unresolvedStepIds);
+  assert.ok(unresolvedContracts.every(({ contract }) => contract.steps.every((step) => step.view == null && step.screenContractRef == null)),
+    "J-29/J-30 ordered view lists do not allocate a screen to each step");
+  assert.match(journeys.coverageObservation.stepBindings.screenContractRef.blocker,
+    /owner-reviewed-step-to-view-crosswalk-or-equivalent-explicit-step-view-ref/u);
+  assert.match(journeys.coverageObservation.stepBindings.screenContractRef.blocker,
+    /journey-level-orderedViews,source-viewRefs,and-screen-journeyRefs-do-not-allocate-views-to-individual-steps/u);
   assert.equal(linkedViewJourneyRefs, 132);
   assert.deepEqual({ actionLinks, requirementLinks, capabilityLinks, outcomeLinks, operationLinks }, {
-    actionLinks: 18, requirementLinks: 20, capabilityLinks: 22, outcomeLinks: 72, operationLinks: 7,
+    actionLinks: 18, requirementLinks: 20, capabilityLinks: 22, outcomeLinks: 72, operationLinks: 16,
   });
 });
 
@@ -206,6 +229,37 @@ test("PDP-3 actor projection rejects inferred initiators and invented actors", (
     /invents actor media\.reviewer/u);
 });
 
+test("PDP-3 extension view lists do not invent per-step screen or action allocations", () => {
+  const journeyRegistry = readYaml(`${experience}/journey-registry.yaml`);
+  const sourceCatalog = readYaml(".product-experience/pdp-0-product-truth/journey-catalog.yaml");
+  const sourceById = new Map(sourceCatalog.journeys.map((journey) => [journey.id, journey]));
+  const extensions = new Map(journeyRegistry.journeys
+    .filter(({ id }) => ["J-29", "J-30"].includes(id))
+    .map((journey) => [journey.id, readYaml(`${experience}/${journey.contract}`)]));
+
+  assert.deepEqual([...extensions.keys()], ["J-29", "J-30"]);
+  let unresolvedStepViews = 0;
+  for (const [journeyId, contract] of extensions) {
+    const source = sourceById.get(journeyId);
+    assert.ok(source.viewRefs.length > 0, `${journeyId} retains its source-level PDP-0 view list`);
+    assert.ok(contract.orderedViews.length > 0, `${journeyId} retains its journey-level PDP-3 ordered view list`);
+    assert.deepEqual(contract.steps.map(({ stepId }) => stepId),
+      journeyId === "J-29"
+        ? ["detect-loss-or-consent-change", "fence-new-frame-submission", "reconcile-dispatched-frame-effects", "present-bounded-return-state"]
+        : ["establish-scope-and-permissions", "inspect-profile-and-provider-dimensions", "preserve-unknown-or-unavailable-reasons", "return-eligible-options-with-provenance"],
+      `${journeyId} preserves the authored step identities and order`);
+    for (const step of contract.steps) {
+      unresolvedStepViews++;
+      assert.equal(step.view, undefined, `${journeyId}/${step.stepId} has no exact step-level view source`);
+      assert.equal(step.screenContractRef, undefined, `${journeyId}/${step.stepId} has no exact screen contract allocation`);
+      assert.equal(step.action, undefined, `${journeyId}/${step.stepId} has no exact step-level action source`);
+      assert.equal(step.actionRef, undefined, `${journeyId}/${step.stepId} has no exact step-level action source`);
+    }
+  }
+  assert.equal(unresolvedStepViews, 8,
+    "journey-level view inventories do not establish which views/actions belong to each extension step");
+});
+
 test("PDP-3 navigation-only steps reject operation placeholders", () => {
   const navigationOnlyStep = { action: null, actionRef: null, canonicalOperationRef: null };
   assert.doesNotThrow(() => assertOperationRequiresAction(navigationOnlyStep, "J-test step 1"));
@@ -213,4 +267,30 @@ test("PDP-3 navigation-only steps reject operation placeholders", () => {
     ...navigationOnlyStep,
     canonicalOperationRef: "media.operation.job-lifecycle",
   }, "J-test step 1"), /cannot bind an operation without an explicit action/u);
+});
+
+
+test("PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk and remain proposals", () => {
+  const journeys = readYaml(`${experience}/journey-registry.yaml`);
+  const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
+  const explicit = operations.sourceDenominators.uiProductActions.explicitOperationIds;
+  const selectedCandidateActions = new Set(Object.keys(explicit));
+  let mappedOccurrences = 0;
+  const mappedActionIds = new Set();
+  for (const journey of journeys.journeys) {
+    const contract = readYaml(`${experience}/${journey.contract}`);
+    for (const step of contract.steps ?? []) {
+      if (!selectedCandidateActions.has(step.action)) continue;
+      assert.equal(step.canonicalOperationRef, explicit[step.action],
+        `${journey.id}/${step.action} must match the explicit PDP-1 proposed crosswalk`);
+      assert.equal(step.bindingStatus?.canonicalOperationRef,
+        "candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending",
+        `${journey.id}/${step.action} must remain owner-review pending`);
+      mappedOccurrences++;
+      mappedActionIds.add(step.action);
+    }
+  }
+  assert.equal(mappedActionIds.size, 13);
+  assert.equal(mappedOccurrences, 16);
+  assert.match(operations.scopeStatus, /proposal-only/u);
 });

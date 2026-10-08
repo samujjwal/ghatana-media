@@ -15,6 +15,7 @@ const paths = {
   streamStore: "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java",
   schema: "providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql",
   runtime: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+  localJobStore: "launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java",
   maintenanceContract: "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java",
   maintenance: "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaPrivacyMaintenance.java",
   maintenanceRuntime: "launcher/src/main/java/com/ghatana/media/launcher/MediaPrivacyMaintenanceRuntime.java",
@@ -36,6 +37,7 @@ function validate(files) {
   for (const marker of [
     "status: source-observation-only; security-and-privacy-owner-approval-and-independent-review-pending",
     "id: media.privacy.observation.tenant-scope",
+    "id: media.privacy.observation.request-deduplication-scope",
     "id: media.privacy.observation.consent-revocation",
     "id: media.privacy.observation.retention-and-legal-hold",
     "id: media.privacy.observation.stale-revision",
@@ -60,6 +62,14 @@ function validate(files) {
     "WHERE tenant_id=? AND principal_id=? AND sha256=? AND size_bytes=? FOR UPDATE",
   ]) needs("artifactStore", marker);
   needs("jobStore", "WHERE tenant_id=? AND job_id=? AND version=?");
+  needs("schema", "CONSTRAINT uk_media_job_request UNIQUE (tenant_id, request_id)");
+  for (const marker of [
+    "String requestKey = key(job.tenantId(), job.requestId());",
+    "if (!existing.principalId().equals(job.principalId())",
+    "|| !existing.artifactId().equals(job.artifactId())",
+    "|| existing.jobType() != job.jobType())",
+    "return existing;",
+  ]) needs("localJobStore", marker);
   needs("streamStore", "WHERE tenant_id=? AND session_id=? AND version=?");
   for (const marker of [
     "PRIMARY KEY (tenant_id, upload_id)", "PRIMARY KEY (tenant_id, artifact_id)",
@@ -107,7 +117,13 @@ function validate(files) {
   needs("ledger", "restore-tombstone-replay");
 
   needs("runtime", '"provider outcome unknown after runtime restart"');
-  needs("runtime", '"RESTART_RECONCILIATION_REQUIRED"');
+  needs("runtime", "JobStatus.OUTCOME_UNKNOWN");
+  needs("offline", "transitions-them-to-OUTCOME_UNKNOWN-without-a-failure-code-or-completion-timestamp");
+  needs("versioning", "startup-handler-marks-recoverable-persisted-nonterminal-jobs-OUTCOME_UNKNOWN-without-failure-code-or-completion-timestamp");
+  needs("localJobStore", "current.status() == JobStatus.OUTCOME_UNKNOWN");
+  needs("jobStore", "status == JobStatus.OUTCOME_UNKNOWN");
+  needs("restartTest", "assertThat(reconciled.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN)");
+  needs("pgTest", "JobStatus.OUTCOME_UNKNOWN");
   needs("restartTest", 'assertThat(calls).hasValue(1)');
   needs("client", '`/api/v1/media/operations/${encodeURIComponent(operationId)}:retry`');
   needs("client", 'const response = await this.fetchImpl(`${this.baseUrl}${path}`');
@@ -134,6 +150,18 @@ test("privacy regression rejects tenant-scope, revocation, and stale-revision so
   assert.match(validate({ ...base, runtime: unrefreshedFrame }).join("\n"), /runtime missing source evidence: ConsentDecision consent = refreshConsent/u);
   const noCas = base.jobStore.replaceAll("WHERE tenant_id=? AND job_id=? AND version=?", "WHERE tenant_id=? AND job_id=?");
   assert.match(validate({ ...base, jobStore: noCas }).join("\n"), /jobStore missing source evidence: WHERE tenant_id=\? AND job_id=\? AND version=\?/u);
+});
+
+test("privacy regression rejects request deduplication scope drift", () => {
+  const unscopedRequestIndex = base.localJobStore.replace(
+    "String requestKey = key(job.tenantId(), job.requestId());",
+    "String requestKey = job.requestId();",
+  );
+  assert.match(validate({ ...base, localJobStore: unscopedRequestIndex }).join("\n"), /localJobStore missing source evidence: String requestKey/u);
+  const missingConflictGuard = base.localJobStore.replace("|| !existing.artifactId().equals(job.artifactId())", "|| false");
+  assert.match(validate({ ...base, localJobStore: missingConflictGuard }).join("\n"), /localJobStore missing source evidence: \|\| !existing.artifactId/u);
+  const unscopedDatabaseKey = base.schema.replace("CONSTRAINT uk_media_job_request UNIQUE (tenant_id, request_id)", "CONSTRAINT uk_media_job_request UNIQUE (request_id)");
+  assert.match(validate({ ...base, schema: unscopedDatabaseKey }).join("\n"), /schema missing source evidence: CONSTRAINT uk_media_job_request UNIQUE \(tenant_id, request_id\)/u);
 });
 
 test("privacy regression rejects unsupported hold, erasure, and uncertain-replay claims", () => {

@@ -48,9 +48,9 @@ full video-transcription path are not established.
   `media.action.correct-caption`, `media.action.align-caption-timing`, and
   `media.action.save-caption-version`. The PDP-1 proposal maps the first two to
   `media.operation.caption-draft-write` and separately maps save to
-  `media.operation.caption-version-write`; J-03 still leaves the save step's
-  `canonicalOperationRef` null, so that crosswalk has not been copied into the
-  journey.
+  `media.operation.caption-version-write`; J-03 copies that candidate into the
+  save step's `canonicalOperationRef` and marks owner acceptance pending. The
+  comparison step still has no operation assignment.
 - **Expected effect:** J-02 proposes an immutable artifact version becoming
   `AVAILABLE` only after verification. J-03 proposes a reviewable caption
   version linked to the exact audio source with timing, language, and provenance.
@@ -77,8 +77,8 @@ runtime or accepted edit operation is evidenced.
   `media.action.align-caption-timing` with candidate
   `media.operation.caption-draft-write` for draft edits. PDP-1 separately maps
   `media.action.save-caption-version` to `media.operation.caption-version-write`,
-  but the J-03 save step still has a null `canonicalOperationRef`. The comparison
-  step also has no operation assignment.
+  which J-03 records as a proposal candidate with owner acceptance pending. The
+  comparison step still has no operation assignment.
 - **Expected effect:** the journey-level proposal yields a reviewable caption
   version tied to the exact source, including timing and provenance; compare
   versions before treating a correction as final.
@@ -223,7 +223,10 @@ reference rights and provider qualification remain external prerequisites.
 coverage is not equivalent to a synced production client.
 
 - **Trace:** [J-23](../.product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml)
-  uses `work-in-project`, `inspect-media`, `job-status`, and `review-activity`.
+  orders `media.view.work-in-project` → `media.view.inspect-media` →
+  `media.view.job-status` → `media.view.review-activity`, using the
+  corresponding `work-in-project`, `inspect-media`, `job-status`, and
+  `review-activity` screen contracts.
   [PDP-1 offline/sync contract](../.product-experience/pdp-1-domain-data/offline-sync.yaml)
   is the domain source for reconciliation semantics.
 - **Expected effect:** retain local work while disconnected, then reconcile
@@ -298,6 +301,58 @@ contracts only; no unadmitted integration is described as runnable.
 - **Binding gap:** the requested API/SDK/Agent request-response example cannot
   be completed without the missing public operation/owner bindings and fixture
   oracle. Do not infer payload schemas from similarly named transport routes.
+
+### Observed HTTP transport example: list processing jobs
+
+The current OpenAPI file does support a limited **transport-shape** example for
+`GET /api/v1/jobs`. This is an illustration of the published HTTP contract,
+not an execution transcript, PDP-1 operation binding, or implementation of
+`media.search.authorized-jobs`. The endpoint declares bearer or API-key
+authentication, a required tenant header, and an optional `limit` from 1 to
+1000 (default 100). Its `200` body is an object with a `jobs` array of
+`ProcessingJob` records.
+
+```http
+GET /api/v1/jobs?limit=25 HTTP/1.1
+Host: media.example.invalid
+Authorization: Bearer <authorized-token>
+X-Tenant-Id: <current-tenant>
+Accept: application/json
+```
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "jobs": [
+    {
+      "jobId": "<job-id>",
+      "requestId": "<request-id>",
+      "tenantId": "<current-tenant>",
+      "principalId": "<principal-id>",
+      "artifactId": "<artifact-id>",
+      "jobType": "SPEECH_TO_TEXT",
+      "providerId": null,
+      "status": "OUTCOME_UNKNOWN",
+      "createdAt": "<RFC-3339 timestamp>",
+      "startedAt": null,
+      "completedAt": null,
+      "result": {},
+      "failureCode": null,
+      "version": 1
+    }
+  ]
+}
+```
+
+The placeholders are not a captured service response. `OUTCOME_UNKNOWN` is
+retained as the transport spelling and must not be rewritten as running,
+failed, or final. The route declares no search filters, continuation token,
+sort order, or empty/denied/stale-index result distinctions; those remain
+unimplemented parts of the Media search contract. The current operation
+crosswalk explicitly leaves its PDP-1 logical operation null and owner review
+pending, so this example does not make the job-search contract runnable.
 
 ## P3-08 coverage and remaining gaps
 

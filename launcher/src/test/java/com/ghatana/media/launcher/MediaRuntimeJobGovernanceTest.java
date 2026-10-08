@@ -48,7 +48,13 @@ class MediaRuntimeJobGovernanceTest {
             var terminal = awaitTerminal(runtime, accepted.jobId());
             assertThat(terminal.status()).isEqualTo(JobStatus.COMPLETED);
             assertThat(terminal.providerId()).isEqualTo("fallback");
-            assertThat(terminal.result()).containsEntry("providerId", "fallback");
+            assertThat(terminal.result())
+                    .containsEntry("providerId", "fallback")
+                    .containsEntry("providerVersion", "fallback-v1")
+                    .containsEntry("modelVersion", "fallback-v1")
+                    .containsEntry("modality", "VISION")
+                    .containsEntry("sourceArtifactRef", "urn:ghatana:media-artifact:" + artifact.artifactId())
+                    .containsKey("provenanceRefs");
             assertThat(primaryCalls).hasValue(1);
             assertThat(fallbackCalls).hasValue(1);
         } finally {

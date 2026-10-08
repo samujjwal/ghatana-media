@@ -6,22 +6,101 @@
     {
       "path": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
       "role": "PDP-3 scenario identities, source fixture references, and expected proposals",
-      "sha256": "f93b763618765dd008c8c1a96836831402c3c53034741fb3092da9f686bc6aa2"
+      "sha256": "d55af8c6648dc20fe60202b82de2347e4b6a1656865ebb24d3d65df92da75a08"
     },
     {
       "path": ".product-experience/explorer/scenario-fixtures.yaml",
       "role": "Explorer synthetic fixture index and payload-to-scenario links",
-      "sha256": "3daf34a9cc2a6ff43623823e62bc143ccb259b572097fcf27896f94038f3d1c7"
+      "sha256": "81579461528f6423aeb5c5e5c0b5a425505207c394f667b8ed89ab82bccbae5e"
     },
     {
       "path": "libs/media-experience-simulation/src/fixtures.ts",
       "role": "Deterministic simulation seed payloads",
-      "sha256": "53de214a23fb916ed405b6c1d509d891f98a80fc66a27830675578a4154fdda4"
+      "sha256": "178585922cf4860cb47d5e45406c5495958374651fb4f73dbaca77bf2325b4c0"
     },
     {
       "path": "scripts/check-experience-browser.mjs",
-      "role": "Browser audit harness used for local fixture-route smoke observations",
-      "sha256": "4587ca0ff95c99f7126f86aba3a34adf256da31f49b75ab74ec675cb16eaa0df"
+      "role": "Browser audit harness for source-linked screen and artifact identity, CSP diagnostics, and local fixture-route smoke observations",
+      "sha256": "2e15a02afdd43e848427b5b8de58c2ef11c8000e8dac4cb98b01c94188beb4f3"
+    }
+  ],
+  "reviewedSourceDeltas": [
+    {
+      "path": "scripts/check-experience-browser.mjs",
+      "previousSha256": "8fd35a20be25d8f0d6343f89a6310b75a4f9ba68f07a5e44cd12845dd3eeb3fc",
+      "currentSha256": "fb2697c8217a5b71c9eb7f8fd692827b23608db2ab5f28794858901da1138b5a",
+      "reviewedAt": "2026-10-08",
+      "semanticDiff": [
+        "Compare each read-only rendered proposal data-screen-id to the authored screen contract top-level screenId for all registered routes at all six viewports.",
+        "Search a canonical artifact ID, require the exact sole source record, select it, and verify the trace displays the same canonical ID.",
+        "Capture CSP securitypolicyviolation fields and console source locations so dev-server instrumentation is distinguishable from production preview behavior."
+      ],
+      "focusedVerification": "17/17 browser/Explorer/P3 Node tests; production preview run: 29 scenarios, 315 records, 47 routes x six viewports (282 comparisons), zero failures, console errors, policy violations, or page errors.",
+      "acceptanceEffect": "Audit coverage and source-drift observability only. No P3 semantic acceptance, WCAG certification, actual production-host parity, Lifecycle evidence, or phase closure is inferred."
+    },
+    {
+      "path": "scripts/check-experience-browser.mjs",
+      "previousSha256": "fb2697c8217a5b71c9eb7f8fd692827b23608db2ab5f28794858901da1138b5a",
+      "currentSha256": "566100e59c429345804d96087aef61b0619b59e7ff024d216a7ad08f3bb337ae",
+      "reviewedAt": "2026-10-08",
+      "semanticDiff": [
+        "Add cross-phase canonical-ID search: select the matching PDP-2 record from a PDP-0 view, verify the owning-phase switch and canonical trace ID, then verify clearing the query restores phase-scoped count and label.",
+        "Compare each read-only rendered proposal data-screen-id to the authored screen contract top-level screenId for all registered routes at all six viewports.",
+        "Capture CSP securitypolicyviolation fields and console source locations so development-server diagnostics can be distinguished from production-preview application behavior."
+      ],
+      "focusedVerification": "Explorer TypeScript typecheck and production build pass. Production preview browser audit: 29 scenarios, 47 canonical routes across six viewports (282 comparisons), cross-phase search and exact trace pass; zero assertion failures, console errors, policy violations, or page errors.",
+      "acceptanceEffect": "Search behavior and browser-audit source coverage only. No P3 semantic acceptance, screen-reader or independent visual approval, actual production-host parity, Lifecycle evidence, or phase closure is inferred."
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+      "previousSha256": "f93b763618765dd008c8c1a96836831402c3c53034741fb3092da9f686bc6aa2",
+      "currentSha256": "d55af8c6648dc20fe60202b82de2347e4b6a1656865ebb24d3d65df92da75a08",
+      "reviewedAt": "2026-10-08",
+      "semanticDiff": [
+        "Added media.scenario.job-retry-ineligible only for the explicit unknown-prior-outcome or otherwise blocked no-dispatch branch; expected behavior retains the same job and prior-attempt history.",
+        "Kept media.scenario.job-retry-eligible proposal-only because its complete retryable-attempt and authorization/policy/rights/license/resource/deployment/budget prerequisites remain unsupported.",
+        "The fixture declaration does not add retry policy, an executable retry reducer, or owner acceptance."
+      ],
+      "focusedVerification": "Pending final rerun of P3 scenario coverage/start-state tests and the media-experience-simulation test/build.",
+      "acceptanceEffect": "Exact scenario/source-seed reconciliation and deterministic negative-test coverage only. No retry policy, production behavior, P3 semantic acceptance, Lifecycle proof, or phase closure is inferred."
+    },
+    {
+      "path": ".product-experience/explorer/scenario-fixtures.yaml",
+      "previousSha256": "3daf34a9cc2a6ff43623823e62bc143ccb259b572097fcf27896f94038f3d1c7",
+      "currentSha256": "81579461528f6423aeb5c5e5c0b5a425505207c394f667b8ed89ab82bccbae5e",
+      "reviewedAt": "2026-10-08",
+      "semanticDiff": [
+        "Indexed exactly one synthetic fixture payload for media.scenario.job-retry-ineligible with unknown prior outcome, no retry dispatch, and same-job identity preservation.",
+        "No payload was added for media.scenario.job-retry-eligible; indexed scenario denominator remains 31 and synthetic seeds become 30."
+      ],
+      "focusedVerification": "Pending final rerun of P3 scenario coverage/start-state tests and the media-experience-simulation test/build.",
+      "acceptanceEffect": "Exact scenario/source-seed reconciliation and deterministic negative-test coverage only. No retry policy, production behavior, P3 semantic acceptance, Lifecycle proof, or phase closure is inferred."
+    },
+    {
+      "path": "libs/media-experience-simulation/src/fixtures.ts",
+      "previousSha256": "53de214a23fb916ed405b6c1d509d891f98a80fc66a27830675578a4154fdda4",
+      "currentSha256": "178585922cf4860cb47d5e45406c5495958374651fb4f73dbaca77bf2325b4c0",
+      "reviewedAt": "2026-10-08",
+      "semanticDiff": [
+        "Added job-retry-ineligible seed reusing fixture-transcription-job-unknown with state OUTCOME_UNKNOWN, attemptState OUTCOME_UNKNOWN, and finality UNKNOWN.",
+        "Focused regression verifies retry is not a safe action and attempted retry leaves the same job, state, and event count unchanged.",
+        "This is a deterministic simulation branch only; it does not implement retry behavior or qualify runtime/provider behavior."
+      ],
+      "focusedVerification": "Pending final rerun of P3 scenario coverage/start-state tests and the media-experience-simulation test/build.",
+      "acceptanceEffect": "Exact scenario/source-seed reconciliation and deterministic negative-test coverage only. No retry policy, production behavior, P3 semantic acceptance, Lifecycle proof, or phase closure is inferred."
+    },
+    {
+      "path": "scripts/check-experience-browser.mjs",
+      "previousSha256": "566100e59c429345804d96087aef61b0619b59e7ff024d216a7ad08f3bb337ae",
+      "currentSha256": "2e15a02afdd43e848427b5b8de58c2ef11c8000e8dac4cb98b01c94188beb4f3",
+      "reviewedAt": "2026-10-08",
+      "semanticDiff": [
+        "Refactor the 15 Explorer modes into five visible task-first navigation controls plus a native More views disclosure containing the remaining ten workspaces; preserve the existing mode identities and shortcuts.",
+        "Replace tablist, tab, and aria-selected semantics with ordinary navigation controls and aria-current=page; expose the active workspace as a labelled region whose label target remains visible for primary and disclosed secondary modes.",
+        "Update long-label browser coverage to target all primary and secondary mode buttons, expanding all 15 labels and reporting any overflow instead of querying removed tab roles."
+      ],
+      "focusedVerification": "tests/media-explorer-task-first-navigation.test.mjs and media-explorer-canonical-id-search.test.mjs pass 5/5; Explorer production build passes. Production-preview browser audit: 30 scenarios, 315 indexed records, and 47 canonical proposal routes across six viewports (282 route observations), zero failures, console errors, CSP violations, or page errors. That audit initially reported 0 long-label controls because it ran with the old selector. After correcting the selector, focused Playwright verification found 5 primary and 10 secondary controls, verified active aria-current and visible aria-labelledby target with no tab roles, and expanded all 15 labels with zero overflow. Full browser matrix not rerun.",
+      "acceptanceEffect": "Explorer navigation hierarchy and long-label audit coverage only. No product workflow semantics, P3 screen acceptance, independent visual or screen-reader review, localization or RTL support, production-host parity, Lifecycle evidence, or phase closure is inferred."
     }
   ]
 }

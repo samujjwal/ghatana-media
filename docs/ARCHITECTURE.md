@@ -119,9 +119,9 @@ diagnostic providers.
 4. The result and provider identity are persisted as a terminal outcome. A
    confirmed cancellation becomes terminal; an unconfirmed or unsupported
    cancellation remains an explicit request state.
-5. On launcher startup, recoverable non-terminal jobs are reconciled. The
-   current runtime marks work whose provider outcome is unknown as failed with
-   RESTART_RECONCILIATION_REQUIRED; it does not silently replay it.
+5. On launcher startup, the runtime marks recoverable non-terminal jobs as
+   OUTCOME_UNKNOWN without setting a failure code or completion timestamp. It
+   does not query the provider or silently replay the work.
 
 The current launcher starts accepted jobs through an asynchronous in-process
 future. A durable job store and lease protect state when selected, but the
@@ -209,7 +209,7 @@ survive a restart.
 | Upload size/hash/finalization failure | No complete artifact is exposed; incomplete state remains recoverable | Inspect upload session/chunk hashes, clear only verified temporary state, and retry completion |
 | Duplicate upload/job request | Durable uniqueness and ownership checks return the existing/compatible state or a conflict | Reuse the returned ID or correct tenant/principal/request identity |
 | Job provider timeout/failure | Provider-safe fallback may run; otherwise an explicit failed/degraded terminal result is persisted | Inspect provider outcome before retry; use lease/reconciliation rather than blind duplicate submission |
-| Restart with running jobs | Unknown provider outcomes are marked RESTART_RECONCILIATION_REQUIRED | Reconcile with the provider and submit a new request only after an operator/domain decision |
+| Restart with running jobs | Unknown provider outcomes are marked OUTCOME_UNKNOWN without a failure code or completion timestamp | Reconcile with the provider and submit a new request only after an operator/domain decision |
 | Cancellation not confirmed | Persist REQUESTED_UNCONFIRMED or UNSUPPORTED; do not call it cancelled | Check provider control plane and retention/privacy state before retrying |
 | Consent revoked/expired | New work and frames fail closed; active work is stopped where supported | Restore valid consent or terminate and erase according to policy |
 | Stream sequence/lease/buffer violation | Frame is rejected or stream becomes degraded/terminal; no unbounded buffering | Reconnect with a valid token/lease and next expected sequence, or close and reopen |

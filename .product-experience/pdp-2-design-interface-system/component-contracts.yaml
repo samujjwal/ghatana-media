@@ -1646,9 +1646,33 @@ components:
     must-not-claim activity completeness when history is partial
   status: authored-proposal; bindings-and-review-pending
   sourceRef: master-plan:section-19.2
+- id: media.component.progress-indicator
+  purpose: present measured or unmeasured operation progress as a labeled native progress control
+  requiredProps: [label]
+  propsSourceRef: libs/audio-video-ui/src/components/MediaProgress.tsx#MediaProgressProps
+  propsBindingStatus: exact-public-typescript-props; semantic-and-owner-review-pending
+  anatomy:
+  - accessible-label
+  - measured-value-or-explicitly-unknown-progress
+  - optional-localized-value-text
+  variants: [determinate, indeterminate]
+  states: [determinate, indeterminate]
+  actions: []
+  capabilityRefs: []
+  actionBindingState: no-bound-action; presentation-only; carries-no-operation-or-finality-authority
+  keyboard: native-progress-control-does-not-enter-the-tab-sequence
+  accessibility: preserve-native-progress-semantics; expose-label-and-value-text; never-use-tone-as-the-only-signal
+  localization: localize-the-caller-supplied-label-and-value-text; preserve-the-underlying-measurement
+  prohibitedUse: must-not-infer-completion-or-business-finality-from-progress; must-not-render-a-percent-when-progress-is-unmeasured
+  semanticRole: Accessible progress presentation for Media and cross-product workflow consumers.
+  status: authored-proposal; Shared-binding-and-owner-review-pending
+  sourceRef: libs/audio-video-ui/src/components/MediaProgress.tsx
 - id: media.component.task-flow
   purpose: present a host-projected Media workflow, operation observation, and explicitly supplied safe actions
   semanticRole: workflow-progress-and-operation-observation
+  requiredProps: [children]
+  propsSourceRef: libs/audio-video-ui/src/components/MediaTaskFlow.tsx#MediaTaskFlowProps
+  propsBindingStatus: exact-public-typescript-props; semantic-and-owner-review-pending
   anatomy:
   - workflow-title-and-purpose
   - ordered-current-step
@@ -1670,6 +1694,9 @@ components:
 - id: media.component.voice-production-workflow
   purpose: coordinate governed voice production while keeping source, consent, model/provider, and output review distinct
   semanticRole: voice-production-workflow-composition
+  requiredProps: [capabilities, consent, currentStep, projectName]
+  propsSourceRef: modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx#VoiceProductionWorkflowProps
+  propsBindingStatus: exact-public-typescript-props; Media-and-AI-Voice-owner-review-pending
   anatomy:
   - source-and-project-context
   - consent-and-rights-scope

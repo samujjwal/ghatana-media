@@ -37,7 +37,7 @@ observed:
   runtimeJob: ProcessingJob-has-a-version-field-and-lifecycle-instants-in-MediaRuntimeContracts; runtime-updates-increment-version
   lease: JobLease-has-expiry-and-fencingToken; runtime-rejects-stale-worker-results
   cancellation: runtime-distinguishes-provider-confirmed-cancellation-from-unconfirmed-cancel-request
-  restart: startup-handler-marks-recoverable-persisted-nonterminal-jobs-FAILED-with-RESTART_RECONCILIATION_REQUIRED-and-provider-outcome-unknown; this-is-not-outcome-reconciliation-or-proof-of-durable-attempt-history
+  restart: startup-handler-marks-recoverable-persisted-nonterminal-jobs-OUTCOME_UNKNOWN-without-failure-code-or-completion-timestamp; this-is-not-outcome-reconciliation-or-proof-of-durable-attempt-history
   typescript: createdAt-updatedAt-fields-in-libs/audio-video-types/src/contracts.ts
   artifactIdentity: TypeScript-artifact-contract-has-checksum-and-sourceArtifactIds-fields; neither-proves-immutable-source-bytes-canonical-version-identity-or-complete-ancestry
   openapi: version-1.3.0-and-backward-compatible-within-major-policy

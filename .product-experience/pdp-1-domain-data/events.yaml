@@ -22,9 +22,59 @@ observedEnvelope:
     classification: {status: required-field-observed, semanticRedactionPolicy: unresolved}
     attributes: {status: MediaMetadataSanitizer-applied, semanticPiiRedactionAndEventSpecificMinimization: unresolved}
   wireObservations:
+    transportProjection:
+      status: publisher-source-mapping-observed; transport-contract-and-consumer-interpretation-unresolved
+      headers:
+        - {name: X-Tenant-Id, value: event.tenantId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L112}
+        - {name: X-Principal-Id, value: event.principalId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L113}
+        - {name: X-Correlation-Id, value: event.correlationId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L114}
+        - {name: Idempotency-Key, value: event.eventId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L115}
+      body:
+        - {name: eventId, value: event.eventId()}
+        - {name: eventType, value: event.eventType()}
+        - {name: eventVersion, value: literal-1.0}
+        - {name: timestamp, value: event.occurredAt().toString()}
+        - {name: correlationId, value: event.correlationId()}
+        - {name: causationId, value: event.causationId(), condition: nonblank}
+        - {name: source, value: literal-media}
+        - {name: userId, value: event.principalId()}
+        - {name: contentType, value: literal-application/json}
+        - {name: payload, value: nested-payload-map}
+      nestedPayload:
+        - {name: aggregateType, value: event.aggregateType()}
+        - {name: aggregateId, value: event.aggregateId()}
+        - {name: aggregateVersion, value: event.aggregateVersion()}
+        - {name: classification, value: event.classification()}
+        - {name: attributes, value: event.attributes()}
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#publish
+      interpretation: source-level mapping only; no schema authority, consumer behavior, or delivery guarantee implied
     eventVersion: {value: "1.0", status: "publisher-implementation-observed; compatibility-schema-and-evolution-policy: unresolved"}
     idempotencyHeader: {name: Idempotency-Key, value: eventId, status: "request-header-observed; durable-deduplication-guarantee: unresolved"}
-    acceptedHttpStatuses: [200, 201]
+    acceptedHttpStatuses: [201]
+    platformContractCrosswalk:
+      status: source-observed-operation-match; Media event semantics and lifecycle ownership remain unapproved
+      contractSourceRef: ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events/post
+      operationId: appendStreamEvent
+      request:
+        methodAndPath: POST /api/v1/streams/{streamId}/events
+        requiredHeaders: [X-Tenant-Id, Idempotency-Key]
+        mediaBodyFields: [eventId, eventType, eventVersion, timestamp, correlationId, causationId, source, userId, contentType, payload]
+        schemaRequiredFields: [eventId, eventType]
+        additionalProperties: false
+        fieldLimits:
+          eventId: 255
+          eventType: 255
+          X-Tenant-Id: 255
+          userId: 255
+          correlationId: 255
+          causationId: 255
+          enforcementSource: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java#EVENT_PLANE_MAX_TEXT_LENGTH
+        publisherOnlyUndeclaredHeaders: [X-Principal-Id, X-Correlation-Id]
+      response:
+        acceptedStatus: 201
+        bodySchema: AppendEventResponse
+      limits: [event plane contract does not establish Media event taxonomy or producer ownership, stream creation/retirement ownership unresolved, durable delivery/replay/retention/ordering semantics unresolved, caller consumer conformance and runtime deployment not observed]
+      sourceRef: ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml
     otherHttpStatus: {behavior: publisher-throws}
     publicationFailure: {behavior: "runtime-logs-unconfirmed-and-continues; outbox-retry-replay-and-recovery-contract: not-established"}
     replayRetentionOrdering: unresolved

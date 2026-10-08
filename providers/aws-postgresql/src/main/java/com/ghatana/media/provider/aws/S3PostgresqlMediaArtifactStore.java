@@ -705,8 +705,11 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         return sha256(value.getBytes(StandardCharsets.UTF_8)).substring(0, 32);
     }
 
-    private static String safeFileName(String value) {
-        java.nio.file.Path fileName = java.nio.file.Path.of(value).getFileName();
+    static String safeFileName(String value) {
+        // Treat both common path separators as separators regardless of the OS
+        // running the service. Path.of(...).getFileName() only recognizes the
+        // host platform's separator (for example, Linux does not split '\\').
+        java.nio.file.Path fileName = java.nio.file.Path.of(value.replace('\\', '/')).getFileName();
         if (fileName == null) throw new IllegalArgumentException("fileName is invalid");
         String normalized = fileName.toString().replaceAll("[\\r\\n]", "_");
         if (normalized.isBlank()) throw new IllegalArgumentException("fileName is invalid");

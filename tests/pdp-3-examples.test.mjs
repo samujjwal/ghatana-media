@@ -89,14 +89,18 @@ test("P3-08 examples preserve the proposal-only caption operation boundary", () 
   for (const action of ["media.action.correct-caption", "media.action.align-caption-timing"]) {
     assert.equal(stepsByAction.get(action)?.canonicalOperationRef, draftWrite.id, `${action} must remain a draft write`);
   }
-  assert.equal(stepsByAction.get("media.action.save-caption-version")?.canonicalOperationRef, null,
-    "J-03 must preserve the save step's unbound canonicalOperationRef");
+  const saveStep = stepsByAction.get("media.action.save-caption-version");
+  assert.equal(saveStep?.canonicalOperationRef, versionWrite.id,
+    "J-03 copies the exact PDP-1 proposal crosswalk to the save step");
+  assert.equal(saveStep?.bindingStatus?.canonicalOperationRef,
+    "candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending",
+    "J-03 must keep the copied operation candidate pending owner acceptance");
 
   assert.match(doc, /media\.action\.align-caption-timing/u);
   assert.match(doc, /media\.action\.save-caption-version/u);
   assert.match(doc, /media\.operation\.caption-draft-write/u);
   assert.match(doc, /media\.operation\.caption-version-write/u);
-  assert.match(doc, /J-03 save step still has a null `canonicalOperationRef`/u);
+  assert.match(doc, /J-03 copies that candidate into the\s+save step's `canonicalOperationRef` and marks owner acceptance pending/u);
   assert.match(doc, /proposal\s+candidates, not accepted behavior/su);
 });
 
@@ -139,6 +143,25 @@ test("P3-08 journey view and screen identities resolve through the current regis
   assert.deepEqual(liveSession.orderedViews,
     ["media.view.work-in-project", "media.view.job-status", "media.view.review-activity"]);
   for (const view of liveSession.orderedViews) assert.ok(doc.includes(view), `J-29 trace omits ${view}`);
+
+  const offline = readYaml(`${experience}/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml`);
+  const offlineViews = offline.steps.map(({ view }) => view);
+  const offlineSectionStart = doc.indexOf("## Offline work and conflict reconciliation");
+  const offlineSectionEnd = doc.indexOf("\n## ", offlineSectionStart + 1);
+  const offlineSection = doc.slice(offlineSectionStart, offlineSectionEnd === -1 ? undefined : offlineSectionEnd);
+  let previousViewIndex = -1;
+  for (const view of offlineViews) {
+    const viewIndex = offlineSection.indexOf(view);
+    assert.notEqual(viewIndex, -1, `J-23 offline example omits source view ${view}`);
+    assert.ok(viewIndex > previousViewIndex, `J-23 offline example must preserve source view order at ${view}`);
+    previousViewIndex = viewIndex;
+  }
+  assert.deepEqual(offlineViews, [
+    "media.view.work-in-project",
+    "media.view.inspect-media",
+    "media.view.job-status",
+    "media.view.review-activity",
+  ], "J-23 remains the source of the four-view proposal trace");
 });
 
 test("P3-08 documented action and operation identities are source-backed", () => {
@@ -168,11 +191,13 @@ test("P3-08 documented action and operation identities are source-backed", () =>
   const journey03 = readYaml(`${experience}/journey-contracts/transcribe-and-correct-captions.yaml`);
   assertStepBinding(journey03, "media.action.correct-caption", "media.operation.caption-draft-write");
   assertStepBinding(journey03, "media.action.align-caption-timing", "media.operation.caption-draft-write");
-  assertStepBinding(journey03, "media.action.save-caption-version", null);
-  assert.throws(() => assertStepBinding(journey03, "media.action.save-caption-version", "media.operation.caption-version-write"),
+  const saveStep = assertStepBinding(journey03, "media.action.save-caption-version", "media.operation.caption-version-write");
+  assert.equal(saveStep.bindingStatus?.canonicalOperationRef,
+    "candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending");
+  assert.throws(() => assertStepBinding(journey03, "media.action.save-caption-version", null),
     /canonicalOperationRef drifted/u,
-    "negative control: a proposal crosswalk must not be promoted into the J-03 step");
-  assert.match(doc, /J-03 save step still has a null `canonicalOperationRef`/u);
+    "negative control: the exact source-backed proposal must not be dropped");
+  assert.match(doc, /J-03 records as a proposal candidate with owner acceptance pending/u);
 });
 
 test("P3-08 definition, implementation, qualification, license, availability, and acceptance stay distinct", () => {

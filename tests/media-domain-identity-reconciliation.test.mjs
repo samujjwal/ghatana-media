@@ -39,6 +39,17 @@ test("PDP-1 canonical references resolve only to catalogued domain objects", () 
   }
 });
 
+test("PDP-1 overview reports the exact registry count and keeps the fixture-only record distinct", () => {
+  const domainObjects = readFileSync(domainObjectsPath, "utf8");
+  const overview = readFileSync(".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md", "utf8");
+  const objectIds = idsIn(domainObjects);
+
+  assert.equal(objectIds.length, 38);
+  assert.match(overview, /38 domain-object records: 37 proposed or\s+runtime\/persistence-observed candidates and one simulation-fixture-only/u);
+  assert.match(overview, /`media\.domain\.caption-version` is a separate local simulation-fixture\s+observation/u);
+  assert.match(overview, /not an observed runtime or persistence record/u);
+});
+
 test("PDP-1 object source references resolve to files and PDP-0 anchors resolve to named records", () => {
   const domainObjects = readFileSync(domainObjectsPath, "utf8");
   const domainModel = readFileSync(domainModelPath, "utf8");
@@ -92,4 +103,24 @@ test("artifact, job, and lease identities preserve the source-specific keys with
   assert.match(jobStore, /UPDATE media_processing_jobs SET lease_owner=\?,lease_token=\?,lease_expires_at=\?/u);
   assert.doesNotMatch(artifact, /bytes-bound-by-digest-and-version/u);
   assert.doesNotMatch(lease, /identity: lease-id-and-fencing-token/u);
+});
+
+test("PDP-1 observes the current Media runtime job enum without accepting a canonical mapping", () => {
+  const runtime = readFileSync("runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java", "utf8");
+  const stateInventory = readFileSync(".product-experience/pdp-1-domain-data/states.yaml", "utf8");
+  const adjudication = readFileSync(".product-experience/pdp-1-domain-data/state-adjudication.yaml", "utf8");
+  const reconciliation = readFileSync(".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml", "utf8");
+  const runtimeEnum = runtime.match(/public enum JobStatus \{([^}]+)\}/u)?.[1];
+  assert.ok(runtimeEnum, "current runtime JobStatus enum must remain discoverable");
+  const runtimeValues = runtimeEnum.split(",").map((value) => value.trim());
+  const stateRecord = stateInventory.match(/      - source: runtime-contracts\/src\/main\/java\/com\/ghatana\/media\/runtime\/MediaRuntimeContracts\.java#JobStatus\n        values: \[([^\]]+)\]([\s\S]*?)(?=\n      - source:|\n  [^ ]|\n[^ ])/u);
+  assert.ok(stateRecord, "PDP-1 state inventory must pin the current runtime enum");
+  assert.deepEqual(stateRecord[1].split(",").map((value) => value.trim()), runtimeValues);
+  assert.match(stateRecord[2], /canonical job-state mapping/u);
+  assert.match(adjudication, /current-runtime-enum-observed; per-state canonical and wire mapping unresolved/u);
+  assert.match(adjudication, /ACCEPTED is not evidence of durable job queueing/u);
+  assert.match(reconciliation, /Java tenantId\+jobId and JobStatus \[ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED\]/u);
+  assert.match(reconciliation, /status check includes OUTCOME_UNKNOWN/u);
+  const sqlMigration = readFileSync("providers/aws-postgresql/src/main/resources/db/media-runtime/V007__media_job_unknown_outcome.sql", "utf8");
+  assert.match(sqlMigration, /'OUTCOME_UNKNOWN'/u);
 });

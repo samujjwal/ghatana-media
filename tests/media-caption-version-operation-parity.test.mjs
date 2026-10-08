@@ -101,7 +101,7 @@ function validate({ operations, parity, canonicalCli, cliSource, uiSource, model
     for (const marker of item.finalityMarkers) if (!reducerSource.includes(marker)) errors.push(`${item.operation}: fixture finality source drift at ${marker}`);
     for (const marker of item.authorityMarkers) if (!reducerSource.includes(marker) && !actionRegistry.includes(marker)) errors.push(`${item.operation}: authority/precondition source drift at ${marker}`);
   }
-  if (!parity.includes("denominator: 146") || !parity.includes("operationBindingCounts: {mappedProposal: 14, ambiguous: 0, unresolved: 132}")) errors.push("UI action denominator/count must remain 14/146 mapped and 132 unresolved");
+  if (!parity.includes("denominator: 146") || !parity.includes("operationBindingCounts: {mappedProposal: 14, ambiguous: 0, unresolved: 132}")) errors.push("UI action denominator/count must remain 14/146 exact refs proposed and 132 without exact refs; six owner-approved intent associations are a separate overlay");
   if (!parity.includes("registryPopulation: 12") || !parity.includes("operationBindingCounts: {mappedProposal: 2, unresolved: 0}")) errors.push("caption-version CLI slice must remain 2/2 mapped within the 12-record registry");
   if (!parity.includes("semanticOperationBinding: unresolved-for-all-11-fixture-identities")) errors.push("fixture CLI namespace must remain unbound");
   if (!sdkSource.includes("export class MediaOperationClient") || /(?:saveCaptionVersion|compareCaptionVersions|caption\.save-version|caption\.compare-versions)/u.test(sdkSource)) errors.push("SDK must not claim a caption-version method without source evidence");

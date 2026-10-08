@@ -72,7 +72,7 @@ concepts:
   - concept: MediaJob
     canonicalRef: media.domain.processing-job
     proposedIdentity: stable logical job identifier; requests and attempts remain distinct
-    observedIdentity: Java tenantId+jobId; SQL (tenant_id, job_id), unique (tenant_id, request_id); TypeScript job union; OpenAPI PlatformOperation is narrower
+    observedIdentity: Java tenantId+jobId and JobStatus [ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED]; SQL (tenant_id, job_id), unique (tenant_id, request_id), status check includes OUTCOME_UNKNOWN; TypeScript job union; OpenAPI PlatformOperation is narrower
     versioning: Java/SQL version field supports mutable aggregate version observations; does not establish immutable event or attempt history
     tenancy: Java/SQL tenant scoped; cross-interface tenant propagation and authenticated authority unresolved
     cardinality: one logical job to multiple attempts is PDP-0 proposal only; persistence attempt table not observed in cited schema

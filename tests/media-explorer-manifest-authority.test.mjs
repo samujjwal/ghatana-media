@@ -1,5 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { traceMetadataForArtifact } from "../apps/media-experience-explorer/src/specification.ts";
 import { parseArtifactIdentityRegistry, validateArtifactIdentities } from "../scripts/generate-media-product-manifest.mjs";
 
@@ -140,4 +143,54 @@ test("manifest projection identity cannot collide with a source artifact identit
   const source = { path: "a.yaml", artifactId: "ART-MEDIA-DUPLICATE", authorityClass: "CROSS_PHASE_GOVERNANCE" };
   const projection = { path: "manifest.yaml", artifactId: source.artifactId, authorityClass: "CROSS_PHASE_GOVERNANCE" };
   assert.throws(() => validateArtifactIdentities([source], [source.path], classes, projection), /Manifest projection artifactId collides/u);
+});
+
+test("source manifest indexes current PDP-3 candidate authorities and their screen-contract dependencies", () => {
+  const candidatePath = ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json";
+  const candidate = JSON.parse(readFileSync(resolve(candidatePath), "utf8"));
+  const manifest = readFileSync(resolve(".product-experience/source-manifest.yaml"), "utf8");
+  const records = new Map(manifest
+    .split(/^  - artifactId: /mu)
+    .slice(1)
+    .map((block) => {
+      const [artifactId, ...bodyLines] = block.split(/\r?\n/u);
+      const body = bodyLines.join("\n");
+      const value = (pattern) => body.match(pattern)?.[1];
+      const dependencies = value(/^    dependencies: \[(.*)\]$/mu) ?? "";
+      return [value(/^    path: (.+)$/mu), {
+        artifactId,
+        contentSha256: value(/^      contentSha256: ([a-f0-9]{64})$/mu),
+        dependencies: new Set(dependencies.split(", ").filter(Boolean)),
+      }];
+    }));
+
+  const authorityRecords = candidate.sourceAuthorities;
+  assert.ok(Array.isArray(authorityRecords) && authorityRecords.length > 0);
+  for (const authority of authorityRecords) {
+    const bytes = readFileSync(resolve(authority.sourceRef));
+    const contentSha256 = createHash("sha256").update(bytes).digest("hex");
+    assert.equal(contentSha256, authority.sha256, `${authority.sourceRef} candidate source fingerprint`);
+    if (authority.sourceRef.startsWith(".product-experience/")) {
+      const record = records.get(authority.sourceRef);
+      assert.ok(record, `manifest indexes candidate PDP source ${authority.sourceRef}`);
+      assert.equal(record.contentSha256, authority.sha256, `${authority.sourceRef} manifest content fingerprint`);
+    } else {
+      assert.equal(records.has(authority.sourceRef), false, `${authority.sourceRef} remains outside the PDP artifact index`);
+    }
+  }
+
+  const candidateRecord = records.get(candidatePath);
+  assert.ok(candidateRecord, "manifest indexes the generated PDP-3 candidate itself");
+  const screenContractRecords = authorityRecords
+    .filter(({ sourceRef }) => sourceRef.startsWith(".product-experience/pdp-3-product-experience/screen-contracts/")
+      && !sourceRef.endsWith("/artifact-verification-job-family.yaml"))
+    .map(({ sourceRef }) => {
+      const record = records.get(sourceRef);
+      assert.ok(record, `manifest indexes cited screen contract ${sourceRef}`);
+      return record.artifactId;
+    });
+  assert.equal(screenContractRecords.length, 47, "candidate cites all 47 canonical screen contracts");
+  for (const artifactId of screenContractRecords) {
+    assert.ok(candidateRecord.dependencies.has(artifactId), `candidate provenance dependency includes ${artifactId}`);
+  }
 });

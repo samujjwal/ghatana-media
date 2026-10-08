@@ -32,11 +32,10 @@ test('PDP overview pages link current authority, acceptance, and source inventor
 
 test('PDP overview blocker summaries match generated candidate projections', () => {
   const p0 = projections.pdp0;
-  assert.deepEqual(p0.fieldMappingBlockers.map(({ field }) => field), ['requirements', 'userIntents', 'domainRules', 'successMeasures']);
-  assert.equal(p0.candidateModel.userIntents.length, 8);
-  assert.match(contents.pdp0, /four\s+semantic field blockers/);
-  assert.match(contents.pdp0, /8 resolved user intents/);
-  assert.match(contents.pdp0, /19 journey initiators remain unresolved/);
+  assert.deepEqual(p0.fieldMappingBlockers.map(({ field }) => field), ['domainRules', 'successMeasures']);
+  assert.equal(p0.candidateModel.userIntents.length, 19);
+  assert.match(contents.pdp0, /two\s+semantic field blockers/);
+  assert.match(contents.pdp0, /all 19\s+source intents and\s+30 journeys with representative initiators selected by PXD-030/);
   assert.equal(p0.acceptance, 'NOT_CLAIMED');
 
   const p2 = projections.pdp2;
@@ -49,18 +48,24 @@ test('PDP overview blocker summaries match generated candidate projections', () 
   const p3 = projections.pdp3;
   assert.deepEqual(p3.fieldMappingBlockers.map(({ field }) => field), ['componentContracts', 'views', 'journeys', 'transitions', 'actions', 'effects', 'finality', 'recovery', 'scenarios', 'fixtures']);
   assert.deepEqual(Object.fromEntries(['componentContracts', 'views', 'journeys', 'transitions', 'actions', 'effects', 'finality', 'recovery', 'scenarios', 'fixtures'].map((key) => [key, p3.candidateModel[key].length])), {
-    componentContracts: 30, views: 47, journeys: 0, transitions: 0, actions: 146, effects: 0, finality: 18, recovery: 0, scenarios: 14, fixtures: 14,
+    componentContracts: 31, views: 47, journeys: 30, transitions: 0, actions: 146, effects: 0, finality: 18, recovery: 0, scenarios: 15, fixtures: 15,
   });
   assert.match(contents.pdp3, /ten\s+semantic field blockers/);
-  assert.match(contents.pdp3, /projects 30\s+component contracts, 47 views,\s+0 schema-shaped journeys/);
+  assert.match(contents.pdp3, /projects 31\s+component contracts, 47 views,\s+30 journey records with 126 of 130 source\s+steps/);
   assert.equal(p3.acceptance, 'NOT_CLAIMED');
 });
 
 test('PDP overview docs keep phase prerequisites and independent/external gates explicit', () => {
-  assert.match(contents.pdp0, /P0-010 remain open/);
+  assert.match(contents.pdp0, /P0-010 independent review remain open/);
   assert.match(contents.pdp1, /independent P0-010 acceptance/);
   assert.match(contents.pdp2, /accepted PDP-1/);
   assert.match(contents.pdp2, /Shared public package binding.*remain pending/s);
   assert.match(contents.pdp3, /depends on accepted PDP-2/);
   assert.match(contents.pdp3, /independent experience review.*remain separate pending gates/s);
+});
+
+test('PDP-3 overview mirrors the bounded PXD-028 composition-link disposition', () => {
+  assert.match(contents.pdp3, /PXD-028, recorded as `ACCEPT-INPUT-MEDIA-OWNER-PDP3-COMPOSITION-LINKS-20261008`/);
+  assert.match(contents.pdp3, /approves 41 exact top-level template\/layout links and\s+withholds six mismatched pairs/);
+  assert.match(contents.pdp3, /47-screen\s+denominator remains unchanged; no screen composition or per-screen recipe\s+binding is admitted/);
 });

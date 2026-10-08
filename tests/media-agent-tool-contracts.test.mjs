@@ -18,6 +18,7 @@ const definitions = [
     fields: ["audioSource", "audioSource.mediaArtifactId", "audioSource.audioBytes", "mediaArtifactId"],
     markers: ["src.containsKey(\"mediaArtifactId\")", "src.containsKey(\"audioBytes\")", "input.containsKey(\"mediaArtifactId\")", "delegate.handle(envelope, contract)"],
     error: "STT processing error: ",
+    unavailable: "Audio-Video STT provider unavailable for " + '" + audioSource + ": no speech-to-text service delegate configured"',
   },
   {
     id: "av.text-to-speech",
@@ -27,6 +28,7 @@ const definitions = [
     fields: ["text", "voiceId", "speakingRate", "audioEncoding", "storeAsArtifact"],
     markers: ["requireString(input, \"text\")", "input.getOrDefault(\"voiceId\", \"en-US-default\")", "toDouble(input.getOrDefault(\"speakingRate\", 1.0))", "input.getOrDefault(\"audioEncoding\", \"MP3\")", "Boolean.TRUE.equals(input.get(\"storeAsArtifact\"))", "delegate.handle(envelope, contract)"],
     error: "TTS processing error: ",
+    unavailable: "Audio-Video TTS provider unavailable: no text-to-speech service delegate configured",
   },
   {
     id: "av.vision-analysis",
@@ -36,6 +38,7 @@ const definitions = [
     fields: ["mediaSource", "mediaSource.mediaArtifactId", "mediaSource.imageBytes", "mediaArtifactId", "analysisTypes", "maxResults"],
     markers: ["srcMap.containsKey(\"mediaArtifactId\")", "srcMap.containsKey(\"imageBytes\")", "input.containsKey(\"mediaArtifactId\")", "List.of(\"OBJECT_DETECTION\")", "toInt(input.getOrDefault(\"maxResults\", 10))", "delegate.handle(envelope, contract)"],
     error: "Vision analysis error: ",
+    unavailable: "Audio-Video Vision provider unavailable: no vision analysis service delegate configured",
   },
   {
     id: "av.multimodal-inference",
@@ -45,6 +48,7 @@ const definitions = [
     fields: ["mediaArtifactId", "inferenceMode", "enableTranscription", "enableVisionAnalysis"],
     markers: ["requireString(input, \"mediaArtifactId\")", "input.getOrDefault(\"inferenceMode\", \"SUMMARY\")", "!Boolean.FALSE.equals(input.get(\"enableTranscription\"))", "!Boolean.FALSE.equals(input.get(\"enableVisionAnalysis\"))", "delegate.handle(envelope, contract)"],
     error: "Multimodal inference error: ",
+    unavailable: "Audio-Video Multimodal provider unavailable: no multimodal inference service delegate configured",
   },
 ];
 
@@ -85,9 +89,18 @@ function checkRegistry(text, sources) {
       || !factorySource.includes(`${definition.factoryId},`) || !new RegExp(`case ${definition.factoryId}\\s+-> new ${definition.handler}\\(\\)`, "u").test(factorySource)
       || !new RegExp(`${definition.factoryId},\\s+${definition.handler}\\.class`, "u").test(factorySource)
       || !factorySource.includes(`new ${definition.handler}()`)) errors.push(`${definition.id}: handler factory registration drift`);
+    const observedInputFields = [...block.matchAll(/^        - \{name: ([^,]+),/gmu)].map((match) => match[1]);
     for (const field of definition.fields) {
-      if (!block.includes(`name: ${field},`)) errors.push(`${definition.id}: missing observed field binding ${field}`);
+      if (!observedInputFields.includes(field)) errors.push(`${definition.id}: missing observed field binding ${field}`);
     }
+    for (const field of observedInputFields) {
+      if (!definition.fields.includes(field)) errors.push(`${definition.id}: unsupported observed field binding ${field}`);
+    }
+    if (!block.includes("sourceType: Map<String,Object> from ToolExecutionEnvelope.input()")) errors.push(`${definition.id}: input source type observation missing`);
+    if (!block.includes("javaType: Promise<ToolExecutionResult>")) errors.push(`${definition.id}: observed result type missing`);
+    if (!block.includes("success: Exact delegate Promise is returned without output validation;")) errors.push(`${definition.id}: delegate result opacity observation missing`);
+    if (!block.includes("schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}")) errors.push(`${definition.id}: result schema version must remain undeclared`);
+    if (!block.includes("finality: {value: null, status: not-established-by-handler-or-delegate-contract}")) errors.push(`${definition.id}: result finality must remain unresolved`);
     for (const marker of definition.markers) {
       if (!source.includes(marker)) errors.push(`${definition.id}: handler source drift at ${marker}`);
     }
@@ -98,6 +111,10 @@ function checkRegistry(text, sources) {
     if (!block.includes("nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.")) errors.push(`${definition.id}: direct null-argument behavior missing`);
     if (!block.includes("delegateInputForwarding: When configured, delegate.handle receives the original envelope and contract unchanged.")) errors.push(`${definition.id}: original delegate input forwarding missing`);
     if (!source.includes(definition.error)) errors.push(`${definition.id}: caught-error semantics drift`);
+    if (!source.includes(definition.unavailable)) errors.push(`${definition.id}: no-delegate failure semantics drift`);
+    if (!source.includes("return Promise.of(ToolExecutionResult.failed(")) errors.push(`${definition.id}: local failure must be returned as a resolved Promise`);
+    if (!source.includes("envelope.invocationId(),\n                    end,\n                    Duration.between(start, end)")) errors.push(`${definition.id}: local failed-result identity/time arguments drift`);
+    if (!source.includes("return delegate.handle(envelope, contract);")) errors.push(`${definition.id}: delegate Promise must be returned unchanged`);
     if (!block.includes("finality: {value: null, status: not-established-by-handler-or-delegate-contract}")) errors.push(`${definition.id}: result finality must remain unresolved`);
     if (!block.includes("schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}")) errors.push(`${definition.id}: result schema version must remain undeclared`);
     if (!block.includes("authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}")) errors.push(`${definition.id}: authority must remain unresolved`);
@@ -114,11 +131,29 @@ test("tool registry records the exact four handler-observed contracts without im
   assert.deepEqual(checkRegistry(registryText(), sources), []);
 });
 
+test("all four entries inventory only source-observed inputs and keep result schemas opaque", () => {
+  const registry = registryText();
+  assert.equal([...registry.matchAll(/^  - id: /gmu)].length, 4);
+  for (const definition of definitions) {
+    const block = getBlock(registry, definition.id);
+    const observedInputs = [...block.matchAll(/^        - \{name: ([^,]+),/gmu)].map((match) => match[1]);
+    assert.deepEqual(observedInputs, definition.fields, `${definition.id}: exact observed input inventory`);
+    assert.match(block, /sourceType: Map<String,Object> from ToolExecutionEnvelope\.input\(\)/u);
+    assert.match(block, /javaType: Promise<ToolExecutionResult>/u);
+    assert.match(block, /success: Exact delegate Promise is returned without output validation;/u);
+    assert.match(block, /schemaVersion: \{value: null, status: not-declared-by-handler-or-delegate-contract\}/u);
+    assert.match(block, /finality: \{value: null, status: not-established-by-handler-or-delegate-contract\}/u);
+    assert.match(block, /operationBinding: \{value: null, status: unresolved-owner-and-operation-mapping\}/u);
+    assert.match(block, /executionAdmitted: false/u);
+  }
+});
+
 test("tool registry rejects missing, extra, or duplicate handler entries and missing observed fields", () => {
   const registry = registryText();
   const first = getBlock(registry, definitions[0].id);
   assert.ok(first);
   assert.match(checkRegistry(registry.replace("name: audioSource.audioBytes,", "name: audioSource.bytes,"), sources).join("\n"), /missing observed field binding audioSource\.audioBytes/u);
+  assert.match(checkRegistry(registry.replace("name: audioSource.audioBytes,", "name: audioSource.audioBytes,\n        - {name: inventedField, type: Object, presence: unknown}"), sources).join("\n"), /unsupported observed field binding inventedField/u);
   assert.match(checkRegistry(registry.replace("  - id: av.vision-analysis", "  - id: av.unsupported\n    canonicalId: av.unsupported\n  - id: av.vision-analysis"), sources).join("\n"), /unsupported tool entry/u);
   assert.match(checkRegistry(registry.replace("  - id: av.vision-analysis", "  - id: av.speech-to-text\n    canonicalId: av.speech-to-text\n  - id: av.vision-analysis"), sources).join("\n"), /duplicate tool entry/u);
   assert.match(checkRegistry(registry.replace("  - id: av.vision-analysis", "  - id: av.text-to-speech\n    canonicalId: av.text-to-speech\n  - id: av.vision-analysis"), sources).join("\n"), /duplicate tool entry/u);
@@ -130,6 +165,8 @@ test("each handler input/error source drift is rejected independently", () => {
     assert.match(checkRegistry(registryText(), drifted).join("\n"), new RegExp(`${definition.id}: caught-error semantics drift`, "u"));
     const missingInputMarker = { ...sources, [definition.source]: sources[definition.source].replace(definition.markers[0], "changedInputExpression") };
     assert.match(checkRegistry(registryText(), missingInputMarker).join("\n"), new RegExp(`${definition.id}: handler source drift`, "u"));
+    const changedUnavailable = { ...sources, [definition.source]: sources[definition.source].replace(definition.unavailable, "Provider temporarily unavailable") };
+    assert.match(checkRegistry(registryText(), changedUnavailable).join("\n"), new RegExp(`${definition.id}: no-delegate failure semantics drift`, "u"));
   }
 });
 
@@ -160,4 +197,23 @@ test("runtime source observation does not turn Tools build resolution into Share
   assert.match(conventions, /Current composite build compiles the handler APIs from the Ghatana Tools runtime\/java\/tool-contracts and runtime\/java\/tool-runtime sources\./u);
   assert.match(conventions, /No matching ToolExecutionEnvelope, ToolExecutionResult, ToolContract, or ToolHandler source\/export was found in the inspected Shared/u);
   assert.match(conventions, /does not establish Shared acceptance or execution admission\./u);
+});
+
+test("owner-selected operation families remain definition-only until handler bindings and admission are proved", () => {
+  const conventions = readFileSync(conventionsPath, "utf8");
+  assert.match(conventions, /status: OWNER_POLICY_ACCEPTED; CONTRACT_AND_EXECUTION_ADMISSION_PENDING/u);
+  for (const [id, family] of [
+    ["av.speech-to-text", "media.operation.transcription"],
+    ["av.text-to-speech", "media.operation.synthesis"],
+    ["av.vision-analysis", "media.operation.vision-analysis"],
+    ["av.multimodal-inference", "media.operation.multimodal-analysis"],
+  ]) {
+    const ownerSelection = conventions.match(new RegExp(
+      `    - toolId: ${id}\\s+canonicalOperationFamily: ${family}\\s+[\\s\\S]*?executionAdmitted: false`, "u"));
+    assert.ok(ownerSelection, `${id}: selected family must remain definition-only with execution admission false`);
+    const registryEntry = getBlock(registryText(), id);
+    assert.ok(registryEntry, `${id}: registry entry is present`);
+    assert.match(registryEntry, /executionAdmitted: false/u);
+    assert.match(registryEntry, /operationBinding: \{value: null, status: unresolved-owner-and-operation-mapping\}/u);
+  }
 });

@@ -2,13 +2,14 @@ schemaVersion: media.interface-parity.operation.v1
 artifactId: media.interface-parity.operation
 productId: media
 authority: .product-experience/pdp-1-domain-data/operations.yaml
-status: source-inventory-reconciliation; no-bindings-owner-accepted
+status: source-inventory-reconciliation; no-cross-interface-bindings-owner-accepted
 dispositions:
   accepted: 0
   mappedProposal: association-is-plausible-but-not-accepted
   transportOnly: transport-mechanics-have-no-domain-operation-meaning
   internalOnly: implementation-private-behavior-has-no-product-operation-meaning
   unresolved: no-equivalence-or-disposition-is-supported-by-current-evidence
+  ownerApprovedActionIntentAssociation: PDP-3 UI action intent is associated with a PDP-1 operation; no cross-interface binding or operation behavior accepted
 surfaces:
   - surface: UI action registry
     denominator: 146
@@ -23,22 +24,32 @@ surfaces:
       media.operation.caption-draft-write: [media.action.correct-caption, media.action.align-caption-timing]
       media.operation.caption-version-write: [media.action.save-caption-version]
       media.operation.caption-version-read: [media.action.compare-caption-versions]
+    ownerApprovedActionIntentAssociations:
+      decision: .product-experience/decision-log.md#PXD-029
+      acceptanceInput: ACCEPT-INPUT-MEDIA-OWNER-PDP3-ACTION-INTENT-ASSOCIATIONS-20261008
+      scope: semantic-intent-association-only; records do not accept PDP-1 operation semantics, transport/wire/schema, actor/authority, finality, runtime reachability, or operation behavior
+      mappings:
+        media.operation.transcription-submission: [media.action.request-transcription]
+        media.operation.transcript-version-read: [media.action.review-transcript]
+        media.operation.caption-draft-write: [media.action.correct-caption, media.action.align-caption-timing]
+        media.operation.caption-version-write: [media.action.save-caption-version]
+        media.operation.caption-version-read: [media.action.compare-caption-versions]
     ambiguous: []
     canonicalRefs: .product-experience/pdp-1-domain-data/operations.yaml#/operations/*/actionRefs
-    bindingStatus: exact typed dispositions reconcile below; fourteen exact actionRefs now proposed; 132 actions lack exact operation refs; no runtime reachability implied
+    bindingStatus: exact typed dispositions reconcile below; fourteen actionRefs remain proposed, six UI action intents have separate owner approval, 132 actions lack exact operation refs; zero accepted cross-interface bindings; no runtime reachability implied
   - surface: HTTP
     denominator: 27
     source: contracts/openapi/media.yaml
     identities: [getMediaHealth, getMediaLiveness, getMediaReadiness, getMediaStartup, getMediaReadyAlias, getMediaMetrics, getMediaInfo, getMediaVersionedHealth, grantMediaConsent, listMediaConsents, getMediaConsent, revokeMediaConsent, beginMediaUpload, getMediaUpload, appendMediaChunk, completeMediaUpload, getMediaArtifact, submitMediaJob, listMediaJobs, getMediaJob, cancelMediaJob, openMediaStream, getMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream, getMediaProviders]
     proposedSemanticCandidates:
-      health-capability: [getMediaHealth, getMediaLiveness, getMediaReadiness, getMediaStartup, getMediaReadyAlias, getMediaMetrics, getMediaInfo, getMediaVersionedHealth, getMediaProviders]
       consent: [grantMediaConsent, listMediaConsents, getMediaConsent, revokeMediaConsent]
       artifact-ingest: [beginMediaUpload, getMediaUpload, appendMediaChunk, completeMediaUpload, getMediaArtifact]
       job-lifecycle: [submitMediaJob, listMediaJobs, getMediaJob, cancelMediaJob]
       stream-session: [openMediaStream, getMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream]
-    dispositionCounts: {mappedProposal: 27, unresolved: 0}
+    unresolved: [getMediaHealth, getMediaLiveness, getMediaReadiness, getMediaStartup, getMediaReadyAlias, getMediaMetrics, getMediaInfo, getMediaVersionedHealth, getMediaProviders]
+    dispositionCounts: {mappedProposal: 18, unresolved: 9}
     canonicalRefs: .product-experience/pdp-1-domain-data/operations.yaml#/observedBindings.httpOperations
-    bindingStatus: all-route-families-have-source-name/path-based-candidates; semantic-owner-acceptance-pending
+    bindingStatus: 18-domain-operation-candidates; nine-transport-only-or-provider-admin-identities-remain-semantically-unbound; semantic-owner-acceptance-pending
   - surface: gRPC
     denominator: 43
     source:
@@ -51,14 +62,13 @@ surfaces:
       media.operation.synthesis: [TTSService.Synthesize, TTSService.StreamSynthesize, TTSService.GetVoices, TTSService.CloneVoice]
       media.operation.vision-analysis: [VisionService.DetectObjects, VisionService.AnalyzeImage, VisionService.ClassifyImage, VisionService.AnalyzeVideoFile, VisionService.ProcessVideo]
       media.operation.multimodal-analysis: [MultimodalService.ProcessMultimodal, MultimodalService.AnalyzeVideoWithAudio, MultimodalService.GenerateDescription, MultimodalService.AnalyzeCrossModal, MultimodalService.GetInsights]
-      media.operation.health-capability: [STTService.HealthCheck, TTSService.GetStatus, TTSService.GetMetrics, VisionService.GetStatus, VisionService.HealthCheck, MultimodalService.GetStatus, MultimodalService.HealthCheck]
     unresolved:
-      STTService: [LoadModel, UnloadModel, ListModels, AdaptModel, GetStatus, CreateProfile, GetProfile, UpdateProfile]
-      TTSService: [LoadVoice, CreateProfile, GetProfile, UpdateProfile, SubmitFeedback]
-      VisionService: [LoadModel, UnloadModel, ListModels]
-      MultimodalService: [LoadModel, UnloadModel, ListModels]
-    dispositionCounts: {mappedProposal: 24, unresolved: 19}
-    bindingStatus: exact-service-and-method-identity-retained; proposed-family-association-requires-owner-review
+      STTService: [LoadModel, UnloadModel, ListModels, AdaptModel, GetStatus, HealthCheck, CreateProfile, GetProfile, UpdateProfile]
+      TTSService: [GetStatus, GetMetrics, LoadVoice, CreateProfile, GetProfile, UpdateProfile, SubmitFeedback]
+      VisionService: [GetStatus, HealthCheck, LoadModel, UnloadModel, ListModels]
+      MultimodalService: [GetStatus, HealthCheck, LoadModel, UnloadModel, ListModels]
+    dispositionCounts: {mappedProposal: 17, unresolved: 26}
+    bindingStatus: 17-domain-operation-candidates; 26-identities-remain-unresolved-including-transport-only-and-provider-admin-roles; proposed-family-association-requires-owner-review
   - surface: CLI fixture commands
     denominator: 11
     source: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
@@ -85,8 +95,8 @@ surfaces:
       priorTwelveFixtureObservation: unresolved-source-discrepancy; inspected-current-registry-and-parser-evidence-support-eleven-fixture-command-identities-only
     bindingStatus: nine-proposals-follow-existing-command/action references or operation intent; caption-version commands remain unresolved; acceptance-pending
   - surface: SDK registry
-    denominator: 24
-    rawRegistryRecordCount: 27
+    denominator: 28
+    rawRegistryRecordCount: 31
     source: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
     proposedSemanticCandidates:
       job-lifecycle: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.getOperation, media.sdk.cancelOperation]
@@ -94,12 +104,16 @@ surfaces:
       transcription: [media.sdk.transcribe]
       synthesis: [media.sdk.synthesize]
       multimodal-analysis: [media.sdk.analyzeMultimodal]
-    unresolved: [media.sdk.listProviderCapabilities, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.removeEventListener]
+    unresolved: [media.sdk.listProviderCapabilities, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.retryOperation, media.sdk.getOperationResult]
+    sourceBackedNonOperationDispositions:
+      TRANSPORT_ONLY: [media.sdk.getServiceStatus, media.sdk.getAllServicesStatus]
+      CLIENT_ONLY: [media.sdk.addEventListener, media.sdk.removeEventListener]
     parserArtifactTokensExcludedFromMethodDenominator: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
-    parserArtifactEvidence: public-declaration-parser-scans-both-listed-client-source-files; none-of-the-three-token-names-has-a-public-method-declaration; raw-records-retained-for-audit
-    dispositionCounts: {mappedProposal: 14, unresolved: 10}
+    parserArtifactEvidence: public-declaration-parser-scans-recursively-discovered-production-TypeScript-sources-under-the-SDK-src-tree; none-of-the-three-token-names-has-a-public-method-declaration; raw-records-retained-for-audit
+    dispositionCounts: {mappedProposal: 14, transportOnly: 2, clientOnly: 2, unresolved: 10}
     legacyClientSource: libs/audio-video-client/src/index.ts
-    bindingStatus: candidate families follow public method purpose; three source-parser artifacts are separately excluded; unclassified public methods remain unresolved; semantic-owner-acceptance-pending
+    sourcePairInventory: public-method-pairs-include-source-and-declaring-class; duplicate-transcribe-and-synthesize-identities-are-separated-by-legacy-source-class
+    bindingStatus: 14 family associations remain proposals; four exact source-backed non-operation identities are classified below; ten domain-operation identities remain unresolved; three source-parser artifacts are explicitly excluded; no runtime route or client admission is implied
   - surface: Agent Tool handlers
     denominator: 4
     source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
@@ -251,6 +265,30 @@ typedMethodDispositions:
   basis: cancellation-request-method-with-finality-unresolved
   openApiBindingDisposition: NOT_ADMITTED
   bindingEvidence: legacy-client-method-delegates-to-cancelOperation; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.retryOperation
+  type: DOMAIN_COMMAND
+  semanticBinding: unresolved
+  basis: legacy-retry-request-with-eligibility-and-attempt-semantics-unresolved
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: libs/audio-video-client/src/operations.ts-posts-to-/api/v1/media/operations/{operationId}:retry; exact-route-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.getOperationResult
+  type: DOMAIN_QUERY
+  semanticBinding: unresolved
+  basis: legacy-operation-result-read-with-result-finality-and-availability-semantics-unresolved
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: libs/audio-video-client/src/operations.ts-gets-/api/v1/media/operations/{operationId}/result; exact-route-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.legacy.AudioVideoClient.transcribe
+  type: NOT_ADMITTED
+  semanticBinding: unresolved
+  basis: legacy-provider-endpoint-call-retained-for-source-compatibility
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: libs/audio-video-client/src/index.ts-posts-to-/api/stt/transcribe; no-matching-openapi-or-active-runtime-route
+- identity: media.sdk.legacy.AudioVideoClient.synthesize
+  type: NOT_ADMITTED
+  semanticBinding: unresolved
+  basis: legacy-provider-endpoint-call-retained-for-source-compatibility
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: libs/audio-video-client/src/index.ts-posts-to-/api/tts/synthesize; no-matching-openapi-or-active-runtime-route
 - identity: media.sdk.processAIVoice
   type: NOT_ADMITTED
   semanticBinding: unresolved
@@ -326,6 +364,10 @@ typedInterfaceIdentityDispositions:
     unresolvedIdentities: []
     operationBindingCounts: {mappedProposal: 2, unresolved: 0}
     bindingStatus: both caption-version CLI identities have exact actionRef crosswalk proposal bindings; the remaining ten canonical CLI identities are outside this slice and unchanged; production CLI runtime remains unconnected
+  sdk:
+    transportOnly: [media.sdk.getServiceStatus, media.sdk.getAllServicesStatus]
+    clientOnly: [media.sdk.addEventListener, media.sdk.removeEventListener]
+    semanticOperationBinding: unresolved-for-14-proposed-domain-operation-candidates; four-source-backed-non-operation-dispositions-are-exact-role-classifications-only
   agentTools:
     domainCommands: [av.speech-to-text, av.text-to-speech, av.vision-analysis, av.multimodal-inference]
     invocationAuthorityAndInputResultContracts: unresolved-for-every-identity
@@ -497,7 +539,8 @@ typedUiActionDispositions:
     - effect
     - reversible
     - finality
-    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
+    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; action-to-operation intent association owner-approved under PXD-029; PDP-1 operation semantics remain proposal-only
+    operationAssociationStatus: owner-approved-semantic-intent-only; PXD-029
     operationRef: media.operation.transcription-submission
   - identity: media.action.inspect-source
     type: DOMAIN_QUERY
@@ -539,6 +582,7 @@ typedUiActionDispositions:
     - reversible
     - finality
     classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+    operationAssociationStatus: owner-approved-semantic-intent-only; PXD-029
     operationRef: media.operation.transcript-version-read
   - identity: media.action.view-job-status
     type: DOMAIN_QUERY
@@ -593,7 +637,8 @@ typedUiActionDispositions:
     - effect
     - reversible
     - finality
-    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
+    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; action-to-operation intent association owner-approved under PXD-029; PDP-1 operation semantics remain proposal-only
+    operationAssociationStatus: owner-approved-semantic-intent-only; PXD-029
     operationRef: media.operation.caption-draft-write
   - identity: media.action.align-caption-timing
     type: DOMAIN_COMMAND
@@ -604,7 +649,8 @@ typedUiActionDispositions:
     - effect
     - reversible
     - finality
-    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
+    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; action-to-operation intent association owner-approved under PXD-029; PDP-1 operation semantics remain proposal-only
+    operationAssociationStatus: owner-approved-semantic-intent-only; PXD-029
     operationRef: media.operation.caption-draft-write
   - identity: media.action.save-caption-version
     type: DOMAIN_COMMAND
@@ -615,7 +661,8 @@ typedUiActionDispositions:
     - effect
     - reversible
     - finality
-    classificationBasis: action contract declares immutable caption-version registration; operation is proposal-only and has no wire binding
+    classificationBasis: action contract declares immutable caption-version registration; action-to-operation intent association owner-approved under PXD-029; PDP-1 operation semantics remain proposal-only and have no wire binding
+    operationAssociationStatus: owner-approved-semantic-intent-only; PXD-029
     operationRef: media.operation.caption-version-write
   - identity: media.action.resolve-caption-conflict
     type: CLIENT_ONLY
@@ -637,6 +684,7 @@ typedUiActionDispositions:
     - reversible
     - finality
     classificationBasis: action contract declares a read-only comparison of two exact caption versions; no write or merge is implied
+    operationAssociationStatus: owner-approved-semantic-intent-only; PXD-029
     operationRef: media.operation.caption-version-read
   - identity: media.action.inspect-provenance
     type: DOMAIN_QUERY

@@ -5,11 +5,30 @@
  * narrow source extractors for the repository's authored formats, not YAML
  * parsers or semantic validators.
  */
-import { readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join, relative, resolve, sep } from "node:path";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const read = (path) => readFileSync(join(root, path), "utf8");
+
+export function discoverSdkSourceFiles(repositoryRoot, sourceDirectory = "libs/audio-video-client/src") {
+  const rootPath = resolve(repositoryRoot);
+  const directoryPath = resolve(rootPath, sourceDirectory);
+  const files = [];
+  const visit = (directory) => {
+    for (const entry of readdirSync(directory).sort()) {
+      const path = join(directory, entry);
+      const stats = statSync(path);
+      if (stats.isDirectory()) {
+        if (entry !== "__tests__") visit(path);
+      } else if (stats.isFile() && entry.endsWith(".ts") && !entry.endsWith(".test.ts") && !entry.endsWith(".spec.ts") && !entry.endsWith(".d.ts")) {
+        files.push(path);
+      }
+    }
+  };
+  visit(directoryPath);
+  return Object.fromEntries(files.map((path) => [relative(rootPath, path).split(sep).join("/"), readFileSync(path, "utf8")]));
+}
 
 const TYPED_CONTRACT_ROLES = new Set([
   "DOMAIN_VALUE_PROJECTION", "DOMAIN_RECORD_PROJECTION", "DOMAIN_RECORD_AND_OPERATION_PROJECTION",
@@ -194,20 +213,33 @@ export function parseSdkRegistryMethods(registry, sourceByPath) {
   const declarations = new Map();
   const nonApiTokens = new Set(["for", "if", "clearTimeout"]);
   for (const [source, code] of Object.entries(sourceByPath)) {
-    const names = new Set();
-    const classBodies = [...code.matchAll(/^export class [^{]+\{\n([\s\S]*?)^\}/gm)]
-      .map((match) => match[1]).join("\n");
-    for (const match of classBodies.matchAll(/^  (?:(?:public|private|protected)\s+)?(?:async\s+)?([A-Za-z_$][\w$]*)\s*\(/gm)) {
-      const name = match[1];
-      // Only class-member declarations at the class' two-space indentation
-      // count; interface signatures, control flow and nested calls do not.
-      if (!nonApiTokens.has(name)) names.add(name);
+    const classes = new Map();
+    for (const classMatch of code.matchAll(/^export class ([^{]+)\{([\s\S]*?)^\}/gm)) {
+      const className = classMatch[1].split(/[\s<{]/u)[0];
+      const names = new Set();
+      for (const match of classMatch[2].matchAll(/^  (?:(public|private|protected)\s+)?(?:async\s+)?([A-Za-z_$][\w$]*)(?:<[^\n>]+>)?\s*\(/gm)) {
+        const [, visibility, name] = match;
+        // Only exported class-member declarations count; private/protected
+        // members, interface signatures, control flow, and nested calls do not.
+        if (!nonApiTokens.has(name) && visibility !== "private" && visibility !== "protected" && name !== "constructor") names.add(name);
+      }
+      classes.set(className, names);
     }
-    declarations.set(source, names);
+    declarations.set(source, classes);
   }
-  return [...registry.matchAll(/^  - id: ([^\n]+)\n    method: ([^\n]+)\n    visibility: public\n    source: ([^\n]+)/gm)]
-    .map((m) => ({ id: m[1].trim(), method: m[2].trim(), source: m[3].trim() }))
-    .filter(({ method }) => [...declarations.values()].some((names) => names.has(method)));
+  return registry.split(/(?=^  - id: )/m).flatMap((record) => {
+    const id = record.match(/^  - id: ([^\n]+)/m)?.[1]?.trim();
+    const method = record.match(/^    method: ([^\n]+)/m)?.[1]?.trim();
+    const visibility = record.match(/^    visibility: ([^\n]+)/m)?.[1]?.trim();
+    const source = record.match(/^    source: ([^\n]+)/m)?.[1]?.trim();
+    const declaringClass = record.match(/^    declaringClass: ([^\n]+)/m)?.[1]?.trim();
+    if (!id || !method || visibility !== "public" || !source || nonApiTokens.has(method)) return [];
+    const classes = declarations.get(source);
+    const matches = declaringClass
+      ? classes?.get(declaringClass)?.has(method) ?? false
+      : [...(classes?.values() ?? [])].some((names) => names.has(method));
+    return matches ? [{ id, method, source, ...(declaringClass ? { declaringClass } : {}) }] : [];
+  });
 }
 
 function normalizeRoutePath(path) {
@@ -437,6 +469,7 @@ function collectLiveInput() {
   ];
   const operationClient = read("libs/audio-video-client/src/operations.ts");
   const facadeClient = read("libs/audio-video-client/src/index.ts");
+  const sdkSourceFiles = discoverSdkSourceFiles(root);
   const operationRegistry = read(".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml");
   const operationParity = read(".product-experience/interface-parity/operation-parity.yaml");
   const sdkCalls = [
@@ -451,10 +484,7 @@ function collectLiveInput() {
     httpRegistry: read(".product-experience/pdp-3-product-experience/api/api-registry.yaml"),
     grpcRegistry: read(".product-experience/pdp-3-product-experience/grpc/service-registry.yaml"),
     protoFiles: operationFiles.map(read),
-    sdkOperationIds: parseSdkRegistryMethods(operationRegistry, {
-      "libs/audio-video-client/src/operations.ts": operationClient,
-      "libs/audio-video-client/src/index.ts": facadeClient,
-    }).map(({ id }) => id),
+    sdkOperationIds: parseSdkRegistryMethods(operationRegistry, sdkSourceFiles).map(({ id }) => id),
     sdkCalls,
     sdkRouteDispositions: parseNotAdmittedSdkRoutes(operationParity),
     sdkOpenApiDispositions: parseSdkOpenApiDispositions(operationParity),

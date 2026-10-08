@@ -80,6 +80,12 @@ const supportedModes: readonly { readonly id: ExplorerMode; readonly label: stri
   { id: "dependencies", label: "Dependencies", shortcut: "d" },
   { id: "tools-review", label: "Tools Review", shortcut: "e" },
 ];
+// Keep the five task-first Explorer activities visible. Source-domain and
+// integration workspaces remain available under one native disclosure so
+// their depth is preserved without making every mode compete for the header.
+const primaryModeIds: readonly ExplorerMode[] = ["product", "explore", "specification", "traceability", "verify"];
+const primaryModes = supportedModes.filter(({ id }) => primaryModeIds.includes(id));
+const secondaryModes = supportedModes.filter(({ id }) => !primaryModeIds.includes(id));
 // Artifact verification specializes the shared job-status view, so it is not a separate Product screen route.
 const screenContractArtifacts = specificationArtifacts.filter((artifact) =>
   artifact.path.includes("/screen-contracts/") && !artifact.path.endsWith("/artifact-verification-job-family.yaml"));
@@ -264,10 +270,19 @@ function applyEvent(event: SimulationEvent): TransitionResult {
 }
 
 function modeNavigation(): string {
-  return `<nav class="mode-tabs" role="tablist" aria-label="Experience Explorer mode">${supportedModes.map(({ id, label, shortcut }) => `
-    <button id="mode-${id}" class="mode-tab ${mode === id ? "is-selected" : ""}" type="button" role="tab" aria-controls="explorer-panel" aria-selected="${mode === id}" tabindex="${mode === id ? 0 : -1}" data-mode="${id}">
-      <span>${label}</span><kbd>${shortcut}</kbd>
-    </button>`).join("")}</nav>`;
+  const activeSecondaryMode = secondaryModes.find(({ id }) => id === mode);
+  return `<div class="mode-navigation">
+    <nav class="mode-tabs" aria-label="Primary Explorer activities">${primaryModes.map(({ id, label, shortcut }) => `
+    <button id="mode-${id}" class="mode-tab ${mode === id ? "is-selected" : ""}" type="button" ${mode === id ? 'aria-current="page"' : ""} data-mode="${id}">
+      <span>${label === "Product" ? "Product Preview" : label === "Explore" ? "Experience Inspection" : label === "Specification" ? "Specifications" : label === "Traceability" ? "Trace / Impact" : label}</span><kbd>${shortcut}</kbd>
+    </button>`).join("")}</nav>
+    <details class="mode-more" ${activeSecondaryMode ? "open" : ""}><summary aria-label="More Explorer views${activeSecondaryMode ? `, current view ${activeSecondaryMode.label}` : ""}">More views${activeSecondaryMode ? `<span class="mode-more-current">${escapeHtml(activeSecondaryMode.label)}</span>` : ""}</summary>
+      <nav class="mode-more-list" aria-label="Additional Explorer views">${secondaryModes.map(({ id, label, shortcut }) => `
+        <button id="mode-${id}" class="mode-more-item ${mode === id ? "is-selected" : ""}" type="button" data-mode="${id}" ${mode === id ? 'aria-current="page"' : ""}>
+          <span>${escapeHtml(label)}</span><kbd>${escapeHtml(shortcut)}</kbd>
+        </button>`).join("")}</nav>
+    </details>
+  </div>`;
 }
 
 function explorerHeader(): string {
@@ -535,7 +550,21 @@ function renderScreenContractPreview(artifact: SpecificationArtifact, source: st
 function filteredSpecificationArtifacts(artifacts: readonly SpecificationArtifact[]): readonly SpecificationArtifact[] {
   const query = artifactFilter.trim().toLocaleLowerCase();
   if (!query) return artifacts;
-  return artifacts.filter((artifact) => `${artifact.title} ${artifact.path}`.toLocaleLowerCase().includes(query));
+  return artifacts.filter((artifact) => `${artifact.artifactId} ${artifact.title} ${artifact.path}`.toLocaleLowerCase().includes(query));
+}
+
+function specificationSearchResults(phaseArtifacts: readonly SpecificationArtifact[]): readonly SpecificationArtifact[] {
+  return filteredSpecificationArtifacts(artifactFilter.trim() ? specificationArtifacts : phaseArtifacts);
+}
+
+function specificationSearchCount(visibleArtifacts: readonly SpecificationArtifact[], phaseArtifacts: readonly SpecificationArtifact[]): string {
+  return artifactFilter.trim()
+    ? `${visibleArtifacts.length} matching / ${specificationArtifacts.length} indexed`
+    : `${visibleArtifacts.length} of ${phaseArtifacts.length}`;
+}
+
+function specificationArtifactNavLabel(): string {
+  return artifactFilter.trim() ? "Matching source records across all phases" : "Phase artifacts";
 }
 
 function renderSpecificationArtifactLinks(artifacts: readonly SpecificationArtifact[]): string {
@@ -566,7 +595,10 @@ function renderTraceMetadata(artifact: SpecificationArtifact, sourceManifest: st
 
 function specificationSurface(): string {
   const phaseArtifacts = specificationArtifacts.filter((artifact) => artifact.phase === selectedPhase);
-  const visibleArtifacts = filteredSpecificationArtifacts(phaseArtifacts);
+  // A populated search is a navigator across the whole generated index. Keeping
+  // it scoped to the selected phase made exact canonical IDs in other phases
+  // appear absent even though they were indexed.
+  const visibleArtifacts = specificationSearchResults(phaseArtifacts);
   const activeArtifact = phaseArtifacts.find((artifact) => artifact.path === selectedArtifact.path) ?? phaseArtifacts[0]!;
   selectedArtifact = activeArtifact;
   ensureSpecificationContentLoaded(activeArtifact);
@@ -588,9 +620,9 @@ function specificationSurface(): string {
   return `<div class="specification-workspace ${highContrast ? "contrast-on" : ""}">
     <aside class="spec-sidebar"><div class="eyebrow">SOURCE OF MEANING</div><h1>Specification</h1><p>Inspect the source records behind this experience.</p>
       <div class="phase-selector" role="radiogroup" aria-label="Select an experience phase" aria-orientation="${phaseSelectorOrientation()}">${phaseIds.map((phase) => `<button id="${phaseTabId(phase)}" type="button" role="radio" aria-checked="${phase === selectedPhase}" tabindex="${phase === selectedPhase ? 0 : -1}" class="phase-tab ${phase === selectedPhase ? "is-current" : ""}" data-phase="${phase}"><span>${phase}</span><strong>${escapeHtml(phaseSummary[phase].title)}</strong></button>`).join("")}</div>
-      <label class="artifact-filter-label" for="artifact-filter">Find a record</label><input id="artifact-filter" class="artifact-filter" type="search" value="${escapeHtml(artifactFilter)}" placeholder="Search titles and filenames" autocomplete="off" />
-      <div class="spec-artifacts-heading"><span>AUTHORITY FILES</span><span id="artifact-count">${visibleArtifacts.length} of ${phaseArtifacts.length}</span></div>
-      <nav class="artifact-list" aria-label="Phase artifacts">${renderSpecificationArtifactLinks(visibleArtifacts)}</nav>
+      <label class="artifact-filter-label" for="artifact-filter">Find a record</label><input id="artifact-filter" class="artifact-filter" type="search" value="${escapeHtml(artifactFilter)}" placeholder="Search IDs, titles, and filenames" autocomplete="off" />
+      <div class="spec-artifacts-heading"><span>AUTHORITY FILES</span><span id="artifact-count">${specificationSearchCount(visibleArtifacts, phaseArtifacts)}</span></div>
+      <nav class="artifact-list" aria-label="${escapeHtml(specificationArtifactNavLabel())}">${renderSpecificationArtifactLinks(visibleArtifacts)}</nav>
     </aside>
     <main class="spec-document" id="main-content"><header class="spec-doc-header"><div><div class="eyebrow">${selectedPhase} · ${escapeHtml(phaseSummary[selectedPhase].title.toUpperCase())}</div><h2>${escapeHtml(activeArtifact.title)}</h2><p>${escapeHtml(activeArtifact.path)}</p></div><span class="proposal-chip"><span></span> ${escapeHtml(reviewStatusForArtifact(activeArtifact))}</span></header>
       ${location.hash.startsWith("#product/view/") ? `<aside class="legacy-proposal-route-note" role="note"><strong>${invalidLegacyRoute ? "Proposal route not found" : "Legacy Product URL opened as Specification"}</strong><p>${invalidLegacyRoute ? "This URL does not match an indexed source record. No Product screen is mounted." : "Screen contracts are read-only proposal previews in Specification. No Product route or implementation is implied."}</p></aside>` : ""}
@@ -794,9 +826,10 @@ function render(): void {
     toolsPresentationRoot.unmount();
     toolsPresentationRoot = null;
   }
+  const activeModeLabel = [...primaryModes, ...secondaryModes].find(({ id }) => id === mode)?.label ?? "Experience Explorer";
   const content = mode === "product"
     ? mainContent()
-    : `${explorerHeader()}<div id="explorer-panel" role="tabpanel" aria-labelledby="mode-${mode}" tabindex="0">${mainContent()}</div>`;
+    : `${explorerHeader()}<div id="explorer-panel" role="region" aria-labelledby="mode-${mode}" tabindex="0" aria-label="${escapeHtml(activeModeLabel)} view">${mainContent()}</div>`;
   root!.innerHTML = `${content}<div class="global-announcer" role="status" aria-live="polite">${escapeHtml(transientAnnouncement)}</div>`;
   if (mode === "tools-review") {
     root!.querySelector<HTMLElement>("#main-content")?.insertAdjacentHTML("beforeend", `<section class="verify-section" aria-labelledby="tools-product-renderer-title"><div class="verify-section-heading"><div><h2 id="tools-product-renderer-title">Tools-hosted Product viewport</h2><p>The deterministic Tools consumer and Product viewport share the Media-owned public renderer. Current scenario facts remain a fixture projection.</p></div><span class="section-count">CANDIDATE · NOT ADMITTED</span></div><div id="tools-product-renderer-mount"></div></section>`);
@@ -1134,11 +1167,12 @@ root.addEventListener("input", (event) => {
   if (target instanceof HTMLInputElement && target.id === "artifact-filter") {
     artifactFilter = target.value;
     const phaseArtifacts = specificationArtifacts.filter((artifact) => artifact.phase === selectedPhase);
-    const visibleArtifacts = filteredSpecificationArtifacts(phaseArtifacts);
+    const visibleArtifacts = specificationSearchResults(phaseArtifacts);
     const artifactList = root!.querySelector<HTMLElement>(".artifact-list");
     const artifactCount = root!.querySelector<HTMLElement>("#artifact-count");
     if (artifactList) artifactList.innerHTML = renderSpecificationArtifactLinks(visibleArtifacts);
-    if (artifactCount) artifactCount.textContent = `${visibleArtifacts.length} of ${phaseArtifacts.length}`;
+    if (artifactCount) artifactCount.textContent = specificationSearchCount(visibleArtifacts, phaseArtifacts);
+    root!.querySelector<HTMLElement>(".artifact-list")?.setAttribute("aria-label", specificationArtifactNavLabel());
   } else if (target instanceof HTMLInputElement && target.id === "source-position") {
     const tick = Number(target.value);
     const time = root!.querySelector<HTMLElement>(".time-readout");
@@ -1172,12 +1206,12 @@ compactPhaseSelector.addEventListener("change", (event) => {
 
 root.addEventListener("keydown", (event) => {
   if (mode === "product") return;
-  const focusedTab = event.target instanceof HTMLElement ? event.target.closest<HTMLButtonElement>("button[role=tab][data-mode]") : null;
+  const focusedTab = event.target instanceof HTMLElement ? event.target.closest<HTMLButtonElement>("button.mode-tab[data-mode]") : null;
   if (focusedTab && ["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) {
-    const currentIndex = supportedModes.findIndex((item) => item.id === focusedTab.dataset.mode);
-    const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? supportedModes.length - 1 : (currentIndex + (event.key === "ArrowRight" ? 1 : supportedModes.length - 1)) % supportedModes.length;
+    const currentIndex = primaryModes.findIndex((item) => item.id === focusedTab.dataset.mode);
+    const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? primaryModes.length - 1 : (currentIndex + (event.key === "ArrowRight" ? 1 : primaryModes.length - 1)) % primaryModes.length;
     event.preventDefault();
-    updateMode(supportedModes[nextIndex]!.id, true);
+    updateMode(primaryModes[nextIndex]!.id, true);
     return;
   }
   const focusedPhase = event.target instanceof HTMLElement ? event.target.closest<HTMLButtonElement>("button[role=radio][data-phase]") : null;

@@ -1,6 +1,6 @@
 import React from "react";
 import { MediaTaskScreen, type MediaTaskScreenProps } from "./MediaTaskScreen";
-import { Button, EmptyState, TextField } from "../foundations";
+import { EmptyState } from "../foundations";
 
 export type FirstUseProjectView =
   | "authenticate-and-select-context"
@@ -55,7 +55,7 @@ export function FirstUseProjectScreen({ project, onProjectNameDraftChange, actio
             <p>Project ID: {item.id}{item.updatedAt ? ` · Updated ${item.updatedAt}` : ""}</p>
           </li>)}
         </ul> : project.projects !== undefined && project.projects.length === 0 && project.accessState === "resolved"
-          ? <EmptyState title="No authorized projects are available in this workspace yet." />
+          ? <EmptyState className="media-empty-state" title="No authorized projects are available in this workspace yet." />
           : null}
       </>}
       {project.view === "work-in-project" && <p>Project actions and media content are supplied by the active host.</p>}
@@ -63,13 +63,13 @@ export function FirstUseProjectScreen({ project, onProjectNameDraftChange, actio
       {project.view === "find-projects" && <section aria-labelledby="create-project-title">
         <h4 id="create-project-title">Create an empty project</h4>
         <label htmlFor="new-project-name">Project name</label>
-        <TextField id="new-project-name" type="text" value={project.projectNameDraft ?? ""}
+        <input id="new-project-name" className="media-input" type="text" value={project.projectNameDraft ?? ""}
           disabled={!onProjectNameDraftChange || !createAction?.enabled}
           onChange={(event) => onProjectNameDraftChange?.(event.currentTarget.value)} />
-        <Button type="button" disabled={!createAction?.enabled} onClick={() => {
+        <button type="button" className="media-action-button media-action-button--primary" disabled={!createAction?.enabled} onClick={() => {
           const name = project.projectNameDraft;
           void actionPort.invoke("media.action.create-project", name ? { name } : {});
-        }}>{createAction?.label ?? "Create project"}</Button>
+        }}>{createAction?.label ?? "Create project"}</button>
         {createAction?.disabledReason && <p>{createAction.disabledReason}</p>}
       </section>}
     </section>

@@ -4,6 +4,7 @@ import {
   buildMediaProductDefinitionResidualReport,
   renderMediaProductDefinitionResidualJson,
   renderMediaProductDefinitionResidualMarkdown,
+  validateProjectionFieldCoverage,
   validateProjectionSourceReferences,
 } from "../scripts/lib/media-product-definition-residuals.mjs";
 import { readFileSync } from "node:fs";
@@ -13,10 +14,19 @@ test("residual report validates exact projection dispositions and pinned sources
   const report = buildMediaProductDefinitionResidualReport();
 
   assert.deepEqual(report.diagnostics, []);
+  assert.deepEqual(report.projectionMappingAudit, {
+    blockerSource: "generated candidate fieldMappingBlockers",
+    completeness: "TOP_LEVEL_SCHEMA_FIELDS_AND_EMPTY_COLLECTION_DECLARATIONS_VALIDATED; NESTED_SEMANTICS_NOT_INFERRED",
+    checks: [
+      "Current public schema properties are compared with generated candidate keys, field-source mappings, dispositions, and recorded schema-field inventory.",
+      "Missing optional fields require an explicit omission disposition; empty candidate collections require a blocker whose status and source match the field disposition and whose reason is nonblank, or an explicit empty-source disposition.",
+    ],
+    limitation: "These checks detect top-level omissions and unreported empty collections; they do not infer nested record completeness, mapping semantics, owner decisions, or acceptance.",
+  });
   assert.deepEqual(report.projections.map(({ phase }) => phase), ["PDP-0", "PDP-2", "PDP-3"]);
-  assert.deepEqual(report.projections.map(({ unresolvedFieldCount }) => unresolvedFieldCount), [4, 0, 10]);
+  assert.deepEqual(report.projections.map(({ unresolvedFieldCount }) => unresolvedFieldCount), [2, 0, 10]);
   assert.deepEqual(report.projections.map(({ unresolvedFields }) => unresolvedFields.map(({ field }) => field)), [
-    ["domainRules", "requirements", "successMeasures", "userIntents"],
+    ["domainRules", "successMeasures"],
     [],
     ["actions", "componentContracts", "effects", "finality", "fixtures", "journeys", "recovery", "scenarios", "transitions", "views"],
   ]);
@@ -27,6 +37,8 @@ test("residual report validates exact projection dispositions and pinned sources
   for (const projection of report.projections) {
     assert.equal(projection.unresolvedFieldCount, projection.unresolvedFields.length);
     assert.ok(projection.mappedFieldCount >= projection.unresolvedFieldCount);
+    assert.equal(projection.schemaFieldCount, projection.mappedFieldCount);
+    assert.ok(projection.emptyCollections.every(({ declaredBlocker }) => declaredBlocker));
     assert.ok(projection.unresolvedFields.every((field) => field.id && field.status && field.reasons.length));
   }
   assert.equal(report.capabilityCoverage.leafCount, 462, "capability denominator must not shrink without an explicit source-scope revision");
@@ -40,8 +52,8 @@ test("residual report validates exact projection dispositions and pinned sources
   assert.ok(report.capabilityCoverage.unresolvedLeaves.every((leaf) => leaf.id && leaf.sourceRef && leaf.rationale));
   assert.equal(Object.values(report.capabilityCoverage.dispositionCounts).reduce((sum, count) => sum + count, 0), report.capabilityCoverage.leafCount);
   assert.equal(report.migrationSemantics.uniqueContentUnits, 1340);
-  assert.equal(report.migrationSemantics.unresolvedCount, 349);
-  assert.equal(report.migrationSemantics.mixedRequiresDecompositionCount, 123);
+  assert.equal(report.migrationSemantics.unresolvedCount, 263);
+  assert.equal(report.migrationSemantics.mixedRequiresDecompositionCount, 124);
   assert.equal(report.migrationSemantics.sourceChangeLedger.changedClusterCount, 15);
   assert.equal(report.migrationSemantics.sourceChangeLedger.historicalSha256,
     report.migrationSemantics.sourcePins.find(({ path }) => path === "docs/migration/expert-reviewed-master-plan.md").sha256);
@@ -55,14 +67,26 @@ test("residual report validates exact projection dispositions and pinned sources
   assert.ok(report.migrationSemantics.mixedItemIds.every((id) => /^MPSEM-\d+$/u.test(id)));
   assert.equal(Object.values(report.migrationSemantics.classificationCounts).reduce((sum, count) => sum + count, 0), 1340);
   assert.equal(report.migrationSemantics.total, 1340);
-  assert.equal(report.migrationSemantics.applicable, 406);
-  assert.equal(report.migrationSemantics.unresolvedItems.length, 349);
+  assert.equal(report.migrationSemantics.applicable, 328);
+  assert.equal(report.migrationSemantics.unresolvedItems.length, 263);
   assert.ok(report.migrationSemantics.unresolvedItems.every((item) => item.id && item.sourceLocations.length && item.classificationBasis));
   assert.equal(report.operationParity.surfaceCount, 8);
-  assert.equal(report.operationParity.totalObservedIdentities, 279);
-  assert.equal(report.operationParity.unresolvedIdentityCount, 175);
+  assert.equal(report.operationParity.totalObservedIdentities, 283);
+  assert.equal(report.operationParity.unresolvedIdentityCount, 191);
   assert.ok(report.operationParity.surfaces.every((surface) => surface.observedIdentities.length === surface.denominator));
   assert.ok(report.operationParity.surfaces.every((surface) => surface.unresolvedIdentities.length === (surface.counts.unresolved ?? 0)));
+  const sdkSurface = report.operationParity.surfaces.find(({ name }) => name === "SDK registry");
+  assert.deepEqual(sdkSurface.observedIdentities.filter((id) => [
+    "media.sdk.getServiceStatus",
+    "media.sdk.getAllServicesStatus",
+    "media.sdk.addEventListener",
+    "media.sdk.removeEventListener",
+  ].includes(id)).sort(), [
+    "media.sdk.addEventListener",
+    "media.sdk.getAllServicesStatus",
+    "media.sdk.getServiceStatus",
+    "media.sdk.removeEventListener",
+  ]);
   assert.equal(report.designConformance.gateCount, 7);
   assert.equal(report.designConformance.resolvedOwnerGateCount, 4);
   assert.equal(report.designConformance.openGateCount, 3);
@@ -73,9 +97,9 @@ test("residual report validates exact projection dispositions and pinned sources
     { id: "conformance-and-specialist-review", status: "INDEPENDENT_PENDING" },
     { id: "concrete-component-bindings", status: "SOURCE_INCOMPLETE" },
   ]);
-  assert.equal(report.lifecycle.obligationCount, 318);
-  assert.equal(report.lifecycle.totalProofRoutes, 318);
-  assert.equal(report.lifecycle.obligationsMissingCaseIds.length, 256);
+  assert.equal(report.lifecycle.obligationCount, 319);
+  assert.equal(report.lifecycle.totalProofRoutes, 319);
+  assert.equal(report.lifecycle.obligationsMissingCaseIds.length, 257);
   assert.equal(report.lifecycle.receiptEvaluation.status, "NOT_EVALUATED");
   assert.equal(report.lifecycle.receiptEvaluation.authoritativeReceiptCount, null);
   assert.equal(report.lifecycle.currentnessEvaluation.status, "NOT_EVALUATED");
@@ -113,7 +137,48 @@ test("residual report output is deterministic and clearly diagnostic", () => {
 
   assert.equal(renderMediaProductDefinitionResidualJson(first), renderMediaProductDefinitionResidualJson(second));
   assert.match(renderMediaProductDefinitionResidualMarkdown(first), /diagnostic-only/u);
+  assert.match(renderMediaProductDefinitionResidualMarkdown(first), /TOP_LEVEL_SCHEMA_FIELDS_AND_EMPTY_COLLECTION_DECLARATIONS_VALIDATED/u);
+  assert.match(renderMediaProductDefinitionResidualMarkdown(first), /do not infer nested record completeness/u);
   assert.match(renderMediaProductDefinitionResidualMarkdown(first), /Projection mappings/u);
+});
+
+test("projection field audit catches missing schema fields and unreported empty collections", () => {
+  const root = resolve(new URL("..", import.meta.url).pathname);
+  const source = {
+    phase: "PDP-3",
+    name: "experience-specification",
+    path: ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
+  };
+  const candidate = JSON.parse(readFileSync(resolve(root, source.path), "utf8"));
+  assert.deepEqual(validateProjectionFieldCoverage(root, source, candidate), []);
+
+  const omitted = structuredClone(candidate);
+  delete omitted.candidateModel.views;
+  delete omitted.candidateFieldSources.views;
+  delete omitted.candidateMappingReview.fieldDispositions.views;
+  omitted.fieldMappingBlockers = omitted.fieldMappingBlockers.filter(({ field }) => field !== "views");
+  const omittedDiagnostics = validateProjectionFieldCoverage(root, source, omitted);
+  assert.ok(omittedDiagnostics.some((diagnostic) => /public schema field has no candidate field source: views/u.test(diagnostic)));
+  assert.ok(omittedDiagnostics.some((diagnostic) => /public schema field is omitted from candidateModel/u.test(diagnostic)));
+
+  const emptyWithoutBlocker = structuredClone(candidate);
+  emptyWithoutBlocker.candidateModel.journeys = [];
+  emptyWithoutBlocker.fieldMappingBlockers = emptyWithoutBlocker.fieldMappingBlockers.filter(({ field }) => field !== "journeys");
+  assert.ok(validateProjectionFieldCoverage(root, source, emptyWithoutBlocker)
+    .some((diagnostic) => /empty candidate collection has no blocker or explicit empty-source disposition: journeys/u.test(diagnostic)));
+
+  const emptyReasonBlocker = structuredClone(candidate);
+  emptyReasonBlocker.candidateModel.journeys = [];
+  emptyReasonBlocker.fieldMappingBlockers.find(({ field }) => field === "journeys").reasons = [];
+  assert.ok(validateProjectionFieldCoverage(root, source, emptyReasonBlocker)
+    .some((diagnostic) => /empty candidate collection has no blocker or explicit empty-source disposition: journeys/u.test(diagnostic)));
+
+  const mismatchedBlockerSource = structuredClone(candidate);
+  mismatchedBlockerSource.candidateModel.journeys = [];
+  mismatchedBlockerSource.fieldMappingBlockers.find(({ field }) => field === "journeys").sourceDisposition = "stale source mapping";
+  const sourceDiagnostics = validateProjectionFieldCoverage(root, source, mismatchedBlockerSource);
+  assert.ok(sourceDiagnostics.some((diagnostic) => /blocker source does not match its field disposition: journeys/u.test(diagnostic)));
+  assert.ok(sourceDiagnostics.some((diagnostic) => /empty candidate collection has no blocker or explicit empty-source disposition: journeys/u.test(diagnostic)));
 });
 
 test("projection source validation rejects unregistered and stale local sources", () => {

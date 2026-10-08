@@ -3,7 +3,7 @@ productId: media
 source: libs/audio-video-client/src/operations.ts
 status: public-method-inventory; full-language-bindings-pending-owner-review
 sourcePopulation:
-  methodEntryCount: 27
+  methodEntryCount: 31
   classification: source observations only; not a declaration of production SDK support or admitted product operations
   architectureReconciliation: pending; overlapping client surfaces and entry provenance require owner review
   bindingAdmission: none
@@ -18,134 +18,185 @@ methods:
     method: getStatus
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationHandle
     experienceBinding: pending-owner-review
   - id: media.sdk.cancel
     method: cancel
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationHandle
     experienceBinding: pending-owner-review
   - id: media.sdk.retry
     method: retry
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationHandle
     experienceBinding: pending-owner-review
   - id: media.sdk.getResult
     method: getResult
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationHandle
     experienceBinding: pending-owner-review
   - id: media.sdk.wait
     method: wait
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationHandle
     experienceBinding: pending-owner-review
   - id: media.sdk.createUploadSession
     method: createUploadSession
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
     experienceBinding: pending-owner-review
   - id: media.sdk.uploadPart
     method: uploadPart
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
     experienceBinding: pending-owner-review
   - id: media.sdk.completeUploadSession
     method: completeUploadSession
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
     experienceBinding: pending-owner-review
   - id: media.sdk.getArtifact
     method: getArtifact
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
     experienceBinding: pending-owner-review
   - id: media.sdk.listProviderCapabilities
     method: listProviderCapabilities
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
     experienceBinding: pending-owner-review
   - id: media.sdk.transcribe
     method: transcribe
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
     experienceBinding: pending-owner-review
   - id: media.sdk.synthesize
     method: synthesize
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
     experienceBinding: pending-owner-review
+  - id: media.sdk.legacy.AudioVideoClient.transcribe
+    method: transcribe
+    visibility: public
+    source: libs/audio-video-client/src/index.ts
+    declaringClass: AudioVideoClient
+    experienceBinding: unresolved-source-specific-legacy-method
+  - id: media.sdk.legacy.AudioVideoClient.synthesize
+    method: synthesize
+    visibility: public
+    source: libs/audio-video-client/src/index.ts
+    declaringClass: AudioVideoClient
+    experienceBinding: unresolved-source-specific-legacy-method
   - id: media.sdk.trainVoiceModel
     method: trainVoiceModel
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
     experienceBinding: pending-owner-review
   - id: media.sdk.convertVoice
     method: convertVoice
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
     experienceBinding: pending-owner-review
   - id: media.sdk.analyzeMultimodal
     method: analyzeMultimodal
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
     experienceBinding: pending-owner-review
   - id: media.sdk.getOperation
     method: getOperation
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
     experienceBinding: pending-owner-review
   - id: media.sdk.cancelOperation
     method: cancelOperation
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
     experienceBinding: pending-owner-review
+  - id: media.sdk.retryOperation
+    method: retryOperation
+    visibility: public
+    source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
+    experienceBinding: unresolved-source-observed-method
+  - id: media.sdk.getOperationResult
+    method: getOperationResult
+    visibility: public
+    source: libs/audio-video-client/src/operations.ts
+    declaringClass: MediaOperationClient
+    experienceBinding: unresolved-source-observed-method
   - id: media.sdk.for
     method: for
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: none; parser-artifact
     experienceBinding: pending-owner-review
   - id: media.sdk.processAIVoice
     method: processAIVoice
     visibility: public
-    source: libs/audio-video-client/src/operations.ts
+    source: libs/audio-video-client/src/index.ts
+    declaringClass: AudioVideoClient
     experienceBinding: pending-owner-review
   - id: media.sdk.processVision
     method: processVision
     visibility: public
-    source: libs/audio-video-client/src/operations.ts
+    source: libs/audio-video-client/src/index.ts
+    declaringClass: AudioVideoClient
     experienceBinding: pending-owner-review
   - id: media.sdk.processMultimodal
     method: processMultimodal
     visibility: public
-    source: libs/audio-video-client/src/operations.ts
+    source: libs/audio-video-client/src/index.ts
+    declaringClass: AudioVideoClient
     experienceBinding: pending-owner-review
   - id: media.sdk.getServiceStatus
     method: getServiceStatus
     visibility: public
-    source: libs/audio-video-client/src/operations.ts
+    source: libs/audio-video-client/src/index.ts
+    declaringClass: AudioVideoClient
     experienceBinding: pending-owner-review
   - id: media.sdk.getAllServicesStatus
     method: getAllServicesStatus
     visibility: public
-    source: libs/audio-video-client/src/operations.ts
+    source: libs/audio-video-client/src/index.ts
+    declaringClass: AudioVideoClient
     experienceBinding: pending-owner-review
   - id: media.sdk.addEventListener
     method: addEventListener
     visibility: public
-    source: libs/audio-video-client/src/operations.ts
+    source: libs/audio-video-client/src/index.ts
+    declaringClass: AudioVideoClient
     experienceBinding: pending-owner-review
   - id: media.sdk.if
     method: if
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: none; parser-artifact
     experienceBinding: pending-owner-review
   - id: media.sdk.removeEventListener
     method: removeEventListener
     visibility: public
-    source: libs/audio-video-client/src/operations.ts
+    source: libs/audio-video-client/src/index.ts
+    declaringClass: AudioVideoClient
     experienceBinding: pending-owner-review
   - id: media.sdk.clearTimeout
     method: clearTimeout
     visibility: public
     source: libs/audio-video-client/src/operations.ts
+    declaringClass: none; parser-artifact
     experienceBinding: pending-owner-review

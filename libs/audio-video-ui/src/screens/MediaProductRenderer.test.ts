@@ -140,7 +140,7 @@ describe("MediaProductRenderer", () => {
       children: React.createElement("p", null, "Upload details"),
     }));
 
-    expect(html).toContain('<progress max="100"');
+    expect(html).toContain('<progress class="media-progress media-progress--primary" max="100"');
     expect(html).toContain('value="42"');
     expect(html).toContain('aria-label="Upload progress"');
     expect(html).not.toMatch(/<progress[^>]*style=/);

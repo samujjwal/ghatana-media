@@ -70,7 +70,27 @@
   background: Canvas;
 }
 .media-task-flow > section[aria-labelledby="media-operation-title"] > div:first-child { display: flex; justify-content: space-between; gap: 1rem; }
-.media-task-flow progress {
+.media-progress {
+  display: block;
+  width: 100%;
+  height: .65rem;
+  border: 0;
+  border-radius: 999px;
+  background: ButtonFace;
+  color: Highlight;
+  accent-color: currentColor;
+}
+.media-progress--neutral { color: GrayText; }
+.media-progress--info,
+.media-progress--primary { color: Highlight; }
+.media-progress--success { color: LinkText; }
+.media-progress--warning { color: Mark; }
+.media-progress--error { color: MarkText; }
+.media-progress::-webkit-progress-bar { border-radius: inherit; background: ButtonFace; }
+.media-progress::-webkit-progress-value { border-radius: inherit; background: currentColor; }
+.media-progress::-moz-progress-bar { border-radius: inherit; background: currentColor; }
+.media-task-flow .media-progress { margin-block-start: .75rem; }
+.media-task-flow progress:not(.media-progress) {
   display: block;
   width: 100%;
   height: .65rem;
@@ -100,6 +120,45 @@
   font: inherit;
 }
 .media-task-flow button:not(nav button) { min-height: 2.5rem; }
+.media-task-flow .media-action-button {
+  display: block;
+  width: 100%;
+  padding: .5rem .75rem;
+  border: 1px solid ButtonText;
+  border-radius: .25rem;
+  background: ButtonFace;
+  color: ButtonText;
+  cursor: pointer;
+}
+.media-task-flow .media-action-button--primary {
+  border-color: Highlight;
+  background: Highlight;
+  color: HighlightText;
+}
+.media-task-flow .media-action-button--destructive {
+  border-width: 2px;
+  font-weight: 600;
+}
+.media-task-flow .media-action-button:disabled { cursor: not-allowed; }
+.media-task-flow .media-step-state {
+  display: inline-block;
+  padding: .125rem .4rem;
+  border: 1px solid GrayText;
+  border-radius: 999px;
+  color: ButtonText;
+  font-size: .75rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.media-task-flow .media-input {
+  width: 100%;
+  max-width: 100%;
+  min-height: 2.5rem;
+  padding: .5rem;
+  border: 1px solid GrayText;
+  border-radius: .25rem;
+  font: inherit;
+}
 .media-task-flow input,
 .media-task-flow textarea,
 .media-task-flow select { color: FieldText; background: Field; }
@@ -114,13 +173,28 @@
 .media-task-flow [role="status"] { border-inline-start: .2rem solid Highlight; padding-inline-start: .65rem; }
 .media-task-flow .media-screen-body { display: grid; gap: 1rem; }
 .media-task-flow .media-screen-body > header { display: grid; gap: .25rem; }
+.media-task-flow .media-screen-body .media-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: .5rem;
+  min-block-size: 8rem;
+  margin: 0;
+  padding: 1.25rem;
+  border: 1px dashed GrayText;
+  border-radius: .5rem;
+  color: CanvasText;
+  background: Canvas;
+  text-align: center;
+}
+.media-task-flow .media-screen-body .media-empty-state > h3 { margin: 0; color: inherit; font-size: 1rem; }
+.media-task-flow .media-screen-body .media-empty-state > p { max-width: 56ch; margin: 0; color: GrayText; }
 .media-task-flow .media-screen-body > ul,
 .media-task-flow .media-screen-body > ol { margin: 0; }
 .media-task-flow .media-screen-body > ul > li,
 .media-task-flow .media-screen-body > ol > li { padding-block: .75rem; }
 .media-task-flow .media-screen-body > ul > li + li,
 .media-task-flow .media-screen-body > ol > li + li { border-block-start: 1px solid GrayText; }
-.media-task-flow .media-screen-body textarea { width: 100%; min-height: 4rem; padding: .5rem; }
+.media-task-flow .media-screen-body textarea { min-height: 4rem; }
 
 @media (max-width: 48rem) {
   .media-task-flow { width: min(100% - 1rem, 80rem); padding-block: .5rem; }

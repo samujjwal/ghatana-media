@@ -45,13 +45,16 @@ test("Media-owned PDP-0 invariants are source-backed and retain PDP-1 domain rul
   }
 
   assert.match(constitution.domainRules.status, /pending-PDP-1-owner-review/u);
-  assert.ok(constitution.domainRules.pendingSources.length >= 3);
+  assert.ok(constitution.domainRules.pendingSources.length >= 4);
   for (const source of constitution.domainRules.pendingSources) {
     assertReferenceResolves(source.ref, "pending domain rule source");
     assert.match(source.reason, /pending|proposal|unverified/iu);
   }
   assert.match(readYaml(".product-experience/pdp-1-domain-data/states.yaml").authorityStatus, /proposal-only/u);
   assert.match(readYaml(".product-experience/pdp-1-domain-data/transitions.yaml").authorityStatus, /proposal-only/u);
+  const adjudication = readYaml(".product-experience/pdp-1-domain-data/state-adjudication.yaml");
+  assert.match(adjudication.status, /owner-approved/u);
+  assert.match(constitution.domainRules.pendingSources.find(({ ref }) => ref.endsWith("/state-adjudication.yaml")).reason, /canonical policy distinctions/u);
 });
 
 test("trust and ownership decisions classify by data/effect and never infer authority from principal kind", () => {

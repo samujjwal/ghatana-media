@@ -232,6 +232,17 @@ public final class LocalMediaRuntimeSupport {
             }
             return updated;
         }
+        @Override public ProcessingJob update(JobLease lease, ProcessingJob expected, ProcessingJob updated) {
+            if (lease == null || !lease.tenantId().equals(expected.tenantId())
+                    || !lease.jobId().equals(expected.jobId())) {
+                throw new IllegalArgumentException("Media job lease identity is invalid");
+            }
+            String jobKey = key(expected.tenantId(), expected.jobId());
+            synchronized (jobKey.intern()) {
+                if (!leaseValid(lease)) throw new IllegalStateException("Media job lease fence is stale");
+                return update(expected, updated);
+            }
+        }
         @Override public Optional<ProcessingJob> find(String tenantId, String jobId) {
             return Optional.ofNullable(jobs.get(key(tenantId, jobId)));
         }
@@ -245,6 +256,7 @@ public final class LocalMediaRuntimeSupport {
             synchronized (key.intern()) {
                 ProcessingJob current = jobs.get(key);
                 if (current == null || current.version() != expected.version()
+                        || current.status() == JobStatus.OUTCOME_UNKNOWN
                         || Set.of(JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED)
                         .contains(current.status())) {
                     throw new IllegalStateException("Media job cannot be leased from stale state");
@@ -261,11 +273,22 @@ public final class LocalMediaRuntimeSupport {
             }
         }
         @Override public boolean leaseValid(JobLease lease) {
-            return lease != null && lease.equals(leases.get(key(lease.tenantId(), lease.jobId())))
-                    && lease.expiresAt().isAfter(Instant.now());
+            if (lease == null || !lease.equals(leases.get(key(lease.tenantId(), lease.jobId())))
+                    || !lease.expiresAt().isAfter(Instant.now())) {
+                return false;
+            }
+            ProcessingJob current = jobs.get(key(lease.tenantId(), lease.jobId()));
+            return current != null && current.status() != JobStatus.OUTCOME_UNKNOWN
+                    && !Set.of(JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED)
+                    .contains(current.status());
         }
         @Override public void release(JobLease lease) {
-            if (lease != null) leases.remove(key(lease.tenantId(), lease.jobId()), lease);
+            if (lease != null) {
+                String jobKey = key(lease.tenantId(), lease.jobId());
+                synchronized (jobKey.intern()) {
+                    leases.remove(jobKey, lease);
+                }
+            }
         }
         @Override public List<ProcessingJob> recoverable(int limit) {
             return jobs.values().stream()

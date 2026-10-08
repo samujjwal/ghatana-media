@@ -43,6 +43,12 @@ function validateCandidateRoutes(routes, obligations) {
       assert.equal(route.sourceDigests?.[label], hash(sourcePath), `${route.id} ${label} source digest is stale`);
     }
     if (route.candidateOracle.testDeclaration) {
+      const testPath = route.candidateOracle.testIdentity;
+      assert.ok(producer.unitScope.some((scope) => testPath === scope
+        || testPath.startsWith(`${scope.replace(/\/$/u, '')}/`)),
+      `${route.id} exact test must remain inside the registered producer scope`);
+    }
+    if (route.candidateOracle.testDeclaration) {
       const declaration = route.candidateOracle.testDeclaration;
       const [className, methodName] = declaration.split('#');
       const testSource = fs.readFileSync(path.join(root, route.candidateOracle.testIdentity), 'utf8');
@@ -51,8 +57,16 @@ function validateCandidateRoutes(routes, obligations) {
         `${route.id} test class declaration is missing`);
       assert.match(testSource, new RegExp(`@Test\\s+(?:public\\s+)?void\\s+${methodName}\\s*\\(`, 'u'),
         `${route.id} exact JUnit test declaration is missing`);
-      assert.equal(route.candidateOracle.assertionScope, 'PARTIAL_JOB_LIFECYCLE_ASSERTIONS_ONLY',
-        `${route.id} must disclose partial assertion scope`);
+      const expectedScopeByObligation = {
+        'media.pdp-1.requirement.media.operation.job-lifecycle': 'PARTIAL_JOB_LIFECYCLE_ASSERTIONS_ONLY',
+        'media.pdp-1.requirement.media.operation.artifact-ingest': 'PARTIAL_ARTIFACT_INGEST_ASSERTIONS_ONLY',
+        'media.pdp-1.requirement.media.operation.stream-session': 'PARTIAL_STREAM_SESSION_ASSERTIONS_ONLY',
+      };
+      assert.equal(route.obligationIds.length, 1,
+        `${route.id} must keep a scoped partial route per obligation`);
+      assert.equal(route.candidateOracle.assertionScope,
+        expectedScopeByObligation[route.obligationIds[0]],
+        `${route.id} must disclose the exact partial assertion scope`);
     }
     assert.ok(route.candidateObserver.admission?.startsWith('NOT_REGISTERED'),
       `${route.id} must remain a non-admitted candidate`);
@@ -62,25 +76,73 @@ function validateCandidateRoutes(routes, obligations) {
   return routeIds.size;
 }
 
-test('records exact 318-obligation authoritative observer/oracle gap and source-resolvable candidates only', () => {
+test('records exact 319-obligation authoritative observer/oracle gap and source-resolvable candidates only', () => {
   const obligations = readJson('config/closure/media-product-definition/obligations.json');
   const candidates = readJson('config/closure/media-product-definition/l03-proof-route-candidates.json');
-  assert.equal(obligations.length, 318);
+  assert.equal(obligations.length, 319);
   const missingObserver = obligations.filter(({ observerIds }) => !observerIds?.length);
   const missingOracle = obligations.filter(({ oracleIds }) => !oracleIds?.length);
-  assert.equal(missingObserver.length, 318, 'every current authoritative observer route remains missing');
-  assert.equal(missingOracle.length, 318, 'every current authoritative oracle route remains missing');
+  assert.equal(missingObserver.length, 319, 'every current authoritative observer route remains missing');
+  assert.equal(missingOracle.length, 319, 'every current authoritative oracle route remains missing');
   assert.equal(candidates.status, 'CANDIDATES_ONLY_NOT_LIFECYCLE_ADMITTED');
-  assert.equal(validateCandidateRoutes(candidates.routes, obligations), 3);
+  assert.equal(validateCandidateRoutes(candidates.routes, obligations), 5);
   const jobRoute = candidates.routes.find(({ id }) => id === 'media.l03.candidate.production-job-idempotency');
   assert.equal(jobRoute?.candidateOracle.testDeclaration,
     'MediaAwsPostgresqlRuntimeStateTest#persistsChecksumVerifiedArtifactsIdempotentJobsAndLeasedStreams');
   assert.match(jobRoute.candidateOracle.resultCriteria.negative, /does not establish distinct attempt semantics/u);
+  const artifactRoute = candidates.routes.find(({ id }) => id === 'media.l03.candidate.production-artifact-ingestion');
+  assert.equal(artifactRoute?.obligationIds[0], 'media.pdp-1.requirement.media.operation.artifact-ingest');
+  assert.match(artifactRoute?.candidateOracle.resultCriteria.positive ?? '', /SHA-256 completion/u);
+  assert.match(artifactRoute?.candidateOracle.resultCriteria.negative ?? '', /does not establish production operation admission/u);
+  const streamRoute = candidates.routes.find(({ id }) => id === 'media.l03.candidate.production-stream-session');
+  assert.equal(streamRoute?.obligationIds[0], 'media.pdp-1.requirement.media.operation.stream-session');
+  assert.match(streamRoute?.candidateOracle.resultCriteria.positive ?? '', /contiguous frame sequencing/u);
+  assert.match(streamRoute?.candidateOracle.resultCriteria.negative ?? '', /does not establish transport equivalence/u);
   assert.ok(candidates.routes.every((route) => route.obligationIds.every((id) =>
     obligations.find(({ id: obligationId }) => obligationId === id).observerIds.length === 0
       && obligations.find(({ id: obligationId }) => obligationId === id).oracleIds.length === 0)),
   'candidate mappings must not populate authoritative obligation assignments');
   assert.equal(readJson('config/closure/media-product-definition/pending-decisions.json').status, 'PENDING');
+});
+
+test('documents why current L-02 simulation links do not yet have L-03 observer/oracle routes', () => {
+  const links = readJson('config/closure/media-product-definition/l02-source-case-links.json');
+  const candidates = readJson('config/closure/media-product-definition/l03-proof-route-candidates.json');
+  const obligations = readJson('config/closure/media-product-definition/obligations.json');
+  const producerFiles = fs.readdirSync(path.join(root, 'scripts/conformance/evidence-definitions/producers'));
+  const criteriaFiles = fs.readdirSync(path.join(root, 'scripts/conformance/evidence-definitions/criteria'));
+  const producers = producerFiles.map((file) => readJson(`scripts/conformance/evidence-definitions/producers/${file}`));
+  const criteria = criteriaFiles.map((file) => readJson(`scripts/conformance/evidence-definitions/criteria/${file}`));
+  const linkedTestPaths = new Set(links.candidateLinks.map(({ testIdentity }) => testIdentity.sourcePath));
+  const linkedObligationIds = new Set(links.candidateLinks.map(({ obligationId }) => obligationId));
+  const producerScopes = producers.flatMap(({ unitScope = [] }) => unitScope);
+  const criterionTargets = criteria.flatMap(({ criteria: entries = [] }) => entries.map(({ measurement }) => [
+    measurement?.target,
+    measurement?.command,
+  ].filter(Boolean).join(' ')));
+
+  assert.equal(candidates.l02CaseLinkReview.reviewedLinkCount, links.candidateLinks.length);
+  assert.equal(candidates.l02CaseLinkReview.reviewedObligationCount, linkedObligationIds.size);
+  assert.equal(candidates.l02CaseLinkReview.obligationDenominator, obligations.length);
+  assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount,
+    obligations.length - linkedObligationIds.size);
+  assert.equal(obligations.length, 319, 'the authoritative denominator remains 319');
+  assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount, 312);
+  assert.equal(candidates.l02CaseLinkReview.candidateRouteCount, 0);
+  assert.equal(candidates.l02CaseLinkReview.status, 'NO_CASE_SPECIFIC_OBSERVER_OR_ORACLE_CANDIDATE_IDENTIFIED');
+  assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_319');
+  assert.ok(candidates.l02CaseLinkReview.missingSemantics[0].includes('The linked declarations'));
+  assert.ok(candidates.l02CaseLinkReview.missingSemantics[1].includes('the linked simulation assertions'));
+  assert.ok(linkedTestPaths.size > 0 && [...linkedTestPaths].every((sourcePath) =>
+    sourcePath.startsWith('libs/media-experience-simulation/tests/')),
+  'the reviewed links must remain simulation test sources');
+  assert.ok([...linkedTestPaths].every((testPath) => !producerScopes.some((scope) =>
+    testPath === scope || testPath.startsWith(`${scope.replace(/\/$/u, '')}/`))),
+  'no registered producer unit scope may be inferred for a simulation test');
+  assert.ok([...linkedTestPaths].every((testPath) => !criterionTargets.some((target) => target.includes(testPath))),
+    'no registered criterion may be inferred from test assertion literals alone');
+  assert.ok(candidates.routes.every((route) => route.obligationIds.every((id) => !linkedObligationIds.has(id))),
+    'existing runtime routes must not be repurposed for unrelated L-02 obligations');
 });
 
 test('rejects empty, missing, stale-source, or unreviewed candidate route records', () => {

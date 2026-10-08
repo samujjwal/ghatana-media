@@ -35,7 +35,7 @@ vision.fusion-strategy=late-fusion
 - `libs/java/common` — shared config, `VisionEngineFactory`, cloud fallback
 - `modules/infrastructure/messaging` — job queue for async multimodal pipelines
 - `modules/infrastructure/security` — authentication interceptor
-- `services/ai-inference:delivery:api` — typed AI Inference gateway for multimodal reasoning
+- `services/ai-inference:delivery:api` — generic inference API; the inspected public request contract supports text generation and embeddings and has no modality field. Media audio, video, STT, TTS, vision, and multimodal operations remain unbound until an explicit typed modality contract is available.
 - `platform:java:observability` — metrics and tracing
 
 ## Testing

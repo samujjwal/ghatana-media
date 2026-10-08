@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const EXPECTED_PHASE_COUNTS = { 'PDP-0': 38, 'PDP-1': 130, 'PDP-2': 73, 'PDP-3': 77 };
+const EXPECTED_PHASE_COUNTS = { 'PDP-0': 38, 'PDP-1': 130, 'PDP-2': 74, 'PDP-3': 77 };
 const PHASES = Object.keys(EXPECTED_PHASE_COUNTS);
 
 function addIssue(issues, code, detail) {
@@ -69,7 +69,7 @@ export function auditMediaObligationDenominator({ root, obligations, program, bi
   for (const [phase, expected] of Object.entries(EXPECTED_PHASE_COUNTS)) {
     if (phaseCounts[phase] !== expected) addIssue(issues, 'PHASE_COUNT', `${phase} count ${phaseCounts[phase]} != expected ${expected}`);
   }
-  if (obligations.length !== 318) addIssue(issues, 'TOTAL_COUNT', `total ${obligations.length} != expected 318`);
+  if (obligations.length !== 319) addIssue(issues, 'TOTAL_COUNT', `total ${obligations.length} != expected 319`);
 
   const selectedByPhase = Object.fromEntries(PHASES.map((phase) => [phase,
     obligations.filter((record) => record?.phaseSemantics?.applicableIn?.includes(phase)).map((record) => record.id)]));

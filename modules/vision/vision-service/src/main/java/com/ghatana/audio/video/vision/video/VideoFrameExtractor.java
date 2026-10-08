@@ -6,11 +6,16 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.time.Duration;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,6 +45,7 @@ public class VideoFrameExtractor {
 
     private static final String FFMPEG_COMMAND = "ffmpeg";
     private static final int DEFAULT_TIMEOUT_SECONDS = 300;
+    private static final int MAX_DIAGNOSTIC_CHARS = 16_384;
 
     /** Allow-listed image formats that may be used as output extensions. */
     private static final java.util.Set<String> ALLOWED_FORMATS =
@@ -78,16 +84,24 @@ public class VideoFrameExtractor {
             private int quality = 2; // FFmpeg quality scale (2-31, lower is better)
 
             public Builder fps(int fps) {
+                if (fps < 1 || fps > 60) throw new IllegalArgumentException("fps must be between 1 and 60");
                 this.fps = fps;
                 return this;
             }
 
             public Builder maxFrames(int maxFrames) {
+                if (maxFrames < 1 || maxFrames > 10_000) {
+                    throw new IllegalArgumentException("maxFrames must be between 1 and 10000");
+                }
                 this.maxFrames = maxFrames;
                 return this;
             }
 
             public Builder resolution(int width, int height) {
+                if (!validDimension(width) || !validDimension(height)
+                        || ((width == -1) != (height == -1))) {
+                    throw new IllegalArgumentException("resolution must be -1/-1 or between 1 and 8192 per axis");
+                }
                 this.width = width;
                 this.height = height;
                 return this;
@@ -103,8 +117,13 @@ public class VideoFrameExtractor {
             }
 
             public Builder quality(int quality) {
+                if (quality < 1 || quality > 31) throw new IllegalArgumentException("quality must be between 1 and 31");
                 this.quality = quality;
                 return this;
+            }
+
+            private static boolean validDimension(int value) {
+                return value == -1 || (value >= 1 && value <= 8192);
             }
 
             public ExtractionConfig build() {
@@ -170,42 +189,20 @@ public class VideoFrameExtractor {
         LOG.info("Extracting frames from video: {} with fps={}, maxFrames={}",
             canonicalVideo.getFileName(), config.getFps(), config.getMaxFrames());
 
-        try {
-            Process process = new ProcessBuilder(command)
-                .redirectErrorStream(true)
-                .start();
-
-            // Capture output for debugging
-            StringBuilder output = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    output.append(line).append("\n");
-                    if (line.contains("frame=")) {
-                        LOG.debug("FFmpeg progress: {}", line);
-                    }
-                }
-            }
-
-            boolean finished = process.waitFor(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroyForcibly();
-                throw new IOException("FFmpeg process timed out after " + DEFAULT_TIMEOUT_SECONDS + " seconds");
-            }
-
-            int exitCode = process.exitValue();
-            if (exitCode != 0) {
-                LOG.error("FFmpeg output:\n{}", output);
-                throw new IOException("FFmpeg failed with exit code: " + exitCode);
-            }
-
-            LOG.info("Frame extraction completed successfully");
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("Frame extraction interrupted", e);
+        ProcessResult result = runProcess(command, Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS), MAX_DIAGNOSTIC_CHARS);
+        if (result.timedOut()) {
+            throw new IOException("FFmpeg process timed out after " + DEFAULT_TIMEOUT_SECONDS + " seconds");
         }
+        int exitCode = result.exitCode();
+        if (exitCode != 0) {
+            // Child output is untrusted and may include source paths or attacker-controlled
+            // media metadata. Keep only a bounded diagnostic length and never log it verbatim.
+            LOG.error("FFmpeg frame extraction failed (exitCode={}, diagnosticChars={})",
+                exitCode, result.output().length());
+            throw new IOException("FFmpeg failed with exit code: " + exitCode);
+        }
+
+        LOG.info("Frame extraction completed successfully");
 
         return collectExtractedFrames(canonicalOutput, config);
     }
@@ -221,39 +218,35 @@ public class VideoFrameExtractor {
     public void extractFrameAtTimestamp(Path videoPath, long timestampMs, Path outputPath)
             throws IOException {
 
+        if (timestampMs < 0) throw new IllegalArgumentException("timestampMs must not be negative");
+        Path canonicalVideo;
+        try {
+            canonicalVideo = videoPath.toRealPath();
+        } catch (IOException e) {
+            throw new IOException("Video file not found or inaccessible: " + videoPath, e);
+        }
+        Path canonicalOutput = outputPath.toAbsolutePath().normalize();
         double timestampSec = timestampMs / 1000.0;
 
         List<String> command = List.of(
             FFMPEG_COMMAND,
-            "-ss", String.format("%.3f", timestampSec),
-            "-i", videoPath.toString(),
+            "-ss", String.format(Locale.ROOT, "%.3f", timestampSec),
+            "-i", canonicalVideo.toString(),
             "-frames:v", "1",
             "-q:v", "2",
-            outputPath.toString(),
+            canonicalOutput.toString(),
             "-y" // Overwrite output file
         );
 
         LOG.info("Extracting frame at timestamp {}ms from: {}", timestampMs, videoPath.getFileName());
 
-        try {
-            Process process = new ProcessBuilder(command)
-                .redirectErrorStream(true)
-                .start();
-
-            boolean finished = process.waitFor(30, TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroyForcibly();
-                throw new IOException("FFmpeg process timed out");
-            }
-
-            int exitCode = process.exitValue();
-            if (exitCode != 0) {
-                throw new IOException("FFmpeg failed with exit code: " + exitCode);
-            }
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("Frame extraction interrupted", e);
+        ProcessResult result = runProcess(command, Duration.ofSeconds(30), MAX_DIAGNOSTIC_CHARS);
+        if (result.timedOut()) {
+            throw new IOException("FFmpeg process timed out");
+        }
+        int exitCode = result.exitCode();
+        if (exitCode != 0) {
+            throw new IOException("FFmpeg failed with exit code: " + exitCode);
         }
     }
 
@@ -325,19 +318,10 @@ public class VideoFrameExtractor {
      */
     public static boolean isFFmpegAvailable() {
         try {
-            Process process = new ProcessBuilder(FFMPEG_COMMAND, "-version")
-                .redirectErrorStream(true)
-                .start();
-
-            boolean finished = process.waitFor(5, TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroyForcibly();
-                return false;
-            }
-
-            return process.exitValue() == 0;
-
-        } catch (IOException | InterruptedException e) {
+            ProcessResult result = runProcess(List.of(FFMPEG_COMMAND, "-version"),
+                Duration.ofSeconds(5), 1024);
+            return !result.timedOut() && result.exitCode() == 0;
+        } catch (IOException | RuntimeException e) {
             return false;
         }
     }
@@ -359,31 +343,73 @@ public class VideoFrameExtractor {
             videoPath.toString()
         );
 
-        try {
-            Process process = new ProcessBuilder(command)
-                .redirectErrorStream(true)
-                .start();
+        ProcessResult result = runProcess(command, Duration.ofSeconds(10), MAX_DIAGNOSTIC_CHARS);
+        if (result.timedOut()) {
+            throw new IOException("FFprobe process timed out");
+        }
+        if (result.exitCode() != 0) throw new IOException("FFprobe failed with exit code: " + result.exitCode());
+        return parseVideoMetadata(result.output());
+    }
 
-            StringBuilder output = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    output.append(line).append("\n");
+    record ProcessResult(int exitCode, boolean timedOut, String output) { }
+
+    /**
+     * Runs a media child process while draining output concurrently. The timeout therefore
+     * applies even when the child never closes stdout, and diagnostic memory is bounded even
+     * when an untrusted input causes the child to emit a large amount of text.
+     */
+    static ProcessResult runProcess(List<String> command, Duration timeout, int maxOutputChars) throws IOException {
+        if (timeout.isNegative() || timeout.isZero()) throw new IllegalArgumentException("timeout must be positive");
+        if (maxOutputChars < 0) throw new IllegalArgumentException("maxOutputChars must not be negative");
+        Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+        StringBuilder captured = new StringBuilder(Math.min(maxOutputChars, 1024));
+        AtomicReference<IOException> drainFailure = new AtomicReference<>();
+        Thread drain = new Thread(() -> drainBounded(process.getInputStream(), captured, maxOutputChars, drainFailure),
+            "media-child-output-drain");
+        drain.setDaemon(true);
+        drain.start();
+        try {
+            boolean finished = process.waitFor(Math.max(1L, timeout.toMillis()), TimeUnit.MILLISECONDS);
+            if (!finished) {
+                process.destroy();
+                if (!process.waitFor(250, TimeUnit.MILLISECONDS)) process.destroyForcibly();
+                process.waitFor(2, TimeUnit.SECONDS);
+            }
+            drain.join(2_000);
+            if (drain.isAlive()) {
+                process.getInputStream().close();
+                drain.join(250);
+            }
+            // Closing the pipe while terminating a timed-out child may interrupt the drain;
+            // that expected cleanup error does not replace the timeout result.
+            if (finished && drainFailure.get() != null) throw drainFailure.get();
+            String output;
+            synchronized (captured) {
+                output = captured.toString();
+            }
+            return new ProcessResult(finished ? process.exitValue() : -1, !finished, output);
+        } catch (InterruptedException interrupted) {
+            process.destroyForcibly();
+            Thread.currentThread().interrupt();
+            throw new IOException("Media child process interrupted", interrupted);
+        } finally {
+            if (process.isAlive()) process.destroyForcibly();
+        }
+    }
+
+    private static void drainBounded(InputStream stream, StringBuilder captured, int maxChars,
+            AtomicReference<IOException> failure) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            char[] buffer = new char[1024];
+            int count;
+            while ((count = reader.read(buffer)) >= 0) {
+                synchronized (captured) {
+                    int remaining = maxChars - captured.length();
+                    if (remaining > 0) captured.append(buffer, 0, Math.min(remaining, count));
                 }
             }
-
-            boolean finished = process.waitFor(10, TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroyForcibly();
-                throw new IOException("FFprobe process timed out");
-            }
-
-            return parseVideoMetadata(output.toString());
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("Metadata extraction interrupted", e);
+        } catch (IOException error) {
+            failure.set(error);
         }
     }
 

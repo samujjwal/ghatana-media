@@ -8,7 +8,8 @@ import com.ghatana.agent.AgentDescriptor;
 import com.ghatana.agent.AgentResult;
 import com.ghatana.agent.AgentType;
 import com.ghatana.agent.framework.api.AgentContext;
-import com.ghatana.agent.framework.runtime.AbstractTypedAgent;
+import com.ghatana.agent.runtime.turn.AbstractTypedAgent;
+import com.ghatana.core.async.AsyncOperation;
 import com.ghatana.agent.framework.tools.ToolActionClass;
 import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
 import com.ghatana.agent.framework.tools.ToolExecutionStatus;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * COMPOSITE agent that performs cross-modal analysis by fan-out to:
@@ -70,7 +72,7 @@ public final class MultimodalAnalysisAgent
     }
 
     @Override
-    protected Promise<AgentResult<MultimodalAnalysisResult>> doProcess(
+    protected AsyncOperation<AgentResult<MultimodalAnalysisResult>> doProcess(
             @NotNull AgentContext ctx,
             @NotNull MultimodalAnalysisRequest input) {
 
@@ -81,7 +83,7 @@ public final class MultimodalAnalysisAgent
         Promise<Map<String, Object>> visionPromise = runVision(input, tenantId);
 
         // Step 2 — chain: after vision, run multimodal inference
-        return visionPromise.then(visionOutput ->
+        Promise<AgentResult<MultimodalAnalysisResult>> resultPromise = visionPromise.then(visionOutput ->
                 runInference(input, tenantId).then(inferenceOutput ->
 
                 // Step 3 — optionally chain: audio transcription
@@ -92,6 +94,12 @@ public final class MultimodalAnalysisAgent
                     return AgentResult.success(result, AGENT_ID, elapsed);
                 })
         ));
+        CompletableFuture<AgentResult<MultimodalAnalysisResult>> future = new CompletableFuture<>();
+        resultPromise.whenComplete((value, error) -> {
+            if (error == null) future.complete(value);
+            else future.completeExceptionally(error);
+        });
+        return AsyncOperation.from(future);
     }
 
     // ──────────────────────────────────────────────────────────────────────────

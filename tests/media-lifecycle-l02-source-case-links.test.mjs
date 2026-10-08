@@ -1,17 +1,40 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import path from 'node:path';
 
 const proposal = JSON.parse(fs.readFileSync('config/closure/media-product-definition/l02-source-case-links.json', 'utf8'));
 const obligations = JSON.parse(fs.readFileSync('config/closure/media-product-definition/obligations.json', 'utf8'));
 const simulationPackage = JSON.parse(fs.readFileSync('libs/media-experience-simulation/package.json', 'utf8'));
 const obligationIds = obligations.map(({ id }) => id);
 const obligationsById = new Map(obligations.map((obligation) => [obligation.id, obligation]));
+const screenContractsDirectory = '.product-experience/pdp-3-product-experience/screen-contracts';
+const screenContractFiles = fs.readdirSync(screenContractsDirectory)
+  .filter((file) => file.endsWith('.yaml'))
+  .map((file) => path.join(screenContractsDirectory, file));
 
 function registeredTestBody(source, testName) {
   const escaped = testName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const match = new RegExp(`test\\([\"']${escaped}[\"']\\s*,\\s*(?:async\\s+)?\\(\\)\\s*=>\\s*\\{([\\s\\S]*?)(?=\\n\\s*test\\(|$)`, 'u').exec(source);
   return match?.[1];
+}
+
+function screenFixtureRefs(screenId) {
+  const matches = screenContractFiles
+    .map((sourcePath) => ({ sourcePath, source: fs.readFileSync(sourcePath, 'utf8') }))
+    .filter(({ source }) => source.split('\n').some((line) => line.trim() === `screenId: ${screenId}`));
+  assert.equal(matches.length, 1, `expected one exact screen contract for ${screenId}`);
+
+  const lines = matches[0].source.split('\n');
+  const start = lines.findIndex((line) => line.startsWith('fixtures:'));
+  if (start < 0) return [];
+  const block = [];
+  for (let index = start; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (index > start && line && !/^\s|^#/.test(line)) break;
+    block.push(line);
+  }
+  return [...new Set(block.flatMap((line) => line.match(/media\.scenario\.[a-z0-9-]+/gu) ?? []))];
 }
 
 function validateLink(link) {
@@ -28,16 +51,26 @@ function validateLink(link) {
   assert.ok(body, `unregistered test identity ${link.testIdentity?.testName}`);
   assert.ok(body.includes(`media.scenario.${link.caseId.slice('media.scenario.'.length)}`),
     `${link.testIdentity.testName} does not construct/assert the linked scenario`);
+  if (link.obligationId.includes('.requirement.media.view.')) {
+    const screenId = link.obligationId.slice('media.pdp-3.requirement.'.length);
+    assert.ok(screenFixtureRefs(screenId).includes(link.caseId),
+      `${link.caseId} is not named by the exact ${screenId} fixture binding`);
+    assert.ok(link.assertionEvidence, `${link.obligationId} ${link.caseId} must name its exact assertion`);
+  }
+  if (link.assertionEvidence) {
+    assert.ok(body.includes(link.assertionEvidence),
+      `${link.testIdentity.testName} no longer asserts the linked effect`);
+  }
   assert.equal(link.scope, 'PARTIAL_CASE_ASSERTIONS_ONLY');
 }
 
 test('L-02 source-link proposal preserves all obligations and validates exact existing test identities', () => {
   assert.equal(proposal.status, 'SOURCE_LINK_PROPOSAL_PARTIAL_NOT_EXECUTION_ADMITTED');
   assert.deepEqual(proposal.obligationIds, obligationIds, 'proposal denominator must preserve every obligation ID in source order');
-  assert.equal(new Set(proposal.obligationIds).size, 318);
-  assert.equal(new Set(proposal.candidateLinks.map(({ obligationId }) => obligationId)).size, 12);
-  assert.equal(proposal.candidateLinks.length, 29);
-  assert.equal(proposal.unmappedObligationIds.length, 306);
+  assert.equal(new Set(proposal.obligationIds).size, 319);
+  assert.equal(new Set(proposal.candidateLinks.map(({ obligationId }) => obligationId)).size, 7);
+  assert.equal(proposal.candidateLinks.length, 28);
+  assert.equal(proposal.unmappedObligationIds.length, 312);
   assert.deepEqual(new Set(proposal.unmappedObligationIds), new Set(obligationIds.filter((id) =>
     !proposal.candidateLinks.some((link) => link.obligationId === id))));
 
@@ -48,6 +81,14 @@ test('L-02 source-link proposal preserves all obligations and validates exact ex
     links.add(key);
     validateLink(link);
   }
+
+  const sourceAvailableLinks = proposal.candidateLinks.filter((link) => link.caseId === 'media.scenario.source-available');
+  assert.deepEqual(sourceAvailableLinks.map(({ obligationId }) => obligationId).sort(), [
+    'media.pdp-3.requirement.j-03',
+    'media.pdp-3.requirement.media.view.select-source',
+  ]);
+  assert.ok(sourceAvailableLinks.every((link) => link.assertionEvidence), 'source-available links must name their exact executable assertion');
+
 });
 
 test('L-02 source links reject stale cases and unregistered or unrelated test identities', () => {
@@ -62,4 +103,10 @@ test('L-02 source links reject stale cases and unregistered or unrelated test id
     ...valid,
     testIdentity: { ...valid.testIdentity, sourcePath: 'tests/pdp-0-final.test.mjs' },
   }), /outside the registered simulation suite/u);
+  const linkWithAssertionEvidence = proposal.candidateLinks.find((link) => link.assertionEvidence);
+  assert.ok(linkWithAssertionEvidence, 'candidate links with assertion evidence must be validated');
+  assert.throws(() => validateLink({
+    ...linkWithAssertionEvidence,
+    assertionEvidence: 'assertion evidence that is not present in the test',
+  }), /no longer asserts the linked effect/u);
 });

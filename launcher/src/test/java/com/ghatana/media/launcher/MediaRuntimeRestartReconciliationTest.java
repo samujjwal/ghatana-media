@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Restart proof for jobs whose provider outcome remained uncertain at shutdown. */
 class MediaRuntimeRestartReconciliationTest {
@@ -99,11 +100,16 @@ class MediaRuntimeRestartReconciliationTest {
         MediaRuntime restarted = runtime(root, artifacts, jobs, streams, provider);
         try {
             var reconciled = restarted.job("tenant-a", jobId).orElseThrow();
-            assertThat(reconciled.status()).isEqualTo(JobStatus.FAILED);
-            assertThat(reconciled.failureCode()).isEqualTo("RESTART_RECONCILIATION_REQUIRED");
+            assertThat(reconciled.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(reconciled.failureCode()).isBlank();
+            assertThat(reconciled.completedAt()).isNull();
             assertThat(reconciled.result())
                     .containsEntry("reconciliation", "provider outcome unknown after runtime restart");
             assertThat(reconciled.status()).isNotEqualTo(JobStatus.CANCELLED);
+            assertThatThrownBy(() -> jobs.claim(
+                    reconciled, "worker-after-restart", java.time.Instant.now().plusSeconds(60)))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("cannot be leased");
             assertThat(calls).hasValue(1);
         } finally {
             restarted.close();

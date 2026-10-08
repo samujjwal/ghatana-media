@@ -143,8 +143,8 @@ Investigate or alert on:
    artifact complete manually without a full digest check.
 4. If jobs fail or time out, inspect job lease and provider outcome. Use a
    provider fallback only when the provider declares it safe. After restart,
-   reconcile RESTART_RECONCILIATION_REQUIRED work instead of blindly
-   resubmitting unknown external operations.
+   reconcile OUTCOME_UNKNOWN work instead of blindly resubmitting unknown
+   external operations.
 5. If cancellation is unconfirmed, preserve the cancellation outcome and
    verify provider truth before retrying or erasing data. A requested cancel is
    not a confirmed cancel.

@@ -28,7 +28,7 @@ function assertUniqueKnownRefs(refs, known, label) {
   for (const ref of refs) assert.ok(known.has(ref), `${label} contains stale reference ${ref}`);
 }
 
-test('PDP-3 views project exact component refs and withhold journey/state refs without targets', async () => {
+test('PDP-3 views project exact component and journey refs while state refs remain unbound', async () => {
   const sourceViews = [...screenRegistry.screens, ...(screenRegistry.laneViews ?? [])];
   assert.equal(model.views.length, sourceViews.length);
   const components = new Set(componentContracts.components.map(({ id }) => id));
@@ -43,28 +43,36 @@ test('PDP-3 views project exact component refs and withhold journey/state refs w
     const exactRefs = (contracts.get(view.id)?.componentIds ?? []).filter((ref) => components.has(ref));
     assert.deepEqual(view.componentRefs, exactRefs, `${view.id} preserves exact resolvable source component refs`);
     assert.ok(view.componentRefs.every((ref) => components.has(ref)), `${view.id} has only exact component contract IDs`);
-    const sourceJourneyRefs = contracts.get(view.id)?.journeyRefs ?? [];
+    const sourceJourneyRefs = sourceViews.find(({ id }) => id === view.id)?.journeyRefs ?? [];
     assertUniqueKnownRefs(sourceJourneyRefs, journeyIds, `${view.id} source journeyRefs`);
-    assert.deepEqual(view.journeyRefs, [], `${view.id} cannot refer to journeys omitted from the public candidate`);
+    assert.deepEqual(view.journeyRefs, sourceJourneyRefs, `${view.id} projects exact authored journeyRefs`);
     assert.deepEqual(view.stateRefs, []);
   }
   assert.equal(sourceViews.reduce((count, view) => count + (contracts.get(view.id)?.journeyRefs?.length ?? 0), 0), 132);
   assert.equal(model.views.reduce((count, view) => count + view.componentRefs.length, 0), 137);
+  const viewsBlocker = specification.fieldMappingBlockers.find(({ field }) => field === 'views');
+  assert.match(viewsBlocker?.reasons?.join(' ') ?? '', /132 source journeyRefs are directly projected/u);
+  assert.doesNotMatch(viewsBlocker?.reasons?.join(' ') ?? '', /no schema-shaped journeys|journey refs remain unresolved/iu);
+  assert.match(specification.candidateMappingReview.fieldDispositions.views.status, /JOURNEY_REF_MAPPING/u);
+  assert.match(specification.candidateMappingReview.fieldDispositions.views.status, /PDP1_STATE_REFS_PENDING/u);
 });
 
-test('PDP-3 public resolver rejects an otherwise exact view journey ref without a projected journey target', () => {
-  assert.equal(model.journeys.length, 0);
+test('PDP-3 public resolver rejects a view journey ref after its projected journey target is removed', () => {
+  assert.equal(model.journeys.length, 30);
   const candidateWithDanglingJourneyRef = structuredClone(model);
+  candidateWithDanglingJourneyRef.journeys = candidateWithDanglingJourneyRef.journeys.filter(({ id }) => id !== 'J-01');
   candidateWithDanglingJourneyRef.views[0].journeyRefs = ['J-01'];
   assert.throws(() => validateExperienceDefinition(candidateWithDanglingJourneyRef), /references journey 'J-01' via 'journeyRefs', which does not exist/);
 });
 
-test('PDP-3 journey projection stays blocked when required schema fields lack exact source values', async () => {
+test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and step identity with unresolved transition metadata', async () => {
   const contracts = new Map();
   const sourceJourneyById = new Map(journeyCatalog.journeys.map((entry) => [entry.id, entry]));
   let stepCount = 0;
   let authoredStepIds = 0;
   let authoredIntents = 0;
+  let authoredViewIntents = 0;
+  let authoredLabels = 0;
   let authoredTransitionRefArrays = 0;
   let directViewRefs = 0;
   let journeysWithOneOutcome = 0;
@@ -77,6 +85,8 @@ test('PDP-3 journey projection stays blocked when required schema fields lack ex
       stepCount++;
       authoredStepIds += typeof step.stepId === 'string' && step.stepId.length > 0 ? 1 : 0;
       authoredIntents += typeof step.intent === 'string' && step.intent.length > 0 ? 1 : 0;
+      authoredViewIntents += typeof step.viewIntent === 'string' && step.viewIntent.length > 0 ? 1 : 0;
+      authoredLabels += typeof step.label === 'string' && step.label.length > 0 ? 1 : 0;
       authoredTransitionRefArrays += Array.isArray(step.transitionRefs) ? 1 : 0;
       directViewRefs += typeof step.view === 'string' || typeof step.viewRef === 'string' ? 1 : 0;
     }
@@ -102,26 +112,72 @@ test('PDP-3 journey projection stays blocked when required schema fields lack ex
     unresolvedActorCount: journeyRegistry.journeys.length - resolvedActorCount,
     authoredStepIds,
     authoredIntents,
+    authoredViewIntents,
+    authoredLabels,
     authoredTransitionRefArrays,
     directViewRefs,
     journeysWithOneOutcome,
     journeysWithMultipleOutcomes,
   }, {
-    resolvedActorCount: 11,
-    unresolvedActorCount: 19,
+    resolvedActorCount: 30,
+    unresolvedActorCount: 0,
     authoredStepIds: 8,
     authoredIntents: 0,
+    authoredViewIntents: 98,
+    authoredLabels: 4,
     authoredTransitionRefArrays: 0,
     directViewRefs: 122,
     journeysWithOneOutcome: 5,
     journeysWithMultipleOutcomes: 25,
   });
-  assert.equal(model.journeys.length, 0,
-    'no full journey record is emitted while required actor or per-step fields are unresolved');
+  assert.equal(model.journeys.length, 30);
+  assert.equal(model.journeys.reduce((count, journey) => count + journey.steps.length, 0), 126);
+  assert.equal(model.journeys.find(({ id }) => id === 'J-29').steps.length, 0,
+    'J-29 source steps remain withheld because they have no grounded intent');
+  assert.equal(model.journeys.filter(({ desiredOutcomeRef }) => desiredOutcomeRef).length, 5);
+  const sourceActorIds = new Set(journeyActorResolutions.journeys.map(({ initiatingActorRef }) => initiatingActorRef));
+  for (const journey of model.journeys) {
+    assert.ok(sourceActorIds.has(journey.actorRef), `${journey.id} uses a resolved P0-04 actor`);
+    const sourceEntry = journeyRegistry.journeys.find(({ id }) => id === journey.id);
+    const contract = contracts.get(journey.id);
+    const sourceIds = (contract.steps ?? []).map(({ stepId }) => stepId).filter(Boolean);
+    const sourceCounts = new Map(sourceIds.map((id) => [id, sourceIds.filter((candidate) => candidate === id).length]));
+    for (const [index, step] of journey.steps.entries()) {
+      const sourceStep = (contract.steps ?? []).find((candidate, sourceIndex) => {
+        const candidateId = candidate.stepId && sourceCounts.get(candidate.stepId) === 1
+          ? candidate.stepId
+          : `${journey.id}.step-${String(sourceIndex + 1).padStart(2, '0')}`;
+        return candidateId === step.stepId;
+      });
+      assert.ok(sourceStep, `${journey.id}/${step.stepId} maps to a source step`);
+      const viewRef = sourceStep.view ?? sourceStep.viewRef;
+      const sourceView = [...screenRegistry.screens, ...(screenRegistry.laneViews ?? [])].find(({ id }) => id === viewRef);
+      const expectedIntent = sourceStep.intent ?? sourceStep.viewIntent ?? sourceStep.label ?? sourceView?.purpose;
+      assert.equal(step.intent, expectedIntent);
+      assert.deepEqual(step.transitionRefs, [], 'required schema placeholder is not an asserted transition semantics');
+    }
+  }
+  assert.ok(model.journeys.every((journey) => journey.steps.every((step) => !contracts.get(journey.id).steps.some((sourceStep) => sourceStep.result === step.intent))),
+    'step result prose is never used as intent');
   const journeyBlocker = specification.fieldMappingBlockers.find((entry) => entry.field === 'journeys');
-  assert.equal(journeyBlocker?.status, 'BLOCKED_PRIMARY_ACTOR_AND_STEP_BINDINGS');
-  assert.match(journeyBlocker.reasons.join(' '), /11 of 30 initiating actors/u);
-  assert.match(journeyBlocker.reasons.join(' '), /per-step intent\/transition bindings and exact ordered step IDs/u);
+  assert.match(journeyBlocker?.status ?? '', /PARTIAL_SOURCE_PROJECTION_30_OF_30_JOURNEYS_126_OF_130_STEPS/u);
+  assert.ok(journeyBlocker.reasons.join(' ').includes('partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 126/130 steps'));
+  assert.match(journeyBlocker.reasons.join(' '), /step-view 122 linked\/8 unresolved/iu);
+  assert.match(journeyBlocker.reasons.join(' '), /step-action 18 linked\/112 unresolved/iu);
+  assert.match(journeyBlocker.reasons.join(' '), /130 source transitionRef values are null and remain unresolved/u);
+  assert.match(journeyBlocker.reasons.join(' '), /empty arrays are schema placeholders only|empty arrays are schema placeholders/iu);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.resolvedCount, 30);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.sourceCount, 30);
+  assert.match(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.disposition, /PROJECTED_AS_CANDIDATE_ACTOR_REFS/u);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.p3OrderedStepCount, 130);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.projectedStepCount, 126);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.explicitSourceIntentCount, 102);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.linkedViewPurposeProposalOnlyCount, 24);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.omitted.length, 4);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNullCount, 130);
+  assert.match(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.disposition, /required schema placeholder/u);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.transitionRefsNull, 130);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.stepViewUnresolved, 8);
 
   const resolvedJourney = journeyRegistry.journeys.find((entry) =>
     actorResolutionById.get(entry.id)?.initiatingActorRef === 'media.creator');
@@ -132,7 +188,11 @@ test('PDP-3 journey projection stays blocked when required schema fields lack ex
     actorRef: actorResolutionById.get(resolvedJourney.id).initiatingActorRef,
     steps: [],
   };
-  const candidateWithJourney = (journey) => ({ ...structuredClone(model), journeys: [journey] });
+  const candidateWithJourney = (journey) => {
+    const candidate = { ...structuredClone(model), journeys: [journey] };
+    candidate.views = candidate.views.map((view) => ({ ...view, journeyRefs: view.journeyRefs.filter((ref) => ref === journey.id) }));
+    return candidate;
+  };
 
   assert.throws(() => validateExperienceDefinition(candidateWithJourney({
     ...validJourneyBase,
@@ -219,10 +279,15 @@ test('PDP-3 scenarios and fixture descriptors require exact state, journey, and 
   }
   const actionScenarioRefs = new Set(actionRegistry.actions.flatMap((action) => action.scenarioRefs ?? []));
   const linked = new Set([...journeyRefs, ...actionScenarioRefs]);
-  const expected = [...exactBindings.values()];
-  assert.equal(expected.length, 14);
-  assert.equal(model.scenarios.length, 14);
-  assert.equal(model.fixtures.length, 14);
+  assert.equal(exactBindings.size, 16, 'source identity links include a consent proposal without a selected state object');
+  const expected = [...exactBindings.values()].filter((binding) => allStates.has(binding.startingStateRef));
+  assert.equal(expected.length, 15);
+  assert.equal(model.scenarios.length, 15);
+  assert.equal(model.fixtures.length, 15);
+  const scenarioBlocker = specification.fieldMappingBlockers.find(({ field }) => field === 'scenarios');
+  assert.deepEqual(scenarioBlocker.reasons, [
+    `Only ${model.scenarios.length} of ${scenarioRecords.size} registry records have an exact source-fixture state that maps to a canonical PDP-0 state; ${scenarioRecords.size - model.scenarios.length} remain unresolved, and context dimensions are not asserted.`,
+  ]);
   for (const scenario of model.scenarios) {
     const source = scenarioRecords.get(scenario.id);
     const binding = exactBindings.get(scenario.id);
@@ -241,7 +306,12 @@ test('PDP-3 scenarios and fixture descriptors require exact state, journey, and 
     assert.equal(fixture.data.expected, source.expected);
     assert.match(simulationFixtureSource, new RegExp(`^[ \\t]*[\"']${fixture.data.sourceFixtureKey}[\"']:[ \\t]*`, 'mu'));
   }
-  assert.equal(bindingReview.scenarioStartingStateBindings.length, 14);
+  assert.equal(bindingReview.scenarioStartingStateBindings.length, 16,
+    'source-level links include one consent proposal state that does not project as a canonical state');
+  assert.equal(model.scenarios.some(({ id }) => id === 'media.scenario.consent-revoked'), false,
+    'PDP-0 enumerates the consent axis but does not provide explicit terminal metadata, so the fixture remains unbound');
+  assert.equal(model.states.some(({ id }) => id === 'media-rights-and-consent.consent.REVOKED'), false,
+    'no sink-derived terminal claim is projected for an axis state');
   assert.equal(model.scenarios.some((scenario) => scenario.id === 'media.scenario.upload-interrupted'), false,
     'interrupted upload is unresolved because no canonical upload INTERRUPTED state exists');
 });
