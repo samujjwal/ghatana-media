@@ -61,6 +61,41 @@ recipes:
     screenInstanceAdmission: PENDING
     sharedPublicBinding: PENDING
     implementationPolicy: Assemble Media-specific semantics only from public Shared primitives and accepted components; never infer runtime permission from view state.
+  - id: media.gui.recipe.media-composition
+    label: Versioned multitrack composition editing
+    templateRef: media.gui.template.media-composition
+    semanticPattern: media.gui.pattern.multitrack-composition
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Preserve exact track, clip, timing, and asset identities; unresolved rights or approvals block render preparation.
+  - id: media.gui.recipe.operational-readiness
+    label: Scoped readiness inspection with freshness and safe recovery
+    templateRef: media.gui.template.operational-readiness
+    semanticPattern: media.gui.pattern.quality-and-uncertainty
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Present only source-backed observations with freshness and unknown states; readiness does not guarantee future availability or authorize dispatch.
+  - id: media.gui.recipe.record-detail
+    label: Exact record inspection with provenance and uncertainty
+    templateRef: media.gui.template.record-detail
+    semanticPattern: media.gui.pattern.provenance-and-lineage
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Preserve exact identity, lineage, uncertainty, and governed action boundaries; do not infer a lifecycle disposition.
+  - id: media.gui.recipe.workspace-settings
+    label: Inherited and local workspace settings review
+    templateRef: media.gui.template.workspace-settings
+    semanticPattern: media.gui.pattern.safe-confirmation-and-unknown-outcome
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Keep inherited and local values, authority, affected workflows, and save outcome distinct; do not imply authorization.
+  - id: media.gui.recipe.project-overview
+    label: Selected project overview and safe continuation
+    templateRef: media.gui.template.project-overview
+    semanticPattern: media.gui.pattern.project-context-header
+    screenInstanceAdmission: PENDING
+    sharedPublicBinding: PENDING
+    implementationPolicy: Preserve project identity and pending-work finality while offering only separately admitted intents and recovery actions.
   - id: media.gui.recipe.task-setup
     label: Task setup with explicit eligibility
     templateRef: media.gui.template.task-setup

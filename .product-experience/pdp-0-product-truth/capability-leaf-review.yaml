@@ -14,11 +14,11 @@ sourceInventory:
 - path: .product-experience/pdp-0-product-truth/journey-catalog.yaml
   sha256: fd955e1b4b038c42806a514a1a3e24466b8f6a339cf30b3b15060eb32860fa75
 - path: .product-experience/pdp-0-product-truth/goals-jtbd.yaml
-  sha256: c09396068115f86bae21addc69520d0529c6ba48a4d08eda246e7d75430f0711
+  sha256: 0a2430d80830b717d1a9725c3ee499b1ce862ee4cedb8e111e46478035f05667
 - path: .product-experience/pdp-0-product-truth/applications-channels.yaml
   sha256: e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d
 - path: .product-experience/pdp-1-domain-data/operations.yaml
-  sha256: ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654
+  sha256: a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3
 - path: .product-experience/pdp-3-product-experience/action-registry.yaml
   sha256: a0e67cb434c5a8af867a1667f5ded9c57fe613170e877db347a845b339fea118
 - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
@@ -444,7 +444,7 @@ sourceReferences:
 sourcePinReconciliations:
   - path: .product-experience/pdp-0-product-truth/goals-jtbd.yaml
     previousSha256: f5d2cc3112fded0c46f811fdc4604ffb85d0d780f22883771f7181ac1faedc40
-    currentSha256: c09396068115f86bae21addc69520d0529c6ba48a4d08eda246e7d75430f0711
+    currentSha256: 0a2430d80830b717d1a9725c3ee499b1ce862ee4cedb8e111e46478035f05667
     changedClaims:
       - Adds an authorityMapping explanation separating actorRefs from principal identity, permission, and reviewer appointment.
       - Adds four links from existing goal IDs to accountability/trust records and explicitly retained external owner dependencies.
@@ -464,7 +464,7 @@ sourcePinReconciliations:
     result: source-pin-reconciled; coverage counts and dispositions unchanged
   - path: .product-experience/pdp-1-domain-data/operations.yaml
     previousSha256: e680643b45a5c3f25638b4f06ec0f9d544e2190c69c2c25f9a054445dcb3e085
-    currentSha256: ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654
+    currentSha256: 2e1ab6c021513b81a2e11c07e2fadacc177fba9d2b39a4323067590a3657d8a2
     changedClaims:
       - The prior request/review/correct/align action family no longer maps uniformly to media.operation.transcription. The current source assigns request-transcription to media.operation.transcription-submission, review-transcript to media.operation.transcript-version-read, and correct-caption plus align-caption-timing to media.operation.caption-draft-write.
       - Exact caption-version actions now map to media.operation.caption-version-write and media.operation.caption-version-read. These remain proposal-only; the source audit does not establish production runtime, transport parity, or owner acceptance.
@@ -546,7 +546,7 @@ sourcePinReconciliations:
       result: semantic-source-change-reconciled; SDK source census and submission/execution evidence corrected; no capability-leaf impact
     ownerDispositionSourceDelta:
       previousSha256: 986f0db469ad3999edd6a89015b161015ae4ae0be08d3008b3bdebe1195e54dc
-      currentSha256: ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654
+      currentSha256: 2e1ab6c021513b81a2e11c07e2fadacc177fba9d2b39a4323067590a3657d8a2
       changedClaims:
         - Four exact AudioVideoClient identities now have source-backed non-operation dispositions: getServiceStatus and getAllServicesStatus are transport-only service-health observations; addEventListener and removeEventListener are client-only local listener operations.
         - Four identities were removed from unresolved domain-operation IDs. The raw registry denominator remains 31 records / 28 public source methods / 3 parser artifacts; 14 family associations remain proposals, four identities are classified as non-domain operations, and ten remain unresolved.
@@ -559,6 +559,39 @@ sourcePinReconciliations:
         coverageCounts: {total: 462, unresolved: 383, journeySteps: 77, platformDependencies: 2, machineOperations: 0}
         acceptanceImpact: No capability applicability, implementation, qualification, availability, or accepted-coverage status is promoted.
       result: exact-sdk-non-operation-dispositions-reconciled; capability leaf bindings and coverage unchanged
+    individualOperationContractDelta:
+      previousSha256: ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654
+      currentSha256: 2e1ab6c021513b81a2e11c07e2fadacc177fba9d2b39a4323067590a3657d8a2
+      addedContracts: [media.operation-slice.begin-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload, media.operation-slice.inspect-upload, media.operation-slice.inspect-artifact, media.operation-slice.submit-job, media.operation-slice.inspect-job, media.operation-slice.cancel-job, media.operation-slice.retry-job, media.operation-slice.check-job-outcome]
+      semanticImpact: >-
+        Adds ten source-bounded individual HTTP/runtime operation proposals under
+        individualOperationContracts. They distinguish upload receipt/chunk receipt
+        from verified artifact, HTTP 202 from queue/dispatch/completion, cancellation
+        request from finality, and keep retry/outcome check unbound without an
+        authoritative observer. They add no capability-leaf bindings because the
+        leaf registry has zero machine-operation dispositions.
+      reviewedCapabilityEvidence:
+        currentActionBindingsUnchanged: true
+        capabilityLeafOperationBindingsSha256: 09894846a1c5896f368a83a0d17d9579df4e41256aa91299ddfaed2b1b269076
+        previousCapabilityLeafOperationBindingsSha256: 09894846a1c5896f368a83a0d17d9579df4e41256aa91299ddfaed2b1b269076
+        coverageCounts: {total: 462, unresolved: 383, journeySteps: 77, platformDependencies: 2, machineOperations: 0}
+        acceptanceImpact: No capability applicability, implementation, qualification, availability, or accepted-coverage status is promoted.
+      result: source-operation-slice-reconciled; capability leaf links and dispositions unchanged
+    sceneTextAdapterSourceDelta:
+      previousSha256: 2e1ab6c021513b81a2e11c07e2fadacc177fba9d2b39a4323067590a3657d8a2
+      currentSha256: a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3
+      changedClaims:
+        - The SDK registry now includes the exact exported source/class/method identity DocumentIntelligenceSceneTextAdapter#recognizeFrame.
+        - The adapter is a provider-facing scene-text candidate; its canonical Media operation, owner authority, production route, provider admission, and cross-interface binding remain unresolved.
+        - The SDK public source/class/method denominator increases from 28 to 29; four existing transport/client-only non-operation classifications remain unchanged and this method remains in the unresolved domain-relevant population.
+      reviewedCapabilityEvidence:
+        currentActionBindingsUnchanged: true
+        candidateProviderAdapter: media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame
+        capabilityLeafOperationBindingsSha256: 09894846a1c5896f368a83a0d17d9579df4e41256aa91299ddfaed2b1b269076
+        previousCapabilityLeafOperationBindingsSha256: 09894846a1c5896f368a83a0d17d9579df4e41256aa91299ddfaed2b1b269076
+        coverageCounts: {total: 462, unresolved: 383, journeySteps: 77, platformDependencies: 2, machineOperations: 0}
+        acceptanceImpact: No capability applicability, implementation, qualification, availability, or accepted-coverage status is promoted.
+      result: SDK source pair added; candidate provider adapter remains unresolved and unadmitted
     result: semantic-source-change-reconciled; capability links updated; coverage counts and acceptance dispositions unchanged
   - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
     previousSha256: b958fc9c56449d87b0113d17eb97838801cbe7d4ec73bf4dc8f1a21d04bc173f

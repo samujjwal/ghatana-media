@@ -44,6 +44,26 @@ templates:
     useFor: Present a proposed consequential lifecycle request with exact scope, authority, impact, uncertainty, and safe follow-up.
     regions: [exact-target-and-version, authority-and-preconditions, impact-and-retention, explicit-confirmation, pending-or-unknown-finality, safe-verification-and-recovery]
     patterns: [media.gui.pattern.destructive-lifecycle-action, media.gui.pattern.safe-confirmation-and-unknown-outcome]
+  - id: media.gui.template.media-composition
+    useFor: Edit a versioned multitrack composition with explicit timing, alignment, brand, and validation context.
+    regions: [project-context, composition-version, multitrack-timeline, track-and-clip-list, transition-and-caption-alignment, brand-and-typography-references, safe-area-and-output-profile, validation-state, save-action]
+    patterns: [media.gui.pattern.multitrack-composition]
+  - id: media.gui.template.operational-readiness
+    useFor: Inspect a scoped readiness observation, freshness, capacity or dependency limits, and safe recovery guidance without dispatching work.
+    regions: [readiness-scope, observation-time-and-freshness, check-results, capacity-and-dependency-disposition, safe-recovery-guidance, audit-reference]
+    patterns: [media.gui.pattern.quality-and-uncertainty, media.gui.pattern.provenance-and-lineage]
+  - id: media.gui.template.record-detail
+    useFor: Inspect one exact artifact, version, provenance chain, or governed record with explicit unknowns and scoped actions.
+    regions: [workspace-and-project-context, exact-record-identity, observed-state, detail-and-provenance, uncertainty-and-limitations, governed-actions]
+    patterns: [media.gui.pattern.provenance-and-lineage, media.gui.pattern.quality-and-uncertainty]
+  - id: media.gui.template.workspace-settings
+    useFor: Review inherited and local user or workspace policy values, affected workflows, and authorized save or reset actions.
+    regions: [workspace-identity, settings-scope, category-navigation, current-and-inherited-values, policy-owner, affected-workflows, unsaved-changes, save-and-reset-actions]
+    patterns: [media.gui.pattern.project-context-header, media.gui.pattern.safe-confirmation-and-unknown-outcome]
+  - id: media.gui.template.project-overview
+    useFor: Understand one selected project's identity, source and output summary, pending work, and safe next action.
+    regions: [project-identity-and-version, source-and-output-summary, pending-work-summary, intent-launcher, recovery-and-navigation]
+    patterns: [media.gui.pattern.project-context-header, media.gui.pattern.intent-launcher, media.gui.pattern.activity-attention]
   - id: media.gui.template.task-setup
     useFor: Select a source or intent, inspect eligibility and constraints, and review a plan before submission.
     regions: [project-context, requested-outcome, selected-inputs, capability-and-policy-disposition, validation, next-safe-action]

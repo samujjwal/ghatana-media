@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: linked PDP source changes remain stale until their migration item claims are reconciled
+ok 1 - linked PDP source changes remain stale until their migration item claims are reconciled
+  ---
+  duration_ms: 10.383335
+  type: 'test'
+  ...
+# Subtest: the stale pin impact describes the exact newly added PDP claims
+ok 2 - the stale pin impact describes the exact newly added PDP claims
+  ---
+  duration_ms: 141.62367
+  type: 'test'
+  ...
+# Subtest: new linked-PDP assertions are atomized, source-located, and routed without implying acceptance
+ok 3 - new linked-PDP assertions are atomized, source-located, and routed without implying acceptance
+  ---
+  duration_ms: 65.474127
+  type: 'test'
+  ...
+# Subtest: new master-plan taxonomy and PDP-1 crosswalk claims are exact, routed, and non-accepting
+ok 4 - new master-plan taxonomy and PDP-1 crosswalk claims are exact, routed, and non-accepting
+  ---
+  duration_ms: 1606.511649
+  type: 'test'
+  ...
+# Subtest: migration taxonomy arbitration keeps execution-only items and unresolved hunk deltas classified without acceptance
+ok 5 - migration taxonomy arbitration keeps execution-only items and unresolved hunk deltas classified without acceptance
+  ---
+  duration_ms: 1498.006893
+  type: 'test'
+  ...
+# Subtest: every master-plan diff hunk is claim-linked or retained as an exact unresolved fragment
+ok 6 - every master-plan diff hunk is claim-linked or retained as an exact unresolved fragment
+  ---
+  duration_ms: 1159.263829
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4475.658626

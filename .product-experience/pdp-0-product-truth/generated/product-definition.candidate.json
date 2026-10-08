@@ -5,14 +5,14 @@
   "sourceAuthorities": [
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-      "sha256": "89ffe1b86c81adc1b06335b014db1214b77083634054521f0dfaf20beecfe0f4",
-      "bytes": 12476,
+      "sha256": "c5173af99e6aa5769084a6ab5c73e9cb3165b70d463bb43a07df41eb9426aa1a",
+      "bytes": 12698,
       "format": "markdown"
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/constitution.yaml",
-      "sha256": "25a72fc7ec83e933a60f6925613c51f19dd805eaadcd508bd30db6ed281f5228",
-      "bytes": 19012,
+      "sha256": "fe10aaf5f79a1b48b38b1cdc1519bb7cdd9db72fdc149e11d235baa683dcce45",
+      "bytes": 25858,
       "format": "yaml",
       "schemaVersion": "media.product-constitution.v1",
       "authority": "pdp-0-product-truth",
@@ -63,6 +63,12 @@
         "MEDIA-CONST-030",
         "MEDIA-CONST-031",
         "MEDIA-CONST-032",
+        "MEDIA-DOMAIN-RULE-001",
+        "MEDIA-DOMAIN-RULE-002",
+        "MEDIA-DOMAIN-RULE-003",
+        "MEDIA-DOMAIN-RULE-004",
+        "MEDIA-DOMAIN-RULE-005",
+        "MEDIA-DOMAIN-RULE-006",
         "MEDIA-INV-001",
         "MEDIA-INV-002",
         "MEDIA-INV-003",
@@ -73,9 +79,43 @@
       ]
     },
     {
+      "sourceRef": ".product-experience/pdp-1-domain-data/state-adjudication.yaml",
+      "sha256": "89b110fa8010e672a0065af07c4480bb4aac3598f3a464187eed95ab8c4085ea",
+      "bytes": 9764,
+      "format": "yaml",
+      "schemaVersion": "media.pdp-1.state-adjudication.v1",
+      "authority": ".product-experience/pdp-0-product-truth/state-models.yaml",
+      "status": "bounded-canonical-policy-owner-approved; implementation-and-independent-PDP-1-review-pending",
+      "topLevelFields": [
+        "artifactId",
+        "authority",
+        "crossProjectionDispositions",
+        "externalOwnerDependencies",
+        "invariantsProposed",
+        "machineDimensions",
+        "negativeCases",
+        "ownerAcceptedPolicyDecisions",
+        "productId",
+        "remainingImplementationAndIndependentProof",
+        "schemaVersion",
+        "semanticOwner",
+        "status",
+        "unresolvedOwnerDecisions"
+      ],
+      "declaredIds": [
+        "cancellation.CANCEL_REQUESTED-is-not-CANCELLED",
+        "delivery.COMPLETED-is-not-ACKNOWLEDGED",
+        "finality.OUTCOME_UNKNOWN-is-not-RUNNING",
+        "finality.PARTIALLY_SUCCEEDED-requires-closed-sub-effects",
+        "ingress.ACCEPTED-is-not-job.QUEUED",
+        "retry.RETRY_PENDING-is-not-attempt-execution",
+        "state-identity.same-spelling-different-machine"
+      ]
+    },
+    {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-      "sha256": "c09396068115f86bae21addc69520d0529c6ba48a4d08eda246e7d75430f0711",
-      "bytes": 28386,
+      "sha256": "0a2430d80830b717d1a9725c3ee499b1ce862ee4cedb8e111e46478035f05667",
+      "bytes": 34675,
       "format": "yaml",
       "schemaVersion": "media.goals-jtbd.v1",
       "authority": null,
@@ -94,13 +134,18 @@
         "scope",
         "scopeStatement",
         "sourceRefs",
-        "status"
+        "status",
+        "successMeasureContracts"
       ],
       "declaredIds": [
         "media.business.bounded-provider-execution",
+        "media.business.bounded-provider-execution.measure",
         "media.business.reuse-media-capabilities",
+        "media.business.reuse-media-capabilities.measure",
         "media.business.safe-recoverable-operations",
+        "media.business.safe-recoverable-operations.measure",
         "media.business.trustworthy-versioned-outputs",
+        "media.business.trustworthy-versioned-outputs.measure",
         "media.disclosure.expert",
         "media.disclosure.guided",
         "media.disclosure.simple",
@@ -5843,7 +5888,44 @@
         "traceToIntentIds": []
       }
     ],
-    "domainRules": [],
+    "domainRules": [
+      {
+        "id": "MEDIA-DOMAIN-RULE-001",
+        "name": "Machine-scoped state identity",
+        "rule": "A state identifier is meaningful only together with its machine; equal spellings across job, attempt, upload, stream, or delivery machines do not establish equivalent state or behavior.",
+        "rationale": "Preserve the owner-adjudicated machine-scoped identity rule and reject lossy cross-machine normalization."
+      },
+      {
+        "id": "MEDIA-DOMAIN-RULE-002",
+        "name": "Request receipt is not queued execution",
+        "rule": "A request receipt or ACCEPTED response proves receipt only; it does not prove durable queueing, worker claim, dispatch, or execution.",
+        "rationale": "Keep ingress acknowledgment distinct from job state and attempt execution."
+      },
+      {
+        "id": "MEDIA-DOMAIN-RULE-003",
+        "name": "Unknown outcome remains unresolved",
+        "rule": "OUTCOME_UNKNOWN is neither running nor failure nor safe-to-retry; preserve uncertainty until an authoritative reconciliation resolves the effect.",
+        "rationale": "Prevent a lossy observation from authorizing duplicate external effects."
+      },
+      {
+        "id": "MEDIA-DOMAIN-RULE-004",
+        "name": "Completion is distinct from delivery acknowledgment",
+        "rule": "A completed job requires the operation-defined output set, integrity, authority, and durable result commit; it does not establish recipient delivery acknowledgment.",
+        "rationale": "Keep result finality separate from external delivery evidence."
+      },
+      {
+        "id": "MEDIA-DOMAIN-RULE-005",
+        "name": "Cancellation requires authoritative finality",
+        "rule": "A cancellation request or observer detachment does not establish cancellation; cancellation requires authoritative no-dispatch or confirmed fenced-effects finality under the operation contract.",
+        "rationale": "Keep request intent and observed cancellation result distinct."
+      },
+      {
+        "id": "MEDIA-DOMAIN-RULE-006",
+        "name": "Partial success requires closed effect accounting",
+        "rule": "PARTIALLY_SUCCEEDED is terminal only when every declared sub-effect has an explicit closed disposition and no consequential effect remains unknown.",
+        "rationale": "Prevent unresolved effects from being hidden by an aggregate partial-success label."
+      }
+    ],
     "policies": [
       {
         "id": "media.policy.enforcement.1",
@@ -6398,19 +6480,31 @@
     "successMeasures": [
       {
         "id": "media.business.reuse-media-capabilities.measure",
-        "description": "Eligible consumer workflows using versioned public contracts and preserved domain finality."
+        "description": "Eligible consumer workflows using versioned public contracts and preserved domain finality.",
+        "metric": "distinct-consumer-workflows-with-an-admitted-versioned-public-contract-and-passing-domain-finality-conformance (unit: consumer-workflow; denominator: Media consumer workflows selected for the measured release profile; applicability: Only workflows admitted for the named release profile and public contract version; internal fixtures alone do not count as admitted consumers.; acceptance: Every counted workflow identifies its contract version and has evidence that the consumer preserves the bound Media operation's finality distinctions.; evidence: versioned-consumer-inventory-plus-consumer-contract-conformance-result)",
+        "baseline": "NOT_EVALUATED; no admitted consumer inventory is recorded by this product definition.",
+        "target": "NOT_SET; set only after a named release profile and qualified baseline are selected."
       },
       {
         "id": "media.business.trustworthy-versioned-outputs.measure",
-        "description": "Applicable output contracts specifying exact identity, provenance, rights state and delivery acknowledgment."
+        "description": "Applicable output contracts specifying exact identity, provenance, rights state and delivery acknowledgment.",
+        "metric": "applicable-output-contracts-that-specify-exact-version-identity-provenance-current-rights-state-and-delivery-acknowledgment-semantics (unit: output-contract; denominator: Output-producing operation contracts applicable to the named profile; applicability: An output is counted only when its operation can produce or deliver an output under the named profile; read-only and non-output operations are outside the denominator with an explicit rationale.; acceptance: Each counted contract defines immutable output identity and lineage, represents rights state separately from user attestation, and distinguishes result completion from recipient acknowledgment.; evidence: source-contract-audit-plus-applicable-version-lineage-and-delivery-contract-conformance)",
+        "baseline": "NOT_EVALUATED; applicable operations and runtime evidence have not been qualified as a complete population.",
+        "target": "NOT_SET; no numeric target is asserted before profile applicability and a qualified baseline are established."
       },
       {
         "id": "media.business.bounded-provider-execution.measure",
-        "description": "Admitted execution profiles with qualified bounds and classified unsupported cases."
+        "description": "Admitted execution profiles with qualified bounds and classified unsupported cases.",
+        "metric": "selected-execution-profiles-with-owner-defined-input-resource-policy-and-failure-bounds-and-qualified-unsupported-case-dispositions (unit: execution-profile; denominator: Profiles selected for the named release profile; applicability: A profile is counted only after its provider, model or codec dependencies and exact execution environment are selected; unselected profiles are not implicitly supported.; acceptance: Each counted profile has explicit input and resource bounds, rights and policy preconditions, failure/finality behavior, and source-backed unsupported cases, with qualification evidence for every claimed runtime bound.; evidence: profile-contract-review-plus-versioned-provider-qualification-record)",
+        "baseline": "NOT_EVALUATED; no complete set of admitted execution profiles is recorded.",
+        "target": "NOT_SET; profile selection and qualified observations are prerequisites to a numeric target."
       },
       {
         "id": "media.business.safe-recoverable-operations.measure",
-        "description": "Applicable job operations with stable identity, idempotency/fencing, recovery and unknown-finality proof."
+        "description": "Applicable job operations with stable identity, idempotency/fencing, recovery and unknown-finality proof.",
+        "metric": "applicable-long-running-job-operations-with-stable-logical-and-attempt-identities-fenced-effects-defined-recovery-and-unknown-outcome-reconciliation (unit: job-operation; denominator: Long-running job operations exposed by the named release profile; applicability: Include only operations that can outlive the initiating request; synchronous read-only queries and operations excluded by the selected profile are not counted.; acceptance: Each counted operation defines stable job and attempt identity, duplicate/retry behavior, stale-worker fencing, cancellation finality, recovery actions, and an authoritative unknown-outcome reconciliation path.; evidence: operation-contract-audit-plus-failure-injection-and-reconciliation-results)",
+        "baseline": "NOT_EVALUATED; current proposals do not constitute runtime proof.",
+        "target": "NOT_SET; establish after the applicable operation set and qualified runtime profile are selected."
       }
     ],
     "ownershipRules": [
@@ -6443,7 +6537,7 @@
   },
   "candidateMappingReview": {
     "omittedCollections": {
-      "domainRules": "PDP-1 owner-approved bounded policy distinctions are recorded in state-adjudication.yaml, but proposal-only machines and transitions do not establish an accepted ProductDefinition domainRules mapping.",
+      "domainRules": "6 source rules map from bounded Media-owner decisions under state-adjudication.yaml#ownerAcceptedPolicyDecisions, accepted as a projection under PXD-035. PDP-1 remains the semantic authority; this is a ProductDefinition projection only. Proposal-only machine/transition records remain excluded; P0-010 independent review remains pending.",
       "journeys": "All 30 initiating actorRefs have source-bound P0-04 decisions; all collaborator actorRefs are directly projected. Independent review remains pending.",
       "timestamps": "createdAt and updatedAt are optional authored metadata; omitted intentionally because no Media source provides timestamp provenance.",
       "userIntents": "19 of 19 intents map from explicit P0-04 actor/priority decisions; 0 actor resolutions remain unresolved. Independent review is pending."
@@ -6455,7 +6549,7 @@
       "userIntents": "19 of 19 source intents have exact actor/priority decisions; P0-010 independent review pending.",
       "journeys": "30 of 30 source journeys have exact representative initiators; all source collaborator actors remain projected; P0-010 independent review pending.",
       "businessIntentMeasures": "4 source businessIntent.measuredBy statements are projected as exact description-only proposals with deterministic IDs; no metric, profile applicability, target, baseline, qualitative acceptance criterion, or qualification is asserted.",
-      "successMeasures": "4 source-bound business-intent measure descriptions are projected. P0-06 remains open for explicit metric/profile applicability, outcome/capability crosswalks, accepted criteria, targets/baselines, and qualification evidence."
+      "successMeasures": "4 source-bound measures project their authored metric, unit, denominator, applicability, acceptance criterion, evidence method, and explicit NOT_EVALUATED/NOT_SET baseline/target fields. No numeric result or qualification is asserted; coordinator projection review, exact outcome/capability crosswalk, independent calibration, and qualification remain open."
     },
     "businessIntentMeasureProposals": [
       {
@@ -6464,7 +6558,26 @@
         "description": "Eligible consumer workflows using versioned public contracts and preserved domain finality.",
         "sourceRef": "goals-jtbd.yaml#/businessIntents",
         "sourceField": "measuredBy",
-        "disposition": "SOURCE_PROPOSAL_ONLY; METRIC_PROFILE_TARGET_BASELINE_APPLICABILITY_AND_QUALIFICATION_UNRESOLVED"
+        "contractRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/successMeasureContracts/records[media.business.reuse-media-capabilities.measure]",
+        "contract": {
+          "id": "media.business.reuse-media-capabilities.measure",
+          "businessIntentRef": "media.business.reuse-media-capabilities",
+          "description": "Eligible consumer workflows using versioned public contracts and preserved domain finality.",
+          "metric": "distinct-consumer-workflows-with-an-admitted-versioned-public-contract-and-passing-domain-finality-conformance",
+          "unit": "consumer-workflow",
+          "denominator": "Media consumer workflows selected for the measured release profile",
+          "applicability": "Only workflows admitted for the named release profile and public contract version; internal fixtures alone do not count as admitted consumers.",
+          "acceptanceCriterion": "Every counted workflow identifies its contract version and has evidence that the consumer preserves the bound Media operation's finality distinctions.",
+          "evidenceMethod": "versioned-consumer-inventory-plus-consumer-contract-conformance-result",
+          "baseline": "NOT_EVALUATED; no admitted consumer inventory is recorded by this product definition.",
+          "target": "NOT_SET; set only after a named release profile and qualified baseline are selected.",
+          "qualification": "NOT_EVALUATED",
+          "sourceRefs": [
+            "businessIntents[media.business.reuse-media-capabilities].measuredBy",
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml#/bindingRules"
+          ]
+        },
+        "disposition": "SOURCE_DEFINED_MEASUREMENT_CONTRACT; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; COORDINATOR_AND_INDEPENDENT_REVIEW_PENDING"
       },
       {
         "businessIntentId": "media.business.trustworthy-versioned-outputs",
@@ -6472,7 +6585,26 @@
         "description": "Applicable output contracts specifying exact identity, provenance, rights state and delivery acknowledgment.",
         "sourceRef": "goals-jtbd.yaml#/businessIntents",
         "sourceField": "measuredBy",
-        "disposition": "SOURCE_PROPOSAL_ONLY; METRIC_PROFILE_TARGET_BASELINE_APPLICABILITY_AND_QUALIFICATION_UNRESOLVED"
+        "contractRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/successMeasureContracts/records[media.business.trustworthy-versioned-outputs.measure]",
+        "contract": {
+          "id": "media.business.trustworthy-versioned-outputs.measure",
+          "businessIntentRef": "media.business.trustworthy-versioned-outputs",
+          "description": "Applicable output contracts specifying exact identity, provenance, rights state and delivery acknowledgment.",
+          "metric": "applicable-output-contracts-that-specify-exact-version-identity-provenance-current-rights-state-and-delivery-acknowledgment-semantics",
+          "unit": "output-contract",
+          "denominator": "Output-producing operation contracts applicable to the named profile",
+          "applicability": "An output is counted only when its operation can produce or deliver an output under the named profile; read-only and non-output operations are outside the denominator with an explicit rationale.",
+          "acceptanceCriterion": "Each counted contract defines immutable output identity and lineage, represents rights state separately from user attestation, and distinguishes result completion from recipient acknowledgment.",
+          "evidenceMethod": "source-contract-audit-plus-applicable-version-lineage-and-delivery-contract-conformance",
+          "baseline": "NOT_EVALUATED; applicable operations and runtime evidence have not been qualified as a complete population.",
+          "target": "NOT_SET; no numeric target is asserted before profile applicability and a qualified baseline are established.",
+          "qualification": "NOT_EVALUATED",
+          "sourceRefs": [
+            "businessIntents[media.business.trustworthy-versioned-outputs].measuredBy",
+            ".product-experience/pdp-1-domain-data/state-adjudication.yaml#/ownerAcceptedPolicyDecisions/completedRule"
+          ]
+        },
+        "disposition": "SOURCE_DEFINED_MEASUREMENT_CONTRACT; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; COORDINATOR_AND_INDEPENDENT_REVIEW_PENDING"
       },
       {
         "businessIntentId": "media.business.bounded-provider-execution",
@@ -6480,7 +6612,26 @@
         "description": "Admitted execution profiles with qualified bounds and classified unsupported cases.",
         "sourceRef": "goals-jtbd.yaml#/businessIntents",
         "sourceField": "measuredBy",
-        "disposition": "SOURCE_PROPOSAL_ONLY; METRIC_PROFILE_TARGET_BASELINE_APPLICABILITY_AND_QUALIFICATION_UNRESOLVED"
+        "contractRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/successMeasureContracts/records[media.business.bounded-provider-execution.measure]",
+        "contract": {
+          "id": "media.business.bounded-provider-execution.measure",
+          "businessIntentRef": "media.business.bounded-provider-execution",
+          "description": "Admitted execution profiles with qualified bounds and classified unsupported cases.",
+          "metric": "selected-execution-profiles-with-owner-defined-input-resource-policy-and-failure-bounds-and-qualified-unsupported-case-dispositions",
+          "unit": "execution-profile",
+          "denominator": "Profiles selected for the named release profile",
+          "applicability": "A profile is counted only after its provider, model or codec dependencies and exact execution environment are selected; unselected profiles are not implicitly supported.",
+          "acceptanceCriterion": "Each counted profile has explicit input and resource bounds, rights and policy preconditions, failure/finality behavior, and source-backed unsupported cases, with qualification evidence for every claimed runtime bound.",
+          "evidenceMethod": "profile-contract-review-plus-versioned-provider-qualification-record",
+          "baseline": "NOT_EVALUATED; no complete set of admitted execution profiles is recorded.",
+          "target": "NOT_SET; profile selection and qualified observations are prerequisites to a numeric target.",
+          "qualification": "NOT_EVALUATED",
+          "sourceRefs": [
+            "businessIntents[media.business.bounded-provider-execution].measuredBy",
+            ".product-experience/pdp-0-product-truth/qualification-policy.yaml"
+          ]
+        },
+        "disposition": "SOURCE_DEFINED_MEASUREMENT_CONTRACT; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; COORDINATOR_AND_INDEPENDENT_REVIEW_PENDING"
       },
       {
         "businessIntentId": "media.business.safe-recoverable-operations",
@@ -6488,7 +6639,26 @@
         "description": "Applicable job operations with stable identity, idempotency/fencing, recovery and unknown-finality proof.",
         "sourceRef": "goals-jtbd.yaml#/businessIntents",
         "sourceField": "measuredBy",
-        "disposition": "SOURCE_PROPOSAL_ONLY; METRIC_PROFILE_TARGET_BASELINE_APPLICABILITY_AND_QUALIFICATION_UNRESOLVED"
+        "contractRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/successMeasureContracts/records[media.business.safe-recoverable-operations.measure]",
+        "contract": {
+          "id": "media.business.safe-recoverable-operations.measure",
+          "businessIntentRef": "media.business.safe-recoverable-operations",
+          "description": "Applicable job operations with stable identity, idempotency/fencing, recovery and unknown-finality proof.",
+          "metric": "applicable-long-running-job-operations-with-stable-logical-and-attempt-identities-fenced-effects-defined-recovery-and-unknown-outcome-reconciliation",
+          "unit": "job-operation",
+          "denominator": "Long-running job operations exposed by the named release profile",
+          "applicability": "Include only operations that can outlive the initiating request; synchronous read-only queries and operations excluded by the selected profile are not counted.",
+          "acceptanceCriterion": "Each counted operation defines stable job and attempt identity, duplicate/retry behavior, stale-worker fencing, cancellation finality, recovery actions, and an authoritative unknown-outcome reconciliation path.",
+          "evidenceMethod": "operation-contract-audit-plus-failure-injection-and-reconciliation-results",
+          "baseline": "NOT_EVALUATED; current proposals do not constitute runtime proof.",
+          "target": "NOT_SET; establish after the applicable operation set and qualified runtime profile are selected.",
+          "qualification": "NOT_EVALUATED",
+          "sourceRefs": [
+            "businessIntents[media.business.safe-recoverable-operations].measuredBy",
+            ".product-experience/pdp-1-domain-data/state-adjudication.yaml#/invariantsProposed"
+          ]
+        },
+        "disposition": "SOURCE_DEFINED_MEASUREMENT_CONTRACT; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; COORDINATOR_AND_INDEPENDENT_REVIEW_PENDING"
       }
     ],
     "ownershipRuleDetails": [
@@ -6597,8 +6767,8 @@
         "source": "requirements.yaml#requirements[].traceToIntentIds filtered to the exact resolved ProductDefinition userIntents"
       },
       "domainRules": {
-        "status": "PDP-1_DOMAIN_RULE_MAPPING_PENDING",
-        "source": "constitution.yaml#domainRules.pendingSources; state-adjudication.yaml records bounded owner-approved policy distinctions, not accepted state/transition mappings"
+        "status": "6_BOUNDED_PDP1_OWNER_DECISIONS_PROJECTED; PXD-035_ACCEPTED; P0-010_INDEPENDENT_REVIEW_PENDING",
+        "source": "constitution.yaml#domainRules.records joined by exact sourceRef to state-adjudication.yaml#ownerAcceptedPolicyDecisions; proposal-only state/transition records excluded"
       },
       "policies": {
         "status": "DIRECT_FAIL_CLOSED_ENFORCEMENT_MAPPING; OWNER_ACCEPTANCE_PENDING",
@@ -6617,8 +6787,8 @@
         "source": "actors-responsibilities.yaml#trustContexts.contexts"
       },
       "successMeasures": {
-        "status": "PARTIAL_SOURCE_PROPOSAL_MAPPING; 4_DESCRIPTION_ONLY; P0-06_METRIC_PROFILE_APPLICABILITY_TARGET_BASELINE_AND_QUALIFICATION_OPEN",
-        "source": "goals-jtbd.yaml#businessIntents[].measuredBy; quality-policy.yaml#metricDefinitions and profile-semantics.yaml#profileAxes remain without explicit outcome/capability applicability bindings"
+        "status": "4_SOURCE_DEFINED_MEASUREMENT_CONTRACTS_PROJECTED; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; EXACT_CAPABILITY_CROSSWALK_AND_INDEPENDENT_CALIBRATION_OPEN",
+        "source": "goals-jtbd.yaml#businessIntents[].measuredBy joined by exact successMeasure ID to goals-jtbd.yaml#successMeasureContracts.records; no numeric results inferred"
       },
       "ownershipRules": {
         "status": "DIRECT_ACCOUNTABLE_ROLE_TO_OWNER_MAPPING; CONTRACT_OWNER_AND_EXECUTION_AUTHORITY_RETAINED_SEPARATELY; P0-010_REVIEW_PENDING",
@@ -6813,9 +6983,9 @@
       "mapping": "retain exact refs only for target userIntents resolved to a schema actor and priority; unresolved targets are listed in mapping review"
     },
     "domainRules": {
-      "sourceRef": null,
-      "sourcePath": null,
-      "mapping": "PDP-1 owns canonical domain rules; no accepted ProductDefinition mapping"
+      "sourceRef": ".product-experience/pdp-0-product-truth/constitution.yaml",
+      "sourcePath": "domainRules.records joined to PDP-1 state-adjudication.yaml#ownerAcceptedPolicyDecisions by exact sourceRef",
+      "mapping": "project only records with bounded Media-owner decision status and an exact ownerAcceptedPolicyDecisions source ref; PXD-035 accepts this bounded mapping, PDP-1 remains semantic authority, proposal-only machine and transition rules are excluded, P0-010 independent review pending"
     },
     "policies": {
       "sourceRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
@@ -6839,8 +7009,8 @@
     },
     "successMeasures": {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-      "sourcePath": "businessIntents[].measuredBy; quality-policy.yaml#metricDefinitions and profile-semantics.yaml#profileAxes",
-      "mapping": "exact source prose becomes a description-only proposal with deterministic ID derived from the business intent ID; no metric, profile applicability, target, baseline, qualitative acceptance, or qualification is inferred"
+      "sourcePath": "businessIntents[].measuredBy joined by exact deterministic measure ID to successMeasureContracts.records",
+      "mapping": "project source-authored metric, unit, denominator, applicability, criterion, evidence method, and explicit NOT_EVALUATED baseline/qualification plus NOT_SET target; no measurement result or qualification is inferred; exact capability crosswalk, coordinator review, and independent calibration remain pending"
     },
     "ownershipRules": {
       "sourceRef": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
@@ -6860,38 +7030,16 @@
   },
   "fieldMappingBlockers": [
     {
-      "field": "domainRules",
-      "status": "PDP-1_DOMAIN_RULE_MAPPING_PENDING",
-      "sourceDisposition": "constitution.yaml#domainRules.pendingSources; state-adjudication.yaml records bounded owner-approved policy distinctions, not accepted state/transition mappings",
-      "reasons": [
-        "No owner-approved mapping selects source records as ProductDefinition domain rules with schema rule fields."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
       "field": "successMeasures",
-      "status": "PARTIAL_SOURCE_PROPOSAL_MAPPING; 4_DESCRIPTION_ONLY; P0-06_METRIC_PROFILE_APPLICABILITY_TARGET_BASELINE_AND_QUALIFICATION_OPEN",
-      "sourceDisposition": "goals-jtbd.yaml#businessIntents[].measuredBy; quality-policy.yaml#metricDefinitions and profile-semantics.yaml#profileAxes remain without explicit outcome/capability applicability bindings",
+      "status": "4_SOURCE_DEFINED_MEASUREMENT_CONTRACTS_PROJECTED; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; EXACT_CAPABILITY_CROSSWALK_AND_INDEPENDENT_CALIBRATION_OPEN",
+      "sourceDisposition": "goals-jtbd.yaml#businessIntents[].measuredBy joined by exact successMeasure ID to goals-jtbd.yaml#successMeasureContracts.records; no numeric results inferred",
       "reasons": [
-        "Source business intent measuredBy descriptions are proposed as ProductDefinition measures, but there is no accepted metric/profile applicability, outcome/capability crosswalk, qualitative criterion, target/baseline, or qualification mapping; quality-policy metric capabilityRefs remain pending and NOT_EVALUATED."
+        "The four source-defined measurement contracts are projected with explicit unknown baseline/target and no qualification claim; exact outcome/capability crosswalk and independent calibration remain open and must not be inferred."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
         ".product-experience/pdp-0-product-truth/constitution.yaml",
+        ".product-experience/pdp-1-domain-data/state-adjudication.yaml",
         ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
         ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
         ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",

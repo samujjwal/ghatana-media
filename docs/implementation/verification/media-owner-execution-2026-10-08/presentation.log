@@ -1,0 +1,41 @@
+
+> @ check:presentation-architecture /home/samujjwal/Developments/ghatana-media
+> node scripts/check-media-presentation-architecture.mjs
+
+{
+  "ok": true,
+  "issues": [],
+  "summary": {
+    "presentationSourceFiles": 22,
+    "productionSourceFiles": 0,
+    "explorerSourceFiles": 5,
+    "admittedWebRecords": 0,
+    "screensWithDeclaredDesignLinks": 47,
+    "admittedScreenDesignChainsProven": 0,
+    "candidateDesignLinkIssues": 0,
+    "exactImportIdentityProven": 0,
+    "candidateProductRendererCount": 1,
+    "explorerProductRendererImports": 1,
+    "productionHostsPresent": false,
+    "productionProductRendererImports": 0,
+    "toolsRendererBindingContractPresent": true,
+    "toolsConsumesExactRendererBinding": true,
+    "productionHostParity": "NOT_PROVEN_NO_PRODUCTION_WEB_HOST"
+  },
+  "candidateDesignIssues": [],
+  "productRendererResults": [
+    {
+      "id": "media.adapter.product-renderer",
+      "packageName": "@audio-video/ui",
+      "subpath": ".",
+      "exportName": "MediaProductRenderer",
+      "source": "libs/audio-video-ui/src/screens/MediaProductRenderer.tsx",
+      "declaration": "@audio-video/ui#MediaProductRenderer",
+      "moduleSpecifier": "@audio-video/ui",
+      "explorerHasIdentity": true,
+      "productionHasIdentity": false,
+      "sourceExists": true,
+      "publicExportRecorded": true
+    }
+  ]
+}

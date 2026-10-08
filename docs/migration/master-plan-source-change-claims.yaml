@@ -25,6 +25,12 @@ claimDecompositions:
     exactClaim: "`DEFINE_PRODUCT` authors PDP-0–PDP-3 authorities"
     reviewStatus: EXACT_CURRENT_SOURCE_CLAIM_RECORDED
     disposition: SEMANTIC_EQUIVALENCE_UNRESOLVED
+    boundedSourceEvidence:
+      status: EXACT_AUTHORITY_IDENTIFIERS_CORROBORATED
+      sourceRef: .product-experience/authority-map.yaml#/canonicalPdpPhases
+      corroboratedValue: [PDP-0, PDP-1, PDP-2, PDP-3]
+      evidenceBoundary: The current authority map names these four canonical PDP phases. This corroborates only the identifier set in the changed master-plan clause; it does not establish what DEFINE_PRODUCT authors, semantic completeness, authority transfer, or phase/task acceptance.
+      acceptanceEffect: none
     evidenceRefs:
       - .product-experience/authority-map.yaml
       - .product-experience/source-manifest.yaml

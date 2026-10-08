@@ -24,11 +24,11 @@ test("new master-plan taxonomy and PDP-1 crosswalk claims are exact, routed, and
 
   assert.equal(ledger.historicalSource.commit, "e62514f94c45a4ecbc438d26298bf82b6a6f3d69");
   assert.equal(ledger.sourcePinDisposition, "keep-stale");
-  assert.deepEqual(ledger.unchangedReviewCounts, {
+  assert.deepEqual(ledger.reviewCountsAfterOwnerDispositions, {
     uniqueUnits: 1340,
-    unresolved: 263,
+    unresolved: 260,
     mixedRequiresDecomposition: 124,
-    ownerReviewed: 0,
+    ownerReviewed: 3,
   });
   assert.deepEqual(claims.map(({ claimId }) => claimId), [...expected.values()].flat());
   assert.equal(new Set(claims.map(({ claimId }) => claimId)).size, claims.length);
@@ -116,14 +116,14 @@ test("migration taxonomy arbitration keeps execution-only items and unresolved h
   }
   assert.ok(availabilityClaims.every(({ acceptanceEffect }) => acceptanceEffect === "none"));
   assert.ok(availabilityClaims.every(({ candidatePdpRefs }) => candidatePdpRefs.length));
-  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 263);
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 260);
   assert.equal(review.counts.uniqueUnitsByClassification.IMPLEMENTATION_GUIDANCE, 66);
-  assert.equal(review.counts.uniqueUnitsByClassification.EXECUTION_ONLY, 783);
+  assert.equal(review.counts.uniqueUnitsByClassification.EXECUTION_ONLY, 786);
   assert.equal(review.counts.uniqueUnitsByClassification.EVIDENCE_REFERENCE, 163);
   assert.equal(review.counts.uniqueUnitsByClassification.EXTRACTED_TO_PDP, 65);
   assert.equal(review.counts.blockStructureProposalCounts.MIXED_REQUIRES_DECOMPOSITION, 124);
-  assert.equal(review.sourceChangeLedger.unchangedReviewCounts.mixedRequiresDecomposition, 124);
-  assert.equal(review.sourceChangeLedger.unchangedReviewCounts.unresolved, 263);
+  assert.equal(review.sourceChangeLedger.reviewCountsAfterOwnerDispositions.mixedRequiresDecomposition, 124);
+  assert.equal(review.sourceChangeLedger.reviewCountsAfterOwnerDispositions.unresolved, 260);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
   assert.equal(review.counts.uniqueContentUnits, 1340);
 
@@ -257,8 +257,16 @@ test("every master-plan diff hunk is claim-linked or retained as an exact unreso
   const executionClaims = changeClaims.claimDecompositions.filter((claim) => claim.clusterId === "MSC-02");
   assert.ok(executionClaims.some((claim) => claim.exactClaim === "`DEFINE_PRODUCT` authors PDP-0–PDP-3 authorities"));
   assert.ok(executionClaims.some((claim) => claim.exactClaim === "builds the Experience Explorer as their deterministic projection."));
+  const phaseAuthorityClaim = executionClaims.find(({ claimId }) => claimId === "MSC-02-MSD-003-L0024-C02");
+  const authorityMap = readYaml(".product-experience/authority-map.yaml");
+  assert.deepEqual(phaseAuthorityClaim.boundedSourceEvidence.corroboratedValue,
+    authorityMap.canonicalPdpPhases.map(({ id }) => id).filter((id) => id.startsWith("PDP-")));
+  assert.equal(phaseAuthorityClaim.boundedSourceEvidence.status, "EXACT_AUTHORITY_IDENTIFIERS_CORROBORATED");
+  assert.equal(phaseAuthorityClaim.boundedSourceEvidence.acceptanceEffect, "none");
+  assert.match(phaseAuthorityClaim.boundedSourceEvidence.evidenceBoundary, /does not establish what DEFINE_PRODUCT authors/u);
+  assert.equal(phaseAuthorityClaim.disposition, "SEMANTIC_EQUIVALENCE_UNRESOLVED");
   assert.notEqual(executionClaims.find((claim) => claim.exactClaim.startsWith("`DEFINE_PRODUCT` authors"))?.claimId,
     executionClaims.find((claim) => claim.exactClaim.startsWith("builds the Experience Explorer"))?.claimId);
   assert.equal(ledger.sourcePinDisposition, "keep-stale");
-  assert.deepEqual(ledger.unchangedReviewCounts, { uniqueUnits: 1340, unresolved: 263, mixedRequiresDecomposition: 124, ownerReviewed: 0 });
+  assert.deepEqual(ledger.reviewCountsAfterOwnerDispositions, { uniqueUnits: 1340, unresolved: 260, mixedRequiresDecomposition: 124, ownerReviewed: 3 });
 });

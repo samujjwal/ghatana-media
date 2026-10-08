@@ -1,0 +1,14 @@
+
+> @ check:contract-parity /home/samujjwal/Developments/ghatana-media
+> node scripts/check-media-contract-parity.mjs
+
+Media contract parity: NON-GREEN
+  structural inventory: {"openapiRoutes":27,"runtimeRoutes":27,"httpRegistryRoutes":27,"grpcRegistryRpcs":43,"protobufRpcs":43,"typescriptTypes":20,"typescriptSchemas":21,"agentTools":4,"sdkOperationIds":29,"sdkHttpCallSites":20}
+  semantic binding: UNRESOLVED
+  source findings audited: 51 (48 dispositioned; 3 unresolved)
+  source-dispositioned findings: 48
+  explicit gaps (3):
+  - SDK operation has no explicit OpenAPI binding: media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame
+  - Agent Tool structural inventory found 4 tools; operation bindings and complete input/result contract parity remain pending
+  - semantic binding unresolved: PDP-1 operations remain proposal-only; nine-organizational-families-with-distinct-operation-identities; cross-interface-bindings-and-owner-review-pending; structural identities are not accepted mappings
+ ELIFECYCLE  Command failed with exit code 1.

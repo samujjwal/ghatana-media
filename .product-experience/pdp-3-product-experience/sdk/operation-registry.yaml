@@ -3,7 +3,7 @@ productId: media
 source: libs/audio-video-client/src/operations.ts
 status: public-method-inventory; full-language-bindings-pending-owner-review
 sourcePopulation:
-  methodEntryCount: 31
+  methodEntryCount: 32
   classification: source observations only; not a declaration of production SDK support or admitted product operations
   architectureReconciliation: pending; overlapping client surfaces and entry provenance require owner review
   bindingAdmission: none
@@ -200,3 +200,9 @@ methods:
     source: libs/audio-video-client/src/operations.ts
     declaringClass: none; parser-artifact
     experienceBinding: pending-owner-review
+  - id: media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame
+    method: recognizeFrame
+    visibility: public
+    source: libs/audio-video-client/src/scene-text-adapter.ts
+    declaringClass: DocumentIntelligenceSceneTextAdapter
+    experienceBinding: unresolved-canonical-operation-binding; candidate-provider-adapter

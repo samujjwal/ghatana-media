@@ -58,6 +58,11 @@ patterns:
     anatomy: [activity-heading, job-identity-and-purpose, recorded-state-and-finality, supported-age-or-urgency, safe-next-action, empty-or-unavailable-state]
     states: [loading, populated, empty, partial, stale, access-denied, offline, job-outcome-unknown, evidence-unavailable]
     sourceRef: .product-experience/pdp-2-design-interface-system/gui/patterns/activity-attention.yaml#media.gui.pattern.activity-attention
+  - id: media.gui.pattern.multitrack-composition
+    intent: Arrange versioned audio, video, caption, and graphics tracks with exact timing and explicit unresolved approvals.
+    anatomy: [composition-version, multitrack-timeline, track-and-clip-list, transition-and-caption-alignment, brand-and-typography-references, safe-area-and-output-profile, validation-state]
+    states: [loading, draft, editing, invalid, needs-review, validated, outcome-unknown]
+    sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml
   - id: media.gui.pattern.transcript-and-playback
     intent: Keep playback position, transcript selection, and source time aligned.
     anatomy: [player, transport-controls, source-time, transcript-region, selection]

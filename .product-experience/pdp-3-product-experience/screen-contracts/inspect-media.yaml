@@ -1,12 +1,12 @@
 schemaVersion: media.screen-contract.v2
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
-templateId: media.gui.template.workbench
-templateBindingStatus: candidate-by-screen-purpose; owner-review-pending
-layoutIds: [media.gui.layout.media-workbench]
-layoutBindingStatus: candidate-by-template-and-screen-purpose; owner-review-pending
+templateId: media.gui.template.record-detail
+templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
+layoutIds: [media.gui.layout.record-detail]
+layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds: [media.component.artifact-integrity-summary, media.component.provenance-summary]
-patternIds: [media.gui.pattern.quality-and-uncertainty]
+patternIds: [media.gui.pattern.provenance-and-lineage, media.gui.pattern.quality-and-uncertainty]
 tokenDependencies: []
 domainObjectRefs: []
 operationRefs: []
@@ -40,8 +40,8 @@ verification:
   checks: {structural: not-proven, rendering: not-proven, behavior: not-proven, responsive: not-proven, keyboard: not-proven, accessibility: not-proven}
 fieldBindingStatus:
   surfaceId: candidate-binding-pending-owner-review
-  templateId: candidate-template-link-owner-review-pending
-  layoutIds: candidate-layout-link-owner-review-pending
+  templateId: media-owner-composition-link-approved; screen-admission-pending
+  layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
   patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
   tokenDependencies: no-canonical-references-declared

@@ -1,0 +1,5 @@
+
+> @ check:lifecycle-closure-inputs /home/samujjwal/Developments/ghatana-media
+> node scripts/check-media-lifecycle-closure-inputs.mjs
+
+Evidence Contracts consumer admission passed (5 source files, zero errors) for PDP-0 through PDP-3; Media inputs=PENDING, obligations=344, consumer provider bindings=0, recorded blockers=3; Lifecycle provider admission, receipts, currentness, and closure remain external.

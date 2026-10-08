@@ -68,11 +68,12 @@ test("ProductDefinition mapping coverage is explicit, source-pinned, and rejects
   }
   for (const field of schema.required) assert.ok(Object.hasOwn(projection.candidateModel, field), `${field} is required by the public schema`);
   for (const field of ["createdAt", "updatedAt"]) assert.equal(Object.hasOwn(projection.candidateModel, field), false, `${field} stays omitted without authored timestamp provenance`);
-  for (const field of ["domainRules", "successMeasures"]) {
-    assert.ok(projection.fieldMappingBlockers.some((blocker) => blocker.field === field), `${field} mapping gap remains an explicit blocker`);
-  }
-  assert.equal(projection.candidateModel.successMeasures.length, 4, "source-authored business-intent measurement descriptions are proposal-mapped");
-  assert.ok(projection.candidateModel.successMeasures.every((measure) => Object.keys(measure).sort().join(",") === "description,id"), "the candidate invents no metric, baseline, or target");
+  assert.ok(!projection.fieldMappingBlockers.some(({ field }) => field === "domainRules"), "bounded owner-decided rules have a direct PDP-1 source mapping");
+  assert.ok(projection.fieldMappingBlockers.some(({ field }) => field === "successMeasures"), "the exact capability crosswalk and independent calibration remain open");
+  assert.equal(projection.candidateModel.domainRules.length, 6, "only bounded accepted PDP-1 policy decisions are projected");
+  assert.equal(projection.candidateModel.successMeasures.length, 4, "all source-defined business-intent measurement contracts are projected");
+  assert.ok(projection.candidateModel.successMeasures.every((measure) => Object.keys(measure).sort().join(",") === "baseline,description,id,metric,target"), "the candidate maps defined criteria while preserving unknown baseline and unset target");
+  assert.ok(projection.candidateModel.successMeasures.every(({ baseline, target }) => baseline.startsWith("NOT_EVALUATED") && target.startsWith("NOT_SET")));
   for (const source of projection.sourceAuthorities) {
     const text = readFileSync(resolve(root, source.sourceRef), "utf8");
     assert.equal(createHash("sha256").update(text).digest("hex"), source.sha256, `${source.sourceRef} drifted since projection generation`);
@@ -191,16 +192,31 @@ test("PDP-0 quality and NFR records retain measurement limits and unresolved spe
   assert.equal(quality.qualityDimensions.length, 6);
   assert.ok(quality.qualityDimensions.every((item) => item.applicability && item.abstainWhen));
   assert.match(nfr.authorityStatus, /pending-P0-010/iu);
+  const goals = readYaml(".product-experience/pdp-0-product-truth/goals-jtbd.yaml");
+  const measures = goals.successMeasureContracts;
+  assert.match(measures.status, /baseline-and-qualification-not-evaluated/u);
+  assert.equal(measures.records.length, 4);
+  assert.deepEqual(measures.records.map(({ businessIntentRef }) => businessIntentRef), goals.businessIntents.map(({ id }) => id));
+  assert.ok(measures.records.every(({ metric, unit, denominator, applicability, acceptanceCriterion, evidenceMethod, baseline, target, qualification }) =>
+    metric && unit && denominator && applicability && acceptanceCriterion && evidenceMethod &&
+    baseline.startsWith("NOT_EVALUATED") && target.startsWith("NOT_SET") && qualification === "NOT_EVALUATED"));
 });
 
-test("P0-05 policy invariants, trust contexts, and ownership remain source-bound without accepting PDP-1 rules", () => {
+test("P0-05 projects only bounded PDP-1 owner-decided rules with trust and fail-closed semantics", () => {
   const constitution = readYaml(".product-experience/pdp-0-product-truth/constitution.yaml");
   const actors = readYaml(".product-experience/pdp-0-product-truth/actors-responsibilities.yaml");
   const policy = readYaml(".product-experience/pdp-0-product-truth/policy-authority-model.yaml").productPolicy;
   const domainRules = constitution.domainRules;
-  assert.match(domainRules.status, /pending-PDP-1-owner-review/u);
-  assert.equal(domainRules.pendingSources.length, 4, "PDP-1 adjudication, state, transition, and authority mapping dispositions remain explicit");
+  assert.match(domainRules.status, /mapped-under-PXD-035/u);
+  assert.equal(domainRules.pendingSources.length, 3, "proposal-only state, transition, and authority mappings remain explicit");
   assert.ok(domainRules.pendingSources.every(({ ref }) => ref.startsWith(".product-experience/pdp-1-domain-data/")));
+  assert.equal(domainRules.records.length, 6);
+  assert.equal(new Set(domainRules.records.map(({ id }) => id)).size, domainRules.records.length);
+  assert.ok(domainRules.records.every(({ rule, violation, trustScope, ownerRef, failClosed, sourceRef, decisionStatus }) =>
+    rule && violation && trustScope && ownerRef.startsWith(".product-experience/pdp-1-domain-data/") && failClosed &&
+    sourceRef.startsWith(".product-experience/pdp-1-domain-data/") && /bounded-media-owner-approved/u.test(decisionStatus)));
+  assert.ok(domainRules.records.every(({ sourceRef }) => sourceRef.includes("ownerAcceptedPolicyDecisions/")),
+    "projection records may use only bounded accepted PDP-1 decisions");
 
   const invariants = constitution.invariants.records;
   assert.equal(invariants.length, 7);
@@ -371,9 +387,9 @@ test("P0-04 journey actors and requirement intent targets remain source-bound", 
 
 test("migration extraction keeps the mixed blocks and unresolved owner review visible", () => {
   const review = readYaml(".product-experience/pdp-0-product-truth/migration-semantics-review.yaml");
-  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 263);
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 260);
   assert.equal(review.counts.blockStructureProposalCounts.MIXED_REQUIRES_DECOMPOSITION, 124);
-  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 0);
+  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 3);
   assert.match(review.blockStructureProposalAuthority, /Proposal-only/u);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
   for (const id of ["MPSEM-0178", "MPSEM-0211"]) {

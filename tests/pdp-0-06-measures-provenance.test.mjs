@@ -33,25 +33,37 @@ test("P0-06 maps exact business-intent measure descriptions while keeping metric
     capabilityRefs.length === 0 && /pending/u.test(capabilityRefState) && /pending/u.test(calibrationState) && qualificationState === "NOT_EVALUATED"));
 
   const measureById = new Map(candidate.candidateModel.successMeasures.map((measure) => [measure.id, measure]));
+  const sourceMeasureById = new Map(goals.successMeasureContracts.records.map((measure) => [measure.id, measure]));
   assert.equal(goals.businessIntents.filter(({ measuredBy }) => measuredBy).length, 4);
   assert.equal(measureById.size, 4, "only the four source-authored business-intent measuredBy statements become proposals");
   for (const businessIntent of goals.businessIntents) {
     const measureId = `${businessIntent.id}.measure`;
     const measure = measureById.get(measureId);
-    assert.deepEqual(measure, { id: measureId, description: businessIntent.measuredBy });
+    const sourceMeasure = sourceMeasureById.get(measureId);
+    assert.ok(sourceMeasure, `${measureId} has an authored definition contract`);
+    assert.equal(measure.description, businessIntent.measuredBy);
+    assert.match(measure.metric, new RegExp(sourceMeasure.metric, "u"));
+    assert.match(measure.metric, new RegExp(`unit: ${sourceMeasure.unit}`, "u"));
+    assert.match(measure.metric, new RegExp(`denominator: ${sourceMeasure.denominator}`, "u"));
+    assert.ok(measure.metric.includes(`applicability: ${sourceMeasure.applicability}`));
+    assert.ok(measure.metric.includes(`acceptance: ${sourceMeasure.acceptanceCriterion}`));
+    assert.match(measure.metric, new RegExp(`evidence: ${sourceMeasure.evidenceMethod}`, "u"));
+    assert.equal(measure.baseline, sourceMeasure.baseline);
+    assert.equal(measure.target, sourceMeasure.target);
+    assert.equal(sourceMeasure.qualification, "NOT_EVALUATED");
     assert.equal(candidate.candidateModel.businessIntents.find(({ id }) => id === businessIntent.id).measuredBy, measureId);
   }
-  assert.ok(candidate.candidateModel.successMeasures.every((measure) =>
-    !Object.hasOwn(measure, "metric") && !Object.hasOwn(measure, "baseline") && !Object.hasOwn(measure, "target")));
-  assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /PARTIAL_SOURCE_PROPOSAL_MAPPING/u);
-  assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /P0-06_METRIC_PROFILE_APPLICABILITY_TARGET_BASELINE_AND_QUALIFICATION_OPEN/u);
+  assert.equal(candidate.candidateModel.successMeasures.length, sourceMeasureById.size);
+  assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /4_SOURCE_DEFINED_MEASUREMENT_CONTRACTS_PROJECTED/u);
+  assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /TARGET_NOT_SET/u);
+  assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /BASELINE_AND_QUALIFICATION_NOT_EVALUATED/u);
+  assert.match(candidate.candidateMappingReview.fieldDispositions.successMeasures.status, /EXACT_CAPABILITY_CROSSWALK_AND_INDEPENDENT_CALIBRATION_OPEN/u);
   assert.equal(candidate.candidateMappingReview.businessIntentMeasureProposals.length, 4);
-  assert.ok(candidate.candidateMappingReview.businessIntentMeasureProposals.every(({ disposition }) => /SOURCE_PROPOSAL_ONLY/u.test(disposition)));
+  assert.ok(candidate.candidateMappingReview.businessIntentMeasureProposals.every(({ disposition }) => /SOURCE_DEFINED_MEASUREMENT_CONTRACT/u.test(disposition)));
   const blocker = candidate.fieldMappingBlockers.find(({ field }) => field === "successMeasures");
   assert.ok(blocker, "partial direct mapping retains the unresolved P0-06 blocker");
-  assert.match(blocker.reasons.join(" "), /no accepted metric\/profile applicability/u);
-  assert.match(blocker.reasons.join(" "), /target\/baseline/u);
-  assert.match(blocker.reasons.join(" "), /qualification mapping/u);
+  assert.match(blocker.reasons.join(" "), /exact outcome\/capability crosswalk and independent calibration remain open/u);
+  assert.match(blocker.reasons.join(" "), /explicit unknown baseline\/target and no qualification claim/u);
 });
 
 test("P0-06 retains source-defined measurement applicability without turning it into a pass or target", () => {

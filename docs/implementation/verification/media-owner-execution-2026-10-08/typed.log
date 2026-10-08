@@ -1,0 +1,188 @@
+
+> @ test:typed-contract-bindings /home/samujjwal/Developments/ghatana-media
+> node --test tests/media-typed-contract-bindings.test.mjs tests/media-typed-contract-bindings-legacy.test.mjs tests/media-contract-parity.test.mjs
+
+TAP version 13
+# Subtest: typed contract catalog validation rejects missing, duplicate, stale, and non-admitted operation bindings
+ok 1 - typed contract catalog validation rejects missing, duplicate, stale, and non-admitted operation bindings
+  ---
+  duration_ms: 55.477495
+  type: 'test'
+  ...
+# Subtest: preserves matching OpenAPI/runtime/PDP-3 route identity while reporting semantic proposals non-green
+ok 2 - preserves matching OpenAPI/runtime/PDP-3 route identity while reporting semantic proposals non-green
+  ---
+  duration_ms: 12.878083
+  type: 'test'
+  ...
+# Subtest: keeps the two remaining parity findings open because current sources lack authoritative contracts
+ok 3 - keeps the two remaining parity findings open because current sources lack authoritative contracts
+  ---
+  duration_ms: 16.843833
+  type: 'test'
+  ...
+# Subtest: detects HTTP route or operation identity drift
+ok 4 - detects HTTP route or operation identity drift
+  ---
+  duration_ms: 11.882785
+  type: 'test'
+  ...
+# Subtest: rejects SDK client path divergence from the runtime routes
+ok 5 - rejects SDK client path divergence from the runtime routes
+  ---
+  duration_ms: 1.151026
+  type: 'test'
+  ...
+# Subtest: source-dispositioned legacy paths reconcile individually without becoming OpenAPI bindings
+ok 6 - source-dispositioned legacy paths reconcile individually without becoming OpenAPI bindings
+  ---
+  duration_ms: 8.873723
+  type: 'test'
+  ...
+# Subtest: four SDK identities without OpenAPI routes have explicit NOT_ADMITTED parity dispositions
+ok 7 - four SDK identities without OpenAPI routes have explicit NOT_ADMITTED parity dispositions
+  ---
+  duration_ms: 12.582585
+  type: 'test'
+  ...
+# Subtest: reports stale route dispositions instead of silently changing the parity denominator
+ok 8 - reports stale route dispositions instead of silently changing the parity denominator
+  ---
+  duration_ms: 0.598226
+  type: 'test'
+  ...
+# Subtest: reconciles the SDK registry-method count warning only when all source call sites parsed
+ok 9 - reconciles the SDK registry-method count warning only when all source call sites parsed
+  ---
+  duration_ms: 1.327784
+  type: 'test'
+  ...
+# Subtest: rejects an SDK HTTP method mismatch even when the normalized path matches
+ok 10 - rejects an SDK HTTP method mismatch even when the normalized path matches
+  ---
+  duration_ms: 14.199832
+  type: 'test'
+  ...
+# Subtest: normalizes SDK path parameters before comparing method and route
+ok 11 - normalizes SDK path parameters before comparing method and route
+  ---
+  duration_ms: 0.642239
+  type: 'test'
+  ...
+# Subtest: extracts explicit verbs from request, fetch, submit, and facade call sites
+ok 12 - extracts explicit verbs from request, fetch, submit, and facade call sites
+  ---
+  duration_ms: 5.848095
+  type: 'test'
+  ...
+# Subtest: SDK registry method extraction excludes control tokens and built-in calls but retains public methods
+ok 13 - SDK registry method extraction excludes control tokens and built-in calls but retains public methods
+  ---
+  duration_ms: 1.813433
+  type: 'test'
+  ...
+# Subtest: SDK source discovery includes a third recursively discovered public class source
+ok 14 - SDK source discovery includes a third recursively discovered public class source
+  ---
+  duration_ms: 4.2961
+  type: 'test'
+  ...
+# Subtest: typed UI action dispositions reconcile exactly to the 146 source identities
+ok 15 - typed UI action dispositions reconcile exactly to the 146 source identities
+  ---
+  duration_ms: 8.828276
+  type: 'test'
+  ...
+# Subtest: the two UI action binding views reconcile exact PDP-1 refs and preserve every other action unresolved
+ok 16 - the two UI action binding views reconcile exact PDP-1 refs and preserve every other action unresolved
+  ---
+  duration_ms: 9.877528
+  type: 'test'
+  ...
+# Subtest: reports an unparsed HTTP method instead of silently passing the route
+ok 17 - reports an unparsed HTTP method instead of silently passing the route
+  ---
+  duration_ms: 0.56945
+  type: 'test'
+  ...
+# Subtest: compares protobuf RPC identities with the gRPC registry
+ok 18 - compares protobuf RPC identities with the gRPC registry
+  ---
+  duration_ms: 0.461793
+  type: 'test'
+  ...
+# Subtest: semantic candidates never contradict the HTTP and gRPC typed role dispositions
+ok 19 - semantic candidates never contradict the HTTP and gRPC typed role dispositions
+  ---
+  duration_ms: 16.24324
+  type: 'test'
+  ...
+# Subtest: every publicly exported TS type and schema has one explicit and source-grounded role
+ok 20 - every publicly exported TS type and schema has one explicit and source-grounded role
+  ---
+  duration_ms: 13.513536
+  type: 'test'
+  ...
+# Subtest: new exported type requires a new role binding
+ok 21 - new exported type requires a new role binding
+  ---
+  duration_ms: 0.780869
+  type: 'test'
+  ...
+# Subtest: typos in canonical operation and machine identities fail
+ok 22 - typos in canonical operation and machine identities fail
+  ---
+  duration_ms: 3.543626
+  type: 'test'
+  ...
+# Subtest: no undeclared or reused schema role can hide source inventory drift
+ok 23 - no undeclared or reused schema role can hide source inventory drift
+  ---
+  duration_ms: 0.715889
+  type: 'test'
+  ...
+# Subtest: specialized unadmitted model operations cannot masquerade as accepted canonical operations
+ok 24 - specialized unadmitted model operations cannot masquerade as accepted canonical operations
+  ---
+  duration_ms: 0.794059
+  type: 'test'
+  ...
+# Subtest: typed contract binding catalog exhaustively covers source roles without implying support
+ok 25 - typed contract binding catalog exhaustively covers source roles without implying support
+  ---
+  duration_ms: 15.95271
+  type: 'test'
+  ...
+# Subtest: catalog negative checks reject duplicate and stale schema identities
+ok 26 - catalog negative checks reject duplicate and stale schema identities
+  ---
+  duration_ms: 6.115029
+  type: 'test'
+  ...
+# Subtest: catalog negative checks reject unsupported PDP-1 references and missing new bindings
+ok 27 - catalog negative checks reject unsupported PDP-1 references and missing new bindings
+  ---
+  duration_ms: 2.429077
+  type: 'test'
+  ...
+# Subtest: catalog negative checks prevent admission of specialized unqualified operations
+ok 28 - catalog negative checks prevent admission of specialized unqualified operations
+  ---
+  duration_ms: 2.212524
+  type: 'test'
+  ...
+# Subtest: client contract imports resolve to the same catalog without upgrading legacy routes
+ok 29 - client contract imports resolve to the same catalog without upgrading legacy routes
+  ---
+  duration_ms: 3.301922
+  type: 'test'
+  ...
+1..29
+# tests 29
+# suites 0
+# pass 29
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 533.235886

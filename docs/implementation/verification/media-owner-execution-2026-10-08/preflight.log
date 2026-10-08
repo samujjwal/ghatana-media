@@ -1,0 +1,62 @@
+
+> @ test:lifecycle-input-preflight /home/samujjwal/Developments/ghatana-media
+> node --test tests/media-lifecycle-closure-preflight.test.mjs
+
+TAP version 13
+# Subtest: admits truthful PENDING source inputs without claiming completion
+ok 1 - admits truthful PENDING source inputs without claiming completion
+  ---
+  duration_ms: 4.719065
+  type: 'test'
+  ...
+# Subtest: allows additional requirement-specific obligations without one-per-phase ceiling
+ok 2 - allows additional requirement-specific obligations without one-per-phase ceiling
+  ---
+  duration_ms: 2.560618
+  type: 'test'
+  ...
+# Subtest: requires every obligation to cite a source requirement and unique case memberships
+ok 3 - requires every obligation to cite a source requirement and unique case memberships
+  ---
+  duration_ms: 2.618297
+  type: 'test'
+  ...
+# Subtest: rejects INPUT_READY without producer and case/observer/oracle coverage
+ok 4 - rejects INPUT_READY without producer and case/observer/oracle coverage
+  ---
+  duration_ms: 1.596836
+  type: 'test'
+  ...
+# Subtest: allows only input readiness, never Media-authored closure
+ok 5 - allows only input readiness, never Media-authored closure
+  ---
+  duration_ms: 1.810771
+  type: 'test'
+  ...
+# Subtest: requires unique versioned public provider bindings and a provider registry for readiness
+ok 6 - requires unique versioned public provider bindings and a provider registry for readiness
+  ---
+  duration_ms: 1.131188
+  type: 'test'
+  ...
+# Subtest: rejects hidden missing obligations and inconsistent phase selectors
+ok 7 - rejects hidden missing obligations and inconsistent phase selectors
+  ---
+  duration_ms: 2.368183
+  type: 'test'
+  ...
+# Subtest: rejects artificial green status with unaddressed owner blockers
+ok 8 - rejects artificial green status with unaddressed owner blockers
+  ---
+  duration_ms: 3.135837
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 272.028066

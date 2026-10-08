@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 const registryPath = ".product-experience/pdp-3-product-experience/events/event-registry.yaml";
@@ -194,6 +195,27 @@ const base = {
 
 test("event registry binds exact runtime and client source populations while preserving unproven guarantees", () => {
   assert.deepEqual(validate(base), []);
+});
+
+test("client event source refresh proves notification method bytes unchanged", () => {
+  const methods = ["transcribe", "synthesize", "processAIVoice", "processVision", "processMultimodal"];
+  const methodBodies = methods.map((name) => {
+    const match = base.client.match(new RegExp(`  async ${name}\\([\\s\\S]*?(?=\\n  /\\*\\*|\\n  async |\\n\\})`, "u"));
+    assert.ok(match, `AudioVideoClient.${name} source exists`);
+    return `${name}\n${match[0]}`;
+  }).join("\n");
+  const hash = (value) => createHash("sha256").update(value).digest("hex");
+  const eventInventory = section(base.domainEvents, "  clientNotificationInventory:\n", "  excludedEventShapedSources:\n");
+  const refresh = eventInventory.match(/sourceRefreshObservation:\n([\s\S]*?)(?=^    records:)/mu)?.[1] ?? "";
+  assert.ok(refresh, "events.yaml records the source refresh disposition");
+  const currentFileSha = refresh.match(/^      currentFileSha256: ([a-f0-9]{64})$/mu)?.[1];
+  const currentMethodSha = refresh.match(/^      clientNotificationMethodsSha256: ([a-f0-9]{64})$/mu)?.[1];
+  const previousMethodSha = refresh.match(/^      previousClientNotificationMethodsSha256: ([a-f0-9]{64})$/mu)?.[1];
+  assert.equal(currentFileSha, hash(base.client));
+  assert.equal(currentMethodSha, hash(methodBodies));
+  assert.equal(previousMethodSha, currentMethodSha);
+  assert.match(refresh, /semanticDisposition: client event names, publisher methods, and payload fields unchanged/u);
+  assert.match(refresh, /lifecycleProofRouteImpact: none/u);
 });
 
 test("event source parity rejects missing, stale, or duplicated runtime identities", () => {

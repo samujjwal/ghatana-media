@@ -1,0 +1,346 @@
+
+> @ test:tools-media-consumer /home/samujjwal/Developments/ghatana-media
+> node scripts/test-tools-media-consumer.mjs
+
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/experience-package@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-tools/libs/product-development/experience-package
+> tsc -p tsconfig.build.json
+
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+📦  @ghatana/experience-package@0.1.0-SNAPSHOT
+Tarball Contents
+dist/authority.d.ts
+dist/authority.d.ts.map
+dist/authority.js
+dist/authority.js.map
+dist/conformance.d.ts
+dist/conformance.d.ts.map
+dist/conformance.js
+dist/conformance.js.map
+dist/fingerprint.d.ts
+dist/fingerprint.d.ts.map
+dist/fingerprint.js
+dist/fingerprint.js.map
+dist/index.d.ts
+dist/index.d.ts.map
+dist/index.js
+dist/index.js.map
+dist/invariants.d.ts
+dist/invariants.d.ts.map
+dist/invariants.js
+dist/invariants.js.map
+dist/package.d.ts
+dist/package.d.ts.map
+dist/package.js
+dist/package.js.map
+dist/runtime-validation.d.ts
+dist/runtime-validation.d.ts.map
+dist/runtime-validation.js
+dist/runtime-validation.js.map
+package.json
+README.md
+schemas/product-experience-manifest.v1.schema.json
+Tarball Details
+/tmp/ghatana-tools-media-consumer-G0uSw8/artifacts/ghatana-experience-package-0.1.0-SNAPSHOT.tgz
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/experience-explorer-contracts@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-tools/libs/product-development/experience-explorer-contracts
+> tsc -p tsconfig.build.json
+
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+📦  @ghatana/experience-explorer-contracts@0.1.0-SNAPSHOT
+Tarball Contents
+dist/index.d.ts
+dist/index.d.ts.map
+dist/index.js
+dist/index.js.map
+package.json
+README.md
+Tarball Details
+/tmp/ghatana-tools-media-consumer-G0uSw8/artifacts/ghatana-experience-explorer-contracts-0.1.0-SNAPSHOT.tgz
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/development-subject@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-tools/libs/product-development/development-subject
+> tsc -p tsconfig.build.json
+
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+📦  @ghatana/development-subject@0.1.0-SNAPSHOT
+Tarball Contents
+dist/catalog.d.ts
+dist/catalog.d.ts.map
+dist/catalog.js
+dist/catalog.js.map
+dist/coordinate.d.ts
+dist/coordinate.d.ts.map
+dist/coordinate.js
+dist/coordinate.js.map
+dist/identity.d.ts
+dist/identity.d.ts.map
+dist/identity.js
+dist/identity.js.map
+dist/index.d.ts
+dist/index.d.ts.map
+dist/index.js
+dist/index.js.map
+dist/placement.d.ts
+dist/placement.d.ts.map
+dist/placement.js
+dist/placement.js.map
+dist/relation.d.ts
+dist/relation.d.ts.map
+dist/relation.js
+dist/relation.js.map
+dist/repository.d.ts
+dist/repository.d.ts.map
+dist/repository.js
+dist/repository.js.map
+dist/subject.d.ts
+dist/subject.d.ts.map
+dist/subject.js
+dist/subject.js.map
+dist/types.d.ts
+dist/types.d.ts.map
+dist/types.js
+dist/types.js.map
+dist/workspace.d.ts
+dist/workspace.d.ts.map
+dist/workspace.js
+dist/workspace.js.map
+package.json
+README.md
+Tarball Details
+/tmp/ghatana-tools-media-consumer-G0uSw8/artifacts/ghatana-development-subject-0.1.0-SNAPSHOT.tgz
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/development-graph@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-tools/libs/product-development/development-graph
+> tsc -p tsconfig.build.json
+
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+📦  @ghatana/development-graph@0.1.0-SNAPSHOT
+Tarball Contents
+dist/graph.d.ts
+dist/graph.d.ts.map
+dist/graph.js
+dist/graph.js.map
+dist/index.d.ts
+dist/index.d.ts.map
+dist/index.js
+dist/index.js.map
+dist/profiles.d.ts
+dist/profiles.d.ts.map
+dist/profiles.js
+dist/profiles.js.map
+dist/schema.d.ts
+dist/schema.d.ts.map
+dist/schema.js
+dist/schema.js.map
+dist/types.d.ts
+dist/types.d.ts.map
+dist/types.js
+dist/types.js.map
+package.json
+README.md
+Tarball Details
+/tmp/ghatana-tools-media-consumer-G0uSw8/artifacts/ghatana-development-graph-0.1.0-SNAPSHOT.tgz
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/development-authority@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-tools/libs/product-development/development-authority
+> tsc -p tsconfig.build.json && node ./scripts/copy-eg-admission-verifier.mjs
+
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+📦  @ghatana/development-authority@0.1.0-SNAPSHOT
+Tarball Contents
+dist/authority.d.ts
+dist/authority.d.ts.map
+dist/authority.js
+dist/authority.js.map
+dist/canonical-digest.d.ts
+dist/canonical-digest.d.ts.map
+dist/canonical-digest.js
+dist/canonical-digest.js.map
+dist/currentness.d.ts
+dist/currentness.d.ts.map
+dist/currentness.js
+dist/currentness.js.map
+dist/index.d.ts
+dist/index.d.ts.map
+dist/index.js
+dist/index.js.map
+dist/material-identity.d.ts
+dist/material-identity.d.ts.map
+dist/material-identity.js
+dist/material-identity.js.map
+dist/receipts.d.ts
+dist/receipts.d.ts.map
+dist/receipts.js
+dist/receipts.js.map
+dist/schema-registry.d.ts
+dist/schema-registry.d.ts.map
+dist/schema-registry.js
+dist/schema-registry.js.map
+dist/scripts/verify-eg-admission-authority.mjs
+dist/source-manifest.d.ts
+dist/source-manifest.d.ts.map
+dist/source-manifest.js
+dist/source-manifest.js.map
+dist/stage-authority.d.ts
+dist/stage-authority.d.ts.map
+dist/stage-authority.js
+dist/stage-authority.js.map
+dist/transitions.d.ts
+dist/transitions.d.ts.map
+dist/transitions.js
+dist/transitions.js.map
+dist/types.d.ts
+dist/types.d.ts.map
+dist/types.js
+dist/types.js.map
+package.json
+README.md
+schemas/authority-source-manifest.v1.schema.json
+Tarball Details
+/tmp/ghatana-tools-media-consumer-G0uSw8/artifacts/ghatana-development-authority-0.1.0-SNAPSHOT.tgz
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/experience-specification@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-tools/libs/product-development/experience-specification
+> tsc -p tsconfig.build.json
+
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+📦  @ghatana/experience-specification@0.1.0-SNAPSHOT
+Tarball Contents
+dist/index.d.ts
+dist/index.d.ts.map
+dist/index.js
+dist/index.js.map
+package.json
+README.md
+schemas/experience-specification.v1.schema.json
+Tarball Details
+/tmp/ghatana-tools-media-consumer-G0uSw8/artifacts/ghatana-experience-specification-0.1.0-SNAPSHOT.tgz
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/implementation-handoff@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-tools/libs/product-development/implementation-handoff
+> tsc -p tsconfig.build.json
+
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+📦  @ghatana/implementation-handoff@0.1.0-SNAPSHOT
+Tarball Contents
+dist/index.d.ts
+dist/index.d.ts.map
+dist/index.js
+dist/index.js.map
+package.json
+README.md
+schemas/implementation-handoff.v1.schema.json
+Tarball Details
+/tmp/ghatana-tools-media-consumer-G0uSw8/artifacts/ghatana-implementation-handoff-0.1.0-SNAPSHOT.tgz
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/opportunity-model@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-tools/libs/product-development/opportunity-model
+> tsc -p tsconfig.build.json
+
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+📦  @ghatana/opportunity-model@0.1.0-SNAPSHOT
+Tarball Contents
+dist/index.d.ts
+dist/index.d.ts.map
+dist/index.js
+dist/index.js.map
+package.json
+README.md
+Tarball Details
+/tmp/ghatana-tools-media-consumer-G0uSw8/artifacts/ghatana-opportunity-model-0.1.0-SNAPSHOT.tgz
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/product-definition@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-tools/libs/product-development/product-definition
+> tsc -p tsconfig.build.json
+
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+📦  @ghatana/product-definition@0.1.0-SNAPSHOT
+Tarball Contents
+dist/index.d.ts
+dist/index.d.ts.map
+dist/index.js
+dist/index.js.map
+package.json
+README.md
+schemas/product-definition.v1.schema.json
+Tarball Details
+/tmp/ghatana-tools-media-consumer-G0uSw8/artifacts/ghatana-product-definition-0.1.0-SNAPSHOT.tgz
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/development-traceability@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-tools/libs/product-development/development-traceability
+> tsc -p tsconfig.build.json
+
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+📦  @ghatana/development-traceability@0.1.0-SNAPSHOT
+Tarball Contents
+dist/index.d.ts
+dist/index.d.ts.map
+dist/index.js
+dist/index.js.map
+dist/projection.d.ts
+dist/projection.d.ts.map
+dist/projection.js
+dist/projection.js.map
+dist/source-references.d.ts
+dist/source-references.d.ts.map
+dist/source-references.js
+dist/source-references.js.map
+dist/types.d.ts
+dist/types.d.ts.map
+dist/types.js
+dist/types.js.map
+package.json
+README.md
+Tarball Details
+/tmp/ghatana-tools-media-consumer-G0uSw8/artifacts/ghatana-development-traceability-0.1.0-SNAPSHOT.tgz
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/product-dev-explorer@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-tools/tools/product-development/explorer
+> tsc -p tsconfig.build.json
+
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+📦  @ghatana/product-dev-explorer@0.1.0-SNAPSHOT
+Tarball Contents
+dist/browser/index.d.ts
+dist/browser/index.d.ts.map
+dist/browser/index.js
+dist/browser/index.js.map
+dist/headless/index.d.ts
+dist/headless/index.d.ts.map
+dist/headless/index.js
+dist/headless/index.js.map
+dist/headless/session.d.ts
+dist/headless/session.d.ts.map
+dist/headless/session.js
+dist/headless/session.js.map
+dist/index.d.ts
+dist/index.d.ts.map
+dist/index.js
+dist/index.js.map
+dist/workspace/index.d.ts
+dist/workspace/index.d.ts.map
+dist/workspace/index.js
+dist/workspace/index.js.map
+package.json
+README.md
+Tarball Details
+/tmp/ghatana-tools-media-consumer-G0uSw8/artifacts/ghatana-product-dev-explorer-0.1.0-SNAPSHOT.tgz
+TAP version 13
+# Subtest: Media consumer can load, render, inspect, and dispatch through the Tools Explorer API
+ok 1 - Media consumer can load, render, inspect, and dispatch through the Tools Explorer API
+  ---
+  duration_ms: 21.215808
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 238.505674

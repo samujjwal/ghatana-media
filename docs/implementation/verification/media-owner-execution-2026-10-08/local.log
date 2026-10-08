@@ -1,0 +1,20 @@
+
+> @ check:product-experience-local /home/samujjwal/Developments/ghatana-media
+> node scripts/check-product-experience-local.mjs
+
+Media Product Definition local check passed
+  currentness.yaml is absent as required by the unresolved owner-approved generation gate
+  Explorer index contains 315 source-derived records; digest 63ad69a347c56da7
+  48 screen-contract directory records are present (47 canonical screen contracts plus one job-family specialization); 48 are indexed for read-only projection
+  146 action IDs are registered; 135 distinct screen action references resolve
+  462 PDP-0 capability leaves have 385 unresolved explicit leaf-level journey references; inherited family intent/outcome coverage remains pending owner review
+  10 PDP-0 vision outcomes have journey/supporting-view coverage; 38 requirement groups have outcome traces
+  462 PDP-0 capability leaves resolve to 38 families and 38 requirement IDs; 462 expose the required definition shape; 17 have operation-specific parameter proposals and 445 still require owner-approved bounds
+  21 of 47 screen views have direct action-capability requirement crosswalks; 55 screen action bindings resolve through registered capability IDs; unresolved operation/effect, domain-state, and behavioral-oracle links remain proposal-only
+  18 of 18 action-bearing journey steps map through direct Action Registry capability refs to PDP-0 requirements; action authority, operation, state transition, oracle, and behavior acceptance remain pending
+  3 component family gap(s) and 123 proposal action(s) still need explicit capability reachability review
+  31 PDP-2 components (31 required shapes), 47 PDP-3 screen contracts (47 required shapes), 46 journey view references, and 16 journey action references resolve (30 journey shapes)
+  30 journeys are indexed and 30 journey contracts have source files (28 baseline plus J-29/J-30 extensions)
+  Structural references checked against 14 PDP-1 operations, 38 domain-object IDs, 11 state machines, 27 HTTP APIs, 43 gRPC APIs, and 15 event IDs
+  Requirement→domain/object semantics, action→operation bindings, and PDP-2 surface/layout authority remain unselected or proposal-only in local source; no inferred bindings are accepted
+  Tools Product Definition/Experience validation and lifecycle currentness outputs are not bound in this checkout; local structural checks do not establish semantic acceptance or currentness

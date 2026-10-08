@@ -67,10 +67,10 @@ function validateLink(link) {
 test('L-02 source-link proposal preserves all obligations and validates exact existing test identities', () => {
   assert.equal(proposal.status, 'SOURCE_LINK_PROPOSAL_PARTIAL_NOT_EXECUTION_ADMITTED');
   assert.deepEqual(proposal.obligationIds, obligationIds, 'proposal denominator must preserve every obligation ID in source order');
-  assert.equal(new Set(proposal.obligationIds).size, 319);
+  assert.equal(new Set(proposal.obligationIds).size, 344);
   assert.equal(new Set(proposal.candidateLinks.map(({ obligationId }) => obligationId)).size, 7);
   assert.equal(proposal.candidateLinks.length, 28);
-  assert.equal(proposal.unmappedObligationIds.length, 312);
+  assert.equal(proposal.unmappedObligationIds.length, 337);
   assert.deepEqual(new Set(proposal.unmappedObligationIds), new Set(obligationIds.filter((id) =>
     !proposal.candidateLinks.some((link) => link.obligationId === id))));
 

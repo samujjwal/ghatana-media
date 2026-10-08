@@ -1,0 +1,25 @@
+
+> @audio-video/types@0.1.0-SNAPSHOT check /home/samujjwal/Developments/ghatana-media/libs/audio-video-types
+> pnpm typecheck && pnpm test && pnpm build
+
+
+> @audio-video/types@0.1.0-SNAPSHOT typecheck /home/samujjwal/Developments/ghatana-media/libs/audio-video-types
+> tsc --noEmit
+
+
+> @audio-video/types@0.1.0-SNAPSHOT test /home/samujjwal/Developments/ghatana-media/libs/audio-video-types
+> vitest run
+
+
+ RUN  v4.1.11 /home/samujjwal/Developments/ghatana-media/libs/audio-video-types
+
+
+ Test Files  2 passed (2)
+      Tests  35 passed (35)
+   Start at  13:54:20
+   Duration  828ms (transform 331ms, setup 0ms, import 737ms, tests 121ms, environment 0ms)
+
+
+> @audio-video/types@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-media/libs/audio-video-types
+> tsc
+

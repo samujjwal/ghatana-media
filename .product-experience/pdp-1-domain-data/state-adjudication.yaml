@@ -47,17 +47,29 @@ crossProjectionDispositions:
     observation: Media runtime emits ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED; it has no RETRY_PENDING, RECONCILING, or PARTIALLY_SUCCEEDED value
     disposition: current-runtime-enum-observed; per-state canonical and wire mapping unresolved; ACCEPTED is not evidence of durable job queueing
   - source: Java AvJobLifecycleAdapter.mapStatus
-    observation: OUTCOME_UNKNOWN and RECONCILING project to RUNNING
-    disposition: lossy-implementation-projection; rejected-as-canonical-equivalence
+    observation: AvTranscriptionJob.JobStatus has CREATED, QUEUED, PROCESSING, COMPLETED, FAILED, CANCELLED, RETRYING; it has no OUTCOME_UNKNOWN or RECONCILING values for this adapter to map
+    disposition: external-runtime-contract-is-too-narrow-to-represent-these-canonical-states; no mapping or runtime support inferred; Ghatana media owner decision required
+  - source: ../ghatana/services/data-cloud/delivery/api/src/main/java/com/ghatana/datacloud/memory/media/MediaJobLifecycleAdapter.java#mapStatus
+    observation: MediaProcessingJob.RETRYING maps to canonical RUNNING; BLOCKED and REQUIRES_REVIEW map to canonical FAILED
+    disposition: lossy-external-projection; semantic mappings are not adopted; Ghatana Data Cloud owner must preserve raw source state or emit an explicit unmapped/unknown disposition
   - source: libs/audio-video-types/src/contracts.ts#normalizeLegacyMediaJobState
-    observation: CANCELLING projects to RUNNING and RETRYING to RETRY_PENDING
-    disposition: observed-compatibility-code; mappings-not-adopted-as-product-meaning
+    observation: observeMediaJobState preserves raw CANCELLING/RETRYING with media-job machine identity and null canonicalState; the scalar compatibility wrapper returns the original raw value
+    disposition: safe-local-observation; legacy state mapping remains unresolved and must not authorize cancel/retry
   - source: contracts/openapi/media.yaml#/components/schemas/PlatformOperation/properties/state
     observation: ACCEPTED, QUEUED, RUNNING, SUCCEEDED, FAILED, CANCELLED
     disposition: narrower-transport-enum; each mapping unresolved
   - source: inspected active Media protobuf service declarations
     observation: no matching shared job-lifecycle enum found; engine and health enums represent other dimensions
     disposition: inventory-absence-only; not a support or exclusion decision
+externalOwnerDependencies:
+  - taskRefs: [P1-02, X-06]
+    ownerRepository: ghatana
+    ownerArea: Data Cloud delivery API
+    target: ../ghatana/services/data-cloud/delivery/api/src/main/java/com/ghatana/datacloud/memory/media/MediaJobLifecycleAdapter.java#mapStatus
+    observedProblem: RETRYING is coerced to RUNNING and BLOCKED/REQUIRES_REVIEW are coerced to FAILED, erasing the source state dimension.
+    requestedChange: Preserve the exact source status plus a loss/disposition record, or add an owner-admitted canonical mapping that retains retry-pending, blocked, and review-required distinctions. Do not map these values to execution-in-progress or terminal failure by convenience.
+    requiredOwnerEvidence: Data Cloud contract-owner decision, consumer compatibility assessment, and negative tests showing unknown/raw values cannot authorize retry, finality, or execution claims.
+    admissionStatus: external-owner-change-required; no cross-repository acceptance claimed
 invariantsProposed:
   - state-identity-is-machine-plus-state-id; identical spelling-across-machines-does-not-imply-equivalence
   - request-acceptance-queueing-dispatch-running-and-effect-finality-are-distinct-observations

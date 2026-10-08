@@ -1,0 +1,25 @@
+
+> @audio-video/client@0.1.0-SNAPSHOT check /home/samujjwal/Developments/ghatana-media/libs/audio-video-client
+> pnpm typecheck && pnpm test && pnpm build
+
+
+> @audio-video/client@0.1.0-SNAPSHOT typecheck /home/samujjwal/Developments/ghatana-media/libs/audio-video-client
+> tsc --noEmit
+
+
+> @audio-video/client@0.1.0-SNAPSHOT test /home/samujjwal/Developments/ghatana-media/libs/audio-video-client
+> vitest run
+
+
+ RUN  v4.1.11 /home/samujjwal/Developments/ghatana-media/libs/audio-video-client
+
+
+ Test Files  4 passed (4)
+      Tests  44 passed (44)
+   Start at  13:54:20
+   Duration  1.21s (transform 1.55s, setup 0ms, import 2.63s, tests 453ms, environment 1ms)
+
+
+> @audio-video/client@0.1.0-SNAPSHOT build /home/samujjwal/Developments/ghatana-media/libs/audio-video-client
+> tsc
+

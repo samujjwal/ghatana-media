@@ -1,0 +1,2057 @@
+TAP version 13
+# Subtest: E-04 fixture and browser-audit byte fingerprints are unchanged
+ok 1 - E-04 fixture and browser-audit byte fingerprints are unchanged
+  ---
+  duration_ms: 1.411966
+  type: 'test'
+  ...
+# Subtest: E-04 drift check detects changed bytes and reports the exact source
+ok 2 - E-04 drift check detects changed bytes and reports the exact source
+  ---
+  duration_ms: 1.806367
+  type: 'test'
+  ...
+# Subtest: E-04 browser-harness pin changes preserve each reviewed semantic delta
+ok 3 - E-04 browser-harness pin changes preserve each reviewed semantic delta
+  ---
+  duration_ms: 13.035369
+  type: 'test'
+  ...
+# Subtest: E-04 retry-fixture source pin changes have bounded semantic review
+ok 4 - E-04 retry-fixture source pin changes have bounded semantic review
+  ---
+  duration_ms: 0.785391
+  type: 'test'
+  ...
+# Subtest: E-04 pin paths resolve to the exact observed source bytes
+ok 5 - E-04 pin paths resolve to the exact observed source bytes
+  ---
+  duration_ms: 6.650581
+  type: 'test'
+  ...
+# Subtest: browser audit retains the six ordered responsive viewport sweeps
+ok 6 - browser audit retains the six ordered responsive viewport sweeps
+  ---
+  duration_ms: 2.736611
+  type: 'test'
+  ...
+# Subtest: report declares requested browser coverage without equating geometry with design quality
+ok 7 - report declares requested browser coverage without equating geometry with design quality
+  ---
+  duration_ms: 0.632193
+  type: 'test'
+  ...
+# Subtest: screen-reader, canonical visual references, and independent review remain explicit unverified gates
+ok 8 - screen-reader, canonical visual references, and independent review remain explicit unverified gates
+  ---
+  duration_ms: 0.413807
+  type: 'test'
+  ...
+# Subtest: text scaling uses the DevTools CSS domain and degrades to an explicit unsupported result
+ok 9 - text scaling uses the DevTools CSS domain and degrades to an explicit unsupported result
+  ---
+  duration_ms: 0.974109
+  type: 'test'
+  ...
+# Subtest: touch audit excludes only disabled or hidden targets and delegates transparent toggles to visible labels
+ok 10 - touch audit excludes only disabled or hidden targets and delegates transparent toggles to visible labels
+  ---
+  duration_ms: 0.575901
+  type: 'test'
+  ...
+# Subtest: Media Product Definition has one declared semantic source across implementation repositories
+ok 11 - Media Product Definition has one declared semantic source across implementation repositories
+  ---
+  duration_ms: 3.802643
+  type: 'test'
+  ...
+# Subtest: Lifecycle admission uses its public package export and the full consumer contract arguments
+ok 12 - Lifecycle admission uses its public package export and the full consumer contract arguments
+  ---
+  duration_ms: 1.391055
+  type: 'test'
+  ...
+# Subtest: technology register distinguishes selection from license and artifact qualification
+ok 13 - technology register distinguishes selection from license and artifact qualification
+  ---
+  duration_ms: 1.259871
+  type: 'test'
+  ...
+# Subtest: tool registry records the exact four handler-observed contracts without implying admission
+ok 14 - tool registry records the exact four handler-observed contracts without implying admission
+  ---
+  duration_ms: 11.821947
+  type: 'test'
+  ...
+# Subtest: all four entries inventory only source-observed inputs and keep result schemas opaque
+ok 15 - all four entries inventory only source-observed inputs and keep result schemas opaque
+  ---
+  duration_ms: 4.250412
+  type: 'test'
+  ...
+# Subtest: tool registry rejects missing, extra, or duplicate handler entries and missing observed fields
+ok 16 - tool registry rejects missing, extra, or duplicate handler entries and missing observed fields
+  ---
+  duration_ms: 6.108045
+  type: 'test'
+  ...
+# Subtest: each handler input/error source drift is rejected independently
+ok 17 - each handler input/error source drift is rejected independently
+  ---
+  duration_ms: 15.451552
+  type: 'test'
+  ...
+# Subtest: registry distinguishes direct null-argument throws from caught local failures and records unchanged delegate forwarding
+ok 18 - registry distinguishes direct null-argument throws from caught local failures and records unchanged delegate forwarding
+  ---
+  duration_ms: 0.526085
+  type: 'test'
+  ...
+# Subtest: registry rejects accidental runtime, operation, authority, or finality promotion
+ok 19 - registry rejects accidental runtime, operation, authority, or finality promotion
+  ---
+  duration_ms: 2.18705
+  type: 'test'
+  ...
+# Subtest: runtime source observation does not turn Tools build resolution into Shared owner acceptance
+ok 20 - runtime source observation does not turn Tools build resolution into Shared owner acceptance
+  ---
+  duration_ms: 0.398703
+  type: 'test'
+  ...
+# Subtest: owner-selected operation families remain definition-only until handler bindings and admission are proved
+ok 21 - owner-selected operation families remain definition-only until handler bindings and admission are proved
+  ---
+  duration_ms: 1.366855
+  type: 'test'
+  ...
+# Subtest: X-05 documentation does not present text and embedding inference as a typed media modality API
+ok 22 - X-05 documentation does not present text and embedding inference as a typed media modality API
+  ---
+  duration_ms: 145.620895
+  type: 'test'
+  ...
+# Subtest: capability review source pin changes are reconciled to the reviewed goal semantics
+ok 23 - capability review source pin changes are reconciled to the reviewed goal semantics
+  ---
+  duration_ms: 875.475084
+  type: 'test'
+  ...
+# Subtest: operation source changes reconcile affected leaf links without promoting coverage
+ok 24 - operation source changes reconcile affected leaf links without promoting coverage
+  ---
+  duration_ms: 203.136266
+  type: 'test'
+  ...
+# Subtest: domain catalog identity changes reconcile to zero capability leaf references
+ok 25 - domain catalog identity changes reconcile to zero capability leaf references
+  ---
+  duration_ms: 33.355148
+  type: 'test'
+  ...
+# Subtest: non-inventoried constitution and actor records are not misrepresented as capability evidence
+ok 26 - non-inventoried constitution and actor records are not misrepresented as capability evidence
+  ---
+  duration_ms: 7.024397
+  type: 'test'
+  ...
+# Subtest: caption save and compare operations bind only exact source-supported UI and CLI identities
+ok 27 - caption save and compare operations bind only exact source-supported UI and CLI identities
+  ---
+  duration_ms: 5.810865
+  type: 'test'
+  ...
+# Subtest: source parity rejects missing operation, wrong CLI crosswalk, and missing required version input
+ok 28 - source parity rejects missing operation, wrong CLI crosswalk, and missing required version input
+  ---
+  duration_ms: 5.189022
+  type: 'test'
+  ...
+# Subtest: source parity rejects mismatched command/action dispatch and stale error semantics
+ok 29 - source parity rejects mismatched command/action dispatch and stale error semantics
+  ---
+  duration_ms: 5.760834
+  type: 'test'
+  ...
+# Subtest: source parity rejects fixture-namespace and unsupported SDK/transport promotion
+ok 30 - source parity rejects fixture-namespace and unsupported SDK/transport promotion
+  ---
+  duration_ms: 8.721474
+  type: 'test'
+  ...
+# Subtest: compatibility ledger preserves canonical-source and unverified-cutover boundary
+ok 31 - compatibility ledger preserves canonical-source and unverified-cutover boundary
+  ---
+  duration_ms: 9.517168
+  type: 'test'
+  ...
+# Subtest: ledger records every observed local Gradle and Docker compatibility path
+ok 32 - ledger records every observed local Gradle and Docker compatibility path
+  ---
+  duration_ms: 3.364956
+  type: 'test'
+  ...
+# Subtest: quarantined obsolete workflow paths remain explicitly inactive observations
+ok 33 - quarantined obsolete workflow paths remain explicitly inactive observations
+  ---
+  duration_ms: 0.571838
+  type: 'test'
+  ...
+# Subtest: local consumer evidence and external gates cannot silently disappear
+ok 34 - local consumer evidence and external gates cannot silently disappear
+  ---
+  duration_ms: 6.153786
+  type: 'test'
+  ...
+# Subtest: reuse audit completeness counts derive from the component contract source
+ok 35 - reuse audit completeness counts derive from the component contract source
+  ---
+  duration_ms: 9.557585
+  type: 'test'
+  ...
+# Subtest: typed contract catalog validation rejects missing, duplicate, stale, and non-admitted operation bindings
+ok 36 - typed contract catalog validation rejects missing, duplicate, stale, and non-admitted operation bindings
+  ---
+  duration_ms: 14.871152
+  type: 'test'
+  ...
+# Subtest: preserves matching OpenAPI/runtime/PDP-3 route identity while reporting semantic proposals non-green
+ok 37 - preserves matching OpenAPI/runtime/PDP-3 route identity while reporting semantic proposals non-green
+  ---
+  duration_ms: 3.204471
+  type: 'test'
+  ...
+# Subtest: keeps the two remaining parity findings open because current sources lack authoritative contracts
+ok 38 - keeps the two remaining parity findings open because current sources lack authoritative contracts
+  ---
+  duration_ms: 4.235816
+  type: 'test'
+  ...
+# Subtest: detects HTTP route or operation identity drift
+ok 39 - detects HTTP route or operation identity drift
+  ---
+  duration_ms: 0.71898
+  type: 'test'
+  ...
+# Subtest: rejects SDK client path divergence from the runtime routes
+ok 40 - rejects SDK client path divergence from the runtime routes
+  ---
+  duration_ms: 1.014184
+  type: 'test'
+  ...
+# Subtest: source-dispositioned legacy paths reconcile individually without becoming OpenAPI bindings
+ok 41 - source-dispositioned legacy paths reconcile individually without becoming OpenAPI bindings
+  ---
+  duration_ms: 1.063169
+  type: 'test'
+  ...
+# Subtest: four SDK identities without OpenAPI routes have explicit NOT_ADMITTED parity dispositions
+ok 42 - four SDK identities without OpenAPI routes have explicit NOT_ADMITTED parity dispositions
+  ---
+  duration_ms: 2.45891
+  type: 'test'
+  ...
+# Subtest: reports stale route dispositions instead of silently changing the parity denominator
+ok 43 - reports stale route dispositions instead of silently changing the parity denominator
+  ---
+  duration_ms: 0.582861
+  type: 'test'
+  ...
+# Subtest: reconciles the SDK registry-method count warning only when all source call sites parsed
+ok 44 - reconciles the SDK registry-method count warning only when all source call sites parsed
+  ---
+  duration_ms: 1.14064
+  type: 'test'
+  ...
+# Subtest: rejects an SDK HTTP method mismatch even when the normalized path matches
+ok 45 - rejects an SDK HTTP method mismatch even when the normalized path matches
+  ---
+  duration_ms: 0.94403
+  type: 'test'
+  ...
+# Subtest: normalizes SDK path parameters before comparing method and route
+ok 46 - normalizes SDK path parameters before comparing method and route
+  ---
+  duration_ms: 0.615204
+  type: 'test'
+  ...
+# Subtest: extracts explicit verbs from request, fetch, submit, and facade call sites
+ok 47 - extracts explicit verbs from request, fetch, submit, and facade call sites
+  ---
+  duration_ms: 1.48224
+  type: 'test'
+  ...
+# Subtest: SDK registry method extraction excludes control tokens and built-in calls but retains public methods
+ok 48 - SDK registry method extraction excludes control tokens and built-in calls but retains public methods
+  ---
+  duration_ms: 4.077948
+  type: 'test'
+  ...
+# Subtest: SDK source discovery includes a third recursively discovered public class source
+ok 49 - SDK source discovery includes a third recursively discovered public class source
+  ---
+  duration_ms: 4.049073
+  type: 'test'
+  ...
+# Subtest: typed UI action dispositions reconcile exactly to the 146 source identities
+ok 50 - typed UI action dispositions reconcile exactly to the 146 source identities
+  ---
+  duration_ms: 7.167678
+  type: 'test'
+  ...
+# Subtest: the two UI action binding views reconcile exact PDP-1 refs and preserve every other action unresolved
+ok 51 - the two UI action binding views reconcile exact PDP-1 refs and preserve every other action unresolved
+  ---
+  duration_ms: 10.320376
+  type: 'test'
+  ...
+# Subtest: reports an unparsed HTTP method instead of silently passing the route
+ok 52 - reports an unparsed HTTP method instead of silently passing the route
+  ---
+  duration_ms: 0.455485
+  type: 'test'
+  ...
+# Subtest: compares protobuf RPC identities with the gRPC registry
+ok 53 - compares protobuf RPC identities with the gRPC registry
+  ---
+  duration_ms: 0.387985
+  type: 'test'
+  ...
+# Subtest: semantic candidates never contradict the HTTP and gRPC typed role dispositions
+ok 54 - semantic candidates never contradict the HTTP and gRPC typed role dispositions
+  ---
+  duration_ms: 10.475289
+  type: 'test'
+  ...
+# Subtest: dependency inventory preserves current source denominators and lock membership
+ok 55 - dependency inventory preserves current source denominators and lock membership
+  ---
+  duration_ms: 996.800729
+  type: 'test'
+  ...
+# Subtest: source pins cover the exact manifests, locks, policy authorities, and asset inputs
+ok 56 - source pins cover the exact manifests, locks, policy authorities, and asset inputs
+  ---
+  duration_ms: 604.970061
+  type: 'test'
+  ...
+# Subtest: the inventory keeps legal, transitive, codec, model, and font states unresolved
+ok 57 - the inventory keeps legal, transitive, codec, model, and font states unresolved
+  ---
+  duration_ms: 617.790555
+  type: 'test'
+  ...
+# Subtest: denominator shrink is a hard regression
+ok 58 - denominator shrink is a hard regression
+  ---
+  duration_ms: 559.629921
+  type: 'test'
+  ...
+# Subtest: clean semantic CSS does not close external, independent, or incomplete source gates
+ok 59 - clean semantic CSS does not close external, independent, or incomplete source gates
+  ---
+  duration_ms: 36.569602
+  type: 'test'
+  ...
+# Subtest: literal colors are reported and fail closed
+ok 60 - literal colors are reported and fail closed
+  ---
+  duration_ms: 20.324513
+  type: 'test'
+  ...
+# Subtest: literal colors in custom properties are reported and remain unexplained without the explicit exception
+ok 61 - literal colors in custom properties are reported and remain unexplained without the explicit exception
+  ---
+  duration_ms: 11.134089
+  type: 'test'
+  ...
+# Subtest: unknown token provenance fails
+ok 62 - unknown token provenance fails
+  ---
+  duration_ms: 15.892982
+  type: 'test'
+  ...
+# Subtest: unregistered local component implementation fails
+ok 63 - unregistered local component implementation fails
+  ---
+  duration_ms: 20.935264
+  type: 'test'
+  ...
+# Subtest: missing template and layout bindings fail
+ok 64 - missing template and layout bindings fail
+  ---
+  duration_ms: 11.922005
+  type: 'test'
+  ...
+# Subtest: unknown semantic state styling and one-off interaction fail
+ok 65 - unknown semantic state styling and one-off interaction fail
+  ---
+  duration_ms: 8.952439
+  type: 'test'
+  ...
+# Subtest: Explorer CSS remains visible as fixture-only and does not become product authority
+ok 66 - Explorer CSS remains visible as fixture-only and does not become product authority
+  ---
+  duration_ms: 26.482232
+  type: 'test'
+  ...
+# Subtest: repository keeps owner-gated blockers separate from source findings
+ok 67 - repository keeps owner-gated blockers separate from source findings
+  ---
+  duration_ms: 150.967746
+  type: 'test'
+  ...
+# Subtest: style authority must reference actual canonical Media alias and component sources
+ok 68 - style authority must reference actual canonical Media alias and component sources
+  ---
+  duration_ms: 17.534752
+  type: 'test'
+  ...
+# Subtest: a stale Shared package approval status fails against the canonical gate record
+ok 69 - a stale Shared package approval status fails against the canonical gate record
+  ---
+  duration_ms: 15.603675
+  type: 'test'
+  ...
+# Subtest: component binding source status must match its canonical source-incomplete gate
+ok 70 - component binding source status must match its canonical source-incomplete gate
+  ---
+  duration_ms: 3.902958
+  type: 'test'
+  ...
+# Subtest: Shared success cannot impersonate independent PDP-2 review
+ok 71 - Shared success cannot impersonate independent PDP-2 review
+  ---
+  duration_ms: 9.148434
+  type: 'test'
+  ...
+# Subtest: canonical governance rejects duplicate gate approvals and stale or unknown approval states
+ok 72 - canonical governance rejects duplicate gate approvals and stale or unknown approval states
+  ---
+  duration_ms: 5.351432
+  type: 'test'
+  ...
+# Subtest: a source and registry cannot jointly promote the external Shared gate to local VERIFIED
+ok 73 - a source and registry cannot jointly promote the external Shared gate to local VERIFIED
+  ---
+  duration_ms: 9.031129
+  type: 'test'
+  ...
+# Subtest: X-04 crosswalk is bounded by the observed worker v1 client and Media OCR boundary
+ok 74 - X-04 crosswalk is bounded by the observed worker v1 client and Media OCR boundary
+  ---
+  duration_ms: 4.345523
+  type: 'test'
+  ...
+# Subtest: PDP-1 canonical references resolve only to catalogued domain objects
+ok 75 - PDP-1 canonical references resolve only to catalogued domain objects
+  ---
+  duration_ms: 4.175308
+  type: 'test'
+  ...
+# Subtest: PDP-1 overview reports the exact registry count and keeps the fixture-only record distinct
+ok 76 - PDP-1 overview reports the exact registry count and keeps the fixture-only record distinct
+  ---
+  duration_ms: 0.894046
+  type: 'test'
+  ...
+# Subtest: PDP-1 object source references resolve to files and PDP-0 anchors resolve to named records
+ok 77 - PDP-1 object source references resolve to files and PDP-0 anchors resolve to named records
+  ---
+  duration_ms: 4.79329
+  type: 'test'
+  ...
+# Subtest: caption version catalog entry remains scoped to its observed simulation fixture
+ok 78 - caption version catalog entry remains scoped to its observed simulation fixture
+  ---
+  duration_ms: 0.935491
+  type: 'test'
+  ...
+# Subtest: artifact, job, and lease identities preserve the source-specific keys without promoting them
+ok 79 - artifact, job, and lease identities preserve the source-specific keys without promoting them
+  ---
+  duration_ms: 2.510229
+  type: 'test'
+  ...
+# Subtest: PDP-1 observes the current Media runtime job enum without accepting a canonical mapping
+ok 80 - PDP-1 observes the current Media runtime job enum without accepting a canonical mapping
+  ---
+  duration_ms: 1.63762
+  type: 'test'
+  ...
+# Subtest: event registry binds exact runtime and client source populations while preserving unproven guarantees
+ok 81 - event registry binds exact runtime and client source populations while preserving unproven guarantees
+  ---
+  duration_ms: 9.776472
+  type: 'test'
+  ...
+# Subtest: client event source refresh proves notification method bytes unchanged
+ok 82 - client event source refresh proves notification method bytes unchanged
+  ---
+  duration_ms: 2.237116
+  type: 'test'
+  ...
+# Subtest: event source parity rejects missing, stale, or duplicated runtime identities
+ok 83 - event source parity rejects missing, stale, or duplicated runtime identities
+  ---
+  duration_ms: 8.138911
+  type: 'test'
+  ...
+# Subtest: source crosswalk rejects missing, stale, or duplicate event and publisher identities
+ok 84 - source crosswalk rejects missing, stale, or duplicate event and publisher identities
+  ---
+  duration_ms: 18.280472
+  type: 'test'
+  ...
+# Subtest: event source parity rejects local/runtime population collapse and unsupported delivery promotion
+ok 85 - event source parity rejects local/runtime population collapse and unsupported delivery promotion
+  ---
+  duration_ms: 6.494584
+  type: 'test'
+  ...
+# Subtest: PDP-3 views project exact component and journey refs while state refs remain unbound
+ok 86 - PDP-3 views project exact component and journey refs while state refs remain unbound
+  ---
+  duration_ms: 462.493389
+  type: 'test'
+  ...
+# Subtest: PDP-3 public resolver rejects a view journey ref after its projected journey target is removed
+ok 87 - PDP-3 public resolver rejects a view journey ref after its projected journey target is removed
+  ---
+  duration_ms: 23.018544
+  type: 'test'
+  ...
+# Subtest: PDP-3 journeys project source-grounded actor, outcome, intent, view, and step identity with unresolved transition metadata
+ok 88 - PDP-3 journeys project source-grounded actor, outcome, intent, view, and step identity with unresolved transition metadata
+  ---
+  duration_ms: 1022.973788
+  type: 'test'
+  ...
+# Subtest: PDP-3 interactions inherit preconditions from their exact referenced action source
+ok 89 - PDP-3 interactions inherit preconditions from their exact referenced action source
+  ---
+  duration_ms: 0.933193
+  type: 'test'
+  ...
+# Subtest: PDP-3 report retains only genuinely unresolved specification mappings
+ok 90 - PDP-3 report retains only genuinely unresolved specification mappings
+  ---
+  duration_ms: 593.727246
+  type: 'test'
+  ...
+# Subtest: PDP-3 finality projects only explicit confirmations and source boolean reversibility
+ok 91 - PDP-3 finality projects only explicit confirmations and source boolean reversibility
+  ---
+  duration_ms: 1.192885
+  type: 'test'
+  ...
+# Subtest: PDP-3 preserves exact action prose while leaving unsupported effect taxonomy unresolved
+ok 92 - PDP-3 preserves exact action prose while leaving unsupported effect taxonomy unresolved
+  ---
+  duration_ms: 3.212222
+  type: 'test'
+  ...
+# Subtest: PDP-3 scenarios and fixture descriptors require exact state, journey, and simulation-source links
+ok 93 - PDP-3 scenarios and fixture descriptors require exact state, journey, and simulation-source links
+  ---
+  duration_ms: 649.352668
+  type: 'test'
+  ...
+# Subtest: PDP-3 recovery links reject stale and duplicate action or scenario references
+ok 94 - PDP-3 recovery links reject stale and duplicate action or scenario references
+  ---
+  duration_ms: 9.515301
+  type: 'test'
+  ...
+# Subtest: Specification search includes the canonical artifact ID used by trace metadata
+ok 95 - Specification search includes the canonical artifact ID used by trace metadata
+  ---
+  duration_ms: 4.005983
+  type: 'test'
+  ...
+# Subtest: initial Specification rendering exposes cross-phase search results and counts
+ok 96 - initial Specification rendering exposes cross-phase search results and counts
+  ---
+  duration_ms: 0.480043
+  type: 'test'
+  ...
+# Subtest: typing updates cross-phase Specification results, counts, and accessible navigation label
+ok 97 - typing updates cross-phase Specification results, counts, and accessible navigation label
+  ---
+  duration_ms: 0.582036
+  type: 'test'
+  ...
+# Subtest: relocating an artifact changes its location but not its canonical identity
+ok 98 - relocating an artifact changes its location but not its canonical identity
+  ---
+  duration_ms: 11.658675
+  type: 'test'
+  ...
+# Subtest: Explorer classification follows manifest authority metadata, not the phase
+ok 99 - Explorer classification follows manifest authority metadata, not the phase
+  ---
+  duration_ms: 0.441464
+  type: 'test'
+  ...
+# Subtest: missing manifest authority remains unresolved instead of being inferred
+ok 100 - missing manifest authority remains unresolved instead of being inferred
+  ---
+  duration_ms: 5.553122
+  type: 'test'
+  ...
+# Subtest: a relocated source retains its explicitly pinned identity
+ok 101 - a relocated source retains its explicitly pinned identity
+  ---
+  duration_ms: 0.491493
+  type: 'test'
+  ...
+# Subtest: identity coverage rejects missing records and duplicate paths or IDs
+ok 102 - identity coverage rejects missing records and duplicate paths or IDs
+  ---
+  duration_ms: 0.806257
+  type: 'test'
+  ...
+# Subtest: registry rejects authority classes outside its allowed vocabulary
+ok 103 - registry rejects authority classes outside its allowed vocabulary
+  ---
+  duration_ms: 0.323517
+  type: 'test'
+  ...
+# Subtest: registry YAML profile rejects duplicate keys and unknown fields
+ok 104 - registry YAML profile rejects duplicate keys and unknown fields
+  ---
+  duration_ms: 7.801414
+  type: 'test'
+  ...
+# Subtest: manifest projection identity cannot collide with a source artifact identity
+ok 105 - manifest projection identity cannot collide with a source artifact identity
+  ---
+  duration_ms: 0.474891
+  type: 'test'
+  ...
+# Subtest: source manifest indexes current PDP-3 candidate authorities and their screen-contract dependencies
+ok 106 - source manifest indexes current PDP-3 candidate authorities and their screen-contract dependencies
+  ---
+  duration_ms: 57.283405
+  type: 'test'
+  ...
+# Subtest: Explorer keeps the five task-first activities in primary navigation
+ok 107 - Explorer keeps the five task-first activities in primary navigation
+  ---
+  duration_ms: 1.687632
+  type: 'test'
+  ...
+# Subtest: secondary workspaces stay reachable and arrow navigation stays in the primary activities
+ok 108 - secondary workspaces stay reachable and arrow navigation stays in the primary activities
+  ---
+  duration_ms: 0.602211
+  type: 'test'
+  ...
+# Subtest: Verify has no durable task-local pass or blocked result claim
+ok 109 - Verify has no durable task-local pass or blocked result claim
+  ---
+  duration_ms: 3.29692
+  type: 'test'
+  ...
+# Subtest: HTTP and gRPC contractFile references resolve to exact indexed operation artifacts
+ok 110 - HTTP and gRPC contractFile references resolve to exact indexed operation artifacts
+  ---
+  duration_ms: 2.28548
+  type: 'test'
+  ...
+# Subtest: non-contract interface rows are explicitly registry-only and scalar projection is qualified
+ok 111 - non-contract interface rows are explicitly registry-only and scalar projection is qualified
+  ---
+  duration_ms: 1.354327
+  type: 'test'
+  ...
+# Subtest: external contract observation retains X-04/X-05/X-06 source limits
+ok 112 - external contract observation retains X-04/X-05/X-06 source limits
+  ---
+  duration_ms: 2.522279
+  type: 'test'
+  ...
+# Subtest: external source snapshot fails when recorded Git metadata becomes stale
+not ok 113 - external source snapshot fails when recorded Git metadata becomes stale
+  ---
+  duration_ms: 1091.932342
+  type: 'test'
+  location: '/home/samujjwal/Developments/ghatana-media/tests/media-external-platform-contract-observation.test.mjs:30:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    refresh the recorded external dirty-path snapshot and classifications
+    + actual - expected
+    
+      [
+    +   'M scripts/__tests__/shared-compatibility-lock-negative.test.mjs',
+        'M services/ai-inference/delivery/api/src/test/java/com/ghatana/aiinference/delivery/openapi/AiInferenceOpenApiContractConsumptionTest.java',
+    +   '?? services/aep/docs/research/eni/evidence/2026-10-08-ub10-agent-core-binary-compatibility-v1/expanded-compiled-client-v1/ExpandedAgentCoreClient.java',
+    +   '?? services/aep/docs/research/eni/evidence/2026-10-08-ub10-agent-core-binary-compatibility-v1/expanded-compiled-client-v1/prepare_classpaths.py',
+    +   '?? services/aep/docs/research/eni/evidence/2026-10-08-ub10-agent-core-binary-compatibility-v1/expanded-compiled-client-v1/run.sh',
+    +   '?? services/aep/lab/src/main/java/com/ghatana/aep/lab/research/mechanism/GeneratedMechanismSentinelHarness.java',
+    +   '?? services/aep/lab/src/test/java/com/ghatana/aep/lab/research/mechanism/GeneratedMechanismSentinelHarnessTest.java'
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'M services/ai-inference/delivery/api/src/test/java/com/ghatana/aiinference/delivery/openapi/AiInferenceOpenApiContractConsumptionTest.java'
+  actual:
+    0: 'M scripts/__tests__/shared-compatibility-lock-negative.test.mjs'
+    1: 'M services/ai-inference/delivery/api/src/test/java/com/ghatana/aiinference/delivery/openapi/AiInferenceOpenApiContractConsumptionTest.java'
+    2: '?? services/aep/docs/research/eni/evidence/2026-10-08-ub10-agent-core-binary-compatibility-v1/expanded-compiled-client-v1/ExpandedAgentCoreClient.java'
+    3: '?? services/aep/docs/research/eni/evidence/2026-10-08-ub10-agent-core-binary-compatibility-v1/expanded-compiled-client-v1/prepare_classpaths.py'
+    4: '?? services/aep/docs/research/eni/evidence/2026-10-08-ub10-agent-core-binary-compatibility-v1/expanded-compiled-client-v1/run.sh'
+    5: '?? services/aep/lab/src/main/java/com/ghatana/aep/lab/research/mechanism/GeneratedMechanismSentinelHarness.java'
+    6: '?? services/aep/lab/src/test/java/com/ghatana/aep/lab/research/mechanism/GeneratedMechanismSentinelHarnessTest.java'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/samujjwal/Developments/ghatana-media/tests/media-external-platform-contract-observation.test.mjs:43:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: available sibling source still matches the recorded contract facts
+ok 114 - available sibling source still matches the recorded contract facts
+  ---
+  duration_ms: 4.226273
+  type: 'test'
+  ...
+# Subtest: X-06 records the exact Event Plane append route and preserves Media lifecycle limits
+ok 115 - X-06 records the exact Event Plane append route and preserves Media lifecycle limits
+  ---
+  duration_ms: 410.234436
+  type: 'test'
+  ...
+# Subtest: all PDP-3 gRPC records project exact protobuf identity, message refs, and stream shape
+ok 116 - all PDP-3 gRPC records project exact protobuf identity, message refs, and stream shape
+  ---
+  duration_ms: 37.460175
+  type: 'test'
+  ...
+# Subtest: gRPC registry projection rejects a request or stream-shape drift
+ok 117 - gRPC registry projection rejects a request or stream-shape drift
+  ---
+  duration_ms: 2.699959
+  type: 'test'
+  ...
+# Subtest: admits truthful PENDING source inputs without claiming completion
+ok 118 - admits truthful PENDING source inputs without claiming completion
+  ---
+  duration_ms: 4.159115
+  type: 'test'
+  ...
+# Subtest: allows additional requirement-specific obligations without one-per-phase ceiling
+ok 119 - allows additional requirement-specific obligations without one-per-phase ceiling
+  ---
+  duration_ms: 5.427933
+  type: 'test'
+  ...
+# Subtest: requires every obligation to cite a source requirement and unique case memberships
+ok 120 - requires every obligation to cite a source requirement and unique case memberships
+  ---
+  duration_ms: 5.889281
+  type: 'test'
+  ...
+# Subtest: rejects INPUT_READY without producer and case/observer/oracle coverage
+ok 121 - rejects INPUT_READY without producer and case/observer/oracle coverage
+  ---
+  duration_ms: 5.50539
+  type: 'test'
+  ...
+# Subtest: allows only input readiness, never Media-authored closure
+ok 122 - allows only input readiness, never Media-authored closure
+  ---
+  duration_ms: 4.55879
+  type: 'test'
+  ...
+# Subtest: requires unique versioned public provider bindings and a provider registry for readiness
+ok 123 - requires unique versioned public provider bindings and a provider registry for readiness
+  ---
+  duration_ms: 0.996535
+  type: 'test'
+  ...
+# Subtest: rejects hidden missing obligations and inconsistent phase selectors
+ok 124 - rejects hidden missing obligations and inconsistent phase selectors
+  ---
+  duration_ms: 12.99973
+  type: 'test'
+  ...
+# Subtest: rejects artificial green status with unaddressed owner blockers
+ok 125 - rejects artificial green status with unaddressed owner blockers
+  ---
+  duration_ms: 8.67123
+  type: 'test'
+  ...
+# Subtest: L-02 source-link proposal preserves all obligations and validates exact existing test identities
+ok 126 - L-02 source-link proposal preserves all obligations and validates exact existing test identities
+  ---
+  duration_ms: 57.686863
+  type: 'test'
+  ...
+# Subtest: L-02 source links reject stale cases and unregistered or unrelated test identities
+ok 127 - L-02 source links reject stale cases and unregistered or unrelated test identities
+  ---
+  duration_ms: 2.297647
+  type: 'test'
+  ...
+# Subtest: records exact 344-obligation authoritative observer/oracle gap and source-resolvable candidates only
+ok 128 - records exact 344-obligation authoritative observer/oracle gap and source-resolvable candidates only
+  ---
+  duration_ms: 14.358646
+  type: 'test'
+  ...
+# Subtest: documents why current L-02 simulation links do not yet have L-03 observer/oracle routes
+ok 129 - documents why current L-02 simulation links do not yet have L-03 observer/oracle routes
+  ---
+  duration_ms: 4.862272
+  type: 'test'
+  ...
+# Subtest: rejects empty, missing, stale-source, or unreviewed candidate route records
+ok 130 - rejects empty, missing, stale-source, or unreviewed candidate route records
+  ---
+  duration_ms: 13.607036
+  type: 'test'
+  ...
+# Subtest: candidate records cannot promote Media Lifecycle inputs to ready or closure
+ok 131 - candidate records cannot promote Media Lifecycle inputs to ready or closure
+  ---
+  duration_ms: 15.165494
+  type: 'test'
+  ...
+# Subtest: generator refuses duplicate source identities without modifying closure inputs
+ok 132 - generator refuses duplicate source identities without modifying closure inputs
+  ---
+  duration_ms: 432.595378
+  type: 'test'
+  ...
+# Subtest: generator refuses omitted source collections before any output is written
+ok 133 - generator refuses omitted source collections before any output is written
+  ---
+  duration_ms: 223.536012
+  type: 'test'
+  ...
+# Subtest: check mode detects stale source fingerprints and output drift without writing
+ok 134 - check mode detects stale source fingerprints and output drift without writing
+  ---
+  duration_ms: 614.871558
+  type: 'test'
+  ...
+# Subtest: linked PDP source changes remain stale until their migration item claims are reconciled
+ok 135 - linked PDP source changes remain stale until their migration item claims are reconciled
+  ---
+  duration_ms: 11.760134
+  type: 'test'
+  ...
+# Subtest: the stale pin impact describes the exact newly added PDP claims
+ok 136 - the stale pin impact describes the exact newly added PDP claims
+  ---
+  duration_ms: 162.272052
+  type: 'test'
+  ...
+# Subtest: new linked-PDP assertions are atomized, source-located, and routed without implying acceptance
+ok 137 - new linked-PDP assertions are atomized, source-located, and routed without implying acceptance
+  ---
+  duration_ms: 110.649132
+  type: 'test'
+  ...
+# Subtest: new master-plan taxonomy and PDP-1 crosswalk claims are exact, routed, and non-accepting
+ok 138 - new master-plan taxonomy and PDP-1 crosswalk claims are exact, routed, and non-accepting
+  ---
+  duration_ms: 3026.299184
+  type: 'test'
+  ...
+# Subtest: migration taxonomy arbitration keeps execution-only items and unresolved hunk deltas classified without acceptance
+ok 139 - migration taxonomy arbitration keeps execution-only items and unresolved hunk deltas classified without acceptance
+  ---
+  duration_ms: 1851.479722
+  type: 'test'
+  ...
+# Subtest: every master-plan diff hunk is claim-linked or retained as an exact unresolved fragment
+ok 140 - every master-plan diff hunk is claim-linked or retained as an exact unresolved fragment
+  ---
+  duration_ms: 1957.47828
+  type: 'test'
+  ...
+# Subtest: migration master-plan semantic ledger preserves the stale pin and accounts for source changes
+ok 141 - migration master-plan semantic ledger preserves the stale pin and accounts for source changes
+  ---
+  duration_ms: 2430.68134
+  type: 'test'
+  ...
+# Subtest: migration source diff hunks have exact, non-accepting coverage
+ok 142 - migration source diff hunks have exact, non-accepting coverage
+  ---
+  duration_ms: 1887.005304
+  type: 'test'
+  ...
+# Subtest: narrow metadata slices preserve the mixed header while bounded source classifications stay non-accepting
+ok 143 - narrow metadata slices preserve the mixed header while bounded source classifications stay non-accepting
+  ---
+  duration_ms: 1391.105039
+  type: 'test'
+  ...
+# Subtest: PXD-033 remains bounded to its original exact 86 item IDs
+ok 144 - PXD-033 remains bounded to its original exact 86 item IDs
+  ---
+  duration_ms: 1995.156944
+  type: 'test'
+  ...
+# Subtest: PXD-039 adds only three exact execution-only lead-ins and reconciles the 89/260 counts
+ok 145 - PXD-039 adds only three exact execution-only lead-ins and reconciles the 89/260 counts
+  ---
+  duration_ms: 1479.23575
+  type: 'test'
+  ...
+# Subtest: MPSEM-0002 slogan claims have bounded proposal mappings without resolving the parent block
+ok 146 - MPSEM-0002 slogan claims have bounded proposal mappings without resolving the parent block
+  ---
+  duration_ms: 1365.569186
+  type: 'test'
+  ...
+# Subtest: P0-003 animation scope is crosswalked as a bounded slice while adjacent claims stay unresolved
+ok 147 - P0-003 animation scope is crosswalked as a bounded slice while adjacent claims stay unresolved
+  ---
+  duration_ms: 1350.257776
+  type: 'test'
+  ...
+# Subtest: MSC-04 path claims reconcile only source-supported PDP and Explorer identities
+ok 148 - MSC-04 path claims reconcile only source-supported PDP and Explorer identities
+  ---
+  duration_ms: 1454.393825
+  type: 'test'
+  ...
+# Subtest: MSC-05 source-scope claims map explicit PDP-0 and Explorer records while leaving absent projections open
+ok 149 - MSC-05 source-scope claims map explicit PDP-0 and Explorer records while leaving absent projections open
+  ---
+  duration_ms: 1231.899309
+  type: 'test'
+  ...
+# Subtest: MSC-07 routes scene validation, budgets, boundary, and locale claims only to exact source records
+ok 150 - MSC-07 routes scene validation, budgets, boundary, and locale claims only to exact source records
+  ---
+  duration_ms: 1032.474562
+  type: 'test'
+  ...
+# Subtest: MSC-08 separates PDP-0 path identity from changed completion criteria
+ok 151 - MSC-08 separates PDP-0 path identity from changed completion criteria
+  ---
+  duration_ms: 3204.041133
+  type: 'test'
+  ...
+# Subtest: MSC-10 viewport fixture wording maps only to the proposed PDP-2 responsive record
+ok 152 - MSC-10 viewport fixture wording maps only to the proposed PDP-2 responsive record
+  ---
+  duration_ms: 766.799545
+  type: 'test'
+  ...
+# Subtest: MSC-10 crosswalks the legacy design-artifact names to current PDP-2 paths only
+ok 153 - MSC-10 crosswalks the legacy design-artifact names to current PDP-2 paths only
+  ---
+  duration_ms: 608.576073
+  type: 'test'
+  ...
+# Subtest: MSC-11 maps only the P1-001 workstream label to the registered PDP-2 authority
+ok 154 - MSC-11 maps only the P1-001 workstream label to the registered PDP-2 authority
+  ---
+  duration_ms: 498.170821
+  type: 'test'
+  ...
+# Subtest: MSC-12 crosswalks only the GOV-002 reuse-register path and stable artifact identity
+ok 155 - MSC-12 crosswalks only the GOV-002 reuse-register path and stable artifact identity
+  ---
+  duration_ms: 636.415285
+  type: 'test'
+  ...
+# Subtest: MSC-14 pins the legacy Phase 0 crosswalk to the registered PDP-0 authority root
+ok 156 - MSC-14 pins the legacy Phase 0 crosswalk to the registered PDP-0 authority root
+  ---
+  duration_ms: 500.894422
+  type: 'test'
+  ...
+# Subtest: MSC-15 crosswalks the four-authority taxonomy while preserving the broader assessment gap
+ok 157 - MSC-15 crosswalks the four-authority taxonomy while preserving the broader assessment gap
+  ---
+  duration_ms: 493.812252
+  type: 'test'
+  ...
+# Subtest: MSC-13 maps only the retained P2 task group to the registered PDP-3 authority
+ok 158 - MSC-13 maps only the retained P2 task group to the registered PDP-3 authority
+  ---
+  duration_ms: 501.120214
+  type: 'test'
+  ...
+# Subtest: P0-003 future relabeling cannot remove a capability from the preserved scope
+ok 159 - P0-003 future relabeling cannot remove a capability from the preserved scope
+  ---
+  duration_ms: 514.910399
+  type: 'test'
+  ...
+# Subtest: MSC-07 erasure routing is crosswalked while proposed state and effect semantics remain unresolved
+ok 160 - MSC-07 erasure routing is crosswalked while proposed state and effect semantics remain unresolved
+  ---
+  duration_ms: 498.12496
+  type: 'test'
+  ...
+# Subtest: MSC-02 bounds the changed DEFINE_PRODUCT scope without resolving its mixed block
+ok 161 - MSC-02 bounds the changed DEFINE_PRODUCT scope without resolving its mixed block
+  ---
+  duration_ms: 490.208572
+  type: 'test'
+  ...
+# Subtest: MSC-03 authority rows are source-pinned to PDP candidates without accepting parent items
+ok 162 - MSC-03 authority rows are source-pinned to PDP candidates without accepting parent items
+  ---
+  duration_ms: 645.012189
+  type: 'test'
+  ...
+# Subtest: MSC-01 and MSC-09 owner-routing claims are reconciled at bounded source spans
+ok 163 - MSC-01 and MSC-09 owner-routing claims are reconciled at bounded source spans
+  ---
+  duration_ms: 503.705214
+  type: 'test'
+  ...
+# Subtest: MSC-03 canonical domain ownership slice is supported without phase acceptance
+ok 164 - MSC-03 canonical domain ownership slice is supported without phase acceptance
+  ---
+  duration_ms: 473.848436
+  type: 'test'
+  ...
+# Subtest: MSC-03 four-phase taxonomy diff has bounded owner-routing reconciliation only
+ok 165 - MSC-03 four-phase taxonomy diff has bounded owner-routing reconciliation only
+  ---
+  duration_ms: 585.85545
+  type: 'test'
+  ...
+# Subtest: MSC-10 PDP-3 upstream input routing is decomposed without accepting the inputs
+ok 166 - MSC-10 PDP-3 upstream input routing is decomposed without accepting the inputs
+  ---
+  duration_ms: 1027.647645
+  type: 'test'
+  ...
+# Subtest: MSC-15 routes semantic edits to the owning authority without resolving the historical parent block
+ok 167 - MSC-15 routes semantic edits to the owning authority without resolving the historical parent block
+  ---
+  duration_ms: 777.999155
+  type: 'test'
+  ...
+# Subtest: audits exact 344 obligation denominator, four phase counts, memberships, and resolvable source records
+ok 168 - audits exact 344 obligation denominator, four phase counts, memberships, and resolvable source records
+  ---
+  duration_ms: 2805.211411
+  type: 'test'
+  ...
+# Subtest: refreshes the nine operation-source fingerprints only after their semantic impact is reconciled
+ok 169 - refreshes the nine operation-source fingerprints only after their semantic impact is reconciled
+  ---
+  duration_ms: 3143.919826
+  type: 'test'
+  ...
+# Subtest: ten individual source slices add obligations but no case, observer, oracle, or admission claims
+ok 170 - ten individual source slices add obligations but no case, observer, oracle, or admission claims
+  ---
+  duration_ms: 85.992744
+  type: 'test'
+  ...
+# Subtest: PDP-2 obligation fingerprints change only after exact source-record impact is recorded
+ok 171 - PDP-2 obligation fingerprints change only after exact source-record impact is recorded
+  ---
+  duration_ms: 12.232117
+  type: 'test'
+  ...
+# Subtest: PXD-032 adds only the required source-proposal obligation for the progress-indicator contract
+ok 172 - PXD-032 adds only the required source-proposal obligation for the progress-indicator contract
+  ---
+  duration_ms: 68.78167
+  type: 'test'
+  ...
+# Subtest: flags duplicate IDs, phase contradictions, and duplicate or missing selected membership
+ok 173 - flags duplicate IDs, phase contradictions, and duplicate or missing selected membership
+  ---
+  duration_ms: 1509.678398
+  type: 'test'
+  ...
+# Subtest: flags unresolved source references and stale expected fingerprints
+ok 174 - flags unresolved source references and stale expected fingerprints
+  ---
+  duration_ms: 1440.096215
+  type: 'test'
+  ...
+# Subtest: flags a missing persisted source digest
+ok 175 - flags a missing persisted source digest
+  ---
+  duration_ms: 1215.74214
+  type: 'test'
+  ...
+# Subtest: P0-02 keeps the unbounded leaf denominator and profile availability evidence explicit
+ok 176 - P0-02 keeps the unbounded leaf denominator and profile availability evidence explicit
+  ---
+  duration_ms: 12.911403
+  type: 'test'
+  ...
+# Subtest: P0-02 profile labels and proposed performance budgets do not become product guarantees
+ok 177 - P0-02 profile labels and proposed performance budgets do not become product guarantees
+  ---
+  duration_ms: 15.440681
+  type: 'test'
+  ...
+# Subtest: P0-02 does not promote family-level operation groups into leaf-specific parameter contracts
+ok 178 - P0-02 does not promote family-level operation groups into leaf-specific parameter contracts
+  ---
+  duration_ms: 1.445252
+  type: 'test'
+  ...
+# Subtest: HTTP and gRPC proposal/unresolved crosswalks partition exact current source identities
+ok 179 - HTTP and gRPC proposal/unresolved crosswalks partition exact current source identities
+  ---
+  duration_ms: 10.774544
+  type: 'test'
+  ...
+# Subtest: HTTP and gRPC source partitions reject stale, missing, and duplicate crosswalk identities
+ok 180 - HTTP and gRPC source partitions reject stale, missing, and duplicate crosswalk identities
+  ---
+  duration_ms: 18.731589
+  type: 'test'
+  ...
+# Subtest: CLI crosswalk is exact and SDK registry reports exact source-pair discrepancies
+ok 181 - CLI crosswalk is exact and SDK registry reports exact source-pair discrepancies
+  ---
+  duration_ms: 16.387104
+  type: 'test'
+  ...
+# Subtest: PXD-026 has normalized, bounded owner-policy dispositions with exact source and scope
+ok 182 - PXD-026 has normalized, bounded owner-policy dispositions with exact source and scope
+  ---
+  duration_ms: 32.507507
+  type: 'test'
+  ...
+# Subtest: PXD-027 is a separate bounded owner-policy decision, not phase acceptance
+ok 183 - PXD-027 is a separate bounded owner-policy decision, not phase acceptance
+  ---
+  duration_ms: 1.303579
+  type: 'test'
+  ...
+# Subtest: bounded PXD-026 policy approval does not alter independent PDP phase acceptance inputs
+ok 184 - bounded PXD-026 policy approval does not alter independent PDP phase acceptance inputs
+  ---
+  duration_ms: 0.341195
+  type: 'test'
+  ...
+# Subtest: PXD-030 records only representative initiating actors and preserves independent P0-010 review
+ok 185 - PXD-030 records only representative initiating actors and preserves independent P0-010 review
+  ---
+  duration_ms: 74.44887
+  type: 'test'
+  ...
+# Subtest: PDP-0 explicitly classifies non-goals and business intents from owner source
+ok 186 - PDP-0 explicitly classifies non-goals and business intents from owner source
+  ---
+  duration_ms: 147.884611
+  type: 'test'
+  ...
+# Subtest: density and presentation profiles match Tools enum and explicit references
+ok 187 - density and presentation profiles match Tools enum and explicit references
+  ---
+  duration_ms: 7.779665
+  type: 'test'
+  ...
+# Subtest: WCAG 2.2 AA is a normative target, not fabricated accessible-technology evidence
+ok 188 - WCAG 2.2 AA is a normative target, not fabricated accessible-technology evidence
+  ---
+  duration_ms: 11.677608
+  type: 'test'
+  ...
+# Subtest: automatic recovery is limited to safe observation, not resubmission
+ok 189 - automatic recovery is limited to safe observation, not resubmission
+  ---
+  duration_ms: 10.384021
+  type: 'test'
+  ...
+# Subtest: every selected GUI template has an exact owned composition recipe and registered pattern
+ok 190 - every selected GUI template has an exact owned composition recipe and registered pattern
+  ---
+  duration_ms: 58.761002
+  type: 'test'
+  ...
+# Subtest: all four Agent Tool semantic selections resolve existing observed IDs and PDP-1 families without execution admission
+ok 191 - all four Agent Tool semantic selections resolve existing observed IDs and PDP-1 families without execution admission
+  ---
+  duration_ms: 318.247926
+  type: 'test'
+  ...
+# Subtest: PDP-3 search and inspection contracts are source-owned, typed and fail closed
+ok 192 - PDP-3 search and inspection contracts are source-owned, typed and fail closed
+  ---
+  duration_ms: 34.7829
+  type: 'test'
+  ...
+# Subtest: P0-04 records delegated representative initiators without reducing requirement actors
+ok 193 - P0-04 records delegated representative initiators without reducing requirement actors
+  ---
+  duration_ms: 1081.861625
+  type: 'test'
+  ...
+# Subtest: P0-04 records delegated journey initiators without changing collaborators or operation bindings
+ok 194 - P0-04 records delegated journey initiators without changing collaborators or operation bindings
+  ---
+  duration_ms: 246.762207
+  type: 'test'
+  ...
+# Subtest: the complete product feature review matrix resolves to canonical sources and the cross-phase denominator
+ok 195 - the complete product feature review matrix resolves to canonical sources and the cross-phase denominator
+  ---
+  duration_ms: 5037.021432
+  type: 'test'
+  ...
+# Subtest: every feature leaf has an exact proposal-time channel disposition, with unsupported admission left explicit
+ok 196 - every feature leaf has an exact proposal-time channel disposition, with unsupported admission left explicit
+  ---
+  duration_ms: 6070.977678
+  type: 'test'
+  ...
+# Subtest: missing admissions pass with zero exact identities proven
+ok 197 - missing admissions pass with zero exact identities proven
+  ---
+  duration_ms: 12.434276
+  type: 'test'
+  ...
+# Subtest: the review host imports the exact candidate product-renderer export intended for production
+ok 198 - the review host imports the exact candidate product-renderer export intended for production
+  ---
+  duration_ms: 9.227282
+  type: 'test'
+  ...
+# Subtest: public Explorer render binding carries typed ports and the Tools Product viewport consumes it
+ok 199 - public Explorer render binding carries typed ports and the Tools Product viewport consumes it
+  ---
+  duration_ms: 4.322345
+  type: 'test'
+  ...
+# Subtest: admitted Web record passes only with identical public export and resolvable PDP-2 provenance
+ok 200 - admitted Web record passes only with identical public export and resolvable PDP-2 provenance
+  ---
+  duration_ms: 5.564004
+  type: 'test'
+  ...
+# Subtest: rejects missing host identity and unresolved design provenance
+ok 201 - rejects missing host identity and unresolved design provenance
+  ---
+  duration_ms: 7.25768
+  type: 'test'
+  ...
+# Subtest: rejects an admitted symbol absent from the representation export map
+ok 202 - rejects an admitted symbol absent from the representation export map
+  ---
+  duration_ms: 5.806877
+  type: 'test'
+  ...
+# Subtest: rejects presentation-to-review dependencies and production scenario fixtures
+ok 203 - rejects presentation-to-review dependencies and production scenario fixtures
+  ---
+  duration_ms: 4.558677
+  type: 'test'
+  ...
+# Subtest: rejects deep source imports and package subpaths absent from exports
+ok 204 - rejects deep source imports and package subpaths absent from exports
+  ---
+  duration_ms: 3.564409
+  type: 'test'
+  ...
+# Subtest: validates declared screen-to-token design links and reports broken candidate links
+ok 205 - validates declared screen-to-token design links and reports broken candidate links
+  ---
+  duration_ms: 1.96106
+  type: 'test'
+  ...
+# Subtest: counts a resolved admitted screen design chain
+ok 206 - counts a resolved admitted screen design chain
+  ---
+  duration_ms: 14.293945
+  type: 'test'
+  ...
+# Subtest: an unresolved admitted screen design link is a hard failure
+ok 207 - an unresolved admitted screen design link is a hard failure
+  ---
+  duration_ms: 8.175048
+  type: 'test'
+  ...
+# Subtest: unresolved candidate screen design links remain nonfatal
+ok 208 - unresolved candidate screen design links remain nonfatal
+  ---
+  duration_ms: 4.697002
+  type: 'test'
+  ...
+# Subtest: a missing pattern nested under an admitted screen template is a hard failure
+ok 209 - a missing pattern nested under an admitted screen template is a hard failure
+  ---
+  duration_ms: 4.526695
+  type: 'test'
+  ...
+# Subtest: a missing pattern nested under a candidate screen template stays nonfatal
+ok 210 - a missing pattern nested under a candidate screen template stays nonfatal
+  ---
+  duration_ms: 8.745682
+  type: 'test'
+  ...
+# Subtest: a template pattern with an unresolved component source fails only when admitted
+ok 211 - a template pattern with an unresolved component source fails only when admitted
+  ---
+  duration_ms: 9.872108
+  type: 'test'
+  ...
+# Subtest: privacy ledger binds only source-observed tenant, consent, revision, retention, and retry behavior
+ok 212 - privacy ledger binds only source-observed tenant, consent, revision, retention, and retry behavior
+  ---
+  duration_ms: 14.078742
+  type: 'test'
+  ...
+# Subtest: privacy regression rejects tenant-scope, revocation, and stale-revision source drift
+ok 213 - privacy regression rejects tenant-scope, revocation, and stale-revision source drift
+  ---
+  duration_ms: 11.826145
+  type: 'test'
+  ...
+# Subtest: privacy regression rejects request deduplication scope drift
+ok 214 - privacy regression rejects request deduplication scope drift
+  ---
+  duration_ms: 1.715005
+  type: 'test'
+  ...
+# Subtest: privacy regression rejects unsupported hold, erasure, and uncertain-replay claims
+ok 215 - privacy regression rejects unsupported hold, erasure, and uncertain-replay claims
+  ---
+  duration_ms: 3.2439
+  type: 'test'
+  ...
+# Subtest: residual report validates exact projection dispositions and pinned sources
+ok 216 - residual report validates exact projection dispositions and pinned sources
+  ---
+  duration_ms: 443.315001
+  type: 'test'
+  ...
+# Subtest: residual report output is deterministic and clearly diagnostic
+ok 217 - residual report output is deterministic and clearly diagnostic
+  ---
+  duration_ms: 582.617337
+  type: 'test'
+  ...
+# Subtest: projection field audit catches missing schema fields and unreported empty collections
+ok 218 - projection field audit catches missing schema fields and unreported empty collections
+  ---
+  duration_ms: 39.048533
+  type: 'test'
+  ...
+# Subtest: projection source validation rejects unregistered and stale local sources
+ok 219 - projection source validation rejects unregistered and stale local sources
+  ---
+  duration_ms: 23.93092
+  type: 'test'
+  ...
+# Subtest: Media-owned PDP-0 rules project only PXD-035 decisions and retain proposal-only mappings pending
+ok 220 - Media-owned PDP-0 rules project only PXD-035 decisions and retain proposal-only mappings pending
+  ---
+  duration_ms: 616.150082
+  type: 'test'
+  ...
+# Subtest: trust and ownership decisions classify by data/effect and never infer authority from principal kind
+ok 221 - trust and ownership decisions classify by data/effect and never infer authority from principal kind
+  ---
+  duration_ms: 467.150876
+  type: 'test'
+  ...
+# Subtest: PDP-0 projects only the exact resolved P0-04 user intent actor and priority decisions
+ok 222 - PDP-0 projects only the exact resolved P0-04 user intent actor and priority decisions
+  ---
+  duration_ms: 19.330662
+  type: 'test'
+  ...
+# Subtest: PDP-0 preserves exact collaborator actor lists and only resolved initiating actors
+ok 223 - PDP-0 preserves exact collaborator actor lists and only resolved initiating actors
+  ---
+  duration_ms: 6.468381
+  type: 'test'
+  ...
+# Subtest: PDP-0 requirement trace targets are limited to resolvable intents and unresolved targets stay in the review
+ok 224 - PDP-0 requirement trace targets are limited to resolvable intents and unresolved targets stay in the review
+  ---
+  duration_ms: 6.024642
+  type: 'test'
+  ...
+# Subtest: PDP-0 maps owner-resolved invariants, trust contexts, and accountability without merging authority types
+ok 225 - PDP-0 maps owner-resolved invariants, trust contexts, and accountability without merging authority types
+  ---
+  duration_ms: 1.073892
+  type: 'test'
+  ...
+# Subtest: internal validation profile is bounded and denies release activation
+ok 226 - internal validation profile is bounded and denies release activation
+  ---
+  duration_ms: 1.915409
+  type: 'test'
+  ...
+# Subtest: production admission criteria remain explicit and blocked
+ok 227 - production admission criteria remain explicit and blocked
+  ---
+  duration_ms: 0.670791
+  type: 'test'
+  ...
+# Subtest: ProcessingJob HTTP schema mirrors the serialized runtime record without claiming canonical equivalence
+ok 228 - ProcessingJob HTTP schema mirrors the serialized runtime record without claiming canonical equivalence
+  ---
+  duration_ms: 5.136673
+  type: 'test'
+  ...
+# Subtest: search and inspection records match the public ExperienceSpecification schema
+ok 229 - search and inspection records match the public ExperienceSpecification schema
+  ---
+  duration_ms: 3.159726
+  type: 'test'
+  ...
+# Subtest: PXD-027 selects Media search and inspection definitions without admitting runtime or phase acceptance
+ok 230 - PXD-027 selects Media search and inspection definitions without admitting runtime or phase acceptance
+  ---
+  duration_ms: 2.077092
+  type: 'test'
+  ...
+# Subtest: source bindings use exact PDP-1 types and leave unsupported operation semantics unresolved
+ok 231 - source bindings use exact PDP-1 types and leave unsupported operation semantics unresolved
+  ---
+  duration_ms: 0.694742
+  type: 'test'
+  ...
+# Subtest: negative checks reject invented domain and operation identities
+ok 232 - negative checks reject invented domain and operation identities
+  ---
+  duration_ms: 0.425308
+  type: 'test'
+  ...
+# Subtest: inspection identities carry explicit resolvable source authorities
+ok 233 - inspection identities carry explicit resolvable source authorities
+  ---
+  duration_ms: 0.749437
+  type: 'test'
+  ...
+# Subtest: artifact and job inspectors record observed read routes without semantic or freshness claims
+ok 234 - artifact and job inspectors record observed read routes without semantic or freshness claims
+  ---
+  duration_ms: 8.603061
+  type: 'test'
+  ...
+# Subtest: observed job-search protocol details do not claim unprovided query or continuation semantics
+ok 235 - observed job-search protocol details do not claim unprovided query or continuation semantics
+  ---
+  duration_ms: 0.626759
+  type: 'test'
+  ...
+# Subtest: job-list example stays within the observed HTTP transport contract
+ok 236 - job-list example stays within the observed HTTP transport contract
+  ---
+  duration_ms: 0.624075
+  type: 'test'
+  ...
+# Subtest: the source-observation artifact cross-references canonical identities without redefining them
+ok 237 - the source-observation artifact cross-references canonical identities without redefining them
+  ---
+  duration_ms: 22.109189
+  type: 'test'
+  ...
+# Subtest: generated external-owner observations pin the current sibling source HEADs and files
+ok 238 - generated external-owner observations pin the current sibling source HEADs and files
+  ---
+  duration_ms: 564.335434
+  type: 'test'
+  ...
+# Subtest: PDP-1 state inventory preserves the PDP-0 proposal without accepting its semantics
+ok 239 - PDP-1 state inventory preserves the PDP-0 proposal without accepting its semantics
+  ---
+  duration_ms: 272.260683
+  type: 'test'
+  ...
+# Subtest: PDP-1 transition extraction preserves every source edge and leaves guards and bindings unresolved
+ok 240 - PDP-1 transition extraction preserves every source edge and leaves guards and bindings unresolved
+  ---
+  duration_ms: 199.790947
+  type: 'test'
+  ...
+# Subtest: PDP-1 adapter observations point to live methods and remain unresolved projections
+ok 241 - PDP-1 adapter observations point to live methods and remain unresolved projections
+  ---
+  duration_ms: 28.023517
+  type: 'test'
+  ...
+# Subtest: PDP-1 records runtime stream-state and store-transition observations without promoting the proposal
+ok 242 - PDP-1 records runtime stream-state and store-transition observations without promoting the proposal
+  ---
+  duration_ms: 119.143125
+  type: 'test'
+  ...
+# Subtest: temporal and spatial inventory preserves exact source fields and separates incompatible dimensions
+ok 243 - temporal and spatial inventory preserves exact source fields and separates incompatible dimensions
+  ---
+  duration_ms: 7.837634
+  type: 'test'
+  ...
+# Subtest: temporal and spatial regression rejects unit inference, source drift, or canonical promotion
+ok 244 - temporal and spatial regression rejects unit inference, source drift, or canonical promotion
+  ---
+  duration_ms: 3.81891
+  type: 'test'
+  ...
+# Subtest: every publicly exported TS type and schema has one explicit and source-grounded role
+ok 245 - every publicly exported TS type and schema has one explicit and source-grounded role
+  ---
+  duration_ms: 15.963626
+  type: 'test'
+  ...
+# Subtest: new exported type requires a new role binding
+ok 246 - new exported type requires a new role binding
+  ---
+  duration_ms: 3.906621
+  type: 'test'
+  ...
+# Subtest: typos in canonical operation and machine identities fail
+ok 247 - typos in canonical operation and machine identities fail
+  ---
+  duration_ms: 0.889893
+  type: 'test'
+  ...
+# Subtest: no undeclared or reused schema role can hide source inventory drift
+ok 248 - no undeclared or reused schema role can hide source inventory drift
+  ---
+  duration_ms: 0.68139
+  type: 'test'
+  ...
+# Subtest: specialized unadmitted model operations cannot masquerade as accepted canonical operations
+ok 249 - specialized unadmitted model operations cannot masquerade as accepted canonical operations
+  ---
+  duration_ms: 5.899667
+  type: 'test'
+  ...
+# Subtest: typed contract binding catalog exhaustively covers source roles without implying support
+ok 250 - typed contract binding catalog exhaustively covers source roles without implying support
+  ---
+  duration_ms: 6.428817
+  type: 'test'
+  ...
+# Subtest: catalog negative checks reject duplicate and stale schema identities
+ok 251 - catalog negative checks reject duplicate and stale schema identities
+  ---
+  duration_ms: 11.006996
+  type: 'test'
+  ...
+# Subtest: catalog negative checks reject unsupported PDP-1 references and missing new bindings
+ok 252 - catalog negative checks reject unsupported PDP-1 references and missing new bindings
+  ---
+  duration_ms: 7.328622
+  type: 'test'
+  ...
+# Subtest: catalog negative checks prevent admission of specialized unqualified operations
+ok 253 - catalog negative checks prevent admission of specialized unqualified operations
+  ---
+  duration_ms: 2.052971
+  type: 'test'
+  ...
+# Subtest: client contract imports resolve to the same catalog without upgrading legacy routes
+ok 254 - client contract imports resolve to the same catalog without upgrading legacy routes
+  ---
+  duration_ms: 8.340204
+  type: 'test'
+  ...
+# Subtest: PDP-2 reuse audit counts match the executable UI inventory
+ok 255 - PDP-2 reuse audit counts match the executable UI inventory
+  ---
+  duration_ms: 184.984608
+  type: 'test'
+  ...
+# Subtest: PDP-2 reuse audit records exact cross-product reuse and semantic exclusions
+ok 256 - PDP-2 reuse audit records exact cross-product reuse and semantic exclusions
+  ---
+  duration_ms: 207.120813
+  type: 'test'
+  ...
+# Subtest: PDP-2 family crosswalk binds only source-exact public component exports and consumers
+ok 257 - PDP-2 family crosswalk binds only source-exact public component exports and consumers
+  ---
+  duration_ms: 182.700574
+  type: 'test'
+  ...
+# Subtest: PDP-2 reuse audit covers the broader Ghatana workspace and dependency boundaries
+ok 258 - PDP-2 reuse audit covers the broader Ghatana workspace and dependency boundaries
+  ---
+  duration_ms: 59.993747
+  type: 'test'
+  ...
+# Subtest: P0-06 maps exact business-intent measure descriptions while keeping metric, profile, and qualification gaps open
+ok 259 - P0-06 maps exact business-intent measure descriptions while keeping metric, profile, and qualification gaps open
+  ---
+  duration_ms: 242.690418
+  type: 'test'
+  ...
+# Subtest: P0-06 retains source-defined measurement applicability without turning it into a pass or target
+ok 260 - P0-06 retains source-defined measurement applicability without turning it into a pass or target
+  ---
+  duration_ms: 149.965245
+  type: 'test'
+  ...
+# Subtest: P0-06 profiles and proposed budgets do not claim capability availability or qualified success targets
+ok 261 - P0-06 profiles and proposed budgets do not claim capability availability or qualified success targets
+  ---
+  duration_ms: 68.348497
+  type: 'test'
+  ...
+# Subtest: P0-06 keeps privacy and locality applicability as independent policy decisions
+ok 262 - P0-06 keeps privacy and locality applicability as independent policy decisions
+  ---
+  duration_ms: 27.911962
+  type: 'test'
+  ...
+# Subtest: P0-06 omits authored ProductDefinition timestamps when Media has no timestamp provenance
+ok 263 - P0-06 omits authored ProductDefinition timestamps when Media has no timestamp provenance
+  ---
+  duration_ms: 3.526083
+  type: 'test'
+  ...
+# Subtest: PDP-0 ProductDefinition candidate is schema and public-validator conformant while retaining open mapping decisions
+ok 264 - PDP-0 ProductDefinition candidate is schema and public-validator conformant while retaining open mapping decisions
+  ---
+  duration_ms: 705.123065
+  type: 'test'
+  ...
+# Subtest: ProductDefinition mapping coverage is explicit, source-pinned, and rejects invalid semantic fixtures
+ok 265 - ProductDefinition mapping coverage is explicit, source-pinned, and rejects invalid semantic fixtures
+  ---
+  duration_ms: 215.957014
+  type: 'test'
+  ...
+# Subtest: all 462 capability leaves have operation-specific inputs, outcomes, preconditions, constraints, and acceptance cases
+ok 266 - all 462 capability leaves have operation-specific inputs, outcomes, preconditions, constraints, and acceptance cases
+  ---
+  duration_ms: 6342.474193
+  type: 'test'
+  ...
+# Subtest: PDP-0 quality and NFR records retain measurement limits and unresolved specialist decisions
+ok 267 - PDP-0 quality and NFR records retain measurement limits and unresolved specialist decisions
+  ---
+  duration_ms: 67.294937
+  type: 'test'
+  ...
+# Subtest: P0-05 projects only bounded PDP-1 owner-decided rules with trust and fail-closed semantics
+ok 268 - P0-05 projects only bounded PDP-1 owner-decided rules with trust and fail-closed semantics
+  ---
+  duration_ms: 37.356386
+  type: 'test'
+  ...
+# Subtest: P0-04 owner intent decisions are auditable and preserve collaborative actor references
+ok 269 - P0-04 owner intent decisions are auditable and preserve collaborative actor references
+  ---
+  duration_ms: 329.19511
+  type: 'test'
+  ...
+# Subtest: P0-04 journey actors and requirement intent targets remain source-bound
+ok 270 - P0-04 journey actors and requirement intent targets remain source-bound
+  ---
+  duration_ms: 655.642103
+  type: 'test'
+  ...
+# Subtest: migration extraction keeps the mixed blocks and unresolved owner review visible
+ok 271 - migration extraction keeps the mixed blocks and unresolved owner review visible
+  ---
+  duration_ms: 1091.032333
+  type: 'test'
+  ...
+# Subtest: PDP-2 disclosure density mapping follows the selected simple/guided/expert taxonomy
+ok 272 - PDP-2 disclosure density mapping follows the selected simple/guided/expert taxonomy
+  ---
+  duration_ms: 2.637784
+  type: 'test'
+  ...
+# Subtest: PDP-2 recovery and accessibility projections preserve their authored scope
+ok 273 - PDP-2 recovery and accessibility projections preserve their authored scope
+  ---
+  duration_ms: 0.559546
+  type: 'test'
+  ...
+# Subtest: PDP-2 projects exact owner-approved recipe identities while admission stays pending
+ok 274 - PDP-2 projects exact owner-approved recipe identities while admission stays pending
+  ---
+  duration_ms: 0.353051
+  type: 'test'
+  ...
+# Subtest: PDP-3 search and inspection source records project to the public schema shape
+ok 275 - PDP-3 search and inspection source records project to the public schema shape
+  ---
+  duration_ms: 34.491935
+  type: 'test'
+  ...
+# Subtest: residual report drops mapped PDP-2 and search/inspection fields while retaining other PDP-3 gaps
+ok 276 - residual report drops mapped PDP-2 and search/inspection fields while retaining other PDP-3 gaps
+  ---
+  duration_ms: 820.041734
+  type: 'test'
+  ...
+# Subtest: PDP-2 recipe review keeps recipe identity distinct from template, pattern, and layout IDs
+ok 277 - PDP-2 recipe review keeps recipe identity distinct from template, pattern, and layout IDs
+  ---
+  duration_ms: 5387.258642
+  type: 'test'
+  ...
+# Subtest: PDP-2 rejects stale, duplicate, and cross-domain chain references
+ok 278 - PDP-2 rejects stale, duplicate, and cross-domain chain references
+  ---
+  duration_ms: 2.854421
+  type: 'test'
+  ...
+# Subtest: Tools public ExperienceLanguage validator accepts the current candidate using Media source registries
+ok 279 - Tools public ExperienceLanguage validator accepts the current candidate using Media source registries
+  ---
+  duration_ms: 47.872717
+  type: 'test'
+  ...
+# Subtest: Tools public ExperienceLanguage validator rejects duplicate recipe-binding identities
+ok 280 - Tools public ExperienceLanguage validator rejects duplicate recipe-binding identities
+  ---
+  duration_ms: 5.711528
+  type: 'test'
+  ...
+# Subtest: Tools public ExperienceLanguage validator rejects an unregistered recipe reference
+ok 281 - Tools public ExperienceLanguage validator rejects an unregistered recipe reference
+  ---
+  duration_ms: 11.780964
+  type: 'test'
+  ...
+# Subtest: P3-08 examples trace every named family to stable journey contracts
+ok 282 - P3-08 examples trace every named family to stable journey contracts
+  ---
+  duration_ms: 803.145659
+  type: 'test'
+  ...
+# Subtest: P3-08 examples preserve the proposal-only caption operation boundary
+ok 283 - P3-08 examples preserve the proposal-only caption operation boundary
+  ---
+  duration_ms: 253.562796
+  type: 'test'
+  ...
+# Subtest: P3-08 journey view and screen identities resolve through the current registry
+ok 284 - P3-08 journey view and screen identities resolve through the current registry
+  ---
+  duration_ms: 726.776323
+  type: 'test'
+  ...
+# Subtest: P3-08 documented action and operation identities are source-backed
+ok 285 - P3-08 documented action and operation identities are source-backed
+  ---
+  duration_ms: 666.921601
+  type: 'test'
+  ...
+# Subtest: P3-08 definition, implementation, qualification, license, availability, and acceptance stay distinct
+ok 286 - P3-08 definition, implementation, qualification, license, availability, and acceptance stay distinct
+  ---
+  duration_ms: 0.737116
+  type: 'test'
+  ...
+# Subtest: PDP-3 overview reports the registered baseline and extension journey denominators
+ok 287 - PDP-3 overview reports the registered baseline and extension journey denominators
+  ---
+  duration_ms: 36.674131
+  type: 'test'
+  ...
+# Subtest: P3-05 scenario and fixture denominator preserves source-linked and blocked populations
+ok 288 - P3-05 scenario and fixture denominator preserves source-linked and blocked populations
+  ---
+  duration_ms: 762.446871
+  type: 'test'
+  ...
+# Subtest: P3-05 source start-state links match exact simulation seed fields without implying state acceptance
+ok 289 - P3-05 source start-state links match exact simulation seed fields without implying state acceptance
+  ---
+  duration_ms: 8.398091
+  type: 'test'
+  ...
+# Subtest: PDP-3 screen and journey contracts preserve exact registry cross-links
+ok 290 - PDP-3 screen and journey contracts preserve exact registry cross-links
+  ---
+  duration_ms: 5591.266277
+  type: 'test'
+  ...
+# Subtest: PDP-3 coverage observation counts authored per-step action bindings by occurrence
+ok 291 - PDP-3 coverage observation counts authored per-step action bindings by occurrence
+  ---
+  duration_ms: 369.258555
+  type: 'test'
+  ...
+# Subtest: PDP-3 cross-link assertions reject stale, orphan, and duplicate references
+ok 292 - PDP-3 cross-link assertions reject stale, orphan, and duplicate references
+  ---
+  duration_ms: 2.530539
+  type: 'test'
+  ...
+# Subtest: PDP-3 actor projection rejects inferred initiators and invented actors
+ok 293 - PDP-3 actor projection rejects inferred initiators and invented actors
+  ---
+  duration_ms: 0.483834
+  type: 'test'
+  ...
+# Subtest: PDP-3 J-29/J-30 step views use exact owner-selected source contracts and preserve proposal status
+ok 294 - PDP-3 J-29/J-30 step views use exact owner-selected source contracts and preserve proposal status
+  ---
+  duration_ms: 64.422764
+  type: 'test'
+  ...
+# Subtest: PDP-3 navigation-only steps reject operation placeholders
+ok 295 - PDP-3 navigation-only steps reject operation placeholders
+  ---
+  duration_ms: 1.432306
+  type: 'test'
+  ...
+# Subtest: PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk and remain proposals
+ok 296 - PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk and remain proposals
+  ---
+  duration_ms: 397.521045
+  type: 'test'
+  ...
+# Subtest: PDP overview pages link current authority, acceptance, and source inventory records
+ok 297 - PDP overview pages link current authority, acceptance, and source inventory records
+  ---
+  duration_ms: 3.926019
+  type: 'test'
+  ...
+# Subtest: PDP overview blocker summaries match generated candidate projections
+ok 298 - PDP overview blocker summaries match generated candidate projections
+  ---
+  duration_ms: 6.003204
+  type: 'test'
+  ...
+# Subtest: PDP overview docs keep phase prerequisites and independent/external gates explicit
+ok 299 - PDP overview docs keep phase prerequisites and independent/external gates explicit
+  ---
+  duration_ms: 0.444166
+  type: 'test'
+  ...
+# Subtest: PDP-3 overview preserves historical PXD-028 and current PXD-037 composition-link decisions
+ok 300 - PDP-3 overview preserves historical PXD-028 and current PXD-037 composition-link decisions
+  ---
+  duration_ms: 0.356441
+  type: 'test'
+  ...
+# Subtest: ExperienceSpecification required props map only exact typed public component contracts
+ok 301 - ExperienceSpecification required props map only exact typed public component contracts
+  ---
+  duration_ms: 5.040824
+  type: 'test'
+  ...
+# Subtest: canonical Media product-definition authority is structurally closed locally
+ok 302 - canonical Media product-definition authority is structurally closed locally
+  ---
+  duration_ms: 185.239847
+  type: 'test'
+  ...
+# Subtest: PDP3 screen registry has 47 structurally complete v2 canonical screen proposals
+ok 303 - PDP3 screen registry has 47 structurally complete v2 canonical screen proposals
+  ---
+  duration_ms: 61.973637
+  type: 'test'
+  ...
+# Subtest: acceptance inputs use the four canonical PDP phases and keep Explorer outside the phase ledger
+ok 304 - acceptance inputs use the four canonical PDP phases and keep Explorer outside the phase ledger
+  ---
+  duration_ms: 9.880648
+  type: 'test'
+  ...
+# Subtest: active authority and experience metadata use canonical PDP labels without renaming stable IDs
+ok 305 - active authority and experience metadata use canonical PDP labels without renaming stable IDs
+  ---
+  duration_ms: 1.125852
+  type: 'test'
+  ...
+# Subtest: active cross-phase metadata uses canonical PDP labels while stable exception identities remain intact
+ok 306 - active cross-phase metadata uses canonical PDP labels while stable exception identities remain intact
+  ---
+  duration_ms: 34.222475
+  type: 'test'
+  ...
+# Subtest: PDP3-005 journey steps are structured, provenance-bound proposals across all 30 contracts
+ok 307 - PDP3-005 journey steps are structured, provenance-bound proposals across all 30 contracts
+  ---
+  duration_ms: 195.449882
+  type: 'test'
+  ...
+# Subtest: gRPC source inventory status matches the active proto census without changing pending bindings
+ok 308 - gRPC source inventory status matches the active proto census without changing pending bindings
+  ---
+  duration_ms: 1.121611
+  type: 'test'
+  ...
+# Subtest: PDP1 operation proposal preserves source denominators and the complete proposal field shape
+ok 309 - PDP1 operation proposal preserves source denominators and the complete proposal field shape
+  ---
+  duration_ms: 3.935715
+  type: 'test'
+  ...
+# Subtest: active G-05 mirrors match current proposal counts without implying acceptance
+ok 310 - active G-05 mirrors match current proposal counts without implying acceptance
+  ---
+  duration_ms: 4.344539
+  type: 'test'
+  ...
+# Subtest: PDP1 event inventory preserves lifecycle and local-client populations without inventing contracts
+ok 311 - PDP1 event inventory preserves lifecycle and local-client populations without inventing contracts
+  ---
+  duration_ms: 12.126487
+  type: 'test'
+  ...
+# Subtest: PDP1-005 registries preserve observed facts, proposal boundaries, and owner gates
+ok 312 - PDP1-005 registries preserve observed facts, proposal boundaries, and owner gates
+  ---
+  duration_ms: 3.489995
+  type: 'test'
+  ...
+# Subtest: PDP1 state and transition extraction remains proposal-only and preserves unresolved source conflicts
+ok 313 - PDP1 state and transition extraction remains proposal-only and preserves unresolved source conflicts
+  ---
+  duration_ms: 2.668174
+  type: 'test'
+  ...
+# Subtest: PDP-1 negative state cases encode owner-approved non-equivalences without claiming runtime proof
+ok 314 - PDP-1 negative state cases encode owner-approved non-equivalences without claiming runtime proof
+  ---
+  duration_ms: 1.009734
+  type: 'test'
+  ...
+# Subtest: PDP-0 YAML source preserves corrected indentation and symbol-scoped OCR disposition (text checks only)
+ok 315 - PDP-0 YAML source preserves corrected indentation and symbol-scoped OCR disposition (text checks only)
+  ---
+  duration_ms: 48.531985
+  type: 'test'
+  ...
+# Subtest: scope-status validation never infers compatibility from nearby wording
+ok 316 - scope-status validation never infers compatibility from nearby wording
+  ---
+  duration_ms: 3.899714
+  type: 'test'
+  ...
+# Subtest: nested journey records each require exactly one allowed scopeStatus
+ok 317 - nested journey records each require exactly one allowed scopeStatus
+  ---
+  duration_ms: 1.024782
+  type: 'test'
+  ...
+# Subtest: Explorer index exposes source paths without workstation identity
+ok 318 - Explorer index exposes source paths without workstation identity
+  ---
+  duration_ms: 6.33595
+  type: 'test'
+  ...
+# Subtest: generated Explorer index covers every current source-manifest artifact exactly once
+ok 319 - generated Explorer index covers every current source-manifest artifact exactly once
+  ---
+  duration_ms: 11.929389
+  type: 'test'
+  ...
+# Subtest: HTTP route, SDK, and interface projections retain canonical ownership
+ok 320 - HTTP route, SDK, and interface projections retain canonical ownership
+  ---
+  duration_ms: 140.436536
+  type: 'test'
+  ...
+# Subtest: screen composition records retain Shared-boundary design metadata
+ok 321 - screen composition records retain Shared-boundary design metadata
+  ---
+  duration_ms: 223.290156
+  type: 'test'
+  ...
+# Subtest: PDP2-002 GUI pattern registry covers every required category without inventing destructive semantics
+ok 322 - PDP2-002 GUI pattern registry covers every required category without inventing destructive semantics
+  ---
+  duration_ms: 1.764826
+  type: 'test'
+  ...
+# Subtest: PDP2-004/005 interface registries are complete proposals with owner and runtime boundaries explicit
+ok 323 - PDP2-004/005 interface registries are complete proposals with owner and runtime boundaries explicit
+  ---
+  duration_ms: 3.211419
+  type: 'test'
+  ...
+# Subtest: ProductDefinition domain rules resolve only the six exact PXD-035 accepted PDP-1 decisions
+ok 324 - ProductDefinition domain rules resolve only the six exact PXD-035 accepted PDP-1 decisions
+  ---
+  duration_ms: 114.249055
+  type: 'test'
+  ...
+# Subtest: rejects a forged PDP-1 source key even when the projection row claims owner acceptance
+ok 325 - rejects a forged PDP-1 source key even when the projection row claims owner acceptance
+  ---
+  duration_ms: 104.959757
+  type: 'test'
+  ...
+# Subtest: rejects stale decision polarity and non-admitted PDP-1 decisions
+ok 326 - rejects stale decision polarity and non-admitted PDP-1 decisions
+  ---
+  duration_ms: 157.839165
+  type: 'test'
+  ...
+# Subtest: rejects an accepted decision key attached to the wrong rule ID
+ok 327 - rejects an accepted decision key attached to the wrong rule ID
+  ---
+  duration_ms: 122.817439
+  type: 'test'
+  ...
+# Subtest: Product Definition local invariant check covers all phase denominators
+ok 328 - Product Definition local invariant check covers all phase denominators
+  ---
+  duration_ms: 676.885865
+  type: 'test'
+  ...
+# Subtest: missing required screen refs/shapes fail closed
+ok 329 - missing required screen refs/shapes fail closed
+  ---
+  duration_ms: 665.057672
+  type: 'test'
+  ...
+# Subtest: unresolvable required screen schema reference fails closed
+ok 330 - unresolvable required screen schema reference fails closed
+  ---
+  duration_ms: 708.351297
+  type: 'test'
+  ...
+# Subtest: unknown screen binding status fails closed
+ok 331 - unknown screen binding status fails closed
+  ---
+  duration_ms: 629.857629
+  type: 'test'
+  ...
+# Subtest: accepted or complete screen binding statuses are rejected
+ok 332 - accepted or complete screen binding statuses are rejected
+  ---
+  duration_ms: 1225.84852
+  type: 'test'
+  ...
+# Subtest: screen requirement references must equal the direct action-capability crosswalk
+ok 333 - screen requirement references must equal the direct action-capability crosswalk
+  ---
+  duration_ms: 646.897545
+  type: 'test'
+  ...
+# Subtest: journey step requirement references must equal the direct action-capability crosswalk
+ok 334 - journey step requirement references must equal the direct action-capability crosswalk
+  ---
+  duration_ms: 590.075076
+  type: 'test'
+  ...
+# Subtest: Media consumer can load, render, inspect, and dispatch through the Tools Explorer API
+ok 335 - Media consumer can load, render, inspect, and dispatch through the Tools Explorer API
+  ---
+  duration_ms: 30.124613
+  type: 'test'
+  ...
+1..335
+# tests 335
+# suites 0
+# pass 334
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 29546.070876

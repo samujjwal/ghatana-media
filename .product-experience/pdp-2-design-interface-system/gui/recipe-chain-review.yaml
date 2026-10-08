@@ -35,6 +35,21 @@ recipeCatalog:
     - id: media.gui.recipe.lifecycle-confirmation
       templateRef: media.gui.template.lifecycle-confirmation
       semanticPattern: media.gui.pattern.destructive-lifecycle-action
+    - id: media.gui.recipe.media-composition
+      templateRef: media.gui.template.media-composition
+      semanticPattern: media.gui.pattern.multitrack-composition
+    - id: media.gui.recipe.operational-readiness
+      templateRef: media.gui.template.operational-readiness
+      semanticPattern: media.gui.pattern.quality-and-uncertainty
+    - id: media.gui.recipe.record-detail
+      templateRef: media.gui.template.record-detail
+      semanticPattern: media.gui.pattern.provenance-and-lineage
+    - id: media.gui.recipe.workspace-settings
+      templateRef: media.gui.template.workspace-settings
+      semanticPattern: media.gui.pattern.safe-confirmation-and-unknown-outcome
+    - id: media.gui.recipe.project-overview
+      templateRef: media.gui.template.project-overview
+      semanticPattern: media.gui.pattern.project-context-header
     - id: media.gui.recipe.task-setup
       templateRef: media.gui.template.task-setup
       semanticPattern: media.gui.pattern.intent-launcher
@@ -54,7 +69,7 @@ chains:
   - templateRef: media.gui.template.review-and-compare
     recipeRef: media.gui.recipe.review-and-compare
     patternRefs: [media.gui.pattern.version-comparison, media.gui.pattern.review-approval, media.gui.pattern.quality-and-uncertainty, media.gui.pattern.provenance-and-lineage]
-    screenDerivedLayoutRefs: [media.gui.layout.review, media.gui.layout.record-detail]
+    screenDerivedLayoutRefs: [media.gui.layout.review]
   - templateRef: media.gui.template.consent-gate
     recipeRef: media.gui.recipe.consent-gate
     patternRefs: [media.gui.pattern.rights-and-consent-review]
@@ -68,6 +83,26 @@ chains:
     patternRefs: [media.gui.pattern.destructive-lifecycle-action, media.gui.pattern.safe-confirmation-and-unknown-outcome]
     screenDerivedLayoutRefs: []
     blocker: no PDP-3 screen contract selects this template or supplies a layout binding
+  - templateRef: media.gui.template.media-composition
+    recipeRef: media.gui.recipe.media-composition
+    patternRefs: [media.gui.pattern.multitrack-composition]
+    screenDerivedLayoutRefs: [media.gui.layout.media-workbench]
+  - templateRef: media.gui.template.operational-readiness
+    recipeRef: media.gui.recipe.operational-readiness
+    patternRefs: [media.gui.pattern.quality-and-uncertainty, media.gui.pattern.provenance-and-lineage]
+    screenDerivedLayoutRefs: [media.gui.layout.operational-readiness]
+  - templateRef: media.gui.template.record-detail
+    recipeRef: media.gui.recipe.record-detail
+    patternRefs: [media.gui.pattern.provenance-and-lineage, media.gui.pattern.quality-and-uncertainty]
+    screenDerivedLayoutRefs: [media.gui.layout.record-detail]
+  - templateRef: media.gui.template.workspace-settings
+    recipeRef: media.gui.recipe.workspace-settings
+    patternRefs: [media.gui.pattern.project-context-header, media.gui.pattern.safe-confirmation-and-unknown-outcome]
+    screenDerivedLayoutRefs: [media.gui.layout.workspace-settings]
+  - templateRef: media.gui.template.project-overview
+    recipeRef: media.gui.recipe.project-overview
+    patternRefs: [media.gui.pattern.project-context-header, media.gui.pattern.intent-launcher, media.gui.pattern.activity-attention]
+    screenDerivedLayoutRefs: [media.gui.layout.project-overview]
   - templateRef: media.gui.template.task-setup
     recipeRef: media.gui.recipe.task-setup
     patternRefs: [media.gui.pattern.intent-launcher, media.gui.pattern.creation-plan-review, media.gui.pattern.source-picker, media.gui.pattern.safe-confirmation-and-unknown-outcome, media.gui.pattern.upload-and-verification]

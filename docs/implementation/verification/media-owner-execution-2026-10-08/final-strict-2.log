@@ -1,0 +1,9 @@
+product-definition: .product-experience/pdp-0-product-truth/generated/product-definition.candidate.json
+  schema: VALID
+  public validator: PASS
+experience-language: .product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json
+  schema: VALID
+  public validator: PASS
+experience-specification: .product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json
+  schema: VALID
+  public validator: PASS

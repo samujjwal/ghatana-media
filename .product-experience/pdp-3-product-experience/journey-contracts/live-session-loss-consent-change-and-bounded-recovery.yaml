@@ -30,6 +30,9 @@ completion:
 terminalSuccess: session-closed-or-drained-with-unknown-effects-explicit
 steps:
 - stepId: detect-loss-or-consent-change
+  view: media.view.review-activity
+  screenContractRef: screen-contracts/review-activity.yaml
+  intent: media.intent.recover-live-session
   surfaceRefs:
   - media.surface.web
   - media.surface.service-grpc
@@ -102,6 +105,9 @@ steps:
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - stepId: fence-new-frame-submission
+  view: media.view.job-status
+  screenContractRef: screen-contracts/job-status.yaml
+  intent: media.intent.recover-live-session
   surfaceRefs:
   - media.surface.web
   - media.surface.service-grpc
@@ -174,6 +180,9 @@ steps:
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - stepId: reconcile-dispatched-frame-effects
+  view: media.view.job-status
+  screenContractRef: screen-contracts/job-status.yaml
+  intent: media.intent.recover-live-session
   surfaceRefs:
   - media.surface.web
   - media.surface.service-grpc
@@ -246,6 +255,9 @@ steps:
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - stepId: present-bounded-return-state
+  view: media.view.review-activity
+  screenContractRef: screen-contracts/review-activity.yaml
+  intent: media.intent.recover-live-session
   surfaceRefs:
   - media.surface.web
   - media.surface.service-grpc

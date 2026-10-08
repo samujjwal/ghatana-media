@@ -140,7 +140,6 @@ test("PDP-1 adapter observations point to live methods and remain unresolved pro
   assert.deepEqual(sharedMapping.observedMapping, {
     CREATED: "PENDING", QUEUED: "QUEUED", PROCESSING: "RUNNING", COMPLETED: "COMPLETED",
     FAILED: "FAILED", CANCELLED: "CANCELLED", RETRY_PENDING: "RETRYING", RETRYING: "RETRYING",
-    OUTCOME_UNKNOWN: "RUNNING", RECONCILING: "RUNNING",
   });
   assert.ok(exactStateMarker, "catalog must describe the exact source-state metadata anchor");
   assert.match(adapter, /private static String canonicalMediaState\(/u);

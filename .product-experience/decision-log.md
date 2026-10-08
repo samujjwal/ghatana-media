@@ -762,6 +762,63 @@ constitute runtime or phase acceptance.
 - **Limits:** crosswalk target meanings remain unresolved. Task IDs do not transfer receipts or establish task completion, semantic equivalence, implementation, acceptance, or Lifecycle evidence. MPSEM-0001 is covered only by its existing exact lines 4–5 metadata slice; its status and authority-phase assertions remain unresolved. The historical master-plan source pin stays stale and P0-03 remains open.
 - **Evidence:** `.product-experience/pdp-0-product-truth/migration-semantics-review.yaml#MEDIA-OWNER-2026-10-08-NONNORMATIVE-01` and `tests/media-migration-semantics-ledger.test.mjs` exact-ID regression.
 
+### PXD-034 — Select the internal validation reference profile
+
+- **Status:** accepted bounded Media owner planning selection; R-05 remains partial.
+- **Authority:** the user's 2026-10-08 delegation to implement the owner plan and review appropriate owner decisions.
+- **Review:** version 1 explicitly disables commercial use, public distribution, external deployment and consumer cutover. Source/build/SBOM identities are unbound; all dependency admission classes are `NOT_ADMITTED`. The eight production gates require separate provenance, licensing, qualification, security, runtime, compatibility, owner and independent evidence.
+- **Approved:** `config/release/internal-validation-only.json` as a noncommercial reference profile for local source validation, deterministic contract/fixture tests and isolated test doubles; the production admission checklist is an input for future review.
+- **Evidence:** `docs/qualification/R-05-release-profile-admission.md` and `tests/media-release-profile.test.mjs` (2/2 pass in this execution).
+- **Excludes:** any immutable release candidate, commercial release, external effects, deployment, cutover, license/model/codec/provider admission, independent certification, Lifecycle receipt or PDP phase closure.
+
+### PXD-035 — Accept six exact PDP-1 rule projections and four measurement definitions
+
+- **Status:** accepted bounded source mappings; full P0-05/P0-06 and independent acceptance remain open.
+- **Authority:** the user's 2026-10-08 delegated Media owner review.
+- **Reviewed and approved:** `MEDIA-DOMAIN-RULE-001` through `006` project only the existing PDP-1 `ownerAcceptedPolicyDecisions` keys `machineScopedStateIdentity`, `requestReceiptIsQueuedJob`, `unknownOutcomeRule`, `completedRule`, `cancelledRule` and `partialSuccessRule`. Each retains source authority, violation, trust scope, owner and fail-closed response. The proposed retry-eligibility rule was withheld because its cited source was not an accepted decision.
+- **Measurement scope:** the four exact `successMeasureContracts` in `goals-jtbd.yaml` define metric, unit, population, criterion and evidence method for the existing four business intents. Baselines and qualification remain `NOT_EVALUATED`, targets remain `NOT_SET`; exact capability/profile applicability and independent calibration remain open.
+- **Evidence:** `constitution.yaml#domainRules.records`, `goals-jtbd.yaml#successMeasureContracts`, `pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions`, and source/projection regressions.
+- **Excludes:** new operation/state equivalence, transition admission, qualified measurements, numeric performance promises, runtime/provider admission, independent review, phase closure and Lifecycle proof.
+
+### PXD-036 — Select exact J-29/J-30 intent and view references
+
+- **Status:** accepted exact definition links only; P3-03 remains partial.
+- **Authority:** the user's 2026-10-08 delegated Media owner review.
+- **Review:** J-29 loss detection and bounded return use `review-activity`; fencing and reconciliation use `job-status`, under the authored `recover-live-session` intent. J-30 scope and profile inspection use `check-processing-options`, unknown-dimension checks use `check-processing-readiness`, and the eligible-result step uses `choose-eligible-processing-option`, with their authored corresponding intents. All eight referenced screen contracts exist and their purposes cover these observation/recovery steps.
+- **Approved:** the eight explicit step intent/view/screenContractRef selections, preserving all 130 ordered steps.
+- **Excludes:** operation, action, authority, guard, transition, execution, recovery finality, scenario verification, screen admission or independent acceptance. An observation view does not implement fencing or authorize a fallback.
+- **Evidence:** the J-29/J-30 journey contracts, screen contracts, journey registry and `tests/pdp-3-screen-journey-crosslinks.test.mjs`.
+
+### PXD-037 — Resolve the six withheld screen composition links
+
+- **Status:** accepted top-level definition links only; no screen composition admission.
+- **Authority:** the user's 2026-10-08 delegated Media owner review.
+- **Review:** the former choices confused diagnostics with task setup, composition editing with render preparation, record inspection with time-based editing/comparison, workspace settings with consent, and project navigation with a workbench. New central catalog grammar follows the authored region purpose and reading order rather than renaming those mismatches.
+- **Approved:** `check-processing-readiness` → operational-readiness template/layout; `compose-media` → media-composition template and media-workbench layout; `inspect-media` and `inspect-provenance` → record-detail template/layout; `review-workspace-settings` → workspace-settings template/layout; `work-in-project` → project-overview template/layout. The five new templates and three new layouts are reusable source definitions, with referenced patterns and recipe chains subject to source validation.
+- **Effect:** 47 current exact top-level composition links are selected; zero withheld. PXD-028's original 41 approvals retain their scope; only its six withheld mappings are superseded by this decision.
+- **Evidence:** PDP-2 template/layout/pattern/recipe catalogs, PDP-3 screen registry and six screen contracts, `tests/pdp-2-recipe-layout-chains.test.mjs`.
+- **Excludes:** screen-composition admission, Shared executable/component binding, production behavior, visual or assistive-technology acceptance, PDP-2/PDP-3 acceptance, Lifecycle currentness or phase closure.
+
+### PXD-038 — Preserve every source-authored obligation in the dynamic census
+
+- **Status:** accepted source inventory correction only; no proof admission.
+- **Authority:** the user's 2026-10-08 delegated Media owner review and the plan's prohibition on silently dropping authored obligations.
+- **Review:** `main@355d50e` already contained `media.domain.caption-version` and the five operations `caption-draft-write`, `caption-version-read`, `caption-version-write`, `transcript-version-read` and `transcription-submission`, but the 319-row obligation inventory omitted them. Nine new PXD-037 design records also require coverage: three layouts, one multitrack pattern and five templates.
+- **Approved:** derive required obligation identities and phase membership from the actual canonical source collections; retain all previous IDs, add omitted/new source records and refresh source-only input fingerprints. The initial corrected population is 334 (38/136/83/77); further genuinely authored records must also be enumerated.
+- **Evidence:** direct HEAD source comparison, `scripts/lib/media-obligation-denominator-audit.mjs`, `scripts/generate-media-lifecycle-source-inputs.mjs`, denominator and isolated generator negative tests.
+- **Limits:** a refreshed source fingerprint records an input snapshot only. Changed candidate proof fingerprints invalidate prior results pending rerun and review. Case, provider, observer, oracle and receipt admission remain external and unchanged.
+- **Excludes:** semantic acceptance of the added records, case fabrication, provider admission, independent review, Lifecycle currentness/receipts and phase closure.
+
+### PXD-039 — Adjudicate three exact migration process rows
+
+- **Status:** bounded classification only; P0-03 remains partial.
+- **Authority:** the user's 2026-10-08 delegated Media owner review.
+- **Reviewed and approved:** MPSEM-0044 (historical line 120, REV-24 implementation-task detail guidance), MPSEM-0064 (line 162, “The new repository must create and enforce:”) and MPSEM-0301 (line 692, “The API contract must specify:”) are `EXECUTION_ONLY` task guidance or structural lead-ins. These exact rows establish no product behavior or acceptance; all following concrete boundary/API claims require their own review.
+- **Withheld:** MPSEM-0001's metadata slices retain their earlier scope while product/status/authority claims remain unresolved; MPSEM-0062's dependency direction and MPSEM-0066's boundary authority cannot be dismissed as non-normative metadata.
+- **Effect:** PXD-033's exact 86 classifications are unchanged. Three additional exact classifications bring the cumulative non-normative population to 89 and leave 260 semantic items unresolved within the original 349 structural observations.
+- **Evidence:** `migration-semantics-review.yaml#ownerDecisionOverlay.additionalBoundedClassificationDecisions`, exact item texts/source locations and migration regression tests.
+- **Excludes:** adjacent normative assertions, dependency equivalence, boundary/API semantic acceptance, master-plan pin acceptance, task completion, independent review or phase closure.
+
 ## Governance decisions for this authority root
 
 ### GOV-AUTH-001 — Use authored partial relations for traceability

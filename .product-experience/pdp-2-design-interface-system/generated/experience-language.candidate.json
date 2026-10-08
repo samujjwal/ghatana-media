@@ -5,8 +5,8 @@
   "sourceAuthorities": [
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-      "sha256": "f1e80ebaa3ced06669755a0beb89356a3427030d25891f273b72851b03450f80",
-      "bytes": 8618,
+      "sha256": "bfa5b00874d44809cf9439a7d83ba79ecdae1ee9e9021fffb01b06874a78d0fe",
+      "bytes": 8905,
       "format": "markdown"
     },
     {
@@ -171,8 +171,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
-      "sha256": "c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d",
-      "bytes": 5028,
+      "sha256": "66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a",
+      "bytes": 6403,
       "format": "yaml",
       "schemaVersion": "media.gui-layout.v1",
       "authority": "Media owns information hierarchy and responsive composition; Shared owns layout primitives and design tokens",
@@ -193,16 +193,19 @@
         "media.gui.layout.consent",
         "media.gui.layout.job-observation",
         "media.gui.layout.media-workbench",
+        "media.gui.layout.operational-readiness",
+        "media.gui.layout.project-overview",
         "media.gui.layout.record-detail",
         "media.gui.layout.render",
         "media.gui.layout.review",
-        "media.gui.layout.task-setup"
+        "media.gui.layout.task-setup",
+        "media.gui.layout.workspace-settings"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-      "sha256": "2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae",
-      "bytes": 3944,
+      "sha256": "ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b",
+      "bytes": 6154,
       "format": "yaml",
       "schemaVersion": "media.gui-templates.v1",
       "authority": "Media owns reusable screen-composition templates; Shared owns the primitives used to realize them",
@@ -222,16 +225,21 @@
         "media.gui.template.consent-gate",
         "media.gui.template.job-observation",
         "media.gui.template.lifecycle-confirmation",
+        "media.gui.template.media-composition",
+        "media.gui.template.operational-readiness",
+        "media.gui.template.project-overview",
+        "media.gui.template.record-detail",
         "media.gui.template.render-preparation-and-review",
         "media.gui.template.review-and-compare",
         "media.gui.template.task-setup",
-        "media.gui.template.workbench"
+        "media.gui.template.workbench",
+        "media.gui.template.workspace-settings"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-      "sha256": "8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6",
-      "bytes": 9986,
+      "sha256": "ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f",
+      "bytes": 10538,
       "format": "yaml",
       "schemaVersion": "media.gui-patterns.v1",
       "authority": "Media owns domain-specific composition and behavior; Shared owns reusable primitive implementation",
@@ -253,6 +261,7 @@
         "media.gui.pattern.destructive-lifecycle-action",
         "media.gui.pattern.intent-launcher",
         "media.gui.pattern.job-status-and-recovery",
+        "media.gui.pattern.multitrack-composition",
         "media.gui.pattern.project-browser",
         "media.gui.pattern.project-context-header",
         "media.gui.pattern.provenance-and-lineage",
@@ -269,8 +278,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
-      "sha256": "fe2ec95531f3edcb7a6e98a1a868f71cf60f164e9b7b0831208102a005e4151c",
-      "bytes": 4523,
+      "sha256": "d85ce0ebd2efd44354c20cc09347c04f4b269845f953d47cb35f96c2c0340a12",
+      "bytes": 6741,
       "format": "yaml",
       "schemaVersion": "media.gui-recipes.v1",
       "authority": "Media-defined UI composition recipes; distinct from Media processing recipes and Shared primitive implementations",
@@ -291,16 +300,21 @@
         "media.gui.recipe.consent-gate",
         "media.gui.recipe.job-observation",
         "media.gui.recipe.lifecycle-confirmation",
+        "media.gui.recipe.media-composition",
+        "media.gui.recipe.operational-readiness",
+        "media.gui.recipe.project-overview",
+        "media.gui.recipe.record-detail",
         "media.gui.recipe.render-preparation-and-review",
         "media.gui.recipe.review-and-compare",
         "media.gui.recipe.task-setup",
-        "media.gui.recipe.workbench"
+        "media.gui.recipe.workbench",
+        "media.gui.recipe.workspace-settings"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/recipe-chain-review.yaml",
-      "sha256": "dd06d4cf637f124cba678899243575a4c3e4b41d530fff5e180c6e5d7103ac78",
-      "bytes": 5495,
+      "sha256": "48515a75221478cab6662f10f239a635e44ee93503fe72293aca2e90355dbd35",
+      "bytes": 7668,
       "format": "yaml",
       "schemaVersion": "media.gui-recipe-chain-review.v1",
       "authority": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
@@ -322,10 +336,15 @@
         "media.gui.recipe.consent-gate",
         "media.gui.recipe.job-observation",
         "media.gui.recipe.lifecycle-confirmation",
+        "media.gui.recipe.media-composition",
+        "media.gui.recipe.operational-readiness",
+        "media.gui.recipe.project-overview",
+        "media.gui.recipe.record-detail",
         "media.gui.recipe.render-preparation-and-review",
         "media.gui.recipe.review-and-compare",
         "media.gui.recipe.task-setup",
-        "media.gui.recipe.workbench"
+        "media.gui.recipe.workbench",
+        "media.gui.recipe.workspace-settings"
       ]
     },
     {
@@ -754,6 +773,12 @@
         "applicability": "activity-heading, job-identity-and-purpose, recorded-state-and-finality, supported-age-or-urgency, safe-next-action, empty-or-unavailable-state"
       },
       {
+        "id": "media.gui.pattern.multitrack-composition",
+        "name": "media.gui.pattern.multitrack-composition",
+        "description": "Arrange versioned audio, video, caption, and graphics tracks with exact timing and explicit unresolved approvals.",
+        "applicability": "composition-version, multitrack-timeline, track-and-clip-list, transition-and-caption-alignment, brand-and-typography-references, safe-area-and-output-profile, validation-state"
+      },
+      {
         "id": "media.gui.pattern.transcript-and-playback",
         "name": "media.gui.pattern.transcript-and-playback",
         "description": "Keep playback position, transcript selection, and source time aligned.",
@@ -1096,6 +1121,31 @@
         "recipeRef": "media.gui.recipe.lifecycle-confirmation"
       },
       {
+        "id": "media.language.recipe-binding.media-composition",
+        "semanticPattern": "media.gui.pattern.multitrack-composition",
+        "recipeRef": "media.gui.recipe.media-composition"
+      },
+      {
+        "id": "media.language.recipe-binding.operational-readiness",
+        "semanticPattern": "media.gui.pattern.quality-and-uncertainty",
+        "recipeRef": "media.gui.recipe.operational-readiness"
+      },
+      {
+        "id": "media.language.recipe-binding.record-detail",
+        "semanticPattern": "media.gui.pattern.provenance-and-lineage",
+        "recipeRef": "media.gui.recipe.record-detail"
+      },
+      {
+        "id": "media.language.recipe-binding.workspace-settings",
+        "semanticPattern": "media.gui.pattern.safe-confirmation-and-unknown-outcome",
+        "recipeRef": "media.gui.recipe.workspace-settings"
+      },
+      {
+        "id": "media.language.recipe-binding.project-overview",
+        "semanticPattern": "media.gui.pattern.project-context-header",
+        "recipeRef": "media.gui.recipe.project-overview"
+      },
+      {
         "id": "media.language.recipe-binding.task-setup",
         "semanticPattern": "media.gui.pattern.intent-launcher",
         "recipeRef": "media.gui.recipe.task-setup"
@@ -1143,8 +1193,8 @@
         "presentationEffect": "Processing stopped by consent change: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy."
       }
     ],
-    "createdAt": "2026-10-08T18:40:53.471Z",
-    "updatedAt": "2026-10-08T18:40:53.471Z"
+    "createdAt": "2026-10-08T20:53:42.842Z",
+    "updatedAt": "2026-10-08T20:53:42.842Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
@@ -1263,7 +1313,7 @@
       "progressiveDisclosureRules": "Triggers are selection of each disclosure level; revealed content is taken from master plan §14.1. Concealment is unspecified.",
       "accessibilityRules": "WCAG 2.2 AA is the declared target; mapped requirements do not establish conformance or replace specialist review.",
       "recoveryPatterns": "Authored recovery IDs, names, descriptions, and automaticRecovery decisions map directly; unknown outcomes require reconciliation and are not automatically recovered.",
-      "recipeBindings": "Eight owner-approved GUI recipe identities and their exact primary pattern refs are projected. Shared public-package binding and all 47 screen-instance admissions remain pending."
+      "recipeBindings": "13 owner-approved GUI recipe identities and their exact primary pattern refs are projected. Shared public-package binding and all 47 screen-instance admissions remain pending."
     },
     "ownerDecisionStatus": "PENDING; direct source projection and public validation do not establish semantic acceptance or phase closure."
   },

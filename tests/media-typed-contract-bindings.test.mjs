@@ -96,8 +96,8 @@ const pdp1Ids = new Set([
 ]);
 
 test("typed contract binding catalog exhaustively covers source roles without implying support", () => {
-  assert.deepEqual(typeNames(source).length, 19);
-  assert.deepEqual(schemaNames(source).length, 20);
+  assert.deepEqual(typeNames(source).length, 20);
+  assert.deepEqual(schemaNames(source).length, 21);
   assert.deepEqual(validateManifest(manifest, source, pdp1Ids), []);
   assert.equal(manifest.bindings.filter((entry) => entry.type == null).length, 1);
   assert.equal(manifest.bindings.find((entry) => entry.type == null)?.schema, "MultimodalSourceSchema");

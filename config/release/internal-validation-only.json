@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "ghatana.media.release-profile.v1",
+  "profileId": "ghatana-media.internal-validation-only",
+  "profileVersion": 1,
+  "candidateStatus": "REFERENCE_ONLY_NOT_A_RELEASE_CANDIDATE",
+  "releaseClass": "INTERNAL_VALIDATION_ONLY",
+  "commercialUse": false,
+  "publicDistribution": false,
+  "externalDeployment": false,
+  "consumerCutover": false,
+  "authority": {
+    "decision": "OWNER_SELECTED_BOUNDED_PROFILE",
+    "scope": "Internal noncommercial validation of source and contract behavior only.",
+    "doesNotAuthorize": [
+      "public or commercial launch",
+      "external deployment or service effects",
+      "consumer migration or cutover",
+      "Lifecycle phase acceptance or receipts",
+      "license, patent, security, model-quality, codec, or runtime qualification"
+    ]
+  },
+  "artifactIdentity": {
+    "sourceRevision": null,
+    "buildDigest": null,
+    "sbomDigest": null,
+    "status": "UNBOUND_NO_IMMUTABLE_CANDIDATE"
+  },
+  "dependencyAdmission": {
+    "default": "NOT_ADMITTED",
+    "codecs": "NOT_ADMITTED",
+    "modelsAndWeights": "NOT_ADMITTED",
+    "externalProviders": "NOT_ADMITTED",
+    "externalEffects": "NOT_ADMITTED",
+    "releaseOnlyDependencies": "NOT_ADMITTED"
+  },
+  "permittedActivities": [
+    "local source validation",
+    "deterministic contract and fixture tests",
+    "non-production integration tests using isolated test doubles",
+    "internal review of qualification evidence"
+  ],
+  "requiredProductionGates": [
+    "immutable build and source provenance",
+    "complete shipped-artifact SBOM and per-artifact license review",
+    "profile-specific model, codec, and provider qualification",
+    "security and privacy review for selected deployment profile",
+    "qualified runtime, throughput, and operational SLO evidence",
+    "approved consumer inventory, compatibility plan, and tested rollback",
+    "deployment and cutover authorization by accountable owners",
+    "independent certification where the selected profile requires it"
+  ]
+}

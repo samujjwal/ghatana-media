@@ -38,6 +38,9 @@ completion:
 terminalSuccess: bounded-current-eligibility-observation-returned
 steps:
   - stepId: "establish-scope-and-permissions"
+    view: media.view.check-processing-options
+    screenContractRef: screen-contracts/check-processing-options.yaml
+    intent: media.intent.check-processing-options
     label: "establish-scope-and-permissions"
     stateRefs: []
     surfaceRefs:
@@ -110,6 +113,9 @@ steps:
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
   - stepId: "inspect-profile-and-provider-dimensions"
+    view: media.view.check-processing-options
+    screenContractRef: screen-contracts/check-processing-options.yaml
+    intent: media.intent.check-processing-options
     label: "inspect-profile-and-provider-dimensions"
     stateRefs: []
     surfaceRefs:
@@ -182,6 +188,9 @@ steps:
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
   - stepId: "preserve-unknown-or-unavailable-reasons"
+    view: media.view.check-processing-readiness
+    screenContractRef: screen-contracts/check-processing-readiness.yaml
+    intent: media.intent.check-processing-readiness
     label: "preserve-unknown-or-unavailable-reasons"
     stateRefs: []
     surfaceRefs:
@@ -254,6 +263,9 @@ steps:
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
   - stepId: "return-eligible-options-with-provenance"
+    view: media.view.choose-eligible-processing-option
+    screenContractRef: screen-contracts/choose-eligible-processing-option.yaml
+    intent: media.intent.choose-eligible-processing-option
     label: "return-eligible-options-with-provenance"
     stateRefs: []
     surfaceRefs:

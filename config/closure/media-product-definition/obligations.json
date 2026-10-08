@@ -1397,7 +1397,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-attempt",
         "recordId": "media-attempt",
-        "sourceDigest": "sha256:b5ca6c7478006221c04cc3c18aacaa579fc69aa7c5bbf23d273e2d89977da4f4"
+        "sourceDigest": "sha256:85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880"
       }
     }
   },
@@ -1595,7 +1595,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-delivery",
         "recordId": "media-delivery",
-        "sourceDigest": "sha256:b5ca6c7478006221c04cc3c18aacaa579fc69aa7c5bbf23d273e2d89977da4f4"
+        "sourceDigest": "sha256:85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880"
       }
     }
   },
@@ -1859,7 +1859,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-job",
         "recordId": "media-job",
-        "sourceDigest": "sha256:b5ca6c7478006221c04cc3c18aacaa579fc69aa7c5bbf23d273e2d89977da4f4"
+        "sourceDigest": "sha256:85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880"
       }
     }
   },
@@ -2057,7 +2057,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-project",
         "recordId": "media-project",
-        "sourceDigest": "sha256:b5ca6c7478006221c04cc3c18aacaa579fc69aa7c5bbf23d273e2d89977da4f4"
+        "sourceDigest": "sha256:85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880"
       }
     }
   },
@@ -2090,7 +2090,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-project-membership",
         "recordId": "media-project-membership",
-        "sourceDigest": "sha256:b5ca6c7478006221c04cc3c18aacaa579fc69aa7c5bbf23d273e2d89977da4f4"
+        "sourceDigest": "sha256:85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880"
       }
     }
   },
@@ -2288,7 +2288,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-project-version",
         "recordId": "media-project-version",
-        "sourceDigest": "sha256:b5ca6c7478006221c04cc3c18aacaa579fc69aa7c5bbf23d273e2d89977da4f4"
+        "sourceDigest": "sha256:85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880"
       }
     }
   },
@@ -2519,7 +2519,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-quality-disposition",
         "recordId": "media-quality-disposition",
-        "sourceDigest": "sha256:b5ca6c7478006221c04cc3c18aacaa579fc69aa7c5bbf23d273e2d89977da4f4"
+        "sourceDigest": "sha256:85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880"
       }
     }
   },
@@ -2651,7 +2651,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-review",
         "recordId": "media-review",
-        "sourceDigest": "sha256:b5ca6c7478006221c04cc3c18aacaa579fc69aa7c5bbf23d273e2d89977da4f4"
+        "sourceDigest": "sha256:85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880"
       }
     }
   },
@@ -2849,7 +2849,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-rights-and-consent",
         "recordId": "media-rights-and-consent",
-        "sourceDigest": "sha256:b5ca6c7478006221c04cc3c18aacaa579fc69aa7c5bbf23d273e2d89977da4f4"
+        "sourceDigest": "sha256:85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880"
       }
     }
   },
@@ -2882,7 +2882,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-stream-session",
         "recordId": "media-stream-session",
-        "sourceDigest": "sha256:b5ca6c7478006221c04cc3c18aacaa579fc69aa7c5bbf23d273e2d89977da4f4"
+        "sourceDigest": "sha256:85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880"
       }
     }
   },
@@ -3047,7 +3047,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#/stateMachines/media-upload-and-artifact",
         "recordId": "media-upload-and-artifact",
-        "sourceDigest": "sha256:b5ca6c7478006221c04cc3c18aacaa579fc69aa7c5bbf23d273e2d89977da4f4"
+        "sourceDigest": "sha256:85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880"
       }
     }
   },
@@ -3476,6 +3476,39 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.artifact-version",
         "recordId": "media.domain.artifact-version",
+        "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.domain.caption-version",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "domain-object",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.domain.caption-version; source proposal: CaptionVersionRecord.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.domain.caption-version"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#/objects/media.domain.caption-version",
+        "recordId": "media.domain.caption-version",
         "sourceDigest": "sha256:5c78aabcf6e15c4bfea47f227f7c1772ed028d98913759b14073dee5b9944d1a"
       }
     }
@@ -4571,6 +4604,336 @@
   },
   {
     "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation-slice.append-upload-chunk",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation-slice.append-upload-chunk; source proposal: media.operation-slice.append-upload-chunk.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation-slice.append-upload-chunk"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.append-upload-chunk",
+        "recordId": "media.operation-slice.append-upload-chunk",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation-slice.begin-upload",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation-slice.begin-upload; source proposal: media.operation-slice.begin-upload.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation-slice.begin-upload"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.begin-upload",
+        "recordId": "media.operation-slice.begin-upload",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation-slice.cancel-job",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation-slice.cancel-job; source proposal: media.operation-slice.cancel-job.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation-slice.cancel-job"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.cancel-job",
+        "recordId": "media.operation-slice.cancel-job",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation-slice.check-job-outcome",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation-slice.check-job-outcome; source proposal: media.operation-slice.check-job-outcome.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation-slice.check-job-outcome"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.check-job-outcome",
+        "recordId": "media.operation-slice.check-job-outcome",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation-slice.complete-upload",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation-slice.complete-upload; source proposal: media.operation-slice.complete-upload.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation-slice.complete-upload"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.complete-upload",
+        "recordId": "media.operation-slice.complete-upload",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation-slice.inspect-artifact",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation-slice.inspect-artifact; source proposal: media.operation-slice.inspect-artifact.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation-slice.inspect-artifact"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.inspect-artifact",
+        "recordId": "media.operation-slice.inspect-artifact",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation-slice.inspect-job",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation-slice.inspect-job; source proposal: media.operation-slice.inspect-job.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation-slice.inspect-job"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.inspect-job",
+        "recordId": "media.operation-slice.inspect-job",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation-slice.inspect-upload",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation-slice.inspect-upload; source proposal: media.operation-slice.inspect-upload.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation-slice.inspect-upload"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.inspect-upload",
+        "recordId": "media.operation-slice.inspect-upload",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation-slice.retry-job",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation-slice.retry-job; source proposal: media.operation-slice.retry-job.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation-slice.retry-job"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.retry-job",
+        "recordId": "media.operation-slice.retry-job",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation-slice.submit-job",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation-slice.submit-job; source proposal: media.operation-slice.submit-job.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation-slice.submit-job"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.submit-job",
+        "recordId": "media.operation-slice.submit-job",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
     "id": "media.pdp-1.requirement.media.operation.artifact-ingest",
     "closureSurfaceId": "media.product-definition",
     "dimension": "operation-family",
@@ -4598,7 +4961,106 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.artifact-ingest",
         "recordId": "media.operation.artifact-ingest",
-        "sourceDigest": "sha256:ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654"
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation.caption-draft-write",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation.caption-draft-write; source proposal: derive-an-editable-caption-draft-from-one-exact-parent-caption-or-transcript-version.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation.caption-draft-write"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.caption-draft-write",
+        "recordId": "media.operation.caption-draft-write",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation.caption-version-read",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation.caption-version-read; source proposal: compare-two-exact-caption-version-identities-without-mutating-either.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation.caption-version-read"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.caption-version-read",
+        "recordId": "media.operation.caption-version-read",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation.caption-version-write",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation.caption-version-write; source proposal: register-a-new-immutable-caption-artifact-version-with-exact-parent-and-operation-provenance.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation.caption-version-write"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.caption-version-write",
+        "recordId": "media.operation.caption-version-write",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
       }
     }
   },
@@ -4631,7 +5093,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.consent",
         "recordId": "media.operation.consent",
-        "sourceDigest": "sha256:ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654"
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
       }
     }
   },
@@ -4664,7 +5126,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.health-capability",
         "recordId": "media.operation.health-capability",
-        "sourceDigest": "sha256:ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654"
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
       }
     }
   },
@@ -4697,7 +5159,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.job-lifecycle",
         "recordId": "media.operation.job-lifecycle",
-        "sourceDigest": "sha256:ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654"
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
       }
     }
   },
@@ -4730,7 +5192,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.multimodal-analysis",
         "recordId": "media.operation.multimodal-analysis",
-        "sourceDigest": "sha256:ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654"
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
       }
     }
   },
@@ -4763,7 +5225,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.stream-session",
         "recordId": "media.operation.stream-session",
-        "sourceDigest": "sha256:ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654"
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
       }
     }
   },
@@ -4796,7 +5258,40 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.synthesis",
         "recordId": "media.operation.synthesis",
-        "sourceDigest": "sha256:ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654"
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation.transcript-version-read",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation.transcript-version-read; source proposal: read-one-exact-source-linked-transcript-version-and-its-uncertainty.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation.transcript-version-read"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.transcript-version-read",
+        "recordId": "media.operation.transcript-version-read",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
       }
     }
   },
@@ -4829,7 +5324,40 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.transcription",
         "recordId": "media.operation.transcription",
-        "sourceDigest": "sha256:ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654"
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-1.requirement.media.operation.transcription-submission",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "operation-family",
+    "statement": "Review and establish the canonical PDP-1 source obligation for media.operation.transcription-submission; source proposal: submit-one-transcription-request-for-one-exact-source-version-and-create-or-return-one-stable-job-reference.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-1"
+      ],
+      "blockingIn": [
+        "PDP-1"
+      ],
+      "affects": [
+        "PDP-1"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.operation.transcription-submission"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.transcription-submission",
+        "recordId": "media.operation.transcription-submission",
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
       }
     }
   },
@@ -4862,7 +5390,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#/operations/media.operation.vision-analysis",
         "recordId": "media.operation.vision-analysis",
-        "sourceDigest": "sha256:ae0d5f97e283abd48377876c0aaf695b3cd17362bfe227d28fb9ed28a4a29654"
+        "sourceDigest": "sha256:a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
       }
     }
   },
@@ -6710,7 +7238,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.collection",
         "recordId": "media.gui.layout.collection",
-        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
+        "sourceDigest": "sha256:66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a"
       }
     }
   },
@@ -6743,7 +7271,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.consent",
         "recordId": "media.gui.layout.consent",
-        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
+        "sourceDigest": "sha256:66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a"
       }
     }
   },
@@ -6776,7 +7304,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.job-observation",
         "recordId": "media.gui.layout.job-observation",
-        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
+        "sourceDigest": "sha256:66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a"
       }
     }
   },
@@ -6809,7 +7337,73 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.media-workbench",
         "recordId": "media.gui.layout.media-workbench",
-        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
+        "sourceDigest": "sha256:66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-2.requirement.media.gui.layout.operational-readiness",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "layout",
+    "statement": "Review and establish the canonical PDP-2 source obligation for media.gui.layout.operational-readiness; source proposal: Inspect one scoped readiness observation, its freshness, limits, safe recovery guidance, and audit reference..",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-2"
+      ],
+      "blockingIn": [
+        "PDP-2"
+      ],
+      "affects": [
+        "PDP-2"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.gui.layout.operational-readiness"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.operational-readiness",
+        "recordId": "media.gui.layout.operational-readiness",
+        "sourceDigest": "sha256:66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-2.requirement.media.gui.layout.project-overview",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "layout",
+    "statement": "Review and establish the canonical PDP-2 source obligation for media.gui.layout.project-overview; source proposal: Understand one selected project's exact identity, contents, pending work, and safe next action..",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-2"
+      ],
+      "blockingIn": [
+        "PDP-2"
+      ],
+      "affects": [
+        "PDP-2"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.gui.layout.project-overview"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.project-overview",
+        "recordId": "media.gui.layout.project-overview",
+        "sourceDigest": "sha256:66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a"
       }
     }
   },
@@ -6842,7 +7436,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.record-detail",
         "recordId": "media.gui.layout.record-detail",
-        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
+        "sourceDigest": "sha256:66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a"
       }
     }
   },
@@ -6875,7 +7469,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.render",
         "recordId": "media.gui.layout.render",
-        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
+        "sourceDigest": "sha256:66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a"
       }
     }
   },
@@ -6908,7 +7502,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.review",
         "recordId": "media.gui.layout.review",
-        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
+        "sourceDigest": "sha256:66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a"
       }
     }
   },
@@ -6941,7 +7535,40 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.task-setup",
         "recordId": "media.gui.layout.task-setup",
-        "sourceDigest": "sha256:c403fff232fc04e11360285087953c90d72b418ea33fa08d4216c1928590a23d"
+        "sourceDigest": "sha256:66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-2.requirement.media.gui.layout.workspace-settings",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "layout",
+    "statement": "Review and establish the canonical PDP-2 source obligation for media.gui.layout.workspace-settings; source proposal: Review inherited and local workspace policy values and save an authorized change with visible affected workflows..",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-2"
+      ],
+      "blockingIn": [
+        "PDP-2"
+      ],
+      "affects": [
+        "PDP-2"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.gui.layout.workspace-settings"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/media.gui.layout.workspace-settings",
+        "recordId": "media.gui.layout.workspace-settings",
+        "sourceDigest": "sha256:66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a"
       }
     }
   },
@@ -6974,7 +7601,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.activity-attention",
         "recordId": "media.gui.pattern.activity-attention",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7007,7 +7634,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.caption-editor",
         "recordId": "media.gui.pattern.caption-editor",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7040,7 +7667,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.creation-plan-review",
         "recordId": "media.gui.pattern.creation-plan-review",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7073,7 +7700,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.destructive-lifecycle-action",
         "recordId": "media.gui.pattern.destructive-lifecycle-action",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7106,7 +7733,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.intent-launcher",
         "recordId": "media.gui.pattern.intent-launcher",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7139,7 +7766,40 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.job-status-and-recovery",
         "recordId": "media.gui.pattern.job-status-and-recovery",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-2.requirement.media.gui.pattern.multitrack-composition",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "interaction-pattern",
+    "statement": "Review and establish the canonical PDP-2 source obligation for media.gui.pattern.multitrack-composition; source proposal: media.gui.pattern.multitrack-composition.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-2"
+      ],
+      "blockingIn": [
+        "PDP-2"
+      ],
+      "affects": [
+        "PDP-2"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.gui.pattern.multitrack-composition"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.multitrack-composition",
+        "recordId": "media.gui.pattern.multitrack-composition",
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7172,7 +7832,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.project-browser",
         "recordId": "media.gui.pattern.project-browser",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7205,7 +7865,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.project-context-header",
         "recordId": "media.gui.pattern.project-context-header",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7238,7 +7898,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.provenance-and-lineage",
         "recordId": "media.gui.pattern.provenance-and-lineage",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7271,7 +7931,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.quality-and-uncertainty",
         "recordId": "media.gui.pattern.quality-and-uncertainty",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7304,7 +7964,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.rendering",
         "recordId": "media.gui.pattern.rendering",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7337,7 +7997,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.review-approval",
         "recordId": "media.gui.pattern.review-approval",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7370,7 +8030,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.rights-and-consent-review",
         "recordId": "media.gui.pattern.rights-and-consent-review",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7403,7 +8063,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.safe-confirmation-and-unknown-outcome",
         "recordId": "media.gui.pattern.safe-confirmation-and-unknown-outcome",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7436,7 +8096,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.source-picker",
         "recordId": "media.gui.pattern.source-picker",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7469,7 +8129,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.transcript-and-playback",
         "recordId": "media.gui.pattern.transcript-and-playback",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7502,7 +8162,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.upload-and-verification",
         "recordId": "media.gui.pattern.upload-and-verification",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7535,7 +8195,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/media.gui.pattern.version-comparison",
         "recordId": "media.gui.pattern.version-comparison",
-        "sourceDigest": "sha256:8b51318246d4151d9305214cca9dac0849536a618776daa16596c2fe404368e6"
+        "sourceDigest": "sha256:ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
       }
     }
   },
@@ -7568,7 +8228,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.collection",
         "recordId": "media.gui.template.collection",
-        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
       }
     }
   },
@@ -7601,7 +8261,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.consent-gate",
         "recordId": "media.gui.template.consent-gate",
-        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
       }
     }
   },
@@ -7634,7 +8294,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.job-observation",
         "recordId": "media.gui.template.job-observation",
-        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
       }
     }
   },
@@ -7667,7 +8327,139 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.lifecycle-confirmation",
         "recordId": "media.gui.template.lifecycle-confirmation",
-        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-2.requirement.media.gui.template.media-composition",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "view-template",
+    "statement": "Review and establish the canonical PDP-2 source obligation for media.gui.template.media-composition; source proposal: Edit a versioned multitrack composition with explicit timing, alignment, brand, and validation context..",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-2"
+      ],
+      "blockingIn": [
+        "PDP-2"
+      ],
+      "affects": [
+        "PDP-2"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.gui.template.media-composition"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.media-composition",
+        "recordId": "media.gui.template.media-composition",
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-2.requirement.media.gui.template.operational-readiness",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "view-template",
+    "statement": "Review and establish the canonical PDP-2 source obligation for media.gui.template.operational-readiness; source proposal: Inspect a scoped readiness observation, freshness, capacity or dependency limits, and safe recovery guidance without dispatching work..",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-2"
+      ],
+      "blockingIn": [
+        "PDP-2"
+      ],
+      "affects": [
+        "PDP-2"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.gui.template.operational-readiness"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.operational-readiness",
+        "recordId": "media.gui.template.operational-readiness",
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-2.requirement.media.gui.template.project-overview",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "view-template",
+    "statement": "Review and establish the canonical PDP-2 source obligation for media.gui.template.project-overview; source proposal: Understand one selected project's identity, source and output summary, pending work, and safe next action..",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-2"
+      ],
+      "blockingIn": [
+        "PDP-2"
+      ],
+      "affects": [
+        "PDP-2"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.gui.template.project-overview"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.project-overview",
+        "recordId": "media.gui.template.project-overview",
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-2.requirement.media.gui.template.record-detail",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "view-template",
+    "statement": "Review and establish the canonical PDP-2 source obligation for media.gui.template.record-detail; source proposal: Inspect one exact artifact, version, provenance chain, or governed record with explicit unknowns and scoped actions..",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-2"
+      ],
+      "blockingIn": [
+        "PDP-2"
+      ],
+      "affects": [
+        "PDP-2"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.gui.template.record-detail"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.record-detail",
+        "recordId": "media.gui.template.record-detail",
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
       }
     }
   },
@@ -7700,7 +8492,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.render-preparation-and-review",
         "recordId": "media.gui.template.render-preparation-and-review",
-        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
       }
     }
   },
@@ -7733,7 +8525,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.review-and-compare",
         "recordId": "media.gui.template.review-and-compare",
-        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
       }
     }
   },
@@ -7766,7 +8558,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.task-setup",
         "recordId": "media.gui.template.task-setup",
-        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
       }
     }
   },
@@ -7799,7 +8591,40 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.workbench",
         "recordId": "media.gui.template.workbench",
-        "sourceDigest": "sha256:2b439e35970858477ae07ec7b97e999be0697f4d2deecfd7d5865bd5a71be1ae"
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-2.requirement.media.gui.template.workspace-settings",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "view-template",
+    "statement": "Review and establish the canonical PDP-2 source obligation for media.gui.template.workspace-settings; source proposal: Review inherited and local user or workspace policy values, affected workflows, and authorized save or reset actions..",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-2"
+      ],
+      "blockingIn": [
+        "PDP-2"
+      ],
+      "affects": [
+        "PDP-2"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.gui.template.workspace-settings"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/media.gui.template.workspace-settings",
+        "recordId": "media.gui.template.workspace-settings",
+        "sourceDigest": "sha256:ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
       }
     }
   },
@@ -8136,7 +8961,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-01",
         "recordId": "J-01",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8180,7 +9005,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-02",
         "recordId": "J-02",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8229,7 +9054,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-03",
         "recordId": "J-03",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8262,7 +9087,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-04",
         "recordId": "J-04",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8295,7 +9120,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-05",
         "recordId": "J-05",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8328,7 +9153,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-06",
         "recordId": "J-06",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8361,7 +9186,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-07",
         "recordId": "J-07",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8394,7 +9219,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-08",
         "recordId": "J-08",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8427,7 +9252,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-09",
         "recordId": "J-09",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8460,7 +9285,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-10",
         "recordId": "J-10",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8493,7 +9318,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-11",
         "recordId": "J-11",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8526,7 +9351,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-12",
         "recordId": "J-12",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8559,7 +9384,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-13",
         "recordId": "J-13",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8592,7 +9417,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-14",
         "recordId": "J-14",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8625,7 +9450,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-15",
         "recordId": "J-15",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8658,7 +9483,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-16",
         "recordId": "J-16",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8691,7 +9516,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-17",
         "recordId": "J-17",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8724,7 +9549,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-18",
         "recordId": "J-18",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8757,7 +9582,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-19",
         "recordId": "J-19",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8790,7 +9615,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-20",
         "recordId": "J-20",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8823,7 +9648,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-21",
         "recordId": "J-21",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8856,7 +9681,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-22",
         "recordId": "J-22",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8889,7 +9714,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-23",
         "recordId": "J-23",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8922,7 +9747,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-24",
         "recordId": "J-24",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8955,7 +9780,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-25",
         "recordId": "J-25",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -8988,7 +9813,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-26",
         "recordId": "J-26",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -9021,7 +9846,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-27",
         "recordId": "J-27",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -9054,7 +9879,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-28",
         "recordId": "J-28",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -9087,7 +9912,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-29",
         "recordId": "J-29",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -9120,7 +9945,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml#/journeys/J-30",
         "recordId": "J-30",
-        "sourceDigest": "sha256:d35cdfcb8d62cefeac0f4fd4b9ad3e426be5d7575601e7f5d46bc9fa0384d196"
+        "sourceDigest": "sha256:3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
       }
     }
   },
@@ -9153,7 +9978,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.adjust-color",
         "recordId": "media.view.adjust-color",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9186,7 +10011,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.animate-media",
         "recordId": "media.view.animate-media",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9219,7 +10044,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.arrange-scenes",
         "recordId": "media.view.arrange-scenes",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9259,7 +10084,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.authenticate-and-select-context",
         "recordId": "media.view.authenticate-and-select-context",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9303,7 +10128,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.browse-media",
         "recordId": "media.view.browse-media",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9352,7 +10177,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews/media.view.check-job-outcome",
         "recordId": "media.view.check-job-outcome",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9385,7 +10210,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.check-processing-options",
         "recordId": "media.view.check-processing-options",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9418,7 +10243,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.check-processing-readiness",
         "recordId": "media.view.check-processing-readiness",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9451,7 +10276,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.choose-eligible-processing-option",
         "recordId": "media.view.choose-eligible-processing-option",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9500,7 +10325,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews/media.view.compare-caption-versions",
         "recordId": "media.view.compare-caption-versions",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9549,7 +10374,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.compare-results",
         "recordId": "media.view.compare-results",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9582,7 +10407,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.compose-media",
         "recordId": "media.view.compose-media",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9615,7 +10440,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.compose-scene",
         "recordId": "media.view.compose-scene",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9664,7 +10489,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews/media.view.correct-captions",
         "recordId": "media.view.correct-captions",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9713,7 +10538,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.create-audio",
         "recordId": "media.view.create-audio",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9746,7 +10571,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.create-image",
         "recordId": "media.view.create-image",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9786,7 +10611,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.create-media",
         "recordId": "media.view.create-media",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9835,7 +10660,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.create-video",
         "recordId": "media.view.create-video",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9868,7 +10693,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.deliver-output",
         "recordId": "media.view.deliver-output",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9917,7 +10742,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.edit-captions",
         "recordId": "media.view.edit-captions",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9950,7 +10775,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.edit-media",
         "recordId": "media.view.edit-media",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -9983,7 +10808,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.edit-media-region",
         "recordId": "media.view.edit-media-region",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10016,7 +10841,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.explore-simulation",
         "recordId": "media.view.explore-simulation",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10056,7 +10881,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.find-projects",
         "recordId": "media.view.find-projects",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10089,7 +10914,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.find-task-guidance",
         "recordId": "media.view.find-task-guidance",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10133,7 +10958,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.import-media",
         "recordId": "media.view.import-media",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10166,7 +10991,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.improve-media",
         "recordId": "media.view.improve-media",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10210,7 +11035,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.inspect-media",
         "recordId": "media.view.inspect-media",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10243,7 +11068,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.inspect-output",
         "recordId": "media.view.inspect-output",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10276,7 +11101,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.inspect-provenance",
         "recordId": "media.view.inspect-provenance",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10320,7 +11145,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.job-status",
         "recordId": "media.view.job-status",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10369,7 +11194,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews/media.view.monitor-transcription",
         "recordId": "media.view.monitor-transcription",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10402,7 +11227,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.prepare-render",
         "recordId": "media.view.prepare-render",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10442,7 +11267,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.resume-work",
         "recordId": "media.view.resume-work",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10486,7 +11311,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-activity",
         "recordId": "media.view.review-activity",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10519,7 +11344,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-creation-plan",
         "recordId": "media.view.review-creation-plan",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10552,7 +11377,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-dubbing",
         "recordId": "media.view.review-dubbing",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10585,7 +11410,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-exact-version",
         "recordId": "media.view.review-exact-version",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10618,7 +11443,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-outputs",
         "recordId": "media.view.review-outputs",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10651,7 +11476,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-quality",
         "recordId": "media.view.review-quality",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10684,7 +11509,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-rights-and-consent",
         "recordId": "media.view.review-rights-and-consent",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10733,7 +11558,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews/media.view.review-transcript",
         "recordId": "media.view.review-transcript",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10766,7 +11591,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.review-workspace-settings",
         "recordId": "media.view.review-workspace-settings",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10815,7 +11640,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews/media.view.select-source",
         "recordId": "media.view.select-source",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10848,7 +11673,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.use-authorized-voice",
         "recordId": "media.view.use-authorized-voice",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10888,7 +11713,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.work-in-project",
         "recordId": "media.view.work-in-project",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   },
@@ -10937,7 +11762,7 @@
       "media-source": {
         "sourceRef": ".product-experience/pdp-3-product-experience/screen-registry.yaml#/screens/media.view.work-with-speech",
         "recordId": "media.view.work-with-speech",
-        "sourceDigest": "sha256:580eabb59e4a25385532547f53d9b18181b2c32b19abb7f62b7cd206c5d26eaf"
+        "sourceDigest": "sha256:8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
       }
     }
   }

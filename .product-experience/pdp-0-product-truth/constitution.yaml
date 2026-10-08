@@ -17,14 +17,81 @@ acceptancePolicy:
   missingRoleAssignmentMeans: review-required
   evidenceOfSourcePresenceIsNotAcceptance: true
 domainRules:
-  status: pending-PDP-1-owner-review
+  status: bounded-media-owner-rules-mapped-under-PXD-035; P0-010-independent-review-pending
   rule: >-
     PDP-0 does not restate canonical domain states, transition guards, or action
-    semantics. Those rules remain owned by PDP-1 and are not projected until
-    their source record and owner decision are accepted.
+    semantics. The following cross-phase rules are projections of the bounded
+    canonical policy decisions already recorded by PDP-1. Their authority stays
+    at the referenced PDP-1 decision; these rows do not accept runtime, provider,
+    transport, transition-guard, or phase semantics.
+  records:
+    - id: MEDIA-DOMAIN-RULE-001
+      name: Machine-scoped state identity
+      rule: A state identifier is meaningful only together with its machine; equal spellings across job, attempt, upload, stream, or delivery machines do not establish equivalent state or behavior.
+      rationale: Preserve the owner-adjudicated machine-scoped identity rule and reject lossy cross-machine normalization.
+      sourceRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#/ownerAcceptedPolicyDecisions/machineScopedStateIdentity
+      expectedDecisionValue: true
+      violation: Reject a state mapping or action decision that omits machine identity or relies on spelling alone.
+      trustScope: Every tenant and principal context; apply at state interpretation and effect authorization boundaries.
+      ownerRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions
+      failClosed: Preserve the source observation and return blocked-or-review-required; do not normalize or execute an inferred action.
+      decisionStatus: bounded-media-owner-approved; PXD-035-bounded-mapping-accepted; P0-010-independent-review-pending
+    - id: MEDIA-DOMAIN-RULE-002
+      name: Request receipt is not queued execution
+      rule: A request receipt or ACCEPTED response proves receipt only; it does not prove durable queueing, worker claim, dispatch, or execution.
+      rationale: Keep ingress acknowledgment distinct from job state and attempt execution.
+      sourceRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#/ownerAcceptedPolicyDecisions/requestReceiptIsQueuedJob
+      expectedDecisionValue: false
+      violation: Reject a queue, claim, dispatch, or execution assertion that is supported only by request acknowledgment.
+      trustScope: Every submission boundary, tenant and principal context.
+      ownerRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions
+      failClosed: Report receipt-only or unknown outcome; do not expose a durable-queued claim or enable execution-dependent actions.
+      decisionStatus: bounded-media-owner-approved; PXD-035-bounded-mapping-accepted; P0-010-independent-review-pending
+    - id: MEDIA-DOMAIN-RULE-003
+      name: Unknown outcome remains unresolved
+      rule: OUTCOME_UNKNOWN is neither running nor failure nor safe-to-retry; preserve uncertainty until an authoritative reconciliation resolves the effect.
+      rationale: Prevent a lossy observation from authorizing duplicate external effects.
+      sourceRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#/ownerAcceptedPolicyDecisions/unknownOutcomeRule
+      expectedDecisionValue: never-conflate-with-running-failure-or-safe-retry
+      violation: Reject conversion of an unresolved outcome into running, failure, completion, or safe replay.
+      trustScope: Every potentially effectful operation and its tenant, provider and recipient context.
+      ownerRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions
+      failClosed: Retain OUTCOME_UNKNOWN and require authoritative reconciliation before retry or finality claims.
+      decisionStatus: bounded-media-owner-approved; PXD-035-bounded-mapping-accepted; P0-010-independent-review-pending
+    - id: MEDIA-DOMAIN-RULE-004
+      name: Completion is distinct from delivery acknowledgment
+      rule: A completed job requires the operation-defined output set, integrity, authority, and durable result commit; it does not establish recipient delivery acknowledgment.
+      rationale: Keep result finality separate from external delivery evidence.
+      sourceRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#/ownerAcceptedPolicyDecisions/completedRule
+      expectedDecisionValue: exact-output-set-integrity-authority-and-durable-result-commit-required; not-delivery-acknowledgement
+      violation: Reject a delivered or recipient-acknowledged claim without the destination's defined acknowledgment evidence.
+      trustScope: Every output-producing operation and each named destination/recipient.
+      ownerRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions
+      failClosed: Report result completion separately and retain delivery as unacknowledged or unknown.
+      decisionStatus: bounded-media-owner-approved; PXD-035-bounded-mapping-accepted; P0-010-independent-review-pending
+    - id: MEDIA-DOMAIN-RULE-005
+      name: Cancellation requires authoritative finality
+      rule: A cancellation request or observer detachment does not establish cancellation; cancellation requires authoritative no-dispatch or confirmed fenced-effects finality under the operation contract.
+      rationale: Keep request intent and observed cancellation result distinct.
+      sourceRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#/ownerAcceptedPolicyDecisions/cancelledRule
+      expectedDecisionValue: authoritative-no-dispatch-or-confirmed-fenced-effects-finality; request-and-observer-detach-insufficient
+      violation: Reject terminal cancellation when only a request, timeout, or observer detachment is known.
+      trustScope: Every cancellable job, attempt and effect boundary under current tenant, requester, and provider context.
+      ownerRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions
+      failClosed: Keep cancellation pending or outcome unknown until authoritative no-dispatch or fenced-effects finality is established.
+      decisionStatus: bounded-media-owner-approved; PXD-035-bounded-mapping-accepted; P0-010-independent-review-pending
+    - id: MEDIA-DOMAIN-RULE-006
+      name: Partial success requires closed effect accounting
+      rule: PARTIALLY_SUCCEEDED is terminal only when every declared sub-effect has an explicit closed disposition and no consequential effect remains unknown.
+      rationale: Prevent unresolved effects from being hidden by an aggregate partial-success label.
+      sourceRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#/ownerAcceptedPolicyDecisions/partialSuccessRule
+      expectedDecisionValue: terminal-only-if-declared-sub-effects-have-explicit-closed-dispositions-and-no-consequential-unknown-effect
+      violation: Reject terminal partial success while any declared sub-effect is missing a closed disposition or has consequential unknown finality.
+      trustScope: Every multi-effect job and its tenant, provider, destination, and output-version context.
+      ownerRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions
+      failClosed: Keep the aggregate nonterminal or outcome-unknown and expose unresolved sub-effects for reconciliation.
+      decisionStatus: bounded-media-owner-approved; PXD-035-bounded-mapping-accepted; P0-010-independent-review-pending
   pendingSources:
-    - ref: .product-experience/pdp-1-domain-data/state-adjudication.yaml
-      reason: The owner-approved decisions are bounded to canonical policy distinctions; they do not accept the proposal-only state machines, transition guards, operation bindings, or a ProductDefinition domainRules mapping.
     - ref: .product-experience/pdp-1-domain-data/states.yaml
       reason: State records are proposal-only and their meaningDisposition remains pending-owner-review.
     - ref: .product-experience/pdp-1-domain-data/transitions.yaml

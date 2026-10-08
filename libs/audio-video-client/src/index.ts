@@ -28,6 +28,18 @@ import {
   parseDetectionResult,
   parseMultimodalResult,
 } from '@audio-video/types';
+export {
+  DOCUMENT_INTELLIGENCE_PROTOCOL_V1,
+  DOCUMENT_INTELLIGENCE_WORKER_V1,
+  DocumentIntelligenceSceneTextAdapter,
+  SceneTextAdapterError,
+} from './scene-text-adapter.js';
+export type {
+  DocumentIntelligenceV1Client,
+  SceneTextAdapterPolicy,
+  SceneTextObservation,
+  SceneTextSourceFrame,
+} from './scene-text-adapter.js';
 
 /**
  * Configuration for service clients

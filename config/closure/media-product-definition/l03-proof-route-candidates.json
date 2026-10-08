@@ -7,8 +7,8 @@
     "sourcePath": "config/closure/media-product-definition/l02-source-case-links.json",
     "reviewedLinkCount": 28,
     "reviewedObligationCount": 7,
-    "obligationDenominator": 319,
-    "unmappedObligationCount": 312,
+    "obligationDenominator": 344,
+    "unmappedObligationCount": 337,
     "candidateRouteCount": 0,
     "status": "NO_CASE_SPECIFIC_OBSERVER_OR_ORACLE_CANDIDATE_IDENTIFIED",
     "missingSemantics": [
@@ -17,7 +17,7 @@
       "The existing runtime, provider-fallback, and production-state routes target different PDP-1 obligations and methods; they do not observe the linked PDP-3 scenarios or their simulation test outcomes.",
       "A local Node test result is not an admitted Lifecycle observer, an independent review, or a qualified production/browser observation. Case execution and Lifecycle binding remain deferred."
     ],
-    "authoritativeAssignments": "UNCHANGED_ZERO_OF_319"
+    "authoritativeAssignments": "UNCHANGED_ZERO_OF_344"
   },
   "routes": [
     {

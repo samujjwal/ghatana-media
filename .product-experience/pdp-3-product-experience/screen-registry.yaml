@@ -647,11 +647,11 @@ coverage:
     templateId:
       recordedExactCatalogIdCandidates: 47
       unresolvedOrNull: 0
-      acceptance: 41 composition-link approvals; 6 remain owner-review-pending; no screen admission
+      acceptance: 47 exact top-level composition-link approvals; no screen admission
     layoutIds:
       recordedExactCatalogIdCandidates: 47
       empty: 0
-      acceptance: 41 composition-link approvals; 6 remain owner-review-pending; no screen admission
+      acceptance: 47 exact top-level composition-link approvals; no screen admission
     tokenDependencies:
       empty: 47
       blocker: screen-specific-token-dependencies-are-not-bound
@@ -675,7 +675,8 @@ coverage:
     evidenceBasis: parsed-screen-contract-directory; counts-are-inventory-only-and-do-not-establish-behavior-design-acceptance-or-currentness
 compositionLinkOwnerReview:
   decision: MEDIA_OWNER_APPROVED_COMPOSITION_LINKS_ONLY
-  approvedCount: 41
+  decisionRef: .product-experience/decision-log.md#PXD-037
+  approvedCount: 47
   approved:
   - screenId: media.view.adjust-color
     contract: .product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml
@@ -841,26 +842,33 @@ compositionLinkOwnerReview:
     contract: .product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml
     templateId: media.gui.template.workbench
     layoutIds: [media.gui.layout.media-workbench]
-  withheldCount: 6
-  withheld:
   - screenId: media.view.check-processing-readiness
     contract: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml
-    reason: "Task setup is for choosing inputs/outcomes before submission; this screen is diagnostics, freshness, capacity/dependency disposition, and safe recovery guidance."
+    templateId: media.gui.template.operational-readiness
+    layoutIds: [media.gui.layout.operational-readiness]
   - screenId: media.view.compose-media
     contract: .product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml
-    reason: "Template and layout describe render preparation/review; this screen is an active composition editor with a multitrack timeline and track/clip editing."
+    templateId: media.gui.template.media-composition
+    layoutIds: [media.gui.layout.media-workbench]
   - screenId: media.view.inspect-media
     contract: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml
-    reason: "The workbench template is for time-based review/editing; this screen inspects an exact artifact version, integrity, metadata, and governed lifecycle actions."
+    templateId: media.gui.template.record-detail
+    layoutIds: [media.gui.layout.record-detail]
   - screenId: media.view.inspect-provenance
     contract: .product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml
-    reason: "The review-and-compare template conflicts with the record-detail layout selected for a single provenance record."
+    templateId: media.gui.template.record-detail
+    layoutIds: [media.gui.layout.record-detail]
   - screenId: media.view.review-workspace-settings
     contract: .product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml
-    reason: "Consent gate/layout is for rights, consent, and access decisions; this screen reviews workspace policy/settings and save/reset actions."
+    templateId: media.gui.template.workspace-settings
+    layoutIds: [media.gui.layout.workspace-settings]
   - screenId: media.view.work-in-project
     contract: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml
-    reason: "The time-based media workbench does not fit a project identity, pending-work summary, intent launcher, and navigation/recovery view."
+    templateId: media.gui.template.project-overview
+    layoutIds: [media.gui.layout.project-overview]
+  withheldCount: 0
+  withheld: []
+  supersedes: .product-experience/decision-log.md#PXD-028-six-withheld-links-only; PXD-028 original 41 approvals remain in historical scope
   evidence:
   - .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
   - .product-experience/pdp-2-design-interface-system/gui/layout.yaml

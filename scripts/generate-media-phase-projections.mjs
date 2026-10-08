@@ -14,6 +14,7 @@ import { createRequire } from "node:module";
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { resolve, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveAcceptedDomainRuleRecords } from "./lib/product-definition-domain-rule-mapping.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const toolsRequire = createRequire(resolve(root, "../ghatana-tools/package.json"));
@@ -64,6 +65,7 @@ const definitions = [
     sources: [
       ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
       ".product-experience/pdp-0-product-truth/constitution.yaml",
+      ".product-experience/pdp-1-domain-data/state-adjudication.yaml",
       ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
       ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
       ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
@@ -84,6 +86,7 @@ const definitions = [
       const missionStatement = missionSection.split(/\n\s*\n/u)[0]?.replace(/\s+/gu, " ").trim() ?? "";
       const goals = source("goals-jtbd.yaml");
       const constitution = source("constitution.yaml");
+      const stateAdjudication = source("state-adjudication.yaml");
       const intentResolutions = source("intent-resolutions.yaml");
       const actorSource = source("actors-responsibilities.yaml");
       const capabilities = source("capabilities.yaml");
@@ -144,6 +147,12 @@ const definitions = [
         }));
       const businessIntentMeasureIdById = new Map(businessIntentMeasureProposals
         .map(({ businessIntentId, successMeasureId }) => [businessIntentId, successMeasureId]));
+      const businessMeasureContracts = new Map((goals.successMeasureContracts?.records ?? [])
+        .map((record) => [record.id, record]));
+      const domainRuleRecords = resolveAcceptedDomainRuleRecords(
+        constitution.domainRules?.records ?? [],
+        stateAdjudication.ownerAcceptedPolicyDecisions,
+      );
       const actors = actorSource.actors ?? [];
       return {
         id: "media.product-definition",
@@ -208,7 +217,7 @@ const definitions = [
             traceToIntentIds: [],
           })),
         ],
-        domainRules: [],
+        domainRules: domainRuleRecords.map(({ id, name, rule, rationale }) => ({ id, name, rule, rationale })),
         policies: (policy.productPolicy?.enforcementPoints ?? []).map((point, index) => ({
           id: `media.policy.enforcement.${index + 1}`,
           name: point.point,
@@ -223,10 +232,18 @@ const definitions = [
           description: `${context.dataSensitivity}; ${context.effectScope}. ${context.auditRationale}`,
           auditRequired: context.auditRequired,
         })),
-        successMeasures: businessIntentMeasureProposals.map(({ successMeasureId, description }) => ({
-          id: successMeasureId,
-          description,
-        })),
+        successMeasures: businessIntentMeasureProposals.map(({ businessIntentId, successMeasureId, description }) => {
+          const contract = businessMeasureContracts.get(successMeasureId);
+          return {
+            id: successMeasureId,
+            description,
+            ...(contract ? {
+              metric: `${contract.metric} (unit: ${contract.unit}; denominator: ${contract.denominator}; applicability: ${contract.applicability}; acceptance: ${contract.acceptanceCriterion}; evidence: ${contract.evidenceMethod})`,
+              baseline: contract.baseline,
+              target: contract.target,
+            } : {}),
+          };
+        }),
         ownershipRules: ownershipRuleRecords.map((rule) => ({
           id: rule.id,
           concern: rule.concern,
@@ -234,7 +251,7 @@ const definitions = [
         })),
         _mappingReview: {
           omittedCollections: {
-            domainRules: "PDP-1 owner-approved bounded policy distinctions are recorded in state-adjudication.yaml, but proposal-only machines and transitions do not establish an accepted ProductDefinition domainRules mapping.",
+            domainRules: `${domainRuleRecords.length} source rules map from bounded Media-owner decisions under state-adjudication.yaml#ownerAcceptedPolicyDecisions, accepted as a projection under PXD-035. PDP-1 remains the semantic authority; this is a ProductDefinition projection only. Proposal-only machine/transition records remain excluded; P0-010 independent review remains pending.`,
             journeys: journeyInitiatorsFullyResolved
               ? `All ${(journeys.journeys ?? []).length} initiating actorRefs have source-bound P0-04 decisions; all collaborator actorRefs are directly projected. Independent review remains pending.`
               : `${unresolvedJourneyIds.length} initiating actorRefs remain omitted because P0-04 did not select one; all collaborator actorRefs are directly projected. Independent review remains pending.`,
@@ -248,13 +265,15 @@ const definitions = [
             userIntents: `${resolvedUserIntents.length} of ${(goals.intents ?? []).length} source intents have exact actor/priority decisions; P0-010 independent review pending.`,
             journeys: `${projectedJourneys.length} of ${(journeys.journeys ?? []).length} source journeys have exact representative initiators; all source collaborator actors remain projected; P0-010 independent review pending.`,
             businessIntentMeasures: `${businessIntentMeasureProposals.length} source businessIntent.measuredBy statements are projected as exact description-only proposals with deterministic IDs; no metric, profile applicability, target, baseline, qualitative acceptance criterion, or qualification is asserted.`,
-            successMeasures: `${businessIntentMeasureProposals.length} source-bound business-intent measure descriptions are projected. P0-06 remains open for explicit metric/profile applicability, outcome/capability crosswalks, accepted criteria, targets/baselines, and qualification evidence.`,
+            successMeasures: `${businessIntentMeasureProposals.length} source-bound measures project their authored metric, unit, denominator, applicability, acceptance criterion, evidence method, and explicit NOT_EVALUATED/NOT_SET baseline/target fields. No numeric result or qualification is asserted; coordinator projection review, exact outcome/capability crosswalk, independent calibration, and qualification remain open.`,
           },
           businessIntentMeasureProposals: businessIntentMeasureProposals.map((proposal) => ({
             ...proposal,
             sourceRef: "goals-jtbd.yaml#/businessIntents",
             sourceField: "measuredBy",
-            disposition: "SOURCE_PROPOSAL_ONLY; METRIC_PROFILE_TARGET_BASELINE_APPLICABILITY_AND_QUALIFICATION_UNRESOLVED",
+            contractRef: `.product-experience/pdp-0-product-truth/goals-jtbd.yaml#/successMeasureContracts/records[${proposal.successMeasureId}]`,
+            contract: businessMeasureContracts.get(proposal.successMeasureId) ?? null,
+            disposition: "SOURCE_DEFINED_MEASUREMENT_CONTRACT; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; COORDINATOR_AND_INDEPENDENT_REVIEW_PENDING",
           })),
           ownershipRuleDetails: ownershipRuleRecords.map((rule) => ({
             id: rule.id,
@@ -277,12 +296,12 @@ const definitions = [
             desiredOutcomes: { status: "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING", source: "goals-jtbd.yaml outcomes" },
             capabilities: { status: "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING", source: "capabilities.yaml capability leaves and exact requirementRefs" },
             requirements: { status: requirementsFullyResolved ? "DIRECT_SOURCE_MAPPING; ALL_INTENT_TARGETS_RESOLVED" : `PARTIAL_DIRECT_MAPPING; ${intentTracesWithUnresolvedTargets.length}_REQUIREMENTS_HAVE_UNRESOLVED_INTENT_TARGETS`, source: "requirements.yaml#requirements[].traceToIntentIds filtered to the exact resolved ProductDefinition userIntents" },
-            domainRules: { status: "PDP-1_DOMAIN_RULE_MAPPING_PENDING", source: "constitution.yaml#domainRules.pendingSources; state-adjudication.yaml records bounded owner-approved policy distinctions, not accepted state/transition mappings" },
+            domainRules: { status: `${domainRuleRecords.length}_BOUNDED_PDP1_OWNER_DECISIONS_PROJECTED; PXD-035_ACCEPTED; P0-010_INDEPENDENT_REVIEW_PENDING`, source: "constitution.yaml#domainRules.records joined by exact sourceRef to state-adjudication.yaml#ownerAcceptedPolicyDecisions; proposal-only state/transition records excluded" },
             policies: { status: "DIRECT_FAIL_CLOSED_ENFORCEMENT_MAPPING; OWNER_ACCEPTANCE_PENDING", source: "policy-authority-model.yaml productPolicy.enforcementPoints requiredChecks and explicit failure behavior" },
             invariants: { status: "DIRECT_STATEMENT_AND_VIOLATION_MAPPING; P0-010_REVIEW_PENDING", source: "constitution.yaml#invariants.records" },
             journeys: { status: `DIRECT_MULTI_ACTOR_MAPPING; ${unresolvedJourneyIds.length}_OPTIONAL_INITIATING_ACTORS_UNRESOLVED; INDEPENDENT_REVIEW_PENDING`, source: "journey-catalog.yaml#journeys joined by exact id to journey-actor-resolutions.yaml#journeys#collaboratorActorRefs; actorRef only when initiatingActorRef is resolved" },
             trustContexts: { status: "DIRECT_LEVEL_SENSITIVITY_EFFECT_AND_AUDIT_MAPPING; P0-010_REVIEW_PENDING", source: "actors-responsibilities.yaml#trustContexts.contexts" },
-            successMeasures: { status: `PARTIAL_SOURCE_PROPOSAL_MAPPING; ${businessIntentMeasureProposals.length}_DESCRIPTION_ONLY; P0-06_METRIC_PROFILE_APPLICABILITY_TARGET_BASELINE_AND_QUALIFICATION_OPEN`, source: "goals-jtbd.yaml#businessIntents[].measuredBy; quality-policy.yaml#metricDefinitions and profile-semantics.yaml#profileAxes remain without explicit outcome/capability applicability bindings" },
+            successMeasures: { status: `${businessIntentMeasureProposals.length}_SOURCE_DEFINED_MEASUREMENT_CONTRACTS_PROJECTED; TARGET_NOT_SET; BASELINE_AND_QUALIFICATION_NOT_EVALUATED; EXACT_CAPABILITY_CROSSWALK_AND_INDEPENDENT_CALIBRATION_OPEN`, source: "goals-jtbd.yaml#businessIntents[].measuredBy joined by exact successMeasure ID to goals-jtbd.yaml#successMeasureContracts.records; no numeric results inferred" },
             ownershipRules: { status: "DIRECT_ACCOUNTABLE_ROLE_TO_OWNER_MAPPING; CONTRACT_OWNER_AND_EXECUTION_AUTHORITY_RETAINED_SEPARATELY; P0-010_REVIEW_PENDING", source: "actors-responsibilities.yaml#ownershipRules.rules" },
             timestamps: { status: "OPTIONAL_AUTHORED_METADATA_OMITTED_INTENTIONALLY", source: "No source timestamp provenance is available; generation time is not authored metadata" },
           },
@@ -311,12 +330,12 @@ const definitions = [
       desiredOutcomes: { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: "outcomes", mapping: "direct IDs/outcome text and actorRef only when the source declares one actor" },
       capabilities: { sourceRef: ".product-experience/pdp-0-product-truth/capabilities.yaml", sourcePath: "capabilities", mapping: "all 462 leaf identities, outcomes, and requirementRefs" },
       requirements: { sourceRef: ".product-experience/pdp-0-product-truth/requirements.yaml", sourcePath: "requirements[].traceToIntentIds; goals-jtbd.yaml#intents; intent-resolutions.yaml#intents", mapping: "retain exact refs only for target userIntents resolved to a schema actor and priority; unresolved targets are listed in mapping review" },
-      domainRules: { sourceRef: null, sourcePath: null, mapping: "PDP-1 owns canonical domain rules; no accepted ProductDefinition mapping" },
+      domainRules: { sourceRef: ".product-experience/pdp-0-product-truth/constitution.yaml", sourcePath: "domainRules.records joined to PDP-1 state-adjudication.yaml#ownerAcceptedPolicyDecisions by exact sourceRef", mapping: "project only records with bounded Media-owner decision status and an exact ownerAcceptedPolicyDecisions source ref; PXD-035 accepts this bounded mapping, PDP-1 remains semantic authority, proposal-only machine and transition rules are excluded, P0-010 independent review pending" },
       policies: { sourceRef: ".product-experience/pdp-0-product-truth/policy-authority-model.yaml", sourcePath: "productPolicy.enforcementPoints", mapping: "strict classification from explicit required checks and stop/deny/fail-closed behavior" },
       invariants: { sourceRef: ".product-experience/pdp-0-product-truth/constitution.yaml", sourcePath: "invariants.records", mapping: "direct statement/violation pairs; source-bound proposal, P0-010 review pending" },
       journeys: { sourceRef: ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml", sourcePath: "journeys[].collaboratorActorRefs joined by exact id to journey-catalog.yaml#journeys; initiatingActorRef only when resolved", mapping: "project all exact source collaborator actorRefs; omit actorRef for unresolved initiators" },
       trustContexts: { sourceRef: ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml", sourcePath: "trustContexts.contexts", mapping: "direct trustLevel, sensitivity/effect description and auditRequired" },
-      successMeasures: { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: "businessIntents[].measuredBy; quality-policy.yaml#metricDefinitions and profile-semantics.yaml#profileAxes", mapping: "exact source prose becomes a description-only proposal with deterministic ID derived from the business intent ID; no metric, profile applicability, target, baseline, qualitative acceptance, or qualification is inferred" },
+      successMeasures: { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: "businessIntents[].measuredBy joined by exact deterministic measure ID to successMeasureContracts.records", mapping: "project source-authored metric, unit, denominator, applicability, criterion, evidence method, and explicit NOT_EVALUATED baseline/qualification plus NOT_SET target; no measurement result or qualification is inferred; exact capability crosswalk, coordinator review, and independent calibration remain pending" },
       ownershipRules: { sourceRef: ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml", sourcePath: "ownershipRules.rules", mapping: "accountableRoleRef becomes schema owner; contractOwner and executionAuthority are preserved separately in mapping review" },
       createdAt: { sourceRef: null, sourcePath: null, mapping: "optional authored metadata omitted intentionally because no source timestamp provenance exists" },
       updatedAt: { sourceRef: null, sourcePath: null, mapping: "optional authored metadata omitted intentionally because no source timestamp provenance exists" },
@@ -324,8 +343,8 @@ const definitions = [
     fieldMappingBlockers: {
       requirements: ["Some requirement rows retain partially resolved or unresolved intent targets. Only exact resolved targets are projected; unresolved rows and refs remain recorded in mapping review."],
       userIntents: ["Only exact P0-04 actor and priority resolutions are projected. Unresolved actor targets remain omitted; P0-010 independent review remains pending."],
-      domainRules: ["No owner-approved mapping selects source records as ProductDefinition domain rules with schema rule fields."],
-      successMeasures: ["Source business intent measuredBy descriptions are proposed as ProductDefinition measures, but there is no accepted metric/profile applicability, outcome/capability crosswalk, qualitative criterion, target/baseline, or qualification mapping; quality-policy metric capabilityRefs remain pending and NOT_EVALUATED."],
+      domainRules: [],
+      successMeasures: ["The four source-defined measurement contracts are projected with explicit unknown baseline/target and no qualification claim; exact outcome/capability crosswalk and independent calibration remain open and must not be inferred."],
     },
     blocker: "The source-backed ProductDefinition shape is structurally complete; omitted collection meanings, narrowed references, and unavailable source facts remain explicitly open in the field mapping review.",
   },
@@ -555,7 +574,7 @@ const definitions = [
             progressiveDisclosureRules: "Triggers are selection of each disclosure level; revealed content is taken from master plan §14.1. Concealment is unspecified.",
             accessibilityRules: "WCAG 2.2 AA is the declared target; mapped requirements do not establish conformance or replace specialist review.",
             recoveryPatterns: "Authored recovery IDs, names, descriptions, and automaticRecovery decisions map directly; unknown outcomes require reconciliation and are not automatically recovered.",
-            recipeBindings: "Eight owner-approved GUI recipe identities and their exact primary pattern refs are projected. Shared public-package binding and all 47 screen-instance admissions remain pending.",
+            recipeBindings: `${recipeRecords.length} owner-approved GUI recipe identities and their exact primary pattern refs are projected. Shared public-package binding and all 47 screen-instance admissions remain pending.`,
           },
           ownerDecisionStatus: "PENDING; direct source projection and public validation do not establish semantic acceptance or phase closure.",
         },

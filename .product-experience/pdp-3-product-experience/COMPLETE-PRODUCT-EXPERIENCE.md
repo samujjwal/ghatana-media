@@ -30,11 +30,15 @@ semantic acceptance. Detailed action effects, authority, component
 interactions, state transitions, and owner approval remain open. All 28
 plan-baseline journey files are PDP-0-grounded proposals with ordered screen
 references; J-29 and J-30 are explicit extension contracts. These are not
-complete or accepted contracts. A bounded Media owner review approves 41
-exact top-level template/layout links and withholds six mismatches with
-reasons. These links organize reusable Media screen composition proposals;
-zero screen compositions are admitted, and Shared component/runtime admission
-remains separate. The local
+complete or accepted contracts. PXD-036 selects exact intent, view, and screen
+contract references for every J-29/J-30 step, yielding 130/130 source-linked
+steps while leaving actions, operations, state, authority, transitions,
+verification, and screen admission open. PXD-028 historically approved 41 exact top-level
+template/layout links; PXD-037 reviewed the six remaining purposes and approved
+five new central templates plus three layouts, bringing the definition mapping
+to 47 of 47 screens. These links organize reusable Media screen composition
+proposals; zero screen compositions are admitted, and Shared component/runtime
+admission remains separate. The local
 CLI covers selected J-02 upload inspection/resume, existing-job status viewing and
 outcome checking, and J-20 transcription-job cancellation through the shared
 reducer; the proposed retry command is not implemented in the fixture CLI. The
@@ -83,7 +87,7 @@ acceptance.
   not duplicate fixture payloads.
 - `generated/experience-specification.candidate.json` is a schema-valid
   candidate that passes its available public validator. It projects 31
-  component contracts, 47 views, 30 journey records with 126 of 130 source
+  component contracts, 47 views, 30 journey records with 130 of 130 source
   steps, 20 interactions,
   49 states, 0 transitions, 146 actions, 0 effects, 18 finality candidates,
   0 recovery records, 15 scenarios, 15 fixture descriptors, 3 search
@@ -91,9 +95,10 @@ acceptance.
   `componentContracts`, `views`,
   `journeys`, `transitions`, `actions`, `effects`, `finality`, `recovery`,
   `scenarios`, and `fixtures`; the file records exact reasons and source refs.
-  The four omitted step rows are all from J-29: its journey record and selected
-  actor are projected, but its steps have no authored intent, label, or directly
-  linked view purpose. The 126 emitted steps remain partial proposals; empty
+  Four J-29 step intents and all eight J-29/J-30 step-view links are now explicit
+  Media owner selections from the source intent and view inventories. All 130
+  steps project as partial proposals; these links do not admit screens or
+  establish action, effect, or transition behavior. Empty
   `transitionRefs` arrays are schema placeholders, while source transitions are
   unresolved. Action/effect/state links and the other semantic blockers remain
   open. This candidate does not imply full PDP-3 acceptance, owner or
@@ -132,11 +137,11 @@ surfaces are indexed in their respective registries and binding files; detailed
 screen and journey proposals remain in `screen-contracts/` and
 `journey-contracts/`.
 
-PXD-028, recorded as `ACCEPT-INPUT-MEDIA-OWNER-PDP3-COMPOSITION-LINKS-20261008` in the
-acceptance ledger, approves 41 exact top-level template/layout links and
-withholds six mismatched pairs with source-linked reasons. The 47-screen
-denominator remains unchanged; no screen composition or per-screen recipe
-binding is admitted by this decision.
+PXD-028 historically approved 41 top-level links and withheld six mismatches.
+PXD-037 selects exact purpose-matched central catalog links for the remaining
+six, completing the 47-screen source mapping. Both decisions concern top-level
+template/layout identities only; no screen composition or per-screen recipe
+binding is admitted.
 
 PDP-3 depends on accepted PDP-2; upstream source and dependency boundaries are
 in [`../authority-map.yaml`](../authority-map.yaml),

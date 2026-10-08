@@ -33,7 +33,7 @@ function assertReferenceResolves(reference, description) {
   assert.notEqual(value, null, `${description}: reference resolved to null`);
 }
 
-test("Media-owned PDP-0 invariants are source-backed and retain PDP-1 domain rules as pending", () => {
+test("Media-owned PDP-0 rules project only PXD-035 decisions and retain proposal-only mappings pending", () => {
   assert.match(constitution.invariants.resolutionStatus, /media-owner-resolved/u);
   assert.match(constitution.invariants.resolutionStatus, /P0-010-independent-review-pending/u);
   assert.ok(constitution.invariants.records.length >= 7);
@@ -44,8 +44,10 @@ test("Media-owned PDP-0 invariants are source-backed and retain PDP-1 domain rul
     invariant.sourceRefs.forEach((ref) => assertReferenceResolves(ref, invariant.id));
   }
 
-  assert.match(constitution.domainRules.status, /pending-PDP-1-owner-review/u);
-  assert.ok(constitution.domainRules.pendingSources.length >= 4);
+  assert.match(constitution.domainRules.status, /PXD-035/u);
+  assert.equal(constitution.domainRules.records.length, 6);
+  assert.ok(constitution.domainRules.records.every(({ decisionStatus }) => /P0-010-independent-review-pending/u.test(decisionStatus)));
+  assert.equal(constitution.domainRules.pendingSources.length, 3);
   for (const source of constitution.domainRules.pendingSources) {
     assertReferenceResolves(source.ref, "pending domain rule source");
     assert.match(source.reason, /pending|proposal|unverified/iu);
@@ -54,7 +56,7 @@ test("Media-owned PDP-0 invariants are source-backed and retain PDP-1 domain rul
   assert.match(readYaml(".product-experience/pdp-1-domain-data/transitions.yaml").authorityStatus, /proposal-only/u);
   const adjudication = readYaml(".product-experience/pdp-1-domain-data/state-adjudication.yaml");
   assert.match(adjudication.status, /owner-approved/u);
-  assert.match(constitution.domainRules.pendingSources.find(({ ref }) => ref.endsWith("/state-adjudication.yaml")).reason, /canonical policy distinctions/u);
+  assert.ok(constitution.domainRules.pendingSources.every(({ reason }) => /proposal|pending|unverified/iu.test(reason)));
 });
 
 test("trust and ownership decisions classify by data/effect and never infer authority from principal kind", () => {

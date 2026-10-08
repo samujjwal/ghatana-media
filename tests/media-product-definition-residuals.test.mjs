@@ -24,9 +24,9 @@ test("residual report validates exact projection dispositions and pinned sources
     limitation: "These checks detect top-level omissions and unreported empty collections; they do not infer nested record completeness, mapping semantics, owner decisions, or acceptance.",
   });
   assert.deepEqual(report.projections.map(({ phase }) => phase), ["PDP-0", "PDP-2", "PDP-3"]);
-  assert.deepEqual(report.projections.map(({ unresolvedFieldCount }) => unresolvedFieldCount), [2, 0, 10]);
+  assert.deepEqual(report.projections.map(({ unresolvedFieldCount }) => unresolvedFieldCount), [1, 0, 10]);
   assert.deepEqual(report.projections.map(({ unresolvedFields }) => unresolvedFields.map(({ field }) => field)), [
-    ["domainRules", "successMeasures"],
+    ["successMeasures"],
     [],
     ["actions", "componentContracts", "effects", "finality", "fixtures", "journeys", "recovery", "scenarios", "transitions", "views"],
   ]);
@@ -52,7 +52,10 @@ test("residual report validates exact projection dispositions and pinned sources
   assert.ok(report.capabilityCoverage.unresolvedLeaves.every((leaf) => leaf.id && leaf.sourceRef && leaf.rationale));
   assert.equal(Object.values(report.capabilityCoverage.dispositionCounts).reduce((sum, count) => sum + count, 0), report.capabilityCoverage.leafCount);
   assert.equal(report.migrationSemantics.uniqueContentUnits, 1340);
-  assert.equal(report.migrationSemantics.unresolvedCount, 263);
+  assert.equal(report.migrationSemantics.unresolvedCount, 260);
+  assert.equal(report.migrationSemantics.semanticReviewRequiredCount, 260);
+  assert.equal(report.migrationSemantics.ownerClassifiedNonNormativeCount, 89);
+  assert.equal(report.migrationSemantics.originalStructuralUnresolvedCount, 349);
   assert.equal(report.migrationSemantics.mixedRequiresDecompositionCount, 124);
   assert.equal(report.migrationSemantics.sourceChangeLedger.changedClusterCount, 15);
   assert.equal(report.migrationSemantics.sourceChangeLedger.historicalSha256,
@@ -67,12 +70,12 @@ test("residual report validates exact projection dispositions and pinned sources
   assert.ok(report.migrationSemantics.mixedItemIds.every((id) => /^MPSEM-\d+$/u.test(id)));
   assert.equal(Object.values(report.migrationSemantics.classificationCounts).reduce((sum, count) => sum + count, 0), 1340);
   assert.equal(report.migrationSemantics.total, 1340);
-  assert.equal(report.migrationSemantics.applicable, 328);
-  assert.equal(report.migrationSemantics.unresolvedItems.length, 263);
+  assert.equal(report.migrationSemantics.applicable, 325);
+  assert.equal(report.migrationSemantics.unresolvedItems.length, 260);
   assert.ok(report.migrationSemantics.unresolvedItems.every((item) => item.id && item.sourceLocations.length && item.classificationBasis));
   assert.equal(report.operationParity.surfaceCount, 8);
-  assert.equal(report.operationParity.totalObservedIdentities, 283);
-  assert.equal(report.operationParity.unresolvedIdentityCount, 191);
+  assert.equal(report.operationParity.totalObservedIdentities, 284);
+  assert.equal(report.operationParity.unresolvedIdentityCount, 192);
   assert.ok(report.operationParity.surfaces.every((surface) => surface.observedIdentities.length === surface.denominator));
   assert.ok(report.operationParity.surfaces.every((surface) => surface.unresolvedIdentities.length === (surface.counts.unresolved ?? 0)));
   const sdkSurface = report.operationParity.surfaces.find(({ name }) => name === "SDK registry");
@@ -97,21 +100,21 @@ test("residual report validates exact projection dispositions and pinned sources
     { id: "conformance-and-specialist-review", status: "INDEPENDENT_PENDING" },
     { id: "concrete-component-bindings", status: "SOURCE_INCOMPLETE" },
   ]);
-  assert.equal(report.lifecycle.obligationCount, 319);
-  assert.equal(report.lifecycle.totalProofRoutes, 319);
-  assert.equal(report.lifecycle.obligationsMissingCaseIds.length, 257);
+  assert.equal(report.lifecycle.obligationCount, 344);
+  assert.equal(report.lifecycle.totalProofRoutes, 344);
+  assert.equal(report.lifecycle.obligationsMissingCaseIds.length, 282);
   assert.equal(report.lifecycle.receiptEvaluation.status, "NOT_EVALUATED");
   assert.equal(report.lifecycle.receiptEvaluation.authoritativeReceiptCount, null);
   assert.equal(report.lifecycle.currentnessEvaluation.status, "NOT_EVALUATED");
   assert.equal(report.productExperience.screenViewCount, 47);
   assert.equal(report.productExperience.journeyCount, 30);
   assert.equal(report.productExperience.stepCount, 130);
-  assert.equal(report.productExperience.stepsWithScreenContracts, 122);
+  assert.equal(report.productExperience.stepsWithScreenContracts, 130);
   assert.equal(report.productExperience.stepsWithActionBindings, 18);
   assert.equal(report.productExperience.journeyTrace.journeyCount, 30);
   assert.equal(report.productExperience.journeyTrace.orderedStepCount, 130);
   assert.equal(report.productExperience.journeyTrace.steps.length, 130);
-  assert.equal(report.productExperience.journeyTrace.screenContractBindings.unresolvedSteps.length, 8);
+  assert.equal(report.productExperience.journeyTrace.screenContractBindings.unresolvedSteps.length, 0);
   assert.equal(report.productExperience.journeyTrace.actionBindings.linkedSteps.length, 18);
   assert.equal(report.productExperience.journeyTrace.actionBindings.unresolvedSteps.length, 112);
   assert.ok(report.productExperience.journeyTrace.steps.every((step) => step.journeyRef && step.sourceRef && step.stepKey));

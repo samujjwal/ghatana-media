@@ -162,15 +162,18 @@ not accepted scope semantics or implementation/availability.
 
 Only the P0-001 migration boundary slice is accepted as a PDP-0 input. PXD-026
 also records 11 bounded owner-policy dispositions; it does not accept leaf,
-requirement, intent, journey, or state mappings. The ProductDefinition
-candidate has been regenerated after PXD-030. `requirements` and `userIntents`
-now map all exact source references, leaving two semantic field blockers:
-`domainRules` and `successMeasures`. Five explicit product non-goals and four
-owner-selected business intents map from `goals-jtbd.yaml`; their source-authored
-`measuredBy` descriptions now map to deterministic description-only proposal
-records and exact business-intent references. No metric, profile applicability,
-qualitative acceptance criterion, target, baseline, or qualification is inferred,
-so the `successMeasures` blocker and P0-06 remain open. The candidate contains
+requirement, intent, journey, or state mappings. PXD-035 approves six exact
+bounded PDP-1 policy projections into PDP-0; it does not accept canonical
+records, runtime behavior, or independent P0-010 review. The ProductDefinition
+candidate has been regenerated after PXD-035. `requirements`, `userIntents`,
+and those six domain-rule projections map exact source references, leaving one
+semantic field blocker: `successMeasures`. Five explicit product non-goals and
+four owner-selected business intents map from `goals-jtbd.yaml`; their source-authored
+`measuredBy` descriptions now map to four definition-only contracts specifying
+metric, unit, denominator, applicability, acceptance criterion, and evidence
+method. Baselines remain `NOT_EVALUATED` and targets `NOT_SET`; no profile
+applicability, calibration, or qualification is inferred, so the `successMeasures`
+blocker and P0-06 remain open. The candidate contains
 all 19 source intents and
 30 journeys with representative initiators selected by PXD-030; all source actor
 lists remain intact as collaborators. These owner choices do not grant runtime
@@ -185,7 +188,7 @@ phases. Later-phase artifacts and local implementation remain provisional.
 read-only projection using `ghatana.product-definition.v1` and the
 `@ghatana/product-definition` v1 schema (`0.1.0-SNAPSHOT` source package).
 Its sibling-source schema/public-validator pass is structural evidence only;
-the two semantic blockers above, installed-package verification, independent
+the remaining semantic blocker above, installed-package verification, independent
 P0-010 review, and Lifecycle currentness remain separate.
 
 ## Authority, dependencies, review, and proof

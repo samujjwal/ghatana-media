@@ -29,14 +29,12 @@ test("PDP-3 overview reports the registered baseline and extension journey denom
   const projectedJourneys = candidate.candidateModel.journeys;
   const journeyAudit = candidate.candidateMappingReview.journeyBindingAudit;
   assert.equal(projectedJourneys.length, 30);
-  assert.equal(projectedJourneys.reduce((count, journey) => count + journey.steps.length, 0), 126);
-  assert.equal(projectedJourneys.find(({ id }) => id === "J-29").steps.length, 0);
-  assert.deepEqual(journeyAudit.stepIntentProjection.omitted.map(({ journeyId, stepOrdinal }) => [journeyId, stepOrdinal]), [
-    ["J-29", 1], ["J-29", 2], ["J-29", 3], ["J-29", 4],
-  ]);
-  assert.match(overview, /30 journey records with 126 of 130 source\s+steps/u);
-  assert.match(overview, /four omitted step rows are all from J-29/u);
-  assert.match(overview, /empty\s+`transitionRefs` arrays are schema placeholders/u);
+  assert.equal(projectedJourneys.reduce((count, journey) => count + journey.steps.length, 0), 130);
+  assert.equal(projectedJourneys.find(({ id }) => id === "J-29").steps.length, 4);
+  assert.deepEqual(journeyAudit.stepIntentProjection.omitted, []);
+  assert.match(overview, /30 journey records with 130 of 130 source\s+steps/u);
+  assert.match(overview, /Four J-29 step intents and all eight J-29\/J-30 step-view links are now explicit/u);
+  assert.match(overview, /Empty\s+`transitionRefs` arrays are schema placeholders/u);
   assert.match(overview, /ten semantic blockers/u);
   assert.match(overview, /does not imply full PDP-3 acceptance, owner or\s+independent review, or Lifecycle currentness and closure/u);
   assert.doesNotMatch(overview, /0 schema-shaped journeys|no schema-shaped journey is emitted/u);

@@ -177,22 +177,31 @@ observedEnvelope:
     relationToLifecyclePublisher: separate-population; not-equivalent
     publisherIdentity: AudioVideoClient#emitEvent; in-process eventListeners map
     sourcePath: libs/audio-video-client/src/index.ts
+    sourceRefreshObservation:
+      previousFileSha256: 8ff2f4ff91cf67093ffe63e8110ccfd3d777f0b6f4d8dcf05444b71d90c629c0
+      currentFileSha256: 08458d366a6a8de4efc7cf9253541c0f85174c6915f5e4982d2c3bbd1bbe9701
+      changeScope: twelve added top-level scene-text adapter exports before AudioVideoClient; notification methods are outside the changed hunk
+      clientNotificationMethodsSha256: 03e560e21fa2f7aeb0e255337862987ad9337357240c8e07420d32bf45cfebf6
+      previousClientNotificationMethodsSha256: 03e560e21fa2f7aeb0e255337862987ad9337357240c8e07420d32bf45cfebf6
+      semanticDisposition: client event names, publisher methods, and payload fields unchanged; source line refs advanced by twelve
+      lifecycleProofRouteImpact: none; no candidate route is derived from these client-local notification methods
+      ownerReview: pending
     records:
-      - {eventName: "stt:transcription:start", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L165"}
-      - {eventName: "stt:transcription:complete", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L175"}
-      - {eventName: "stt:transcription:error", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L179"}
-      - {eventName: "tts:synthesis:start", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L193"}
-      - {eventName: "tts:synthesis:complete", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L202"}
-      - {eventName: "tts:synthesis:error", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L206"}
-      - {eventName: "ai-voice:process:start", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L220"}
-      - {eventName: "ai-voice:process:complete", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L229"}
-      - {eventName: "ai-voice:process:error", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L233"}
-      - {eventName: "vision:process:start", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L247"}
-      - {eventName: "vision:process:complete", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L257"}
-      - {eventName: "vision:process:error", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L261"}
-      - {eventName: "multimodal:process:start", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L275"}
-      - {eventName: "multimodal:process:complete", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L285"}
-      - {eventName: "multimodal:process:error", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L289"}
+      - {eventName: "stt:transcription:start", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L177"}
+      - {eventName: "stt:transcription:complete", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L187"}
+      - {eventName: "stt:transcription:error", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L191"}
+      - {eventName: "tts:synthesis:start", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L205"}
+      - {eventName: "tts:synthesis:complete", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L214"}
+      - {eventName: "tts:synthesis:error", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L218"}
+      - {eventName: "ai-voice:process:start", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L232"}
+      - {eventName: "ai-voice:process:complete", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L241"}
+      - {eventName: "ai-voice:process:error", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L245"}
+      - {eventName: "vision:process:start", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L259"}
+      - {eventName: "vision:process:complete", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L269"}
+      - {eventName: "vision:process:error", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L273"}
+      - {eventName: "multimodal:process:start", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L287"}
+      - {eventName: "multimodal:process:complete", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L297"}
+      - {eventName: "multimodal:process:error", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L301"}
     families:
       - {family: stt:transcription, eventNames: ["stt:transcription:start", "stt:transcription:complete", "stt:transcription:error"]}
       - {family: tts:synthesis, eventNames: ["tts:synthesis:start", "tts:synthesis:complete", "tts:synthesis:error"]}

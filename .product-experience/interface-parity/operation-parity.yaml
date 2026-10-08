@@ -95,8 +95,8 @@ surfaces:
       priorTwelveFixtureObservation: unresolved-source-discrepancy; inspected-current-registry-and-parser-evidence-support-eleven-fixture-command-identities-only
     bindingStatus: nine-proposals-follow-existing-command/action references or operation intent; caption-version commands remain unresolved; acceptance-pending
   - surface: SDK registry
-    denominator: 28
-    rawRegistryRecordCount: 31
+    denominator: 29
+    rawRegistryRecordCount: 32
     source: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
     proposedSemanticCandidates:
       job-lifecycle: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.getOperation, media.sdk.cancelOperation]
@@ -104,16 +104,17 @@ surfaces:
       transcription: [media.sdk.transcribe]
       synthesis: [media.sdk.synthesize]
       multimodal-analysis: [media.sdk.analyzeMultimodal]
-    unresolved: [media.sdk.listProviderCapabilities, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.retryOperation, media.sdk.getOperationResult]
+    unresolved: [media.sdk.listProviderCapabilities, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.retryOperation, media.sdk.getOperationResult, media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame]
     sourceBackedNonOperationDispositions:
       TRANSPORT_ONLY: [media.sdk.getServiceStatus, media.sdk.getAllServicesStatus]
       CLIENT_ONLY: [media.sdk.addEventListener, media.sdk.removeEventListener]
+    candidateProviderAdapters: [media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame]
     parserArtifactTokensExcludedFromMethodDenominator: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
     parserArtifactEvidence: public-declaration-parser-scans-recursively-discovered-production-TypeScript-sources-under-the-SDK-src-tree; none-of-the-three-token-names-has-a-public-method-declaration; raw-records-retained-for-audit
-    dispositionCounts: {mappedProposal: 14, transportOnly: 2, clientOnly: 2, unresolved: 10}
+    dispositionCounts: {mappedProposal: 14, transportOnly: 2, clientOnly: 2, unresolved: 11}
     legacyClientSource: libs/audio-video-client/src/index.ts
     sourcePairInventory: public-method-pairs-include-source-and-declaring-class; duplicate-transcribe-and-synthesize-identities-are-separated-by-legacy-source-class
-    bindingStatus: 14 family associations remain proposals; four exact source-backed non-operation identities are classified below; ten domain-operation identities remain unresolved; three source-parser artifacts are explicitly excluded; no runtime route or client admission is implied
+    bindingStatus: 14 family associations remain proposals; four exact source-backed non-operation identities are classified below; eleven domain-relevant identities remain unresolved, including one candidate provider adapter; three source-parser artifacts are explicitly excluded; no runtime route or client admission is implied
   - surface: Agent Tool handlers
     denominator: 4
     source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
@@ -367,7 +368,8 @@ typedInterfaceIdentityDispositions:
   sdk:
     transportOnly: [media.sdk.getServiceStatus, media.sdk.getAllServicesStatus]
     clientOnly: [media.sdk.addEventListener, media.sdk.removeEventListener]
-    semanticOperationBinding: unresolved-for-14-proposed-domain-operation-candidates; four-source-backed-non-operation-dispositions-are-exact-role-classifications-only
+    candidateProviderAdapters: [media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame]
+    semanticOperationBinding: unresolved-for-14-proposed-domain-operation-candidates-and-one-provider-adapter; four-source-backed-non-operation-dispositions-are-exact-role-classifications-only
   agentTools:
     domainCommands: [av.speech-to-text, av.text-to-speech, av.vision-analysis, av.multimodal-inference]
     invocationAuthorityAndInputResultContracts: unresolved-for-every-identity

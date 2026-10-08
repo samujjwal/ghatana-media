@@ -70,6 +70,9 @@ test("capability review source pin changes are reconciled to the reviewed goal s
   assert.equal(review.denominatorReconciliation.journeyStepDispositions, 77);
   assert.equal(review.denominatorReconciliation.machineOperationDispositions, 0);
   assert.ok(goals.authorityMapping, "the added authority mapping is present in the current goal source");
+  assert.equal(goals.successMeasureContracts.records.length, 4);
+  assert.ok(goals.successMeasureContracts.records.every(({ metric, unit, denominator, applicability, acceptanceCriterion, evidenceMethod }) =>
+    metric && unit && denominator && applicability && acceptanceCriterion && evidenceMethod));
   assert.equal(review.denominatorReconciliation.platformDependencyDispositions, 2);
 });
 
@@ -82,7 +85,7 @@ test("operation source changes reconcile affected leaf links without promoting c
   assert.ok(sourcePin, "canonical operation families remain an explicit capability-review source");
   assert.ok(impact, "the changed canonical operation source has a semantic reconciliation");
   assert.equal(hash(sourceText), sourcePin.sha256);
-  assert.equal(sourcePin.sha256, impact.currentSha256);
+  assert.equal(sourcePin.sha256, impact.sceneTextAdapterSourceDelta.currentSha256);
   assert.equal(impact.previousSha256, "e680643b45a5c3f25638b4f06ec0f9d544e2190c69c2c25f9a054445dcb3e085");
   assert.notEqual(impact.previousSha256, impact.currentSha256);
   assert.match(impact.result, /semantic-source-change-reconciled/u);
@@ -137,8 +140,21 @@ test("operation source changes reconcile affected leaf links without promoting c
   const ownerDispositions = impact.ownerDispositionSourceDelta;
   assert.ok(ownerDispositions, "the later four-method source-role decision has a separate impact record");
   assert.equal(subsequent.currentSha256, ownerDispositions.previousSha256);
-  assert.equal(ownerDispositions.currentSha256, impact.currentSha256);
-  assert.equal(ownerDispositions.currentSha256, sourcePin.sha256);
+  assert.equal(ownerDispositions.currentSha256, impact.individualOperationContractDelta.currentSha256);
+  const operationSliceDelta = impact.individualOperationContractDelta;
+  assert.ok(operationSliceDelta, "individual source contracts have a separate capability impact review");
+  assert.equal(operationSliceDelta.currentSha256, impact.sceneTextAdapterSourceDelta.previousSha256);
+  assert.equal(operationSliceDelta.addedContracts.length, 10);
+  assert.equal(operationSliceDelta.reviewedCapabilityEvidence.coverageCounts.machineOperations, 0);
+  assert.equal(operationSliceDelta.reviewedCapabilityEvidence.coverageCounts.unresolved, 383);
+  assert.match(operationSliceDelta.semanticImpact, /add no capability-leaf bindings/u);
+  const adapterDelta = impact.sceneTextAdapterSourceDelta;
+  assert.ok(adapterDelta, "the adapter method source-pair denominator change has a separate capability-impact record");
+  assert.equal(adapterDelta.previousSha256, operationSliceDelta.currentSha256);
+  assert.equal(adapterDelta.currentSha256, sourcePin.sha256);
+  assert.equal(adapterDelta.reviewedCapabilityEvidence.candidateProviderAdapter,
+    "media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame");
+  assert.match(adapterDelta.result, /remains unresolved and unadmitted/u);
   assert.deepEqual(operations.sourceDenominators.sdkMethods.exactObservedRegistryIds, [
     "media.sdk.getStatus", "media.sdk.cancel", "media.sdk.retry", "media.sdk.getResult", "media.sdk.wait",
     "media.sdk.createUploadSession", "media.sdk.uploadPart", "media.sdk.completeUploadSession", "media.sdk.getArtifact",
@@ -148,16 +164,17 @@ test("operation source changes reconcile affected leaf links without promoting c
     "media.sdk.processVision", "media.sdk.processMultimodal", "media.sdk.getServiceStatus", "media.sdk.getAllServicesStatus",
     "media.sdk.addEventListener", "media.sdk.if", "media.sdk.removeEventListener", "media.sdk.clearTimeout",
     "media.sdk.legacy.AudioVideoClient.transcribe", "media.sdk.legacy.AudioVideoClient.synthesize",
+    "media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame",
   ]);
-  assert.equal(operations.sourceDenominators.sdkMethods.registryRecords, 31);
-  assert.equal(operations.sourceDenominators.sdkMethods.parserDerivedPublicMethodIdentities, 28);
+  assert.equal(operations.sourceDenominators.sdkMethods.registryRecords, 32);
+  assert.equal(operations.sourceDenominators.sdkMethods.parserDerivedPublicMethodIdentities, 29);
   assert.deepEqual(operations.sourceDenominators.sdkMethods.parserArtifactTokensExcludedFromMethodIdentityInventory,
     ["media.sdk.for", "media.sdk.if", "media.sdk.clearTimeout"]);
   assert.equal(operations.sourceDenominators.sdkMethods.legacySourceMethods.sourceBackedNonOperationDispositions.length, 4);
   for (const id of ["media.sdk.getServiceStatus", "media.sdk.getAllServicesStatus", "media.sdk.addEventListener", "media.sdk.removeEventListener"]) {
     assert.equal(operations.sourceDenominators.sdkMethods.unresolvedOperationIds.includes(id), false, `${id} has an exact non-operation disposition`);
   }
-  assert.match(operations.sourceDenominators.sdkMethods.bindingStatus, /14 family associations remain proposals, four identities have source-backed transport\/client-only dispositions, and ten domain operation identities remain unresolved/u);
+  assert.match(operations.sourceDenominators.sdkMethods.bindingStatus, /14 family associations remain proposals, four identities have source-backed transport\/client-only dispositions, and eleven domain-relevant identities remain unresolved, including one candidate provider adapter/u);
   const transcriptionSubmission = operations.operations.find(({ id }) => id === "media.operation.transcription-submission");
   assert.deepEqual(transcriptionSubmission.evidenceAudit.observedRefs, ["STTService.Transcribe"]);
   assert.equal(subsequent.reviewedCapabilityEvidence.currentActionBindingsUnchanged, true);

@@ -2,8 +2,70 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const EXPECTED_PHASE_COUNTS = { 'PDP-0': 38, 'PDP-1': 130, 'PDP-2': 74, 'PDP-3': 77 };
-const PHASES = Object.keys(EXPECTED_PHASE_COUNTS);
+const PHASES = ['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'];
+
+const SOURCE_ENUMERATORS = [
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'requirements', 'product-truth'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/states.yaml', 'stateMachines', 'state-machine'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'transitionRecords', 'transition'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/domain-objects.yaml', 'objects', 'domain-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'operations', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'individualOperationContracts.records', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/relationships.yaml', 'relationships', 'relationship'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/value-objects.yaml', 'values', 'value-object'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/component-contracts.yaml', 'components', 'component-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/layout.yaml', 'layouts', 'layout'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml', 'patterns', 'interaction-pattern'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml', 'templates', 'view-template'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/media-token-aliases.yaml', 'aliases', 'semantic-token-alias'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/journey-registry.yaml', 'journeys', 'journey-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/screen-registry.yaml', 'screens', 'screen-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/screen-registry.yaml', 'laneViews', 'screen-contract'],
+];
+
+export function enumerateExpectedMediaObligations({ root, parseYaml }) {
+  const records = [];
+  const issues = [];
+  for (const [phase, sourcePath, collection, dimension] of SOURCE_ENUMERATORS) {
+    const absolutePath = path.resolve(root, sourcePath);
+    if (!fs.existsSync(absolutePath)) {
+      issues.push({ code: 'SOURCE_ENUMERATION_MISSING', detail: `Cannot enumerate ${sourcePath}` });
+      continue;
+    }
+    let document;
+    try {
+      const text = fs.readFileSync(absolutePath, 'utf8');
+      document = sourcePath.endsWith('.json') ? JSON.parse(text) : parseYaml(text);
+    } catch (error) {
+      issues.push({ code: 'SOURCE_ENUMERATION_PARSE', detail: `${sourcePath}: ${error.message}` });
+      continue;
+    }
+    const collectionPath = collection.split('.');
+    const candidates = collectionPath.reduce((value, segment) => value?.[segment], document);
+    if (!Array.isArray(candidates)) {
+      issues.push({ code: 'SOURCE_ENUMERATION_COLLECTION', detail: `${sourcePath} has no ${collection} array` });
+      continue;
+    }
+    for (const record of candidates) {
+      const recordId = record?.id ?? record?.machineId;
+      if (typeof recordId !== 'string' || !recordId.trim()) {
+        issues.push({ code: 'SOURCE_ENUMERATION_ID', detail: `${sourcePath}#/${collection} has a record without a stable ID` });
+        continue;
+      }
+      records.push({
+        phase,
+        dimension,
+        sourcePath,
+        sourceRef: `${sourcePath}#/${collectionPath.join('/')}/${recordId}`,
+        recordId,
+        obligationId: `media.${phase.toLowerCase()}.requirement.${recordId.toLowerCase()}`,
+        sourceSummary: record.statement ?? record.purpose ?? record.useFor ?? record.domainIntent
+          ?? record.meaning ?? record.statusDimension ?? record.name ?? record.id,
+      });
+    }
+  }
+  return { records, issues };
+}
 
 function addIssue(issues, code, detail) {
   issues.push({ code, detail });
@@ -42,6 +104,29 @@ function compareMembership(label, expectedIds, selectedIds, issues) {
 
 export function auditMediaObligationDenominator({ root, obligations, program, binding, surface, traceability, parseYaml }) {
   const issues = [];
+  const sourceEnumeration = enumerateExpectedMediaObligations({ root, parseYaml });
+  issues.push(...sourceEnumeration.issues);
+  const expectedById = new Map(sourceEnumeration.records.map((record) => [record.obligationId, record]));
+  const obligationBySource = new Map(obligations.map((record) => {
+    const source = record?.extensions?.['media-source'];
+    return [`${source?.sourceRef ?? ''}|${source?.recordId ?? ''}`, record];
+  }));
+  for (const expected of sourceEnumeration.records) {
+    const record = obligationBySource.get(`${expected.sourceRef}|${expected.recordId}`);
+    if (!record) addIssue(issues, 'MISSING_SOURCE_OBLIGATION', `${expected.obligationId} is missing for ${expected.sourceRef}`);
+    else if (record.id !== expected.obligationId || record.dimension !== expected.dimension) {
+      addIssue(issues, 'SOURCE_OBLIGATION_MISMATCH', `${expected.sourceRef} expects ${expected.obligationId} (${expected.dimension}), found ${record.id} (${record.dimension})`);
+    }
+  }
+  for (const record of obligations) {
+    const source = record?.extensions?.['media-source'];
+    const sourcePath = source?.sourceRef?.split('#')[0];
+    if (SOURCE_ENUMERATORS.some(([, candidatePath]) => candidatePath === sourcePath)
+      && !expectedById.has(record.id)) {
+      addIssue(issues, 'CONTRADICTORY_SOURCE_OBLIGATION', `${record.id} does not resolve to an enumerated source record`);
+    }
+  }
+
   const ids = obligations.map((record) => record?.id).filter(Boolean);
   const counts = new Map();
   for (const id of ids) counts.set(id, (counts.get(id) ?? 0) + 1);
@@ -64,20 +149,25 @@ export function auditMediaObligationDenominator({ root, obligations, program, bi
     }
   }
 
+  const expectedIdsByPhase = Object.fromEntries(PHASES.map((phase) => [phase,
+    sourceEnumeration.records.filter((record) => record.phase === phase).map((record) => record.obligationId)]));
+  const expectedPhaseCounts = Object.fromEntries(PHASES.map((phase) => [phase, expectedIdsByPhase[phase].length]));
   const phaseCounts = Object.fromEntries(PHASES.map((phase) => [phase,
     obligations.filter((record) => record?.phaseSemantics?.applicableIn?.length === 1 && record.phaseSemantics.applicableIn[0] === phase).length]));
-  for (const [phase, expected] of Object.entries(EXPECTED_PHASE_COUNTS)) {
-    if (phaseCounts[phase] !== expected) addIssue(issues, 'PHASE_COUNT', `${phase} count ${phaseCounts[phase]} != expected ${expected}`);
+  for (const [phase, expected] of Object.entries(expectedPhaseCounts)) {
+    if (phaseCounts[phase] !== expected) addIssue(issues, 'PHASE_COUNT', `${phase} count ${phaseCounts[phase]} != source-enumerated ${expected}`);
   }
-  if (obligations.length !== 319) addIssue(issues, 'TOTAL_COUNT', `total ${obligations.length} != expected 319`);
+  if (obligations.length !== sourceEnumeration.records.length) {
+    addIssue(issues, 'TOTAL_COUNT', `total ${obligations.length} != source-enumerated ${sourceEnumeration.records.length}`);
+  }
 
   const selectedByPhase = Object.fromEntries(PHASES.map((phase) => [phase,
-    obligations.filter((record) => record?.phaseSemantics?.applicableIn?.includes(phase)).map((record) => record.id)]));
+    expectedIdsByPhase[phase]]));
   for (const phase of PHASES) {
     compareMembership(`phase-program ${phase}`, selectedByPhase[phase], program?.phases?.find((item) => item.id === phase)?.obligationIds, issues);
     compareMembership(`phase-binding ${phase}`, selectedByPhase[phase], binding?.phases?.[phase]?.obligationIds, issues);
   }
-  compareMembership('closure-surface', ids, surface?.obligationIds, issues);
+  compareMembership('closure-surface', sourceEnumeration.records.map((record) => record.obligationId), surface?.obligationIds, issues);
 
   const sourceHashes = {};
   const sourceDocuments = new Map();
@@ -149,7 +239,8 @@ export function auditMediaObligationDenominator({ root, obligations, program, bi
     total: obligations.length,
     uniqueIds: counts.size,
     phaseCounts,
-    expectedPhaseCounts: EXPECTED_PHASE_COUNTS,
+    expectedPhaseCounts,
+    sourceEnumeration: { total: sourceEnumeration.records.length, phaseCounts: expectedPhaseCounts },
     dispositionRecords: obligations.filter((record) => record?.disposition === 'REQUIRED').length,
     sourceReferences: { total: obligations.length, resolved: resolvedSourceRefs, unresolved: unresolvedSourceRefs },
     sourceFingerprints: { algorithm: 'sha256', files: sourceHashes, comparison: fingerprintComparisons,

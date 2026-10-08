@@ -71,9 +71,9 @@ test("linked PDP source changes remain stale until their migration item claims a
   }
 
   assert.equal(review.counts.uniqueContentUnits, 1340);
-  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 263);
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 260);
   assert.equal(review.counts.blockStructureProposalCounts.MIXED_REQUIRES_DECOMPOSITION, 124);
-  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 0);
+  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 3);
 });
 
 test("the stale pin impact describes the exact newly added PDP claims", () => {
@@ -88,11 +88,13 @@ test("the stale pin impact describes the exact newly added PDP claims", () => {
   assert.equal(actors.ownershipRules.rules.length, 5);
   assert.equal(actors.trustContexts.principalKindInference, "forbidden");
   assert.equal(constitution.invariants.records.length, 7);
-  assert.match(constitution.domainRules.status, /pending-PDP-1-owner-review/u);
-  assert.match(records.get(".product-experience/pdp-0-product-truth/constitution.yaml").rationale, /do not demonstrate equivalence/u);
+  assert.match(constitution.domainRules.status, /PXD-035/u);
+  assert.equal(constitution.domainRules.records.length, 6);
+  assert.equal(goals.successMeasureContracts.records.length, 4);
+  assert.match(records.get(".product-experience/pdp-0-product-truth/constitution.yaml").rationale, /does not establish full item-level equivalence/u);
   const constitutionImpact = records.get(".product-experience/pdp-0-product-truth/constitution.yaml");
-  assert.match(constitutionImpact.changedClaims, /bounded PDP-1 owner-approved canonical policy distinctions/u);
-  assert.match(constitutionImpact.changedClaims, /distinguishes them from proposal-only state machines/u);
+  assert.match(constitutionImpact.changedClaims, /six bounded domainRules mapped under PXD-035/u);
+  assert.match(constitutionImpact.changedClaims, /does not accept canonical PDP-1 records/u);
   assert.match(constitutionImpact.rationale, /LPR-CONST-009/u);
   assert.match(constitutionImpact.rationale, /does not constitute owner acceptance/u);
   const claim = review.sourceChangeLedger.linkedPdpClaimReconciliation.sourceBlocks
@@ -101,11 +103,22 @@ test("the stale pin impact describes the exact newly added PDP claims", () => {
   assert.deepEqual(claim.sourceSpan, [26, 27]);
   assert.equal(claim.ownerPhase, "PDP-0");
   assert.equal(claim.targetRef, ".product-experience/pdp-0-product-truth/constitution.yaml#/domainRules");
-  assert.equal(claim.disposition, "ROUTED_PENDING_PDP1_OWNER_REVIEW");
-  assert.match(claim.assertion, /bounded to canonical policy distinctions/u);
-  assert.match(claim.assertion, /do not accept the proposal-only state machines/u);
-  assert.match(claim.assertion, /ProductDefinition domainRules mapping/u);
-  assert.match(claim.dependency, /state, transition, operation-binding, and domainRules mappings remain pending/u);
+  assert.equal(claim.disposition, "ROUTED_TO_PDP0_BOUNDED_RULE_MAPPING; P0-010-INDEPENDENT-REVIEW-PENDING");
+  assert.match(claim.assertion, /PXD-035 maps six exact PDP-1 accepted policy decisions/u);
+  assert.match(claim.assertion, /does not accept PDP-1 canonical records/u);
+  assert.match(claim.assertion, /runtime behavior, or the phase/u);
+  assert.match(claim.dependency, /Six rule mappings have PXD-035 bounded approval/u);
+  assert.match(claim.dependency, /independent P0-010 review remain open/u);
+
+  const goalImpact = records.get(".product-experience/pdp-0-product-truth/goals-jtbd.yaml");
+  assert.equal(goalImpact.additionalCurrentBlocks[0].span[0], 477);
+  assert.equal(goalImpact.additionalCurrentBlocks[0].span[1], 539);
+  assert.equal(goalImpact.additionalCurrentBlocks[0].header, "successMeasureContracts:");
+  const goalLines = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/goals-jtbd.yaml"), "utf8").split("\n");
+  assert.equal(goalLines[476], "successMeasureContracts:");
+  assert.equal(goalImpact.additionalCurrentBlocks[0].lineCount, 63);
+  assert.match(goalImpact.changedClaims, /NOT_EVALUATED baseline\/qualification/u);
+  assert.match(goalImpact.changedClaims, /NOT_SET target/u);
 });
 
 test("new linked-PDP assertions are atomized, source-located, and routed without implying acceptance", () => {
@@ -120,6 +133,7 @@ test("new linked-PDP assertions are atomized, source-located, and routed without
     "ROUTED_WITH_EXTERNAL_CONTRACT_DEPENDENCY",
     "OWNER_RESOLVED_PENDING_INDEPENDENT_REVIEW",
     "ROUTED_PENDING_PDP1_OWNER_REVIEW",
+    "ROUTED_TO_PDP0_BOUNDED_RULE_MAPPING; P0-010-INDEPENDENT-REVIEW-PENDING",
   ]);
   const sourceCache = new Map();
   const targetCache = new Map();

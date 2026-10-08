@@ -1,0 +1,56 @@
+
+> @ test:owner-source-selections /home/samujjwal/Developments/ghatana-media
+> node --test tests/media-owner-selection-contracts.test.mjs
+
+TAP version 13
+# Subtest: PDP-0 explicitly classifies non-goals and business intents from owner source
+ok 1 - PDP-0 explicitly classifies non-goals and business intents from owner source
+  ---
+  duration_ms: 147.813431
+  type: 'test'
+  ...
+# Subtest: density and presentation profiles match Tools enum and explicit references
+ok 2 - density and presentation profiles match Tools enum and explicit references
+  ---
+  duration_ms: 9.150725
+  type: 'test'
+  ...
+# Subtest: WCAG 2.2 AA is a normative target, not fabricated accessible-technology evidence
+ok 3 - WCAG 2.2 AA is a normative target, not fabricated accessible-technology evidence
+  ---
+  duration_ms: 10.732624
+  type: 'test'
+  ...
+# Subtest: automatic recovery is limited to safe observation, not resubmission
+ok 4 - automatic recovery is limited to safe observation, not resubmission
+  ---
+  duration_ms: 16.225356
+  type: 'test'
+  ...
+# Subtest: every selected GUI template has an exact owned composition recipe and registered pattern
+ok 5 - every selected GUI template has an exact owned composition recipe and registered pattern
+  ---
+  duration_ms: 75.193573
+  type: 'test'
+  ...
+# Subtest: all four Agent Tool semantic selections resolve existing observed IDs and PDP-1 families without execution admission
+ok 6 - all four Agent Tool semantic selections resolve existing observed IDs and PDP-1 families without execution admission
+  ---
+  duration_ms: 246.044883
+  type: 'test'
+  ...
+# Subtest: PDP-3 search and inspection contracts are source-owned, typed and fail closed
+ok 7 - PDP-3 search and inspection contracts are source-owned, typed and fail closed
+  ---
+  duration_ms: 51.010931
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 905.688624

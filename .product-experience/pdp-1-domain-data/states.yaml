@@ -108,7 +108,8 @@ crossSourceReconciliation:
         - modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#mapStatus
         - modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#canonicalMediaState
         - libs/audio-video-types/src/contracts.ts#LegacyMediaJobStateSchema
-      observation: PDP-0 job proposal uses RETRY_PENDING; Java exposes RETRY_PENDING and deprecated RETRYING; TypeScript retains RETRYING as legacy and maps it to RETRY_PENDING; adapter projection behavior is not adopted as product meaning
+        - libs/audio-video-types/src/contracts.ts#observeMediaJobState
+      observation: PDP-0 job proposal uses RETRY_PENDING; Java exposes RETRY_PENDING and deprecated RETRYING; TypeScript retains RETRYING as legacy and now preserves it unmapped in a machine-scoped observation; adapter projection behavior is not adopted as product meaning
       mappingDisposition: unresolved; preserve both exact spellings and source-specific roles
       reason: source generation and compatibility behavior do not establish semantic equivalence
       owner: media-domain-owner plus Java-and-TypeScript contract owners
@@ -118,8 +119,9 @@ crossSourceReconciliation:
         - .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
         - libs/audio-video-types/src/contracts.ts#LegacyMediaJobStateSchema
         - libs/audio-video-types/src/contracts.ts#normalizeLegacyMediaJobState
+        - libs/audio-video-types/src/contracts.ts#observeMediaJobState
         - libs/audio-video-ui/src/components/MediaTaskFlow.tsx#LegacyMediaTaskOperationState
-      observation: PDP-0 models CANCEL_REQUESTED on the attempt machine; TypeScript and UI retain CANCELLING as a legacy job/presentation spelling and the TypeScript helper maps it to RUNNING
+      observation: PDP-0 models CANCEL_REQUESTED on the attempt machine; TypeScript and UI retain CANCELLING as a legacy job/presentation spelling; the TypeScript helper preserves it unmapped rather than collapsing it to RUNNING
       mappingDisposition: unresolved; no job-to-attempt or presentation mapping accepted
       reason: machine dimension differs and the observed lossy mapping collapses a cancellation-in-progress spelling into RUNNING
       owner: media-domain-owner plus TypeScript-and-UI contract owners
@@ -147,8 +149,8 @@ crossSourceReconciliation:
         disposition: observed Java enum; no state-machine or product-meaning authority inferred
         owner: Media runtime and Java contract owners
       - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#mapStatus
-        observedMapping: {CREATED: PENDING, QUEUED: QUEUED, PROCESSING: RUNNING, COMPLETED: COMPLETED, FAILED: FAILED, CANCELLED: CANCELLED, RETRY_PENDING: RETRYING, RETRYING: RETRYING, OUTCOME_UNKNOWN: RUNNING, RECONCILING: RUNNING}
-        disposition: implementation-observed adapter projection; unknown/reconciling collapse is lossy and no mapping is accepted
+        observedMapping: {CREATED: PENDING, QUEUED: QUEUED, PROCESSING: RUNNING, COMPLETED: COMPLETED, FAILED: FAILED, CANCELLED: CANCELLED, RETRY_PENDING: RETRYING, RETRYING: RETRYING}
+        disposition: implementation-observed adapter projection; retry spellings collapse, but this adapter's source enum has neither OUTCOME_UNKNOWN nor RECONCILING
         owner: Media runtime and Java contract owners
       - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#canonicalMediaState
         observedMetadata: mediaCanonicalState retains the exact AvTranscriptionJob.JobStatus spelling, including legacy RETRYING; fromCanonical(CanonicalJobRecord) restores it only when recognized and consistent with the shared-status projection
@@ -160,12 +162,12 @@ crossSourceReconciliation:
         owner: Media TypeScript contract owner
       - source: libs/audio-video-types/src/contracts.ts#normalizeLegacyMediaJobState
         from: RETRYING
-        to: RETRY_PENDING
-        kind: implementation-observed; not accepted canonical mapping
+        to: RETRYING
+        kind: compatibility-observation-preserves-raw; canonical mapping unresolved
       - source: libs/audio-video-types/src/contracts.ts#normalizeLegacyMediaJobState
         from: CANCELLING
-        to: RUNNING
-        kind: lossy-implementation-observed; not accepted presentation or semantic mapping
+        to: CANCELLING
+        kind: compatibility-observation-preserves-raw; canonical mapping unresolved
       - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#mapStatus
         from: [RETRY_PENDING, RETRYING]
         to: RETRYING

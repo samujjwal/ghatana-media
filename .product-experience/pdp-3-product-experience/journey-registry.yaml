@@ -194,9 +194,9 @@ coverageObservation:
   orderedStepCount: 130
   stepBindings:
     screenContractRef:
-      linked: 122
-      unresolved: 8
-      blocker: unresolved-identities-J-29-detect-loss-or-consent-change,fence-new-frame-submission,reconcile-dispatched-frame-effects,present-bounded-return-state-and-J-30-establish-scope-and-permissions,inspect-profile-and-provider-dimensions,preserve-unknown-or-unavailable-reasons,return-eligible-options-with-provenance; source-dependency-is-an-owner-reviewed-step-to-view-crosswalk-or-equivalent-explicit-step-view-ref; journey-level-orderedViews,source-viewRefs,and-screen-journeyRefs-do-not-allocate-views-to-individual-steps
+      linked: 130
+      unresolved: 0
+      blocker: none; J-29-and-J-30-step-views-are-owner-selected-from-the-exact-PDP-0-view-inventory-and-canonical-PDP-3-screen-contracts; proposal-binding-and-screen-admission-remain-pending
     action:
       linked: 18
       unresolved: 112
@@ -228,4 +228,4 @@ coverageObservation:
     journeysWithRefs: 3
     journeysWithoutRefs: 27
     status: deterministic-seed-payloads-exist-for-J-01-through-J-03-only; remaining-journey-scenarios-uncovered
-  evidenceBasis: parsed-journey-contract-directory-and-scenario-fixture-registry; counts-are-inventory-only-and-do-not-establish-behavior-acceptance-or-currentness
+  evidenceBasis: parsed-journey-contract-directory-and-scenario-fixture-registry; J-29-and-J-30-views-are-bounded-Media-owner-selections-from-exact-PDP-0-view-intents-and-PDP-3-screen-contracts; counts-are-proposal-inventory-and-do-not-establish-behavior-acceptance-or-currentness

@@ -1,0 +1,9 @@
+
+> @ check:product-definition-authority /home/samujjwal/Developments/ghatana-media
+> node scripts/check-product-definition-authority.mjs
+
+Media Product Definition authority check passed
+  314 portable manifest records parsed
+  .product-experience/pdp-0-product-truth/requirements.yaml: 38 scoped records checked
+  .product-experience/pdp-0-product-truth/capabilities.yaml: 500 scoped records checked
+  .product-experience/pdp-0-product-truth/journey-catalog.yaml: 30 scoped records checked

@@ -57,7 +57,7 @@ toolsContracts:
       - .product-experience/pdp-0-product-truth/journey-catalog.yaml
       - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml
     role: neutral-shape-projection; media-detail-remains-in-source-authorities
-    projectionStatus: generated-candidate; Tools-schema-and-public-validator-blocked-on-required-product-mappings
+    projectionStatus: structurally-validated-generated-candidate; semantic-mappings-independent-review-publication-and-owner-consumer-admission-remain-separate
     publication: not-verified
     ownerConsumerValidation: pending
   experience-language:
@@ -78,7 +78,7 @@ toolsContracts:
       - .product-experience/pdp-2-design-interface-system/localization-content.yaml
       - .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
     role: reusable-experience-language-projection; semantic-and-Shared-review-pending
-    projectionStatus: generated-candidate; Tools-schema-and-public-validator-blocked-on-required-product-mappings
+    projectionStatus: structurally-validated-generated-candidate; semantic-mappings-independent-review-publication-and-owner-consumer-admission-remain-separate
     publication: not-verified
     ownerConsumerValidation: pending
   experience-specification:
@@ -96,7 +96,7 @@ toolsContracts:
       - .product-experience/pdp-3-product-experience/state-transition-bindings.yaml
       - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
     role: executable-experience-contract-projection; owner-resolvers-required
-    projectionStatus: generated-candidate; Tools-schema-and-public-validator-blocked-on-required-product-mappings
+    projectionStatus: structurally-validated-generated-candidate; semantic-mappings-independent-review-publication-and-owner-consumer-admission-remain-separate
     publication: not-verified
     ownerConsumerValidation: pending
   experience-package:

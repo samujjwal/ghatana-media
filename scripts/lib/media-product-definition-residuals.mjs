@@ -498,6 +498,20 @@ function migrationSemanticsReport(root, diagnostics) {
 
   const sourcePinBlock = topLevelSection(source, "sourcePin");
   const decisionOverlay = topLevelSection(source, "ownerDecisionOverlay");
+  const nonNormativeDecision = indentedSection(decisionOverlay, "nonNormativeClassificationDecision", 2);
+  const approvedNonNormativeIds = [
+    ...parseInlineArray(nonNormativeDecision.match(/^      executionOnly: \[([^\]]*)\]/mu)?.[1]),
+    ...parseInlineArray(nonNormativeDecision.match(/^      evidenceReference: \[([^\]]*)\]/mu)?.[1]),
+    ...[...indentedSection(decisionOverlay, "additionalBoundedClassificationDecisions", 2)
+      .matchAll(/^        - id: (MPSEM-\d+)[ \t]*$/gmu)].map((match) => match[1]),
+  ];
+  const nonNormativeCount = numericField(decisionOverlay, "ownerClassifiedNonNormativeBlockCount");
+  if (approvedNonNormativeIds.length !== nonNormativeCount || new Set(approvedNonNormativeIds).size !== nonNormativeCount) {
+    diagnostics.push(`${path} non-normative classification count does not match unique exact decision IDs`);
+  }
+  if (approvedNonNormativeIds.some((id) => unresolvedItemIds.includes(id))) {
+    diagnostics.push(`${path} non-normative decision IDs overlap unresolved semantic items`);
+  }
   const masterPlanPin = {
     path: sourcePinBlock.match(/^\s{2}path: ([^\n]+)/mu)?.[1]?.trim(),
     sha256: sourcePinBlock.match(/^\s{2}sha256: ([a-f0-9]{64})/mu)?.[1],
@@ -569,6 +583,10 @@ function migrationSemanticsReport(root, diagnostics) {
     sourceContentBlocks: numericField(counts, "sourceContentBlocks"),
     uniqueContentUnits: numericField(counts, "uniqueContentUnits"),
     unresolvedCount,
+    semanticReviewRequiredCount: unresolvedCount,
+    ownerClassifiedNonNormativeCount: nonNormativeCount,
+    originalStructuralUnresolvedCount: unresolvedCount + (nonNormativeCount ?? 0),
+    denominatorBoundary: "Original structural observations include the exact bounded non-normative classifications; only remaining unresolved items require semantic review. Classification does not accept PDP meaning.",
     mixedRequiresDecompositionCount: mixedCount,
     partiallyMappedUnresolvedCount: numericField(topLevelSection(source, "ownerDecisionOverlay"), "partiallyMappedUnresolvedBlockCount", 2),
     partialMappingItems: inlineArray(topLevelSection(source, "ownerDecisionOverlay"), "partialMappingItems"),
@@ -917,7 +935,7 @@ export function renderMediaProductDefinitionResidualMarkdown(report) {
     "## Remaining source work",
     "",
     `- Capability coverage: ${report.capabilityCoverage.leafCount} leaves; ${report.capabilityCoverage.dispositionCounts.JOURNEY_STEP ?? 0} journey steps, ${report.capabilityCoverage.dispositionCounts.MACHINE_OPERATION ?? 0} machine operations, ${report.capabilityCoverage.dispositionCounts.PLATFORM_DEPENDENCY ?? 0} platform dependencies, ${report.capabilityCoverage.unresolvedCount} unresolved.` ,
-    `- Migration semantics: ${report.migrationSemantics.uniqueContentUnits} unique content units; ${report.migrationSemantics.unresolvedCount} unresolved and ${report.migrationSemantics.mixedRequiresDecompositionCount} mixed blocks requiring decomposition.` ,
+    `- Migration semantics: ${report.migrationSemantics.uniqueContentUnits} unique content units; ${report.migrationSemantics.originalStructuralUnresolvedCount} original structural observations = ${report.migrationSemantics.semanticReviewRequiredCount} requiring semantic review + ${report.migrationSemantics.ownerClassifiedNonNormativeCount} bounded non-normative classifications; ${report.migrationSemantics.mixedRequiresDecompositionCount} mixed blocks requiring decomposition.` ,
     `  Master-plan pin: ${report.migrationSemantics.sourcePinState}; recorded/current line counts ${report.migrationSemantics.declaredSourceLineCount}/${report.migrationSemantics.currentSourceLineCount}.`,
     `  Master-plan semantic diff: ${report.migrationSemantics.sourceChangeLedger.changedClusterCount} clusters; ${report.migrationSemantics.sourceChangeLedger.unmappedClusterIds.length} lack historical MPSEM IDs; ${report.migrationSemantics.sourceChangeLedger.decomposedSourceClaimCount} exact source claims across ${report.migrationSemantics.sourceChangeLedger.clustersDecomposedSemanticUnresolved.length} clusters are decomposed, with semantic reconciliation unresolved for those clusters. Pin disposition: ${report.migrationSemantics.sourceChangeLedger.pinDisposition}.`,
     `- Interface parity: ${report.operationParity.surfaceCount} surfaces and ${report.operationParity.totalObservedIdentities} observed identities; ${report.operationParity.unresolvedIdentityCount} source identities remain unresolved, with ${report.operationParity.acceptedBindingCount} owner-accepted bindings recorded.` ,

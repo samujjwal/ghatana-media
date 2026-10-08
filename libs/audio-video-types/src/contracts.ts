@@ -134,10 +134,52 @@ export type MediaJobState = z.infer<typeof MediaJobStateSchema>;
 export const LegacyMediaJobStateSchema = z.enum(["CANCELLING", "RETRYING"]);
 export type LegacyMediaJobState = z.infer<typeof LegacyMediaJobStateSchema>;
 
-export function normalizeLegacyMediaJobState(state: MediaJobState | LegacyMediaJobState): MediaJobState {
-  if (state === "CANCELLING") return "RUNNING";
-  if (state === "RETRYING") return "RETRY_PENDING";
-  return state;
+export const MediaJobStateObservationSchema = z.object({
+  machineId: z.literal("media-job"),
+  state: z.union([MediaJobStateSchema, LegacyMediaJobStateSchema]),
+  rawState: z.union([MediaJobStateSchema, LegacyMediaJobStateSchema]),
+  canonicalState: MediaJobStateSchema.nullable(),
+  mappingDisposition: z.enum(["CANONICAL_STATE", "LEGACY_STATE_UNMAPPED"]),
+}).superRefine((observation, context) => {
+  if (observation.rawState !== observation.state) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["rawState"], message: "rawState must preserve the observed state" });
+  }
+  const canonical = MediaJobStateSchema.safeParse(observation.state).success;
+  if ((observation.mappingDisposition === "CANONICAL_STATE") !== canonical
+    || (canonical ? observation.canonicalState !== observation.state : observation.canonicalState !== null)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["mappingDisposition"], message: "state mapping disposition must match the raw observation" });
+  }
+});
+export type MediaJobStateObservation = z.infer<typeof MediaJobStateObservationSchema>;
+
+/**
+ * Retains legacy state spellings as machine-scoped observations. Legacy
+ * CANCELLING and RETRYING are not coerced to RUNNING or RETRY_PENDING because
+ * neither spelling proves the corresponding canonical state.
+ */
+export function observeMediaJobState(state: MediaJobState | LegacyMediaJobState) {
+  const canonical = MediaJobStateSchema.safeParse(state);
+  const legacy = LegacyMediaJobStateSchema.safeParse(state);
+  if (!canonical.success && !legacy.success) {
+    throw new TypeError("Unsupported media job state observation");
+  }
+  const isCanonical = canonical.success;
+  return MediaJobStateObservationSchema.parse({
+    machineId: "media-job",
+    state,
+    rawState: state,
+    canonicalState: isCanonical ? state as MediaJobState : null,
+    mappingDisposition: isCanonical ? "CANONICAL_STATE" : "LEGACY_STATE_UNMAPPED",
+  });
+}
+
+/**
+ * Compatibility wrapper retaining the historical scalar return shape. Legacy
+ * values remain explicit members of the result union instead of being mapped
+ * to an unsupported canonical state.
+ */
+export function normalizeLegacyMediaJobState(state: MediaJobState | LegacyMediaJobState): MediaJobState | LegacyMediaJobState {
+  return observeMediaJobState(state).state;
 }
 
 const JobBaseSchema = z.object({

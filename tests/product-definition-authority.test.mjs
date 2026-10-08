@@ -367,7 +367,7 @@ test("PDP1 operation proposal preserves source denominators and the complete pro
   assert.match(registry, /all 43 identities accounted for; 17 domain-operation family refs remain proposals; 26 identities are unresolved including transport-only\/provider-admin roles/u);
   assert.match(registry, /^  cliSimulationCommands:\n    planDenominator: 11\n    currentFixtureRegistryRecords: 11$/mu);
   assert.match(registry, /^      count: 12$/mu);
-  assert.match(registry, /^  sdkMethods:\n    registryRecords: 31$/mu);
+  assert.match(registry, /^  sdkMethods:\n    registryRecords: 32$/mu);
   assert.match(registry, /^  agentToolHandlers:\n    count: 4$/mu);
   assert.match(registry, /^  lifecycleEventNames:\n    count: 15$/mu);
   assert.match(registry, /^ownerReview: pending-owner-review$/mu);
@@ -390,8 +390,8 @@ test("active G-05 mirrors match current proposal counts without implying accepta
   assert.match(dashboard, /^observationDate: '2026-10-08'$/mu);
   assert.match(dashboard, /- id: domain-objects\n      target: all-applicable\n      observed: 38/u);
   assert.match(dashboard, /- id: logical-operations\n      target: all-applicable\n      observed: 14/u);
-  assert.match(dashboard, /- id: templates\n      target: all-applicable\n      observed: 8/u);
-  assert.match(dashboard, /- id: layouts\n      target: all-applicable\n      observed: 8/u);
+  assert.match(dashboard, /- id: templates\n      target: all-applicable\n      observed: 13/u);
+  assert.match(dashboard, /- id: layouts\n      target: all-applicable\n      observed: 11/u);
   assert.match(decisionLog, /2026-10-08 source-status update:[\s\S]*?Fourteen of 146 UI actions[\s\S]*?17 proposed\s+family refs and 26 unresolved identities/u);
   assert.match(acceptance, /These source links remain proposals; no operation semantics, mappings, runtime reachability, or wire behavior are accepted/u);
 });
@@ -718,7 +718,7 @@ test("HTTP route, SDK, and interface projections retain canonical ownership", ()
   assert.match(output, /Media contract parity: NON-GREEN/u);
   assert.match(output, /"openapiRoutes":27,"runtimeRoutes":27,"httpRegistryRoutes":27/u);
   assert.match(output, /semantic binding: UNRESOLVED/u);
-  assert.match(output, /source findings audited: 50 \(48 dispositioned; 2 unresolved\)/u);
+  assert.match(output, /source findings audited: 51 \(48 dispositioned; 3 unresolved\)/u);
   assert.match(output, /source-dispositioned findings: 48/u);
 });
 

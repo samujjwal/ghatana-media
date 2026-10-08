@@ -73,10 +73,13 @@ gaps:
     unresolved, and no per-operation HTTP contract records exist. All 43 gRPC
     entries match four active proto files; PDP1 proposes 17 family links and
     leaves 26 unresolved, while PDP3 experience bindings remain pending
-    and per-operation gRPC contract records are absent. SDK's 27 registry IDs
-    are inventoried but all remain unbound; `for`, `if`, and `clearTimeout` are
-    unresolved parser candidates, and the legacy client methods are a separate
-    source surface. The 11 synthetic fixture CLI commands differ from the
+    and per-operation gRPC contract records are absent. SDK inventory retains 32 rows: 29 source/class/method-qualified public
+    identities and three excluded parser artifacts (`for`, `if`, `clearTimeout`).
+    PXD-031 classifies four exact legacy methods as transport/client-only; the new
+    scene-text adapter is a candidate provider adapter with its canonical operation
+    unresolved. Fourteen family associations remain proposals and eleven public
+    identities remain unresolved.
+    No complete cross-interface binding is owner-accepted. The 11 synthetic fixture CLI commands differ from the
     12-entry broader proposal registry, which adds media.cli.job.retry. Four
     Agent Tool handlers and 15 event names are inventoried without complete
     canonical bindings. These are source-scoped definition/registry
@@ -85,8 +88,8 @@ gaps:
     Resolve the 132 unmatched UI action links; bind the 27 HTTP IDs and 26
     gRPC identities still unresolved to owner-approved operations, and review
     the 17 proposed gRPC family links without treating
-    them as canonical. Reconcile the 27 SDK entries and separate legacy methods
-    against actual public methods; preserve the 11 fixture versus 12 proposal
+    them as canonical. Preserve the 28 public SDK identities and three excluded parser artifacts;
+    resolve remaining exact method semantics; preserve the 11 fixture versus 12 proposal
     CLI distinction; define per-tool formal input/result schemas,
     authority/delegation, idempotency, timeout, cancellation, unknown outcome,
     evidence, and safe-failure contracts; and bind event names to operations
@@ -180,8 +183,8 @@ gaps:
   status: open
   scope: complete-view-journey-action-state-and-channel-contracts-for-the-pdp-3-baseline
   owner: ghatana-media-product-design-and-experience-owners
-  evidence: 47 canonical screens each have a v2 PDP-3 proposal contract; the separate artifact-verification-job-family specialization remains outside the 47-screen denominator. A purpose-by-purpose Media owner review approves 41 exact top-level template/layout links and withholds six mismatches with reasons. All 47 catalog references resolve, but nested templateContract refs remain proposal-only and zero screen compositions are admitted. The Web surface/component/pattern/action-consequence refs remain candidates. Token/domain-object/operation/state/entry/exit bindings are unresolved; one screen carries source fixture refs; inline anatomy/template/layout proposals have not been centralized. All 30 journeys now have 130 structured ordered steps with the plan-required per-step fields; J-29/J-30 each preserve their four source step IDs. A candidate crosswalk normalized 148 step surface refs. Seven source-crosswalk PDP-1 logical-operation refs remain proposals and 123 canonical operation refs are null. Journey-level success/failure/recovery/context remain proposal-only and are not consistently allocated to individual steps; degraded behavior, postconditions, object/state/authority/decision/transition/handoff/requirements, scenarios, and step verification remain incomplete.
-  localProgress: Focused regressions cover 47 v2 screen structures and all 30 journey contracts/130 ordered steps, including route-ID nonpromotion and J-29/J-30 ordering. VER-001 now checks all 47 required screen shapes, journey-step structure, selected IDs and source references, and reports unresolved semantic bindings explicitly. The 41 exact top-level template/layout links are owner-approved; six remain withheld and zero screen compositions are admitted. Nested templateContract refs, 123 canonical operation refs, and 11 of 146 distinct screen action refs remain unresolved. No behavior, semantic phase acceptance, qualification, native currentness, or release evidence is claimed.
+  evidence: 47 canonical screens each have a v2 PDP-3 proposal contract; the separate artifact-verification-job-family specialization remains outside the 47-screen denominator. PXD-028 historically approved 41 exact top-level template/layout links; PXD-037 selects purpose-matched central replacements for the six formerly withheld links, for 47 approved links and zero withheld. All 47 catalog references resolve, but nested templateContract refs remain proposal-only and zero screen compositions are admitted. The Web surface/component/pattern/action-consequence refs remain candidates. Token/domain-object/operation/state/entry/exit bindings are unresolved; one screen carries source fixture refs; inline anatomy/template/layout proposals have not been centralized. All 30 journeys now have 130 structured ordered steps with the plan-required per-step fields; J-29/J-30 each preserve their four source step IDs. A candidate crosswalk normalized 148 step surface refs. Seven source-crosswalk PDP-1 logical-operation refs remain proposals and 123 canonical operation refs are null. Journey-level success/failure/recovery/context remain proposal-only and are not consistently allocated to individual steps; degraded behavior, postconditions, object/state/authority/decision/transition/handoff/requirements, scenarios, and step verification remain incomplete.
+  localProgress: Focused regressions cover 47 v2 screen structures and all 30 journey contracts/130 ordered steps, including route-ID nonpromotion and J-29/J-30 ordering. VER-001 now checks all 47 required screen shapes, journey-step structure, selected IDs and source references, and reports unresolved semantic bindings explicitly. PXD-028 and PXD-037 select all 47 exact top-level template/layout links; zero screen compositions are admitted. Nested templateContract refs, 123 canonical operation refs, and 11 of 146 distinct screen action refs remain unresolved. No behavior, semantic phase acceptance, qualification, native currentness, or release evidence is claimed.
   remaining: bind-all-screen-and-step-semantics-to-accepted-PDP-1-and-PDP-2-authorities; resolve-123-null-canonical-operation-bindings-and-step-object-state-authority-decision-transition-handoff-requirement-contracts; allocate-success-failure-degraded-recovery-and-postconditions-per-step; centralize-inline-screen-design-proposals-into-accepted-layouts-and-templates; add-owner-reviewed-scenarios-and-behavior/accessibility/localization-evidence; define-and-accept-full-Web-CLI-API-embedded-and-wire-behavior
   impact: blocks-P2-008-full-PDP-3-acceptance-and-PDP-3-coverage
 - id: GAP-MEDIA-DI-PUBLIC-CLIENT

@@ -108,9 +108,9 @@ sourceDenominators:
       operationIdsByExistingActionRef: {media.cli.upload.inspect: media.operation.artifact-ingest, media.cli.upload.resume: media.operation.artifact-ingest, media.cli.transcribe: media.operation.transcription, media.cli.transcript.review: media.operation.transcription, media.cli.job.status: media.operation.job-lifecycle, media.cli.job.cancel: media.operation.job-lifecycle, media.cli.caption.correct-text: media.operation.transcription, media.cli.caption.align-timing: media.operation.transcription, media.cli.caption.save-version: media.operation.caption-version-write, media.cli.caption.compare-versions: media.operation.caption-version-read, media.cli.job.check-outcome: media.operation.job-lifecycle, media.cli.job.retry: media.operation.job-lifecycle}
     bindingStatus: all 11 fixture-registry IDs remain unresolved; the separate 12-record canonical proposal registry has actionRef crosswalks, including these two caption-version proposal bindings; production CLI runtime remains unconnected
   sdkMethods:
-    registryRecords: 31
-    parserDerivedPublicMethodIdentities: 28
-    exactObservedRegistryIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.retryOperation, media.sdk.getOperationResult, media.sdk.for, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.if, media.sdk.removeEventListener, media.sdk.clearTimeout, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize]
+    registryRecords: 32
+    parserDerivedPublicMethodIdentities: 29
+    exactObservedRegistryIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.retryOperation, media.sdk.getOperationResult, media.sdk.for, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.if, media.sdk.removeEventListener, media.sdk.clearTimeout, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame]
     legacySourceMethods:
       source: libs/audio-video-client/src/index.ts
       declaringClass: AudioVideoClient
@@ -133,13 +133,14 @@ sourceDenominators:
           type: CLIENT_ONLY
           evidence: removes-callback-from-in-process-eventListeners-map
           source: libs/audio-video-client/src/index.ts#AudioVideoClient.removeEventListener
+    candidateProviderAdapters: [media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame]
     sources:
       - .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml#/methods
       - libs/audio-video-client/src/operations.ts
       - libs/audio-video-client/src/index.ts
     operationsTsPublicMethodNames: [getStatus, cancel, retry, getResult, wait, createUploadSession, uploadPart, completeUploadSession, getArtifact, listProviderCapabilities, transcribe, synthesize, trainVoiceModel, convertVoice, analyzeMultimodal, getOperation, cancelOperation, retryOperation, getOperationResult]
     operationsTsUnresolvedOperationMethods: [getStatus, cancel, retry, getResult, wait, createUploadSession, uploadPart, completeUploadSession, getArtifact, listProviderCapabilities, transcribe, synthesize, trainVoiceModel, convertVoice, analyzeMultimodal, getOperation, cancelOperation, retryOperation, getOperationResult]
-    unresolvedOperationIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.retryOperation, media.sdk.getOperationResult, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize]
+    unresolvedOperationIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.retryOperation, media.sdk.getOperationResult, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame]
     parserArtifactTokensExcludedFromMethodIdentityInventory: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
     parserArtifactDisposition: source-parser-correction; media.sdk.for, media.sdk.if, and media.sdk.clearTimeout have no public method declaration in their recorded source; retained as raw registry evidence and excluded from the SDK method denominator
     legacyRegistrySourceDiscrepancies:
@@ -147,7 +148,7 @@ sourceDenominators:
       correctedMethods: [processAIVoice, processVision, processMultimodal, getServiceStatus, getAllServicesStatus, addEventListener, removeEventListener]
       duplicateMethodNames: [transcribe, synthesize]
       duplicateDisposition: source-and-declaring-class-qualified-legacy-identities-added; semantic-equivalence-remains-unresolved
-    bindingStatus: 28 public source/class/method identities retained; three raw registry tokens classified as parser artifacts; 14 family associations remain proposals, four identities have source-backed transport/client-only dispositions, and ten domain operation identities remain unresolved; no cross-interface binding is accepted
+    bindingStatus: 29 public source/class/method identities retained; three raw registry tokens classified as parser artifacts; 14 family associations remain proposals, four identities have source-backed transport/client-only dispositions, and eleven domain-relevant identities remain unresolved, including one candidate provider adapter; no cross-interface binding is accepted
   agentToolHandlers:
     count: 4
     source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml#/tools
@@ -727,7 +728,139 @@ channelFamilies:
   http: contracts/openapi/media.yaml; 27 operationIds; wire projection only; exact route-to-operation crosswalk incomplete
   grpc: four listed service protobufs; 43 exact RPC identities enumerated above; preserve service/method identity; conflict resolution not inferred
   cli: .product-experience/pdp-3-product-experience/cli/command-registry.yaml has 11 synthetic fixture commands; separate root cli-command-registry.yaml has 12 proposal records; production CLI remains unconnected
-  sdk: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml; 31 raw records, of which 28 are exported public source/class/method identities and three are parser artifacts; legacy AudioVideoClient is distinct; consumer parity and operation links unresolved
+  sdk: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml; 32 raw records, of which 29 are exported public source/class/method identities and three are parser artifacts; legacy AudioVideoClient is distinct; consumer parity and operation links unresolved
   tool: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml; four handler identities; no admitted Media domain-tool schema/binding established
   event: .product-experience/pdp-3-product-experience/events/event-registry.yaml; 15 separate local client-listener notifications. PDP1-004 events.yaml separately inventories 7 runtime publisher call sites/9 concrete event types; populations are not equivalent. Event triggers are source observations only; canonical taxonomy, producer authority, delivery guarantees, evidence links, and operation links unresolved
 ownerReview: pending-owner-review
+
+# Individual HTTP/runtime source slices. These are proposed PDP-1 contracts,
+# not accepted operations or cross-interface equivalence claims.
+individualOperationContracts:
+  status: source-bounded-proposals; media-owner-review-and-independent-P0-010-pending
+  crossInterfaceEquivalence: unresolved; same or similar names across HTTP, SDK, CLI, gRPC, and runtime do not establish one operation
+  records:
+    - id: media.operation-slice.begin-upload
+      sourceOperation: beginMediaUpload
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1uploads/post
+      runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.begin
+      requestFields: [tenantId, principalId, fileName, contentType, expectedSizeBytes, expectedSha256, classification, retention, metadata]
+      sourceBounds: >-
+        Runtime constructor requires tenant/principal, filename, content type,
+        positive expected size, SHA-256, classification, and retention in the
+        1 ms–3650 day range. HTTP requires authenticated OPERATOR access and tenant
+        context, policy and audit; declares idempotency scoped to tenantId|uploadRequest
+        with payload hash. HTTP 201 returns an open UploadSession.
+      authority: requester identity and tenant are source fields; actual identity, policy, and storage authority remain host-owned and unresolved.
+      preconditions: input validation and current tenant authorization; declared HTTP policy check; no proof of byte receipt or artifact availability.
+      finality: successful response establishes only an upload-session receipt; upload completion and artifact verification are separate operations.
+      negativeCases: [missing-or-wrong-tenant, invalid-size-or-digest, expired-or-invalid-retention, duplicate-idempotency-key-with-different-payload, treat-session-receipt-as-artifact]
+      status: proposed-local-source-contract
+    - id: media.operation-slice.append-upload-chunk
+      sourceOperation: appendMediaChunk
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1uploads~1{uploadId}~1chunks~1{chunkIndex}/put
+      runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.append
+      requestFields: [tenantId, uploadId, chunkIndex, bytes]
+      sourceBounds: >-
+        HTTP chunkIndex is an integer >= 0 and body is binary; runtime store takes
+        tenantId/uploadId/index/bytes. HTTP requires authenticated OPERATOR access,
+        tenant context, policy and audit. No replay-safe idempotency is declared;
+        clients must not automatically retry. HTTP exposes 400 and 409.
+      authority: tenant-scoped upload-session lookup; exact principal/permission binding beyond HTTP OPERATOR metadata remains host-owned.
+      preconditions: upload exists for tenant, chunk index accepted by source store, and session permits append; no canonical ordering/duplicate-chunk rule is established here.
+      finality: updated upload-session receipt reports observed bytesReceived/nextChunkIndex/status; it does not establish complete bytes or artifact availability.
+      negativeCases: [negative-chunk-index, wrong-tenant-or-unknown-upload, conflicting-chunk-replay, automatic-retry-after-lost-ack, treat-chunk-ack-as-completed-artifact]
+      status: proposed-local-source-contract
+    - id: media.operation-slice.complete-upload
+      sourceOperation: completeMediaUpload
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1uploads~1{uploadId}~1complete/post
+      runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.complete
+      requestFields: [tenantId, uploadId]
+      sourceBounds: >-
+        HTTP requires authenticated OPERATOR access and tenant context, policy and
+        audit; declares payload-hash idempotency scoped to tenantId|uploadId|contentHash.
+        HTTP 201 describes a checksum-verified artifact and 409 conflict. Runtime
+        complete returns MediaArtifact, whose constructor requires tenant/principal,
+        artifactId, positive size, SHA-256, objectReference, classification, and expiry.
+      authority: tenant-scoped upload and artifact store; storage and policy remain host-owned.
+      preconditions: source upload state and integrity must permit completion; exact missing-byte/quarantine rules are not specified by these source contracts.
+      finality: returned artifact is source-described checksum-verified and references opaque storage; it does not prove downstream job use, rights clearance, or delivery.
+      negativeCases: [wrong-tenant-or-unknown-upload, incomplete-or-digest-mismatch, conflicting-completion, equate-storage-reference-with-public-availability, infer-rights-from-upload]
+      status: proposed-local-source-contract
+    - id: media.operation-slice.inspect-upload
+      sourceOperation: getMediaUpload
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1uploads~1{uploadId}/get
+      runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.upload
+      requestFields: [tenantId, uploadId]
+      sourceBounds: HTTP authenticated OPERATOR and tenant context; read-only governance metadata says no policy check and no audit; 200 returns UploadSession, 404 error. Runtime lookup is Optional and tenant-scoped.
+      authority: tenant-scoped read; exact principal authorization and privacy policy remain host-owned.
+      preconditions: caller supplies upload identity under current tenant context.
+      finality: response is a time-scoped upload-session observation, not an artifact or completion proof.
+      negativeCases: [cross-tenant-lookup, treat-stale-session-as-current, infer-artifact-existence-from-session, treat-404-as-global-nonexistence]
+      status: proposed-local-source-contract
+    - id: media.operation-slice.inspect-artifact
+      sourceOperation: getMediaArtifact
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1{artifactId}/get
+      runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifactStore.artifact
+      requestFields: [tenantId, artifactId]
+      sourceBounds: HTTP authenticated OPERATOR and tenant context; read-only governance metadata says no policy check and no audit; 200 returns artifact metadata and opaque object reference, 404 error. Runtime lookup is Optional and tenant-scoped.
+      authority: tenant-scoped artifact lookup; permission to retrieve underlying bytes is not specified by this metadata response.
+      preconditions: caller supplies artifact identity within current tenant context.
+      finality: response observes metadata and object reference only; it does not prove object dereference, current rights, retention state, or content integrity recheck.
+      negativeCases: [cross-tenant-lookup, dereference-opaque-object-reference-as-public-url, infer-rights-or-availability-from-metadata, treat-404-as-global-nonexistence]
+      status: proposed-local-source-contract
+    - id: media.operation-slice.submit-job
+      sourceOperation: submitMediaJob
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/post
+      runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ProcessingJobRequest
+      requestFields: [requestId, tenantId, principalId, correlationId, artifactId, jobType, providerHint, parameters, governanceContext]
+      sourceBounds: >-
+        Runtime requires request/tenant/principal/correlation/artifact identity and
+        jobType; parameters are copied and providerHint optional. HTTP authenticated
+        OPERATOR with tenant/principal, policy and audit; 202 includes Location and
+        Retry-After, and declares payload-hash idempotency scoped to tenantId|requestId.
+      authority: request identity fields and HTTP security metadata are observed; execution, provider, and actual delegated authorization remain host-owned.
+      preconditions: artifact identity and job request validate; policy admission must succeed; source does not define complete consent/rights or provider qualification guards.
+      finality: 202/ACCEPTED is submission receipt, not durable queue, worker claim, dispatch, execution, or result completion.
+      negativeCases: [wrong-tenant-artifact, invalid-or-unadmitted-job-type, reused-request-id-with-different-payload, treat-202-as-queued-or-running, silently-replay-after-unknown-outcome]
+      status: proposed-local-source-contract
+    - id: media.operation-slice.inspect-job
+      sourceOperation: getMediaJob
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs~1{jobId}/get
+      runtimeRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaJobStore.find
+      requestFields: [tenantId, jobId]
+      sourceBounds: HTTP authenticated OPERATOR and tenant context; read-only governance metadata says no policy check and no audit; 200 returns ProcessingJob, 404 error. Runtime lookup takes tenantId/jobId and returns Optional.
+      authority: tenant-scoped read; principal-level access policy is host-owned.
+      preconditions: current tenant context and job identity.
+      finality: response observes current stored job projection; it is not an authoritative external-effect reconciliation receipt unless an owner-defined observer contract says so.
+      negativeCases: [cross-tenant-lookup, treat-stale-poll-as-current, infer-attempt-finality-from-job-status-alone, treat-404-as-proof-no-dispatch]
+      status: proposed-local-source-contract
+    - id: media.operation-slice.cancel-job
+      sourceOperation: cancelMediaJob
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs~1{jobId}~1cancel/post
+      requestFields: [tenantId, jobId]
+      sourceBounds: HTTP authenticated OPERATOR and tenant context, policy and audit; 200 description is “Cancelled or terminal job”; no replay-safe idempotency is declared and automatic retry is forbidden.
+      authority: tenant-scoped cancel request; current principal, policy, worker/provider fencing authority remain unresolved by this route schema.
+      preconditions: job exists under tenant; cancellation eligibility and effect fencing must be established by authoritative runtime contract.
+      finality: returned job projection alone cannot prove no dispatch or fenced effects finality; cancellation request is not cancellation completion.
+      negativeCases: [cross-tenant-cancel, repeated-automatic-cancel-after-lost-ack, map-request-or-detach-to-CANCELLED, claim-finality-without-authoritative-no-dispatch-or-fence]
+      status: proposed-local-source-contract
+    - id: media.operation-slice.retry-job
+      sourceOperation: media.action.retry-job and media.cli.job.retry; no exact retry HTTP route established
+      sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#/actions/media.action.retry-job
+      requestFields: [tenantId, jobId, currentAttemptIdentity, freshAuthority, currentPolicy, retryBudget]
+      sourceBounds: PDP-1 family source associates retry-job with job-lifecycle; fixture CLI command is synthetic. These fields are proposed safety preconditions, not observed wire inputs or admitted retry behavior.
+      authority: no source establishes a callable production retry route, accepted requester permission, or provider replay authority.
+      preconditions: require classified retryable attempt, authoritative no-effect/reconciliation result, fresh authority and policy, and remaining budget; these are proposed constraints pending owner/runtime contract.
+      finality: issuing a retry request does not prove a new attempt was durably created or dispatched; preserve prior outcome uncertainty.
+      negativeCases: [retry-unknown-effect-without-reconciliation, retry-terminal-nonretryable-attempt, stale-attempt-or-expired-authority, exceed-budget, treat-fixture-command-as-production]
+      status: proposal-only; production-contract-evidence-missing
+    - id: media.operation-slice.check-job-outcome
+      sourceOperation: media.action.check-job-outcome and media.cli.job.check-outcome; no exact production HTTP route established
+      sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#/actions/media.action.check-job-outcome
+      requestFields: [tenantId, jobId, authoritativeObserverContext]
+      sourceBounds: PDP-1 family source associates outcome checking with job-lifecycle; fixture CLI command is synthetic. Observer identity and evidence schema are not established.
+      authority: authoritative provider/runtime observer and tenant scope are unresolved; a local status read is not an oracle.
+      preconditions: current job identity, observer authorization, and a source-defined reconciliation lookup; currently no admitted authoritative observer contract.
+      finality: only a current authoritative reconciliation receipt may resolve OUTCOME_UNKNOWN; timeout, absent response, or local cache cannot resolve it.
+      negativeCases: [use-local-cache-as-oracle, timeout-means-failed, missing-job-means-no-effect, replay-before-reconciliation]
+      status: proposal-only; authoritative-observer-contract-missing

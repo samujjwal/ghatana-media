@@ -32,16 +32,17 @@ test('PDP overview pages link current authority, acceptance, and source inventor
 
 test('PDP overview blocker summaries match generated candidate projections', () => {
   const p0 = projections.pdp0;
-  assert.deepEqual(p0.fieldMappingBlockers.map(({ field }) => field), ['domainRules', 'successMeasures']);
+  assert.deepEqual(p0.fieldMappingBlockers.map(({ field }) => field), ['successMeasures']);
   assert.equal(p0.candidateModel.userIntents.length, 19);
-  assert.match(contents.pdp0, /two\s+semantic field blockers/);
+  assert.match(contents.pdp0, /one\s+semantic field blocker/);
   assert.match(contents.pdp0, /all 19\s+source intents and\s+30 journeys with representative initiators selected by PXD-030/);
   assert.equal(p0.acceptance, 'NOT_CLAIMED');
 
   const p2 = projections.pdp2;
   assert.deepEqual(p2.fieldMappingBlockers.map(({ field }) => field), []);
-  assert.equal(p2.candidateModel.recipeBindings.length, 8);
-  assert.match(contents.pdp2, /8 owner-approved GUI recipe identities/);
+  assert.equal(p2.candidateModel.recipeBindings.length, 13);
+  assert.match(contents.pdp2, /13 owner-approved GUI recipe identities/);
+  assert.match(contents.pdp2, /13 reusable templates, 11 layouts/);
   assert.match(contents.pdp2, /3 density profiles, 3 presentation profiles, 18 interaction patterns/);
   assert.equal(p2.acceptance, 'NOT_CLAIMED');
 
@@ -51,7 +52,7 @@ test('PDP overview blocker summaries match generated candidate projections', () 
     componentContracts: 31, views: 47, journeys: 30, transitions: 0, actions: 146, effects: 0, finality: 18, recovery: 0, scenarios: 15, fixtures: 15,
   });
   assert.match(contents.pdp3, /ten\s+semantic field blockers/);
-  assert.match(contents.pdp3, /projects 31\s+component contracts, 47 views,\s+30 journey records with 126 of 130 source\s+steps/);
+  assert.match(contents.pdp3, /projects 31\s+component contracts, 47 views,\s+30 journey records with 130 of 130 source\s+steps/);
   assert.equal(p3.acceptance, 'NOT_CLAIMED');
 });
 
@@ -64,8 +65,8 @@ test('PDP overview docs keep phase prerequisites and independent/external gates 
   assert.match(contents.pdp3, /independent experience review.*remain separate pending gates/s);
 });
 
-test('PDP-3 overview mirrors the bounded PXD-028 composition-link disposition', () => {
-  assert.match(contents.pdp3, /PXD-028, recorded as `ACCEPT-INPUT-MEDIA-OWNER-PDP3-COMPOSITION-LINKS-20261008`/);
-  assert.match(contents.pdp3, /approves 41 exact top-level template\/layout links and\s+withholds six mismatched pairs/);
-  assert.match(contents.pdp3, /47-screen\s+denominator remains unchanged; no screen composition or per-screen recipe\s+binding is admitted/);
+test('PDP-3 overview preserves historical PXD-028 and current PXD-037 composition-link decisions', () => {
+  assert.match(contents.pdp3, /PXD-028 historically approved 41 exact top-level\s+template\/layout links; PXD-037 reviewed the six remaining purposes and approved/);
+  assert.match(contents.pdp3, /bringing the definition mapping\s+to 47 of 47 screens/);
+  assert.match(contents.pdp3, /zero screen compositions are admitted/);
 });

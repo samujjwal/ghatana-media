@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   MediaArtifactSchema,
+  normalizeLegacyMediaJobState,
+  observeMediaJobState,
+  MediaJobStateSchema,
+  MediaJobStateObservationSchema,
   MediaProcessingJobSchema,
   UploadSessionSchema,
   VoiceTrainingRequestSchema,
@@ -9,6 +13,43 @@ import {
 const timestamp = "2026-08-05T12:00:00.000Z";
 
 describe("media contracts", () => {
+  it.each(["CANCELLING", "RETRYING"] as const)("retains legacy job state %s without unsafe canonical coercion", (state) => {
+    const observation = observeMediaJobState(state);
+    expect(observation).toEqual({
+      machineId: "media-job",
+      state,
+      rawState: state,
+      canonicalState: null,
+      mappingDisposition: "LEGACY_STATE_UNMAPPED",
+    });
+    expect(normalizeLegacyMediaJobState(state)).toBe(state);
+    expect(MediaJobStateSchema.safeParse(observation.canonicalState ?? observation.state).success).toBe(false);
+  });
+
+  it("preserves canonical job states with explicit machine context", () => {
+    const observation = observeMediaJobState("OUTCOME_UNKNOWN");
+    expect(observation).toMatchObject({
+      machineId: "media-job",
+      state: "OUTCOME_UNKNOWN",
+      rawState: "OUTCOME_UNKNOWN",
+      canonicalState: "OUTCOME_UNKNOWN",
+      mappingDisposition: "CANONICAL_STATE",
+    });
+  });
+
+  it("rejects unsupported raw inputs and inconsistent state observations", () => {
+    expect(() => observeMediaJobState("MYSTERY_STATE" as never)).toThrow(TypeError);
+    expect(() => observeMediaJobState(null as never)).toThrow(TypeError);
+    expect(MediaJobStateObservationSchema.safeParse({
+      machineId: "media-job", state: "OUTCOME_UNKNOWN", rawState: "COMPLETED",
+      canonicalState: "OUTCOME_UNKNOWN", mappingDisposition: "CANONICAL_STATE",
+    }).success).toBe(false);
+    expect(MediaJobStateObservationSchema.safeParse({
+      machineId: "media-job", state: "RETRYING", rawState: "RETRYING",
+      canonicalState: "RETRY_PENDING", mappingDisposition: "CANONICAL_STATE",
+    }).success).toBe(false);
+  });
+
   it("requires transport-safe artifact identity and provenance", () => {
     const artifact = MediaArtifactSchema.parse({
       id: "artifact-1",

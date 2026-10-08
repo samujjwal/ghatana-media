@@ -54,6 +54,18 @@ layouts:
     purpose: Prepare a precise composition snapshot, submit it separately, and review verified outputs before delivery.
     order: [composition-snapshot, profile-and-validation, rights-and-estimates, submission-and-job-finality, output-verification, review-decision, delivery-status]
     responsiveRule: Preserve the boundary between render submission, output review, and delivery.
+  - id: media.gui.layout.operational-readiness
+    purpose: Inspect one scoped readiness observation, its freshness, limits, safe recovery guidance, and audit reference.
+    order: [readiness-scope, observation-time-and-freshness, check-results, capacity-and-dependency-disposition, safe-recovery-guidance, audit-reference]
+    responsiveRule: Keep scope, freshness, unknown dimensions, and safe next action together; never imply that observed readiness guarantees future availability.
+  - id: media.gui.layout.workspace-settings
+    purpose: Review inherited and local workspace policy values and save an authorized change with visible affected workflows.
+    order: [workspace-context, settings-scope, category-navigation, current-and-inherited-values, policy-owner, affected-workflows, unsaved-changes, save-and-reset-actions]
+    responsiveRule: Keep scope, current value, inheritance, affected workflow, and save/reset outcome in one reading order.
+  - id: media.gui.layout.project-overview
+    purpose: Understand one selected project's exact identity, contents, pending work, and safe next action.
+    order: [workspace-context, project-identity-and-version, source-and-output-summary, pending-work-summary, intent-launcher, recovery-and-navigation]
+    responsiveRule: Preserve project identity and pending-work finality before available next actions at every width.
   - id: media.gui.layout.record-detail
     purpose: Inspect one identified artifact, version, provenance chain, or settings record.
     order: [workspace-and-project-context, exact-record-identity, observed-state, detail-and-provenance, next-safe-action]

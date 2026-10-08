@@ -215,22 +215,22 @@ phases:
         none has an events field or exact public family export.
     - id: templates
       target: all-applicable
-      observed: 8
+      observed: 13
       unit: proposal-template-identities
       source: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates
-      observation: Catalog identities only; 41 exact top-level screen template/layout links are Media-owner-approved and six mismatches are withheld; no screen composition is admitted.
+      observation: Catalog identities only; 47 exact top-level screen template/layout links are Media-owner-approved under PXD-028/PXD-037; zero withheld; no screen composition is admitted.
     - id: patterns
       target: all-applicable
-      observed: 18
+      observed: 19
       unit: proposal-pattern-identities
       source: .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns
       observation: Catalog identities only; owner review status is recorded per screen in PDP-3.
     - id: layouts
       target: all-applicable
-      observed: 8
+      observed: 11
       unit: registered-canonical-layout-identities
       source: .product-experience/pdp-2-design-interface-system/gui/layout.yaml
-      observation: Eight canonical layout IDs are registered; 41 exact top-level screen template/layout links are Media-owner-approved and six mismatches are withheld; no screen composition is admitted.
+      observation: Eleven canonical layout IDs are registered; 47 exact top-level screen template/layout links are Media-owner-approved under PXD-028/PXD-037; zero withheld; no screen composition is admitted.
     - id: semantic-token-aliases
       target: all-applicable
       observed: 9

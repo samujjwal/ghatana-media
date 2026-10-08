@@ -17,9 +17,9 @@ ownerDecisionOverlay:
   authorityOverlay: Product meaning in a master-plan block is a migration proposal until extracted into its owning .product-experience PDP authority; master-plan provenance alone does not prove semantic equivalence or acceptance.
   reviewStatus: Decision policies incorporated; individual unresolved and mixed block assertions remain unadjudicated unless an exact owner-authority mapping is recorded below.
   resolvedBlockCount: 0
-  unresolvedBlockCount: 263
+  unresolvedBlockCount: 260
   partiallyMappedUnresolvedBlockCount: 2
-  ownerClassifiedNonNormativeBlockCount: 86
+  ownerClassifiedNonNormativeBlockCount: 89
   nonNormativeClassificationDecision:
     decisionRef: MEDIA-OWNER-2026-10-08-NONNORMATIVE-01
     reviewStatus: BOUNDED_SOURCE_REVIEWED
@@ -31,6 +31,33 @@ ownerDecisionOverlay:
     itemIds:
       executionOnly: [MPSEM-0020, MPSEM-0050, MPSEM-0081, MPSEM-0089, MPSEM-0123, MPSEM-0156, MPSEM-0173, MPSEM-0182, MPSEM-0216, MPSEM-0266, MPSEM-0284, MPSEM-0302, MPSEM-0317, MPSEM-0332, MPSEM-0337, MPSEM-0466, MPSEM-1190, MPSEM-1223]
       evidenceReference: [MPSEM-0007, MPSEM-0018, MPSEM-0019, MPSEM-1189, MPSEM-1191, MPSEM-1192, MPSEM-1193, MPSEM-1194, MPSEM-1195, MPSEM-1196, MPSEM-1197, MPSEM-1198, MPSEM-1199, MPSEM-1200, MPSEM-1201, MPSEM-1202, MPSEM-1203, MPSEM-1204, MPSEM-1205, MPSEM-1206, MPSEM-1207, MPSEM-1208, MPSEM-1209, MPSEM-1210, MPSEM-1211, MPSEM-1212, MPSEM-1213, MPSEM-1214, MPSEM-1215, MPSEM-1216, MPSEM-1217, MPSEM-1218, MPSEM-1219, MPSEM-1220, MPSEM-1221, MPSEM-1224, MPSEM-1225, MPSEM-1226, MPSEM-1227, MPSEM-1229, MPSEM-1230, MPSEM-1231, MPSEM-1232, MPSEM-1233, MPSEM-1234, MPSEM-1235, MPSEM-1236, MPSEM-1237, MPSEM-1238, MPSEM-1239, MPSEM-1240, MPSEM-1241, MPSEM-1242, MPSEM-1243, MPSEM-1244, MPSEM-1245, MPSEM-1247, MPSEM-1248, MPSEM-1249, MPSEM-1250, MPSEM-1251, MPSEM-1252, MPSEM-1253, MPSEM-1254, MPSEM-1255, MPSEM-1256, MPSEM-1257, MPSEM-1258]
+  additionalBoundedClassificationDecisions:
+    - decisionRef: MEDIA-OWNER-2026-10-08-PXD039
+      reviewStatus: BOUNDED_SOURCE_REVIEWED
+      classification: EXECUTION_ONLY
+      reviewMethod: exact-item-text-and-source-location; neighboring normative content excluded
+      authority: user-delegated owner classification for the exact three item IDs below
+      classificationEffect: count only these lead-in/process statements toward the nonnormative classification total; do not classify adjacent claims or accept product semantics
+      acceptanceEffect: none
+      itemIds:
+        - id: MPSEM-0044
+          currentSourceLines: [123, 123]
+          sourceRef: docs/migration/expert-reviewed-master-plan.md@c2d9d1f1fcc35b0804f69335657c3b8058ff5163ac1eefb78c6b9bc7d9ab11da
+          exactText: '| REV-24 — Phase/task detail was insufficient | Many tasks only say “implement” or “define” | Every task has exact target, owner role, prerequisites, procedure, expected result, acceptance, verification and affected downstream material. |'
+          rationale: Task-card documentation quality is migration execution guidance, not a Media product behavior claim.
+          excludes: adjacent revision-table rows and any product claims they contain
+        - id: MPSEM-0064
+          currentSourceLines: [165, 165]
+          sourceRef: docs/migration/expert-reviewed-master-plan.md@c2d9d1f1fcc35b0804f69335657c3b8058ff5163ac1eefb78c6b9bc7d9ab11da
+          exactText: "The new repository must create and enforce:"
+          rationale: This is an execution lead-in; following concrete file and boundary assertions remain individually classified.
+          excludes: all following files and repository-boundary bullets
+        - id: MPSEM-0301
+          currentSourceLines: [699, 699]
+          sourceRef: docs/migration/expert-reviewed-master-plan.md@c2d9d1f1fcc35b0804f69335657c3b8058ff5163ac1eefb78c6b9bc7d9ab11da
+          exactText: "The API contract must specify:"
+          rationale: This is an API-specification lead-in; it contains no operation fields or behavior itself.
+          excludes: all following operation rows and API behavior assertions
   partialMappingItems: [MPSEM-0178, MPSEM-0211]
 reviewedClaimSlices:
 - sliceId: MPSEM-0001-META-04-05
@@ -1519,23 +1546,23 @@ counts:
   uniqueContentUnits: 1340
   deduplicatedRepeatedBlocks: 26
   uniqueUnitsByClassification:
-    UNRESOLVED: 263
+    UNRESOLVED: 260
     EVIDENCE_REFERENCE: 163
     IMPLEMENTATION_GUIDANCE: 66
-    EXECUTION_ONLY: 783
+    EXECUTION_ONLY: 786
     EXTRACTED_TO_PDP: 65
   blockStructureProposalCounts:
     MIXED_REQUIRES_DECOMPOSITION: 124
     NO_NORMATIVE_CONTENT: 6
     SINGLE_SEMANTIC_CLASS: 133
     total: 263
-    ownerReviewed: 0
-    ownerClassifiedNonNormative: 86
+    ownerReviewed: 3
+    ownerClassifiedNonNormative: 89
   sourceBlocksByClassification:
-    UNRESOLVED: 263
+    UNRESOLVED: 260
     EVIDENCE_REFERENCE: 165
     IMPLEMENTATION_GUIDANCE: 70
-    EXECUTION_ONLY: 803
+    EXECUTION_ONLY: 806
     EXTRACTED_TO_PDP: 65
   eligibleNonblankBodyLines: 1530
   representedNonblankBodyLines: 1530
@@ -1599,8 +1626,9 @@ items:
   blockStructureProposal:
     classification: NO_NORMATIVE_CONTENT
     status: PROPOSAL_ONLY
-    rationale: "Document identity, date, status, and repository metadata."
-    ownerReview: "Confirm provenance only."
+    rationale: >-
+      The item mixes bibliographic metadata with product identity, repository/source ownership, subsystem/CLI naming, and phase-authority assertions. Only its exact document-ID/date and historical-source-provenance slices have bounded source classifications.
+    ownerReview: Keep the containing item UNRESOLVED; do not classify the whole mixed paragraph as nonnormative.
   itemId: MPSEM-0001
 - text: '> Reuse the appropriate Ghatana owner first. Define Media meaning once. Keep every channel consistent. Make protection
     and quality native, and complexity optional. Verify the resulting behavior rather than inferring it from source presence.'
@@ -2674,8 +2702,8 @@ items:
   normalizedText: rev-24 — phase/task detail was insufficient many tasks only say “implement” or “define” every task has exact
     target, owner role, prerequisites, procedure, expected result, acceptance, verification and affected downstream material.
   sourceKind: table-row
-  classification: UNRESOLVED
-  classificationBasis: semantic statement not matched at claim level to an existing PDP artifact or explicitly designated
+  classification: EXECUTION_ONLY
+  classificationBasis: Exact bounded owner classification under PXD-039; this is execution guidance, not product semantic acceptance.
     nonsemantic material
   exactPdpRefs: []
   sectionProvenanceRefs: []
@@ -2688,10 +2716,12 @@ items:
     - 1. Review result and material corrections
     - 1.1 Assessment
   blockStructureProposal:
+    decisionRef: MEDIA-OWNER-2026-10-08-PXD039
     classification: NO_NORMATIVE_CONTENT
-    status: PROPOSAL_ONLY
-    rationale: "Prescribes work-item documentation quality."
-    ownerReview: "No product-semantic review; migration owner may retain as process guidance."
+    status: BOUNDED_OWNER_CLASSIFIED_PXD039
+    rationale: >-
+      REV-24 says every task must record exact target, owner, prerequisites, procedure, expected result, acceptance, verification, and downstream material. This is execution/work-item quality guidance, not a Media capability or behavior claim.
+    ownerReview: Keep this exact process row as EXECUTION_ONLY; adjacent revision rows contain separate product and implementation assertions.
   itemId: MPSEM-0044
 - text: '| REV-25 — Interoperability was underdefined | A neutral scene graph cannot magically round-trip every engine | Declare
     supported semantic subsets and conversion-loss reports. Use interchange adapters, not claims of universal losslessness.
@@ -3195,8 +3225,9 @@ items:
   blockStructureProposal:
     classification: NO_NORMATIVE_CONTENT
     status: PROPOSAL_ONLY
-    rationale: "Lead-in to the following requirements."
-    ownerReview: "None; classify with the referenced list if needed."
+    rationale: >-
+      The exact SHALL statement directs dependency architecture and may carry platform-boundary meaning; it is not merely document metadata or formatting.
+    ownerReview: Keep UNRESOLVED until the specific dependency direction is mapped to a current authority and relevant owner; do not classify as nonnormative.
   itemId: MPSEM-0062
 - text: '```text
 
@@ -3235,8 +3266,8 @@ items:
 - text: 'The new repository must create and enforce:'
   normalizedText: 'the new repository must create and enforce:'
   sourceKind: paragraph
-  classification: UNRESOLVED
-  classificationBasis: semantic statement not matched at claim level to an existing PDP artifact or explicitly designated
+  classification: EXECUTION_ONLY
+  classificationBasis: Exact bounded owner classification under PXD-039; this is execution guidance, not product semantic acceptance.
     nonsemantic material
   exactPdpRefs: []
   sectionProvenanceRefs:
@@ -3255,10 +3286,12 @@ items:
     - 2. Product identity, naming and scope
     - 2.1A Standalone repository identity and boundary
   blockStructureProposal:
+    decisionRef: MEDIA-OWNER-2026-10-08-PXD039
     classification: NO_NORMATIVE_CONTENT
-    status: PROPOSAL_ONLY
-    rationale: "Lead-in to a list of repository obligations."
-    ownerReview: "None; classify with the referenced list if needed."
+    status: BOUNDED_OWNER_CLASSIFIED_PXD039
+    rationale: >-
+      “The new repository must create and enforce:” introduces repository setup artifacts and the following boundary claims; this lead-in alone states no Media runtime behavior.
+    ownerReview: PXD-039 classifies only this exact lead-in EXECUTION_ONLY. Following file-list and boundary bullets are excluded and remain individually classified.
   itemId: MPSEM-0064
 - text: '```text
 
@@ -3319,8 +3352,9 @@ items:
   blockStructureProposal:
     classification: NO_NORMATIVE_CONTENT
     status: PROPOSAL_ONLY
-    rationale: "Lead-in to the Media boundary bullets."
-    ownerReview: "None; classify with the referenced list if needed."
+    rationale: >-
+      The exact sentence introduces assertions about Media product/runtime ownership and repository boundary; these are potentially normative ownership claims.
+    ownerReview: Keep UNRESOLVED; route each following boundary assertion through P0-001/authority mapping and retain external-owner limits.
   itemId: MPSEM-0066
 - text: '- owns Media product semantics, APIs, CLI, runtime composition, artifact/job/stream domain state, MediaSynth, animation,
     simulation, quality, editing, composition and delivery;'
@@ -9842,8 +9876,8 @@ items:
 - text: 'The API contract must specify:'
   normalizedText: 'the api contract must specify:'
   sourceKind: paragraph
-  classification: UNRESOLVED
-  classificationBasis: semantic statement not matched at claim level to an existing PDP artifact or explicitly designated
+  classification: EXECUTION_ONLY
+  classificationBasis: Exact bounded owner classification under PXD-039; this is execution guidance, not product semantic acceptance.
     nonsemantic material
   exactPdpRefs: []
   sectionProvenanceRefs: []
@@ -9856,10 +9890,12 @@ items:
     - 10. Public API, SDK and CLI contracts
     - 10.2 Required operation model
   blockStructureProposal:
+    decisionRef: MEDIA-OWNER-2026-10-08-PXD039
     classification: NO_NORMATIVE_CONTENT
-    status: PROPOSAL_ONLY
-    rationale: "The API contract must specify:"
-    ownerReview: "API/runtime owner: validate operation, wire, idempotency, and finality semantics."
+    status: BOUNDED_OWNER_CLASSIFIED_PXD039
+    rationale: >-
+      “The API contract must specify:” introduces the API operation table; the lead-in supplies no operation fields, wire semantics, or finality behavior.
+    ownerReview: PXD-039 classifies only this exact lead-in EXECUTION_ONLY. Every following operation row remains separately unresolved/reviewable.
   itemId: MPSEM-0301
 - text: '| Operation group | Required behavior |'
   normalizedText: operation group required behavior
@@ -31872,11 +31908,16 @@ sourceChangeLedger:
     diffAgainstHistorical: 182 additions and 168 deletions; 350 changed lines
   sourcePinDisposition: keep-stale
   reconciliationStatus: partial; all inventoried source-diff hunks have exact claim or unresolved-fragment coverage, while semantic equivalence, canonical target mapping, and owner review remain incomplete
-  unchangedReviewCounts:
+  prePXD039ReviewCounts:
     uniqueUnits: 1340
     unresolved: 263
     mixedRequiresDecomposition: 124
     ownerReviewed: 0
+  reviewCountsAfterOwnerDispositions:
+    uniqueUnits: 1340
+    unresolved: 260
+    mixedRequiresDecomposition: 124
+    ownerReviewed: 3
   remainingReview: Resolve the exact claim and unresolved-fragment records against their canonical PDP targets; complete owner review for the new taxonomy and PDP-1 routing; update affected historical MPSEM item text/locations where the claim boundaries changed; and establish any required external contract, qualification, or runtime evidence. Exact source decomposition, routing, or source presence alone does not constitute semantic equivalence or acceptance.
   sourceChangeClaimLedger: docs/migration/master-plan-source-change-claims.yaml
   diffHunkCoverage:
@@ -32487,11 +32528,11 @@ sourceChangeLedger:
             dependency: P0-010 independent review remains pending.
           - claimId: LPR-CONST-009
             sourceSpan: [26, 27]
-            assertion: PDP-1 owner-approved decisions are bounded to canonical policy distinctions; they do not accept the proposal-only state machines, transition guards, operation bindings, or a ProductDefinition domainRules mapping.
+            assertion: PXD-035 maps six exact PDP-1 accepted policy decisions into bounded PDP-0 domainRules; the mapping does not accept PDP-1 canonical records, proposal-only state machines, transition guards, operation bindings, runtime behavior, or the phase.
             ownerPhase: PDP-0
             targetRef: .product-experience/pdp-0-product-truth/constitution.yaml#/domainRules
-            disposition: ROUTED_PENDING_PDP1_OWNER_REVIEW
-            dependency: The bounded policy decisions are recorded in state-adjudication.yaml, but the state, transition, operation-binding, and domainRules mappings remain pending PDP-1 owner review and separate ProductDefinition mapping.
+            disposition: ROUTED_TO_PDP0_BOUNDED_RULE_MAPPING; P0-010-INDEPENDENT-REVIEW-PENDING
+            dependency: Six rule mappings have PXD-035 bounded approval; proposal-only state/transition/authority mappings and independent P0-010 review remain open.
     unresolvedDependencies:
       - Independent P0-010 review for trust-context and invariant records.
       - Human review of proposed goals-jtbd.yaml and constitution.yaml product semantics.
@@ -32513,15 +32554,23 @@ sourceChangeLedger:
       - id: LPI-01
         path: .product-experience/pdp-0-product-truth/goals-jtbd.yaml
         pinnedSha256: f5d2cc3112fded0c46f811fdc4604ffb85d0d780f22883771f7181ac1faedc40
-        observedCurrentSha256: c09396068115f86bae21addc69520d0529c6ba48a4d08eda246e7d75430f0711
+        observedCurrentSha256: 0a2430d80830b717d1a9725c3ee499b1ce862ee4cedb8e111e46478035f05667
         addedCurrentLineSpan: [17, 38]
         addedBlockHeader: 'authorityMapping:'
         addedLines: 22
+        additionalCurrentBlocks:
+          - span: [477, 539]
+            header: "successMeasureContracts:"
+            lineCount: 63
+            meaning: four source-defined measurement definition contracts; profile calibration and qualification remain open
         changedClaims: >-
           Adds actorRefs-versus-principal/permission/accountability rules and four
           goal-to-accountability or trust-context links, with unresolved external
-          reviewer/domain-owner dependencies. These are new source claims, not edits
-          to the existing outcome, job, intent, scope, first-use, or disclosure text.
+          reviewer/domain-owner dependencies. A later source block adds four P0-06
+          measure-definition contracts: metric, unit, denominator, applicability,
+          acceptance criterion, evidence method, NOT_EVALUATED baseline/qualification,
+          and NOT_SET target. These contracts are proposals, not measured results or
+          target approvals; no outcome/job/intent/scope text changed.
         citedMigrationItems:
           itemIdRanges: [MPSEM-0050..MPSEM-0081, MPSEM-0170..MPSEM-0212, MPSEM-0440..MPSEM-0453]
           count: 89
@@ -32532,10 +32581,13 @@ sourceChangeLedger:
         rationale: >-
           The 89 items refer broadly to plan sections 2, 6, and 14 and other nearby
           locations, but none identifies a goal or authorityMapping excerpt as the
-          compared claim. Although the goal/intent/outcome semantic projection used by
-          capability review is unchanged, these new authority assertions may affect
-          migration actor/approval mappings; no MPSEM item decomposes them. Do not
-          refresh this pin until those claims are routed and reviewed.
+          compared claim. The capability-review semantic projection remains unchanged, but the added
+          authority assertions and four measure contracts are new claims that the
+          section-provenance MPSEM population does not decompose. LPR source review
+          records the exact contract semantics and their open baseline/target limits;
+          no claim-exact migration links exist. Keep the historical pin stale until
+          item-level crosswalks are reviewed; do not treat the updated fingerprint as
+          semantic acceptance.
       - id: LPI-02
         path: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml
         pinnedSha256: 76f66242b91c1401baaf85f70d1ff87dc2a06ed1728d8832f30d8c58e5ae5056
@@ -32564,19 +32616,16 @@ sourceChangeLedger:
       - id: LPI-03
         path: .product-experience/pdp-0-product-truth/constitution.yaml
         pinnedSha256: c725a9b76563d1209420b8dbefc4f6df95e4265ca2f66f1f218babf97d6dfe7d
-        observedCurrentSha256: 25a72fc7ec83e933a60f6925613c51f19dd805eaadcd508bd30db6ed281f5228
+        observedCurrentSha256: fe10aaf5f79a1b48b38b1cdc1519bb7cdd9db72fdc149e11d235baa683dcce45
         addedCurrentLineSpan: [19, 65]
         addedBlockHeader: 'domainRules:'
         addedLines: 47
         changedClaims: >-
-          Adds pending PDP-1 domain-rule source refs and seven PDP-0 invariant
-          statement/violation pairs covering locality/authorization, consent/license,
-          classification, model authority, audit, revocation, and tenant isolation.
-          The new state-adjudication pending-source assertion records bounded PDP-1
-          owner-approved canonical policy distinctions and distinguishes them from proposal-only state
-          machines, transition guards, operation bindings, and the ProductDefinition
-          domainRules mapping. These are new source claims, not edits to the existing
-          outcome, job, intent, scope, first-use, or disclosure text.
+          Adds the six bounded domainRules mapped under PXD-035, with exact PDP-1 decision
+          keys, violation, trust scope, owner, and fail-closed response. The earlier
+          seven PDP-0 invariant records remain source-backed with independent review
+          pending. The exact PXD-035 mapping is approved as a bounded projection; it
+          does not accept canonical PDP-1 records, runtime behavior, or phase closure.
         citedMigrationItems:
           itemIdRanges: [MPSEM-0122..MPSEM-0155]
           count: 34
@@ -32588,10 +32637,9 @@ sourceChangeLedger:
         rationale: >-
           All 34 cited items derive only from broad §4 provenance. Thirty-two are
           classified EXTRACTED_TO_PDP and two remain UNRESOLVED, but none points to
-          the new invariant IDs or domainRules block. LPR-CONST-009 decomposes the
-          bounded policy-versus-state-mapping distinction; the extracted labels and
-          this bounded route do not demonstrate equivalence for the remaining
-          invariant or domainRules claims. Preserve
-          this linked pin as stale and keep parent dispositions unchanged because
-          claim-level routing does not constitute owner acceptance or full migration
-          reconciliation.
+          the new invariant IDs or domainRules block. LPR-CONST-009 now records the exact six PXD-035 bounded rule mappings. Other
+          cited material still has no claim-exact references to invariant statements
+          or violations, and broad §4 provenance does not establish full item-level
+          equivalence. Keep this historical pin stale; the bounded rule disposition
+          does not constitute owner acceptance of all 34 items, does not demonstrate
+          semantic equivalence, and does not accept the phase.

@@ -1,0 +1,17 @@
+
+> @ check:design-conformance /home/samujjwal/Developments/ghatana-media
+> node scripts/check-media-design-conformance.mjs
+
+Media design conformance BLOCKED
+  scanned 33 product source files and 6 Explorer fixture files (1 product stylesheets; 1 fixture stylesheets), 47 canonical screen contracts
+  design governance: 4/7 Media owner decisions resolved; 3 external, independent, or source-incomplete gates remain open
+  0 product literal color(s), 666 fixture-only observations, 0 unexplained findings across 0 root causes
+  FINDING [literal-color] 666
+    apps/media-experience-explorer/src/styles.css:9 — #1f2937 is directly authored in CSS (explorer-chrome-or-fixture-only-not-product-authority)
+    apps/media-experience-explorer/src/styles.css:10 — #f5f6f8 is directly authored in CSS (explorer-chrome-or-fixture-only-not-product-authority)
+    apps/media-experience-explorer/src/styles.css:48 — #0d3f73 is directly authored in CSS (explorer-chrome-or-fixture-only-not-product-authority)
+    … 663 additional source observation(s)
+  BLOCKER design-governance gate shared-artifact-binding remains EXTERNAL_PENDING
+  BLOCKER design-governance gate conformance-and-specialist-review remains INDEPENDENT_PENDING
+  BLOCKER design-governance gate concrete-component-bindings remains SOURCE_INCOMPLETE
+ ELIFECYCLE  Command failed with exit code 1.

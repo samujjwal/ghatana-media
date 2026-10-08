@@ -122,18 +122,18 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
     resolvedActorCount: 30,
     unresolvedActorCount: 0,
     authoredStepIds: 8,
-    authoredIntents: 0,
+    authoredIntents: 8,
     authoredViewIntents: 98,
     authoredLabels: 4,
     authoredTransitionRefArrays: 0,
-    directViewRefs: 122,
+    directViewRefs: 130,
     journeysWithOneOutcome: 5,
     journeysWithMultipleOutcomes: 25,
   });
   assert.equal(model.journeys.length, 30);
-  assert.equal(model.journeys.reduce((count, journey) => count + journey.steps.length, 0), 126);
-  assert.equal(model.journeys.find(({ id }) => id === 'J-29').steps.length, 0,
-    'J-29 source steps remain withheld because they have no grounded intent');
+  assert.equal(model.journeys.reduce((count, journey) => count + journey.steps.length, 0), 130);
+  assert.equal(model.journeys.find(({ id }) => id === 'J-29').steps.length, 4,
+    'J-29 steps project from explicit owner-selected intents and exact view links');
   assert.equal(model.journeys.filter(({ desiredOutcomeRef }) => desiredOutcomeRef).length, 5);
   const sourceActorIds = new Set(journeyActorResolutions.journeys.map(({ initiatingActorRef }) => initiatingActorRef));
   for (const journey of model.journeys) {
@@ -160,9 +160,9 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   assert.ok(model.journeys.every((journey) => journey.steps.every((step) => !contracts.get(journey.id).steps.some((sourceStep) => sourceStep.result === step.intent))),
     'step result prose is never used as intent');
   const journeyBlocker = specification.fieldMappingBlockers.find((entry) => entry.field === 'journeys');
-  assert.match(journeyBlocker?.status ?? '', /PARTIAL_SOURCE_PROJECTION_30_OF_30_JOURNEYS_126_OF_130_STEPS/u);
-  assert.ok(journeyBlocker.reasons.join(' ').includes('partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 126/130 steps'));
-  assert.match(journeyBlocker.reasons.join(' '), /step-view 122 linked\/8 unresolved/iu);
+  assert.match(journeyBlocker?.status ?? '', /PARTIAL_SOURCE_PROJECTION_30_OF_30_JOURNEYS_130_OF_130_STEPS/u);
+  assert.ok(journeyBlocker.reasons.join(' ').includes('partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 130/130 steps'));
+  assert.match(journeyBlocker.reasons.join(' '), /step-view 130 linked\/0 unresolved/iu);
   assert.match(journeyBlocker.reasons.join(' '), /step-action 18 linked\/112 unresolved/iu);
   assert.match(journeyBlocker.reasons.join(' '), /130 source transitionRef values are null and remain unresolved/u);
   assert.match(journeyBlocker.reasons.join(' '), /empty arrays are schema placeholders only|empty arrays are schema placeholders/iu);
@@ -170,14 +170,14 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.sourceCount, 30);
   assert.match(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.disposition, /PROJECTED_AS_CANDIDATE_ACTOR_REFS/u);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.p3OrderedStepCount, 130);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.projectedStepCount, 126);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.explicitSourceIntentCount, 102);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.projectedStepCount, 130);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.explicitSourceIntentCount, 106);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.linkedViewPurposeProposalOnlyCount, 24);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.omitted.length, 4);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.omitted.length, 0);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNullCount, 130);
   assert.match(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.disposition, /required schema placeholder/u);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.transitionRefsNull, 130);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.stepViewUnresolved, 8);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.stepViewUnresolved, 0);
 
   const resolvedJourney = journeyRegistry.journeys.find((entry) =>
     actorResolutionById.get(entry.id)?.initiatingActorRef === 'media.creator');

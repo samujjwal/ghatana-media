@@ -2,7 +2,7 @@
 
 **Product:** Media (`media`)
 **Artifact:** `media.pdp-1.domain-data.v1`
-**Status:** proposed canonical registries; bounded PXD-026 state-policy decisions are accepted with explicit limits; full PDP-1 semantic acceptance and independent P0-010 remain open
+**Status:** proposed canonical registries; bounded PXD-026 state policies and the six PXD-035 PDP-0 rule mappings have explicit limits; full PDP-1 semantic acceptance and independent P0-010 remain open
 
 This directory organizes domain and data semantics recorded in PDP-0 into
 machine-readable registries. PDP-0 remains the source for product truth and
@@ -19,7 +19,7 @@ are inventory counts, not completeness or semantic-acceptance claims.
 | --- | --- | --- |
 | PDP-0 domain model | `.product-experience/pdp-0-product-truth/domain-model.yaml` (1 registry; 20 proposed catalog entries under `proposedRecordCatalog`) and referenced `state-models.yaml` | PDP-0 identifies proposed responsibilities/lifecycle boundaries and says PDP-1 is the destination; it explicitly remains proposal material. It does not supply accepted object keys or implementation parity. |
 | Runtime contracts | `runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java` (1 primary contract source; 12 enums, 17 records, 7 interfaces) | Observed Java records include governance/consent, upload request/session, artifact, job request/job/lease, stream request/session/frame/ack. Generic maps and Java types do not define product meaning or cross-interface identity. |
-| TypeScript package | `libs/audio-video-types/src/contracts.ts` (1 primary contract source; package also has `src/index.ts`, `src/index.d.ts`, and tests) | Observed schemas cover artifact, upload session, operation/job, provider capability, transcription, synthesis, voice training/conversion, and multimodal requests/results. This generation differs from Java and must not be selected as canonical by presence. |
+| TypeScript package | `libs/audio-video-types/src/contracts.ts` (1 primary contract source; currently 20 exported types and 21 schemas; package also has `src/index.ts`, `src/index.d.ts`, and tests) | Observed schemas cover artifact, upload session, operation/job, provider capability, transcription, synthesis, voice training/conversion, multimodal requests/results, and a raw machine-scoped job-state observation. This generation differs from Java and must not be selected as canonical by presence. The observation preserves legacy state uncertainty; its role catalog is not runtime or wire parity. |
 | OpenAPI | `contracts/openapi/media.yaml` (OpenAPI 3.1.0, version 1.3.0; 27 path/method operations) | The spec exposes health, consent, upload/artifact, job, stream, and provider surfaces; several schemas are permissive (`additionalProperties: true`). It is an API projection, not a complete domain registry. |
 | Protobuf | Four service files: `modules/speech/stt-service/src/main/proto/stt_service.proto`, `modules/speech/tts-service/src/main/proto/tts_service.proto`, `modules/vision/vision-service/src/main/proto/vision_service.proto`, `modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto` (4 services; 43 RPC declarations; 109 message declarations and 9 enum declarations) | Observed speech, transcript/word timing, voice/profile, vision detections/boxes/frames, and multimodal results. Names and shapes are service-specific. Millisecond-suffixed fields are observations; no shared artifact-version, scene, or domain identity follows from them. |
 | Persistence models and migrations | Legacy JPA `AudioFileEntity.java` and `TranscriptionEntity.java` (2 entities); `modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql` (2 tables); `providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql` (5 tables) plus V002–V006 (5 migrations) | Storage currently represents audio files/transcriptions and runtime upload/chunk/artifact/job/stream/consent state. Keys, unique constraints, integer epochs, status checks, and soft-delete/version columns are storage mechanics; they do not settle domain cardinality, canonical version identity, or lifecycle meaning. |
@@ -184,9 +184,9 @@ every outcome. `presentation-projections.yaml` defines read-side fields and
 requires freshness, uncertainty, authorization scope, and safe actions to be
 carried from the host/domain adapter.
 
-The current operation-parity report inventories 279 identities across eight
+The current operation-parity report inventories 284 identities across eight
 surface families: 146 UI actions, 27 HTTP operations, 43 gRPC methods, CLI,
-SDK, Agent Tools, events, and related interfaces. It reports 191 unresolved
+SDK, Agent Tools, events, and related interfaces. It reports 192 unresolved
 identities and zero owner-accepted bindings. Proposed family associations do
 not eliminate source-specific gaps or establish semantic equivalence.
 
@@ -203,8 +203,15 @@ bounded non-equivalence rules for `RETRY_PENDING`/`RETRYING`,
 outcomes; exact source-to-canonical mappings and the job, attempt, and delivery
 uses of `OUTCOME_UNKNOWN`, `RECONCILING`, and `PARTIALLY_SUCCEEDED` remain
 unresolved. The current TypeScript
-`CANCELLING` to `RUNNING` mapping is recorded as a lossy implementation
-observation, not adopted as product or presentation meaning. OpenAPI's
+`CANCELLING` to `RUNNING` mapping is recorded as a lossy historical
+implementation observation, not adopted as product or presentation meaning.
+The local TypeScript compatibility helper now preserves `CANCELLING` and
+`RETRYING` as raw, machine-scoped observations with null canonical state, and
+rejects unsupported runtime inputs. Its typed role catalog records the new
+observation schema/type; this is source-role evidence only, not runtime-current
+proof or cross-interface parity. The sibling Data Cloud adapter still maps
+`RETRYING` to `RUNNING` and `BLOCKED`/`REQUIRES_REVIEW` to `FAILED`; that change
+requires its external owner. OpenAPI's
 `PlatformOperation.state` enum is narrower and differently named; no mapping
 is inferred. No matching lifecycle state enum was found in the inspected active
 Media protobuf service files; that absence is not a support decision.

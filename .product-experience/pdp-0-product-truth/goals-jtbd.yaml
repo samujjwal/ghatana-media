@@ -468,3 +468,72 @@ businessIntents:
   - id: media.business.safe-recoverable-operations
     description: Long-running jobs remain observable and safely reconcilable without blind replay or misleading cancellation outcomes.
     measuredBy: Applicable job operations with stable identity, idempotency/fencing, recovery and unknown-finality proof.
+
+# P0-06 measurement contracts. These make each existing measuredBy statement
+# falsifiable without inventing a baseline, numeric target, or qualification
+# result. A public ProductDefinition.successMeasures projection may carry the
+# exact description and criterion; this Media authority retains the richer
+# applicability and evidence semantics.
+successMeasureContracts:
+  status: source-defined-measurement-semantics; coordinator-projection-review-pending; baseline-and-qualification-not-evaluated
+  records:
+    - id: media.business.reuse-media-capabilities.measure
+      businessIntentRef: media.business.reuse-media-capabilities
+      description: Eligible consumer workflows using versioned public contracts and preserved domain finality.
+      metric: distinct-consumer-workflows-with-an-admitted-versioned-public-contract-and-passing-domain-finality-conformance
+      unit: consumer-workflow
+      denominator: Media consumer workflows selected for the measured release profile
+      applicability: Only workflows admitted for the named release profile and public contract version; internal fixtures alone do not count as admitted consumers.
+      acceptanceCriterion: Every counted workflow identifies its contract version and has evidence that the consumer preserves the bound Media operation's finality distinctions.
+      evidenceMethod: versioned-consumer-inventory-plus-consumer-contract-conformance-result
+      baseline: NOT_EVALUATED; no admitted consumer inventory is recorded by this product definition.
+      target: NOT_SET; set only after a named release profile and qualified baseline are selected.
+      qualification: NOT_EVALUATED
+      sourceRefs:
+        - 'businessIntents[media.business.reuse-media-capabilities].measuredBy'
+        - .product-experience/pdp-1-domain-data/action-contracts.yaml#/bindingRules
+    - id: media.business.trustworthy-versioned-outputs.measure
+      businessIntentRef: media.business.trustworthy-versioned-outputs
+      description: Applicable output contracts specifying exact identity, provenance, rights state and delivery acknowledgment.
+      metric: applicable-output-contracts-that-specify-exact-version-identity-provenance-current-rights-state-and-delivery-acknowledgment-semantics
+      unit: output-contract
+      denominator: Output-producing operation contracts applicable to the named profile
+      applicability: An output is counted only when its operation can produce or deliver an output under the named profile; read-only and non-output operations are outside the denominator with an explicit rationale.
+      acceptanceCriterion: Each counted contract defines immutable output identity and lineage, represents rights state separately from user attestation, and distinguishes result completion from recipient acknowledgment.
+      evidenceMethod: source-contract-audit-plus-applicable-version-lineage-and-delivery-contract-conformance
+      baseline: NOT_EVALUATED; applicable operations and runtime evidence have not been qualified as a complete population.
+      target: NOT_SET; no numeric target is asserted before profile applicability and a qualified baseline are established.
+      qualification: NOT_EVALUATED
+      sourceRefs:
+        - 'businessIntents[media.business.trustworthy-versioned-outputs].measuredBy'
+        - .product-experience/pdp-1-domain-data/state-adjudication.yaml#/ownerAcceptedPolicyDecisions/completedRule
+    - id: media.business.bounded-provider-execution.measure
+      businessIntentRef: media.business.bounded-provider-execution
+      description: Admitted execution profiles with qualified bounds and classified unsupported cases.
+      metric: selected-execution-profiles-with-owner-defined-input-resource-policy-and-failure-bounds-and-qualified-unsupported-case-dispositions
+      unit: execution-profile
+      denominator: Profiles selected for the named release profile
+      applicability: A profile is counted only after its provider, model or codec dependencies and exact execution environment are selected; unselected profiles are not implicitly supported.
+      acceptanceCriterion: Each counted profile has explicit input and resource bounds, rights and policy preconditions, failure/finality behavior, and source-backed unsupported cases, with qualification evidence for every claimed runtime bound.
+      evidenceMethod: profile-contract-review-plus-versioned-provider-qualification-record
+      baseline: NOT_EVALUATED; no complete set of admitted execution profiles is recorded.
+      target: NOT_SET; profile selection and qualified observations are prerequisites to a numeric target.
+      qualification: NOT_EVALUATED
+      sourceRefs:
+        - 'businessIntents[media.business.bounded-provider-execution].measuredBy'
+        - .product-experience/pdp-0-product-truth/qualification-policy.yaml
+    - id: media.business.safe-recoverable-operations.measure
+      businessIntentRef: media.business.safe-recoverable-operations
+      description: Applicable job operations with stable identity, idempotency/fencing, recovery and unknown-finality proof.
+      metric: applicable-long-running-job-operations-with-stable-logical-and-attempt-identities-fenced-effects-defined-recovery-and-unknown-outcome-reconciliation
+      unit: job-operation
+      denominator: Long-running job operations exposed by the named release profile
+      applicability: Include only operations that can outlive the initiating request; synchronous read-only queries and operations excluded by the selected profile are not counted.
+      acceptanceCriterion: Each counted operation defines stable job and attempt identity, duplicate/retry behavior, stale-worker fencing, cancellation finality, recovery actions, and an authoritative unknown-outcome reconciliation path.
+      evidenceMethod: operation-contract-audit-plus-failure-injection-and-reconciliation-results
+      baseline: NOT_EVALUATED; current proposals do not constitute runtime proof.
+      target: NOT_SET; establish after the applicable operation set and qualified runtime profile are selected.
+      qualification: NOT_EVALUATED
+      sourceRefs:
+        - 'businessIntents[media.business.safe-recoverable-operations].measuredBy'
+        - .product-experience/pdp-1-domain-data/state-adjudication.yaml#/invariantsProposed

@@ -35,14 +35,14 @@ test("migration master-plan semantic ledger preserves the stale pin and accounts
   assert.match(ledger.reconciliationStatus, /partial/u);
 
   assert.deepEqual(review.counts.uniqueContentUnits, 1340);
-  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, ledger.unchangedReviewCounts.unresolved);
-  assert.equal(review.counts.blockStructureProposalCounts.MIXED_REQUIRES_DECOMPOSITION, ledger.unchangedReviewCounts.mixedRequiresDecomposition);
-  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, ledger.unchangedReviewCounts.ownerReviewed);
-  assert.deepEqual(ledger.unchangedReviewCounts, {
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, ledger.reviewCountsAfterOwnerDispositions.unresolved);
+  assert.equal(review.counts.blockStructureProposalCounts.MIXED_REQUIRES_DECOMPOSITION, ledger.reviewCountsAfterOwnerDispositions.mixedRequiresDecomposition);
+  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, ledger.reviewCountsAfterOwnerDispositions.ownerReviewed);
+  assert.deepEqual(ledger.reviewCountsAfterOwnerDispositions, {
     uniqueUnits: 1340,
-    unresolved: 263,
+    unresolved: 260,
     mixedRequiresDecomposition: 124,
-    ownerReviewed: 0,
+    ownerReviewed: 3,
   });
 
   const items = new Map(review.items.map((item) => [item.itemId, item]));
@@ -139,7 +139,7 @@ test("migration source diff hunks have exact, non-accepting coverage", () => {
   assert.ok(added <= addedLines && deleted <= deletedLines, "nonblank line totals exclude blank additions and deletions");
   assert.equal(ledger.sourcePinDisposition, "keep-stale");
   assert.match(ledger.reconciliationStatus, /partial/u);
-  assert.deepEqual(ledger.unchangedReviewCounts, { uniqueUnits: 1340, unresolved: 263, mixedRequiresDecomposition: 124, ownerReviewed: 0 });
+  assert.deepEqual(ledger.reviewCountsAfterOwnerDispositions, { uniqueUnits: 1340, unresolved: 260, mixedRequiresDecomposition: 124, ownerReviewed: 3 });
   assert.equal(review.sourcePin.sha256, ledger.historicalSource.sha256);
 });
 
@@ -155,7 +155,7 @@ test("narrow metadata slices preserve the mixed header while bounded source clas
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256, "the historical source pin stays stale and unchanged");
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.match(review.blockStructureProposalAuthority, /Proposal-only classification/u, "no reviewed slice upgrades proposal-only block structure classifications");
   assert.equal(items.get("MPSEM-0001").classification, "UNRESOLVED", "metadata slicing does not resolve the containing mixed header block");
   assert.equal(items.get("MPSEM-0007").classification, "EVIDENCE_REFERENCE", "the exact reading guide is classified only as document evidence");
@@ -199,7 +199,7 @@ test("narrow metadata slices preserve the mixed header while bounded source clas
   assert.equal(navigation.exactText, source[27].trim());
 });
 
-test("delegated non-normative classification is limited to the exact approved 86 item IDs", () => {
+test("PXD-033 remains bounded to its original exact 86 item IDs", () => {
   const review = readYaml(reviewPath);
   const items = new Map(review.items.map((item) => [item.itemId, item]));
   const decision = review.ownerDecisionOverlay.nonNormativeClassificationDecision;
@@ -223,22 +223,23 @@ test("delegated non-normative classification is limited to the exact approved 86
   assert.equal(decision.acceptanceEffect, "none");
   assert.match(decision.classificationEffect, /do not imply semantic equivalence or task completion/u);
   assert.equal(decision["p0-03"], "remains open");
-  assert.equal(review.ownerDecisionOverlay.ownerClassifiedNonNormativeBlockCount, 86);
+  assert.equal(approved.size, 86);
+  assert.equal(review.ownerDecisionOverlay.ownerClassifiedNonNormativeBlockCount, 89);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0, "no semantic block is accepted by this classification");
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
-  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 260);
   assert.equal(review.counts.uniqueUnitsByClassification.EVIDENCE_REFERENCE, 163);
-  assert.equal(review.counts.uniqueUnitsByClassification.EXECUTION_ONLY, 783);
+  assert.equal(review.counts.uniqueUnitsByClassification.EXECUTION_ONLY, 786);
   assert.deepEqual(review.counts.blockStructureProposalCounts, {
     MIXED_REQUIRES_DECOMPOSITION: 124,
     NO_NORMATIVE_CONTENT: 6,
     SINGLE_SEMANTIC_CLASS: 133,
     total: 263,
-    ownerReviewed: 0,
-    ownerClassifiedNonNormative: 86,
+    ownerReviewed: 3,
+    ownerClassifiedNonNormative: 89,
   });
-  assert.deepEqual(review.sourceChangeLedger.unchangedReviewCounts, {
-    uniqueUnits: 1340, unresolved: 263, mixedRequiresDecomposition: 124, ownerReviewed: 0,
+  assert.deepEqual(review.sourceChangeLedger.reviewCountsAfterOwnerDispositions, {
+    uniqueUnits: 1340, unresolved: 260, mixedRequiresDecomposition: 124, ownerReviewed: 3,
   });
   for (const [ids, classification] of [[executionOnly, "EXECUTION_ONLY"], [evidenceReference, "EVIDENCE_REFERENCE"]]) {
     for (const id of ids) {
@@ -254,7 +255,7 @@ test("delegated non-normative classification is limited to the exact approved 86
       assert.ok(item.sourceLocations.length, `${id} has exact historical source lines`);
     }
   }
-  for (const id of ["MPSEM-0001", "MPSEM-0044", "MPSEM-0062", "MPSEM-0064", "MPSEM-0066", "MPSEM-0301"]) {
+  for (const id of ["MPSEM-0001", "MPSEM-0062", "MPSEM-0066"]) {
     assert.equal(items.get(id).classification, "UNRESOLVED", `${id} remains semantically unresolved`);
     assert.equal(items.get(id).blockStructureProposal.classification, "NO_NORMATIVE_CONTENT", `${id} retains its original proposal only`);
     assert.equal(items.get(id).blockStructureProposal.status, "PROPOSAL_ONLY");
@@ -263,6 +264,44 @@ test("delegated non-normative classification is limited to the exact approved 86
   assert.equal(review.items.find(({ itemId }) => itemId === "MPSEM-0001").classification, "UNRESOLVED");
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256);
   assert.equal(review.sourceChangeLedger.sourcePinDisposition, "keep-stale");
+});
+
+test("PXD-039 adds only three exact execution-only lead-ins and reconciles the 89/260 counts", () => {
+  const review = readYaml(reviewPath);
+  const baselineDecision = review.ownerDecisionOverlay.nonNormativeClassificationDecision;
+  const baselineIds = new Set([
+    ...baselineDecision.itemIds.executionOnly,
+    ...baselineDecision.itemIds.evidenceReference,
+  ]);
+  const decision = review.ownerDecisionOverlay.additionalBoundedClassificationDecisions
+    .find(({ decisionRef }) => decisionRef === "MEDIA-OWNER-2026-10-08-PXD039");
+  assert.ok(decision);
+  assert.equal(decision.classification, "EXECUTION_ONLY");
+  assert.equal(decision.acceptanceEffect, "none");
+  const ids = decision.itemIds.map(({ id }) => id);
+  assert.deepEqual(ids, ["MPSEM-0044", "MPSEM-0064", "MPSEM-0301"]);
+  assert.equal(new Set(ids).size, 3);
+  assert.ok(ids.every((id) => !baselineIds.has(id)), "PXD-039 does not duplicate PXD-033 IDs");
+  const plan = readFileSync(resolve(root, sourcePath), "utf8").split("\n");
+  const sourceSha = createHash("sha256").update(readFileSync(resolve(root, sourcePath))).digest("hex");
+  for (const entry of decision.itemIds) {
+    assert.equal(entry.sourceRef, `${sourcePath}@${sourceSha}`);
+    assert.equal(entry.currentSourceLines[1], entry.currentSourceLines[0]);
+    assert.equal(plan[entry.currentSourceLines[0] - 1], entry.exactText);
+    const item = review.items.find(({ itemId }) => itemId === entry.id);
+    assert.equal(item.classification, "EXECUTION_ONLY");
+    assert.equal(item.blockStructureProposal.decisionRef, decision.decisionRef);
+    assert.equal(item.blockStructureProposal.status, "BOUNDED_OWNER_CLASSIFIED_PXD039");
+    assert.match(item.blockStructureProposal.ownerReview, /following|adjacent/iu);
+  }
+  assert.equal(baselineIds.size + ids.length, 89);
+  assert.equal(review.ownerDecisionOverlay.ownerClassifiedNonNormativeBlockCount, 89);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 260);
+  assert.equal(review.counts.uniqueUnitsByClassification.EXECUTION_ONLY, 786);
+  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 3);
+  assert.equal(review.counts.blockStructureProposalCounts.ownerClassifiedNonNormative, 89);
+  assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0, "classification does not accept product semantics");
 });
 
 test("MPSEM-0002 slogan claims have bounded proposal mappings without resolving the parent block", () => {
@@ -286,8 +325,8 @@ test("MPSEM-0002 slogan claims have bounded proposal mappings without resolving 
   assert.equal(items.get("MPSEM-0002").blockStructureProposal.classification, "MIXED_REQUIRES_DECOMPOSITION");
   assert.equal(items.get("MPSEM-0002").blockStructureProposal.status, "PROPOSAL_ONLY");
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
-  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 0);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
+  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 3);
   assert.equal(claims.length, 7);
   assert.equal(new Set(claims.map(({ claimId }) => claimId)).size, 7);
   assert.ok(claims.every(({ reviewStatus, historicalSourceLines, currentSourceLines, acceptanceEffect }) => reviewStatus === "PROPOSAL_ONLY" && acceptanceEffect === "none" && historicalSourceLines[0] === 14 && currentSourceLines[0] === 16));
@@ -342,7 +381,7 @@ test("P0-003 animation scope is crosswalked as a bounded slice while adjacent cl
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256, "the historical source pin remains stale");
   assert.equal(items.get("MPSEM-0713").classification, "EXECUTION_ONLY", "claim slicing does not change the parent block classification");
   assert.equal(items.get("MPSEM-0713").classificationBasis.includes("embedded unique product semantics still require separate review"), true);
-  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 263);
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 260);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
   assert.equal(claims.length, 5);
 
@@ -410,7 +449,7 @@ test("MSC-04 path claims reconcile only source-supported PDP and Explorer identi
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256, "the stale historical pin is preserved");
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.deepEqual(review.counts.uniqueContentUnits, 1340);
 
   const reuse = claims.get("MPSEM-0118-C01");
@@ -489,9 +528,9 @@ test("MSC-05 source-scope claims map explicit PDP-0 and Explorer records while l
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256, "the stale source pin remains unchanged");
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.equal(review.counts.uniqueContentUnits, 1340);
-  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 0);
+  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 3);
   assert.deepEqual(review.sourceChangeLedger.clusters.find(({ id }) => id === "MSC-05").historicalLineSpans, [357, 359, 361]);
   assert.deepEqual(review.sourceChangeLedger.clusters.find(({ id }) => id === "MSC-05").currentLineSpans, [364, 366, 368]);
 
@@ -601,9 +640,9 @@ test("MSC-07 routes scene validation, budgets, boundary, and locale claims only 
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256, "the source pin remains stale");
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.equal(review.counts.uniqueContentUnits, 1340);
-  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 0);
+  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 3);
 
   const coordinates = expectClaim("MPSEM-0261-C01", 577, 584);
   assert.equal(coordinates.mappingStatus, "OWNER_ROUTE_CROSSWALKED_PENDING_DOMAIN_VALIDATION");
@@ -696,9 +735,9 @@ test("MSC-08 separates PDP-0 path identity from changed completion criteria", ()
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256, "the master-plan source pin stays stale");
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.equal(review.counts.uniqueContentUnits, 1340);
-  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 0);
+  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 3);
   assert.equal(items.get("MPSEM-0478").classification, "EXECUTION_ONLY", "the stored path-source item is unchanged");
   assert.equal(items.get("MPSEM-0499").classification, "EXECUTION_ONLY", "the stored pass-criteria item is unchanged");
   assert.ok(items.get("MPSEM-0478").text.includes("phase-0-product-truth/"), "stored source text remains historical");
@@ -795,7 +834,7 @@ test("MSC-10 viewport fixture wording maps only to the proposed PDP-2 responsive
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.equal(review.counts.uniqueContentUnits, 1340);
   assert.equal(review.items.find(({ itemId }) => itemId === "MPSEM-0504").classification, "EXECUTION_ONLY");
   assert.deepEqual(claim.historicalSourceLines, [1215, 1215]);
@@ -834,7 +873,7 @@ test("MSC-10 crosswalks the legacy design-artifact names to current PDP-2 paths 
 
   assert.equal(review.sourceChangeLedger.sourcePinDisposition, "keep-stale");
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.deepEqual(review.counts.blockStructureProposalCounts.MIXED_REQUIRES_DECOMPOSITION, 124);
   assert.equal(review.items.find(({ itemId }) => itemId === "MPSEM-0501").classification, "EXECUTION_ONLY");
   assert.equal(claims.size, names.length);
@@ -874,7 +913,7 @@ test("MSC-11 maps only the P1-001 workstream label to the registered PDP-2 autho
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.equal(review.counts.uniqueContentUnits, 1340);
   assert.equal(review.items.find(({ itemId }) => itemId === "MPSEM-0636").classification, "EXECUTION_ONLY");
   assert.deepEqual(claim.historicalSourceLines, [1430, 1430]);
@@ -914,7 +953,7 @@ test("MSC-12 crosswalks only the GOV-002 reuse-register path and stable artifact
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.equal(review.counts.uniqueContentUnits, 1340);
   assert.equal(review.items.find(({ itemId }) => itemId === "MPSEM-0683").classification, "EXECUTION_ONLY");
   assert.deepEqual(claim.historicalSourceLines, [1492, 1492]);
@@ -949,7 +988,7 @@ test("MSC-14 pins the legacy Phase 0 crosswalk to the registered PDP-0 authority
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.equal(review.counts.uniqueContentUnits, 1340);
   assert.equal(review.items.find(({ itemId }) => itemId === "MPSEM-1210").classification, "EVIDENCE_REFERENCE", "Appendix A task-ID crosswalk remains reference-only");
   assert.deepEqual(claim.historicalSourceLines, [2611, 2611]);
@@ -982,7 +1021,7 @@ test("MSC-15 crosswalks the four-authority taxonomy while preserving the broader
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.equal(review.counts.uniqueContentUnits, 1340);
   assert.equal(review.items.find(({ itemId }) => itemId === "MPSEM-0017").classification, "UNRESOLVED");
   assert.deepEqual(claim.historicalSourceLines, [89, 89]);
@@ -1013,7 +1052,7 @@ test("MSC-13 maps only the retained P2 task group to the registered PDP-3 author
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.equal(review.counts.uniqueContentUnits, 1340);
   assert.equal(review.items.find(({ itemId }) => itemId === "MPSEM-1157").classification, "EXECUTION_ONLY");
   assert.deepEqual(claim.historicalSourceLines, [2534, 2534]);
@@ -1045,8 +1084,8 @@ test("P0-003 future relabeling cannot remove a capability from the preserved sco
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256, "the plan pin remains stale");
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
-  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 260);
   assert.equal(items.get("MPSEM-0170").classification, "UNRESOLVED", "the bounded claim does not resolve its mixed parent block");
   assert.equal(items.get("MPSEM-0170").blockStructureProposal.status, "PROPOSAL_ONLY");
   assert.equal(claim.sourcePinRef, `docs/migration/expert-reviewed-master-plan.md@${review.sourceChangeLedger.historicalSource.commit}`);
@@ -1084,9 +1123,9 @@ test("MSC-07 erasure routing is crosswalked while proposed state and effect sema
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256, "the master-plan pin remains stale");
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
-  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 263);
-  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 0);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 260);
+  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 3);
   assert.equal(items.get("MPSEM-0366").classification, "UNRESOLVED", "the bounded owner route does not resolve the mixed item");
   assert.deepEqual(claim.historicalSourceLines, [820, 820]);
   assert.deepEqual(claim.currentSourceLines, [827, 827]);
@@ -1125,8 +1164,8 @@ test("MSC-02 bounds the changed DEFINE_PRODUCT scope without resolving its mixed
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256, "the source pin stays stale");
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
-  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 260);
   assert.equal(items.get("MPSEM-0005").classification, "UNRESOLVED");
   assert.equal(items.get("MPSEM-0005").blockStructureProposal.status, "PROPOSAL_ONLY");
   assert.equal(claims.length, 3);
@@ -1179,10 +1218,10 @@ test("MSC-03 authority rows are source-pinned to PDP candidates without acceptin
 
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256, "the master-plan source pin remains stale");
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
-  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
+  assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 260);
   assert.equal(review.counts.blockStructureProposalCounts.MIXED_REQUIRES_DECOMPOSITION, 124);
-  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 0);
+  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 3);
   assert.equal(claims.length, expected.size);
   assert.equal(unresolved.length, expected.size);
   for (const claim of claims) {
@@ -1329,9 +1368,9 @@ test("MSC-03 canonical domain ownership slice is supported without phase accepta
   assert.match(truth, /PDP-1 owns canonical\ndomain objects, values/u);
   assert.match(claim.rationale, /record-level extraction, specialist review, and PDP-1 acceptance remain open/u);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
-  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 263);
+  assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount, 260);
   assert.deepEqual(review.counts.uniqueContentUnits, 1340);
-  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 0);
+  assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 3);
   assert.equal(review.sourcePin.sha256, review.sourceChangeLedger.historicalSource.sha256);
 });
 
@@ -1367,11 +1406,11 @@ test("MSC-03 four-phase taxonomy diff has bounded owner-routing reconciliation o
   assert.ok(hunk.disposition.startsWith("partially reconciled; bounded phase-owner routing claims supported"));
   assert.equal(hunk.acceptanceEffect, "none");
   assert.equal(review.sourceChangeLedger.sourcePinDisposition, "keep-stale");
-  assert.deepEqual(review.sourceChangeLedger.unchangedReviewCounts, {
+  assert.deepEqual(review.sourceChangeLedger.reviewCountsAfterOwnerDispositions, {
     uniqueUnits: 1340,
-    unresolved: 263,
+    unresolved: 260,
     mixedRequiresDecomposition: 124,
-    ownerReviewed: 0,
+    ownerReviewed: 3,
   });
 });
 
@@ -1405,11 +1444,11 @@ test("MSC-10 PDP-3 upstream input routing is decomposed without accepting the in
     assert.equal(claim.acceptanceEffect, "none");
     assert.ok(claim.rationale.includes("only"));
   }
-  assert.deepEqual(ledger.unchangedReviewCounts, {
+  assert.deepEqual(ledger.reviewCountsAfterOwnerDispositions, {
     uniqueUnits: 1340,
-    unresolved: 263,
+    unresolved: 260,
     mixedRequiresDecomposition: 124,
-    ownerReviewed: 0,
+    ownerReviewed: 3,
   });
 });
 
@@ -1443,11 +1482,11 @@ test("MSC-15 routes semantic edits to the owning authority without resolving the
   assert.equal(ledger.clusters.find(({ id }) => id === "MSC-15").disposition, "source-scope change");
   assert.equal(review.items.find(({ itemId }) => itemId === "MPSEM-1336").classification, "EXECUTION_ONLY");
   assert.equal(ledger.sourcePinDisposition, "keep-stale");
-  assert.deepEqual(ledger.unchangedReviewCounts, {
+  assert.deepEqual(ledger.reviewCountsAfterOwnerDispositions, {
     uniqueUnits: 1340,
-    unresolved: 263,
+    unresolved: 260,
     mixedRequiresDecomposition: 124,
-    ownerReviewed: 0,
+    ownerReviewed: 3,
   });
   assert.match(claim.rationale, /does not .*accept the containing historical task block/u);
 });

@@ -1,0 +1,15 @@
+
+> @ test:lifecycle-consumer-artifact /home/samujjwal/Developments/ghatana-media
+> node scripts/test-media-lifecycle-admission-artifact.mjs
+
+[WARN] Shared workspace lockfile detected but configuration forces legacy deploy implementation.
+Packages are copied from the content-addressable store to the virtual store.
+  Content-addressable store is at: /home/samujjwal/.local/share/pnpm/store/v11
+  Virtual store is at:             ../../../../tmp/media-lifecycle-consumer-dW42TB/installed/node_modules/.pnpm
+✓ Lockfile passes supply-chain policies (verified 1d ago)
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 25, reused 0, downloaded 0, added 0
+Progress: resolved 98, reused 0, downloaded 0, added 0, done
+.                                        |  +73 +++++++
+Evidence Contracts consumer admission passed (5 source files, zero errors) for PDP-0 through PDP-3; Media inputs=PENDING, obligations=344, consumer provider bindings=0, recorded blockers=3; Lifecycle provider admission, receipts, currentness, and closure remain external.
+Lifecycle consumer admission passed from an isolated installed Evidence Contracts artifact.

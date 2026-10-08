@@ -7,8 +7,8 @@
     ".product-experience/pdp-1-domain-data/operations.yaml"
   ],
   "denominators": {
-    "exportedTypes": 19,
-    "publicSchemas": 20
+    "exportedTypes": 20,
+    "publicSchemas": 21
   },
   "runtimeSupportImplied": false,
   "semanticOperationParity": "UNRESOLVED",
@@ -124,6 +124,17 @@
     {
       "schema": "MediaJobStateSchema",
       "type": "MediaJobState",
+      "role": "DOMAIN_STATE_PROJECTION",
+      "pdp1Refs": [
+        "media.domain.processing-job",
+        "media.operation.job-lifecycle"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
+    },
+    {
+      "schema": "MediaJobStateObservationSchema",
+      "type": "MediaJobStateObservation",
       "role": "DOMAIN_STATE_PROJECTION",
       "pdp1Refs": [
         "media.domain.processing-job",
@@ -447,6 +458,15 @@
         "role": "ACCEPTANCE_ACK",
         "semanticRef": "media.operation.job-lifecycle",
         "reason": "acceptance receipt only; no queued/dispatch/completion proof",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "MediaJobStateObservation",
+        "schema": "MediaJobStateObservationSchema",
+        "role": "STATE_PROJECTION",
+        "semanticRef": "media-job",
+        "reason": "raw state observation preserves machine scope and legacy uncertainty; no runtime currentness or cross-machine equivalence claim",
         "source": "libs/audio-video-types/src/contracts.ts",
         "admission": "SOURCE_ROLE_ONLY"
       }

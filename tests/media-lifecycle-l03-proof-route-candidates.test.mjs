@@ -76,14 +76,14 @@ function validateCandidateRoutes(routes, obligations) {
   return routeIds.size;
 }
 
-test('records exact 319-obligation authoritative observer/oracle gap and source-resolvable candidates only', () => {
+test('records exact 344-obligation authoritative observer/oracle gap and source-resolvable candidates only', () => {
   const obligations = readJson('config/closure/media-product-definition/obligations.json');
   const candidates = readJson('config/closure/media-product-definition/l03-proof-route-candidates.json');
-  assert.equal(obligations.length, 319);
+  assert.equal(obligations.length, 344);
   const missingObserver = obligations.filter(({ observerIds }) => !observerIds?.length);
   const missingOracle = obligations.filter(({ oracleIds }) => !oracleIds?.length);
-  assert.equal(missingObserver.length, 319, 'every current authoritative observer route remains missing');
-  assert.equal(missingOracle.length, 319, 'every current authoritative oracle route remains missing');
+  assert.equal(missingObserver.length, 344, 'every current authoritative observer route remains missing');
+  assert.equal(missingOracle.length, 344, 'every current authoritative oracle route remains missing');
   assert.equal(candidates.status, 'CANDIDATES_ONLY_NOT_LIFECYCLE_ADMITTED');
   assert.equal(validateCandidateRoutes(candidates.routes, obligations), 5);
   const jobRoute = candidates.routes.find(({ id }) => id === 'media.l03.candidate.production-job-idempotency');
@@ -126,11 +126,11 @@ test('documents why current L-02 simulation links do not yet have L-03 observer/
   assert.equal(candidates.l02CaseLinkReview.obligationDenominator, obligations.length);
   assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount,
     obligations.length - linkedObligationIds.size);
-  assert.equal(obligations.length, 319, 'the authoritative denominator remains 319');
-  assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount, 312);
+  assert.equal(obligations.length, 344, 'the authoritative denominator remains 344');
+  assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount, 337);
   assert.equal(candidates.l02CaseLinkReview.candidateRouteCount, 0);
   assert.equal(candidates.l02CaseLinkReview.status, 'NO_CASE_SPECIFIC_OBSERVER_OR_ORACLE_CANDIDATE_IDENTIFIED');
-  assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_319');
+  assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_344');
   assert.ok(candidates.l02CaseLinkReview.missingSemantics[0].includes('The linked declarations'));
   assert.ok(candidates.l02CaseLinkReview.missingSemantics[1].includes('the linked simulation assertions'));
   assert.ok(linkedTestPaths.size > 0 && [...linkedTestPaths].every((sourcePath) =>

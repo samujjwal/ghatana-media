@@ -4,12 +4,13 @@
 acceptance is implied.
 
 This crosswalk compares the observed `document-intelligence.v1` TypeScript
-client with Media's existing OCR provider boundary. It is a compatibility aid
-for a future owner-reviewed adapter. It does not publish a Media adapter,
-qualify a Document Intelligence provider, or change the MDI-001 ownership
-boundary. Generic parsing, OCR execution, provider admission, and qualification
-remain Document Intelligence responsibilities; Media retains its scene and
-temporal meaning.
+client with Media's OCR provider boundary. A thin, source/version-aware scene
+text adapter candidate now exists at
+[`scene-text-adapter.ts`](../../libs/audio-video-client/src/scene-text-adapter.ts).
+It does not embed OCR, publish or install the Document Intelligence client,
+qualify a provider, or change the MDI-001 ownership boundary. Generic parsing,
+OCR execution, provider admission, and qualification remain Document
+Intelligence responsibilities; Media retains scene and temporal meaning.
 
 ## Candidate field correspondence
 
@@ -48,13 +49,27 @@ Gharbatai consumer. Those source facts do not establish an immutable published
 artifact, release binding, consumer parity, qualification, deployment, or
 Document Intelligence owner acceptance.
 
-Before implementing a runtime adapter, obtain owner-approved answers and
-fixtures for: Media request-limit to worker-limit mapping; tenant and consent
-enforcement; page/frame scope; language and source-format admission; confidence
-and reading-order policy; model identity requirements; UTF-16 evidence-span
-handling; cancellation generation storage; and error/terminal-state mapping.
-Then qualify the public artifact and consumer binding under MDI-001 without
-changing accepted consumer contracts or activation state.
+The adapter candidate binds each call to the reported Document Intelligence
+protocol and worker capability versions, exact catalog provider/version,
+Media-supplied expected model identity, source artifact/version, and frame ID
+and timestamp. It checks provider readiness/promotion, source media type and
+language against both caller policy and provider catalog, response correlation,
+single-page image scope, normalized geometry, and required confidence/model
+identity. It preserves wire sequence only as `wireOrdinal`; it does not infer
+reading order. Callers must provide explicit worker-limit names/units; no
+default mapping from Media limits is invented.
+
+This is implementation of a typed, fail-closed *candidate boundary*. It is not
+an admitted runtime binding: the current package is still a Media SNAPSHOT and
+has no dependency on the public Document Intelligence package. Tenant and
+consent enforcement, policy propagation, approved page/frame and confidence
+semantics, producer error/terminal-state mapping, and public artifact
+compatibility remain unresolved. The candidate output carries source/time
+identity outside the DI response; it does not claim DI observed or validated
+those Media fields. Before enabling this adapter in a deployed consumer, obtain
+owner-approved mappings and fixtures for those gaps, then qualify the immutable
+public artifact and consumer under MDI-001 without changing accepted consumer
+contracts or activation state.
 
 ## Source basis
 

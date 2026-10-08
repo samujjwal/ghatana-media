@@ -791,6 +791,103 @@ recordedHumanDecisionInputs:
     - Shared package/component approval or independent accessibility/visual review
     - PDP-3 or any other PDP phase acceptance, Lifecycle currentness/receipts, or phase closure
 
+- id: ACCEPT-INPUT-MEDIA-OWNER-NONNORMATIVE-20261008
+  phaseTask: P0-03
+  decisionInput: accepted-bounded-classification-only
+  decisionSource: .product-experience/decision-log.md#PXD-033
+  acceptedScope:
+    - Only the exact 86 item IDs under migration-semantics-review.yaml ownerDecisionOverlay.nonNormativeClassificationDecision; 18 execution-only and 68 evidence references.
+  evidenceRefs:
+    - .product-experience/pdp-0-product-truth/migration-semantics-review.yaml
+    - tests/media-migration-semantics-ledger.test.mjs
+  exclusions:
+    - Semantic equivalence, normative claim extraction, master-plan pin acceptance, task completion, independent review, and phase closure.
+
+- id: ACCEPT-INPUT-MEDIA-OWNER-INTERNAL-VALIDATION-20261008
+  phaseTask: R-05
+  decisionInput: accepted-reference-profile-only
+  decisionSource: .product-experience/decision-log.md#PXD-034
+  sourceOfDecision: explicit-user-delegation-to-review-and-authorize-appropriate-Media-owner-decisions
+  decisionDate: '2026-10-08'
+  acceptedScope:
+    - Version 1 INTERNAL_VALIDATION_ONLY reference profile and production admission checklist.
+    - Local source, contract, fixture and isolated test-double validation; dependencies and external effects remain NOT_ADMITTED.
+  evidenceRefs:
+    - config/release/internal-validation-only.json
+    - docs/qualification/R-05-release-profile-admission.md
+    - tests/media-release-profile.test.mjs
+  exclusions:
+    - Immutable release candidate, license approval, model/codec/provider qualification, commercial publication, deployment, cutover, independent review, Lifecycle receipts, and phase closure.
+
+- id: ACCEPT-INPUT-MEDIA-OWNER-RULES-MEASURES-20261008
+  phaseTask: P0-05-and-P0-06
+  decisionInput: accepted-bounded-definition-mappings-only
+  decisionSource: .product-experience/decision-log.md#PXD-035
+  acceptedScope:
+    - Six exact PDP-1 accepted-policy projections in constitution.yaml; no proposed machine or transition rules.
+    - Four measurement definitions in goals-jtbd.yaml; targets NOT_SET, baselines and qualification NOT_EVALUATED.
+  evidenceRefs:
+    - .product-experience/pdp-0-product-truth/constitution.yaml
+    - .product-experience/pdp-0-product-truth/goals-jtbd.yaml
+    - .product-experience/pdp-1-domain-data/state-adjudication.yaml
+  exclusions:
+    - Exact capability/profile crosswalk completion, calibration, qualified runtime results, independent review, Lifecycle receipts and phase closure.
+
+- id: ACCEPT-INPUT-MEDIA-OWNER-J29-J30-LINKS-20261008
+  phaseTask: P3-03
+  decisionInput: accepted-exact-definition-links-only
+  decisionSource: .product-experience/decision-log.md#PXD-036
+  acceptedScope:
+    - Eight exact J-29/J-30 step intent, view and screen-contract references; all 130 step identities retained.
+  evidenceRefs:
+    - .product-experience/pdp-3-product-experience/journey-registry.yaml
+    - tests/pdp-3-screen-journey-crosslinks.test.mjs
+  exclusions:
+    - Action, operation, permission, guard, transition, finality, fixture verification, screen admission, independent review and phase closure.
+
+- id: ACCEPT-INPUT-MEDIA-OWNER-COMPOSITION-REPLACEMENTS-20261008
+  phaseTask: P2-05-and-P3-02
+  decisionInput: accepted-top-level-definition-links-only
+  decisionSource: .product-experience/decision-log.md#PXD-037
+  acceptedScope:
+    - Six replacement template/layout selections recorded in screen-registry.yaml; current total 47 approved links and zero withheld.
+    - Five reusable template and three layout definitions following the six screens' authored purposes and regions.
+  evidenceRefs:
+    - .product-experience/pdp-3-product-experience/screen-registry.yaml
+    - .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+    - .product-experience/pdp-2-design-interface-system/gui/layout.yaml
+    - tests/pdp-2-recipe-layout-chains.test.mjs
+  comments:
+    - Supersedes only PXD-028's six withheld choices; its historical 41 approvals retain their exact scope.
+  exclusions:
+    - Screen admission, executable Shared bindings, runtime behavior, independent visual or assistive review, Lifecycle proof and phase acceptance.
+
+- id: ACCEPT-INPUT-MEDIA-OWNER-DYNAMIC-DENOMINATOR-20261008
+  phaseTask: L-01
+  decisionInput: accepted-source-inventory-correction-only
+  decisionSource: .product-experience/decision-log.md#PXD-038
+  acceptedScope:
+    - Dynamic enumeration retains all prior required IDs and adds each omitted or newly authored canonical source record; initial corrected population 334 (38/136/83/77).
+    - Six PDP-1 omissions were verified in HEAD source; nine PDP-2 additions follow the new design definitions.
+  evidenceRefs:
+    - config/closure/media-product-definition/obligations.json
+    - scripts/lib/media-obligation-denominator-audit.mjs
+    - tests/media-lifecycle-source-generator.test.mjs
+  exclusions:
+    - Semantic acceptance, fabricated case coverage, provider/observer/oracle admission, independent review, Lifecycle receipts/currentness or phase closure.
+
+- id: ACCEPT-INPUT-MEDIA-OWNER-THREE-PROCESS-ROWS-20261008
+  phaseTask: P0-03
+  decisionInput: accepted-exact-process-classifications-only
+  decisionSource: .product-experience/decision-log.md#PXD-039
+  acceptedScope:
+    - MPSEM-0044, MPSEM-0064 and MPSEM-0301 as EXECUTION_ONLY guidance/lead-ins; PXD-033's 86 exact classifications retained separately.
+  evidenceRefs:
+    - .product-experience/pdp-0-product-truth/migration-semantics-review.yaml
+    - tests/media-migration-semantics-ledger.test.mjs
+  exclusions:
+    - Adjacent normative rows, dependency/boundary/API semantic acceptance, master-plan pin acceptance, independent review, task completion and phase closure.
+
 phaseAcceptanceInputs:
 - id: ACCEPT-INPUT-P0-002
   phase: PDP-0

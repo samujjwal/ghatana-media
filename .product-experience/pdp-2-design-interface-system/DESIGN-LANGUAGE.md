@@ -54,10 +54,15 @@ the sibling-source public validator (`@ghatana/experience-language`; installed
 maps 3 density profiles, 3 presentation profiles, 18 interaction patterns,
 6 recovery patterns, 3 disclosure rules, 4 responsive rules, 8 accessibility
 target rules, 6 localization rules, 11 component bindings, 8 state
-presentation mappings, and 8 owner-approved GUI recipe identities and bindings.
-The catalog defines exact recipe, template, and primary-pattern identities.
+presentation mappings, and 13 owner-approved GUI recipe identities and
+bindings. The catalogs define 13 reusable templates, 11 layouts, and their
+exact primary-pattern chains. Five templates and three layouts were added for
+multitrack composition, operational readiness, exact record inspection,
+workspace settings, and project overview. These reusable source definitions
+do not admit any of the 47 screen compositions.
 Shared public package binding, implementation verification, all 47 screen-instance
-admissions, owner acceptance, and design conformance remain pending.
+admissions, independent visual/accessibility review, and design conformance
+remain pending.
 
 ## Authority, dependencies, review, and proof
 

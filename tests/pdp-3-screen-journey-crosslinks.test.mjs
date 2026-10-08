@@ -144,31 +144,9 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
   }
   assert.equal(stepCount, 130);
   assert.equal(seededJourneyIds.size, 3);
-  assert.equal(linkedSteps, 122);
-  assert.equal(unresolvedViewSteps, 8);
-  const unresolvedStepIds = [
-    "J-29:detect-loss-or-consent-change",
-    "J-29:fence-new-frame-submission",
-    "J-29:reconcile-dispatched-frame-effects",
-    "J-29:present-bounded-return-state",
-    "J-30:establish-scope-and-permissions",
-    "J-30:inspect-profile-and-provider-dimensions",
-    "J-30:preserve-unknown-or-unavailable-reasons",
-    "J-30:return-eligible-options-with-provenance",
-  ];
-  const unresolvedContracts = ["J-29", "J-30"].map((id) => {
-    const journey = journeys.journeys.find((candidate) => candidate.id === id);
-    const contract = readYaml(`${experience}/${journey.contract}`);
-    return { journey, contract };
-  });
-  assert.deepEqual(unresolvedContracts.flatMap(({ contract }) => contract.steps.map((step) => `${contract.journeyId}:${step.stepId}`)),
-    unresolvedStepIds);
-  assert.ok(unresolvedContracts.every(({ contract }) => contract.steps.every((step) => step.view == null && step.screenContractRef == null)),
-    "J-29/J-30 ordered view lists do not allocate a screen to each step");
-  assert.match(journeys.coverageObservation.stepBindings.screenContractRef.blocker,
-    /owner-reviewed-step-to-view-crosswalk-or-equivalent-explicit-step-view-ref/u);
-  assert.match(journeys.coverageObservation.stepBindings.screenContractRef.blocker,
-    /journey-level-orderedViews,source-viewRefs,and-screen-journeyRefs-do-not-allocate-views-to-individual-steps/u);
+  assert.equal(linkedSteps, 130);
+  assert.equal(unresolvedViewSteps, 0);
+  assert.equal(journeys.coverageObservation.stepBindings.screenContractRef.blocker.startsWith("none;"), true);
   assert.equal(linkedViewJourneyRefs, 132);
   assert.deepEqual({ actionLinks, requirementLinks, capabilityLinks, outcomeLinks, operationLinks }, {
     actionLinks: 18, requirementLinks: 20, capabilityLinks: 22, outcomeLinks: 72, operationLinks: 16,
@@ -198,7 +176,7 @@ test("PDP-3 coverage observation counts authored per-step action bindings by occ
   }
 
   assert.equal(stepCount, 130);
-  assert.equal(screenContractRefCount, 122);
+  assert.equal(screenContractRefCount, 130);
   assert.equal(actionBindings.length, 18, "18 exact step-level binding occurrences are authored");
   assert.equal(new Set(actionBindings.map(({ ref }) => ref)).size, 15, "the 18 occurrences use 15 distinct action IDs");
   assert.equal(observation.orderedStepCount, stepCount);
@@ -229,7 +207,7 @@ test("PDP-3 actor projection rejects inferred initiators and invented actors", (
     /invents actor media\.reviewer/u);
 });
 
-test("PDP-3 extension view lists do not invent per-step screen or action allocations", () => {
+test("PDP-3 J-29/J-30 step views use exact owner-selected source contracts and preserve proposal status", () => {
   const journeyRegistry = readYaml(`${experience}/journey-registry.yaml`);
   const sourceCatalog = readYaml(".product-experience/pdp-0-product-truth/journey-catalog.yaml");
   const sourceById = new Map(sourceCatalog.journeys.map((journey) => [journey.id, journey]));
@@ -238,7 +216,20 @@ test("PDP-3 extension view lists do not invent per-step screen or action allocat
     .map((journey) => [journey.id, readYaml(`${experience}/${journey.contract}`)]));
 
   assert.deepEqual([...extensions.keys()], ["J-29", "J-30"]);
-  let unresolvedStepViews = 0;
+  const expectedViews = {
+    "J-29": [
+      ["media.view.review-activity", "screen-contracts/review-activity.yaml", "media.intent.recover-live-session"],
+      ["media.view.job-status", "screen-contracts/job-status.yaml", "media.intent.recover-live-session"],
+      ["media.view.job-status", "screen-contracts/job-status.yaml", "media.intent.recover-live-session"],
+      ["media.view.review-activity", "screen-contracts/review-activity.yaml", "media.intent.recover-live-session"],
+    ],
+    "J-30": [
+      ["media.view.check-processing-options", "screen-contracts/check-processing-options.yaml", "media.intent.check-processing-options"],
+      ["media.view.check-processing-options", "screen-contracts/check-processing-options.yaml", "media.intent.check-processing-options"],
+      ["media.view.check-processing-readiness", "screen-contracts/check-processing-readiness.yaml", "media.intent.check-processing-readiness"],
+      ["media.view.choose-eligible-processing-option", "screen-contracts/choose-eligible-processing-option.yaml", "media.intent.choose-eligible-processing-option"],
+    ],
+  };
   for (const [journeyId, contract] of extensions) {
     const source = sourceById.get(journeyId);
     assert.ok(source.viewRefs.length > 0, `${journeyId} retains its source-level PDP-0 view list`);
@@ -248,16 +239,20 @@ test("PDP-3 extension view lists do not invent per-step screen or action allocat
         ? ["detect-loss-or-consent-change", "fence-new-frame-submission", "reconcile-dispatched-frame-effects", "present-bounded-return-state"]
         : ["establish-scope-and-permissions", "inspect-profile-and-provider-dimensions", "preserve-unknown-or-unavailable-reasons", "return-eligible-options-with-provenance"],
       `${journeyId} preserves the authored step identities and order`);
-    for (const step of contract.steps) {
-      unresolvedStepViews++;
-      assert.equal(step.view, undefined, `${journeyId}/${step.stepId} has no exact step-level view source`);
-      assert.equal(step.screenContractRef, undefined, `${journeyId}/${step.stepId} has no exact screen contract allocation`);
+    for (const [index, step] of contract.steps.entries()) {
+      assert.deepEqual(
+        [step.view, step.screenContractRef, step.intent],
+        expectedViews[journeyId][index],
+        `${journeyId}/${step.stepId} uses the selected exact source view and intent`,
+      );
       assert.equal(step.action, undefined, `${journeyId}/${step.stepId} has no exact step-level action source`);
       assert.equal(step.actionRef, undefined, `${journeyId}/${step.stepId} has no exact step-level action source`);
     }
   }
-  assert.equal(unresolvedStepViews, 8,
-    "journey-level view inventories do not establish which views/actions belong to each extension step");
+  assert.equal(journeyRegistry.coverageObservation.stepBindings.screenContractRef.linked, 130);
+  assert.equal(journeyRegistry.coverageObservation.stepBindings.screenContractRef.unresolved, 0);
+  assert.equal(journeyRegistry.coverageObservation.stepBindings.screenContractRef.acceptance,
+    undefined, "source mapping does not imply screen admission or behavior acceptance");
 });
 
 test("PDP-3 navigation-only steps reject operation placeholders", () => {

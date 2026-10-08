@@ -5,16 +5,18 @@ status: proposal; baseline-view-contract-authored; action-state-channel-bindings
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-web-channel-and-surface-inventory; owner-binding-pending
-templateId: media.gui.template.workbench
-templateBindingStatus: candidate-by-screen-purpose; owner-review-pending
-layoutIds: [media.gui.layout.media-workbench]
-layoutBindingStatus: candidate-by-template-and-screen-purpose; owner-review-pending
+templateId: media.gui.template.project-overview
+templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
+layoutIds: [media.gui.layout.project-overview]
+layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
   - media.component.project-context-summary
   - media.component.intent-launcher
 componentBindingStatus: proposal-copy-of-existing-componentRefs; Shared-binding-and-acceptance-pending
 patternIds:
-  - media.gui.pattern.project-browser
+  - media.gui.pattern.project-context-header
+  - media.gui.pattern.intent-launcher
+  - media.gui.pattern.activity-attention
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
@@ -62,8 +64,8 @@ verification:
 verificationBindingStatus: not-run-no-behavior-or-accessibility-claim
 fieldBindingStatus:
   surfaceId: candidate; owner-binding-pending
-  templateId: candidate-template-link-owner-review-pending
-  layoutIds: candidate-layout-link-owner-review-pending
+  templateId: media-owner-composition-link-approved; screen-admission-pending
+  layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: proposal-copy; Shared-binding-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
   tokenDependencies: unresolved; no-canonical-reference-declared

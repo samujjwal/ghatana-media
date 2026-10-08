@@ -116,12 +116,14 @@ test("CLI crosswalk is exact and SDK registry reports exact source-pair discrepa
     const declaringClass = record.match(/^    declaringClass: ([^\n]+)/mu)?.[1];
     return id && method && visibility === "public" && source ? [{ id, method, source, declaringClass }] : [];
   });
-  assert.equal(sdkRows.length, 31, "SDK registry methodEntryCount must match the raw method rows");
-  assert.match(sdkRegistry, /^  methodEntryCount: 31$/mu);
+  assert.equal(sdkRows.length, 32, "SDK registry methodEntryCount must match the raw method rows");
+  assert.match(sdkRegistry, /^  methodEntryCount: 32$/mu);
   const parserArtifactIds = inlineList(sdkSurface, "parserArtifactTokensExcludedFromMethodDenominator");
   const artifactIds = new Set(parserArtifactIds);
   const transportOnlyIds = inlineList(sdkSurface, "TRANSPORT_ONLY");
   const clientOnlyIds = inlineList(sdkSurface, "CLIENT_ONLY");
+  const candidateProviderAdapterIds = inlineList(sdkSurface, "candidateProviderAdapters");
+  assert.deepEqual(candidateProviderAdapterIds, ["media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame"]);
   const nonOperationIds = [...transportOnlyIds, ...clientOnlyIds];
   assert.deepEqual(transportOnlyIds.sort(), ["media.sdk.getAllServicesStatus", "media.sdk.getServiceStatus"]);
   assert.deepEqual(clientOnlyIds.sort(), ["media.sdk.addEventListener", "media.sdk.removeEventListener"]);
@@ -170,4 +172,8 @@ test("CLI crosswalk is exact and SDK registry reports exact source-pair discrepa
     assert.ok(row.declaringClass, `${row.id} declares its source class`);
     assert.equal(declarationNames.has(`${row.source}#${row.declaringClass}#${row.method}`), true, `${row.id} method ${row.method} is declared in its recorded source/class`);
   }
+  const adapterRow = nonArtifactRows.find(({ id }) => id === candidateProviderAdapterIds[0]);
+  assert.equal(adapterRow?.source, "libs/audio-video-client/src/scene-text-adapter.ts");
+  assert.equal(adapterRow?.declaringClass, "DocumentIntelligenceSceneTextAdapter");
+  assert.equal(adapterRow?.method, "recognizeFrame");
 });

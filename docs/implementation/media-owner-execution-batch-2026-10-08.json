@@ -1,0 +1,1279 @@
+{
+  "schemaVersion": "media.owner-execution-batch.v1",
+  "date": "2026-10-08",
+  "capturedAtUtc": "2026-10-08T21:03:58.896102+00:00",
+  "authority": "USER_DELEGATED_MEDIA_OWNER_REVIEW_ONLY",
+  "ownerPlan": "docs/implementation/media-pdp-71-task-owner-execution-plan-2026-10-08.md",
+  "implementationBase": "355d50ec68faac13c692cbd29df75f147e3c04fa",
+  "branch": "codex/media-owner-completion-2026-10-08",
+  "scope": "Bounded implementation worktree batch; not merged main, independent acceptance, immutable release candidate or Lifecycle currentness",
+  "taskInventory": {
+    "count": 71,
+    "complete": 6,
+    "partial": 51,
+    "externalIndependent": 14,
+    "notStarted": 0,
+    "newlyComplete": 0,
+    "statusChange": "R-05 not-started -> partial; all other task statuses retain their scope"
+  },
+  "delegation": {
+    "implementationAndVerification": "Three parallel Luna agents, coordinated and reviewed by root",
+    "ownerDecisions": [
+      "PXD-034",
+      "PXD-035",
+      "PXD-036",
+      "PXD-037",
+      "PXD-038",
+      "PXD-039"
+    ],
+    "priorDecisions": "PXD-026 through PXD-033 retained without expanding accepted meaning",
+    "independentApproval": false,
+    "commercialReleaseAuthorized": false,
+    "nativeLifecycleRun": "NOT_RUN",
+    "phaseReceipts": 0
+  },
+  "beforeAfter": {
+    "projectionBlockers": {
+      "before": [
+        2,
+        0,
+        10
+      ],
+      "after": [
+        1,
+        0,
+        10
+      ]
+    },
+    "migration": {
+      "structural": 349,
+      "beforeSemantic": 263,
+      "afterSemantic": 260,
+      "classifiedBefore": 86,
+      "classifiedAfter": 89,
+      "mixedUnresolved": 124,
+      "masterPlanPin": "STALE; bounded PDP identifier evidence does not establish DEFINE_PRODUCT equivalence"
+    },
+    "interface": {
+      "before": 283,
+      "after": 284,
+      "unresolvedBefore": 191,
+      "unresolvedAfter": 192,
+      "acceptedExactBindings": 0,
+      "findings": 51,
+      "dispositionedFindings": 48,
+      "unresolvedFindings": 3
+    },
+    "journeys": {
+      "journeys": 30,
+      "steps": 130,
+      "projectedBefore": 126,
+      "projectedAfter": 130,
+      "screenRefsBefore": 122,
+      "screenRefsAfter": 130,
+      "actionRefs": 18,
+      "actionGaps": 112,
+      "transitionGaps": 130
+    },
+    "screenComposition": {
+      "selectedBefore": 41,
+      "selectedAfter": 47,
+      "withheldBefore": 6,
+      "withheldAfter": 0,
+      "admitted": 0
+    },
+    "lifecycle": {
+      "before": 319,
+      "after": 344,
+      "phaseCounts": [
+        38,
+        146,
+        83,
+        77
+      ],
+      "deltaReason": "Six source omissions at base; nine new design records; ten individual operation candidates",
+      "obligationsWithAuthoredCaseIds": 62,
+      "withoutAuthoredCaseIds": 282,
+      "l02Links": 28,
+      "l02LinkedObligations": 7,
+      "l02Unmapped": 337,
+      "admittedProviders": 0,
+      "admittedObservers": 0,
+      "admittedOracles": 0,
+      "receipts": 0
+    },
+    "capabilities": {
+      "total": 462,
+      "unresolved": 383,
+      "exactAcceptedCoverage": 0,
+      "unboundedLeaves": 445
+    },
+    "designGates": {
+      "total": 7,
+      "resolvedMediaOwner": 4,
+      "open": 3
+    }
+  },
+  "implementedSlices": [
+    {
+      "tasks": [
+        "G-03",
+        "P0-05",
+        "P0-06"
+      ],
+      "change": "Six exact already-approved PDP-1 rule projections with fail-closed identity/value checks; four bounded success-measure definitions without invented targets/baselines."
+    },
+    {
+      "tasks": [
+        "P0-03",
+        "G-04"
+      ],
+      "change": "Three exact process-only migration rows reviewed; structural/semantic/classified counters remain distinct. New DEFINE_PRODUCT PDP identifier source evidence stays unresolved with no acceptance effect."
+    },
+    {
+      "tasks": [
+        "P1-02",
+        "P1-03",
+        "P1-04",
+        "P1-05",
+        "P1-06",
+        "P1-08"
+      ],
+      "change": "Loss-reporting job state observation; ten source-bound individual operation candidates; current exact type/schema/SDK inventories; emitter body hashes and line-reference reconciliation. Cross-transport semantic acceptance remains open."
+    },
+    {
+      "tasks": [
+        "P2-05",
+        "P3-01",
+        "P3-02",
+        "P3-03",
+        "E-01"
+      ],
+      "change": "Reusable design grammar and six reviewed composition links; eight J29/J30 intent/view links; generated candidates and browser snapshot. No Shared executable/independent screen admission."
+    },
+    {
+      "tasks": [
+        "L-01",
+        "L-02",
+        "L-03",
+        "L-05",
+        "L-06",
+        "L-08"
+      ],
+      "change": "Dynamic complete source census and staged generator with duplicate/missing-source/stale-check negative tests; changed candidate fingerprints invalidate prior proof. No invented cases/observers/oracles."
+    },
+    {
+      "tasks": [
+        "X-04"
+      ],
+      "change": "Thin version/provider/model-aware scene-text adapter; immutable request snapshot, identity/result/geometry/confidence/abort validation and local adversarial tests. Published package assignability/admission and tenant/consent semantics remain open."
+    },
+    {
+      "tasks": [
+        "R-05"
+      ],
+      "change": "INTERNAL_VALIDATION_ONLY noncommercial reference profile and eight explicit production admission gates; source/build/SBOM identities unbound and all external dependencies NOT_ADMITTED."
+    }
+  ],
+  "verification": [
+    {
+      "command": "node scripts/generate-media-phase-projections.mjs --check --strict",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/strict.log",
+      "logSha256": "428eb9f1eb020612c60e6493b928ce997bc9e891bdaeed2268eea8338b7574d6"
+    },
+    {
+      "command": "pnpm check:product-definition-authority",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/authority.log",
+      "logSha256": "1d0621ded1ac30f92700eb9a5194a768af16b1b125c66632cb6b081654d6175a"
+    },
+    {
+      "command": "pnpm check:product-experience-local",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/local.log",
+      "logSha256": "8faa284d3741221b666bdf0f34e3e25bf570e479d3db65525b7d6f9c42d48a1e"
+    },
+    {
+      "command": "pnpm check:contract-parity",
+      "exitCode": 1,
+      "result": "BLOCKED",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/parity.log",
+      "logSha256": "8904ff026ab73099f7486c62a9cfcdbc008b6904c755a17b2d0b269524e56b7f"
+    },
+    {
+      "command": "pnpm check:design-conformance",
+      "exitCode": 1,
+      "result": "BLOCKED",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/design.log",
+      "logSha256": "fc48c11e8af7419e2511ec42ff86a33a3b73153242069a403be30621ff950f38"
+    },
+    {
+      "command": "pnpm check:presentation-architecture",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/presentation.log",
+      "logSha256": "86a13bc56668a8e860274aa313379edc9967b0a8eb69df81c18e9688aa0672c5"
+    },
+    {
+      "command": "pnpm check:lifecycle-closure-inputs",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/closure-inputs.log",
+      "logSha256": "3cbc614fed2c48e00ffb5f7c86e36ccd51426ec26074766e3d25506257e183c3"
+    },
+    {
+      "command": "pnpm test:lifecycle-input-preflight",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/preflight.log",
+      "logSha256": "7bf97477ada4694a415a06aebe4105694183117cd940f3a315be4d811b47c266"
+    },
+    {
+      "command": "pnpm test:lifecycle-consumer-artifact",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/closure-artifact.log",
+      "logSha256": "2bf8bdbd1d2b4f8978f5f29512e594df1a5eeee9662ef7c193e15cd1d92f3ef4"
+    },
+    {
+      "command": "pnpm test:owner-source-selections",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/selections.log",
+      "logSha256": "9d0681009dcd458385587654bddbbcc47bfeb88218101d80e0e4136c6681942f"
+    },
+    {
+      "command": "pnpm test:typed-contract-bindings",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/typed.log",
+      "logSha256": "40481a2acef1ce46a521fc7f94c3293bd30308c6d2d9e16a4e737f7ac8b8d065"
+    },
+    {
+      "command": "pnpm --filter @audio-video/types check",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/types.log",
+      "logSha256": "9aa943b150b7fc4050791f4685a5601c7a2c69a18209488e9cc8ab22c1c02d26"
+    },
+    {
+      "command": "pnpm --filter @audio-video/client check",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/client.log",
+      "logSha256": "4dc1ae743a998d20087a8f0c3b8a74a02d897dd9f669c97c54dc9931e30736a8"
+    },
+    {
+      "command": "pnpm test:shared-media-consumer",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log",
+      "logSha256": "cf13fada19a5d3d0670779051f462e54bebba0d89d1081bf99a86bb51b1452cb"
+    },
+    {
+      "command": "pnpm test:tools-media-consumer",
+      "exitCode": 0,
+      "result": "PASS_WITHIN_RECORDED_SCOPE",
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/tools-consumer.log",
+      "logSha256": "b058f6593ec21af2d7edb97a283e98e57ab479edf309a3b1d8d0857784a856d8"
+    },
+    {
+      "command": "node --test tests/*.test.mjs",
+      "exitCode": 1,
+      "tests": 335,
+      "passed": 334,
+      "failed": 1,
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/node-suite-initial.log",
+      "failure": "external source snapshot fails when recorded Git metadata becomes stale: sibling Ghatana dirty paths changed during verification; actual source contract-fact checks passed",
+      "scope": "Dated initial full-suite run; no clean committed-tree PASS claimed"
+    },
+    {
+      "command": "node scripts/generate-media-product-manifest.mjs",
+      "exitCode": 0,
+      "manifestRecords": 314,
+      "explorerEntries": 315,
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/final-manifest.log"
+    },
+    {
+      "command": "node scripts/generate-media-phase-projections.mjs --check --strict (two consecutive final runs)",
+      "exitCode": 0,
+      "logs": [
+        "docs/implementation/verification/media-owner-execution-2026-10-08/final-strict-1.log",
+        "docs/implementation/verification/media-owner-execution-2026-10-08/final-strict-2.log"
+      ]
+    },
+    {
+      "command": "node scripts/generate-media-lifecycle-source-inputs.mjs --check",
+      "exitCode": 0,
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/final-lifecycle.log"
+    },
+    {
+      "command": "node --test tests/product-definition-authority.test.mjs tests/media-product-definition-residuals.test.mjs tests/media-obligation-denominator-audit.test.mjs tests/media-lifecycle-source-generator.test.mjs tests/pdp-overview-currentness.test.mjs",
+      "exitCode": 0,
+      "tests": 41,
+      "passed": 41,
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/final-affected.log"
+    },
+    {
+      "command": "node --test tests/media-migration-new-source-claims.test.mjs tests/media-migration-linked-pdp-impact.test.mjs",
+      "exitCode": 0,
+      "tests": 6,
+      "passed": 6,
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/final-migration.log"
+    },
+    {
+      "command": "pnpm test:experience-browser (isolated Chromium preview)",
+      "exitCode": 0,
+      "scenarios": 30,
+      "viewports": 6,
+      "artifacts": 315,
+      "proposalUrls": 282,
+      "consoleErrors": 0,
+      "cspViolations": 0,
+      "log": "docs/implementation/verification/media-owner-execution-2026-10-08/browser.log",
+      "sourceScope": "Point-in-time local build snapshot only; see browser README hashes. Later source/index metadata checks are separate.",
+      "report": "docs/implementation/verification/media-experience-browser-audit-2026-10-08/report.json"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "verificationLimits": [
+    "Commands ran in the bounded dirty worktree, not a post-merge clean checkout.",
+    "The initial full suite is non-green due to external source drift; freshness assertion remains enforced.",
+    "Parity exit 1 means three real findings plus unresolved exact binding semantics; design exit 1 means three named open gates.",
+    "Installed consumer passes prove only their exact input/package scopes; Lifecycle input remains PENDING.",
+    "Browser evidence is an exact dated build snapshot; independent visual/AT review and production host parity remain UNVERIFIED.",
+    "Native runtime durability, codec/model/license qualification, deployment/cutover, signed independent review and native Lifecycle closure are NOT_RUN or NOT_ADMITTED."
+  ],
+  "sourceFilesAtCapture": [
+    {
+      "path": ".product-experience/acceptance.yaml",
+      "sha256": "0678caa5128de56cd0cd497309559a3f2c48e546b6bc95693720439d07623e4a"
+    },
+    {
+      "path": ".product-experience/closure-dashboard.yaml",
+      "sha256": "6ad018620c920a64ef2b359b354156b96f44ca148acb54ab3ec75c4e74e3a8f7"
+    },
+    {
+      "path": ".product-experience/decision-log.md",
+      "sha256": "8df0655fc662127238c89370d4f5b7558eff520c7ca97c501a4292d959cfbd15"
+    },
+    {
+      "path": ".product-experience/gaps.yaml",
+      "sha256": "ad41e63425162bc40743da8d31085b492245ea5304eeb1bdc0a1286f0b774c13"
+    },
+    {
+      "path": ".product-experience/interface-parity/operation-parity.yaml",
+      "sha256": "5080691cf4f615f31c4d68898d7f0394628445c248bd58ebc5b82125cf64270d"
+    },
+    {
+      "path": ".product-experience/interface-parity/typed-contract-bindings.json",
+      "sha256": "402c7fd54a2f7dd1d262996a6e058144fc45a114392ea4bcc7dfd23f813f0143"
+    },
+    {
+      "path": ".product-experience/mandatory-surface-closure-matrix.yaml",
+      "sha256": "9d0cb2ec12286d698c13e21bdee2e99dde75b5d0b19b00f4adc839a1a9213fab"
+    },
+    {
+      "path": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
+      "sha256": "c5173af99e6aa5769084a6ab5c73e9cb3165b70d463bb43a07df41eb9426aa1a"
+    },
+    {
+      "path": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "sha256": "aeb365ea505db5aa43e12328302ee77b24bb0f92766047b64c49ca506ef75a9d"
+    },
+    {
+      "path": ".product-experience/pdp-0-product-truth/constitution.yaml",
+      "sha256": "fe10aaf5f79a1b48b38b1cdc1519bb7cdd9db72fdc149e11d235baa683dcce45"
+    },
+    {
+      "path": ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json",
+      "sha256": "985ec0594f097a0a22124353bea9c804ee2789d6c0db90fe582470730da9254e"
+    },
+    {
+      "path": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+      "sha256": "0a2430d80830b717d1a9725c3ee499b1ce862ee4cedb8e111e46478035f05667"
+    },
+    {
+      "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+      "sha256": "f7bf7857dfa1055da7255591ed25c31d59be97d5a3579e68111d3dd53e9e082e"
+    },
+    {
+      "path": ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml",
+      "sha256": "4da3d1f3e05bc333e40586d891140af3e79333189f55ed3065c42312b84f6809"
+    },
+    {
+      "path": ".product-experience/pdp-0-product-truth/schema-bindings.yaml",
+      "sha256": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
+    },
+    {
+      "path": ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md",
+      "sha256": "2635b78b1c160d60eb9e5ef139198444b0c2eff0c8ca30f02648747e4c7527f1"
+    },
+    {
+      "path": ".product-experience/pdp-1-domain-data/events.yaml",
+      "sha256": "3eddcc938cd3092d06a3ecef60bf11dfd02bb3b41e5d3979da2c71e536a9f5ff"
+    },
+    {
+      "path": ".product-experience/pdp-1-domain-data/operations.yaml",
+      "sha256": "a567e9f6c18213aa3ba3f66959e9ba860750737b2533d5eb63b214ca271d22f3"
+    },
+    {
+      "path": ".product-experience/pdp-1-domain-data/state-adjudication.yaml",
+      "sha256": "89b110fa8010e672a0065af07c4480bb4aac3598f3a464187eed95ab8c4085ea"
+    },
+    {
+      "path": ".product-experience/pdp-1-domain-data/states.yaml",
+      "sha256": "85af4d417ad82c7ad8816c0effc5fc69b6c7e3a5da887796cee4a4926228f880"
+    },
+    {
+      "path": ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
+      "sha256": "bfa5b00874d44809cf9439a7d83ba79ecdae1ee9e9021fffb01b06874a78d0fe"
+    },
+    {
+      "path": ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json",
+      "sha256": "a982571bb9aba855d8e30b2d45f5ae088964e51fb7304670e284c34eb40933e2"
+    },
+    {
+      "path": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
+      "sha256": "66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a"
+    },
+    {
+      "path": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
+      "sha256": "ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f"
+    },
+    {
+      "path": ".product-experience/pdp-2-design-interface-system/gui/recipe-chain-review.yaml",
+      "sha256": "48515a75221478cab6662f10f239a635e44ee93503fe72293aca2e90355dbd35"
+    },
+    {
+      "path": ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
+      "sha256": "d85ce0ebd2efd44354c20cc09347c04f4b269845f953d47cb35f96c2c0340a12"
+    },
+    {
+      "path": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
+      "sha256": "ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md",
+      "sha256": "3086e082367843f4107d23b91ecbce962324a27c1b35ca3db9ab80256469bb1c"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
+      "sha256": "d23fbaca5cfc10982462c573446541f6d28cb4c91d26846266c0b534ad9668ec"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
+      "sha256": "b227b84e19cc07aa8d93cb3a36d6a66730e67e418b3cb085bfd573565e8b5c12"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml",
+      "sha256": "14d9e3621d66ab7e373a5b9fada07e448abb689509692b4a67941f17518da11d"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      "sha256": "3755f25b13b4945f4096d1e5e10c0e67623df454dee6783e1a54fead8c3c7183"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml",
+      "sha256": "aea1102f79b232de01b8f18634a24fc068513fa1d78522ab087ae9e3bac9f958"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml",
+      "sha256": "b98abcfd4279149c63daa2d634e03e90dd179427eeab2459c8202073d5f94f99"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml",
+      "sha256": "36977dc5e47961c50881ddabd971e46f9196cf71007537f8704549a2f34ff138"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml",
+      "sha256": "75ab2421f5b8ad9d6aaa7362194002682d746344f19e1c3da9f6b4c523e41754"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml",
+      "sha256": "6023c857ceef7704f232f1d3ec1584b7d8c03e234e2c34255d7bd6700543f23d"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml",
+      "sha256": "3c3dd966eacb26489832b14e242d56c4f69b899fca7d00103514b19d300c2b70"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+      "sha256": "8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336"
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml",
+      "sha256": "e45cf431e8bd1d38060533cdbb706a0b4f5376afc119da2622caffea0585a004"
+    },
+    {
+      "path": ".product-experience/source-manifest.yaml",
+      "sha256": "70e59f42208048c11380a517a19fbc49784f09231cf365c0e3931ad390a00af5"
+    },
+    {
+      "path": "config/closure/media-product-definition/l02-source-case-links.json",
+      "sha256": "85ab07c97ddc619b5fa18e92923c374a4f34c39c89851953a69cdc7b447aae58"
+    },
+    {
+      "path": "config/closure/media-product-definition/l03-proof-route-candidates.json",
+      "sha256": "cc0c4fb7eb5851d8c71432bfa7fc2d95d904ed84c6162d77bdcf670675b9084e"
+    },
+    {
+      "path": "config/closure/media-product-definition/obligations.json",
+      "sha256": "7e6fcaf6c99c9888dbde2f7c72f997868c5600b12f6fce21411016463da15797"
+    },
+    {
+      "path": "config/closure/media-product-definition/phase-binding.json",
+      "sha256": "d5f59aad5590052ac9e73b61a854f6136ab5d46d0aa92787b5b85fd4cdaab907"
+    },
+    {
+      "path": "config/closure/media-product-definition/phase-program.json",
+      "sha256": "440813bf281fb5520e5dac39e077120f31c4a6e3f00345c5d1160e80a31c9959"
+    },
+    {
+      "path": "config/closure/media-product-definition/surface.json",
+      "sha256": "2807165d3e1540e620bb509f35e9be594f8133e8922f75f9e5e07f0baff04290"
+    },
+    {
+      "path": "config/release/internal-validation-only.json",
+      "sha256": "81e4321f4d4a7315b6f25702ea592c4e22de27986d37cd44def40445977d42cb"
+    },
+    {
+      "path": "docs/migration/document-intelligence-media-crosswalk.md",
+      "sha256": "b03b00929e7693f8e2c0e863e1db28972796daff7235ddf5107380287c430247"
+    },
+    {
+      "path": "docs/migration/external-platform-contract-observation.json",
+      "sha256": "f99d1b4ba5f8a1b860c8e8983ce8b1260e4a6ba28bd6eadcdd2aa465fab71423"
+    },
+    {
+      "path": "docs/migration/master-plan-source-change-claims.yaml",
+      "sha256": "58f5208717a2986d7094df675d8484628055e8e844442276064c542d6fbbf1db"
+    },
+    {
+      "path": "docs/qualification/R-05-release-profile-admission.md",
+      "sha256": "a085da8c8337159f518435b70aa0d917db382f529e0209a6e056f2cea685e5bd"
+    },
+    {
+      "path": "libs/audio-video-client/src/index.ts",
+      "sha256": "08458d366a6a8de4efc7cf9253541c0f85174c6915f5e4982d2c3bbd1bbe9701"
+    },
+    {
+      "path": "libs/audio-video-client/src/scene-text-adapter.test.ts",
+      "sha256": "627532228a26f47b8b029ab804a9477c8ebac71310b1b8129f647201363fda76"
+    },
+    {
+      "path": "libs/audio-video-client/src/scene-text-adapter.ts",
+      "sha256": "76ce901b03e18dc159a9e9e06133d6037b8a9dd34681b486a340805c63bb5bf3"
+    },
+    {
+      "path": "libs/audio-video-types/src/contracts.test.ts",
+      "sha256": "6c9e625526bec6e38ac06e8708d01a41b734b6d4d96e32df4422a67a21f14b43"
+    },
+    {
+      "path": "libs/audio-video-types/src/contracts.ts",
+      "sha256": "dcde1914f3219c64b3401510a34c2f372ca5bff568cb581fd8d0f25b43aacb5b"
+    },
+    {
+      "path": "package.json",
+      "sha256": "535c9b88b668f9362f135e21850c6a0bfceaba6957d0faf76b7c8a1a5ea2233a"
+    },
+    {
+      "path": "scripts/generate-media-lifecycle-source-inputs.mjs",
+      "sha256": "d29bef03b29d507d62c905b0360559763714cfedae351ae4b76e4f33ad19473c"
+    },
+    {
+      "path": "scripts/generate-media-phase-projections.mjs",
+      "sha256": "24b055ecf6f274d1445c202026a6219ecd395bf42cd333992d86e57d65d2b633"
+    },
+    {
+      "path": "scripts/lib/media-obligation-denominator-audit.mjs",
+      "sha256": "9a8704e430015efae69c064d36677b3c9c570054a4980d05484a2a69be8b1bc8"
+    },
+    {
+      "path": "scripts/lib/media-product-definition-residuals.mjs",
+      "sha256": "2afed29ea942aa5222e505a468b7e93790c4d47ae1216f5963a0e0c4d28f0a92"
+    },
+    {
+      "path": "scripts/lib/product-definition-domain-rule-mapping.mjs",
+      "sha256": "c32bbfccfa393e4a4cf9f5a1f40d7b9b9ee8c3bd4ea6180ff2bf7ca782b6a619"
+    },
+    {
+      "path": "tests/media-capability-review-source-impact.test.mjs",
+      "sha256": "6a2282566b06bc41fd1a89f776bf91c3d176358faaba6d4213b0672aca6cbe82"
+    },
+    {
+      "path": "tests/media-event-source-parity.test.mjs",
+      "sha256": "fb0ec6bcbb42dcf4577fadbd4e1ee36927acb8b0a99731e97a931db90f9e926c"
+    },
+    {
+      "path": "tests/media-experience-specification-projection.test.mjs",
+      "sha256": "7b1eb0c8f1255d8663a6cea54302adda2b0a5a4d75de12b27cb764db45648969"
+    },
+    {
+      "path": "tests/media-external-platform-contract-observation.test.mjs",
+      "sha256": "d16d51e6bb99304a429e4312ae0762a18e1edfe5f00a196b956214c526d03716"
+    },
+    {
+      "path": "tests/media-lifecycle-l02-source-case-links.test.mjs",
+      "sha256": "5991466701c29b83cb8087182f75f52d9ac0a13a6977d709fba088e8367d3444"
+    },
+    {
+      "path": "tests/media-lifecycle-l03-proof-route-candidates.test.mjs",
+      "sha256": "6d3014ec3fc505a7af4f7c6a508c3296cd736afa9e67c546a8ec65276bab64d2"
+    },
+    {
+      "path": "tests/media-lifecycle-source-generator.test.mjs",
+      "sha256": "3d12a9cfea52c3367f079ae77ac9f3cf7a4542ff75f036351ffdb074ecda3b5d"
+    },
+    {
+      "path": "tests/media-migration-linked-pdp-impact.test.mjs",
+      "sha256": "451302cbdf563055c6dc358f33df2d513015e119d32d7bab3ba451faddd42d2e"
+    },
+    {
+      "path": "tests/media-migration-new-source-claims.test.mjs",
+      "sha256": "982c59f6eaa04820dc96af42c94b2d61ecca275ecaedade2e975770132c7b5d2"
+    },
+    {
+      "path": "tests/media-migration-semantics-ledger.test.mjs",
+      "sha256": "12e0797936fc1dc2a77653e6ef3e53c4f2268c2eaf1f45d0ab05c62d4482d460"
+    },
+    {
+      "path": "tests/media-obligation-denominator-audit.test.mjs",
+      "sha256": "603742ea4be3b5f842cf2ea454960a02649ee4fcef8192143af68a3ca1384619"
+    },
+    {
+      "path": "tests/media-operation-parity-source-denominators.test.mjs",
+      "sha256": "0f125441c74527de92413e3ced64d22730daa7059d04e09e32252eed83134715"
+    },
+    {
+      "path": "tests/media-product-definition-residuals.test.mjs",
+      "sha256": "fdf9836630b1f0cb8b0715e80ff187ecf2f26160a1a30e486d5f4933510e0471"
+    },
+    {
+      "path": "tests/media-product-definition-resolutions.test.mjs",
+      "sha256": "eff51a637f8e17fcfede89b670457bc9dfd396ba3465bd8392fb87caecb9054a"
+    },
+    {
+      "path": "tests/media-release-profile.test.mjs",
+      "sha256": "6a08ce9e1cd5b112185a04cd3d0beec31e932c3e0f0ab79ce093d61ad09aa015"
+    },
+    {
+      "path": "tests/media-state-machine-extraction.test.mjs",
+      "sha256": "d6af54f54fb73ab06b68ddaca85b79b1b6dd17911039396f7f755c4b4563776f"
+    },
+    {
+      "path": "tests/media-typed-contract-bindings-legacy.test.mjs",
+      "sha256": "d5e7e0b0048573e20e39c9c6339b709869f1e749dde661d10b10f855e19d5d56"
+    },
+    {
+      "path": "tests/media-typed-contract-bindings.test.mjs",
+      "sha256": "0a1842deb60aad44b6bd351bf7c32f2b3c0d04a70dcbb38ec6a5003188a9fe3d"
+    },
+    {
+      "path": "tests/pdp-0-06-measures-provenance.test.mjs",
+      "sha256": "355065122d594f6c21245b943b28a1cb15ddb64e251724469023b0a63225bce5"
+    },
+    {
+      "path": "tests/pdp-0-final.test.mjs",
+      "sha256": "1aa8128ee997dc730d25d77774136f0abd33ce704a8a370ef5cbd9f814bb0bd4"
+    },
+    {
+      "path": "tests/pdp-2-experience-language-projection.test.mjs",
+      "sha256": "e65bf02e5f8539849b460a42d7fb2da51f4bba7d58d9dc8763213459d9c48cc9"
+    },
+    {
+      "path": "tests/pdp-2-recipe-layout-chains.test.mjs",
+      "sha256": "db6aee5b65156d452f01073d67b4688259d5a8415196eca201b4fae7f67dc707"
+    },
+    {
+      "path": "tests/pdp-3-overview-denominator.test.mjs",
+      "sha256": "da604afb0224589719fd7424153c1af58c8c30fe20d74637d8aa5c110113dd92"
+    },
+    {
+      "path": "tests/pdp-3-screen-journey-crosslinks.test.mjs",
+      "sha256": "e1656185835e694319b04354317ebe87ea742866ff0b6894f9db1995c8d66020"
+    },
+    {
+      "path": "tests/pdp-overview-currentness.test.mjs",
+      "sha256": "f6d963b689a10ad15e18375581ae6b7ff73d7f76624def36f32f4ec874577fea"
+    },
+    {
+      "path": "tests/product-definition-authority.test.mjs",
+      "sha256": "f9ff8024cc7097e448c2ee13aff603e8e0b4153d8c70457a4150979fb9b4865c"
+    },
+    {
+      "path": "tests/product-definition-domain-rule-mapping.test.mjs",
+      "sha256": "19da17cef4c1ce59bd3dd727639ca0dd34ca99a2bac790bf875227ab218191ed"
+    }
+  ],
+  "sourceInventory": {
+    "manifest": 314,
+    "explorer": 315
+  },
+  "residualDiagnosticCount": 0,
+  "externalOwnerContracts": [
+    {
+      "owner": "Tools",
+      "issue": "https://github.com/samujjwal/ghatana-tools/issues/30",
+      "tasks": "X-01/E-02",
+      "deliverable": "Immutable public contracts/host owner acceptance",
+      "status": "OUTSTANDING_NO_OWNER_ACCEPTANCE_CLAIMED"
+    },
+    {
+      "owner": "Lifecycle",
+      "issue": "https://github.com/samujjwal/ghatana-lifecycle/issues/1",
+      "tasks": "X-02/L-04/L-07",
+      "deliverable": "Licensing, provider/observer/oracle admission, native phase receipts",
+      "status": "OUTSTANDING_NO_OWNER_ACCEPTANCE_CLAIMED"
+    },
+    {
+      "owner": "Shared",
+      "issue": "https://github.com/samujjwal/ghatana-shared/issues/234",
+      "tasks": "X-03/P2-02/P2-08",
+      "deliverable": "Version-qualified public design/component exports and distinct AT review",
+      "status": "OUTSTANDING_NO_OWNER_ACCEPTANCE_CLAIMED"
+    },
+    {
+      "owner": "Document Intelligence",
+      "issue": "https://github.com/samujjwal/ghatana/issues/252",
+      "tasks": "X-04",
+      "deliverable": "Installed public client compatibility, tenant/consent policy and qualified provider contract",
+      "status": "OUTSTANDING_NO_OWNER_ACCEPTANCE_CLAIMED"
+    },
+    {
+      "owner": "AI Inference",
+      "issue": "https://github.com/samujjwal/ghatana/issues/253",
+      "tasks": "X-05",
+      "deliverable": "Typed qualified audio/video modality/model contract",
+      "status": "OUTSTANDING_NO_OWNER_ACCEPTANCE_CLAIMED"
+    },
+    {
+      "owner": "Data/Action/Event",
+      "issue": "https://github.com/samujjwal/ghatana/issues/254",
+      "tasks": "X-06",
+      "deliverable": "Exact platform operation/permission/delivery contracts",
+      "status": "OUTSTANDING_NO_OWNER_ACCEPTANCE_CLAIMED"
+    },
+    {
+      "owner": "Independent reviewers",
+      "issue": "https://github.com/samujjwal/ghatana-media/issues/4",
+      "tasks": "P0-08/P1-11/P2-08/P2-09/P3-10/E-05",
+      "deliverable": "Named qualified independent semantic, visual, assistive, scientific and legal reviewers",
+      "status": "OUTSTANDING_NO_OWNER_ACCEPTANCE_CLAIMED"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "G-01",
+      "status": "complete",
+      "boundedChange": "Refreshed actual owner-plan base/branch/worktree observation; retained prior f200f44 snapshot as historical.",
+      "remainingDependencies": "None for G-01 baseline and inventory acceptance. Lifecycle currentness, immutable external package admission, and production qualification remain separate open work under L-*, X-*, and R-* tasks.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "G-02",
+      "status": "complete",
+      "boundedChange": "Regenerated public candidates and manifest after reviewed changes; strict current validation is recorded in the batch report.",
+      "remainingDependencies": "None for G-02 generation, source-drift, and residual-report acceptance. The 1/0/10 semantic blockers and owner-review gates remain under G-03 and relevant PDP tasks; Lifecycle currentness is not evaluated.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "G-03",
+      "status": "partial",
+      "boundedChange": "Six exact PDP-1 rule projections accepted under PXD-035; sole PDP-0 measure blocker and ten PDP-3 blockers remain.",
+      "remainingDependencies": "Still required: exact source-owner decisions for PDP-0 domainRules and metric/profile/applicability/target/baseline/qualification meaning for successMeasures; PDP-3 exact step intents, transitions, actions/effects/finality/recovery/scenario/fixture and remaining bindings; applicable independent public-contract review. Lifecycle receipts/currentness remain unissued.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "G-04",
+      "status": "complete",
+      "boundedChange": "Reporter separates 349 original structural observations, 89 bounded classifications and 260 semantic items, checking exact decision ID uniqueness.",
+      "remainingDependencies": "No remaining G-04 acceptance gap. Re-run the reporter after future source changes; G-02 remains an upstream source-generation workstream.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "G-05",
+      "status": "partial",
+      "boundedChange": "Mirrored PXD-033 through PXD-039 with bounded scope; retained PXD-028 original41 approval history; current links47, admissions0.",
+      "remainingDependencies": "Still required: reconcile remaining active decision mirrors and finish semantic migration reconciliation; keep per-record, independent, external-package, Lifecycle, and phase acceptance open; dependencies G-01/G-03.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "G-06",
+      "status": "partial",
+      "boundedChange": "Updated four phase source summaries with current contracts, selected definition links and distinct external/independent gates.",
+      "remainingDependencies": "Still required: complete the migration-semantic reconciliation and keep summaries synchronized with evolving phase sources; G-05, then revisit in each phase.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P0-01",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: source/owner evidence for exact per-leaf journey or operation targets, P1-03 canonical operation identities/contracts, and independent P0-010 review; do not bulk-resolve by similarity.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P0-02",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P0-01 exact leaf dispositions, owner-selected inputs/units/constraints and acceptance cases, profile qualification, and non-invented performance/security/quality bounds.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P0-03",
+      "status": "partial",
+      "boundedChange": "Reviewed six NO_NORMATIVE_CONTENT proposals individually; only three exact process rows classified EXECUTION_ONLY under PXD-039. Remaining260 semantic items and source-diff equivalence unresolved.",
+      "remainingDependencies": "Still required: claim-level reconciliation/decomposition of the 263 unresolved semantic-content items, item-level reconciliation of affected historical MPSEM texts/locations, qualified domain-owner and independent P0-010 review, and external contract/qualification/runtime evidence. The 86 exact non-normative classifications do not establish crosswalk semantic equivalence, task completion, receipt transfer, or phase acceptance.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P0-04",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: exact intent/outcome and journey-step semantic bindings beyond representative actors; independent P0-010 review; remaining P0-01/P0-03 scope and migration work. Keep phase acceptance and Lifecycle currentness open.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P0-05",
+      "status": "partial",
+      "boundedChange": "Six PDP-1 source rule projections with owner, trust scope, violation and fail-closed response, exact ID-to-decision resolver and forged/swapped-key negatives. Full transition/trust conformance and dependencies open.",
+      "remainingDependencies": "Still required: complete source-level rule/invariant/trust/ownership reconciliation, PDP-1 owner review, migration semantic reconciliation, and independent PDP-0 acceptance.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P0-06",
+      "status": "partial",
+      "boundedChange": "Four measurement contracts define unit, population, criterion and evidence method; targets NOT_SET, baseline/qualification NOT_EVALUATED; exact capability/profile crosswalk and calibration open.",
+      "remainingDependencies": "Still required: owner/specialist selection of measurable criteria and benchmark population, capability/outcome applicability crosswalk after P0-01/P0-03, accepted profile bindings, targets/baselines, and any qualification evidence.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P0-07",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P0-01/P0-02 bounds and per-leaf applicability, P0-03/P0-04/P0-06 decisions, specialist review and P0-010 independent acceptance; source parity does not authorize channel admission.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P0-08",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P0-01 through P0-07.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P1-01",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: owner-adjudicated cross-interface canonical keys, immutable artifact/caption version semantics and durable lineage/attempt history, plus review of 11 proposed relationships; no fixture-only record is runtime or persistence evidence.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P1-02",
+      "status": "partial",
+      "boundedChange": "Loss-preserving machine-scoped TypeScript observation replaces unsafe legacy aliases; runtime input/cross-field validation and eight focused tests. Durable transition/restart/provider proof and external Data Cloud mapper open.",
+      "remainingDependencies": "Still required: append-only AttemptId/history and durable restart reconciliation; source-compatible legacy mapping with loss reports; provider finality/cancellation oracles; P1-01 object identity; and independent PDP-1 review. OUTCOME_UNKNOWN prevents automatic replay but does not resolve provider outcome.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P1-03",
+      "status": "partial",
+      "boundedChange": "Ten individual source-bounded upload/job operation contracts with negative cases; cross-interface bindings, real retry/outcome routes and canonical admission remain unresolved.",
+      "remainingDependencies": "Still required: P0-01 exact capability targets, P1-02 state/finality semantics, concrete operation meanings/authority and owner review; keep all proposals distinct from accepted bindings.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P1-04",
+      "status": "partial",
+      "boundedChange": "Counted the public scene-text adapter method as an unresolved provider adapter; SDK32 raw/29 public and total284 identities/192 unresolved. No name-based equivalence accepted.",
+      "remainingDependencies": "Still required: exact owner-reviewed disposition of 10 unresolved SDK methods and semantic review of the 14 proposals; Ghatana Tools owner-published, versioned input/result contracts for all four tools; owner-selected PDP-1 operation semantics and cross-interface bindings. No proposal is owner-accepted.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P1-05",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P1-03/P1-04 operation semantics, full wire-to-logical compatibility decisions, owner review, and consumer-migration approval before any SDK route changes.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P1-06",
+      "status": "complete",
+      "boundedChange": "Retained bounded complete status; exact typed source census extended to20 types/21 schemas with observation shape source bindings.",
+      "remainingDependencies": "No P1-06-specific local catalog verification remains. Broader wire/semantic parity and owner acceptance remain tracked under P1-04/P1-05/P1-07.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P1-07",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: source-supported PDP-1 operation bindings, authorized effect/finality semantics, shared Agent Tool contract admission, and independent owner acceptance.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P1-08",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: owner-approved event taxonomy and authority/privacy semantics, durable delivery/retry/deduplication, ordering/replay/retention, acknowledgment and recovery contracts, plus P1-02/P1-03 and X-06 owner acceptance.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P1-09",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: source-grounded semantic decisions and specialist review; P1-01, P0-06.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P1-10",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P1-02/P1-03, X-03, trusted tenant/principal authentication, revocation race and propagation evidence, legal-hold and complete-erasure semantics, replay/reconciliation guarantees, owner decisions and independent security/privacy review plus exact negative cases.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P1-11",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P1-01 through P1-10.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P2-01",
+      "status": "complete",
+      "boundedChange": null,
+      "remainingDependencies": "P2-01 mapping acceptance is complete. Separate open gates remain: Shared artifact binding/owner and license acceptance, 47 screen-instance admissions, independent visual/accessibility review, and P2-09 phase authority acceptance.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P2-02",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: X-03 owner approval, installed or immutable public artifact consumer proof, complete light/dark token/theme alias verification, focus/keyboard/forced-colors/reduced-motion and semantic qualification, and package license/distribution review.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P2-03",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: source evidence and owner selection for recipe/component bindings, external Shared public artifact acceptance, and independent visual/accessibility/conformance review.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P2-04",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P2-02/P2-03 and Shared installed-artifact, owner, accessibility, design, and license review; specialized Media workflow contracts remain Media-owned until exact Shared matches are approved.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P2-05",
+      "status": "partial",
+      "boundedChange": "Five new central templates, three layouts and one multitrack pattern;13 templates/11 layouts/13 recipes; six replacement screen links accepted under PXD-037, all47 selected and zero screen compositions admitted.",
+      "remainingDependencies": "Still required: reconcile the six withheld purpose mismatches against exact catalog semantics (revise only with source-matched evidence or retain them withheld), any schema-supported per-screen recipe binding, composition behavior and keyboard/focus/unknown-finality semantics, Shared package admission, and independent accessibility/design review. No screen composition or PDP phase is accepted.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P2-06",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P2-04/P2-05.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P2-07",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P1-03/P1-05/P1-07/P1-08, accepted operation-level contracts, per-channel consumer conformance and API owner review; see verification_or_gap.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P2-08",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P2-05/P2-06, X-03.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P2-09",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P2-01 through P2-08.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P3-01",
+      "status": "partial",
+      "boundedChange": "All130 steps are projected; ten semantic fields remain blocked.",
+      "remainingDependencies": "Still required: component props, canonical PDP-1 state/operation/action/guard/effect bindings, resolved journey actors and ordered steps, public recovery semantics, and complete scenario/fixture coverage; dependencies include G-03/P1-03/P2-09 and P3-02 through P3-05. Exact source step intent/identity/transition semantics and actor resolver remain unavailable for a schema-valid subset.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P3-02",
+      "status": "partial",
+      "boundedChange": "Six formerly mismatched central composition choices replaced by purpose-matched source definitions; screen actions/states/components/behavior and independent review open.",
+      "remainingDependencies": "Still required: reconcile the six withheld template/layout mismatches without forcing a non-equivalent reuse, complete applicable screen/action bindings, and obtain independent review; screen admission remains pending.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P3-03",
+      "status": "partial",
+      "boundedChange": "Eight J-29/J-30 intent/view/screen refs accepted; all130 screen refs resolve,112 action allocations and130 transition refs unresolved.",
+      "remainingDependencies": "Still required: four exact step-intent mappings; 130 transition mappings with canonical actions/guards; 8 missing view allocations; remaining action/operation/state/object/authority/requirement/verification/evidence bindings; complete outcome/recovery/scenario semantics and 27 absent scenario refs; independent PDP-3 review and Lifecycle receipts. P0-04 actor choice does not resolve these semantics.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P3-04",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: bind remaining 132 actions and all guards/effects/finality to canonical behavior; owner review.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P3-05",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: exact canonical state/context bindings for the 15 seeded scenarios without accepted PDP-1 starts; a source-supported retry-eligible prior-attempt fixture and reducer/action semantics; per-journey source-grounded payloads; owner-approved executable oracles and canonical action/effect authority; and P3-03/P1-02/P1-03 dependencies. No scenario or journey acceptance is inferred.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P3-06",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P2-04/P3-02/P3-05.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P3-07",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: PDP-1 owner-selected search operations and request/result/error semantics; authorization-safe search behavior; inspection access and evidence admission; runtime integration; independent review and acceptance.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P3-08",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: complete accepted source-bound examples and traceable action/operation/state/scenario/owner/runtime evidence per applicable family, or reviewed explicit exclusions. Dependencies include P0-07, P3-03, and P3-05; no provider/license/runtime qualification is inferred.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P3-09",
+      "status": "partial",
+      "boundedChange": "Built Explorer and ran isolated Chromium audit across six viewports/282 proposal URLs; bounded report saved, independent visual/AT/localization acceptance open.",
+      "remainingDependencies": "Still required: P2-08 independent visual/assistive-technology review, P3-05 scenario coverage and P3-06 production/shared renderer qualification; the browser audit is source evidence, not WCAG certification or owner acceptance.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "P3-10",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P3-01 through P3-09.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "E-01",
+      "status": "partial",
+      "boundedChange": "Regenerated314 source-manifest records/315 Explorer entries; exact source projections remain candidate-only.",
+      "remainingDependencies": "Still required: complete-source/schema-backed cross-phase and bidirectional semantics, G-02/G-06 synchronization, browser review of later additions as needed, Tools host representation/currentness and owner acceptance; no second semantic authority.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "E-02",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P3-06/P3-07 contract acceptance, X-01 public package/owner acceptance, and an actual deployed Tools host for production parity.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "E-03",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P2-06/E-01.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "E-04",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P3-05, X-01.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "E-05",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: E-01..E-04/P2-08.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "L-01",
+      "status": "complete",
+      "boundedChange": "Retained bounded complete source-census scope and corrected denominator344 (38/146/83/77), with source enumeration rather than hardcoded count.",
+      "remainingDependencies": "No local denominator, membership, or source-fingerprint gap remains. Continue L-02/L-03 proof-case and observer/oracle work; Lifecycle admission/currentness and PDP phase closure remain external and are not claimed by L-01 completion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "L-02",
+      "status": "partial",
+      "boundedChange": "Reconciled candidate inventory to344 while retaining28 links across7 obligations;337 unmapped. No invented cases.",
+      "remainingDependencies": "Still required: source-supported case/proof links for 337 unmapped obligations in the current 344-row source census, validation of all 62 originally populated case rows, semantically admissible selected proof methods/classes, Lifecycle registration/admission, named observers/oracles, and authoritative current receipts. No execution admission or closure is inferred.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "L-03",
+      "status": "partial",
+      "boundedChange": "Source fingerprint refresh preserves changed-route prior history and sets NOT_RUN_SOURCE_CHANGED/rerunRequired. No admitted observer/oracle.",
+      "remainingDependencies": "Still required: complete L-02 case selection; register actual producer/observer and method-specific oracle identities; bind source-specific results; obtain independent review and Lifecycle admission. No synthetic PASS or closure is claimed.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "L-04",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: X-01/X-02, begin immediately.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "L-05",
+      "status": "partial",
+      "boundedChange": "Current source-only preflight and isolated consumer checks run; PENDING with no qualified provider or native phase receipt.",
+      "remainingDependencies": "Still required: L-02/L-03/L-04.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "L-06",
+      "status": "partial",
+      "boundedChange": "Added meaningful isolated duplicate/omission/stale-generator negatives and ran affected tests; actual344-obligation semantic proof admission remains open.",
+      "remainingDependencies": "Still required: L-05 provider/proof admission and accepted PDP slices, source dependency vectors, method-correct Lifecycle-evaluated evidence, and remaining task-specific negative dependency cases.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "L-07",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: P0-08/P1-11/P2-09/P3-10/L-06.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "L-08",
+      "status": "partial",
+      "boundedChange": "Current ledger and execution report distinguish source definition/release lanes and every denominator.",
+      "remainingDependencies": "Still required: G-04/L-07.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "X-01",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: authoritative Tools owner/package acceptance and any external contract changes.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "X-02",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: actual public Lifecycle outputs and current receipts for each phase.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "X-03",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: parallel start: W0; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "X-04",
+      "status": "partial",
+      "boundedChange": "Typed scene-text adapter candidate with source/frame/version preservation and fail-closed protocol/provider/model/result/input checks; public installed DI assignability, tenant/consent mapping and runtime admission remain open.",
+      "remainingDependencies": "Still required: versioned published/qualified public client and dependency, MDI-001 owner handoff, consumer conformance for source format/locale/span/time and consent/tenant/error policy, and Document Intelligence owner acceptance.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "X-05",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: external AI Inference governance snapshot, versioned qualified audio/video/STT/TTS/vision/multimodal model and provider contract, runtime-active tests, and AI Inference owner/public-contract acceptance.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "X-06",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: agreed public package/API binding and context/permission parity, Media lifecycle ownership/taxonomy decisions, stream lifecycle ownership, delivery and recovery guarantees, consumer conformance, deployment qualification, and Ghatana platform owner acceptance.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "X-07",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: accepted spatial use cases; not a default PDP closure blocker.; see verification_or_gap for the unmet portion.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "X-08",
+      "status": "blocked-external/independent",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: deployment-profile SBOM/license/security/compatibility evidence and owner decision for the selected profile; does not block definition-only phases.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "X-09",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: versioned owner-authorized cutover, rollback rehearsal, all consumer migrations, and external repository work; X-04/05/06 and implementation readiness.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "R-01",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: select actual supported profiles, run native and runtime/security/performance qualification, resolve patent/license and hardware requirements, and obtain specialist/owner review. The plan's second R-01 Done sentence duplicates the R-05 release-gate criterion; it is tracked under R-05 without treating it as codec evidence.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "R-02",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: exact model/weight identities and rights, privacy/security review, supported deployment profiles, calibrated reproducible quality/performance evidence, and specialist acceptance.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "R-03",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: production monitoring and operational qualification for the S3/DB failure window; trusted tenant/principal authentication and spoof-resistance beyond the tested tenant-scoped APIs, source-defined parser/SSRF destination policy, and upload-quarantine trust/admission/promotion semantics, durable job/outbox/fencing/restart evidence, backpressure/quotas/safe telemetry, and full real-system failure, soak/load, rollback and production qualification evidence.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "R-04",
+      "status": "partial",
+      "boundedChange": null,
+      "remainingDependencies": "Still required: deploy a production product host and verify renderer/client parity, identity, CSP, routing, accessibility, telemetry, cross-browser E2E, and release smoke.",
+      "doneCriterionUnchanged": true
+    },
+    {
+      "id": "R-05",
+      "status": "partial",
+      "boundedChange": "Started version1 INTERNAL_VALIDATION_ONLY reference profile with all external effects/dependencies NOT_ADMITTED and explicit production gates. No immutable candidate, SBOM/license qualification, deployment or cutover signoff.",
+      "remainingDependencies": "Owner-approved release/dependency/build/runtime profile; immutable artifact identities; agreed full consumer/deployment reconciliation and owner confirmations; profile-specific security/performance/license/SBOM and runtime qualification; release-owner authorization and rollback/SLO evidence.",
+      "doneCriterionUnchanged": true
+    }
+  ],
+  "nextExecutableSlices": [
+    "Author exact per-leaf/individual-operation inputs, bounds, profile and source semantics; review each mapping rather than aliasing organizational families.",
+    "Resolve master-plan DEFINE_PRODUCT scope and removed fixture/adapter/verification duties claim by claim; retain the stale historical pin until semantic diff is accepted.",
+    "Author exact canonical action/transition allocation for each remaining journey step; candidate alternatives are not selected semantics.",
+    "Align SDK retry/cancel with the authoritative runtime/API identities. Retry endpoint/runtime and outcome observer are missing; preserve request-vs-confirmed cancellation.",
+    "Implement source-specific proof cases and observer/oracle candidates for accepted bounded semantics, then obtain Lifecycle-owned admission and independent evidence.",
+    "Complete the named public owner, independent reviewer, model/codec/license/runtime/production qualification and cutover contracts before release."
+  ]
+}

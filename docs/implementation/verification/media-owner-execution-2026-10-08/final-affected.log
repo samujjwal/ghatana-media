@@ -1,0 +1,256 @@
+TAP version 13
+# Subtest: generator refuses duplicate source identities without modifying closure inputs
+ok 1 - generator refuses duplicate source identities without modifying closure inputs
+  ---
+  duration_ms: 233.232011
+  type: 'test'
+  ...
+# Subtest: generator refuses omitted source collections before any output is written
+ok 2 - generator refuses omitted source collections before any output is written
+  ---
+  duration_ms: 200.653164
+  type: 'test'
+  ...
+# Subtest: check mode detects stale source fingerprints and output drift without writing
+ok 3 - check mode detects stale source fingerprints and output drift without writing
+  ---
+  duration_ms: 450.586988
+  type: 'test'
+  ...
+# Subtest: audits exact 344 obligation denominator, four phase counts, memberships, and resolvable source records
+ok 4 - audits exact 344 obligation denominator, four phase counts, memberships, and resolvable source records
+  ---
+  duration_ms: 1650.713464
+  type: 'test'
+  ...
+# Subtest: refreshes the nine operation-source fingerprints only after their semantic impact is reconciled
+ok 5 - refreshes the nine operation-source fingerprints only after their semantic impact is reconciled
+  ---
+  duration_ms: 1777.153493
+  type: 'test'
+  ...
+# Subtest: ten individual source slices add obligations but no case, observer, oracle, or admission claims
+ok 6 - ten individual source slices add obligations but no case, observer, oracle, or admission claims
+  ---
+  duration_ms: 54.981922
+  type: 'test'
+  ...
+# Subtest: PDP-2 obligation fingerprints change only after exact source-record impact is recorded
+ok 7 - PDP-2 obligation fingerprints change only after exact source-record impact is recorded
+  ---
+  duration_ms: 8.576392
+  type: 'test'
+  ...
+# Subtest: PXD-032 adds only the required source-proposal obligation for the progress-indicator contract
+ok 8 - PXD-032 adds only the required source-proposal obligation for the progress-indicator contract
+  ---
+  duration_ms: 44.133984
+  type: 'test'
+  ...
+# Subtest: flags duplicate IDs, phase contradictions, and duplicate or missing selected membership
+ok 9 - flags duplicate IDs, phase contradictions, and duplicate or missing selected membership
+  ---
+  duration_ms: 942.437087
+  type: 'test'
+  ...
+# Subtest: flags unresolved source references and stale expected fingerprints
+ok 10 - flags unresolved source references and stale expected fingerprints
+  ---
+  duration_ms: 842.697076
+  type: 'test'
+  ...
+# Subtest: flags a missing persisted source digest
+ok 11 - flags a missing persisted source digest
+  ---
+  duration_ms: 856.05132
+  type: 'test'
+  ...
+# Subtest: residual report validates exact projection dispositions and pinned sources
+ok 12 - residual report validates exact projection dispositions and pinned sources
+  ---
+  duration_ms: 357.300673
+  type: 'test'
+  ...
+# Subtest: residual report output is deterministic and clearly diagnostic
+ok 13 - residual report output is deterministic and clearly diagnostic
+  ---
+  duration_ms: 750.531109
+  type: 'test'
+  ...
+# Subtest: projection field audit catches missing schema fields and unreported empty collections
+ok 14 - projection field audit catches missing schema fields and unreported empty collections
+  ---
+  duration_ms: 23.595075
+  type: 'test'
+  ...
+# Subtest: projection source validation rejects unregistered and stale local sources
+ok 15 - projection source validation rejects unregistered and stale local sources
+  ---
+  duration_ms: 15.380951
+  type: 'test'
+  ...
+# Subtest: PDP overview pages link current authority, acceptance, and source inventory records
+ok 16 - PDP overview pages link current authority, acceptance, and source inventory records
+  ---
+  duration_ms: 2.242442
+  type: 'test'
+  ...
+# Subtest: PDP overview blocker summaries match generated candidate projections
+ok 17 - PDP overview blocker summaries match generated candidate projections
+  ---
+  duration_ms: 2.175145
+  type: 'test'
+  ...
+# Subtest: PDP overview docs keep phase prerequisites and independent/external gates explicit
+ok 18 - PDP overview docs keep phase prerequisites and independent/external gates explicit
+  ---
+  duration_ms: 0.438996
+  type: 'test'
+  ...
+# Subtest: PDP-3 overview preserves historical PXD-028 and current PXD-037 composition-link decisions
+ok 19 - PDP-3 overview preserves historical PXD-028 and current PXD-037 composition-link decisions
+  ---
+  duration_ms: 0.375811
+  type: 'test'
+  ...
+# Subtest: canonical Media product-definition authority is structurally closed locally
+ok 20 - canonical Media product-definition authority is structurally closed locally
+  ---
+  duration_ms: 158.711346
+  type: 'test'
+  ...
+# Subtest: PDP3 screen registry has 47 structurally complete v2 canonical screen proposals
+ok 21 - PDP3 screen registry has 47 structurally complete v2 canonical screen proposals
+  ---
+  duration_ms: 30.818065
+  type: 'test'
+  ...
+# Subtest: acceptance inputs use the four canonical PDP phases and keep Explorer outside the phase ledger
+ok 22 - acceptance inputs use the four canonical PDP phases and keep Explorer outside the phase ledger
+  ---
+  duration_ms: 4.863253
+  type: 'test'
+  ...
+# Subtest: active authority and experience metadata use canonical PDP labels without renaming stable IDs
+ok 23 - active authority and experience metadata use canonical PDP labels without renaming stable IDs
+  ---
+  duration_ms: 1.442924
+  type: 'test'
+  ...
+# Subtest: active cross-phase metadata uses canonical PDP labels while stable exception identities remain intact
+ok 24 - active cross-phase metadata uses canonical PDP labels while stable exception identities remain intact
+  ---
+  duration_ms: 27.719325
+  type: 'test'
+  ...
+# Subtest: PDP3-005 journey steps are structured, provenance-bound proposals across all 30 contracts
+ok 25 - PDP3-005 journey steps are structured, provenance-bound proposals across all 30 contracts
+  ---
+  duration_ms: 113.573328
+  type: 'test'
+  ...
+# Subtest: gRPC source inventory status matches the active proto census without changing pending bindings
+ok 26 - gRPC source inventory status matches the active proto census without changing pending bindings
+  ---
+  duration_ms: 1.181609
+  type: 'test'
+  ...
+# Subtest: PDP1 operation proposal preserves source denominators and the complete proposal field shape
+ok 27 - PDP1 operation proposal preserves source denominators and the complete proposal field shape
+  ---
+  duration_ms: 4.250709
+  type: 'test'
+  ...
+# Subtest: active G-05 mirrors match current proposal counts without implying acceptance
+ok 28 - active G-05 mirrors match current proposal counts without implying acceptance
+  ---
+  duration_ms: 2.903741
+  type: 'test'
+  ...
+# Subtest: PDP1 event inventory preserves lifecycle and local-client populations without inventing contracts
+ok 29 - PDP1 event inventory preserves lifecycle and local-client populations without inventing contracts
+  ---
+  duration_ms: 4.437197
+  type: 'test'
+  ...
+# Subtest: PDP1-005 registries preserve observed facts, proposal boundaries, and owner gates
+ok 30 - PDP1-005 registries preserve observed facts, proposal boundaries, and owner gates
+  ---
+  duration_ms: 1.865399
+  type: 'test'
+  ...
+# Subtest: PDP1 state and transition extraction remains proposal-only and preserves unresolved source conflicts
+ok 31 - PDP1 state and transition extraction remains proposal-only and preserves unresolved source conflicts
+  ---
+  duration_ms: 2.509451
+  type: 'test'
+  ...
+# Subtest: PDP-1 negative state cases encode owner-approved non-equivalences without claiming runtime proof
+ok 32 - PDP-1 negative state cases encode owner-approved non-equivalences without claiming runtime proof
+  ---
+  duration_ms: 1.369969
+  type: 'test'
+  ...
+# Subtest: PDP-0 YAML source preserves corrected indentation and symbol-scoped OCR disposition (text checks only)
+ok 33 - PDP-0 YAML source preserves corrected indentation and symbol-scoped OCR disposition (text checks only)
+  ---
+  duration_ms: 32.073324
+  type: 'test'
+  ...
+# Subtest: scope-status validation never infers compatibility from nearby wording
+ok 34 - scope-status validation never infers compatibility from nearby wording
+  ---
+  duration_ms: 1.859365
+  type: 'test'
+  ...
+# Subtest: nested journey records each require exactly one allowed scopeStatus
+ok 35 - nested journey records each require exactly one allowed scopeStatus
+  ---
+  duration_ms: 6.095798
+  type: 'test'
+  ...
+# Subtest: Explorer index exposes source paths without workstation identity
+ok 36 - Explorer index exposes source paths without workstation identity
+  ---
+  duration_ms: 2.346353
+  type: 'test'
+  ...
+# Subtest: generated Explorer index covers every current source-manifest artifact exactly once
+ok 37 - generated Explorer index covers every current source-manifest artifact exactly once
+  ---
+  duration_ms: 14.719623
+  type: 'test'
+  ...
+# Subtest: HTTP route, SDK, and interface projections retain canonical ownership
+ok 38 - HTTP route, SDK, and interface projections retain canonical ownership
+  ---
+  duration_ms: 107.760993
+  type: 'test'
+  ...
+# Subtest: screen composition records retain Shared-boundary design metadata
+ok 39 - screen composition records retain Shared-boundary design metadata
+  ---
+  duration_ms: 197.001472
+  type: 'test'
+  ...
+# Subtest: PDP2-002 GUI pattern registry covers every required category without inventing destructive semantics
+ok 40 - PDP2-002 GUI pattern registry covers every required category without inventing destructive semantics
+  ---
+  duration_ms: 1.790812
+  type: 'test'
+  ...
+# Subtest: PDP2-004/005 interface registries are complete proposals with owner and runtime boundaries explicit
+ok 41 - PDP2-004/005 interface registries are complete proposals with owner and runtime boundaries explicit
+  ---
+  duration_ms: 10.178828
+  type: 'test'
+  ...
+1..41
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6407.94095

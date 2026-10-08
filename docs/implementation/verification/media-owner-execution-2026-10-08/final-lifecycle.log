@@ -1,0 +1,17 @@
+Lifecycle source inputs are current.
+{
+  "generatedObligations": 0,
+  "denominator": 344,
+  "phaseCounts": {
+    "PDP-0": 38,
+    "PDP-1": 146,
+    "PDP-2": 83,
+    "PDP-3": 77
+  },
+  "sourceFingerprintRefresh": "CURRENT_SOURCE_DIGESTS_RECORDED; ALL_PRIOR_CANDIDATE_PROOFS_INVALIDATED_PENDING_RERUN_AND_REVIEW",
+  "caseLinks": 28,
+  "caseLinkedObligations": 7,
+  "unmappedObligations": 337,
+  "providerObserverOracleAdmissions": 0,
+  "receipts": 0
+}

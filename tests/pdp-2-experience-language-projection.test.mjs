@@ -62,6 +62,11 @@ test('PDP-2 projects exact owner-approved recipe identities while admission stay
     ['media.language.recipe-binding.consent-gate', 'media.gui.recipe.consent-gate', 'media.gui.pattern.rights-and-consent-review'],
     ['media.language.recipe-binding.render-preparation-and-review', 'media.gui.recipe.render-preparation-and-review', 'media.gui.pattern.rendering'],
     ['media.language.recipe-binding.lifecycle-confirmation', 'media.gui.recipe.lifecycle-confirmation', 'media.gui.pattern.destructive-lifecycle-action'],
+    ['media.language.recipe-binding.media-composition', 'media.gui.recipe.media-composition', 'media.gui.pattern.multitrack-composition'],
+    ['media.language.recipe-binding.operational-readiness', 'media.gui.recipe.operational-readiness', 'media.gui.pattern.quality-and-uncertainty'],
+    ['media.language.recipe-binding.record-detail', 'media.gui.recipe.record-detail', 'media.gui.pattern.provenance-and-lineage'],
+    ['media.language.recipe-binding.workspace-settings', 'media.gui.recipe.workspace-settings', 'media.gui.pattern.safe-confirmation-and-unknown-outcome'],
+    ['media.language.recipe-binding.project-overview', 'media.gui.recipe.project-overview', 'media.gui.pattern.project-context-header'],
     ['media.language.recipe-binding.task-setup', 'media.gui.recipe.task-setup', 'media.gui.pattern.intent-launcher'],
   ]);
   const disposition = candidate.candidateMappingReview.fieldDispositions.recipeBindings;
