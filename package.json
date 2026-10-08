@@ -18,6 +18,8 @@
     "check:lifecycle-closure-inputs": "node scripts/check-media-lifecycle-closure-inputs.mjs",
     "test:lifecycle-consumer-artifact": "node scripts/test-media-lifecycle-admission-artifact.mjs",
     "test:lifecycle-input-preflight": "node --test tests/media-lifecycle-closure-preflight.test.mjs",
+    "test:typed-contract-bindings": "node --test tests/media-typed-contract-bindings.test.mjs",
+    "test:owner-source-selections": "node --test tests/media-owner-selection-contracts.test.mjs",
     "test:product-experience-local": "node --test tests/product-experience-local.test.mjs",
     "test:tools-media-consumer": "node scripts/test-tools-media-consumer.mjs",
     "test:shared-media-consumer": "node scripts/verify-media-shared-artifact-consumer.mjs",
