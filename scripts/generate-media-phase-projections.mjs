@@ -497,6 +497,8 @@ const definitions = [
       ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
       ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
       ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
+      ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
+      ".product-experience/pdp-1-domain-data/domain-objects.yaml",
       ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
       ".product-experience/pdp-0-product-truth/state-models.yaml",
     ],
@@ -508,8 +510,33 @@ const definitions = [
       const interactions = content(".product-experience/pdp-3-product-experience/interaction-registry.yaml");
       const channels = content(".product-experience/pdp-3-product-experience/application-channel-registry.yaml");
       const recovery = content(".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml");
+      const searchInspections = content(".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml");
+      const domainObjects = content(".product-experience/pdp-1-domain-data/domain-objects.yaml");
       const componentContracts = content(".product-experience/pdp-2-design-interface-system/component-contracts.yaml");
       const stateModels = content(".product-experience/pdp-0-product-truth/state-models.yaml");
+      const domainIds = new Set((domainObjects.objects ?? []).map((obj) => obj.id));
+      const searchable = searchInspections.searches ?? [];
+      const inspections = searchInspections.inspections ?? [];
+      const allowedInspections = new Set(["specification", "authority", "evidence", "trace", "simulation"]);
+      if (!searchable.length || !inspections.length ||
+          new Set(searchable.map((x) => x.id)).size !== searchable.length ||
+          new Set(inspections.map((x) => x.id)).size !== inspections.length) {
+        throw new Error("PDP-3 product search/inspection contracts require unique authored identities");
+      }
+      for (const query of searchable) {
+        if (!query.name || !query.description || !query.searchableTypes?.length ||
+            query.searchableTypes.some((type) => !domainIds.has(type)) ||
+            !query.authorization || query.runtimeBinding !== "NOT_ADMITTED") {
+          throw new Error(`Media search contract has unresolved domain, policy or activation meaning: ${query.id}`);
+        }
+      }
+      for (const inspection of inspections) {
+        if (!allowedInspections.has(inspection.projectionKind) || !inspection.description ||
+            !inspection.authorityRefs?.length || !inspection.requiredContext?.length ||
+            !["NOT_ADMITTED", "DEFINITION_ONLY"].includes(inspection.runtimeBinding)) {
+          throw new Error(`Media inspection contract has no safe PDP-3 authority: ${inspection.id}`);
+        }
+      }
       const renderKind = (channelRef) => ({
         "media.channel.web": "web",
         "media.channel.cli": "cli",
@@ -600,13 +627,13 @@ const definitions = [
         recovery: recoveryMappings,
         scenarios: [],
         fixtures: [],
-        search: [],
-        inspections: [],
+        search: searchable.map(({ id, name, searchableTypes, description }) => ({ id, name, searchableTypes, description })),
+        inspections: inspections.map(({ id, projectionKind, description }) => ({ id, projectionKind, description })),
         createdAt: generatedAt,
         updatedAt: generatedAt,
         _mappingReview: {
           generationTimestampSemantics: "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
-          mappedFields: ["id", "subjectId", "schemaVersion", "contextDimensions", "renderTargets", "componentContracts", "views", "interactions", "states", "actions", "recovery", "createdAt", "updatedAt"],
+          mappedFields: ["id", "subjectId", "schemaVersion", "contextDimensions", "renderTargets", "componentContracts", "views", "interactions", "states", "actions", "recovery", "search", "inspections", "createdAt", "updatedAt"],
           fieldDispositions: {
             id: { status: "DETERMINISTIC_CANDIDATE_IDENTIFIER", source: "projection generator" },
             subjectId: { status: "DIRECT_SOURCE_COPY", source: "screen-registry.yaml#productId" },
@@ -625,8 +652,8 @@ const definitions = [
             recovery: { status: "DIRECT_PROPOSAL_MAPPING; CROSS_REFERENCES_PENDING", source: "recovery-finality-contracts.yaml#contracts" },
             scenarios: { status: "BLOCKED_STARTING_STATE_AND_CONTEXT_MAPPING", source: "scenario-fixture-registry.yaml#fixtures" },
             fixtures: { status: "BLOCKED_SCENARIO_LINKAGE", source: "scenario-fixture-registry.yaml#fixtures" },
-            search: { status: "BLOCKED_NO_SCHEMA_SHAPED_SEARCH_AUTHORITY", source: "no direct source records" },
-            inspections: { status: "BLOCKED_EXPLORER_IS_NOT_PDP-3_AUTHORITY", source: "explorer/tools-binding.yaml" },
+            search: { status: "DIRECT_MEDIA_OWNER_SEARCH_CONTRACT", source: "search-inspection-contracts.yaml#searches" },
+            inspections: { status: "DIRECT_MEDIA_OWNER_INSPECTION_CONTRACT", source: "search-inspection-contracts.yaml#inspections" },
             createdAt: { status: "PROJECTION_GENERATION_METADATA", source: "generator event" },
             updatedAt: { status: "PROJECTION_GENERATION_METADATA", source: "generator event" },
           },
@@ -660,8 +687,8 @@ const definitions = [
       recovery: { sourceRef: ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml", sourcePath: "contracts", mapping: "direct proposed state/allowed/blocked recovery path; no automatic recovery is asserted" },
       scenarios: { sourceRef: ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml", sourcePath: "fixtures", mapping: "not projected without exact starting-state and context-dimension bindings" },
       fixtures: { sourceRef: ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml", sourcePath: "fixtures", mapping: "not projected without a linked ExperienceDefinition scenario" },
-      search: { sourceRef: ".product-experience/pdp-3-product-experience/screen-registry.yaml", sourcePath: "screen purposes", mapping: "no schema-shaped searchable type authority is defined" },
-      inspections: { sourceRef: ".product-experience/explorer/tools-binding.yaml", sourcePath: "Explorer inspection behavior", mapping: "Explorer observations are not accepted PDP-3 inspection contracts" },
+      search: { sourceRef: ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml", sourcePath: "searches", mapping: "exact PDP-1 domain types and Media source-owned authorization behavior" },
+      inspections: { sourceRef: ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml", sourcePath: "inspections", mapping: "Media-owned contract projection; Tools Explorer presentation mechanics remain external" },
       createdAt: { sourceRef: null, sourcePath: "candidate generation event", mapping: "projection build timestamp, not a product-authority timestamp" },
       updatedAt: { sourceRef: null, sourcePath: "candidate generation event", mapping: "projection build timestamp, not a product-authority timestamp" },
     },
@@ -678,8 +705,6 @@ const definitions = [
       recovery: ["Recovery contracts are projected as proposals; action/state/finality references and independent review remain pending."],
       scenarios: ["Scenario records describe fixtures/proposals and are not mapped to the schema's behavioral scenario contract."],
       fixtures: ["Fixture registry records do not directly supply the ExperienceDefinition fixture shape and linked source data."],
-      search: ["No PDP-3 source explicitly defines search contracts in the ExperienceDefinition schema shape."],
-      inspections: ["Specification inspection surfaces are Explorer behavior, not source-defined Product Experience inspection contracts."],
     },
     blocker: "The required ExperienceDefinition shape is populated from exact PDP sources wherever direct mappings exist; exact remaining semantic, cross-reference, and acceptance blockers stay listed separately.",
   },
