@@ -933,3 +933,6 @@ records:
   - path: ".product-experience/reviews/2026-10-07-owner-decision-and-resolution.md"
     artifactId: "ART-MEDIA-GOV-20261007-BOUNDED-OWNER-REVIEW"
     authorityClass: "CROSS_PHASE_GOVERNANCE"
+  - path: ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml"
+    artifactId: "ART-MEDIA-P3-AUTHORIZED-SEARCH-INSPECTION"
+    authorityClass: "PRODUCT_EXPERIENCE_AUTHORITY"
