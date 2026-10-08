@@ -27,23 +27,45 @@ test("external contract observation retains X-04/X-05/X-06 source limits", () =>
   assert.ok(observation.limits.some((item) => item.includes("does not prove remote publication")));
 });
 
-test("external source snapshot fails when recorded Git metadata becomes stale", (t) => {
-  const snapshot = observation.sourceSnapshots.find((item) => item.repository === "samujjwal/ghatana");
+test("external contract source is unchanged from the pinned Git revision, regardless of unrelated sibling dirt", (t) => {
+  const repository = "samujjwal/ghatana";
+  const snapshot = observation.sourceSnapshots.find((item) => item.repository === repository);
   if (!snapshot || !existsSync(resolve(snapshot.path, ".git"))) {
-    t.skip("Ghatana sibling checkout is unavailable; cannot validate recorded Git snapshot");
+    t.skip("Ghatana sibling checkout is unavailable; cannot compare contract sources to pinned Git objects");
     return;
   }
 
-  const head = execFileSync("git", ["-C", snapshot.path, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
-  const dirtyPaths = execFileSync("git", ["-C", snapshot.path, "status", "--short", "--untracked-files=all"], { encoding: "utf8" })
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => line.trimStart());
-  assert.equal(head, snapshot.head, "refresh external-platform-contract-observation.json after the sibling HEAD changes");
-  assert.deepEqual(dirtyPaths, snapshot.dirtyPaths, "refresh the recorded external dirty-path snapshot and classifications");
-  assert.equal(dirtyPaths.length, snapshot.dirtyPathCount);
-  assert.match(snapshot.dirtyPathClassification.aiInference.change, /test-parser tolerance only/u);
-  assert.match(snapshot.dirtyPathClassification.aiInference.change, /API contract semantics are unchanged/u);
+  // The dirty-path list is evidence of the *dated* observation, not an assertion
+  // about the current mutable sibling worktree. Fail instead if the actual
+  // public contracts used for X-04/X-05/X-06 have changed since that observation.
+  assert.match(snapshot.head, /^[a-f0-9]{40}$/u);
+  const contractPaths = [...new Set(observation.gates.flatMap((gate) => (gate.sourceEvidence ?? [])
+    .filter((item) => item.repository === repository)
+    .map((item) => item.path)))].sort();
+  assert.ok(contractPaths.length > 0, "no pinned Ghatana public contract source inputs");
+
+  for (const contractPath of contractPaths) {
+    assert.ok(!contractPath.startsWith("/") && !contractPath.split("/").includes(".."),
+      `invalid external source path: ${contractPath}`);
+    const pinned = execFileSync("git", ["-C", snapshot.path, "show", `${snapshot.head}:${contractPath}`],
+      { maxBuffer: 16 * 1024 * 1024 });
+    assert.ok(existsSync(resolve(snapshot.path, contractPath)),
+      `reviewed external contract is missing: ${contractPath}`);
+    const current = readFileSync(resolve(snapshot.path, contractPath));
+    assert.deepEqual(current, pinned,
+      `review the changed public contract ${contractPath} and update its source observation only after semantic reconciliation`);
+  }
+
+  const classified = Object.values(snapshot.dirtyPathClassification)
+    .flatMap((entry) => entry.paths ?? [entry.path]).sort();
+  const recordedPaths = snapshot.dirtyPaths
+    .map((path) => path.startsWith("?? ") ? path.slice(3) : path.slice(2)).sort();
+  assert.equal(new Set(classified).size, classified.length, "captured dirty classification is duplicated");
+  assert.deepEqual(classified, recordedPaths, "captured historical dirty-path classification is incomplete");
+  assert.equal(snapshot.dirtyPathCount, snapshot.dirtyPaths.length);
+
+  // Preserve previously reviewed source-history categories as evidence of the
+  // original capture rather than updating them as a side effect of other work.
   const historical = observation.historicalSourceSnapshots[0].dirtyPathClassification;
   const shared = historical.sharedBuildToolingAndTests;
   assert.equal(shared.pathCount, shared.paths.length);
@@ -55,9 +77,12 @@ test("external source snapshot fails when recorded Git metadata becomes stale", 
   const evidence = historical.unrelatedAepEniNativeDescriptorQualification;
   assert.equal(evidence.pathCount, evidence.paths.length);
   assert.match(evidence.change, /not Media qualification or Lifecycle receipts/u);
-  const classified = Object.values(snapshot.dirtyPathClassification).flatMap((entry) => entry.paths ?? [entry.path]).sort();
-  assert.equal(new Set(classified).size, classified.length, "classifications must not overlap");
-  assert.deepEqual(classified, dirtyPaths.map((path) => path.startsWith("?? ") ? path.slice(3) : path.slice(2)).sort(), "each observed dirty path has exactly one classification");
+
+  const currentHead = execFileSync("git", ["-C", snapshot.path, "rev-parse", "HEAD"],
+    { encoding: "utf8" }).trim();
+  if (currentHead !== snapshot.head) {
+    t.diagnostic("Sibling HEAD moved; reviewed public contract bytes still match the pinned revision.");
+  }
 });
 
 test("available sibling source still matches the recorded contract facts", (t) => {
