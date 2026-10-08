@@ -85,6 +85,10 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
     }
   }
   if (aliases && !/^status:\s*accepted\b/imu.test(aliases)) block(`semantic token aliases are not accepted (status=${scalar(aliases, "status") ?? "missing"})`);
+  const semanticBindingStatus = scalar(semanticBindings, "status");
+  if (semanticBindings && !/^(?:verified|current|accepted)$/iu.test(semanticBindingStatus ?? "")) {
+    block(`Shared component bindings are unresolved (status=${semanticBindingStatus ?? "missing"})`);
+  }
   if (templateCatalog && !/^scopeStatus:\s*accepted\b/imu.test(templateCatalog)) block(`template catalog is proposal/pending review, not accepted composition authority (scopeStatus=${scalar(templateCatalog, "scopeStatus") ?? "missing"})`);
   if (layout && !/^\s*status:\s*accepted\b/imu.test(layout)) block("layout rules are proposal/pending review, not accepted layout authority");
 
@@ -164,9 +168,9 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   }
   const rendererAdapters = exportMap.split(/(?=^rendererAdapters:)/mu).at(-1) ?? "";
   for (const match of rendererAdapters.matchAll(/^\s+exportName:\s*([A-Z][A-Za-z0-9_]*)\s*$/gmu)) registeredComponentNames.add(match[1]);
-  const semanticBindings = read(root, ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml") ?? "";
+  const semanticBindingSource = semanticBindings ?? "";
   const componentIdSet = new Set(listIds(componentContracts, "id"));
-  for (const block of semanticBindings.split(/(?=^  - )/mu).slice(1)) {
+  for (const block of semanticBindingSource.split(/(?=^  - )/mu).slice(1)) {
     const exportName = block.match(/^\s+implementationExport:\s*([A-Z][A-Za-z0-9_]*)\s*$/mu)?.[1];
     const componentRefs = [...block.matchAll(/\b(media\.component\.[A-Za-z0-9._-]+)/gu)].map((match) => match[1]);
     const sourcePath = block.match(/^\s+(?:implementationCandidate|externalComponentCandidate):\s*([^\s#]+)/mu)?.[1];

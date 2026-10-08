@@ -16,36 +16,56 @@ patternIds:
 tokenDependencies: []
 domainObjectRefs: []
 operationRefs: []
+requirementRefs: []
+requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 stateRefs: []
 entry: []
 exit: []
 actionConsequences:
   - actionId: media.action.select-keyframe
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.edit-keyframe
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.change-interpolation-curve
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.inspect-driver-or-constraint
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.preview-motion
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.save-versioned-edit
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -76,6 +96,7 @@ fieldBindingStatus:
   tokenDependencies: unresolved-no-direct-canonical-reference
   domainObjectRefs: unresolved-no-direct-canonical-reference
   operationRefs: unresolved-no-direct-canonical-reference
+  requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: unresolved-no-PDP-1-canonical-reference; local-UI-states-not-promoted
   entry: unresolved-no-direct-canonical-reference
   exit: unresolved-no-direct-canonical-reference

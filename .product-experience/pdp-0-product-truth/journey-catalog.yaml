@@ -31,6 +31,21 @@ sourceReferences:
   channelStatuses: applications-channels.yaml
   handoffs: handoff-contracts.yaml
 
+capabilityApplicabilityDecision:
+  decisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  rule: Assign a permitted applicability disposition only where exact source evidence supports it. A human journey is required only for a human task; do not infer machine-operation interfaces from operation names or proposal channel aliases.
+  coverageRegister: capability-leaf-review.yaml#/leaves (coverageDecision per leaf)
+  observedLeafCount: 462
+  dispositions:
+    JOURNEY_STEP: 77
+    MACHINE_OPERATION: 0
+    PLATFORM_DEPENDENCY: 2
+    SUPPORTING_READ_MODEL: 0
+    EXCLUDED_BY_PRODUCT_POLICY: 0
+    UNRESOLVED: 383
+  status: partial; 79 applicability dispositions are evidence-backed, 383 lack exact per-operation interface evidence, and PDP-0 remains open
+  evidence: The 77 JOURNEY_STEP leaves have direct journeyRefs. Two scene-text leaves have the MDI-001 public-contract dependency. The other 383 have per-leaf outcome refs but only proposed channel aliases, which do not establish an operation-specific interface binding or support claim.
+
 journeyRecordRequirements:
   phase0CatalogIncludes:
   - outcome and actor references

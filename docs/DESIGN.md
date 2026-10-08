@@ -51,15 +51,18 @@ Shared owns generic tokens/components/themes/accessibility/i18n. Media may own
 semantic aliases and media-specific composition; responsive/layout or locale
 variants cannot change product effects, authority, or finality. Media UI metadata
 declares Shared `0.1.0-SNAPSHOT` dependencies, while the local Explorer package
-declares the simulation package. Shared packages pass their packed
-public-consumer checks, but the Media lockfile has no resolution for those
-private SNAPSHOT artifacts and a clean Media package install is not yet
-verified. A local packed-artifact test now exercises the Media Product
-Experience Package through Tools' public `createExplorer` API, including
-render, inspect, and dispatch; the Vite shell does not yet consume that bridge.
-PDP-2 now contains primitive, pattern, layout, template, and screen-composition
-registries; Shared consumer resolution, component/token provenance, and
-rendered conformance remain unverified. Registry presence alone does not
+declares the simulation package. Media's pnpm workspace resolves Shared source
+packages locally; frozen installation and the Explorer dependency-closure
+build/typecheck pass. The Media UI package also passes an isolated packed
+consumer check against nine locally packed Shared SNAPSHOT artifacts. These
+checks do not establish public registry resolution, immutable release binding,
+Shared owner acceptance, or visual/accessibility conformance. A separate packed
+consumer test exercises the Media Product Experience Package through Tools'
+public `createExplorer` API for load, render, inspect, and dispatch, and the
+Vite Tools Review route runs that bridge. This does not establish generic Tools
+hosting of Media's Product/Explore workflows. PDP-2 contains primitive, pattern,
+layout, template, and screen-composition registries; rendered conformance and
+Shared owner acceptance remain unverified. Registry presence alone does not
 establish Explorer conformance.
 
 `ghatana-tools` owns reusable Product Definition/Experience mechanics and the

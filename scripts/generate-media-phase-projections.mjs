@@ -11,7 +11,7 @@
  */
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, readdir, writeFile } from "node:fs/promises";
 import { resolve, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -68,6 +68,10 @@ const definitions = [
     ],
     candidate: (sources) => {
       const source = (name) => sources.find((entry) => entry.sourceRef.endsWith(`/${name}`))?.content ?? {};
+      const textSource = (name) => sources.find((entry) => entry.sourceRef.endsWith(`/${name}`))?.text ?? "";
+      const productTruth = textSource("PRODUCT-TRUTH.md");
+      const missionSection = productTruth.match(/## Mission and intended outcomes\s+([\s\S]*?)(?=\n## )/u)?.[1] ?? "";
+      const missionStatement = missionSection.split(/\n\s*\n/u)[0]?.replace(/\s+/gu, " ").trim() ?? "";
       const goals = source("goals-jtbd.yaml");
       const actorSource = source("actors-responsibilities.yaml");
       const capabilities = source("capabilities.yaml");
@@ -82,8 +86,8 @@ const definitions = [
         schemaVersion: productDefinitionContract.module.PRODUCT_DEFINITION_SCHEMA_VERSION,
         purpose: {
           id: "media.purpose",
-          statement: "Help people understand, create, restore, enhance, edit, animate, simulate, synchronize, compose, assess, and deliver governed media while preserving source material and disclosing material changes, evidence, and uncertainty.",
-          forWhom: "Media creators, editors, reviewers, operators, and developers represented by the canonical Media actor records.",
+          statement: missionStatement,
+          forWhom: `Canonical actor records: ${actors.map((actor) => actor.id).join(", ")}.`,
         },
         scope: {
           id: "media.scope",
@@ -108,7 +112,11 @@ const definitions = [
         }))),
         userIntents: [],
         businessIntents: [],
-        desiredOutcomes: (goals.outcomes ?? []).map((outcome) => ({ id: outcome.id, description: outcome.outcome })),
+        desiredOutcomes: (goals.outcomes ?? []).map((outcome) => ({
+          id: outcome.id,
+          description: outcome.outcome,
+          ...(outcome.actorRefs?.length === 1 ? { actorRef: outcome.actorRefs[0] } : {}),
+        })),
         capabilities: (capabilities.capabilities ?? []).map((capability) => ({
           id: capability.id,
           name: capability.label,
@@ -132,7 +140,12 @@ const definitions = [
           })),
         ],
         domainRules: [],
-        policies: [],
+        policies: (policy.productPolicy?.enforcementPoints ?? []).map((point, index) => ({
+          id: `media.policy.enforcement.${index + 1}`,
+          name: point.point,
+          description: `Required checks: ${(point.requiredChecks ?? []).join(", ")}. Failure behavior: ${point.failure}`,
+          enforcement: "strict",
+        })),
         invariants: [],
         journeys: (journeys.journeys ?? []).filter((journey) => journey.actors?.length === 1).map((journey) => ({
           id: journey.id,
@@ -150,7 +163,6 @@ const definitions = [
           omittedCollections: {
             businessIntents: "No source collection is classified as business intents under ProductDefinition semantics.",
             domainRules: "PDP-0 does not classify rules as ProductDefinition domain rules; canonical domain authority is PDP-1.",
-            policies: "Policy source records do not assign the ProductDefinition strict/advisory enforcement enum.",
             invariants: "No source record provides both invariant statement and violation semantics without inference.",
             journeys: `${(journeys.journeys ?? []).filter((journey) => journey.actors?.length !== 1).length} journeys have multiple actors; ProductDefinition requires one actorRef and no reviewed primary-actor mapping exists.`,
             trustContexts: "Principal kinds do not map directly to ProductDefinition trust levels.",
@@ -160,18 +172,18 @@ const definitions = [
             userIntents: `All ${(goals.intents ?? []).length} intents are omitted because the source does not assign ProductDefinition priority values; ${(goals.intents ?? []).filter((intent) => intent.actorRefs?.length !== 1).length} are also multi-actor and have no approved primary actor.`,
           },
           fieldDispositions: {
-            purpose: { status: "PROJECTED_PENDING_OWNER_REVIEW", source: "PRODUCT-TRUTH.md mission and goals-jtbd.yaml actors" },
-            scope: { status: "PROJECTED_PENDING_OWNER_REVIEW", source: "goals-jtbd.yaml scopeStatement, includedFamilies, exclusionsFromMediaAuthority" },
+            purpose: { status: "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING", source: "PRODUCT-TRUTH.md mission paragraph and actors-responsibilities.yaml actors" },
+            scope: { status: "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING", source: "goals-jtbd.yaml scopeStatement, includedFamilies, exclusionsFromMediaAuthority" },
             nonGoals: { status: "NO_DIRECT_PRODUCT_NON_GOAL_SOURCE; OWNER_DECISION_OPEN", source: "goals-jtbd.yaml scope exclusions are authority boundaries and are not assumed to be product non-goals" },
-            actors: { status: "PROJECTED_PENDING_OWNER_REVIEW", source: "actors-responsibilities.yaml actors and principals" },
-            responsibilities: { status: "PROJECTED_PENDING_OWNER_REVIEW", source: "actors-responsibilities.yaml responsibilityRoles" },
+            actors: { status: "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING", source: "actors-responsibilities.yaml actors and principals" },
+            responsibilities: { status: "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING", source: "actors-responsibilities.yaml actors[].responsibilities" },
             userIntents: { status: "PRIORITY_AND_ACTOR_MAPPING_OPEN", source: "goals-jtbd.yaml intents do not declare ProductDefinition priority; multi-actor intents have no approved primary actor" },
             businessIntents: { status: "NO_SOURCE_CLASSIFICATION; OWNER_DECISION_OPEN", source: "No business-intent collection in canonical PDP-0" },
-            desiredOutcomes: { status: "PROJECTED_PENDING_OWNER_REVIEW", source: "goals-jtbd.yaml outcomes" },
-            capabilities: { status: "PROJECTED_PENDING_OWNER_REVIEW", source: "capabilities.yaml capability leaves" },
-            requirements: { status: "PROJECTED_PENDING_OWNER_REVIEW", source: "requirements.yaml requirements and nonfunctional-requirements.yaml" },
+            desiredOutcomes: { status: "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING", source: "goals-jtbd.yaml outcomes" },
+            capabilities: { status: "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING", source: "capabilities.yaml capability leaves and exact requirementRefs" },
+            requirements: { status: "PARTIAL_DIRECT_MAPPING; INTENT_TARGETS_UNRESOLVED", source: "requirements.yaml has exact intent traces, but ProductDefinition validation requires target userIntents with a resolved singular actor and priority" },
             domainRules: { status: "PDP-1_OWNER_DECISION_OPEN", source: "No PDP-0 records classified as ProductDefinition domainRules" },
-            policies: { status: "ENFORCEMENT_MAPPING_OPEN", source: "policy-authority-model.yaml; strict/advisory enum not assigned per policy" },
+            policies: { status: "DIRECT_FAIL_CLOSED_ENFORCEMENT_MAPPING; OWNER_ACCEPTANCE_PENDING", source: "policy-authority-model.yaml productPolicy.enforcementPoints requiredChecks and explicit failure behavior" },
             invariants: { status: "VIOLATION_MAPPING_OPEN", source: "constitution.yaml and policy-authority-model.yaml do not pair every invariant with violation behavior" },
             journeys: { status: "PARTIAL; PRIMARY_ACTOR_DECISION_OPEN", source: "journey-catalog.yaml; every journey has multiple actors" },
             trustContexts: { status: "TRUST_LEVEL_MAPPING_OPEN", source: "actors-responsibilities.yaml principals; no accepted trust-level crosswalk" },
@@ -191,18 +203,18 @@ const definitions = [
       id: { sourceRef: null, sourcePath: null, mapping: "deterministic projection identifier; not a canonical product identifier" },
       subjectId: { sourceRef: ".product-experience/pdp-0-product-truth/capabilities.yaml", sourcePath: "productId", mapping: "identity copy" },
       schemaVersion: { sourceRef: "@ghatana/product-definition public export", sourcePath: "PRODUCT_DEFINITION_SCHEMA_VERSION", mapping: "public contract constant" },
-      purpose: { sourceRef: ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md", sourcePath: "Mission and intended outcomes", mapping: "composed summary; proposal, owner review pending" },
+      purpose: { sourceRef: ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md", sourcePath: "Mission and intended outcomes; actors-responsibilities.yaml#actors", mapping: "exact mission paragraph and generated enumeration of canonical actor IDs" },
       scope: { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: "scopeStatement, scope.includedFamilies, scope.exclusionsFromMediaAuthority", mapping: "direct source projection" },
       nonGoals: { sourceRef: null, sourcePath: null, mapping: "scope exclusions are authority boundaries, not established product non-goals" },
       actors: { sourceRef: ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml", sourcePath: "actors and principals", mapping: "direct actor projection with human-to-person kind normalization" },
       responsibilities: { sourceRef: ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml", sourcePath: "actors[].responsibilities", mapping: "actor-assigned responsibility statements with direct actor ownerRef" },
       userIntents: { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: "intents", mapping: "not projected; priority enum is absent and multiple actorRefs have no accepted primary actor mapping" },
       businessIntents: { sourceRef: null, sourcePath: null, mapping: "no classified source; unresolved owner decision" },
-      desiredOutcomes: { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: "outcomes", mapping: "direct descriptions; multi-actor links omitted" },
+      desiredOutcomes: { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: "outcomes", mapping: "direct IDs/outcome text and actorRef only when the source declares one actor" },
       capabilities: { sourceRef: ".product-experience/pdp-0-product-truth/capabilities.yaml", sourcePath: "capabilities", mapping: "all 462 leaf identities, outcomes, and requirementRefs" },
-      requirements: { sourceRef: ".product-experience/pdp-0-product-truth/requirements.yaml", sourcePath: "requirements plus nonfunctional-requirements.yaml", mapping: "direct functional and NFR statements; intent traces omitted because intent priority and actor mapping remain unresolved" },
+      requirements: { sourceRef: ".product-experience/pdp-0-product-truth/requirements.yaml", sourcePath: "requirements plus nonfunctional-requirements.yaml", mapping: "direct statement/kind/priority; source traceToIntentIds are held out until target userIntent actor and priority mappings resolve" },
       domainRules: { sourceRef: null, sourcePath: null, mapping: "PDP-1 owns canonical domain rules; no accepted ProductDefinition mapping" },
-      policies: { sourceRef: ".product-experience/pdp-0-product-truth/policy-authority-model.yaml", sourcePath: "productPolicy", mapping: "no per-policy strict/advisory enforcement mapping" },
+      policies: { sourceRef: ".product-experience/pdp-0-product-truth/policy-authority-model.yaml", sourcePath: "productPolicy.enforcementPoints", mapping: "strict classification from explicit required checks and stop/deny/fail-closed behavior" },
       invariants: { sourceRef: ".product-experience/pdp-0-product-truth/constitution.yaml", sourcePath: "requirements", mapping: "violation behavior not supplied for all records" },
       journeys: { sourceRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml", sourcePath: "journeys", mapping: "no primary actor mapping; all 30 multi-actor journeys omitted" },
       trustContexts: { sourceRef: ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml", sourcePath: "principals", mapping: "no accepted trust-level crosswalk" },
@@ -212,18 +224,11 @@ const definitions = [
       updatedAt: { sourceRef: null, sourcePath: null, mapping: "not supplied; empty schema field is explicitly unresolved" },
     },
     fieldMappingBlockers: {
-      purpose: ["No single reviewed purpose record directly supplies the required purpose statement and audience; goal and outcome records are not equivalent."],
-      scope: ["The scope statement is proposal prose; the schema also requires normalized inclusions and exclusions, which are not mapped as a reviewed set."],
       nonGoals: ["No ProductDefinition nonGoal records with schema-defined reason fields are explicitly mapped."],
-      actors: ["Media actor, principal, persona, and role records use distinct meanings; no owner-approved mapping selects schema actor kinds and descriptions."],
-      responsibilities: ["Responsibility roles are proposed role definitions, not assigned responsibility records with an accepted owner."],
+      requirements: ["Functional requirements contain direct intent IDs, but the public validator requires those targets in userIntents; those target records remain unresolved because source actor lists are multi-actor and priority is absent."],
       userIntents: ["Intent records do not directly supply required actor references and schema priority values through a resolved actor mapping."],
       businessIntents: ["No source collection is explicitly classified as business intents in the ProductDefinition sense."],
-      desiredOutcomes: ["Goal/outcome records contain multiple meanings and actor refs requiring unresolved owner and identifier resolution."],
-      capabilities: ["The 462 capability leaves have proposal shape, but mappings to schema descriptions and requirementRefs have not been resolved and reviewed."],
-      requirements: ["Requirement records are not losslessly normalized to schema kind, priority, and traceToIntentIds; scope and refs remain unresolved."],
       domainRules: ["No owner-approved mapping selects source records as ProductDefinition domain rules with schema rule fields."],
-      policies: ["Policy/constitution records do not directly provide the schema enforcement enum for each rule."],
       invariants: ["No explicit source-to-schema invariant mapping supplies statement and violation pairs."],
       journeys: ["Journey catalogs have distinct contracts; actor refs, ordered string steps, and desiredOutcomeRefs are not resolved to the schema references."],
       trustContexts: ["Principal/authority records do not directly classify schema trust levels and auditRequired values."],
@@ -250,39 +255,200 @@ const definitions = [
       ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
       ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
       ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
+      ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+      ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
       ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
       ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
       ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
       ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+      ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+      ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
+      ".product-experience/pdp-0-product-truth/state-models.yaml",
     ],
-    candidate: (sources) => ({
-      subjectId: scalar(sources, ".product-experience/pdp-2-design-interface-system/typography-layout.yaml", "productId"),
-      schemaVersion: experienceLanguageContract.module.EXPERIENCE_LANGUAGE_SCHEMA_VERSION,
-    }),
+    candidate: (sources, generatedAt) => {
+      const content = (path) => sources.find((source) => source.sourceRef === path)?.content ?? {};
+      const typography = content(".product-experience/pdp-2-design-interface-system/typography-layout.yaml");
+      const states = content(".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml");
+      const responsive = content(".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml");
+      const accessibility = content(".product-experience/pdp-2-design-interface-system/accessibility.yaml");
+      const localization = content(".product-experience/pdp-2-design-interface-system/localization-content.yaml");
+      const finality = content(".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml");
+      const layout = content(".product-experience/pdp-2-design-interface-system/gui/layout.yaml");
+      const patterns = content(".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml");
+      const componentBindings = content(".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml");
+      const componentContracts = content(".product-experience/pdp-2-design-interface-system/component-contracts.yaml");
+      const navigation = content(".product-experience/pdp-3-product-experience/navigation-contracts.yaml");
+      const domainStates = new Set((content(".product-experience/pdp-0-product-truth/state-models.yaml").models ?? [])
+        .flatMap((model) => [
+          ...(model.states ?? []).filter((state) => state && typeof state === "object" && typeof state.id === "string").map((state) => `${model.modelId}.${state.id}`),
+          ...(model.rightsAssertionStates ?? []).map((state) => `${model.modelId}.rights.${state}`),
+          ...(model.consentStates ?? []).map((state) => `${model.modelId}.consent.${state}`),
+        ]));
+      const componentIds = new Set((componentContracts.components ?? []).map((component) => component.id));
+      const navigationRules = [
+        ...(navigation.rules ?? []),
+        ...(navigation.additionalJourneyFlows ?? []).flatMap((flow) => flow.rules ?? []),
+      ];
+      const bindings = (componentBindings.bindings ?? []).flatMap((binding) =>
+        (binding.componentRefs ?? [])
+          .filter((componentRef) => componentIds.has(componentRef) && binding.semanticRole)
+          .map((componentRef) => ({
+            id: `media.language.component-binding.${componentRef.replaceAll(/[^a-zA-Z0-9]+/gu, ".")}`,
+            semanticConcept: binding.semanticRole,
+            componentRef,
+            notes: binding.status ?? "candidate binding; independent Shared owner review pending",
+          })),
+      );
+      const domainStatePresentationMappings = (states.states ?? [])
+        .filter((state) => domainStates.has(state.stateRef))
+        .map((state) => ({
+          id: `media.language.state-presentation.${state.stateRef.replaceAll(/[^a-zA-Z0-9]+/gu, ".")}`,
+          domainStateId: state.stateRef,
+          presentationEffect: `${state.label}: ${state.explanation}`,
+        }));
+      const outcomes = finality.rules ?? [];
+      const consequentialRule = outcomes.find((rule) => /consequential effects/u.test(rule));
+      return {
+        id: "media.experience-language.candidate",
+        subjectId: typography.productId,
+        schemaVersion: experienceLanguageContract.module.EXPERIENCE_LANGUAGE_SCHEMA_VERSION,
+        informationHierarchy: {
+          id: "media.language.reading-order",
+          levels: (typography.readingOrder ?? []).map((label, index) => ({
+            level: index + 1,
+            label,
+            description: `Proposed reading-order level ${index + 1} from typography-layout.yaml.`,
+          })),
+        },
+        densityProfiles: [],
+        presentationProfiles: [],
+        semanticStates: (states.states ?? []).map((state) => ({
+          id: state.stateRef,
+          name: state.label,
+          description: state.explanation,
+        })),
+        navigationPrinciples: navigationRules.map((description, index) => ({
+          id: `media.language.navigation.${index + 1}`,
+          name: `Navigation rule ${index + 1}`,
+          description,
+        })),
+        interactionPatterns: (patterns.patterns ?? []).map((pattern) => ({
+          id: pattern.id,
+          name: pattern.id,
+          description: pattern.intent,
+          applicability: (pattern.anatomy ?? []).join(", "),
+        })),
+        decisionPatterns: consequentialRule ? [{
+          id: "media.language.decision.consequential-effect-confirmation",
+          name: "Consequential effect confirmation",
+          description: consequentialRule,
+          consequential: true,
+        }] : [],
+        recoveryPatterns: [],
+        progressiveDisclosureRules: [],
+        responsiveRules: Object.entries(responsive.variants ?? {}).map(([breakpoint, variant]) => ({
+          id: `media.language.responsive.${breakpoint}`,
+          breakpoint: (variant.viewports ?? []).join(", "),
+          behavior: variant.workMode,
+        })),
+        accessibilityRules: [],
+        localizationRules: (localization.rules ?? []).map((rule, index) => ({
+          id: `media.language.localization.${index + 1}`,
+          concern: `Localization rule ${index + 1}`,
+          strategy: rule,
+        })),
+        visualAuthority: {
+          id: "media.language.visual-authority",
+          description: "Media owns semantic aliases and composition; Shared owns primitive token values and styling behavior.",
+        },
+        componentBindings: bindings,
+        recipeBindings: [],
+        domainStatePresentationMappings,
+        createdAt: generatedAt,
+        updatedAt: generatedAt,
+        _mappingReview: {
+          generationTimestampSemantics: "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
+          mappedFields: ["id", "subjectId", "schemaVersion", "informationHierarchy", "semanticStates", "navigationPrinciples", "interactionPatterns", "decisionPatterns", "recoveryPatterns", "responsiveRules", "localizationRules", "visualAuthority", "componentBindings", "domainStatePresentationMappings", "createdAt", "updatedAt"],
+          fieldDispositions: {
+            id: { status: "DETERMINISTIC_CANDIDATE_IDENTIFIER", source: "projection generator" },
+            subjectId: { status: "DIRECT_SOURCE_COPY", source: "typography-layout.yaml#productId" },
+            schemaVersion: { status: "PUBLIC_CONTRACT_CONSTANT", source: "@ghatana/experience-language" },
+            informationHierarchy: { status: "DIRECT_PROPOSAL_MAPPING", source: "typography-layout.yaml#readingOrder" },
+            densityProfiles: { status: "BLOCKED_PUBLIC_ENUM_MISMATCH", source: "typography-layout.yaml#density" },
+            presentationProfiles: { status: "BLOCKED_DENSITY_DEPENDENCY", source: "no direct profile source" },
+            semanticStates: { status: "DIRECT_PROPOSAL_MAPPING", source: "semantic-state-grammar.yaml#states" },
+            navigationPrinciples: { status: "DIRECT_PROPOSAL_MAPPING", source: "navigation-contracts.yaml#rules" },
+            interactionPatterns: { status: "DIRECT_PROPOSAL_MAPPING", source: "gui/patterns/catalog.yaml#patterns" },
+            decisionPatterns: { status: "DIRECT_PROPOSAL_MAPPING", source: "action-finality-grammar.yaml#rules" },
+            recoveryPatterns: { status: "PARTIAL_DIRECT_MAPPING", source: "action-finality-grammar.yaml#rules" },
+            progressiveDisclosureRules: { status: "BLOCKED_NO_TRIGGER_REVEALS_CONCEALS_SOURCE", source: "no direct source records" },
+            responsiveRules: { status: "DIRECT_PROPOSAL_MAPPING", source: "responsive-adaptive.yaml#variants" },
+            accessibilityRules: { status: "BLOCKED_STANDARD_AND_LEVEL_UNSELECTED", source: "accessibility.yaml#requirements" },
+            localizationRules: { status: "DIRECT_PROPOSAL_MAPPING", source: "localization-content.yaml#rules" },
+            visualAuthority: { status: "DIRECT_OWNERSHIP_BOUNDARY_MAPPING", source: "DESIGN-LANGUAGE.md" },
+            componentBindings: { status: "DIRECT_CANDIDATE_BINDING; OWNER_REVIEW_PENDING", source: "gui/semantic-component-bindings.yaml#bindings" },
+            recipeBindings: { status: "BLOCKED_NO_ADMITTED_RECIPE_ID", source: "gui/templates/catalog.yaml" },
+            domainStatePresentationMappings: { status: "DIRECT_CANDIDATE_BINDING; PDP-0_STATE_REVIEW_PENDING", source: "semantic-state-grammar.yaml#states" },
+            createdAt: { status: "PROJECTION_GENERATION_METADATA", source: "generator event" },
+            updatedAt: { status: "PROJECTION_GENERATION_METADATA", source: "generator event" },
+          },
+          omittedCollections: {
+            densityProfiles: "The Media labels simple/guided/expert do not match the public minimal/compact/standard/rich enum; no equivalence is inferred.",
+            presentationProfiles: "No density profile can be bound until the source enum mismatch is resolved.",
+            progressiveDisclosureRules: "The sources do not declare trigger/reveals/conceals records.",
+            accessibilityRules: "The source explicitly leaves applicable standard and conformance level to the accessibility owner.",
+            recoveryPatterns: "No source directly supplies the automaticRecovery boolean required by the public contract.",
+            recipeBindings: "Templates and GUI patterns are not admitted Shared recipe IDs.",
+          },
+          ownerDecisionStatus: "PENDING; direct source projection and public validation do not establish semantic acceptance or phase closure.",
+        },
+      };
+    },
+    ownerResolvers: (sources) => {
+      const componentIds = new Set((sources.find((source) => source.sourceRef.endsWith("/component-contracts.yaml"))?.content?.components ?? []).map((component) => component.id));
+      const stateIds = new Set((sources.find((source) => source.sourceRef.endsWith("/state-models.yaml"))?.content?.models ?? [])
+        .flatMap((model) => [
+          ...(model.states ?? []).filter((state) => state && typeof state === "object" && typeof state.id === "string").map((state) => `${model.modelId}.${state.id}`),
+          ...(model.rightsAssertionStates ?? []).map((state) => `${model.modelId}.rights.${state}`),
+          ...(model.consentStates ?? []).map((state) => `${model.modelId}.consent.${state}`),
+        ]));
+      return {
+        resolveComponent: (ref) => componentIds.has(ref),
+        resolveDomainState: (ref) => stateIds.has(ref),
+      };
+    },
     candidateFieldSources: {
+      id: { sourceRef: null, sourcePath: null, mapping: "deterministic candidate artifact identifier" },
       subjectId: { sourceRef: ".product-experience/pdp-2-design-interface-system/typography-layout.yaml", sourcePath: "productId", mapping: "identity copy" },
       schemaVersion: { sourceRef: "@ghatana/experience-language public export", sourcePath: "EXPERIENCE_LANGUAGE_SCHEMA_VERSION", mapping: "public contract constant" },
+      informationHierarchy: { sourceRef: ".product-experience/pdp-2-design-interface-system/typography-layout.yaml", sourcePath: "readingOrder", mapping: "ordered list projected to numbered language hierarchy" },
+      densityProfiles: { sourceRef: ".product-experience/pdp-2-design-interface-system/typography-layout.yaml", sourcePath: "density", mapping: "omitted; source enum differs from public contract enum" },
+      presentationProfiles: { sourceRef: ".product-experience/pdp-2-design-interface-system/typography-layout.yaml", sourcePath: "density", mapping: "omitted pending a direct density mapping" },
+      semanticStates: { sourceRef: ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml", sourcePath: "states", mapping: "direct proposed state IDs, labels, and explanations" },
+      navigationPrinciples: { sourceRef: ".product-experience/pdp-3-product-experience/navigation-contracts.yaml", sourcePath: "rules and additionalJourneyFlows[].rules", mapping: "direct proposal text with deterministic candidate IDs" },
+      interactionPatterns: { sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml", sourcePath: "patterns", mapping: "direct IDs, intent, and anatomy" },
+      decisionPatterns: { sourceRef: ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml", sourcePath: "rules", mapping: "direct consequential-effect confirmation rule" },
+      recoveryPatterns: { sourceRef: null, sourcePath: null, mapping: "not mapped; the source does not define automaticRecovery semantics" },
+      progressiveDisclosureRules: { sourceRef: null, sourcePath: null, mapping: "no trigger/reveals/conceals source records" },
+      responsiveRules: { sourceRef: ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml", sourcePath: "variants", mapping: "direct viewport fixture and work-mode projection" },
+      accessibilityRules: { sourceRef: ".product-experience/pdp-2-design-interface-system/accessibility.yaml", sourcePath: "requirements", mapping: "omitted because standard and level are not selected" },
+      localizationRules: { sourceRef: ".product-experience/pdp-2-design-interface-system/localization-content.yaml", sourcePath: "rules", mapping: "direct proposal statements" },
+      visualAuthority: { sourceRef: ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md", sourcePath: "Shared/Media ownership boundary", mapping: "direct ownership boundary summary; no token group binding" },
+      componentBindings: { sourceRef: ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml", sourcePath: "bindings[].componentRefs and semanticRole", mapping: "exact Media component IDs only; external Shared admission remains pending" },
+      recipeBindings: { sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml", sourcePath: "templates", mapping: "not mapped; template IDs do not establish Shared recipe IDs" },
+      domainStatePresentationMappings: { sourceRef: ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml", sourcePath: "states[].stateRef/label/explanation", mapping: "exact references checked against PDP-0 state source; semantics remain proposal" },
+      createdAt: { sourceRef: null, sourcePath: "candidate generation event", mapping: "projection build timestamp, not a product-authority timestamp" },
+      updatedAt: { sourceRef: null, sourcePath: "candidate generation event", mapping: "projection build timestamp, not a product-authority timestamp" },
     },
     fieldMappingBlockers: {
-      id: ["No canonical ExperienceLanguage identifier is declared in the Media PDP-2 sources; the productId is not reused as a language ID."],
       densityProfiles: ["The source labels simple/guided/expert do not match the schema's minimal/compact/standard/rich enum; conversion would invent equivalence."],
-      presentationProfiles: ["No source defines presentation profile IDs and densityRef links using the schema contract."],
-      semanticStates: ["The semantic state grammar contains proposed state refs and presentation text, but no accepted state resolver or language-owned mapping."],
-      navigationPrinciples: ["No distinct navigation-principle records with stable IDs are defined in the source authorities."],
-      interactionPatterns: ["GUI patterns combine anatomy, states, and intent; mapping them to generic interaction patterns needs an owner-approved classification."],
-      decisionPatterns: ["No source classifies decision patterns and their consequential boolean under this schema."],
-      recoveryPatterns: ["Recovery contracts do not map directly to ExperienceLanguage recovery patterns or automaticRecovery values."],
+      presentationProfiles: ["No presentation profile can reference a public-contract density until the source enum mismatch is resolved."],
       progressiveDisclosureRules: ["Typography hierarchy and disclosure prose are not normalized to identified trigger/reveals/conceals rules."],
-      responsiveRules: ["Viewport variants and responsive prose are proposals, not schema breakpoints and behaviors with an accepted support mapping."],
       accessibilityRules: ["Accessibility requirements lack selected standard/level mappings; the source explicitly leaves applicable WCAG criteria to the owner."],
-      localizationRules: ["Localization prose is not normalized to identified concern/strategy records; fixture locale is not runtime support."],
-      componentBindings: ["Semantic component aliases remain unadmitted; Shared component references and cross-owner resolvers are unresolved."],
-      recipeBindings: ["No admitted Shared recipe IDs or Media recipe-binding authority is present."],
-      domainStatePresentationMappings: ["PDP-1 state semantics and accepted state IDs remain unresolved; proposed state spellings are not promoted to domain mappings."],
-      createdAt: ["No Media authority supplies an ExperienceLanguage creation timestamp; generation time is not a source fact."],
-      updatedAt: ["No Media authority supplies an ExperienceLanguage update timestamp; generation time is not a source fact."],
+      recoveryPatterns: ["No source record directly supplies the public automaticRecovery boolean; no automatic/manual behavior is inferred."],
+      recipeBindings: ["GUI template IDs do not establish Shared recipe IDs or admitted recipe owner bindings."],
     },
-    blocker: "Required ExperienceLanguage fields without direct source mappings remain absent; exact field-level mapping blockers are listed below.",
+    blocker: "The required ExperienceLanguage shape is now populated from exact PDP sources wherever the public contract has a direct mapping; unresolved semantic fields and external review gates remain listed separately.",
   },
   {
     name: "experience-specification",
@@ -302,41 +468,207 @@ const definitions = [
       ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
       ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
       ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
+      ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
+      ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
+      ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+      ".product-experience/pdp-0-product-truth/state-models.yaml",
     ],
-    candidate: (sources) => ({
-      subjectId: scalar(sources, ".product-experience/pdp-3-product-experience/screen-registry.yaml", "productId"),
-      schemaVersion: experienceSpecificationContract.module.EXPERIENCE_SPECIFICATION_SCHEMA_VERSION,
-    }),
+    candidate: (sources, generatedAt) => {
+      const content = (path) => sources.find((source) => source.sourceRef === path)?.content ?? {};
+      const screenRegistry = content(".product-experience/pdp-3-product-experience/screen-registry.yaml");
+      const journeys = content(".product-experience/pdp-3-product-experience/journey-registry.yaml");
+      const actions = content(".product-experience/pdp-3-product-experience/action-registry.yaml");
+      const interactions = content(".product-experience/pdp-3-product-experience/interaction-registry.yaml");
+      const channels = content(".product-experience/pdp-3-product-experience/application-channel-registry.yaml");
+      const recovery = content(".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml");
+      const componentContracts = content(".product-experience/pdp-2-design-interface-system/component-contracts.yaml");
+      const stateModels = content(".product-experience/pdp-0-product-truth/state-models.yaml");
+      const renderKind = (channelRef) => ({
+        "media.channel.web": "web",
+        "media.channel.cli": "cli",
+        "media.channel.grpc-api": "api",
+        "media.channel.http-api": "api",
+        "media.channel.sdk": "other",
+      })[channelRef] ?? "other";
+      const screens = [
+        ...(screenRegistry.screens ?? []).map((screen) => ({
+          id: screen.id,
+          name: screen.label,
+          intent: screen.purpose,
+          componentRefs: [],
+          journeyRefs: [],
+          stateRefs: [],
+        })),
+        ...(screenRegistry.laneViews ?? []).map((view) => ({
+          id: view.id,
+          name: view.label,
+          intent: view.purpose,
+          componentRefs: [],
+          journeyRefs: [],
+          stateRefs: [],
+        })),
+      ];
+      const candidateActions = (actions.actions ?? []).map((action) => ({
+        id: action.id,
+        name: action.label,
+        kind: "user",
+        description: action.effect,
+        preconditions: action.preconditions ?? [],
+        producesEffectRefs: [],
+      }));
+      const allStates = (stateModels.models ?? []).flatMap((model) => (model.states ?? [])
+        .filter((state) => state && typeof state === "object" && typeof state.id === "string" && typeof state.terminal === "boolean" && typeof state.meaning === "string")
+        .map((state) => ({
+        id: `${model.modelId}.${state.id}`,
+        name: `${model.modelId}: ${state.id}`,
+        description: `${model.purpose}: ${state.meaning}`,
+        isTerminal: state.terminal,
+        invariants: model.invariants ?? [],
+      })));
+      const recoveryMappings = (recovery.contracts ?? []).map((contract) => ({
+        id: contract.id,
+        errorKind: contract.state,
+        recoveryPath: contract.allowed,
+        automaticRecovery: false,
+        userActionRequired: true,
+      }));
+      return {
+        id: "media.experience-definition.candidate",
+        subjectId: screenRegistry.productId,
+        schemaVersion: experienceSpecificationContract.module.EXPERIENCE_SPECIFICATION_SCHEMA_VERSION,
+        contextDimensions: channels.channels?.length ? [{
+          id: "media.context.application-channel",
+          semanticKind: "application-channel",
+          displayName: "Application channel",
+          importance: "primary",
+          valueType: "enum",
+          allowedValues: channels.channels.map((channel) => channel.channelRef),
+        }] : [],
+        renderTargets: (channels.channels ?? []).map((channel) => ({
+          id: channel.channelRef,
+          kind: renderKind(channel.channelRef),
+          displayName: channel.channelRef.replace(/^media\.channel\./u, "").toUpperCase(),
+          description: `${channel.role}; ${channel.support}`,
+        })),
+        componentContracts: (componentContracts.components ?? []).map((component) => ({
+          id: component.id,
+          name: component.id,
+          semanticPurpose: component.purpose,
+          requiredProps: [],
+        })),
+        views: screens,
+        journeys: [],
+        interactions: (interactions.interactions ?? []).filter((interaction) => actions.actions?.some((action) => action.id === interaction.effectRef)).map((interaction) => ({
+          id: interaction.id,
+          name: interaction.id,
+          trigger: interaction.input,
+          preconditions: [],
+          actionRef: interaction.effectRef,
+        })),
+        states: allStates,
+        transitions: [],
+        actions: candidateActions,
+        effects: [],
+        finality: [],
+        recovery: recoveryMappings,
+        scenarios: [],
+        fixtures: [],
+        search: [],
+        inspections: [],
+        createdAt: generatedAt,
+        updatedAt: generatedAt,
+        _mappingReview: {
+          generationTimestampSemantics: "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
+          mappedFields: ["id", "subjectId", "schemaVersion", "contextDimensions", "renderTargets", "componentContracts", "views", "interactions", "states", "actions", "recovery", "createdAt", "updatedAt"],
+          fieldDispositions: {
+            id: { status: "DETERMINISTIC_CANDIDATE_IDENTIFIER", source: "projection generator" },
+            subjectId: { status: "DIRECT_SOURCE_COPY", source: "screen-registry.yaml#productId" },
+            schemaVersion: { status: "PUBLIC_CONTRACT_CONSTANT", source: "@ghatana/experience-specification" },
+            contextDimensions: { status: "DIRECT_PROPOSAL_MAPPING", source: "application-channel-registry.yaml#channels" },
+            renderTargets: { status: "DIRECT_PROPOSAL_MAPPING", source: "application-channel-registry.yaml#channels" },
+            componentContracts: { status: "PARTIAL_DIRECT_MAPPING; REQUIRED_PROPS_UNRESOLVED", source: "component-contracts.yaml#components" },
+            views: { status: "DIRECT_IDENTITY_AND_PURPOSE_MAPPING; CROSS_REFERENCES_PENDING", source: "screen-registry.yaml#screens,laneViews" },
+            journeys: { status: "BLOCKED_PRIMARY_ACTOR_AND_STEP_BINDINGS", source: "journey-registry.yaml#journeys" },
+            interactions: { status: "PARTIAL_DIRECT_MAPPING; PRECONDITIONS_UNALLOCATED", source: "interaction-registry.yaml#interactions" },
+            states: { status: "DIRECT_PROPOSAL_MAPPING; PDP-1_ACCEPTANCE_PENDING", source: "state-models.yaml#models[].states" },
+            transitions: { status: "BLOCKED_CANONICAL_ACTION_AND_GUARD_BINDINGS", source: "state-models.yaml#models[].transitions" },
+            actions: { status: "DIRECT_UI_PROPOSAL_MAPPING; EFFECT_LINKS_PENDING", source: "action-registry.yaml#actions" },
+            effects: { status: "BLOCKED_EFFECT_KIND_AND_REVERSIBILITY_MAPPING", source: "action-registry.yaml#actions[].effect/reversible" },
+            finality: { status: "BLOCKED_ACTION_SCOPED_FINALITY_MAPPING", source: "action-registry.yaml#actions[].finality" },
+            recovery: { status: "DIRECT_PROPOSAL_MAPPING; CROSS_REFERENCES_PENDING", source: "recovery-finality-contracts.yaml#contracts" },
+            scenarios: { status: "BLOCKED_STARTING_STATE_AND_CONTEXT_MAPPING", source: "scenario-fixture-registry.yaml#fixtures" },
+            fixtures: { status: "BLOCKED_SCENARIO_LINKAGE", source: "scenario-fixture-registry.yaml#fixtures" },
+            search: { status: "BLOCKED_NO_SCHEMA_SHAPED_SEARCH_AUTHORITY", source: "no direct source records" },
+            inspections: { status: "BLOCKED_EXPLORER_IS_NOT_PDP-3_AUTHORITY", source: "explorer/tools-binding.yaml" },
+            createdAt: { status: "PROJECTION_GENERATION_METADATA", source: "generator event" },
+            updatedAt: { status: "PROJECTION_GENERATION_METADATA", source: "generator event" },
+          },
+          collectionCounts: {
+            views: screens.length,
+            registryJourneys: (journeys.journeys ?? []).length,
+            projectedJourneys: 0,
+            registryActions: candidateActions.length,
+            registryInteractions: (interactions.interactions ?? []).length,
+            projectedStates: allStates.length,
+          },
+          ownerDecisionStatus: "PENDING; directly projected records and schema validation do not establish semantic acceptance or phase closure.",
+        },
+      };
+    },
     candidateFieldSources: {
+      id: { sourceRef: null, sourcePath: null, mapping: "deterministic candidate artifact identifier" },
       subjectId: { sourceRef: ".product-experience/pdp-3-product-experience/screen-registry.yaml", sourcePath: "productId", mapping: "identity copy" },
       schemaVersion: { sourceRef: "@ghatana/experience-specification public export", sourcePath: "EXPERIENCE_SPECIFICATION_SCHEMA_VERSION", mapping: "public contract constant" },
+      contextDimensions: { sourceRef: ".product-experience/pdp-3-product-experience/application-channel-registry.yaml", sourcePath: "channels[].channelRef", mapping: "one typed enum context dimension over the exact selected-lane channel IDs" },
+      renderTargets: { sourceRef: ".product-experience/pdp-3-product-experience/application-channel-registry.yaml", sourcePath: "channels", mapping: "direct channel target records; support disposition remains proposal" },
+      componentContracts: { sourceRef: ".product-experience/pdp-2-design-interface-system/component-contracts.yaml", sourcePath: "components[].id and purpose", mapping: "direct identity and purpose; public required-prop contracts remain unresolved" },
+      views: { sourceRef: ".product-experience/pdp-3-product-experience/screen-registry.yaml", sourcePath: "screens and laneViews", mapping: "all 47 exact view identities, names, and purposes; cross references remain separately pending" },
+      journeys: { sourceRef: ".product-experience/pdp-3-product-experience/journey-registry.yaml", sourcePath: "journeys", mapping: "not projected because the public contract requires one actorRef and current journey actor lists are multi-actor" },
+      interactions: { sourceRef: ".product-experience/pdp-3-product-experience/interaction-registry.yaml", sourcePath: "interactions", mapping: "direct interaction ID/input/effectRef projection; preconditions not allocated by source" },
+      states: { sourceRef: ".product-experience/pdp-0-product-truth/state-models.yaml", sourcePath: "models[].states", mapping: "direct proposed state IDs, meaning, terminality, and model invariants" },
+      transitions: { sourceRef: ".product-experience/pdp-0-product-truth/state-models.yaml", sourcePath: "models[].transitions", mapping: "not projected because legal PDP-1 actionRef and guard bindings remain unresolved" },
+      actions: { sourceRef: ".product-experience/pdp-3-product-experience/action-registry.yaml", sourcePath: "actions", mapping: "direct UI action identity, label, effect prose, and preconditions; user kind is a proposal classification" },
+      effects: { sourceRef: ".product-experience/pdp-3-product-experience/action-registry.yaml", sourcePath: "actions[].effect/reversible", mapping: "not projected until effect kind and boolean reversibility semantics are directly classifiable" },
+      finality: { sourceRef: ".product-experience/pdp-3-product-experience/action-registry.yaml", sourcePath: "actions[].finality/confirmation", mapping: "not projected because finality requires a resolved action contract and boolean confirmation/undoability" },
+      recovery: { sourceRef: ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml", sourcePath: "contracts", mapping: "direct proposed state/allowed/blocked recovery path; no automatic recovery is asserted" },
+      scenarios: { sourceRef: ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml", sourcePath: "fixtures", mapping: "not projected without exact starting-state and context-dimension bindings" },
+      fixtures: { sourceRef: ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml", sourcePath: "fixtures", mapping: "not projected without a linked ExperienceDefinition scenario" },
+      search: { sourceRef: ".product-experience/pdp-3-product-experience/screen-registry.yaml", sourcePath: "screen purposes", mapping: "no schema-shaped searchable type authority is defined" },
+      inspections: { sourceRef: ".product-experience/explorer/tools-binding.yaml", sourcePath: "Explorer inspection behavior", mapping: "Explorer observations are not accepted PDP-3 inspection contracts" },
+      createdAt: { sourceRef: null, sourcePath: "candidate generation event", mapping: "projection build timestamp, not a product-authority timestamp" },
+      updatedAt: { sourceRef: null, sourcePath: "candidate generation event", mapping: "projection build timestamp, not a product-authority timestamp" },
     },
     fieldMappingBlockers: {
-      id: ["No canonical ExperienceDefinition identifier is declared in Media PDP-3 sources; productId is not reused as a definition ID."],
-      contextDimensions: ["No source resolves context dimensions to typed values, allowed values, and importance under this contract."],
-      renderTargets: ["Channel mentions are proposal dispositions, not resolved render-target definitions with schema kinds and display names."],
-      componentContracts: ["PDP-2 component contracts and Shared primitive bindings remain proposal/unadmitted; no accepted component contract set is selected."],
-      views: ["Screen records have candidate view content, but component, journey, and state refs are unresolved across source authorities."],
-      journeys: ["Journey steps, actors, outcomes, and view links need owner-resolved cross-phase references; fixture coverage is not an accepted mapping."],
-      interactions: ["Action intents do not yet supply schema trigger, preconditions, or resolved actionRef contracts."],
-      states: ["State projections require accepted PDP-1 state definitions and resolved invariant semantics, which remain pending."],
+      componentContracts: ["Required public component props are not supplied by component anatomy; the candidate leaves requiredProps empty rather than reclassifying anatomy as props."],
+      views: ["Exact view records are projected, but component, journey, and state references remain unresolved across authorities."],
+      journeys: ["Journey actor lists are multi-actor, and step-level view/action/state/transition bindings remain proposal or unresolved; the public model requires one actorRef."],
+      interactions: ["Interaction IDs, triggers, and action refs are projected; action preconditions are not allocated to each interaction."],
+      states: ["State records are directly projected from PDP-0 proposal source; PDP-1 state authority, transition semantics, and invariants remain pending."],
       transitions: ["Transition bindings are proposals and do not establish accepted transition semantics or references."],
-      actions: ["Action registry entries are proposal intents; operation authority, effects, preconditions, and references remain unresolved."],
-      effects: ["No accepted effect contract maps action outcomes to the schema effects collection."],
+      actions: ["UI action proposals are projected; canonical operation authority and action-to-effect relations are unresolved."],
+      effects: ["No direct mapping supplies schema effect kinds and reversibility for every source action."],
       finality: ["Recovery/finality proposals do not provide a resolved set of ExperienceDefinition finality records."],
-      recovery: ["Recovery contracts remain proposals without accepted action, state, and finality references."],
+      recovery: ["Recovery contracts are projected as proposals; action/state/finality references and independent review remain pending."],
       scenarios: ["Scenario records describe fixtures/proposals and are not mapped to the schema's behavioral scenario contract."],
       fixtures: ["Fixture registry records do not directly supply the ExperienceDefinition fixture shape and linked source data."],
       search: ["No PDP-3 source explicitly defines search contracts in the ExperienceDefinition schema shape."],
       inspections: ["Specification inspection surfaces are Explorer behavior, not source-defined Product Experience inspection contracts."],
-      createdAt: ["No Media authority supplies an ExperienceDefinition creation timestamp; generation time is not a source fact."],
-      updatedAt: ["No Media authority supplies an ExperienceDefinition update timestamp; generation time is not a source fact."],
     },
-    blocker: "Required ExperienceDefinition fields without direct source mappings remain absent; exact field-level mapping blockers are listed below.",
+    blocker: "The required ExperienceDefinition shape is populated from exact PDP sources wherever direct mappings exist; exact remaining semantic, cross-reference, and acceptance blockers stay listed separately.",
   },
 ];
 
 const cache = new Map();
+const experienceDefinition = definitions.find((definition) => definition.name === "experience-specification");
+for (const directory of ["screen-contracts", "journey-contracts"]) {
+  const sourceDirectory = `.product-experience/pdp-3-product-experience/${directory}`;
+  const entries = await readdir(resolve(root, sourceDirectory), { withFileTypes: true });
+  experienceDefinition.sources.push(...entries
+    .filter((entry) => entry.isFile() && /\.ya?ml$/u.test(entry.name))
+    .map((entry) => `${sourceDirectory}/${entry.name}`)
+    .sort());
+}
+
 async function loadSource(sourceRef) {
   if (cache.has(sourceRef)) return cache.get(sourceRef);
   const text = await readFile(resolve(root, sourceRef), "utf8");
@@ -376,7 +708,7 @@ function observeSource({ sourceRef, text, content }) {
   return observed;
 }
 
-async function validationFor(definition, candidate) {
+async function validationFor(definition, candidate, sources) {
   const schema = JSON.parse(await readFile(resolve(root, definition.schemaPath), "utf8"));
   const Validator = definition.schemaDialect === "2020" ? Ajv2020 : Ajv;
   const ajv = new Validator({ allErrors: true, strict: false });
@@ -386,7 +718,8 @@ async function validationFor(definition, candidate) {
   const schemaBlockers = schemaValid ? [] : (validateSchema.errors ?? []).map((error) => `${error.instancePath || "/"} ${error.message}`);
   let publicValidatorBlockers = [];
   try {
-    definition.validator(candidate);
+    const ownerResolvers = definition.ownerResolvers?.(sources);
+    definition.validator(candidate, ...(ownerResolvers === undefined ? [] : [ownerResolvers]));
   } catch (error) {
     publicValidatorBlockers = [error instanceof Error ? error.message : String(error)];
   }
@@ -403,12 +736,13 @@ async function validationFor(definition, candidate) {
 }
 
 const outputs = [];
+const generationTimestamp = new Date().toISOString();
 for (const definition of definitions) {
   const sources = await Promise.all(definition.sources.map(loadSource));
-  const candidateModel = definition.candidate(sources);
+  const candidateModel = definition.candidate(sources, generationTimestamp);
   const candidateMappingReview = candidateModel._mappingReview;
   delete candidateModel._mappingReview;
-  const validation = await validationFor(definition, candidateModel);
+  const validation = await validationFor(definition, candidateModel, sources);
   const fieldMappingBlockers = Object.entries(definition.fieldMappingBlockers).map(([field, reasons]) => ({
     field,
     status: candidateMappingReview?.fieldDispositions?.[field]?.status ?? "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
@@ -425,7 +759,7 @@ for (const definition of definitions) {
     ...(candidateMappingReview ? { candidateMappingReview } : {}),
     candidateFieldSources: definition.candidateFieldSources,
     fieldMappingBlockers,
-    derivationBoundary: "candidateModel is a structurally conformant partial projection. Every required schema property is present; empty collections and blank timestamps represent unresolved mappings, not accepted non-applicability. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
+    derivationBoundary: "candidateModel is a structurally conformant partial projection populated from direct source records where mappings exist. Empty collections represent unresolved mappings, never accepted non-applicability. createdAt/updatedAt are projection-build timestamps only; they are not canonical product timestamps. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
     knownBlockers: [definition.blocker],
     validation,
     acceptance: "NOT_CLAIMED",
@@ -435,7 +769,23 @@ for (const definition of definitions) {
   const outputPath = resolve(root, definition.output);
   if (checkOnly) {
     const current = await readFile(outputPath, "utf8").catch(() => null);
-    if (current !== bytes) throw new Error(`${definition.output} is stale; run node scripts/generate-media-phase-projections.mjs`);
+    let comparableCurrent = current;
+    let comparableBytes = bytes;
+    if (current !== null && ["experience-language", "experience-specification"].includes(definition.name)) {
+      const normalizeGeneratedTimestamps = (text) => {
+        try {
+          const parsed = JSON.parse(text);
+          parsed.candidateModel.createdAt = "<PROJECTION_GENERATION_TIMESTAMP>";
+          parsed.candidateModel.updatedAt = "<PROJECTION_GENERATION_TIMESTAMP>";
+          return `${JSON.stringify(parsed, null, 2)}\n`;
+        } catch {
+          return text;
+        }
+      };
+      comparableCurrent = normalizeGeneratedTimestamps(current);
+      comparableBytes = normalizeGeneratedTimestamps(bytes);
+    }
+    if (comparableCurrent !== comparableBytes) throw new Error(`${definition.output} is stale; run node scripts/generate-media-phase-projections.mjs`);
   } else {
     await (await import("node:fs/promises")).mkdir(dirname(outputPath), { recursive: true });
     await writeFile(outputPath, bytes);

@@ -10,26 +10,40 @@ patternIds: [media.gui.pattern.safe-confirmation-and-unknown-outcome]
 tokenDependencies: []
 domainObjectRefs: []
 operationRefs: []
+requirementRefs: []
+requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 stateRefs: []
 entry: []
 exit: []
 actionConsequences:
   - actionId: media.action.search-product-guidance
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     status: pending-owner-binding
   - actionId: media.action.open-related-view
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     status: pending-owner-binding
   - actionId: media.action.prepare-redacted-diagnostics
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     status: pending-owner-binding
   - actionId: media.action.share-diagnostics-after-explicit-choice
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -60,6 +74,7 @@ fieldBindingStatus:
   tokenDependencies: no-canonical-references-declared
   domainObjectRefs: no-canonical-references-declared
   operationRefs: no-canonical-references-declared
+  requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: no-PDP1-state-references-declared
   entry: no-canonical-entry-contract-declared
   exit: no-canonical-exit-contract-declared

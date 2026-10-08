@@ -285,12 +285,19 @@ gaps:
     activity/attention, and destructive-lifecycle proposals. The four new
     standalone proposals are connected to templates, and review-outputs,
     prepare-render, and review-activity reference catalogued patterns and GUI
-    template IDs. PXD-014 approves this structure only; state/action/operation
-    semantics, Shared package binding, screen behavior, accessibility, and
-    visual review remain unaccepted. The Explorer stylesheet still contains
-    645 hex-color and 1,713 px occurrences without complete material screen
-    provenance. MediaTaskFlow retains local utility color roles and a local
-    state-tone mapping. Package binding remains blocked under GAP-02.
+    template IDs. The current design-conformance check resolves the template
+    and layout references in all 47 indexed screen contracts to the current
+    PDP-2 registries and reports zero unexplained product-source findings;
+    those references and registries remain proposals. It reports 650
+    Explorer-fixture observations, which are not product design authority.
+    Seven independent authority/review blockers remain in that check: style
+    authority status, Shared package binding, PDP-2 conformance review,
+    semantic-alias status, component-to-Shared binding, template-catalog
+    status, and layout-authority status. PXD-014 approves structure only;
+    state/action/operation semantics, screen behavior, accessibility, and
+    visual review remain unaccepted. Package binding remains blocked under
+    GAP-02. GAP-12 separately records that independent visual review and
+    screen-reader testing remain unverified.
   remaining: >-
     Resolve semantic state/action/operation bindings after PDP1-002/003 and
     applicable owner acceptance; bind every material screen decision to

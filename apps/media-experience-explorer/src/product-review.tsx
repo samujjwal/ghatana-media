@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   MediaProductRenderer,
   type MediaScreenAction,
@@ -7,6 +7,16 @@ import type { MediaActionDispatchResult } from "@audio-video/ui/ports";
 import type { MediaTaskCurrentProjection, MediaTaskOperationObservation } from "@audio-video/ui/components";
 import { projectExperience } from "@ghatana/media-experience-simulation";
 import type { MediaAction, MediaExperienceState, TransitionResult } from "@ghatana/media-experience-simulation";
+
+const MEDIA_RENDERER_PUBLIC_EXPORT = "@audio-video/ui#MediaProductRenderer" as const;
+type MediaRendererBinding = {
+  readonly identity: typeof MEDIA_RENDERER_PUBLIC_EXPORT;
+  readonly ports: {
+    readonly input: { readonly variant: string; readonly scenarioId: string };
+    readonly state: { readonly sequence: number };
+    readonly action: { readonly actionIds: readonly string[] };
+  };
+};
 
 export type ReviewView = "setup" | "projects" | "project" | "source" | "transcript" | "captions" | "versions" | "browse" | "import" | "artifact" | "review-activity" | "job-status";
 
@@ -57,6 +67,24 @@ export function ProductReview({ state, view, onAction }: { state: MediaExperienc
     state.workflow,
   ), [state.workflow]);
   const safeIds = projectExperience(state).safeActionIds;
+  const toolsHosted = typeof document !== "undefined" && document.querySelector("#tools-product-renderer-mount") !== null;
+  const [toolsBinding, setToolsBinding] = useState<MediaRendererBinding | null>(null);
+  useEffect(() => {
+    if (!toolsHosted) return undefined;
+    const receiveBinding = (event: Event) => {
+      const detail = (event as CustomEvent<MediaRendererBinding>).detail;
+      if (detail?.identity === MEDIA_RENDERER_PUBLIC_EXPORT) setToolsBinding(detail);
+    };
+    document.addEventListener("media-tools-renderer-binding", receiveBinding);
+    return () => document.removeEventListener("media-tools-renderer-binding", receiveBinding);
+  }, [toolsHosted]);
+  const expectedVariant = state.workflow === "first-use" ? "first-use-project"
+    : state.workflow === "artifact-intake" ? "artifact-intake"
+      : state.workflow === "artifact-verification" ? "job-recovery" : "transcript-caption";
+  const bindingMatchesFixture = Boolean(toolsBinding && toolsBinding.identity === MEDIA_RENDERER_PUBLIC_EXPORT &&
+    toolsBinding.ports.input.scenarioId === state.scenarioId && toolsBinding.ports.input.variant === expectedVariant &&
+    toolsBinding.ports.state.sequence === state.sequence && toolsBinding.ports.action.actionIds.join("\u0000") === safeIds.join("\u0000"));
+  const errorOutcomes = ["intent-accepted", "unavailable", "denied"] as const;
   const actionIds = useMemo(() => {
     const candidates = [
       "media.action.create-project", "media.action.inspect-project-creation", "media.action.inspect-artifact", "media.action.resume-artifact-upload",
@@ -157,5 +185,14 @@ export function ProductReview({ state, view, onAction }: { state: MediaExperienc
       onVersionPurposeChange={setPurpose}
       onCompareVersionSelection={(side, versionId) => setCompareSelection((previous) => ({ ...previous, [side]: versionId }))} />;
   }
-  return <div className="candidate-presentation-shell">{notice}{screen}</div>;
+  return <div className="candidate-presentation-shell"
+    data-renderer-export={MEDIA_RENDERER_PUBLIC_EXPORT}
+    data-renderer-binding-status={toolsHosted ? bindingMatchesFixture ? "consumed" : toolsBinding ? "fixture-mismatch" : "pending" : "product-review"}
+    data-fixture-id={state.scenarioId}
+    data-renderer-variant={expectedVariant}
+    data-state-ref={state.scenarioId}
+    data-action-port="MediaActionPort"
+    data-action-ids={JSON.stringify(safeIds)}
+    data-error-port="MediaActionDispatchResult"
+    data-error-outcomes={JSON.stringify(errorOutcomes)}>{notice}{screen}</div>;
 }

@@ -43,4 +43,4 @@ assert.equal(admission.admissionStatus, 'CANONICAL');
 assert.equal(admission.resolvedFiles, 5, 'consumer, surface, phase program, phase binding, and obligations must resolve');
 assert.deepEqual(admission.errors, []);
 
-console.log(`Lifecycle public consumer admission passed (${admission.resolvedFiles} source files, zero errors) for PDP-0 through PDP-3; Media inputs=${input.inputStatus}, obligations=${input.obligationCount}, recorded blockers=${pending.blockers.length}; Lifecycle acceptance remains external.`);
+console.log(`Evidence Contracts consumer admission passed (${admission.resolvedFiles} source files, zero errors) for PDP-0 through PDP-3; Media inputs=${input.inputStatus}, obligations=${input.obligationCount}, consumer provider bindings=${consumer.providerBindings.length}, recorded blockers=${pending.blockers.length}; Lifecycle provider admission, receipts, currentness, and closure remain external.`);

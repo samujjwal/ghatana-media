@@ -15,6 +15,8 @@ preconditions:
 steps:
   - view: media.view.select-source
     action: media.action.choose-source
+    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs: [media.artifact.inspect]
     result: exact-source-version-is-bound-to-the-workflow
     surfaceRefs:
     - media.surface.web
@@ -54,7 +56,7 @@ steps:
       proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
         a fresh policy check.
     postconditions: []
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
       requiredChecks:
@@ -87,11 +89,13 @@ steps:
       degradedBehavior: pending-explicit-step-degraded-behavior
       recovery: candidate-proposal-only; journey-level recovery not allocated to this step
       postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-step-requirement-crosswalk
+      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.monitor-transcription
     action: media.action.request-transcription
+    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs: [media.job.submit, media.speech.transcription.file]
     result: stable-job-identity-and-current-state-are-returned
     surfaceRefs:
     - media.surface.web
@@ -131,7 +135,7 @@ steps:
       proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
         a fresh policy check.
     postconditions: []
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
     verification:
       status: not-run
       requiredChecks:
@@ -164,11 +168,13 @@ steps:
       degradedBehavior: pending-explicit-step-degraded-behavior
       recovery: candidate-proposal-only; journey-level recovery not allocated to this step
       postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-step-requirement-crosswalk
+      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.monitor-transcription
     action: media.action.view-job-status
+    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs: [media.job.view-status]
     result: progress-and-finality-reflect-owning-job-state
     surfaceRefs:
     - media.surface.web
@@ -208,7 +214,7 @@ steps:
       proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
         a fresh policy check.
     postconditions: []
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
     verification:
       status: not-run
       requiredChecks:
@@ -241,11 +247,13 @@ steps:
       degradedBehavior: pending-explicit-step-degraded-behavior
       recovery: candidate-proposal-only; journey-level recovery not allocated to this step
       postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-step-requirement-crosswalk
+      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.review-transcript
     action: media.action.review-transcript
+    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs: [media.artifact.inspect]
     result: recognition-and-alignment-uncertainty-remain-visible
     surfaceRefs:
     - media.surface.web
@@ -285,7 +293,7 @@ steps:
       proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
         a fresh policy check.
     postconditions: []
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
       requiredChecks:
@@ -318,11 +326,13 @@ steps:
       degradedBehavior: pending-explicit-step-degraded-behavior
       recovery: candidate-proposal-only; journey-level recovery not allocated to this step
       postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-step-requirement-crosswalk
+      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.correct-captions
     action: media.action.correct-caption
+    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs: [media.artifact.derive]
     result: a-draft-caption-version-links-to-the-exact-source-and-parent
     surfaceRefs:
     - media.surface.web
@@ -362,7 +372,7 @@ steps:
       proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
         a fresh policy check.
     postconditions: []
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
       requiredChecks:
@@ -395,11 +405,13 @@ steps:
       degradedBehavior: pending-explicit-step-degraded-behavior
       recovery: candidate-proposal-only; journey-level recovery not allocated to this step
       postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-step-requirement-crosswalk
+      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.correct-captions
     action: media.action.align-caption-timing
+    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs: [media.speech.transcription.forced-align, media.artifact.derive]
     result: caption-time-is-corrected-on-the-source-media-clock
     surfaceRefs:
     - media.surface.web
@@ -439,7 +451,7 @@ steps:
       proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
         a fresh policy check.
     postconditions: []
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
     verification:
       status: not-run
       requiredChecks:
@@ -472,11 +484,13 @@ steps:
       degradedBehavior: pending-explicit-step-degraded-behavior
       recovery: candidate-proposal-only; journey-level recovery not allocated to this step
       postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-step-requirement-crosswalk
+      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.correct-captions
     action: media.action.save-caption-version
+    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs: [media.artifact.output.register, media.artifact.provenance.export]
     result: an-authorized-immutable-caption-version-is-created-or-the-action-is-blocked
     surfaceRefs:
     - media.surface.web
@@ -516,7 +530,7 @@ steps:
       proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
         a fresh policy check.
     postconditions: []
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
       requiredChecks:
@@ -549,11 +563,13 @@ steps:
       degradedBehavior: pending-explicit-step-degraded-behavior
       recovery: candidate-proposal-only; journey-level recovery not allocated to this step
       postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-step-requirement-crosswalk
+      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.compare-caption-versions
     action: media.action.compare-caption-versions
+    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs: [media.artifact.inspect]
     result: text-timing-and-source-version-differences-are-shown-without-approving-either-version
     surfaceRefs:
     - media.surface.web
@@ -593,7 +609,7 @@ steps:
       proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
         a fresh policy check.
     postconditions: []
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
       requiredChecks:
@@ -626,7 +642,7 @@ steps:
       degradedBehavior: pending-explicit-step-degraded-behavior
       recovery: candidate-proposal-only; journey-level recovery not allocated to this step
       postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-step-requirement-crosswalk
+      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 terminalSuccess: A reviewable caption version is linked to the exact source and carries timing, language, provenance, and the recorded authority/finality disposition.

@@ -230,6 +230,32 @@ export function analyzeMediaPresentationArchitecture({ repoRoot = root, admissio
     if (productionFiles.length > 0 && !productionHasIdentity) issues.push(`Production Web does not import candidate product renderer identity ${declaration}`);
     return { ...adapter, ...identity, explorerHasIdentity, productionHasIdentity, sourceExists, publicExportRecorded: Boolean(exportedRow?.publicNames.includes(adapter.exportName)) };
   });
+  const simulationAdapterPath = join(repoRoot, "libs/media-experience-simulation/src/product-experience-package.ts");
+  const toolsConsumerPath = join(repoRoot, "apps/media-experience-explorer/src/tools-consumer.ts");
+  const productReviewPath = join(repoRoot, "apps/media-experience-explorer/src/product-review.tsx");
+  const hasRendererBindingContract = existsSync(simulationAdapterPath) && existsSync(toolsConsumerPath) && existsSync(productReviewPath);
+  let exactToolsBindingConsumed = false;
+  if (hasRendererBindingContract) {
+    const simulationAdapter = readFileSync(simulationAdapterPath, "utf8");
+    const toolsConsumer = readFileSync(toolsConsumerPath, "utf8");
+    const productReview = readFileSync(productReviewPath, "utf8");
+    const typedPortKinds = ["MediaProductRendererProps", "MediaExperienceState", "MediaActionPort", "MediaActionDispatchResult"];
+    for (const portKind of typedPortKinds) {
+      if (!simulationAdapter.includes(`type: \"${portKind}\"`)) issues.push(`Media Tools renderer binding omits typed candidate port ${portKind}`);
+    }
+    if (!simulationAdapter.includes('"@audio-video/ui#MediaProductRenderer"') || !simulationAdapter.includes("rendererBinding: rendererBinding(state)")) {
+      issues.push("Media ProductExperiencePackage.render() does not return the exact public MediaProductRenderer binding");
+    }
+    if (!toolsConsumer.includes("binding.identity !== MEDIA_RENDERER_PUBLIC_EXPORT") || !toolsConsumer.includes("rendererBinding") || !toolsConsumer.includes("media-tools-renderer-binding")) {
+      issues.push("Tools consumer does not validate and expose the Explorer render result's exact renderer binding");
+    }
+    if (!productReview.includes("media-tools-renderer-binding") || !productReview.includes("<MediaProductRenderer") || !productReview.includes("bindingMatchesFixture")) {
+      issues.push("Tools Product viewport does not consume the exact fixture binding while mounting the public MediaProductRenderer");
+    }
+    exactToolsBindingConsumed = issues.every((issue) => !issue.includes("Media Tools renderer binding") &&
+      !issue.includes("Media ProductExperiencePackage.render()") && !issue.includes("Tools consumer does not") &&
+      !issue.includes("Tools Product viewport does not"));
+  }
   for (const record of admittedWeb) {
     const identity = exportIdentity(record, packageName);
     if (!identity.declaration) {
@@ -479,6 +505,9 @@ export function analyzeMediaPresentationArchitecture({ repoRoot = root, admissio
       explorerProductRendererImports: productRendererResults.filter((record) => record.explorerHasIdentity).length,
       productionHostsPresent: productionFiles.length > 0,
       productionProductRendererImports: productRendererResults.filter((record) => record.productionHasIdentity).length,
+      toolsRendererBindingContractPresent: hasRendererBindingContract,
+      toolsConsumesExactRendererBinding: exactToolsBindingConsumed,
+      productionHostParity: productionFiles.length > 0 ? "NOT_PROVEN_BY_SOURCE_IMPORT" : "NOT_PROVEN_NO_PRODUCTION_WEB_HOST",
     },
     candidateDesignIssues,
     productRendererResults,

@@ -13,16 +13,16 @@ surfaces:
   - surface: UI action registry
     denominator: 146
     source: .product-experience/pdp-3-product-experience/action-registry.yaml
-    dispositionCounts: {mappedProposal: 11, ambiguous: 1, unresolved: 134}
+    dispositionCounts: {DOMAIN_COMMAND: 8, DOMAIN_QUERY: 48, CLIENT_ONLY: 48, NAVIGATION_OR_PRESENTATION: 11, NOT_ADMITTED: 31}
+    operationBindingCounts: {mappedProposal: 12, ambiguous: 0, unresolved: 134}
     explicitlyProposed:
       media.operation.artifact-ingest: [media.action.begin-artifact-upload, media.action.resume-artifact-upload, media.action.inspect-artifact, media.action.attach-source-asset]
       media.operation.job-lifecycle: [media.action.view-job-status, media.action.check-job-outcome, media.action.request-cancellation, media.action.retry-job]
-      media.operation.transcription: [media.action.review-transcript, media.action.correct-caption, media.action.align-caption-timing]
-    ambiguous:
-      media.action.request-transcription: [media.operation.transcription, media.operation.job-lifecycle]
+      media.operation.transcription: [media.action.request-transcription, media.action.review-transcript, media.action.correct-caption, media.action.align-caption-timing]
+    ambiguous: []
     unresolvedStaleReference: media.action.review-rights-and-consent
     canonicalRefs: .product-experience/pdp-1-domain-data/operations.yaml#/operations/*/actionRefs
-    bindingStatus: one-proposed-is-not-equivalence; one-ambiguous; remaining-unresolved-as-recorded-in-source-inventory
+    bindingStatus: exact typed dispositions reconcile below; twelve exact actionRefs now proposed; 134 actions lack exact operation refs; no runtime reachability implied
   - surface: HTTP
     denominator: 27
     source: contracts/openapi/media.yaml
@@ -82,7 +82,8 @@ surfaces:
       priorTwelveFixtureObservation: unresolved-source-discrepancy; inspected-current-registry-and-parser-evidence-support-eleven-fixture-command-identities-only
     bindingStatus: nine-proposals-follow-existing-command/action references or operation intent; caption-version commands remain unresolved; acceptance-pending
   - surface: SDK registry
-    denominator: 27
+    denominator: 24
+    rawRegistryRecordCount: 27
     source: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
     proposedSemanticCandidates:
       job-lifecycle: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.getOperation, media.sdk.cancelOperation]
@@ -90,11 +91,12 @@ surfaces:
       transcription: [media.sdk.transcribe]
       synthesis: [media.sdk.synthesize]
       multimodal-analysis: [media.sdk.analyzeMultimodal]
-    unresolved: [media.sdk.listProviderCapabilities, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.for, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.if, media.sdk.removeEventListener, media.sdk.clearTimeout]
-    dispositionCounts: {mappedProposal: 14, unresolved: 13}
-    parserFalsePositivesRetainedAsUnresolved: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
+    unresolved: [media.sdk.listProviderCapabilities, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.removeEventListener]
+    parserArtifactTokensExcludedFromMethodDenominator: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
+    parserArtifactEvidence: public-declaration-parser-scans-both-listed-client-source-files; none-of-the-three-token-names-has-a-public-method-declaration; raw-records-retained-for-audit
+    dispositionCounts: {mappedProposal: 14, unresolved: 10}
     legacyClientSource: libs/audio-video-client/src/index.ts
-    bindingStatus: candidate families follow public method purpose; parser false positives and unclassified methods remain unresolved; semantic-owner-acceptance-pending
+    bindingStatus: candidate families follow public method purpose; three source-parser artifacts are separately excluded; unclassified public methods remain unresolved; semantic-owner-acceptance-pending
   - surface: Agent Tool handlers
     denominator: 4
     source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
@@ -139,3 +141,1729 @@ nextEvidenceRequired:
   - Agent Tool invocation contracts and authority bindings
   - event producer trigger ordering replay retention and consumer contracts
   - action registry audit that removes stale refs and proves reachable runtime UI
+
+# Typed source identity dispositions. These classify the observed interface
+# object itself; they do not accept a canonical-operation equivalence or assert
+# runtime reachability. Unresolved semantic bindings remain open below.
+typedMethodDispositions:
+- identity: media.sdk.getStatus
+  type: DOMAIN_QUERY
+  semanticBinding: unresolved
+  basis: job-status-read-method-in-client-source
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-getOperation; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.cancel
+  type: DOMAIN_COMMAND
+  semanticBinding: unresolved
+  basis: cancellation-request-method-with-finality-unresolved
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-cancelOperation; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.retry
+  type: DOMAIN_COMMAND
+  semanticBinding: unresolved
+  basis: retry-request-method-with-eligibility-unresolved
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-retryOperation; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.getResult
+  type: DOMAIN_QUERY
+  semanticBinding: unresolved
+  basis: result-read-method-with-output-contract-unresolved
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-getOperationResult; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.wait
+  type: CLIENT_ONLY
+  semanticBinding: not-a-domain-operation
+  basis: client-side-polling-and-wait-orchestration
+  openApiBindingDisposition: CLIENT_ONLY
+  bindingEvidence: wait-or-listener-orchestration-is-local-and-declares-no-independent-media-http-operation
+- identity: media.sdk.createUploadSession
+  type: DOMAIN_COMMAND
+  semanticBinding: unresolved
+  basis: upload-session-submission-method
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-createUploadSession; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.uploadPart
+  type: DOMAIN_COMMAND
+  semanticBinding: unresolved
+  basis: upload-part-transfer-method
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-uploadPart; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.completeUploadSession
+  type: DOMAIN_COMMAND
+  semanticBinding: unresolved
+  basis: upload-completion-method
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-completeUploadSession; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.getArtifact
+  type: DOMAIN_QUERY
+  semanticBinding: unresolved
+  basis: artifact-read-method
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-getArtifact; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.listProviderCapabilities
+  type: PROVIDER_ADMIN
+  semanticBinding: unresolved
+  basis: provider-capability-inventory-boundary-not-admitted-as-media-operation
+  openApiBindingDisposition: PROVIDER_ADMIN
+  bindingEvidence: provider-capability-endpoint-is-observed-in-legacy-client-but-no-matching-active-runtime-openapi-route
+- identity: media.sdk.transcribe
+  type: DOMAIN_COMMAND
+  semanticBinding: unresolved
+  basis: asynchronous-transcription-submission-method
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-transcribe; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.synthesize
+  type: DOMAIN_COMMAND
+  semanticBinding: unresolved
+  basis: asynchronous-synthesis-submission-method
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-synthesize; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.trainVoiceModel
+  type: NOT_ADMITTED
+  semanticBinding: unresolved
+  basis: no-matching-active-media-runtime-route-or-approved-media-capability
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: no-approved-media-http-operation-or-active-runtime-route-for-this-legacy-client-method
+- identity: media.sdk.convertVoice
+  type: NOT_ADMITTED
+  semanticBinding: unresolved
+  basis: no-matching-active-media-runtime-route-or-approved-media-capability
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: no-approved-media-http-operation-or-active-runtime-route-for-this-legacy-client-method
+- identity: media.sdk.analyzeMultimodal
+  type: DOMAIN_COMMAND
+  semanticBinding: unresolved
+  basis: asynchronous-analysis-submission-method
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-analyzeMultimodal; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.getOperation
+  type: DOMAIN_QUERY
+  semanticBinding: unresolved
+  basis: operation-read-method
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-getOperation; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.cancelOperation
+  type: DOMAIN_COMMAND
+  semanticBinding: unresolved
+  basis: cancellation-request-method-with-finality-unresolved
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: legacy-client-method-delegates-to-cancelOperation; exact-path-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
+- identity: media.sdk.processAIVoice
+  type: NOT_ADMITTED
+  semanticBinding: unresolved
+  basis: legacy-client-call-has-no-matching-active-media-runtime-route
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: no-approved-media-http-operation-or-active-runtime-route-for-this-legacy-client-method
+- identity: media.sdk.processVision
+  type: NOT_ADMITTED
+  semanticBinding: unresolved
+  basis: legacy-client-call-has-no-matching-active-media-runtime-route
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: no-approved-media-http-operation-or-active-runtime-route-for-this-legacy-client-method
+- identity: media.sdk.processMultimodal
+  type: NOT_ADMITTED
+  semanticBinding: unresolved
+  basis: legacy-client-call-has-no-matching-active-media-runtime-route
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: no-approved-media-http-operation-or-active-runtime-route-for-this-legacy-client-method
+- identity: media.sdk.getServiceStatus
+  type: TRANSPORT_ONLY
+  semanticBinding: not-a-domain-operation
+  basis: legacy-service-health-observation
+  openApiBindingDisposition: TRANSPORT_ONLY
+  bindingEvidence: service-status-uses-configured-provider-endpoint-health-port-not-the-media-api-base-path
+- identity: media.sdk.getAllServicesStatus
+  type: TRANSPORT_ONLY
+  semanticBinding: not-a-domain-operation
+  basis: aggregate-legacy-service-health-observation
+  openApiBindingDisposition: TRANSPORT_ONLY
+  bindingEvidence: service-status-uses-configured-provider-endpoint-health-port-not-the-media-api-base-path
+- identity: media.sdk.addEventListener
+  type: CLIENT_ONLY
+  semanticBinding: not-a-domain-operation
+  basis: local-event-listener-registration
+  openApiBindingDisposition: CLIENT_ONLY
+  bindingEvidence: wait-or-listener-orchestration-is-local-and-declares-no-independent-media-http-operation
+- identity: media.sdk.removeEventListener
+  type: CLIENT_ONLY
+  semanticBinding: not-a-domain-operation
+  basis: local-event-listener-removal
+  openApiBindingDisposition: CLIENT_ONLY
+  bindingEvidence: wait-or-listener-orchestration-is-local-and-declares-no-independent-media-http-operation
+typedInterfaceIdentityDispositions:
+  http:
+    transportOnly: [getMediaHealth, getMediaLiveness, getMediaReadiness, getMediaStartup, getMediaReadyAlias, getMediaMetrics, getMediaInfo, getMediaVersionedHealth]
+    providerAdmin: [getMediaProviders]
+    domainCommands: [grantMediaConsent, revokeMediaConsent, beginMediaUpload, appendMediaChunk, completeMediaUpload, submitMediaJob, cancelMediaJob, openMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream]
+    domainQueries: [listMediaConsents, getMediaConsent, getMediaUpload, getMediaArtifact, listMediaJobs, getMediaJob, getMediaStream]
+    semanticOperationBinding: unresolved-for-every-identity; these-types-classify-interface-role-only
+  grpc:
+    domainCommands: [STTService.Transcribe, STTService.StreamTranscribe, STTService.SubmitCorrection, TTSService.Synthesize, TTSService.StreamSynthesize, TTSService.CloneVoice, VisionService.DetectObjects, VisionService.AnalyzeImage, VisionService.ClassifyImage, VisionService.AnalyzeVideoFile, VisionService.ProcessVideo, MultimodalService.ProcessMultimodal, MultimodalService.AnalyzeVideoWithAudio, MultimodalService.GenerateDescription, MultimodalService.AnalyzeCrossModal, MultimodalService.GetInsights]
+    domainQueries: [TTSService.GetVoices]
+    providerAdmin: [STTService.LoadModel, STTService.UnloadModel, STTService.ListModels, STTService.AdaptModel, STTService.CreateProfile, STTService.GetProfile, STTService.UpdateProfile, TTSService.LoadVoice, TTSService.CreateProfile, TTSService.GetProfile, TTSService.UpdateProfile, TTSService.SubmitFeedback, VisionService.LoadModel, VisionService.UnloadModel, VisionService.ListModels, MultimodalService.LoadModel, MultimodalService.UnloadModel, MultimodalService.ListModels]
+    transportOnly: [STTService.GetStatus, STTService.HealthCheck, TTSService.GetStatus, TTSService.GetMetrics, VisionService.GetStatus, VisionService.HealthCheck, MultimodalService.GetStatus, MultimodalService.HealthCheck]
+    semanticOperationBinding: unresolved-for-every-identity; provider-admin-methods-remain-at-AI-Inference-boundary
+  cliFixture:
+    domainCommands: [media.fixture-cli.upload-inspect, media.fixture-cli.upload-resume, media.fixture-cli.transcribe, media.fixture-cli.job-cancel, media.fixture-cli.caption-correct-text, media.fixture-cli.caption-align-timing, media.fixture-cli.caption-save-version]
+    domainQueries: [media.fixture-cli.transcript-review, media.fixture-cli.job-status, media.fixture-cli.job-check-outcome, media.fixture-cli.caption-compare-versions]
+    fixtureOnly: true
+    semanticOperationBinding: unresolved-for-every-identity; caption-version-write-read-contracts-remain-unresolved
+  agentTools:
+    domainCommands: [av.speech-to-text, av.text-to-speech, av.vision-analysis, av.multimodal-inference]
+    invocationAuthorityAndInputResultContracts: unresolved-for-every-identity
+  lifecycleEvents:
+    eventNotification: ["ai-voice:process:start", "ai-voice:process:complete", "ai-voice:process:error", "multimodal:process:start", "multimodal:process:complete", "multimodal:process:error", "stt:transcription:start", "stt:transcription:complete", "stt:transcription:error", "tts:synthesis:start", "tts:synthesis:complete", "tts:synthesis:error", "vision:process:start", "vision:process:complete", "vision:process:error"]
+    producerTriggerDeliveryAndFinality: unresolved-for-every-identity
+  internalRuntimeEvents:
+    eventNotification: [media.upload.started, media.artifact.completed, media.job.accepted, media.job.cancelled, media.job.cancel_requested, media.stream.opened, media.stream.closed, dynamic:media.job.<terminal.status-lowercase>]
+    publicationAndAuthority: internal-source-observation; no-public-event-contract-or-terminality-proof
+compatibilityRouteFindings:
+  disposition: NOT_ADMITTED_TO_CURRENT_RUNTIME_ROUTE_MANIFEST; retained-as-legacy-client-call-sites; each-exact-route-remains-a-parity-finding-until-client-or-runtime-contracts-converge
+  sourceFindings:
+    - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/uploads'}
+    - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/uploads/{parameter}:complete'}
+    - {source: libs/audio-video-client/src/operations.ts, method: GET, path: '/api/v1/media/artifacts/{parameter}'}
+    - {source: libs/audio-video-client/src/operations.ts, method: GET, path: '/api/v1/media/providers/capabilities'}
+    - {source: libs/audio-video-client/src/operations.ts, method: GET, path: '/api/v1/media/operations/{parameter}'}
+    - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/operations/{parameter}:cancel'}
+    - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/operations/{parameter}:retry'}
+    - {source: libs/audio-video-client/src/operations.ts, method: GET, path: '/api/v1/media/operations/{parameter}/result'}
+    - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/transcriptions'}
+    - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/syntheses'}
+    - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/voice-models:train'}
+    - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/voice-conversions'}
+    - {source: libs/audio-video-client/src/operations.ts, method: POST, path: '/api/v1/media/multimodal-analyses'}
+    - {source: libs/audio-video-client/src/operations.ts, method: PUT, path: '/api/v1/media/uploads/{parameter}/parts/{parameter}'}
+    - {source: libs/audio-video-client/src/index.ts, method: POST, path: '/api/stt/transcribe'}
+    - {source: libs/audio-video-client/src/index.ts, method: POST, path: '/api/tts/synthesize'}
+    - {source: libs/audio-video-client/src/index.ts, method: POST, path: '/api/ai-voice/process'}
+    - {source: libs/audio-video-client/src/index.ts, method: POST, path: '/api/vision/analyze'}
+    - {source: libs/audio-video-client/src/index.ts, method: POST, path: '/api/multimodal/process'}
+
+typedUiActionDispositions:
+  source: .product-experience/pdp-3-product-experience/action-registry.yaml#/actions
+  denominator: 146
+  typeSet:
+  - DOMAIN_COMMAND
+  - DOMAIN_QUERY
+  - CLIENT_ONLY
+  - NAVIGATION_OR_PRESENTATION
+  - TRANSPORT_ONLY
+  - PROVIDER_ADMIN
+  - EVENT_NOTIFICATION
+  - INTERNAL_ONLY
+  - NOT_ADMITTED
+  evidencePolicy: each-row-cites-its-action-contract-label-preconditions-effect-reversibility-finality; operationRef-is-present-only-for-an-exact-existing-PDP1-actionRef
+  operationBindingCounts:
+    mappedProposal: 12
+    ambiguous: 0
+    unresolved: 134
+  dispositionCounts:
+    CLIENT_ONLY: 48
+    DOMAIN_COMMAND: 8
+    DOMAIN_QUERY: 48
+    NOT_ADMITTED: 31
+    NAVIGATION_OR_PRESENTATION: 11
+  entries:
+  - identity: media.action.select-artifact-source
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-artifact-source]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.begin-artifact-upload
+    type: DOMAIN_COMMAND
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.begin-artifact-upload]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
+    operationRef: media.operation.artifact-ingest
+  - identity: media.action.resume-artifact-upload
+    type: DOMAIN_COMMAND
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.resume-artifact-upload]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
+    operationRef: media.operation.artifact-ingest
+  - identity: media.action.inspect-artifact
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-artifact]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+    operationRef: media.operation.artifact-ingest
+  - identity: media.action.attach-source-asset
+    type: DOMAIN_COMMAND
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.attach-source-asset]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
+    operationRef: media.operation.artifact-ingest
+  - identity: media.action.choose-intent
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.choose-intent]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.create-project
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.create-project]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.inspect-project-creation
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-project-creation]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.open-project
+    type: NAVIGATION_OR_PRESENTATION
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.open-project]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract changes view, navigation, or presentation and declares no domain write
+  - identity: media.action.choose-source
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.choose-source]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.request-transcription
+    type: DOMAIN_COMMAND
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.request-transcription]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
+    operationRef: media.operation.transcription
+  - identity: media.action.inspect-source
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-source]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.play-source
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.play-source]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.seek-source
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.seek-source]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.review-transcript
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-transcript]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+    operationRef: media.operation.transcription
+  - identity: media.action.view-job-status
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.view-job-status]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+    operationRef: media.operation.job-lifecycle
+  - identity: media.action.request-cancellation
+    type: DOMAIN_COMMAND
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.request-cancellation]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
+    operationRef: media.operation.job-lifecycle
+  - identity: media.action.check-job-outcome
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.check-job-outcome]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+    operationRef: media.operation.job-lifecycle
+  - identity: media.action.retry-job
+    type: DOMAIN_COMMAND
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.retry-job]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
+    operationRef: media.operation.job-lifecycle
+  - identity: media.action.correct-caption
+    type: DOMAIN_COMMAND
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.correct-caption]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
+    operationRef: media.operation.transcription
+  - identity: media.action.align-caption-timing
+    type: DOMAIN_COMMAND
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.align-caption-timing]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares command effect and exact PDP-1 actionRef; owner semantics remain proposal-only
+    operationRef: media.operation.transcription
+  - identity: media.action.save-caption-version
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-caption-version]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: owner decision requires canonical caption-version write/read semantics; no exact PDP-1 operation
+      exists
+  - identity: media.action.resolve-caption-conflict
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.resolve-caption-conflict]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.compare-caption-versions
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.compare-caption-versions]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: owner decision requires canonical caption-version write/read semantics; no exact PDP-1 operation
+      exists
+  - identity: media.action.inspect-provenance
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-provenance]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.add-scene-entity
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.add-scene-entity]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.add-storyboard-scene
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.add-storyboard-scene]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.apply-admitted-edit
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.apply-admitted-edit]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.apply-authorized-rights-restriction
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.apply-authorized-rights-restriction]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.associate-authorized-reference
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.associate-authorized-reference]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.change-interpolation-curve
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.change-interpolation-curve]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.change-permitted-preference
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.change-permitted-preference]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.choose-admitted-audio-operation
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.choose-admitted-audio-operation]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.choose-alignment-basis
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.choose-alignment-basis]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.choose-media-improvement-intent
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.choose-media-improvement-intent]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.choose-named-destination
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.choose-named-destination]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.compare-candidate-on-metric
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.compare-candidate-on-metric]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.compare-media-versions
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.compare-media-versions]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.continue-within-recorded-scope
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.continue-within-recorded-scope]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.deliver-exact-version
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.deliver-exact-version]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.edit-admitted-adjustment
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-admitted-adjustment]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.edit-audio-mix-controls
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-audio-mix-controls]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.edit-keyframe
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-keyframe]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.edit-mask-boundary
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-mask-boundary]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.edit-requested-outcome-and-admitted-controls
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-requested-outcome-and-admitted-controls]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.edit-scene-timing-or-transition
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-scene-timing-or-transition]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.edit-transition-or-caption-alignment
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-transition-or-caption-alignment]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.edit-unresolved-plan-decision
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-unresolved-plan-decision]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.edit-video-temporal-plan
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.edit-video-temporal-plan]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.enter-exact-edit-constraints
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.enter-exact-edit-constraints]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.export-authorized-provenance
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.export-authorized-provenance]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.inspect-consent-and-permitted-use
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-consent-and-permitted-use]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-driver-or-constraint
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-driver-or-constraint]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-effective-processing-constraints
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-effective-processing-constraints]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-generated-candidates
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-generated-candidates]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-governing-evidence
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-governing-evidence]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-input-output-color-interpretation
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-input-output-color-interpretation]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-operation-contract
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-operation-contract]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-operation-readiness
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-operation-readiness]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-output-preview-and-version
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-output-preview-and-version]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-quality-evidence
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-quality-evidence]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-scene-binding
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-scene-binding]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-setting-owner
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-setting-owner]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-simulation-domain-and-fidelity
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-simulation-domain-and-fidelity]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-simulation-result
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-simulation-result]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-source-measurements
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-source-measurements]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-version-and-review-scope
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-version-and-review-scope]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.inspect-voice-authorization
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-voice-authorization]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.limit-tracking-propagation-range
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.limit-tracking-propagation-range]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.open-admitted-delivery-action
+    type: NAVIGATION_OR_PRESENTATION
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.open-admitted-delivery-action]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract changes view, navigation, or presentation and declares no domain write
+  - identity: media.action.open-approval-view
+    type: NAVIGATION_OR_PRESENTATION
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.open-approval-view]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract changes view, navigation, or presentation and declares no domain write
+  - identity: media.action.open-authorized-recovery-instruction
+    type: NAVIGATION_OR_PRESENTATION
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.open-authorized-recovery-instruction]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract changes view, navigation, or presentation and declares no domain write
+  - identity: media.action.open-qualification-evidence
+    type: NAVIGATION_OR_PRESENTATION
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.open-qualification-evidence]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract changes view, navigation, or presentation and declares no domain write
+  - identity: media.action.open-related-view
+    type: NAVIGATION_OR_PRESENTATION
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.open-related-view]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract changes view, navigation, or presentation and declares no domain write
+  - identity: media.action.prepare-redacted-diagnostics
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.prepare-redacted-diagnostics]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.preview-current-revision
+    type: NAVIGATION_OR_PRESENTATION
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.preview-current-revision]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract changes view, navigation, or presentation and declares no domain write
+  - identity: media.action.preview-motion
+    type: NAVIGATION_OR_PRESENTATION
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.preview-motion]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract changes view, navigation, or presentation and declares no domain write
+  - identity: media.action.reconcile-delivery-acknowledgment
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.reconcile-delivery-acknowledgment]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.record-authorized-attestation
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.record-authorized-attestation]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.record-candidate-for-review
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.record-candidate-for-review]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.record-review-comment
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.record-review-comment]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.record-review-follow-up
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.record-review-follow-up]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.record-version-review-decision
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.record-version-review-decision]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.refresh-operation-readiness
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.refresh-operation-readiness]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.remove-storyboard-scene
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.remove-storyboard-scene]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.reorder-storyboard-scenes
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.reorder-storyboard-scenes]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.reorder-track
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.reorder-track]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.request-admitted-speech-operation
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.request-admitted-speech-operation]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.request-authorized-review
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.request-authorized-review]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.request-plan-validation
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.request-plan-validation]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.request-rights-review
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.request-rights-review]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.restore-prior-setting-preference
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.restore-prior-setting-preference]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.return-to-requested-destination-after-identity-confirmation
+    type: NAVIGATION_OR_PRESENTATION
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.return-to-requested-destination-after-identity-confirmation]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract changes view, navigation, or presentation and declares no domain write
+  - identity: media.action.review-bounded-repair-proposal
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-bounded-repair-proposal]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.review-estimates-and-rights-effects
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-estimates-and-rights-effects]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.review-output-evidence
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-output-evidence]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.review-recognized-or-synthesized-content
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-recognized-or-synthesized-content]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.review-repair-bounds
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-repair-bounds]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.review-rights-approval-and-format-effects
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-rights-approval-and-format-effects]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.review-translated-segment
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-translated-segment]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.review-uncertain-tracking
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-uncertain-tracking]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.revise-dubbing-segment
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.revise-dubbing-segment]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.revoke-authorized-consent
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.revoke-authorized-consent]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.save-dubbing-version
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-dubbing-version]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.save-new-revision
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-new-revision]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.save-setting-preference
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-setting-preference]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.save-storyboard-revision
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-storyboard-revision]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.save-versioned-edit
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.save-versioned-edit]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.search-by-user-outcome
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.search-by-user-outcome]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.search-named-profiles
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.search-named-profiles]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.search-product-guidance
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.search-product-guidance]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.select-authorized-reference
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-authorized-reference]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.select-eligible-processing-profile
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-eligible-processing-profile]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.select-exact-candidates
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-exact-candidates]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.select-identity-confirmed-workspace
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-identity-confirmed-workspace]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: delegates workspace authority to Shared and has no exact Media PDP-1 operationRef
+  - identity: media.action.select-keyframe
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-keyframe]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.select-region-or-point
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-region-or-point]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.select-scene-entity
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-scene-entity]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.select-shot-or-region
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-shot-or-region]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.select-track-or-region
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-track-or-region]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.set-simulation-initial-condition
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.set-simulation-initial-condition]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.share-diagnostics-after-explicit-choice
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.share-diagnostics-after-explicit-choice]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.start-upstream-identity-handoff
+    type: NAVIGATION_OR_PRESENTATION
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.start-upstream-identity-handoff]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action transfers navigation to the Shared identity handoff and does not assert authentication or workspace access
+  - identity: media.action.stop-authorized-voice-use
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.stop-authorized-voice-use]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.submit-admitted-plan
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.submit-admitted-plan]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.submit-render
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.submit-render]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.submit-simulation
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.submit-simulation]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.submit-validated-request
+    type: NOT_ADMITTED
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.submit-validated-request]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: effect requests persistence or consequential operation without an exact PDP-1 operation; remains
+      unadmitted
+  - identity: media.action.trim-track
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.trim-track]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.undo-or-redo-versioned-change
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.undo-or-redo-versioned-change]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.update-repair-bounds
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.update-repair-bounds]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.update-scene-binding
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.update-scene-binding]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.validate-composition
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.validate-composition]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.validate-exact-snapshot
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.validate-exact-snapshot]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.validate-processing-profile
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.validate-processing-profile]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.validate-scene-references
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.validate-scene-references]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.validate-simulation-plan
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.validate-simulation-plan]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.align-source-time-interval
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.align-source-time-interval]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.inspect-source-grounded-observation
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.inspect-source-grounded-observation]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.review-processing-parameters
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-processing-parameters]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.review-scene-timing-and-transitions
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.review-scene-timing-and-transitions]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.search-authorized-artifacts
+    type: DOMAIN_QUERY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.search-authorized-artifacts]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract declares an exact-object read or outcome-inspection effect with no-write finality
+  - identity: media.action.select-simulation-output-pass
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-simulation-output-pass]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.select-source-time-interval
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.select-source-time-interval]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.set-declared-simulation-input
+    type: CLIENT_ONLY
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.set-declared-simulation-input]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract confines behavior to local selection, draft, playback, or editing state
+  - identity: media.action.switch-measurement-presentation
+    type: NAVIGATION_OR_PRESENTATION
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.switch-measurement-presentation]
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - reversible
+    - finality
+    classificationBasis: action contract changes view, navigation, or presentation and declares no domain write

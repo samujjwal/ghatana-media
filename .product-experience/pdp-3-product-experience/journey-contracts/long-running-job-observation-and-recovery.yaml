@@ -14,6 +14,8 @@ preconditions:
 steps:
 - view: media.view.monitor-transcription
   action: media.action.view-job-status
+  actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+  capabilityRefs: [media.job.view-status]
   result: the-current-job-reference-is-used-without-submitting-another-request
   surfaceRefs: []
   objectRefs: []
@@ -50,7 +52,7 @@ steps:
       a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
       The fixture slice does not execute retry.
   postconditions: []
-  requirementRefs: []
+  requirementRefs: [MEDIA-REQ-CAP-JOB]
   verification:
     status: not-run
     requiredChecks:
@@ -80,11 +82,13 @@ steps:
     degradedBehavior: pending-explicit-step-degraded-behavior
     recovery: candidate-proposal-only; not accepted step recovery
     postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-requirement-crosswalk
+    requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.job-status
   action: media.action.view-job-status
+  actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+  capabilityRefs: [media.job.view-status]
   result: state-attempt-state-finality-and-only-measured-progress-are-shown
   surfaceRefs: []
   objectRefs: []
@@ -121,7 +125,7 @@ steps:
       a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
       The fixture slice does not execute retry.
   postconditions: []
-  requirementRefs: []
+  requirementRefs: [MEDIA-REQ-CAP-JOB]
   verification:
     status: not-run
     requiredChecks:
@@ -151,7 +155,7 @@ steps:
     degradedBehavior: pending-explicit-step-degraded-behavior
     recovery: candidate-proposal-only; not accepted step recovery
     postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-requirement-crosswalk
+    requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.job-status
@@ -228,6 +232,8 @@ steps:
 - view: media.view.job-status
   navigation: reattach-by-stable-job-reference
   action: media.action.view-job-status
+  actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+  capabilityRefs: [media.job.view-status]
   result: the-same-job-identity-is-refreshed-from-current-owner-evidence
   surfaceRefs: []
   objectRefs: []
@@ -264,7 +270,7 @@ steps:
       a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
       The fixture slice does not execute retry.
   postconditions: []
-  requirementRefs: []
+  requirementRefs: [MEDIA-REQ-CAP-JOB]
   verification:
     status: not-run
     requiredChecks:
@@ -294,11 +300,13 @@ steps:
     degradedBehavior: pending-explicit-step-degraded-behavior
     recovery: candidate-proposal-only; not accepted step recovery
     postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-requirement-crosswalk
+    requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.job-status
   action: media.action.request-cancellation
+  actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+  capabilityRefs: [media.job.cancel]
   when: queued-or-running-and-current-cancellation-authority-allows
   result: cancellation-is-pending-until-the-job-owner-confirms-stop-or-reports-a-racing-result
   surfaceRefs: []
@@ -336,7 +344,7 @@ steps:
       a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
       The fixture slice does not execute retry.
   postconditions: []
-  requirementRefs: []
+  requirementRefs: [MEDIA-REQ-CAP-JOB]
   verification:
     status: not-run
     requiredChecks:
@@ -366,11 +374,13 @@ steps:
     degradedBehavior: pending-explicit-step-degraded-behavior
     recovery: candidate-proposal-only; not accepted step recovery
     postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-requirement-crosswalk
+    requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.job-status
   action: media.action.retry-job
+  actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+  capabilityRefs: [media.job.retry]
   when: prior-attempt-is-classified-retryable-and-current-retry-authority-policy-and-budget-allow-one-new-attempt
   result: one-new-fenced-attempt-is-created-under-the-same-logical-job-identity; the-prior-attempt-and-its-finality-remain-visible
   surfaceRefs: []
@@ -408,7 +418,7 @@ steps:
       a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
       The fixture slice does not execute retry.
   postconditions: []
-  requirementRefs: []
+  requirementRefs: [MEDIA-REQ-CAP-JOB]
   verification:
     status: not-run
     requiredChecks:
@@ -438,11 +448,13 @@ steps:
     degradedBehavior: pending-explicit-step-degraded-behavior
     recovery: candidate-proposal-only; not accepted step recovery
     postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-requirement-crosswalk
+    requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 - view: media.view.check-job-outcome
   action: media.action.check-job-outcome
+  actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+  capabilityRefs: [media.job.check-outcome]
   when: outcome-is-unknown-and-current-outcome-check-authority-allows
   result: evidence-is-collected-for-the-same-job-without-a-new-dispatch
   surfaceRefs: []
@@ -480,7 +492,7 @@ steps:
       a new request; retry starts only after the prior attempt is classified retryable and current owner policy allows it.
       The fixture slice does not execute retry.
   postconditions: []
-  requirementRefs: []
+  requirementRefs: [MEDIA-REQ-CAP-JOB]
   verification:
     status: not-run
     requiredChecks:
@@ -510,7 +522,7 @@ steps:
     degradedBehavior: pending-explicit-step-degraded-behavior
     recovery: candidate-proposal-only; not accepted step recovery
     postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-requirement-crosswalk
+    requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
     verification: not-run; no evidence refs recorded
     contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 terminalSuccess: The actor observes owner-confirmed completion or cancellation, or leaves the same job visibly uncertain with a safe outcome-check path; already completed work remains available.

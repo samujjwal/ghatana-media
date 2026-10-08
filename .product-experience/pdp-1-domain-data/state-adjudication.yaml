@@ -63,6 +63,30 @@ invariantsProposed:
   - partial-success-requires-explicit-sub-effect-accounting
   - state-alone-does-not-authorize-retry-cancel-delivery-or-other-action
   - observations-need-source-version-and-observed-at-to-support-freshness
+negativeCases:
+  status: canonical-policy-tests; does-not-verify-runtime-or-provider-behavior
+  cases:
+    - id: state-identity.same-spelling-different-machine
+      given: [{machineId: media-job, stateId: RUNNING}, {machineId: media-attempt, stateId: RUNNING}]
+      mustNot: infer-state-equivalence
+    - id: ingress.ACCEPTED-is-not-job.QUEUED
+      given: request-acceptance-receipt
+      mustNot: assert-durable-queue-eligibility
+    - id: retry.RETRY_PENDING-is-not-attempt-execution
+      given: job-state-RETRY_PENDING
+      mustNot: assert-new-attempt-claimed-or-dispatched
+    - id: cancellation.CANCEL_REQUESTED-is-not-CANCELLED
+      given: attempt-state-CANCEL_REQUESTED
+      mustNot: assert-job-cancellation-finality
+    - id: finality.OUTCOME_UNKNOWN-is-not-RUNNING
+      given: authoritative-outcome-unavailable
+      mustNot: normalize-to-RUNNING-or-authorize-replay
+    - id: finality.PARTIALLY_SUCCEEDED-requires-closed-sub-effects
+      given: undeclared-or-unresolved-sub-effect
+      mustNot: assert-terminal-partial-success
+    - id: delivery.COMPLETED-is-not-ACKNOWLEDGED
+      given: valid-persisted-job-result
+      mustNot: assert-recipient-delivery-acknowledgment
 ownerAcceptedPolicyDecisions:
   authorityRef: .product-experience/reviews/2026-10-07-owner-decision-and-resolution.md#3-pdp-1-canonical-behavior-and-state-decisions
   decisionScope: canonical-product-semantics-only; no-provider-or-runtime-proof
@@ -82,4 +106,3 @@ remainingImplementationAndIndependentProof:
   - storage-and-runtime-durable-command-attempt-history-fencing-and-recovery-must-be-proven
   - cancellation-and-finality-provider-observer-oracles-must-be-reconciled
   - full-PDP-1-semantic-and-independent-acceptance-remains-open
-

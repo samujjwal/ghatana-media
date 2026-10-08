@@ -45,8 +45,62 @@ function parseRuntimeRows(json) {
   return (manifest.routes ?? []).map(({ method, path, operationId }) => ({ method, path, operationId }));
 }
 
+/** Registry method tokens must also exist as public class/facade methods. This
+ * source check excludes keywords and built-ins accidentally captured by the
+ * earlier broad token scan (for, if, clearTimeout) without hiding real APIs. */
+export function parseSdkRegistryMethods(registry, sourceByPath) {
+  const declarations = new Map();
+  const nonApiTokens = new Set(["for", "if", "clearTimeout"]);
+  for (const [source, code] of Object.entries(sourceByPath)) {
+    const names = new Set();
+    const classBodies = [...code.matchAll(/^export class [^{]+\{\n([\s\S]*?)^\}/gm)]
+      .map((match) => match[1]).join("\n");
+    for (const match of classBodies.matchAll(/^  (?:(?:public|private|protected)\s+)?(?:async\s+)?([A-Za-z_$][\w$]*)\s*\(/gm)) {
+      const name = match[1];
+      // Only class-member declarations at the class' two-space indentation
+      // count; interface signatures, control flow and nested calls do not.
+      if (!nonApiTokens.has(name)) names.add(name);
+    }
+    declarations.set(source, names);
+  }
+  return [...registry.matchAll(/^  - id: ([^\n]+)\n    method: ([^\n]+)\n    visibility: public\n    source: ([^\n]+)/gm)]
+    .map((m) => ({ id: m[1].trim(), method: m[2].trim(), source: m[3].trim() }))
+    .filter(({ method }) => [...declarations.values()].some((names) => names.has(method)));
+}
+
 function normalizeRoutePath(path) {
   return path.replace(/\$\{[^}]+\}/g, "{}").replace(/\{[^/{}]+\}/g, "{}");
+}
+
+function routeDispositionKey({ source, method, path }) {
+  return `${source} ${method.toUpperCase()} ${normalizeRoutePath(path)}`;
+}
+
+export function parseNotAdmittedSdkRoutes(parityMatrix) {
+  const start = parityMatrix.indexOf("compatibilityRouteFindings:\n");
+  if (start < 0) return [];
+  const end = parityMatrix.indexOf("\ntypedUiActionDispositions:\n", start);
+  const block = parityMatrix.slice(start, end < 0 ? undefined : end);
+  if (!/^compatibilityRouteFindings:\n  disposition: NOT_ADMITTED_TO_CURRENT_RUNTIME_ROUTE_MANIFEST/mu.test(block)) return [];
+  return [...block.matchAll(/^    - \{source: ([^,]+), method: ([A-Z]+), path: '([^']+)'\}$/gmu)]
+    .map((match) => ({ source: match[1].trim(), method: match[2], path: match[3], disposition: "NOT_ADMITTED" }));
+}
+
+export function parseSdkOpenApiDispositions(parityMatrix) {
+  const start = parityMatrix.indexOf("typedMethodDispositions:\n");
+  if (start < 0) return [];
+  const end = parityMatrix.indexOf("\ntypedInterfaceIdentityDispositions:\n", start);
+  const section = parityMatrix.slice(start, end < 0 ? undefined : end);
+  return section.split(/(?=^- identity: )/mu).flatMap((record) => {
+    const identity = record.match(/^- identity: ([^\n]+)/mu)?.[1]?.trim();
+    if (!identity) return [];
+    return [{
+      identity,
+      type: record.match(/^  type: ([A-Z_]+)$/mu)?.[1],
+      disposition: record.match(/^  openApiBindingDisposition: ([A-Z_]+)$/mu)?.[1],
+    }];
+  })
+    .filter((entry) => entry.identity && entry.disposition);
 }
 
 /** Extract only SDK call-sites where the source makes method and path visible. */
@@ -95,6 +149,7 @@ function parseProtoRpcs(text) {
 /** Inputs are overridable for deterministic drift tests. */
 export function analyzeContractParity(input) {
   const gaps = [];
+  const reconciledFindings = [];
   const openapi = parseOpenApiRows(input.openapi);
   const runtime = parseRuntimeRows(input.runtimeManifest);
   const httpRegistry = parseYamlHttpRows(input.httpRegistry);
@@ -102,10 +157,25 @@ export function analyzeContractParity(input) {
   compareRoutes(openapi, httpRegistry, "OpenAPI", "PDP-3 HTTP registry", gaps);
 
   const operationIds = new Set(openapi.map((row) => row.operationId));
+  const sdkOpenApiDispositions = new Map((input.sdkOpenApiDispositions ?? []).map((entry) => [entry.identity, entry]));
+  const sdkOperationIdSet = new Set(input.sdkOperationIds ?? []);
   for (const id of input.sdkOperationIds ?? []) {
-    if (!operationIds.has(id)) gaps.push(`SDK operation has no explicit OpenAPI binding: ${id}`);
+    if (operationIds.has(id)) continue;
+    const finding = `SDK operation has no explicit OpenAPI binding: ${id}`;
+    const disposition = sdkOpenApiDispositions.get(id);
+    if (disposition && ["CLIENT_ONLY", "TRANSPORT_ONLY", "PROVIDER_ADMIN", "NOT_ADMITTED"].includes(disposition.disposition)) {
+      reconciledFindings.push({ finding, disposition: disposition.disposition });
+    } else {
+      gaps.push(finding);
+    }
+  }
+  for (const entry of sdkOpenApiDispositions.values()) {
+    if (!sdkOperationIdSet.has(entry.identity)) gaps.push(`stale SDK OpenAPI disposition has no current SDK identity: ${entry.identity}`);
   }
   const sdkCalls = input.sdkCalls ?? input.sdkPaths ?? [];
+  const routeDispositions = input.sdkRouteDispositions ?? [];
+  const dispositionMap = new Map(routeDispositions.map((entry) => [routeDispositionKey(entry), entry]));
+  const usedRouteDispositions = new Set();
   for (const entry of sdkCalls) {
     if (!entry.method || !/^(GET|POST|PUT|PATCH|DELETE)$/i.test(entry.method)) {
       gaps.push(`HTTP method unparsed/ambiguous: ${entry.source} ${entry.path}; not compared with runtime route`);
@@ -115,10 +185,31 @@ export function analyzeContractParity(input) {
     if (runtime.some((route) => route.method.toUpperCase() === entry.method.toUpperCase()
       && normalizeRoutePath(route.path) === normalizedPath)) continue;
     const samePath = runtime.filter((route) => normalizeRoutePath(route.path) === normalizedPath);
-    if (samePath.length) {
-      gaps.push(`client method divergence: ${entry.source} ${entry.method.toUpperCase()} ${entry.path} conflicts with runtime ${samePath.map(routeKey).join(", ")}`);
+    const finding = samePath.length
+      ? `client method divergence: ${entry.source} ${entry.method.toUpperCase()} ${entry.path} conflicts with runtime ${samePath.map(routeKey).join(", ")}`
+      : `client path divergence: ${entry.source} ${entry.method.toUpperCase()} ${entry.path} is absent from runtime route manifest`;
+    const dispositionKey = routeDispositionKey(entry);
+    const explicitDisposition = dispositionMap.get(dispositionKey);
+    if (explicitDisposition?.disposition === "NOT_ADMITTED") {
+      usedRouteDispositions.add(dispositionKey);
+      reconciledFindings.push({ finding, disposition: explicitDisposition.disposition });
+      continue;
+    }
+    gaps.push(finding);
+  }
+  for (const [key, entry] of dispositionMap) {
+    if (!usedRouteDispositions.has(key)) gaps.push(`stale SDK route disposition has no matching current divergence: ${entry.source} ${entry.method} ${entry.path}`);
+  }
+  if ((input.sdkRegistryOperationCount ?? 0) > (input.sdkRegistryHttpVerbCount ?? 0)) {
+    const methodCoverageIsSourceParsed = sdkCalls.every((entry) => entry.method && /^(GET|POST|PUT|PATCH|DELETE)$/i.test(entry.method));
+    const finding = `HTTP method unparsed/ambiguous: SDK operation registry has ${input.sdkRegistryOperationCount} entries but only ${input.sdkRegistryHttpVerbCount} explicit HTTP-verb bindings; source call-sites below are checked independently`;
+    if (methodCoverageIsSourceParsed) {
+      reconciledFindings.push({
+        finding,
+        disposition: "registry-method-fields-and-source-call-sites-are-distinct-populations; all-observed-call-sites-have-source-parsed-verbs",
+      });
     } else {
-      gaps.push(`client path divergence: ${entry.source} ${entry.method.toUpperCase()} ${entry.path} is absent from runtime route manifest`);
+      gaps.push(finding);
     }
   }
 
@@ -136,9 +227,10 @@ export function analyzeContractParity(input) {
   if (!typeNames.length && !schemaNames.length) gaps.push("TypeScript contract inventory is missing or empty");
   else gaps.push(`TypeScript structural inventory found ${typeNames.length} exported types and ${schemaNames.length} schemas; operation-to-type bindings are not explicitly registered`);
   if (toolIds.length) gaps.push(`Agent Tool structural inventory found ${toolIds.length} tools; operation bindings and complete input/result contract parity remain pending`);
-  if ((input.sdkRegistryOperationCount ?? 0) > (input.sdkRegistryHttpVerbCount ?? 0)) {
-    gaps.push(`HTTP method unparsed/ambiguous: SDK operation registry has ${input.sdkRegistryOperationCount} entries but only ${input.sdkRegistryHttpVerbCount} explicit HTTP-verb bindings; source call-sites below are checked independently`);
-  }
+  // SDK method identities and HTTP call sites are different populations. The
+  // call-site parser above reports an unparsed method individually; a registry
+  // record without an `httpMethod` is not evidence that the source call site is
+  // ambiguous, so do not emit the old aggregate false positive.
 
   const operationStatus = input.pdp1Operations.match(/^scopeStatus:\s*([^\n]+)/m)?.[1]?.trim() ?? "missing";
   const semanticUnresolved = /proposal|pending|unresolved/i.test(operationStatus)
@@ -160,6 +252,8 @@ export function analyzeContractParity(input) {
       sdkHttpCallSites: sdkCalls.length,
     },
     semanticStatus: semanticUnresolved ? "UNRESOLVED" : "REVIEW_REQUIRED",
+    observedFindingCount: gaps.length + reconciledFindings.length,
+    reconciledFindings,
     gaps,
     passed: gaps.length === 0,
   };
@@ -175,6 +269,7 @@ function collectLiveInput() {
   const operationClient = read("libs/audio-video-client/src/operations.ts");
   const facadeClient = read("libs/audio-video-client/src/index.ts");
   const operationRegistry = read(".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml");
+  const operationParity = read(".product-experience/interface-parity/operation-parity.yaml");
   const sdkCalls = [
     ...parseSdkHttpCalls(operationClient, "libs/audio-video-client/src/operations.ts"),
     ...parseSdkHttpCalls(facadeClient, "libs/audio-video-client/src/index.ts"),
@@ -187,8 +282,13 @@ function collectLiveInput() {
     httpRegistry: read(".product-experience/pdp-3-product-experience/api/api-registry.yaml"),
     grpcRegistry: read(".product-experience/pdp-3-product-experience/grpc/service-registry.yaml"),
     protoFiles: operationFiles.map(read),
-    sdkOperationIds: [...operationRegistry.matchAll(/^  - id: ([^\n]+)/gm)].map((m) => m[1].trim()),
+    sdkOperationIds: parseSdkRegistryMethods(operationRegistry, {
+      "libs/audio-video-client/src/operations.ts": operationClient,
+      "libs/audio-video-client/src/index.ts": facadeClient,
+    }).map(({ id }) => id),
     sdkCalls,
+    sdkRouteDispositions: parseNotAdmittedSdkRoutes(operationParity),
+    sdkOpenApiDispositions: parseSdkOpenApiDispositions(operationParity),
     sdkRegistryOperationCount,
     sdkRegistryHttpVerbCount,
     types: read("libs/audio-video-types/src/contracts.ts"),
@@ -202,6 +302,10 @@ if (process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.
   console.log(`Media contract parity: ${result.passed ? "PASS" : "NON-GREEN"}`);
   console.log(`  structural inventory: ${JSON.stringify(result.structural)}`);
   console.log(`  semantic binding: ${result.semanticStatus}`);
+  console.log(`  source findings audited: ${result.observedFindingCount} (${result.reconciledFindings.length} dispositioned; ${result.gaps.length} unresolved)`);
+  if (result.reconciledFindings.length) {
+    console.log(`  source-dispositioned findings: ${result.reconciledFindings.length}`);
+  }
   if (result.gaps.length) {
     console.error(`  explicit gaps (${result.gaps.length}):`);
     for (const gap of result.gaps) console.error(`  - ${gap}`);

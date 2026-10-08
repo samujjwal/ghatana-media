@@ -10,11 +10,16 @@ patternIds: [media.gui.pattern.project-browser]
 tokenDependencies: []
 domainObjectRefs: []
 operationRefs: []
+requirementRefs: []
+requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 stateRefs: []
 entry: []
 exit: []
 actionConsequences:
   - actionId: media.action.choose-intent
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -34,6 +39,7 @@ fieldBindingStatus:
   tokenDependencies: no-canonical-references-declared
   domainObjectRefs: no-canonical-references-declared
   operationRefs: no-canonical-references-declared
+  requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: no-PDP1-state-references-declared
   entry: no-canonical-entry-contract-declared
   exit: no-canonical-exit-contract-declared

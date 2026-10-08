@@ -267,13 +267,14 @@ assertKnown(screenComponentRefs, componentIds, "Screen component reference");
 assertKnown(screenJourneyRefs, journeyIds, "Screen journey reference");
 // v2 is the current structural contract. Empty/null values are permitted only
 // when the matching binding-status field explains the unresolved authority.
-const screenRequiredFields = ["schemaVersion", "contractSchemaRef", "surfaceId", "templateId", "layoutIds", "componentIds", "patternIds", "tokenDependencies", "domainObjectRefs", "operationRefs", "stateRefs", "entry", "exit", "actionConsequences", "responsiveBehavior", "fixtures", "verification", "fieldBindingStatus"];
+const screenRequiredFields = ["schemaVersion", "contractSchemaRef", "surfaceId", "templateId", "layoutIds", "componentIds", "patternIds", "tokenDependencies", "domainObjectRefs", "operationRefs", "requirementRefs", "stateRefs", "entry", "exit", "actionConsequences", "responsiveBehavior", "fixtures", "verification", "fieldBindingStatus"];
 // The v2 schema requires a status and reason but does not declare an enum.
 // Pin the finite proposal-only vocabulary currently authored by the 47 screen
 // contracts; adding a new value requires explicit validator review. In
 // particular, no accepted/complete status is authorized by this source tree.
 const allowedScreenBindingStatuses = new Set([
   "candidate-binding-pending-owner-review",
+  "action-capability-crosswalk-recorded; semantic-review-pending",
   "candidate-template-link-owner-review-pending",
   "candidate-layout-link-owner-review-pending",
   "candidate-pending-acceptance",
@@ -296,6 +297,7 @@ const allowedScreenBindingStatuses = new Set([
   "pending-local-labels-not-canonical",
   "pending-no-canonical-layout-ids",
   "pending-owner-operation-and-effect-binding",
+  "no-direct-action-capability-requirement-crosswalk",
   "pending; owner-operation-and-effect-binding-required",
   "proposal-copied-from-existing-componentRefs; Shared-binding-pending",
   "proposal-copied-from-existing-patternRefs; PDP-2-acceptance-pending",
@@ -349,7 +351,94 @@ for (let index = 0; index < screenSources.length; index += 1) {
 }
 if (screenCoreComplete !== 47) fail(`PDP-3 screen structural shape count is ${screenCoreComplete}; expected 47 v2 screen contracts (job-family remains a separate specialization)`);
 
+// The only accepted screen -> requirement crosswalk currently available is
+// the exact intersection of a screen's declared action capabilities and PDP-0
+// requirement capability IDs. Keep operation/effect, state and oracle links
+// unresolved until their owning authorities provide them.
+const requirementCapabilitiesById = new Map();
+for (const block of requirementBlocks) {
+  const id = block.match(/^- id: (MEDIA-REQ-[A-Z0-9-]+)$/mu)?.[1];
+  if (!id) continue;
+  const section = block.match(/^\s*capabilityIds:\s*\n((?:\s+- [^\n]+\n?)*)/mu)?.[1] ?? "";
+  for (const capability of section.matchAll(/\b(media\.[A-Za-z0-9._-]+)\b/gu)) {
+    const ids = requirementCapabilitiesById.get(capability[1]) ?? new Set();
+    ids.add(id);
+    requirementCapabilitiesById.set(capability[1], ids);
+  }
+}
+const registeredActionCapabilities = new Map();
+for (const block of topLevelBlocks(actionSource.split(/^actions:\s*$/mu)[1] ?? "")) {
+  const id = block.match(/^- id: (media\.action\.[A-Za-z0-9._-]+)$/mu)?.[1];
+  if (!id) continue;
+  const section = block.match(/^\s*capabilityRefs:\s*\[([^\]]*)\]/mu)?.[1] ?? "";
+  registeredActionCapabilities.set(id, [...section.matchAll(/\b(media\.[A-Za-z0-9._-]+)\b/gu)].map((match) => match[1]));
+}
+const parseInlineRefs = (source, field, label) => {
+  const section = source.match(new RegExp(`^\\s*${field}:\\s*\\[([^\\]]*)\\]`, "mu"))?.[1];
+  if (section === undefined) {
+    if (!new RegExp(`^\\s*${field}:\\s*\\[`, "mu").test(source)) fail(`${label} lacks an inline ${field} binding`);
+    return [];
+  }
+  return [...section.matchAll(/[A-Za-z][A-Za-z0-9._:/-]*/gu)].map((match) => match[0]);
+};
+let screensWithRequirementCrosswalk = 0;
+let directActionCapabilityBindings = 0;
+for (const source of screenSources) {
+  const screenId = source.match(/^screenId: (media\.view\.[A-Za-z0-9._-]+)$/mu)?.[1];
+  if (!screenId || !screenRegistryIds.has(screenId)) continue;
+  const consequenceSection = source.split(/^actionConsequences:\s*$/mu)[1]?.split(/^actionConsequencesBindingStatus:/mu)[0] ?? "";
+  const consequenceBlocks = consequenceSection.split(/(?=^  - actionId: )/mu).filter((block) => /^  - actionId: /mu.test(block));
+  const expectedRequirements = new Set();
+  for (const block of consequenceBlocks) {
+    const actionId = block.match(/^  - actionId: (media\.action\.[A-Za-z0-9._-]+)$/mu)?.[1];
+    const actionCapabilities = registeredActionCapabilities.get(actionId) ?? [];
+    const declaredCapabilities = parseInlineRefs(block, "capabilityRefs", `${screenId} action ${actionId}`);
+    if (JSON.stringify(declaredCapabilities) !== JSON.stringify(actionCapabilities)) {
+      fail(`${screenId} action ${actionId} capabilityRefs do not match the PDP-3 Action Registry`);
+    }
+    const actionRequirements = new Set(actionCapabilities.flatMap((capability) => [...(requirementCapabilitiesById.get(capability) ?? [])]));
+    for (const requirement of actionRequirements) expectedRequirements.add(requirement);
+    const declaredActionRequirements = parseInlineRefs(block, "requirementRefs", `${screenId} action ${actionId}`);
+    const expectedActionRequirements = [...actionRequirements].sort();
+    if (JSON.stringify(declaredActionRequirements) !== JSON.stringify(expectedActionRequirements)) {
+      fail(`${screenId} action ${actionId} requirementRefs do not match the exact capability crosswalk`);
+    }
+    if (expectedActionRequirements.length) directActionCapabilityBindings += 1;
+  }
+  const declaredRequirements = parseInlineRefs(source, "requirementRefs", screenId);
+  const expected = [...expectedRequirements].sort();
+  if (JSON.stringify(declaredRequirements) !== JSON.stringify(expected)) {
+    fail(`${screenId} requirementRefs do not match the union of registered action-capability requirement links`);
+  }
+  if (expected.length) screensWithRequirementCrosswalk += 1;
+}
+note(`${screensWithRequirementCrosswalk} of 47 screen views have direct action-capability requirement crosswalks; ${directActionCapabilityBindings} screen action bindings resolve through registered capability IDs; unresolved operation/effect, domain-state, and behavioral-oracle links remain proposal-only`);
+
 const journeySources = journeyFiles.map((file) => read(join(journeyDir, file)));
+let journeyStepsWithRequirementCrosswalk = 0;
+let journeyStepsWithAction = 0;
+for (const source of journeySources) {
+  const stepBlocks = source.split(/(?=^\s*- view: )/mu).filter((block) => /^\s*- view: /mu.test(block));
+  for (const block of stepBlocks) {
+    const stepStart = block.match(/^(\s*)- view:/mu)?.[1] ?? "";
+    const propertyIndent = `${stepStart}  `;
+    const actionId = block.match(new RegExp(`^${propertyIndent}action: (media\\.action\\.[A-Za-z0-9._-]+)$`, "mu"))?.[1];
+    if (!actionId) continue;
+    journeyStepsWithAction += 1;
+    const actionCapabilities = registeredActionCapabilities.get(actionId) ?? [];
+    const declaredCapabilities = parseInlineRefs(block, "capabilityRefs", `journey step ${actionId}`);
+    if (JSON.stringify(declaredCapabilities) !== JSON.stringify(actionCapabilities)) {
+      fail(`Journey step ${actionId} capabilityRefs do not match the PDP-3 Action Registry`);
+    }
+    const expectedRequirements = [...new Set(actionCapabilities.flatMap((capability) => [...(requirementCapabilitiesById.get(capability) ?? [])]))].sort();
+    const declaredRequirements = parseInlineRefs(block, "requirementRefs", `journey step ${actionId}`);
+    if (JSON.stringify(declaredRequirements) !== JSON.stringify(expectedRequirements)) {
+      fail(`Journey step ${actionId} requirementRefs do not match the exact capability crosswalk`);
+    }
+    if (expectedRequirements.length) journeyStepsWithRequirementCrosswalk += 1;
+  }
+}
+note(`${journeyStepsWithRequirementCrosswalk} of ${journeyStepsWithAction} action-bearing journey steps map through direct Action Registry capability refs to PDP-0 requirements; action authority, operation, state transition, oracle, and behavior acceptance remain pending`);
 const journeyViewRefs = collectMatches(journeySources, /^\s*(?:-\s*)?view: (media\.view\.[A-Za-z0-9._-]+)$/gmu);
 const journeyActionRefs = collectMatches(journeySources, /^\s*action: (media\.action\.[A-Za-z0-9._-]+)$/gmu);
 const journeyFileIds = collectMatches(journeySources, /^journeyId: (J-[0-9]+)$/gmu);

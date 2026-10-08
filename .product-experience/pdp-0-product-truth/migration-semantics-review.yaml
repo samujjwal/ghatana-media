@@ -7,6 +7,19 @@ sourcePin:
   sha256: 2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a
   lineCount: 2815
   reviewedDate: '2026-10-07'
+ownerDecisionOverlay:
+  decisionRef: MEDIA-OWNER-2026-10-07
+  path: .product-experience/reviews/2026-10-07-owner-decision-and-resolution.md
+  sha256: bec825ef9f16ad46cdf3a4888d4ce82cb69648c8b73ce833618842990b8a757b
+  applicablePolicies:
+  - P0-D01: classify applicability per leaf using JOURNEY_STEP, MACHINE_OPERATION, PLATFORM_DEPENDENCY, SUPPORTING_READ_MODEL, or EXCLUDED_BY_PRODUCT_POLICY; no GUI default.
+  - P0-D02: decompose mixed blocks into minimal normative assertions, source-only observations, and execution notes; route each normative assertion to exactly one owner; quarantine historical material from active acceptance.
+  authorityOverlay: Product meaning in a master-plan block is a migration proposal until extracted into its owning .product-experience PDP authority; master-plan provenance alone does not prove semantic equivalence or acceptance.
+  reviewStatus: Decision policies incorporated; individual unresolved and mixed block assertions remain unadjudicated unless an exact owner-authority mapping is recorded below.
+  resolvedBlockCount: 0
+  unresolvedBlockCount: 349
+  partiallyMappedUnresolvedBlockCount: 2
+  partialMappingItems: [MPSEM-0178, MPSEM-0211]
 systematicScope:
   unit: 'unique Markdown content block: paragraph, individual list item, individual table row, or fenced code example; exact
     repeated blocks are deduplicated while every source location is retained'
@@ -76,9 +89,9 @@ linkedPdpSourcePins:
 - path: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml
   sha256: 76f66242b91c1401baaf85f70d1ff87dc2a06ed1728d8832f30d8c58e5ae5056
 - path: .product-experience/pdp-0-product-truth/capabilities.yaml
-  sha256: f96e834c22e5b5cea006f7b08aaa2225e88013fc826685c67e0f01fc079c894c
+  sha256: e90a5d3422f6b6ffe0af8f25dda62bbd402e723b94bd5a5a743446be36e41a47
 - path: .product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml
-  sha256: 4380182487115e03b4ac5e81f5491a0a740c507938022a9891b6448fcdd0711b
+  sha256: ccfa544afaf056b8a7ffcc77f61dc17e36289d8ddfc0fb60c75f7998a4d116af
 - path: .product-experience/pdp-0-product-truth/constitution.yaml
   sha256: c725a9b76563d1209420b8dbefc4f6df95e4265ca2f66f1f218babf97d6dfe7d
 - path: .product-experience/pdp-0-product-truth/domain-model.yaml
@@ -92,7 +105,7 @@ linkedPdpSourcePins:
 - path: .product-experience/pdp-0-product-truth/information-architecture.yaml
   sha256: e9ee678851f4aa0bec53a4709e7da3f8a363515181094e5fafaa968b5ac09a26
 - path: .product-experience/pdp-0-product-truth/profile-semantics.yaml
-  sha256: 99fcc3f5ca415c7889724f00660bd40b7214f40297f375041b728b1c86f7172c
+  sha256: 28ba1f0584803976209087dda80b4507283382e1e9632721a3c580eabd05b637
 - path: .product-experience/pdp-0-product-truth/qualification-policy.yaml
   sha256: caacc481ab3afc4dc6228e88e462b712bcb5e8c71feca15908ea655e21e602db
 - path: .product-experience/pdp-0-product-truth/quality-policy.yaml
@@ -4752,8 +4765,7 @@ items:
     availability
   sourceKind: table-row
   classification: UNRESOLVED
-  classificationBasis: semantic statement not matched at claim level to an existing PDP artifact or explicitly designated
-    nonsemantic material
+  classificationBasis: Partial exact claim mappings recorded for operation-family scope and UNKNOWN-versus-AVAILABLE qualification semantics; residual behavior and provider-readiness claims remain unreconciled.
   exactPdpRefs: []
   sectionProvenanceRefs:
   - artifactRef: .product-experience/pdp-0-product-truth/capabilities.yaml
@@ -4779,6 +4791,21 @@ items:
     status: PROPOSAL_ONLY
     rationale: "Separates declared, qualified, and available capability/profile states."
     ownerReview: "Media product and qualification owners."
+  partialClaimMappings:
+  - claimId: MPSEM-0178-C1
+    sourceClaim: '`media.profile.*`, `media.capability.*`, and `media.health.*` define profile discovery/validation, capability/provider diagnostics, execution compatibility and readiness.'
+    mappingType: exact-operation-scope-reference
+    canonicalOwner: PDP-0 Product Truth
+    canonicalRefs:
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.profile.discover
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.profile.validate
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.capability.discover
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.capability.check-declared-options
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.capability.execution.compatibility
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.health.readiness.inspect
+    - .product-experience/pdp-0-product-truth/qualification-policy.yaml#qualification-state-distinctions
+    disposition: partial-claim-mapped; source-block-remains-UNRESOLVED
+    residual: Provider diagnostics/readiness semantics and operational behavior require statement-level reconciliation; this mapping does not establish implementation, qualification, or availability.
   itemId: MPSEM-0178
 - text: '| `media.rights.*`, `media.provenance.*` | Consent references, permitted uses, rights attestations, source lineage,
     execution lineage, origin disclosure and retention/erasure effects | Enforced eligibility; inspectable provenance with
@@ -5835,8 +5862,7 @@ items:
     separation leakage, spectral/phase quality, loudness/true peak, naturalness and speaker similarity where authorized.
   sourceKind: paragraph
   classification: UNRESOLVED
-  classificationBasis: semantic statement not matched at claim level to an existing PDP artifact or explicitly designated
-    nonsemantic material
+  classificationBasis: Partial exact mapping records the seven quality operation IDs; metric, method, threshold, and other quality assertions remain unreconciled.
   exactPdpRefs: []
   sectionProvenanceRefs:
   - artifactRef: .product-experience/pdp-0-product-truth/capabilities.yaml
@@ -5860,6 +5886,21 @@ items:
     status: PROPOSAL_ONLY
     rationale: "Defines Media quality-assessment scope and modality measures."
     ownerReview: "Media quality specialists."
+  partialClaimMappings:
+  - claimId: MPSEM-0211-C1
+    sourceClaim: '`media.quality.*` includes inspect, compare, diagnose, rank, recommend, repair-plan, and bounded optimize.'
+    mappingType: exact-operation-scope-reference
+    canonicalOwner: PDP-0 Product Truth
+    canonicalRefs:
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.quality.inspect
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.quality.compare
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.quality.diagnose
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.quality.rank
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.quality.recommend
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.quality.repair-plan
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#media.quality.bounded-optimize
+    disposition: partial-claim-mapped; source-block-remains-UNRESOLVED
+    residual: The listed quality dimensions, measurements, identity/likeness, and physical-plausibility assertions have not been independently reconciled claim by claim; no thresholds or acceptance are inferred.
   itemId: MPSEM-0211
 - text: '`media.deliver.*` includes encoding/transcoding, mastering, packaging, streaming, downloading, exporting and governed
     publishing; multiple aspect ratios/resolutions; adaptive-bitrate renditions; web/social/broadcast/cinematic profiles;

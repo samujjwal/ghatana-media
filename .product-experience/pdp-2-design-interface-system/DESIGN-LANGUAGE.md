@@ -1,7 +1,7 @@
 # Media Design Language
 
 **Authority:** PDP-2 proposal over PDP-0 Product Truth\
-**Acceptance:** blocked on independent P0-010 acceptance; no design or accessibility review is recorded\
+**Acceptance:** blocked on independent P0-010 acceptance; no independent visual or accessibility acceptance is recorded\
 **Experience contracts prepared here:** all 17 master-plan component families are indexed by 28 family-level proposals; detailed interaction implementation remains selected-lane only
 
 This phase defines how Media meaning appears and behaves. It does not add capabilities, change authority, or redefine job, consent, artifact, time, or finality states. The Media-specific records in this directory are the only editable authorities for their stated design decisions. Shared retains the generic token, component primitive, theme, accessibility, and localization contracts.
@@ -44,6 +44,8 @@ Web, terminal, API examples, and embedded results refer to the same Media artifa
 ## Current decision state
 
 All records are proposals. Component action intents now resolve to named PDP-3 action references. Capability authority, component interactions, state transitions, and owner approval remain open, and the component contracts do not establish runtime implementation. The nine Media token aliases now reference source-verified public Shared semantic-role exports at the observed clean repository revision; a released package version, Media CSS adapter, Shared primitive bindings, and owner review remain unverified. PDP-0 has unresolved semantic and external-owner reviews; the Tools publication/validation binding is also unverified. No viewport, locale, WCAG conformance, or visual result is accepted by this document.
+
+The current design-conformance check reports seven distinct authority/review blockers: proposal status for style authority, unresolved Shared package binding, unverified PDP-2 conformance review, proposal status for semantic aliases, unresolved component-to-Shared bindings, proposal status for the template catalog, and proposal status for layout rules. The checker currently resolves all 47 indexed screen template and layout references to entries in those PDP-2 registries, and reports zero unexplained product-source findings; these structural checks do not change any of the seven statuses. GAP-12 records local browser coverage, while independent visual review, screen-reader testing, canonical visual references, and accessibility acceptance remain unverified.
 
 `generated/experience-language.candidate.json` records source observations and
 the subject/schema identifiers available for a deterministic candidate. It is

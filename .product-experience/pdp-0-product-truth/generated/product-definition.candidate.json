@@ -5,8 +5,8 @@
   "sourceAuthorities": [
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-      "sha256": "c5b5c994f4c35161dabc02c7990c57e6ba9e3c3dac50882404045eebf9735b7c",
-      "bytes": 10038,
+      "sha256": "ec72ef709ac46093a61b1ca262190b3eb59e3576f862429cb2e273ac67355e25",
+      "bytes": 10212,
       "format": "markdown"
     },
     {
@@ -202,8 +202,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-      "sha256": "f96e834c22e5b5cea006f7b08aaa2225e88013fc826685c67e0f01fc079c894c",
-      "bytes": 3635069,
+      "sha256": "e90a5d3422f6b6ffe0af8f25dda62bbd402e723b94bd5a5a743446be36e41a47",
+      "bytes": 3652222,
       "format": "yaml",
       "schemaVersion": "media.capabilities.v1",
       "authority": "prospective-Phase-0-definition; not runtime authority or qualification evidence",
@@ -865,8 +865,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-      "sha256": "1122f63808a9b0093601771ca01a7d8458c86439b66c3ba9e5e520d841880d18",
-      "bytes": 41225,
+      "sha256": "fd955e1b4b038c42806a514a1a3e24466b8f6a339cf30b3b15060eb32860fa75",
+      "bytes": 42257,
       "format": "yaml",
       "schemaVersion": null,
       "authority": null,
@@ -874,6 +874,7 @@
       "topLevelFields": [
         "accessibilityDisposition",
         "artifactVersion",
+        "capabilityApplicabilityDecision",
         "dependencies",
         "journeyRecordRequirements",
         "journeys",
@@ -1083,8 +1084,8 @@
     "schemaVersion": "ghatana.product-definition.v1",
     "purpose": {
       "id": "media.purpose",
-      "statement": "Help people understand, create, restore, enhance, edit, animate, simulate, synchronize, compose, assess, and deliver governed media while preserving source material and disclosing material changes, evidence, and uncertainty.",
-      "forWhom": "Media creators, editors, reviewers, operators, and developers represented by the canonical Media actor records."
+      "statement": "Media helps people understand, create, restore, enhance, edit, animate, simulate, synchronize, compose, assess, and deliver governed audio, video, image, speech, spatial, and time-based work. Users can move from intent to reviewable output while retaining source material, seeing material changes, and understanding what is measured, estimated, reconstructed, generated, or unknown. Media does not claim the domain authority of a scientific, pedagogical, clinical, rights, or publication owner.",
+      "forWhom": "Canonical actor records: media.creator, media.editor, media.reviewer, media.developer-integrator, media.automation-client, media.operator, media.administrator, media.privacy-rights-reviewer, media.worker, media.external-provider, media.domain-reviewer."
     },
     "scope": {
       "id": "media.scope",
@@ -5456,7 +5457,62 @@
       }
     ],
     "domainRules": [],
-    "policies": [],
+    "policies": [
+      {
+        "id": "media.policy.enforcement.1",
+        "name": "upload-and-import-admission",
+        "description": "Required checks: identity, tenant-context, content-size, detected-format, source-classification, rights-assertion-disposition, archive-and-decoder-safety. Failure behavior: reject-or-quarantine-before-content-is-usable",
+        "enforcement": "strict"
+      },
+      {
+        "id": "media.policy.enforcement.2",
+        "name": "metadata-persistence-and-derivation",
+        "description": "Required checks: classification-floor, tenant-ownership, retention, provenance-minimization. Failure behavior: do-not-persist-or-promote-unauthorized-metadata",
+        "enforcement": "strict"
+      },
+      {
+        "id": "media.policy.enforcement.3",
+        "name": "planning-and-profile-resolution",
+        "description": "Required checks: capability-availability, locality, egress, cost-budget, quality-and-fidelity-floor, rights, consent, license. Failure behavior: return-blocked-or-review-required-with-reason",
+        "enforcement": "strict"
+      },
+      {
+        "id": "media.policy.enforcement.4",
+        "name": "attempt-claim-and-provider-dispatch",
+        "description": "Required checks: current-delegation, current-consent, purpose, region, provider-retention, budget, audit-intent, current-fence. Failure behavior: do-not-dispatch; if intent may have crossed boundary, preserve-outcome-unknown",
+        "enforcement": "strict"
+      },
+      {
+        "id": "media.policy.enforcement.5",
+        "name": "artifact-fetch-and-cache-reuse",
+        "description": "Required checks: tenant-ownership, current-access, current-rights, current-consent-where-required, retention, provenance-compatibility. Failure behavior: deny-read-or-reuse-even-if-content-digest-matches",
+        "enforcement": "strict"
+      },
+      {
+        "id": "media.policy.enforcement.6",
+        "name": "worker-and-engine-execution",
+        "description": "Required checks: declared-input-set, read-only-approved-inputs, resource-bounds, egress-policy, process-isolation, execution-permission. Failure behavior: stop-or-quarantine-and-record-truthful-cancellation-or-uncertainty",
+        "enforcement": "strict"
+      },
+      {
+        "id": "media.policy.enforcement.7",
+        "name": "output-validation-and-registration",
+        "description": "Required checks: result-contract, policy, classification, provenance, integrity, quality-applicability, current-fence. Failure behavior: do-not-register-canonical-output",
+        "enforcement": "strict"
+      },
+      {
+        "id": "media.policy.enforcement.8",
+        "name": "sharing-export-or-publication",
+        "description": "Required checks: exact-version, recipient-or-destination, authorization, rights, consent, format-license, required-review, durable-effect-intent. Failure behavior: deny-before-effect; after possible-submit, report-unknown-until-reconciled",
+        "enforcement": "strict"
+      },
+      {
+        "id": "media.policy.enforcement.9",
+        "name": "long-running-or-streaming-boundary",
+        "description": "Required checks: revocation-and-expiry, tenant-and-token, lease, frame-sequence, buffer, cancellation. Failure behavior: stop-new-dispatch; cancel-or-close-where-supported; retain-uncertainty-until-confirmed",
+        "enforcement": "strict"
+      }
+    ],
     "invariants": [],
     "journeys": [],
     "trustContexts": [],
@@ -5469,7 +5525,6 @@
     "omittedCollections": {
       "businessIntents": "No source collection is classified as business intents under ProductDefinition semantics.",
       "domainRules": "PDP-0 does not classify rules as ProductDefinition domain rules; canonical domain authority is PDP-1.",
-      "policies": "Policy source records do not assign the ProductDefinition strict/advisory enforcement enum.",
       "invariants": "No source record provides both invariant statement and violation semantics without inference.",
       "journeys": "30 journeys have multiple actors; ProductDefinition requires one actorRef and no reviewed primary-actor mapping exists.",
       "trustContexts": "Principal kinds do not map directly to ProductDefinition trust levels.",
@@ -5480,11 +5535,11 @@
     },
     "fieldDispositions": {
       "purpose": {
-        "status": "PROJECTED_PENDING_OWNER_REVIEW",
-        "source": "PRODUCT-TRUTH.md mission and goals-jtbd.yaml actors"
+        "status": "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING",
+        "source": "PRODUCT-TRUTH.md mission paragraph and actors-responsibilities.yaml actors"
       },
       "scope": {
-        "status": "PROJECTED_PENDING_OWNER_REVIEW",
+        "status": "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING",
         "source": "goals-jtbd.yaml scopeStatement, includedFamilies, exclusionsFromMediaAuthority"
       },
       "nonGoals": {
@@ -5492,12 +5547,12 @@
         "source": "goals-jtbd.yaml scope exclusions are authority boundaries and are not assumed to be product non-goals"
       },
       "actors": {
-        "status": "PROJECTED_PENDING_OWNER_REVIEW",
+        "status": "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING",
         "source": "actors-responsibilities.yaml actors and principals"
       },
       "responsibilities": {
-        "status": "PROJECTED_PENDING_OWNER_REVIEW",
-        "source": "actors-responsibilities.yaml responsibilityRoles"
+        "status": "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING",
+        "source": "actors-responsibilities.yaml actors[].responsibilities"
       },
       "userIntents": {
         "status": "PRIORITY_AND_ACTOR_MAPPING_OPEN",
@@ -5508,24 +5563,24 @@
         "source": "No business-intent collection in canonical PDP-0"
       },
       "desiredOutcomes": {
-        "status": "PROJECTED_PENDING_OWNER_REVIEW",
+        "status": "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING",
         "source": "goals-jtbd.yaml outcomes"
       },
       "capabilities": {
-        "status": "PROJECTED_PENDING_OWNER_REVIEW",
-        "source": "capabilities.yaml capability leaves"
+        "status": "DIRECT_SOURCE_MAPPING; OWNER_ACCEPTANCE_PENDING",
+        "source": "capabilities.yaml capability leaves and exact requirementRefs"
       },
       "requirements": {
-        "status": "PROJECTED_PENDING_OWNER_REVIEW",
-        "source": "requirements.yaml requirements and nonfunctional-requirements.yaml"
+        "status": "PARTIAL_DIRECT_MAPPING; INTENT_TARGETS_UNRESOLVED",
+        "source": "requirements.yaml has exact intent traces, but ProductDefinition validation requires target userIntents with a resolved singular actor and priority"
       },
       "domainRules": {
         "status": "PDP-1_OWNER_DECISION_OPEN",
         "source": "No PDP-0 records classified as ProductDefinition domainRules"
       },
       "policies": {
-        "status": "ENFORCEMENT_MAPPING_OPEN",
-        "source": "policy-authority-model.yaml; strict/advisory enum not assigned per policy"
+        "status": "DIRECT_FAIL_CLOSED_ENFORCEMENT_MAPPING; OWNER_ACCEPTANCE_PENDING",
+        "source": "policy-authority-model.yaml productPolicy.enforcementPoints requiredChecks and explicit failure behavior"
       },
       "invariants": {
         "status": "VIOLATION_MAPPING_OPEN",
@@ -5594,8 +5649,8 @@
     },
     "purpose": {
       "sourceRef": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-      "sourcePath": "Mission and intended outcomes",
-      "mapping": "composed summary; proposal, owner review pending"
+      "sourcePath": "Mission and intended outcomes; actors-responsibilities.yaml#actors",
+      "mapping": "exact mission paragraph and generated enumeration of canonical actor IDs"
     },
     "scope": {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
@@ -5630,7 +5685,7 @@
     "desiredOutcomes": {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
       "sourcePath": "outcomes",
-      "mapping": "direct descriptions; multi-actor links omitted"
+      "mapping": "direct IDs/outcome text and actorRef only when the source declares one actor"
     },
     "capabilities": {
       "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -5640,7 +5695,7 @@
     "requirements": {
       "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
       "sourcePath": "requirements plus nonfunctional-requirements.yaml",
-      "mapping": "direct functional and NFR statements; intent traces omitted because intent priority and actor mapping remain unresolved"
+      "mapping": "direct statement/kind/priority; source traceToIntentIds are held out until target userIntent actor and priority mappings resolve"
     },
     "domainRules": {
       "sourceRef": null,
@@ -5649,8 +5704,8 @@
     },
     "policies": {
       "sourceRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-      "sourcePath": "productPolicy",
-      "mapping": "no per-policy strict/advisory enforcement mapping"
+      "sourcePath": "productPolicy.enforcementPoints",
+      "mapping": "strict classification from explicit required checks and stop/deny/fail-closed behavior"
     },
     "invariants": {
       "sourceRef": ".product-experience/pdp-0-product-truth/constitution.yaml",
@@ -5690,48 +5745,6 @@
   },
   "fieldMappingBlockers": [
     {
-      "field": "purpose",
-      "status": "PROJECTED_PENDING_OWNER_REVIEW",
-      "sourceDisposition": "PRODUCT-TRUTH.md mission and goals-jtbd.yaml actors",
-      "reasons": [
-        "PRODUCT-TRUTH.md mission and goals-jtbd.yaml actors"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
-      "field": "scope",
-      "status": "PROJECTED_PENDING_OWNER_REVIEW",
-      "sourceDisposition": "goals-jtbd.yaml scopeStatement, includedFamilies, exclusionsFromMediaAuthority",
-      "reasons": [
-        "goals-jtbd.yaml scopeStatement, includedFamilies, exclusionsFromMediaAuthority"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
       "field": "nonGoals",
       "status": "NO_DIRECT_PRODUCT_NON_GOAL_SOURCE; OWNER_DECISION_OPEN",
       "sourceDisposition": "goals-jtbd.yaml scope exclusions are authority boundaries and are not assumed to be product non-goals",
@@ -5753,32 +5766,11 @@
       ]
     },
     {
-      "field": "actors",
-      "status": "PROJECTED_PENDING_OWNER_REVIEW",
-      "sourceDisposition": "actors-responsibilities.yaml actors and principals",
+      "field": "requirements",
+      "status": "PARTIAL_DIRECT_MAPPING; INTENT_TARGETS_UNRESOLVED",
+      "sourceDisposition": "requirements.yaml has exact intent traces, but ProductDefinition validation requires target userIntents with a resolved singular actor and priority",
       "reasons": [
-        "actors-responsibilities.yaml actors and principals"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
-      "field": "responsibilities",
-      "status": "PROJECTED_PENDING_OWNER_REVIEW",
-      "sourceDisposition": "actors-responsibilities.yaml responsibilityRoles",
-      "reasons": [
-        "actors-responsibilities.yaml responsibilityRoles"
+        "requirements.yaml has exact intent traces, but ProductDefinition validation requires target userIntents with a resolved singular actor and priority"
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
@@ -5837,95 +5829,11 @@
       ]
     },
     {
-      "field": "desiredOutcomes",
-      "status": "PROJECTED_PENDING_OWNER_REVIEW",
-      "sourceDisposition": "goals-jtbd.yaml outcomes",
-      "reasons": [
-        "goals-jtbd.yaml outcomes"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
-      "field": "capabilities",
-      "status": "PROJECTED_PENDING_OWNER_REVIEW",
-      "sourceDisposition": "capabilities.yaml capability leaves",
-      "reasons": [
-        "capabilities.yaml capability leaves"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
-      "field": "requirements",
-      "status": "PROJECTED_PENDING_OWNER_REVIEW",
-      "sourceDisposition": "requirements.yaml requirements and nonfunctional-requirements.yaml",
-      "reasons": [
-        "requirements.yaml requirements and nonfunctional-requirements.yaml"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
       "field": "domainRules",
       "status": "PDP-1_OWNER_DECISION_OPEN",
       "sourceDisposition": "No PDP-0 records classified as ProductDefinition domainRules",
       "reasons": [
         "No PDP-0 records classified as ProductDefinition domainRules"
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
-        ".product-experience/pdp-0-product-truth/constitution.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/pdp-0-product-truth/requirements.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml",
-        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-        ".product-experience/explorer/tools-binding.yaml"
-      ]
-    },
-    {
-      "field": "policies",
-      "status": "ENFORCEMENT_MAPPING_OPEN",
-      "sourceDisposition": "policy-authority-model.yaml; strict/advisory enum not assigned per policy",
-      "reasons": [
-        "policy-authority-model.yaml; strict/advisory enum not assigned per policy"
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
@@ -6089,7 +5997,7 @@
       ]
     }
   ],
-  "derivationBoundary": "candidateModel is a structurally conformant partial projection. Every required schema property is present; empty collections and blank timestamps represent unresolved mappings, not accepted non-applicability. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
+  "derivationBoundary": "candidateModel is a structurally conformant partial projection populated from direct source records where mappings exist. Empty collections represent unresolved mappings, never accepted non-applicability. createdAt/updatedAt are projection-build timestamps only; they are not canonical product timestamps. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
   "knownBlockers": [
     "The source-backed ProductDefinition shape is structurally complete; omitted collection meanings, narrowed references, and unavailable source facts remain explicitly open in the field mapping review."
   ],

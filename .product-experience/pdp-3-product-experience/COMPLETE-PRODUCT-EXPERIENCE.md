@@ -22,8 +22,12 @@ action/state/scenario/channel coverage across the 28 plan-baseline journeys and
 active J-29/J-30 extensions (30 total), API wire
 bindings, journey-wide CLI behavior, and embedded-host behavior remain open.
 All authored screen action intents now resolve to intent-based proposal action
-references; detailed action effects, authority, component interactions, state
-transitions, and owner approval remain open. The 24 added journey files are
+references. A direct, source-checked action-capability-to-PDP-0 requirement
+crosswalk exists for 21 of 47 screens and for all 18 action-bearing journey
+steps; the other 26 screens have no direct action-capability requirement
+crosswalk in the current registries. These are proposed references, not
+semantic acceptance. Detailed action effects, authority, component
+interactions, state transitions, and owner approval remain open. The 24 added journey files are
 PDP-0-grounded proposals with ordered screen references, not complete or
 accepted contracts. The local
 CLI covers selected J-02 upload inspection/resume, existing-job status viewing and
@@ -55,12 +59,16 @@ and owner references; it does not validate or accept the full PDP-3.
   intent-based Media IDs; `screen-contracts/` also retains the separate
   artifact-verification job-family specialization file.
 - `screen-contracts/` contains source-derived contracts for all 47 canonical
-  screens. Full behavior binding, owner review, and acceptance remain pending.
+  screens. Capability and requirement references are checked against the
+  Action Registry and PDP-0; unresolved operation/effect, domain-state, and
+  behavioral-oracle links remain proposal-only. Full behavior binding, owner
+  review, and acceptance remain pending.
 - `journey-contracts/` contains proposals for the 28 plan-baseline journeys
   plus active J-29/J-30 extension contracts (30 total). The baseline proposals
-  record PDP-0 outcomes and ordered screen references; all remain incomplete
-  until the PDP3-005 per-step contract, action/state/scenario/channel bindings,
-  and owner review are complete.
+  record PDP-0 outcomes and ordered screen references. Direct capability and
+  requirement references resolve for 18 of 18 action-bearing steps across the
+  four authored action-bearing journey contracts; canonical operation/state,
+  oracle/fixture, scenario/channel, and owner-review bindings remain incomplete.
 - Registries and bindings define action identity, component interactions,
   state projection, CLI/API parity, realistic synthetic scenarios, and recovery.
 - `scenario-fixture-registry.yaml` references PDP-3 fixture content; it does

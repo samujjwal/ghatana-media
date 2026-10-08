@@ -15,11 +15,28 @@ test("Media consumer can load, render, inspect, and dispatch through the Tools E
     relationCount: 3,
   });
   assert.equal(result.initialRenderKind, "rendered");
+  assert.equal(result.rendererBinding.identity, "@audio-video/ui#MediaProductRenderer");
+  assert.equal(result.rendererBinding.status, "CANDIDATE_NOT_ADMITTED");
+  assert.equal(result.rendererBinding.rendererId, "media-simulation-review");
+  assert.equal(result.rendererBinding.ports.input.type, "MediaProductRendererProps");
+  assert.equal(result.rendererBinding.ports.input.variant, "transcript-caption");
+  assert.equal(result.rendererBinding.ports.input.scenarioId, "media.scenario.source-available");
+  assert.deepEqual(result.rendererBinding.ports.state, {
+    type: "MediaExperienceState",
+    stateRef: "media.scenario.source-available",
+    sequence: 0,
+  });
+  assert.equal(result.rendererBinding.ports.action.type, "MediaActionPort");
+  assert.ok(result.rendererBinding.ports.action.actionIds.includes("media.action.choose-source"));
+  assert.equal(result.rendererBinding.ports.error.type, "MediaActionDispatchResult");
+  assert.deepEqual(result.rendererBinding.ports.error.outcomes, ["intent-accepted", "unavailable", "denied"]);
   assert.equal(result.initialSourceStatus, "proposal-pending-owner-review");
   assert.equal(result.initialStateRef, "media.scenario.source-available");
   assert.equal(result.dispatchProducedResult, true);
   assert.equal(result.dispatchFinalityKind, "unknown");
   assert.equal(result.updatedRenderKind, "rendered");
+  assert.equal(result.updatedRendererBinding.identity, result.rendererBinding.identity);
+  assert.equal(result.updatedRendererBinding.ports.state.sequence, 1);
   assert.equal(result.updatedSourceStatus, "proposal-pending-owner-review");
   assert.equal(result.authorityStatus, "proposal-pending-owner-review");
   assert.equal(result.currentnessOutputPresent, false);

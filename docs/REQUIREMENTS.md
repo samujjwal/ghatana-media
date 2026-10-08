@@ -5,6 +5,24 @@ The editable Media-specific requirements are maintained under
 This document explains the current implementation and verification boundary;
 it is not a replacement requirements registry.
 
+## Approved authority model and semantic boundaries
+
+The four-phase authority model is approved: PDP-0 owns product truth and
+requirements; PDP-1 owns canonical domain objects, operations, states,
+transitions, events, evidence, provenance, and authority; PDP-2 owns design and
+interface language; PDP-3 owns complete surface experiences. Explorer remains a
+projection outside phase numbering. Approval of this model and bounded semantic
+policies does not accept all records or close a phase; only the P0-001 migration
+boundary slice is accepted in the current source tree.
+
+The owner-approved semantic boundaries distinguish request acceptance from
+queueing, retry eligibility from retry execution, cancellation requests from
+confirmed cancellation, and unknown outcomes from terminal results. These rules
+constrain future contracts but do not decide every individual interface
+mapping, provider behavior, external-owner contract, or runtime qualification.
+The current source contracts are the authority for implementation details; the
+owner decision record is linked as [review provenance](../.product-experience/reviews/2026-10-07-owner-decision-and-resolution.md).
+
 ## Current required capabilities
 
 The source tree now has one canonical Product Definition root and source
@@ -145,8 +163,9 @@ current-state gaps include:
   bounds and behavior.
 - PDP-1 semantic review and reconciliation of proposed domain/state meaning with
   runtime and external owner contracts.
-- PDP-2 verification of Shared package versions and consumption, plus full visual
-  provenance and accessibility/localization conformance.
+- PDP-2 has source-version and local consumer evidence for Shared packages;
+  immutable public release binding, Shared owner acceptance, and full visual
+  provenance and accessibility/localization conformance remain open.
 - PDP-3 complete behavioral contracts and parity across all registered machine
   operations and every screen/journey state. The existing structural checks do
   not accept those semantics.

@@ -91,6 +91,7 @@ test("repository keeps owner-gated blockers separate from source findings", () =
   assert.equal(result.summary.unexplained, 0);
   assert.ok(result.summary.explorerFixtureObservations > 0);
   assert.ok(result.blockers.some((item) => item.includes("Shared package binding is unresolved")));
+  assert.ok(result.blockers.some((item) => item.includes("Shared component bindings are unresolved")));
   assert.ok(result.blockers.some((item) => item.includes("template catalog is proposal")));
 });
 
@@ -107,6 +108,13 @@ test("nested conformance status cannot impersonate verified Shared binding", () 
     "scopeStatus: ACCEPTED\nauthority: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml\ncurrentProjection:\n  semanticAuthority: .product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml\nsharedBinding:\n  status: PENDING\nconformance:\n  status: VERIFIED\n");
   const result = analyzeDesignConformance(root);
   assert.ok(result.blockers.some((item) => item.includes("Shared package binding is unresolved")));
+}));
+
+test("component binding registry status must independently resolve", () => withFixture({}, (root) => {
+  write(root, ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
+    "status: semantic-intent-recorded; shared-consumer-binding-unverified; owner-review-pending\n");
+  const result = analyzeDesignConformance(root);
+  assert.ok(result.blockers.some((item) => item.includes("Shared component bindings are unresolved")));
 }));
 
 test("Shared success cannot impersonate independent PDP-2 review", () => withFixture({}, (root) => {

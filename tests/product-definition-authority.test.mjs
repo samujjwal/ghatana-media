@@ -347,7 +347,8 @@ test("PDP1 operation proposal preserves source denominators and the complete pro
   }
 
   assert.match(registry, /^  uiProductActions:\n    count: 146$/mu);
-  assert.match(registry, /all 146 registry actions partitioned as 11 single-proposed, 1 ambiguous, and 134 unresolved/u);
+  assert.match(registry, /12 source actions have exact proposed operation refs; remaining 134 lack direct canonical bindings/u);
+  assert.match(registry, /media\.action\.request-transcription: media\.operation\.transcription/u);
   assert.match(registry, /^  httpOperations:\n    count: 27$/mu);
   assert.match(registry, /all 27 exact OpenAPI operationIds accounted for; exact route-to-logical-operation links remain unresolved/u);
   assert.match(registry, /^  grpcRpcs:\n    count: 43$/mu);
@@ -561,6 +562,23 @@ test("PDP1 state and transition extraction remains proposal-only and preserves u
   assert.match(domainModel, /does not promote PDP-0 meanings/u);
 });
 
+test("PDP-1 negative state cases encode owner-approved non-equivalences without claiming runtime proof", () => {
+  const adjudication = readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/state-adjudication.yaml"), "utf8");
+  assert.match(adjudication, /^  status: canonical-policy-tests; does-not-verify-runtime-or-provider-behavior$/mu);
+  for (const [caseId, forbidden] of [
+    ["state-identity.same-spelling-different-machine", "infer-state-equivalence"],
+    ["ingress.ACCEPTED-is-not-job.QUEUED", "assert-durable-queue-eligibility"],
+    ["retry.RETRY_PENDING-is-not-attempt-execution", "assert-new-attempt-claimed-or-dispatched"],
+    ["cancellation.CANCEL_REQUESTED-is-not-CANCELLED", "assert-job-cancellation-finality"],
+    ["finality.OUTCOME_UNKNOWN-is-not-RUNNING", "normalize-to-RUNNING-or-authorize-replay"],
+    ["finality.PARTIALLY_SUCCEEDED-requires-closed-sub-effects", "assert-terminal-partial-success"],
+    ["delivery.COMPLETED-is-not-ACKNOWLEDGED", "assert-recipient-delivery-acknowledgment"],
+  ]) {
+    const escaped = caseId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    assert.match(adjudication, new RegExp(`- id: ${escaped}[\\s\\S]*?mustNot: ${forbidden}`, "u"));
+  }
+});
+
 test("PDP-0 YAML source preserves corrected indentation and symbol-scoped OCR disposition (text checks only)", () => {
   const capabilities = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"), "utf8");
   const requirements = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/requirements.yaml"), "utf8");
@@ -631,7 +649,8 @@ test("HTTP route, SDK, and interface projections retain canonical ownership", ()
   assert.match(output, /Media contract parity: NON-GREEN/u);
   assert.match(output, /"openapiRoutes":27,"runtimeRoutes":27,"httpRegistryRoutes":27/u);
   assert.match(output, /semantic binding: UNRESOLVED/u);
-  assert.match(output, /client path divergence/u);
+  assert.match(output, /source findings audited: 47 \(44 dispositioned; 3 unresolved\)/u);
+  assert.match(output, /source-dispositioned findings: 44/u);
 });
 
 test("screen composition records retain Shared-boundary design metadata", () => {

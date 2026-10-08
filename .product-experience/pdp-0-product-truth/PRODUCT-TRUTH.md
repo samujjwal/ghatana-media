@@ -3,7 +3,7 @@
 **Definition state:** Proposal pending reference closure, specialist review, and independent P0-010 acceptance. The delegated product-owner review approved the canonical phase architecture (PXD-003) only; it did not accept this Product Truth or any complete PDP phase.
 **Product:** Media (`media`)  
 **Target repository:** `samujjwal/ghatana-media`  
-**Current implementation authority:** `samujjwal/ghatana:services/media` until an approved cutover executes.
+**Media product-meaning authority:** `.product-experience` is the single editable authority. `samujjwal/ghatana:services/media` remains a migration/implementation observation and compatibility source until an approved cutover executes; it is not a competing Product Truth authority.
 
 This page is the readable guide to the structured PDP-0 records. The YAML
 records own detailed meaning. This summary does not claim implementation,

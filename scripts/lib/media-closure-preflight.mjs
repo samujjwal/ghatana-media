@@ -25,6 +25,17 @@ export function validateMediaClosureInputState({
     'at least one requirement obligation per phase');
   const byId = new Map(obligations.map((item) => [item.id, item]));
   assert.equal(byId.size, obligations.length, 'duplicate obligation identity');
+  for (const obligation of obligations) {
+    assert.ok(Array.isArray(obligation.requirementIds) && obligation.requirementIds.length > 0,
+      `${obligation.id} must be scoped to at least one source requirement`);
+    assert.equal(new Set(obligation.requirementIds).size, obligation.requirementIds.length,
+      `${obligation.id} duplicates a requirement identity`);
+    for (const key of ['caseIds', 'observerIds', 'oracleIds']) {
+      assert.ok(Array.isArray(obligation[key]), `${obligation.id} must declare ${key}`);
+      assert.equal(new Set(obligation[key]).size, obligation[key].length,
+        `${obligation.id} duplicates ${key}`);
+    }
+  }
 
   for (const phaseId of phaseIds) {
     const phase = program.phases.find((item) => item.id === phaseId);

@@ -2,8 +2,7 @@ schemaVersion: media.capabilities.v1
 productId: media
 authority: prospective-Phase-0-definition; not runtime authority or qualification evidence
 status: P0-003-definition-in-progress; no Phase-0 acceptance implied
-sourceAuthority: docs/migration/expert-reviewed-master-plan.md §6, amended by the accepted MDI-001 document-intelligence ownership
-  decision
+sourceAuthority: .product-experience/pdp-0-product-truth/capabilities.yaml is the editable Media capability authority; docs/migration/expert-reviewed-master-plan.md §6 is migration provenance only, amended by the accepted MDI-001 ownership decision
 coverageRule: Every scoped operation below is a finite semantic leaf. Shared semantics use explicit alias records; no implementation,
   license, qualification, or runtime availability is inferred from code/package presence.
 statusDimensions:
@@ -827,6 +826,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id001
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -986,6 +988,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id004
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -1145,6 +1150,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id005
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -1304,6 +1312,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id006
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -1463,6 +1474,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id007
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -1622,6 +1636,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id008
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -1781,6 +1798,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id009
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -1940,6 +1960,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id010
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -2099,6 +2122,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id011
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -2258,6 +2284,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id012
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -2417,6 +2446,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id013
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -2576,6 +2608,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id014
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -2735,6 +2770,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id015
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -2895,6 +2933,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id016
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -3054,6 +3095,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id017
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -3213,6 +3257,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.preserve-source
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id018
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -3383,6 +3430,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id019
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -3590,6 +3640,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id022
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -3788,6 +3841,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id023
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -3983,6 +4039,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id024
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -4176,6 +4235,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id025
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -4361,6 +4423,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id026
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -4544,6 +4609,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id027
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -4727,6 +4795,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id028
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -4912,6 +4983,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id029
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -5098,6 +5172,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id030
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -5282,6 +5359,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id031
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -5465,6 +5545,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id032
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -5648,6 +5731,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id033
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -5831,6 +5917,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id034
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -6016,6 +6105,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id035
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -6200,6 +6292,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id036
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -6402,6 +6497,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id037
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -6581,6 +6679,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id040
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -6752,6 +6853,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id041
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -6925,6 +7029,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id042
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -7101,6 +7208,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id043
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -7280,6 +7390,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id044
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -7456,6 +7569,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id045
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -7630,6 +7746,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id046
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -7803,6 +7922,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id047
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -7967,6 +8089,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id048
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -8136,6 +8261,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id051
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -8305,6 +8433,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id052
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -8474,6 +8605,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id053
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -8643,6 +8777,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id054
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -8812,6 +8949,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id055
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -8981,6 +9121,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id056
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -9150,6 +9293,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id057
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -9319,6 +9465,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id058
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -9488,6 +9637,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id059
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -9657,6 +9809,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id060
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -9826,6 +9981,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id061
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -9995,6 +10153,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id062
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -10164,6 +10325,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id063
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -10333,6 +10497,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id064
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -10502,6 +10669,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id065
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -10671,6 +10841,9 @@ capabilities:
   - media.goal.finished-asset
   - media.goal.resolve-safely
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id066
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -10837,6 +11010,9 @@ capabilities:
   - media.intent.choose-eligible-processing-option
   outcomeRefs:
   - media.goal.integrate-repeatably
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id067
   stateModelBindingState: no-persistent-lifecycle-model-applies-per-requirement; operation-state-coverage-remains-explicit
@@ -10972,6 +11148,9 @@ capabilities:
   - media.intent.choose-eligible-processing-option
   outcomeRefs:
   - media.goal.integrate-repeatably
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id070
   stateModelBindingState: no-persistent-lifecycle-model-applies-per-requirement; operation-state-coverage-remains-explicit
@@ -11102,6 +11281,9 @@ capabilities:
   outcomeRefs:
   - media.goal.integrate-repeatably
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id071
   stateModelBindingState: no-persistent-lifecycle-model-applies-per-requirement; operation-state-coverage-remains-explicit
@@ -11227,6 +11409,9 @@ capabilities:
   outcomeRefs:
   - media.goal.integrate-repeatably
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id074
   stateModelBindingState: no-persistent-lifecycle-model-applies-per-requirement; operation-state-coverage-remains-explicit
@@ -11352,6 +11537,9 @@ capabilities:
   outcomeRefs:
   - media.goal.integrate-repeatably
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id075
   stateModelBindingState: no-persistent-lifecycle-model-applies-per-requirement; operation-state-coverage-remains-explicit
@@ -11479,6 +11667,9 @@ capabilities:
   outcomeRefs:
   - media.goal.integrate-repeatably
   - media.goal.resolve-safely
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id076
   stateModelBindingState: no-persistent-lifecycle-model-applies-per-requirement; operation-state-coverage-remains-explicit
@@ -11616,6 +11807,9 @@ capabilities:
   - media.goal.deliver-approved-output
   - media.goal.resolve-safely
   - media.goal.review-trustworthy-output
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id077
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -11768,6 +11962,9 @@ capabilities:
   - media.goal.deliver-approved-output
   - media.goal.resolve-safely
   - media.goal.review-trustworthy-output
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id080
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -11920,6 +12117,9 @@ capabilities:
   - media.goal.deliver-approved-output
   - media.goal.resolve-safely
   - media.goal.review-trustworthy-output
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id081
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -12083,6 +12283,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.review-trustworthy-output
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id082
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -12283,6 +12486,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.review-trustworthy-output
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id085
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -12483,6 +12689,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.review-trustworthy-output
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id086
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -12683,6 +12892,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.review-trustworthy-output
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id087
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -12883,6 +13095,9 @@ capabilities:
   - media.goal.preserve-source
   - media.goal.review-trustworthy-output
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id088
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -13086,6 +13301,9 @@ capabilities:
   - media.intent.understand
   outcomeRefs:
   - media.goal.understand-media
+  coverageDisposition: PLATFORM_DEPENDENCY
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: Media scene/time/region semantics consume the Document Intelligence public contract; generic OCR/parsing execution is platform-owned by the accepted MDI-001 decision.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id089
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -13263,6 +13481,9 @@ capabilities:
   - media.intent.understand
   outcomeRefs:
   - media.goal.understand-media
+  coverageDisposition: PLATFORM_DEPENDENCY
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: Media scene/time/region semantics consume the Document Intelligence public contract; generic OCR/parsing execution is platform-owned by the accepted MDI-001 decision.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id092
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -13458,6 +13679,9 @@ capabilities:
   - media.intent.understand
   outcomeRefs:
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id093
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -13809,6 +14033,9 @@ capabilities:
   - media.intent.understand
   outcomeRefs:
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id097
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -14851,6 +15078,9 @@ capabilities:
   - media.intent.understand
   outcomeRefs:
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id103
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -15211,6 +15441,9 @@ capabilities:
   - media.intent.understand
   outcomeRefs:
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id105
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending
@@ -16090,6 +16323,9 @@ capabilities:
   - media.intent.understand
   outcomeRefs:
   - media.goal.understand-media
+  coverageDisposition: JOURNEY_STEP
+  coverageDecisionRef: MEDIA-OWNER-2026-10-07/P0-D01
+  coverageRationale: This leaf is linked to a purpose-specific journey; linkage is a coverage trace, not journey acceptance.
   intentBindingState: bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending
   stateModelRefs: *id110
   stateModelBindingState: bound-to-proposed-family-state-models; owner-acceptance-pending

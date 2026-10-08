@@ -20,6 +20,8 @@ tokenBindingStatus: pending-canonical-token-binding
 domainObjectRefs: []
 domainObjectBindingStatus: pending-canonical-domain-object-binding
 operationRefs: []
+requirementRefs: []
+requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 operationBindingStatus: pending-canonical-operation-binding
 stateRefs: []
 stateBindingStatus: pending-PDP-1-state-binding; local-UI-state-labels-not-promoted
@@ -29,26 +31,41 @@ exit: []
 exitBindingStatus: pending-canonical-exit-condition-binding
 actionConsequences:
   - actionId: media.action.set-simulation-initial-condition
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.inspect-simulation-domain-and-fidelity
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.validate-simulation-plan
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.submit-simulation
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.inspect-simulation-result
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -80,6 +97,7 @@ fieldBindingStatus:
   tokenDependencies: pending
   domainObjectRefs: pending
   operationRefs: pending
+  requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: pending-local-labels-not-canonical
   entry: pending
   exit: pending

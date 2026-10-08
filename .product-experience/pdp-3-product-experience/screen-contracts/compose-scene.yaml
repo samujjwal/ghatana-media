@@ -20,6 +20,8 @@ tokenBindingStatus: pending-canonical-token-binding
 domainObjectRefs: []
 domainObjectBindingStatus: pending-canonical-domain-object-binding
 operationRefs: []
+requirementRefs: []
+requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 operationBindingStatus: pending-canonical-operation-binding
 stateRefs: []
 stateBindingStatus: pending-PDP-1-state-binding; local-UI-state-labels-not-promoted
@@ -29,31 +31,49 @@ exit: []
 exitBindingStatus: pending-canonical-exit-condition-binding
 actionConsequences:
   - actionId: media.action.add-scene-entity
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.select-scene-entity
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.inspect-scene-binding
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.update-scene-binding
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.validate-scene-references
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.preview-current-revision
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -85,6 +105,7 @@ fieldBindingStatus:
   tokenDependencies: pending
   domainObjectRefs: pending
   operationRefs: pending
+  requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: pending-local-labels-not-canonical
   entry: pending
   exit: pending

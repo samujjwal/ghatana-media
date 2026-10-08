@@ -21,6 +21,8 @@ tokenBindingStatus: pending-canonical-token-binding
 domainObjectRefs: []
 domainObjectBindingStatus: pending-canonical-domain-object-binding
 operationRefs: []
+requirementRefs: [MEDIA-REQ-CAP-JOB]
+requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 operationBindingStatus: pending-canonical-operation-binding
 stateRefs: []
 stateBindingStatus: pending-PDP-1-state-binding; local-UI-state-labels-not-promoted
@@ -30,31 +32,49 @@ exit: []
 exitBindingStatus: pending-canonical-exit-condition-binding
 actionConsequences:
   - actionId: media.action.view-job-status
+    capabilityRefs: [media.job.view-status]
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.check-job-outcome
+    capabilityRefs: [media.job.check-outcome]
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.request-cancellation
+    capabilityRefs: [media.job.cancel]
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.edit-video-temporal-plan
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.submit-validated-request
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.compare-media-versions
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -86,6 +106,7 @@ fieldBindingStatus:
   tokenDependencies: pending
   domainObjectRefs: pending
   operationRefs: pending
+  requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: pending-local-labels-not-canonical
   entry: pending
   exit: pending

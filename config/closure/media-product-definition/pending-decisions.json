@@ -8,19 +8,19 @@
       "id": "MEDIA-PDP-OWNER-ADJUDICATION",
       "status": "PENDING",
       "blocks": ["PDP-0", "PDP-1", "PDP-2", "PDP-3"],
-      "reason": "The four phase-level obligation statements and complete per-phase obligation denominators require Product Definition owner adjudication."
+      "reason": "Requirement-scoped obligation IDs now trace to PDP source records. Semantic completeness, source acceptance, and exact cross-phase requirement applicability remain open; owner policy approval is not phase semantic acceptance."
     },
     {
       "id": "MEDIA-PDP-PROOF-PRODUCERS",
       "status": "PENDING",
       "blocks": ["PDP-0", "PDP-1", "PDP-2", "PDP-3"],
-      "reason": "No admitted Media Product Definition proof producer, proof classes, executable semantic cases, or Lifecycle provider binding has been identified. The consumer deliberately declares no provider bindings."
+      "reason": "The obligation case memberships identify source-authored PDP-0 acceptance cases and selected PDP-3 fixtures, but no publicly admitted Lifecycle proof producer, provider binding, proof-class decision, executable proof-case admission, observer, or oracle has been supplied. The installed Evidence Contracts RC1 package is marked UNLICENSED, and the canonical provider registry is still resolved through a sibling Lifecycle source root rather than an admitted versioned public Lifecycle artifact. Technical isolated-consumer admission is not distribution or provider qualification. The consumer deliberately declares no provider bindings."
     },
     {
       "id": "MEDIA-PDP-REQUIREMENT-AND-CASE-BINDINGS",
       "status": "PENDING",
       "blocks": ["PDP-0", "PDP-1", "PDP-2", "PDP-3"],
-      "reason": "Detailed normative requirement IDs, phase-specific cases, observers, oracles, and required proof methods must be reconciled against admitted owner authorities before these phase-level obligations can close."
+      "reason": "PDP-0 acceptance-case IDs and the exact PDP-3 journey/screen fixture links are recorded; PDP-1/PDP-2 records have scoped source requirement IDs but no admitted semantic case memberships. Owner-authorized independent observers, oracles, and required proof methods remain unavailable and must be provided by Lifecycle and the applicable independent reviewers."
     }
   ],
   "receiptAuthority": "ghatana-lifecycle",

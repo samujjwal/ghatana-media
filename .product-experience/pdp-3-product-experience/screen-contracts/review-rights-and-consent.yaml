@@ -22,6 +22,8 @@ tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
 domainObjectRefs: []
 domainObjectRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 operationRefs: []
+requirementRefs: []
+requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 operationRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 stateRefs: []
 stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
@@ -31,26 +33,41 @@ exit: []
 exitBindingStatus: unresolved-no-exact-canonical-reference-declared
 actionConsequences:
   - actionId: media.action.inspect-governing-evidence
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.request-rights-review
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.record-authorized-attestation
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.apply-authorized-rights-restriction
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.revoke-authorized-consent
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -85,6 +102,7 @@ fieldBindingStatus:
   tokenDependencies: unresolved; no-canonical-reference-declared
   domainObjectRefs: unresolved; no-canonical-reference-declared
   operationRefs: unresolved; no-canonical-reference-declared
+  requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: unresolved; local-UI-state-labels-not-promoted
   entry: unresolved; no-canonical-reference-declared
   exit: unresolved; no-canonical-reference-declared

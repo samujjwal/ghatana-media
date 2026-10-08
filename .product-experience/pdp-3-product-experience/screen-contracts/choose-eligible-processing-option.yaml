@@ -15,26 +15,40 @@ patternIds:
 tokenDependencies: []
 domainObjectRefs: []
 operationRefs: []
+requirementRefs: []
+requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 stateRefs: []
 entry: []
 exit: []
 actionConsequences:
   - actionId: media.action.search-named-profiles
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.inspect-effective-processing-constraints
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.validate-processing-profile
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.select-eligible-processing-profile
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -65,6 +79,7 @@ fieldBindingStatus:
   tokenDependencies: unresolved-no-direct-canonical-reference
   domainObjectRefs: unresolved-no-direct-canonical-reference
   operationRefs: unresolved-no-direct-canonical-reference
+  requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: unresolved-no-PDP-1-canonical-reference; local-UI-states-not-promoted
   entry: unresolved-no-direct-canonical-reference
   exit: unresolved-no-direct-canonical-reference

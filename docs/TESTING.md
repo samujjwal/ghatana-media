@@ -151,6 +151,31 @@ Lifecycle currentness/receipts.
 source/artifact state; it rejects active SNAPSHOT versions and is expected to
 fail on the normal development branch.
 
+## Dependency and artifact admission boundary
+
+The checked local profiles are development and consumer-verification profiles,
+not release dependency profiles. The Media workspace pins its declared Shared
+TypeScript packages to `0.1.0-SNAPSHOT`, Tools Product Development packages to
+`0.1.0-SNAPSHOT`, Lifecycle TypeScript packages to `0.1.0-rc.1`, and
+`@ghatana/evidence-contracts` to `0.1.0-rc.1`. Workspace substitution resolves
+those coordinates from sibling source. Isolated Shared and Tools checks pack
+local source artifacts; `test:lifecycle-consumer-artifact` deploys the sibling
+Lifecycle Evidence Contracts package and tests it from an isolated consumer.
+These checks establish local public-export/consumer behavior for those observed
+artifacts, not immutable registry artifacts or upstream owner acceptance.
+
+The reuse decision record still marks release admission and the transitive
+SBOM/license review as pending. In particular, the Lifecycle Evidence Contracts
+package metadata reports `UNLICENSED`; this is not a legal permission or
+prohibition finding, and distribution remains blocked pending owner license
+resolution and dependency review. Shared accessibility has a recorded
+`axe-core` MPL-2.0 transitive-license caveat. No full distribution SBOM or
+independent license decision is established by the local consumer tests.
+External codecs, engines, models, model weights, fonts, and media assets remain
+unadmitted until their exact version/build and distribution profile pass the
+reuse, license, security, isolation, and benchmark gates. A source candidate or
+successful local build does not admit it for runtime or distribution.
+
 ## Development composite builds
 
 In a standalone checkout, `./gradlew` includes the Media Gradle projects plus

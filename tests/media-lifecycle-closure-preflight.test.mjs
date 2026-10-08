@@ -8,6 +8,7 @@ function fixture() {
     id: `media.pdp-${i}.specific-requirement`,
     disposition: 'REQUIRED',
     phaseSemantics: { applicableIn: [phase], blockingIn: [phase], affects: [phase] },
+    requirementIds: [`MEDIA-REQ-PDP-${i}`],
     caseIds: [], observerIds: [], oracleIds: [],
   }));
   const program = {
@@ -62,6 +63,15 @@ test('allows additional requirement-specific obligations without one-per-phase c
   input.binding.phases['PDP-0'].obligationIds.push(extra.id);
   input.surface.obligationIds.push(extra.id);
   assert.equal(validateMediaClosureInputState(input).obligationCount, 5);
+});
+
+test('requires every obligation to cite a source requirement and unique case memberships', () => {
+  const missing = fixture();
+  delete missing.obligations[0].requirementIds;
+  assert.throws(() => validateMediaClosureInputState(missing), /source requirement/);
+  const duplicate = fixture();
+  duplicate.obligations[0].caseIds = ['media.scenario.same', 'media.scenario.same'];
+  assert.throws(() => validateMediaClosureInputState(duplicate), /duplicates caseIds/);
 });
 
 test('rejects INPUT_READY without producer and case/observer/oracle coverage', () => {

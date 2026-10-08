@@ -12,16 +12,24 @@ patternIds:
 tokenDependencies: []
 domainObjectRefs: []
 operationRefs: []
+requirementRefs: [MEDIA-REQ-CAP-JOB]
+requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 stateRefs: []
 entry: []
 exit: []
 actionConsequences:
   - actionId: media.action.view-job-status
+    capabilityRefs: [media.job.view-status]
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.check-job-outcome
+    capabilityRefs: [media.job.check-outcome]
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -52,6 +60,7 @@ fieldBindingStatus:
   tokenDependencies: unresolved-no-direct-canonical-reference
   domainObjectRefs: unresolved-no-direct-canonical-reference
   operationRefs: unresolved-no-direct-canonical-reference
+  requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: unresolved-no-PDP-1-canonical-reference; local-UI-states-not-promoted
   entry: unresolved-no-direct-canonical-reference
   exit: unresolved-no-direct-canonical-reference

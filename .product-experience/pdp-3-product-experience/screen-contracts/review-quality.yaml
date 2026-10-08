@@ -22,6 +22,8 @@ tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
 domainObjectRefs: []
 domainObjectRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 operationRefs: []
+requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 operationRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 stateRefs: []
 stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
@@ -31,21 +33,33 @@ exit: []
 exitBindingStatus: unresolved-no-exact-canonical-reference-declared
 actionConsequences:
   - actionId: media.action.inspect-provenance
+    capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.inspect-quality-evidence
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.compare-candidate-on-metric
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.review-bounded-repair-proposal
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -80,6 +94,7 @@ fieldBindingStatus:
   tokenDependencies: unresolved; no-canonical-reference-declared
   domainObjectRefs: unresolved; no-canonical-reference-declared
   operationRefs: unresolved; no-canonical-reference-declared
+  requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: unresolved; local-UI-state-labels-not-promoted
   entry: unresolved; no-canonical-reference-declared
   exit: unresolved; no-canonical-reference-declared

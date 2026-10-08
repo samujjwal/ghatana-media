@@ -5,8 +5,8 @@
   "sourceAuthorities": [
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-      "sha256": "794bb5cb90c2332fedc8dcc463cb9b0b0a86c07e967cbcf7c039365af685e299",
-      "bytes": 5320,
+      "sha256": "46fe319942df28fca67158011ec354e7cd8c80a140c8e50661ce6d54105ba1e8",
+      "bytes": 6105,
       "format": "markdown"
     },
     {
@@ -107,6 +107,61 @@
         "status"
       ],
       "declaredIds": []
+    },
+    {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+      "sha256": "eeb4fe8bc912dd301d462037e78e51fc2a34ffb8f45a3176429011d77ba2e3fd",
+      "bytes": 1948,
+      "format": "yaml",
+      "schemaVersion": "media.action-finality-grammar.v1",
+      "authority": "Media interaction and wording for PDP-0 action/finality semantics",
+      "status": "authored-proposal; P0-010-and-distributed-systems-review-pending",
+      "topLevelFields": [
+        "authority",
+        "outcomes",
+        "productId",
+        "rules",
+        "schemaVersion",
+        "status"
+      ],
+      "declaredIds": [
+        "media.action-outcome.applied",
+        "media.action-outcome.blocked",
+        "media.action-outcome.cancellation-pending",
+        "media.action-outcome.completed",
+        "media.action-outcome.partial",
+        "media.action-outcome.unknown"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
+      "sha256": "451259478d78a2ef408327b7e9b2804f80ad9ec87f95696d0cf7e2ed98a5ec40",
+      "bytes": 5042,
+      "format": "yaml",
+      "schemaVersion": "media.gui-layout.v1",
+      "authority": "Media owns information hierarchy and responsive composition; Shared owns layout primitives and design tokens",
+      "status": null,
+      "topLevelFields": [
+        "acceptance",
+        "authority",
+        "layoutRules",
+        "layouts",
+        "owner",
+        "schemaVersion",
+        "scopeStatus",
+        "sourceRefs",
+        "verification"
+      ],
+      "declaredIds": [
+        "media.gui.layout.collection",
+        "media.gui.layout.consent",
+        "media.gui.layout.job-observation",
+        "media.gui.layout.media-workbench",
+        "media.gui.layout.record-detail",
+        "media.gui.layout.render",
+        "media.gui.layout.review",
+        "media.gui.layout.task-setup"
+      ]
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
@@ -224,13 +279,710 @@
         "media.token.trust.measured",
         "media.token.trust.recognized"
       ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+      "sha256": "47782cc4ff828d8513d9091dec118fde89cb80ce46fcdb717a59de5e6eaed493",
+      "bytes": 73858,
+      "format": "yaml",
+      "schemaVersion": "media.component-contracts.v1",
+      "authority": "Media component anatomy and behavior; Shared owns generic component primitives",
+      "status": "authored-proposal; component-and-token-bindings-and-P0-010-pending",
+      "topLevelFields": [
+        "authority",
+        "components",
+        "masterPlanCoverage",
+        "productId",
+        "schemaVersion",
+        "status"
+      ],
+      "declaredIds": [
+        "media.component.activity-recovery-feed",
+        "media.component.artifact-browser",
+        "media.component.artifact-integrity-summary",
+        "media.component.artifact-source-picker",
+        "media.component.artifact-transfer-status",
+        "media.component.audio-mixer",
+        "media.component.caption-track-editor",
+        "media.component.cli-output",
+        "media.component.creation-plan-summary",
+        "media.component.delivery-profile-picker",
+        "media.component.identity-context-boundary",
+        "media.component.intent-launcher",
+        "media.component.job-status-card",
+        "media.component.mask-tracking-editor",
+        "media.component.project-browser",
+        "media.component.project-context-summary",
+        "media.component.provenance-summary",
+        "media.component.quality-inspector",
+        "media.component.result-comparison",
+        "media.component.rights-retention-review",
+        "media.component.scene-inspector",
+        "media.component.simulation-instruments",
+        "media.component.source-picker",
+        "media.component.source-player",
+        "media.component.storyboard",
+        "media.component.task-flow",
+        "media.component.timeline-keyframe-editor",
+        "media.component.transcript-review",
+        "media.component.voice-production-workflow",
+        "media.component.waveform-spectrogram"
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
+      "sha256": "bc0c5865486f4a2e1ce3090b4177a04be7a07bf8345ca12dfc82bfe438d0e09b",
+      "bytes": 3784,
+      "format": "yaml",
+      "schemaVersion": "media.navigation-contracts.v1",
+      "authority": null,
+      "status": "selected-lane-first-use-and-upload-proposals; P0-010-and-P1-006-pending",
+      "topLevelFields": [
+        "additionalJourneyFlows",
+        "entryPoints",
+        "intentRef",
+        "productId",
+        "rules",
+        "schemaVersion",
+        "status"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/state-models.yaml",
+      "sha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+      "bytes": 40105,
+      "format": "yaml",
+      "schemaVersion": "media.state-models.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "authorityBoundary",
+        "authorityRules",
+        "authorityStatus",
+        "executionOwner",
+        "models",
+        "productId",
+        "schemaVersion",
+        "semanticOwner",
+        "transitionRequirements"
+      ],
+      "declaredIds": [
+        "ABANDONED",
+        "ACCESS_REVOKED",
+        "ACTIVE",
+        "ARCHIVED",
+        "AVAILABLE",
+        "BLOCKED_BY_HOLD",
+        "CANCELLED",
+        "CANCEL_CONFIRMED",
+        "CANCEL_REQUESTED",
+        "CLAIMED",
+        "CLOSED",
+        "COMMITTED",
+        "COMPLETED",
+        "CONFLICTED",
+        "CONNECTED",
+        "DEGRADED",
+        "DISPATCHED",
+        "DISPATCH_INTENT_RECORDED",
+        "DRAFT",
+        "DRAINING",
+        "ERASURE_CONFIRMED",
+        "ERASURE_REQUESTED",
+        "EXPIRED",
+        "EXTERNAL_ERASURE_UNCONFIRMED",
+        "FAILED",
+        "INVITED",
+        "OPEN",
+        "OUTCOME_UNKNOWN",
+        "PARTIALLY_SUCCEEDED",
+        "PHYSICAL_ERASURE_PENDING",
+        "QUARANTINED",
+        "QUEUED",
+        "RECEIVING",
+        "RECONCILING",
+        "REJECTED",
+        "RETRY_PENDING",
+        "REVOKED",
+        "RUNNING",
+        "SUCCEEDED",
+        "SUPERSEDED",
+        "SUSPENDED",
+        "VERIFYING"
+      ]
     }
   ],
   "candidateModel": {
+    "id": "media.experience-language.candidate",
     "subjectId": "media",
-    "schemaVersion": "ghatana.experience-language.v1"
+    "schemaVersion": "ghatana.experience-language.v1",
+    "informationHierarchy": {
+      "id": "media.language.reading-order",
+      "levels": [
+        {
+          "level": 1,
+          "label": "user-outcome",
+          "description": "Proposed reading-order level 1 from typography-layout.yaml."
+        },
+        {
+          "level": 2,
+          "label": "source-and-current-version",
+          "description": "Proposed reading-order level 2 from typography-layout.yaml."
+        },
+        {
+          "level": 3,
+          "label": "current-status-and-uncertainty",
+          "description": "Proposed reading-order level 3 from typography-layout.yaml."
+        },
+        {
+          "level": 4,
+          "label": "primary-safe-action",
+          "description": "Proposed reading-order level 4 from typography-layout.yaml."
+        },
+        {
+          "level": 5,
+          "label": "supporting-evidence-and-provenance",
+          "description": "Proposed reading-order level 5 from typography-layout.yaml."
+        },
+        {
+          "level": 6,
+          "label": "advanced-controls",
+          "description": "Proposed reading-order level 6 from typography-layout.yaml."
+        }
+      ]
+    },
+    "densityProfiles": [],
+    "presentationProfiles": [],
+    "semanticStates": [
+      {
+        "id": "media-job.QUEUED",
+        "name": "Waiting to start",
+        "description": "The request is recorded; processing has not started."
+      },
+      {
+        "id": "media-job.RUNNING",
+        "name": "Transcribing",
+        "description": "A current attempt is processing the authorized request."
+      },
+      {
+        "id": "media-job.COMPLETED",
+        "name": "Transcript ready to review",
+        "description": "The result is recorded; review is still required where applicable."
+      },
+      {
+        "id": "media-job.OUTCOME_UNKNOWN",
+        "name": "Outcome not confirmed",
+        "description": "The request may have started; check its status before taking another action."
+      },
+      {
+        "id": "media-upload-and-artifact.VERIFYING",
+        "name": "Checking source file",
+        "description": "Integrity, format, and policy checks are still in progress."
+      },
+      {
+        "id": "media-upload-and-artifact.AVAILABLE",
+        "name": "Source ready",
+        "description": "Source integrity was verified for this fixture; runtime availability is not implied."
+      },
+      {
+        "id": "media-upload-and-artifact.QUARANTINED",
+        "name": "Source needs review",
+        "description": "The source is isolated and cannot be used until its disposition is recorded."
+      },
+      {
+        "id": "media-rights-and-consent.consent.REVOKED",
+        "name": "Processing stopped by consent change",
+        "description": "New processing is blocked; existing output and deletion scope follow the owning lifecycle policy."
+      }
+    ],
+    "navigationPrinciples": [
+      {
+        "id": "media.language.navigation.1",
+        "name": "Navigation rule 1",
+        "description": "Preserve project, exact source version, selected language intent, source time, job identity, and draft edits across navigation."
+      },
+      {
+        "id": "media.language.navigation.2",
+        "name": "Navigation rule 2",
+        "description": "Keep recovery available from every job state; never route OUTCOME_UNKNOWN to a new submission."
+      },
+      {
+        "id": "media.language.navigation.3",
+        "name": "Navigation rule 3",
+        "description": "Back navigation returns to the prior view and position without committing a draft or changing source media."
+      },
+      {
+        "id": "media.language.navigation.4",
+        "name": "Navigation rule 4",
+        "description": "Keep upload identity, selected project target, acknowledged transfer state, and source identity through navigation."
+      },
+      {
+        "id": "media.language.navigation.5",
+        "name": "Navigation rule 5",
+        "description": "An unknown upload result returns to inspection of the same upload identity; it never enables duplicate transfer."
+      },
+      {
+        "id": "media.language.navigation.6",
+        "name": "Navigation rule 6",
+        "description": "Enter the job view only with an owner-issued stable job identity; an upload identity alone is not a job."
+      },
+      {
+        "id": "media.language.navigation.7",
+        "name": "Navigation rule 7",
+        "description": "Integrity, format, rights, retention, and project-attachment dispositions remain separately visible."
+      },
+      {
+        "id": "media.language.navigation.8",
+        "name": "Navigation rule 8",
+        "description": "Preserve the requested destination and non-sensitive intent draft across the identity handoff."
+      },
+      {
+        "id": "media.language.navigation.9",
+        "name": "Navigation rule 9",
+        "description": "Do not show protected project data before the current workspace decision is confirmed."
+      },
+      {
+        "id": "media.language.navigation.10",
+        "name": "Navigation rule 10",
+        "description": "An uncertain project-create result returns to the same request for reconciliation; it does not enable blind duplicate creation."
+      },
+      {
+        "id": "media.language.navigation.11",
+        "name": "Navigation rule 11",
+        "description": "Preserve the same job identity when leaving and re-entering the status view."
+      },
+      {
+        "id": "media.language.navigation.12",
+        "name": "Navigation rule 12",
+        "description": "Stop watching is view navigation only; it does not cancel work or change job state."
+      },
+      {
+        "id": "media.language.navigation.13",
+        "name": "Navigation rule 13",
+        "description": "Keep cancellation pending until owner evidence confirms a stop or a racing result."
+      },
+      {
+        "id": "media.language.navigation.14",
+        "name": "Navigation rule 14",
+        "description": "For unknown outcomes, check the existing job before any new submission."
+      }
+    ],
+    "interactionPatterns": [
+      {
+        "id": "media.gui.pattern.project-browser",
+        "name": "media.gui.pattern.project-browser",
+        "description": "Find, create, and open projects in the current authorized workspace.",
+        "applicability": "workspace-context, search, result-list, empty-or-error-state, create-action"
+      },
+      {
+        "id": "media.gui.pattern.project-context-header",
+        "name": "media.gui.pattern.project-context-header",
+        "description": "Keep workspace, project identity, and exact revision visible.",
+        "applicability": "workspace, project-identity, revision, access-state, safe-next-action"
+      },
+      {
+        "id": "media.gui.pattern.intent-launcher",
+        "name": "media.gui.pattern.intent-launcher",
+        "description": "Choose an outcome without selecting an implementation provider.",
+        "applicability": "intent-name, outcome, availability, reason, choose-action"
+      },
+      {
+        "id": "media.gui.pattern.creation-plan-review",
+        "name": "media.gui.pattern.creation-plan-review",
+        "description": "Review proposed outcome, material choices, support, and consequences before execution.",
+        "applicability": "outcome, inputs, choices, limits, consent-and-rights, effect-summary, confirm-or-edit"
+      },
+      {
+        "id": "media.gui.pattern.source-picker",
+        "name": "media.gui.pattern.source-picker",
+        "description": "Propose selection of an eligible source artifact and version, subject to owner-authorized access; selection does not establish authority.",
+        "applicability": "source-context, searchable-artifacts, version, eligibility, selection"
+      },
+      {
+        "id": "media.gui.pattern.upload-and-verification",
+        "name": "media.gui.pattern.upload-and-verification",
+        "description": "Show transfer and artifact-verification lifecycles as related but distinct.",
+        "applicability": "upload-id, transfer-progress, verification-job-id, verification-stage, artifact-availability, recovery"
+      },
+      {
+        "id": "media.gui.pattern.job-status-and-recovery",
+        "name": "media.gui.pattern.job-status-and-recovery",
+        "description": "Observe one job record and offer only contract-authorized state-appropriate recovery; durability is not established by this proposal.",
+        "applicability": "job-identity, state, finality, progress, outputs, next-safe-action"
+      },
+      {
+        "id": "media.gui.pattern.activity-attention",
+        "name": "media.gui.pattern.activity-attention",
+        "description": "Find a recorded job that needs status review, an outcome check, or follow-up, then open that exact job.",
+        "applicability": "activity-heading, job-identity-and-purpose, recorded-state-and-finality, supported-age-or-urgency, safe-next-action, empty-or-unavailable-state"
+      },
+      {
+        "id": "media.gui.pattern.transcript-and-playback",
+        "name": "media.gui.pattern.transcript-and-playback",
+        "description": "Keep playback position, transcript selection, and source time aligned.",
+        "applicability": "player, transport-controls, source-time, transcript-region, selection"
+      },
+      {
+        "id": "media.gui.pattern.caption-editor",
+        "name": "media.gui.pattern.caption-editor",
+        "description": "Edit text and timing while keeping source and proposed caption-revision context distinct; immutability is not established by this proposal.",
+        "applicability": "source-context, selected-cue, text-editor, timing, validation, save-as-new-version"
+      },
+      {
+        "id": "media.gui.pattern.version-comparison",
+        "name": "media.gui.pattern.version-comparison",
+        "description": "Compare exact version identifiers and identify differences and proposed lineage; immutable-byte guarantees remain unverified.",
+        "applicability": "version-identities, comparison-basis, aligned-content, difference-summary, provenance"
+      },
+      {
+        "id": "media.gui.pattern.review-approval",
+        "name": "media.gui.pattern.review-approval",
+        "description": "Review evidence for an exact output version and record a scoped decision only when authorized; distinct from pre-execution plan review.",
+        "applicability": "exact-output-version-identity, review-scope-and-current-decision-state, content-and-quality-evidence, rights-and-policy-status, reviewer-authority, decision-outcome-and-follow-up"
+      },
+      {
+        "id": "media.gui.pattern.quality-and-uncertainty",
+        "name": "media.gui.pattern.quality-and-uncertainty",
+        "description": "Present scoped measurements, review requirements, uncertainty, and acceptance separately.",
+        "applicability": "observation, scope, method, value-or-uncertainty, threshold, reviewer-state"
+      },
+      {
+        "id": "media.gui.pattern.rights-and-consent-review",
+        "name": "media.gui.pattern.rights-and-consent-review",
+        "description": "Make rights, consent scope, expiry, and policy decision visible before affected work.",
+        "applicability": "material, right-or-consent, scope, source, validity, decision, next-action"
+      },
+      {
+        "id": "media.gui.pattern.rendering",
+        "name": "media.gui.pattern.rendering",
+        "description": "Keep exact-snapshot render preparation, submission, asynchronous execution, verification, review, and delivery distinct.",
+        "applicability": "exact-composition-snapshot, profile-and-validation, rights-and-estimates, explicit-submission, job-state, output-verification-and-review, separate-delivery"
+      },
+      {
+        "id": "media.gui.pattern.provenance-and-lineage",
+        "name": "media.gui.pattern.provenance-and-lineage",
+        "description": "Explain source, derivation, transformations, and unresolved provenance.",
+        "applicability": "artifact-identity, source-links, derivation-steps, methods, timestamps, unknowns"
+      },
+      {
+        "id": "media.gui.pattern.safe-confirmation-and-unknown-outcome",
+        "name": "media.gui.pattern.safe-confirmation-and-unknown-outcome",
+        "description": "Confirm consequential intent and recover safely when the effect is uncertain.",
+        "applicability": "effect-summary, preconditions, confirmation, pending-state, outcome-check, safe-recovery"
+      },
+      {
+        "id": "media.gui.pattern.destructive-lifecycle-action",
+        "name": "media.gui.pattern.destructive-lifecycle-action",
+        "description": "Propose exact-scope, authority-checked confirmation and safe reconciliation for consequential lifecycle requests; artifact deletion remains unbound.",
+        "applicability": "exact-target-and-version-scope, authority-and-preconditions, impact-retention-and-reversibility, explicit-confirmation, pending-or-unknown-outcome, safe-verification-and-recovery"
+      }
+    ],
+    "decisionPatterns": [
+      {
+        "id": "media.language.decision.consequential-effect-confirmation",
+        "name": "Consequential effect confirmation",
+        "description": "Confirm only consequential effects that cannot be safely undone; explain scope and affected version.",
+        "consequential": true
+      }
+    ],
+    "recoveryPatterns": [],
+    "progressiveDisclosureRules": [],
+    "responsiveRules": [
+      {
+        "id": "media.language.responsive.wide-desktop",
+        "breakpoint": "1536x960, 1280x800",
+        "behavior": "source-player-and-transcript-visible-together; optional-provenance-in-context-panel"
+      },
+      {
+        "id": "media.language.responsive.compact-desktop",
+        "breakpoint": "1024x768",
+        "behavior": "transcript-primary; source-player-remains-one-action-away-with-position-retained"
+      },
+      {
+        "id": "media.language.responsive.tablet",
+        "breakpoint": "768x1024",
+        "behavior": "focused-editing-with-contextual-source-drawer"
+      },
+      {
+        "id": "media.language.responsive.mobile",
+        "breakpoint": "390x844, 320x640",
+        "behavior": "review-and-monitoring-first; supported-edit-actions-remain-operable"
+      }
+    ],
+    "accessibilityRules": [],
+    "localizationRules": [
+      {
+        "id": "media.language.localization.1",
+        "concern": "Localization rule 1",
+        "strategy": "A locale present in a fixture is not an admitted runtime language."
+      },
+      {
+        "id": "media.language.localization.2",
+        "concern": "Localization rule 2",
+        "strategy": "Keep user-facing translations separate from stable action IDs, field names, and reason codes."
+      },
+      {
+        "id": "media.language.localization.3",
+        "concern": "Localization rule 3",
+        "strategy": "Preserve original recognized text and record translation as a derived version with provenance."
+      },
+      {
+        "id": "media.language.localization.4",
+        "concern": "Localization rule 4",
+        "strategy": "Never silently convert transcript language or measurement units."
+      },
+      {
+        "id": "media.language.localization.5",
+        "concern": "Localization rule 5",
+        "strategy": "Dates, numbers, decimal marks, and time display follow the selected presentation locale while stored rational media time remains unchanged."
+      },
+      {
+        "id": "media.language.localization.6",
+        "concern": "Localization rule 6",
+        "strategy": "Unsupported locale output is blocked or clearly marked as a reviewable draft; it is never presented as qualified."
+      }
+    ],
+    "visualAuthority": {
+      "id": "media.language.visual-authority",
+      "description": "Media owns semantic aliases and composition; Shared owns primitive token values and styling behavior."
+    },
+    "componentBindings": [
+      {
+        "id": "media.language.component-binding.media.component.task.flow",
+        "semanticConcept": "workflow-progress-and-operation-observation",
+        "componentRef": "media.component.task-flow",
+        "notes": "candidate-contract-derived-rendering; Shared-binding-and-owner-review-pending"
+      },
+      {
+        "id": "media.language.component-binding.media.component.identity.context.boundary",
+        "semanticConcept": "authorized-workspace-and-project-context",
+        "componentRef": "media.component.identity-context-boundary",
+        "notes": "candidate-contract-derived-rendering; not-admitted"
+      },
+      {
+        "id": "media.language.component-binding.media.component.project.browser",
+        "semanticConcept": "authorized-workspace-and-project-context",
+        "componentRef": "media.component.project-browser",
+        "notes": "candidate-contract-derived-rendering; not-admitted"
+      },
+      {
+        "id": "media.language.component-binding.media.component.artifact.browser",
+        "semanticConcept": "artifact-source-integrity-and-verification-observation",
+        "componentRef": "media.component.artifact-browser",
+        "notes": "candidate-contract-derived-rendering; not-admitted"
+      },
+      {
+        "id": "media.language.component-binding.media.component.artifact.source.picker",
+        "semanticConcept": "artifact-source-integrity-and-verification-observation",
+        "componentRef": "media.component.artifact-source-picker",
+        "notes": "candidate-contract-derived-rendering; not-admitted"
+      },
+      {
+        "id": "media.language.component-binding.media.component.artifact.transfer.status",
+        "semanticConcept": "artifact-source-integrity-and-verification-observation",
+        "componentRef": "media.component.artifact-transfer-status",
+        "notes": "candidate-contract-derived-rendering; not-admitted"
+      },
+      {
+        "id": "media.language.component-binding.media.component.artifact.integrity.summary",
+        "semanticConcept": "artifact-source-integrity-and-verification-observation",
+        "componentRef": "media.component.artifact-integrity-summary",
+        "notes": "candidate-contract-derived-rendering; not-admitted"
+      },
+      {
+        "id": "media.language.component-binding.media.component.job.status.card",
+        "semanticConcept": "exact-job-identity-and-outcome-reconciliation",
+        "componentRef": "media.component.job-status-card",
+        "notes": "candidate-contract-derived-rendering; not-admitted"
+      },
+      {
+        "id": "media.language.component-binding.media.component.activity.recovery.feed",
+        "semanticConcept": "exact-job-identity-and-outcome-reconciliation",
+        "componentRef": "media.component.activity-recovery-feed",
+        "notes": "candidate-contract-derived-rendering; not-admitted"
+      },
+      {
+        "id": "media.language.component-binding.media.component.transcript.review",
+        "semanticConcept": "source-linked-transcript-review-and-versioned-caption-editing",
+        "componentRef": "media.component.transcript-review",
+        "notes": "candidate-contract-derived-rendering; not-admitted"
+      },
+      {
+        "id": "media.language.component-binding.media.component.caption.track.editor",
+        "semanticConcept": "source-linked-transcript-review-and-versioned-caption-editing",
+        "componentRef": "media.component.caption-track-editor",
+        "notes": "candidate-contract-derived-rendering; not-admitted"
+      }
+    ],
+    "recipeBindings": [],
+    "domainStatePresentationMappings": [
+      {
+        "id": "media.language.state-presentation.media.job.QUEUED",
+        "domainStateId": "media-job.QUEUED",
+        "presentationEffect": "Waiting to start: The request is recorded; processing has not started."
+      },
+      {
+        "id": "media.language.state-presentation.media.job.RUNNING",
+        "domainStateId": "media-job.RUNNING",
+        "presentationEffect": "Transcribing: A current attempt is processing the authorized request."
+      },
+      {
+        "id": "media.language.state-presentation.media.job.COMPLETED",
+        "domainStateId": "media-job.COMPLETED",
+        "presentationEffect": "Transcript ready to review: The result is recorded; review is still required where applicable."
+      },
+      {
+        "id": "media.language.state-presentation.media.job.OUTCOME.UNKNOWN",
+        "domainStateId": "media-job.OUTCOME_UNKNOWN",
+        "presentationEffect": "Outcome not confirmed: The request may have started; check its status before taking another action."
+      },
+      {
+        "id": "media.language.state-presentation.media.upload.and.artifact.VERIFYING",
+        "domainStateId": "media-upload-and-artifact.VERIFYING",
+        "presentationEffect": "Checking source file: Integrity, format, and policy checks are still in progress."
+      },
+      {
+        "id": "media.language.state-presentation.media.upload.and.artifact.AVAILABLE",
+        "domainStateId": "media-upload-and-artifact.AVAILABLE",
+        "presentationEffect": "Source ready: Source integrity was verified for this fixture; runtime availability is not implied."
+      },
+      {
+        "id": "media.language.state-presentation.media.upload.and.artifact.QUARANTINED",
+        "domainStateId": "media-upload-and-artifact.QUARANTINED",
+        "presentationEffect": "Source needs review: The source is isolated and cannot be used until its disposition is recorded."
+      },
+      {
+        "id": "media.language.state-presentation.media.rights.and.consent.consent.REVOKED",
+        "domainStateId": "media-rights-and-consent.consent.REVOKED",
+        "presentationEffect": "Processing stopped by consent change: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy."
+      }
+    ],
+    "createdAt": "2026-10-08T00:30:04.772Z",
+    "updatedAt": "2026-10-08T00:30:04.772Z"
+  },
+  "candidateMappingReview": {
+    "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
+    "mappedFields": [
+      "id",
+      "subjectId",
+      "schemaVersion",
+      "informationHierarchy",
+      "semanticStates",
+      "navigationPrinciples",
+      "interactionPatterns",
+      "decisionPatterns",
+      "recoveryPatterns",
+      "responsiveRules",
+      "localizationRules",
+      "visualAuthority",
+      "componentBindings",
+      "domainStatePresentationMappings",
+      "createdAt",
+      "updatedAt"
+    ],
+    "fieldDispositions": {
+      "id": {
+        "status": "DETERMINISTIC_CANDIDATE_IDENTIFIER",
+        "source": "projection generator"
+      },
+      "subjectId": {
+        "status": "DIRECT_SOURCE_COPY",
+        "source": "typography-layout.yaml#productId"
+      },
+      "schemaVersion": {
+        "status": "PUBLIC_CONTRACT_CONSTANT",
+        "source": "@ghatana/experience-language"
+      },
+      "informationHierarchy": {
+        "status": "DIRECT_PROPOSAL_MAPPING",
+        "source": "typography-layout.yaml#readingOrder"
+      },
+      "densityProfiles": {
+        "status": "BLOCKED_PUBLIC_ENUM_MISMATCH",
+        "source": "typography-layout.yaml#density"
+      },
+      "presentationProfiles": {
+        "status": "BLOCKED_DENSITY_DEPENDENCY",
+        "source": "no direct profile source"
+      },
+      "semanticStates": {
+        "status": "DIRECT_PROPOSAL_MAPPING",
+        "source": "semantic-state-grammar.yaml#states"
+      },
+      "navigationPrinciples": {
+        "status": "DIRECT_PROPOSAL_MAPPING",
+        "source": "navigation-contracts.yaml#rules"
+      },
+      "interactionPatterns": {
+        "status": "DIRECT_PROPOSAL_MAPPING",
+        "source": "gui/patterns/catalog.yaml#patterns"
+      },
+      "decisionPatterns": {
+        "status": "DIRECT_PROPOSAL_MAPPING",
+        "source": "action-finality-grammar.yaml#rules"
+      },
+      "recoveryPatterns": {
+        "status": "PARTIAL_DIRECT_MAPPING",
+        "source": "action-finality-grammar.yaml#rules"
+      },
+      "progressiveDisclosureRules": {
+        "status": "BLOCKED_NO_TRIGGER_REVEALS_CONCEALS_SOURCE",
+        "source": "no direct source records"
+      },
+      "responsiveRules": {
+        "status": "DIRECT_PROPOSAL_MAPPING",
+        "source": "responsive-adaptive.yaml#variants"
+      },
+      "accessibilityRules": {
+        "status": "BLOCKED_STANDARD_AND_LEVEL_UNSELECTED",
+        "source": "accessibility.yaml#requirements"
+      },
+      "localizationRules": {
+        "status": "DIRECT_PROPOSAL_MAPPING",
+        "source": "localization-content.yaml#rules"
+      },
+      "visualAuthority": {
+        "status": "DIRECT_OWNERSHIP_BOUNDARY_MAPPING",
+        "source": "DESIGN-LANGUAGE.md"
+      },
+      "componentBindings": {
+        "status": "DIRECT_CANDIDATE_BINDING; OWNER_REVIEW_PENDING",
+        "source": "gui/semantic-component-bindings.yaml#bindings"
+      },
+      "recipeBindings": {
+        "status": "BLOCKED_NO_ADMITTED_RECIPE_ID",
+        "source": "gui/templates/catalog.yaml"
+      },
+      "domainStatePresentationMappings": {
+        "status": "DIRECT_CANDIDATE_BINDING; PDP-0_STATE_REVIEW_PENDING",
+        "source": "semantic-state-grammar.yaml#states"
+      },
+      "createdAt": {
+        "status": "PROJECTION_GENERATION_METADATA",
+        "source": "generator event"
+      },
+      "updatedAt": {
+        "status": "PROJECTION_GENERATION_METADATA",
+        "source": "generator event"
+      }
+    },
+    "omittedCollections": {
+      "densityProfiles": "The Media labels simple/guided/expert do not match the public minimal/compact/standard/rich enum; no equivalence is inferred.",
+      "presentationProfiles": "No density profile can be bound until the source enum mismatch is resolved.",
+      "progressiveDisclosureRules": "The sources do not declare trigger/reveals/conceals records.",
+      "accessibilityRules": "The source explicitly leaves applicable standard and conformance level to the accessibility owner.",
+      "recoveryPatterns": "No source directly supplies the automaticRecovery boolean required by the public contract.",
+      "recipeBindings": "Templates and GUI patterns are not admitted Shared recipe IDs."
+    },
+    "ownerDecisionStatus": "PENDING; direct source projection and public validation do not establish semantic acceptance or phase closure."
   },
   "candidateFieldSources": {
+    "id": {
+      "sourceRef": null,
+      "sourcePath": null,
+      "mapping": "deterministic candidate artifact identifier"
+    },
     "subjectId": {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
       "sourcePath": "productId",
@@ -240,33 +992,105 @@
       "sourceRef": "@ghatana/experience-language public export",
       "sourcePath": "EXPERIENCE_LANGUAGE_SCHEMA_VERSION",
       "mapping": "public contract constant"
+    },
+    "informationHierarchy": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
+      "sourcePath": "readingOrder",
+      "mapping": "ordered list projected to numbered language hierarchy"
+    },
+    "densityProfiles": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
+      "sourcePath": "density",
+      "mapping": "omitted; source enum differs from public contract enum"
+    },
+    "presentationProfiles": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
+      "sourcePath": "density",
+      "mapping": "omitted pending a direct density mapping"
+    },
+    "semanticStates": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
+      "sourcePath": "states",
+      "mapping": "direct proposed state IDs, labels, and explanations"
+    },
+    "navigationPrinciples": {
+      "sourceRef": ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
+      "sourcePath": "rules and additionalJourneyFlows[].rules",
+      "mapping": "direct proposal text with deterministic candidate IDs"
+    },
+    "interactionPatterns": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
+      "sourcePath": "patterns",
+      "mapping": "direct IDs, intent, and anatomy"
+    },
+    "decisionPatterns": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+      "sourcePath": "rules",
+      "mapping": "direct consequential-effect confirmation rule"
+    },
+    "recoveryPatterns": {
+      "sourceRef": null,
+      "sourcePath": null,
+      "mapping": "not mapped; the source does not define automaticRecovery semantics"
+    },
+    "progressiveDisclosureRules": {
+      "sourceRef": null,
+      "sourcePath": null,
+      "mapping": "no trigger/reveals/conceals source records"
+    },
+    "responsiveRules": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
+      "sourcePath": "variants",
+      "mapping": "direct viewport fixture and work-mode projection"
+    },
+    "accessibilityRules": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
+      "sourcePath": "requirements",
+      "mapping": "omitted because standard and level are not selected"
+    },
+    "localizationRules": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
+      "sourcePath": "rules",
+      "mapping": "direct proposal statements"
+    },
+    "visualAuthority": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
+      "sourcePath": "Shared/Media ownership boundary",
+      "mapping": "direct ownership boundary summary; no token group binding"
+    },
+    "componentBindings": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
+      "sourcePath": "bindings[].componentRefs and semanticRole",
+      "mapping": "exact Media component IDs only; external Shared admission remains pending"
+    },
+    "recipeBindings": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
+      "sourcePath": "templates",
+      "mapping": "not mapped; template IDs do not establish Shared recipe IDs"
+    },
+    "domainStatePresentationMappings": {
+      "sourceRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
+      "sourcePath": "states[].stateRef/label/explanation",
+      "mapping": "exact references checked against PDP-0 state source; semantics remain proposal"
+    },
+    "createdAt": {
+      "sourceRef": null,
+      "sourcePath": "candidate generation event",
+      "mapping": "projection build timestamp, not a product-authority timestamp"
+    },
+    "updatedAt": {
+      "sourceRef": null,
+      "sourcePath": "candidate generation event",
+      "mapping": "projection build timestamp, not a product-authority timestamp"
     }
   },
   "fieldMappingBlockers": [
     {
-      "field": "id",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
-      "reasons": [
-        "No canonical ExperienceLanguage identifier is declared in the Media PDP-2 sources; the productId is not reused as a language ID."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-        ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
-        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-        ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
-      ]
-    },
-    {
       "field": "densityProfiles",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "status": "BLOCKED_PUBLIC_ENUM_MISMATCH",
+      "sourceDisposition": "typography-layout.yaml#density",
       "reasons": [
-        "The source labels simple/guided/expert do not match the schema's minimal/compact/standard/rich enum; conversion would invent equivalence."
+        "typography-layout.yaml#density"
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
@@ -275,17 +1099,23 @@
         ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
         ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
         ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
+        ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
+        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/state-models.yaml"
       ]
     },
     {
       "field": "presentationProfiles",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "status": "BLOCKED_DENSITY_DEPENDENCY",
+      "sourceDisposition": "no direct profile source",
       "reasons": [
-        "No source defines presentation profile IDs and densityRef links using the schema contract."
+        "no direct profile source"
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
@@ -294,112 +1124,23 @@
         ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
         ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
         ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
+        ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
-      ]
-    },
-    {
-      "field": "semanticStates",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
-      "reasons": [
-        "The semantic state grammar contains proposed state refs and presentation text, but no accepted state resolver or language-owned mapping."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-        ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
-        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-        ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
-      ]
-    },
-    {
-      "field": "navigationPrinciples",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
-      "reasons": [
-        "No distinct navigation-principle records with stable IDs are defined in the source authorities."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-        ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
-        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-        ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
-      ]
-    },
-    {
-      "field": "interactionPatterns",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
-      "reasons": [
-        "GUI patterns combine anatomy, states, and intent; mapping them to generic interaction patterns needs an owner-approved classification."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-        ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
-        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-        ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
-      ]
-    },
-    {
-      "field": "decisionPatterns",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
-      "reasons": [
-        "No source classifies decision patterns and their consequential boolean under this schema."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-        ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
-        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-        ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
-      ]
-    },
-    {
-      "field": "recoveryPatterns",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
-      "reasons": [
-        "Recovery contracts do not map directly to ExperienceLanguage recovery patterns or automaticRecovery values."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-        ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
-        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-        ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
+        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/state-models.yaml"
       ]
     },
     {
       "field": "progressiveDisclosureRules",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "status": "BLOCKED_NO_TRIGGER_REVEALS_CONCEALS_SOURCE",
+      "sourceDisposition": "no direct source records",
       "reasons": [
-        "Typography hierarchy and disclosure prose are not normalized to identified trigger/reveals/conceals rules."
+        "no direct source records"
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
@@ -408,36 +1149,23 @@
         ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
         ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
         ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
+        ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
-      ]
-    },
-    {
-      "field": "responsiveRules",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
-      "reasons": [
-        "Viewport variants and responsive prose are proposals, not schema breakpoints and behaviors with an accepted support mapping."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-        ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
-        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-        ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
+        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/state-models.yaml"
       ]
     },
     {
       "field": "accessibilityRules",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "status": "BLOCKED_STANDARD_AND_LEVEL_UNSELECTED",
+      "sourceDisposition": "accessibility.yaml#requirements",
       "reasons": [
-        "Accessibility requirements lack selected standard/level mappings; the source explicitly leaves applicable WCAG criteria to the owner."
+        "accessibility.yaml#requirements"
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
@@ -446,17 +1174,23 @@
         ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
         ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
         ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
+        ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
+        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/state-models.yaml"
       ]
     },
     {
-      "field": "localizationRules",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "field": "recoveryPatterns",
+      "status": "PARTIAL_DIRECT_MAPPING",
+      "sourceDisposition": "action-finality-grammar.yaml#rules",
       "reasons": [
-        "Localization prose is not normalized to identified concern/strategy records; fixture locale is not runtime support."
+        "action-finality-grammar.yaml#rules"
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
@@ -465,36 +1199,23 @@
         ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
         ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
         ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
+        ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
-      ]
-    },
-    {
-      "field": "componentBindings",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
-      "reasons": [
-        "Semantic component aliases remain unadmitted; Shared component references and cross-owner resolvers are unresolved."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-        ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
-        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-        ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
+        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/state-models.yaml"
       ]
     },
     {
       "field": "recipeBindings",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
+      "status": "BLOCKED_NO_ADMITTED_RECIPE_ID",
+      "sourceDisposition": "gui/templates/catalog.yaml",
       "reasons": [
-        "No admitted Shared recipe IDs or Media recipe-binding authority is present."
+        "gui/templates/catalog.yaml"
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
@@ -503,103 +1224,31 @@
         ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
         ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
         ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
+        ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
         ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
-      ]
-    },
-    {
-      "field": "domainStatePresentationMappings",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
-      "reasons": [
-        "PDP-1 state semantics and accepted state IDs remain unresolved; proposed state spellings are not promoted to domain mappings."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-        ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
-        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-        ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
-      ]
-    },
-    {
-      "field": "createdAt",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
-      "reasons": [
-        "No Media authority supplies an ExperienceLanguage creation timestamp; generation time is not a source fact."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-        ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
-        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-        ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
-      ]
-    },
-    {
-      "field": "updatedAt",
-      "status": "BLOCKED_NO_DIRECT_LOSSLESS_MAPPING",
-      "reasons": [
-        "No Media authority supplies an ExperienceLanguage update timestamp; generation time is not a source fact."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-        ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
-        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-        ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
-        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"
+        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/state-models.yaml"
       ]
     }
   ],
-  "derivationBoundary": "candidateModel is a structurally conformant partial projection. Every required schema property is present; empty collections and blank timestamps represent unresolved mappings, not accepted non-applicability. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
+  "derivationBoundary": "candidateModel is a structurally conformant partial projection populated from direct source records where mappings exist. Empty collections represent unresolved mappings, never accepted non-applicability. createdAt/updatedAt are projection-build timestamps only; they are not canonical product timestamps. Source facts remain proposals until owners accept the mappings; this artifact does not claim semantic completeness, phase acceptance, or currentness.",
   "knownBlockers": [
-    "Required ExperienceLanguage fields without direct source mappings remain absent; exact field-level mapping blockers are listed below."
+    "The required ExperienceLanguage shape is now populated from exact PDP sources wherever the public contract has a direct mapping; unresolved semantic fields and external review gates remain listed separately."
   ],
   "validation": {
     "schemaPackage": "@ghatana/experience-language",
     "schemaContract": "../ghatana-tools/libs/product-development/experience-language/schemas/experience-language.v1.schema.json",
     "schemaId": "https://schemas.ghatana.com/experience-language/v1.schema.json",
-    "schemaValid": false,
-    "schemaBlockers": [
-      "/ must have required property 'id'",
-      "/ must have required property 'densityProfiles'",
-      "/ must have required property 'presentationProfiles'",
-      "/ must have required property 'semanticStates'",
-      "/ must have required property 'navigationPrinciples'",
-      "/ must have required property 'interactionPatterns'",
-      "/ must have required property 'decisionPatterns'",
-      "/ must have required property 'recoveryPatterns'",
-      "/ must have required property 'progressiveDisclosureRules'",
-      "/ must have required property 'responsiveRules'",
-      "/ must have required property 'accessibilityRules'",
-      "/ must have required property 'localizationRules'",
-      "/ must have required property 'componentBindings'",
-      "/ must have required property 'recipeBindings'",
-      "/ must have required property 'domainStatePresentationMappings'",
-      "/ must have required property 'createdAt'",
-      "/ must have required property 'updatedAt'"
-    ],
+    "schemaValid": true,
+    "schemaBlockers": [],
     "publicValidator": "sibling-public-source-entrypoint (installed dist unavailable)",
-    "publicValidatorPassed": false,
-    "publicValidatorBlockers": [
-      "ExperienceLanguage: '$.id' is required."
-    ]
+    "publicValidatorPassed": true,
+    "publicValidatorBlockers": []
   },
   "acceptance": "NOT_CLAIMED",
   "currentness": "NOT_GENERATED; Lifecycle authority required"

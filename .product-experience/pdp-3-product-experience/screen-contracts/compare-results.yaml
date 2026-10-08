@@ -15,36 +15,56 @@ patternIds:
 tokenDependencies: []
 domainObjectRefs: []
 operationRefs: []
+requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 stateRefs: []
 entry: []
 exit: []
 actionConsequences:
   - actionId: media.action.compare-caption-versions
+    capabilityRefs: [media.artifact.inspect]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.inspect-provenance
+    capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.select-exact-candidates
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.choose-alignment-basis
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.inspect-quality-evidence
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.record-candidate-for-review
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -75,6 +95,7 @@ fieldBindingStatus:
   tokenDependencies: unresolved-no-direct-canonical-reference
   domainObjectRefs: unresolved-no-direct-canonical-reference
   operationRefs: unresolved-no-direct-canonical-reference
+  requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: unresolved-no-PDP-1-canonical-reference; local-UI-states-not-promoted
   entry: unresolved-no-direct-canonical-reference
   exit: unresolved-no-direct-canonical-reference

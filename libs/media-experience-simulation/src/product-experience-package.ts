@@ -22,6 +22,63 @@ export const MEDIA_EXPERIENCE_SOURCE_REFS = Object.freeze([
 
 const PDP3_PROPOSAL_STATUS = "proposal-pending-owner-review";
 const DEFAULT_SCENARIO = "media.scenario.source-available" as const;
+export const MEDIA_RENDERER_PUBLIC_EXPORT = "@audio-video/ui#MediaProductRenderer" as const;
+
+export type MediaRendererCandidateVariant =
+  | "first-use-project"
+  | "artifact-intake"
+  | "job-recovery"
+  | "transcript-caption";
+
+/** Data-only candidate contract carried by the public Tools render result. */
+export interface MediaRendererBinding {
+  readonly identity: typeof MEDIA_RENDERER_PUBLIC_EXPORT;
+  readonly status: "CANDIDATE_NOT_ADMITTED";
+  readonly rendererId: "media-simulation-review";
+  readonly ports: {
+    readonly input: {
+      readonly type: "MediaProductRendererProps";
+      readonly variant: MediaRendererCandidateVariant;
+      readonly scenarioId: string;
+    };
+    readonly state: {
+      readonly type: "MediaExperienceState";
+      readonly stateRef: string;
+      readonly sequence: number;
+    };
+    readonly action: {
+      readonly type: "MediaActionPort";
+      readonly actionIds: readonly string[];
+    };
+    readonly error: {
+      readonly type: "MediaActionDispatchResult";
+      readonly outcomes: readonly ["intent-accepted", "unavailable", "denied"];
+    };
+  };
+}
+
+function rendererVariant(state: MediaExperienceState): MediaRendererCandidateVariant {
+  switch (state.workflow) {
+    case "first-use": return "first-use-project";
+    case "artifact-intake": return "artifact-intake";
+    case "artifact-verification": return "job-recovery";
+    case "transcription": return "transcript-caption";
+  }
+}
+
+function rendererBinding(state: MediaExperienceState): MediaRendererBinding {
+  return Object.freeze({
+    identity: MEDIA_RENDERER_PUBLIC_EXPORT,
+    status: "CANDIDATE_NOT_ADMITTED",
+    rendererId: "media-simulation-review",
+    ports: Object.freeze({
+      input: Object.freeze({ type: "MediaProductRendererProps", variant: rendererVariant(state), scenarioId: state.scenarioId }),
+      state: Object.freeze({ type: "MediaExperienceState", stateRef: state.scenarioId, sequence: state.sequence }),
+      action: Object.freeze({ type: "MediaActionPort", actionIds: [...availableActionIds(state)] }),
+      error: Object.freeze({ type: "MediaActionDispatchResult", outcomes: ["intent-accepted", "unavailable", "denied"] as const }),
+    }),
+  });
+}
 
 function readState(handle: ProductSessionState): MediaExperienceState {
   return (handle as unknown as { readonly _data: MediaExperienceState })._data;
@@ -104,6 +161,7 @@ export function createMediaProductExperiencePackage(): ProductExperiencePackage 
         kind: "rendered",
         output: {
           ...projectSources(state),
+          rendererBinding: rendererBinding(state),
           presentationStatus: PDP3_PROPOSAL_STATUS,
           schemaInterpretation: "The Tools package schema validates the adapter contract; source record schemas remain separate proposal references.",
         },

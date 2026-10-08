@@ -16,6 +16,8 @@ tokenBindingStatus: pending-canonical-token-binding
 domainObjectRefs: []
 domainObjectBindingStatus: pending-canonical-domain-object-binding
 operationRefs: []
+requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
+requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 operationBindingStatus: pending-canonical-operation-binding
 stateRefs: []
 stateBindingStatus: pending-PDP-1-state-binding; local-UI-state-labels-not-promoted
@@ -25,21 +27,33 @@ exit: []
 exitBindingStatus: pending-canonical-exit-condition-binding
 actionConsequences:
   - actionId: media.action.correct-caption
+    capabilityRefs: [media.artifact.derive]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.align-caption-timing
+    capabilityRefs: [media.speech.transcription.forced-align, media.artifact.derive]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.resolve-caption-conflict
+    capabilityRefs: [media.artifact.derive]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.save-caption-version
+    capabilityRefs: [media.artifact.output.register, media.artifact.provenance.export]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -71,6 +85,7 @@ fieldBindingStatus:
   tokenDependencies: pending
   domainObjectRefs: pending
   operationRefs: pending
+  requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: pending-local-labels-not-canonical
   entry: pending
   exit: pending

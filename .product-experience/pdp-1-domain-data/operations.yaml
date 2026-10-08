@@ -33,6 +33,7 @@ sourceDenominators:
   uiProductActions:
     count: 146
     source: .product-experience/pdp-3-product-experience/action-registry.yaml#/actions
+    ambiguousOperationCandidates: []
     explicitOperationIds:
       media.action.begin-artifact-upload: media.operation.artifact-ingest
       media.action.resume-artifact-upload: media.operation.artifact-ingest
@@ -42,14 +43,12 @@ sourceDenominators:
       media.action.check-job-outcome: media.operation.job-lifecycle
       media.action.request-cancellation: media.operation.job-lifecycle
       media.action.retry-job: media.operation.job-lifecycle
+      media.action.request-transcription: media.operation.transcription
       media.action.review-transcript: media.operation.transcription
       media.action.correct-caption: media.operation.transcription
       media.action.align-caption-timing: media.operation.transcription
-    ambiguousOperationCandidates:
-      media.action.request-transcription: [media.operation.transcription, media.operation.job-lifecycle]
     unresolvedActionIds: [media.action.select-artifact-source, media.action.choose-intent, media.action.create-project, media.action.inspect-project-creation, media.action.open-project, media.action.choose-source, media.action.inspect-source, media.action.play-source, media.action.seek-source, media.action.save-caption-version, media.action.resolve-caption-conflict, media.action.compare-caption-versions, media.action.inspect-provenance, media.action.add-scene-entity, media.action.add-storyboard-scene, media.action.apply-admitted-edit, media.action.apply-authorized-rights-restriction, media.action.associate-authorized-reference, media.action.change-interpolation-curve, media.action.change-permitted-preference, media.action.choose-admitted-audio-operation, media.action.choose-alignment-basis, media.action.choose-media-improvement-intent, media.action.choose-named-destination, media.action.compare-candidate-on-metric, media.action.compare-media-versions, media.action.continue-within-recorded-scope, media.action.deliver-exact-version, media.action.edit-admitted-adjustment, media.action.edit-audio-mix-controls, media.action.edit-keyframe, media.action.edit-mask-boundary, media.action.edit-requested-outcome-and-admitted-controls, media.action.edit-scene-timing-or-transition, media.action.edit-transition-or-caption-alignment, media.action.edit-unresolved-plan-decision, media.action.edit-video-temporal-plan, media.action.enter-exact-edit-constraints, media.action.export-authorized-provenance, media.action.inspect-consent-and-permitted-use, media.action.inspect-driver-or-constraint, media.action.inspect-effective-processing-constraints, media.action.inspect-generated-candidates, media.action.inspect-governing-evidence, media.action.inspect-input-output-color-interpretation, media.action.inspect-operation-contract, media.action.inspect-operation-readiness, media.action.inspect-output-preview-and-version, media.action.inspect-quality-evidence, media.action.inspect-scene-binding, media.action.inspect-setting-owner, media.action.inspect-simulation-domain-and-fidelity, media.action.inspect-simulation-result, media.action.inspect-source-measurements, media.action.inspect-version-and-review-scope, media.action.inspect-voice-authorization, media.action.limit-tracking-propagation-range, media.action.open-admitted-delivery-action, media.action.open-approval-view, media.action.open-authorized-recovery-instruction, media.action.open-qualification-evidence, media.action.open-related-view, media.action.prepare-redacted-diagnostics, media.action.preview-current-revision, media.action.preview-motion, media.action.reconcile-delivery-acknowledgment, media.action.record-authorized-attestation, media.action.record-candidate-for-review, media.action.record-review-comment, media.action.record-review-follow-up, media.action.record-version-review-decision, media.action.refresh-operation-readiness, media.action.remove-storyboard-scene, media.action.reorder-storyboard-scenes, media.action.reorder-track, media.action.request-admitted-speech-operation, media.action.request-authorized-review, media.action.request-plan-validation, media.action.request-rights-review, media.action.restore-prior-setting-preference, media.action.return-to-requested-destination-after-identity-confirmation, media.action.review-bounded-repair-proposal, media.action.review-estimates-and-rights-effects, media.action.review-output-evidence, media.action.review-recognized-or-synthesized-content, media.action.review-repair-bounds, media.action.review-rights-approval-and-format-effects, media.action.review-translated-segment, media.action.review-uncertain-tracking, media.action.revise-dubbing-segment, media.action.revoke-authorized-consent, media.action.save-dubbing-version, media.action.save-new-revision, media.action.save-setting-preference, media.action.save-storyboard-revision, media.action.save-versioned-edit, media.action.search-by-user-outcome, media.action.search-named-profiles, media.action.search-product-guidance, media.action.select-authorized-reference, media.action.select-eligible-processing-profile, media.action.select-exact-candidates, media.action.select-identity-confirmed-workspace, media.action.select-keyframe, media.action.select-region-or-point, media.action.select-scene-entity, media.action.select-shot-or-region, media.action.select-track-or-region, media.action.set-simulation-initial-condition, media.action.share-diagnostics-after-explicit-choice, media.action.start-upstream-identity-handoff, media.action.stop-authorized-voice-use, media.action.submit-admitted-plan, media.action.submit-render, media.action.submit-simulation, media.action.submit-validated-request, media.action.trim-track, media.action.undo-or-redo-versioned-change, media.action.update-repair-bounds, media.action.update-scene-binding, media.action.validate-composition, media.action.validate-exact-snapshot, media.action.validate-processing-profile, media.action.validate-scene-references, media.action.validate-simulation-plan, media.action.align-source-time-interval, media.action.inspect-source-grounded-observation, media.action.review-processing-parameters, media.action.review-scene-timing-and-transitions, media.action.search-authorized-artifacts, media.action.select-simulation-output-pass, media.action.select-source-time-interval, media.action.set-declared-simulation-input, media.action.switch-measurement-presentation]
-    unresolvedStaleReference: media.action.review-rights-and-consent; this value is absent from the 146-record source action registry and is not a canonical actionRef
-    bindingStatus: all 146 registry actions partitioned as 11 single-proposed, 1 ambiguous, and 134 unresolved; ambiguity is not a canonical mapping
+    bindingStatus: 12 source actions have exact proposed operation refs; remaining 134 lack direct canonical bindings; source-action type dispositions are recorded in interface-parity/operation-parity.yaml
   httpOperations:
     count: 27
     source: contracts/openapi/media.yaml
@@ -115,6 +114,7 @@ sourceDenominators:
     bindingStatus: fixture registry is the exact 11-command plan denominator; separate 12-record root registry discrepancy retained
   sdkMethods:
     registryRecords: 27
+    parserDerivedPublicMethodIdentities: 24
     exactObservedRegistryIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.for, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.if, media.sdk.removeEventListener, media.sdk.clearTimeout]
     legacySourceMethods:
       source: libs/audio-video-client/src/index.ts
@@ -126,9 +126,15 @@ sourceDenominators:
       - libs/audio-video-client/src/index.ts
     operationsTsPublicMethodNames: [getStatus, cancel, retry, getResult, wait, createUploadSession, uploadPart, completeUploadSession, getArtifact, listProviderCapabilities, transcribe, synthesize, trainVoiceModel, convertVoice, analyzeMultimodal, getOperation, cancelOperation, retryOperation, getOperationResult]
     operationsTsUnresolvedOperationMethods: [getStatus, cancel, retry, getResult, wait, createUploadSession, uploadPart, completeUploadSession, getArtifact, listProviderCapabilities, transcribe, synthesize, trainVoiceModel, convertVoice, analyzeMultimodal, getOperation, cancelOperation, retryOperation, getOperationResult]
-    unresolvedOperationIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.for, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.if, media.sdk.removeEventListener, media.sdk.clearTimeout]
-    parserFalsePositivesUnresolved: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
-    bindingStatus: all 27 registry IDs accounted for; legacy source client remains distinct; apparent parser false positives stay unresolved rather than discarded
+    unresolvedOperationIds: [media.sdk.getStatus, media.sdk.cancel, media.sdk.retry, media.sdk.getResult, media.sdk.wait, media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact, media.sdk.listProviderCapabilities, media.sdk.transcribe, media.sdk.synthesize, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.analyzeMultimodal, media.sdk.getOperation, media.sdk.cancelOperation, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.getServiceStatus, media.sdk.getAllServicesStatus, media.sdk.addEventListener, media.sdk.removeEventListener]
+    parserArtifactTokensExcludedFromMethodIdentityInventory: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
+    parserArtifactDisposition: source-parser-correction; none-is-a-public-method-declaration-in-its-recorded-source; retained-in-raw-registry-evidence-but-excluded-from-SDK-method-denominator
+    legacyRegistrySourceDiscrepancies:
+      declaredInRegistryAs: libs/audio-video-client/src/operations.ts
+      declarationObservedIn: libs/audio-video-client/src/index.ts
+      exactMethods: [processAIVoice, processVision, processMultimodal, getServiceStatus, getAllServicesStatus, addEventListener, removeEventListener]
+      disposition: preserve-client-method-identities-and-record-both-sources; registry-source-location-is-not-runtime-route-or-operation-evidence
+    bindingStatus: 24 public method identities retained; three raw registry tokens classified as parser artifacts; legacy source client remains distinct
   agentToolHandlers:
     count: 4
     source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml#/tools
@@ -226,7 +232,7 @@ operations:
     recovery: {status: unresolved; inspect-existing-job-and-reconcile-before-any-retry}
     evidenceAudit: {observedRefs: [HTTP, SDK, CLI, STTService.Transcribe, STTService.GetStatus], canonicalEvidenceContract: unresolved}
     nextSafeAction: {proposal: check-existing-job-outcome-before-retry-or-cancellation-assumption, status: proposed-pending-review}
-    actionRefs: [media.action.request-transcription, media.action.view-job-status, media.action.check-job-outcome, media.action.request-cancellation, media.action.retry-job]
+    actionRefs: [media.action.view-job-status, media.action.check-job-outcome, media.action.request-cancellation, media.action.retry-job]
     observedBindings:
       HTTP: ["/api/v1/jobs", "/api/v1/jobs/{jobId}", "/api/v1/jobs/{jobId}/cancel"]
       SDK: [MediaOperationKind, job-discriminated-union in libs/audio-video-types/src/contracts.ts]
@@ -239,6 +245,7 @@ operations:
   - id: media.operation.transcription
     operationId: media.operation.transcription
     family: [file-transcription, streaming-transcription, transcript-correction]
+    submissionSemantics: request-transcription-is-a-domain-submission-command; response-creates-or-returns-one-stable-Job-reference; recognition-is-asynchronous-and-is-not-synchronous-success
     domainIntent: derive-source-linked-transcript-with-explicit-time-and-uncertainty
     consumerActor: {proposal: transcription-requester-and-transcript-reviewer, bindingStatus: actor-and-consumer-identities-pending-review}
     authority: {semanticOwner: media, executionAndIdentityAuthority: unresolved; provider-and-identity authority not inferred}
@@ -486,7 +493,7 @@ channelFamilies:
   http: contracts/openapi/media.yaml; 27 operationIds; wire projection only; exact route-to-operation crosswalk incomplete
   grpc: four listed service protobufs; 43 exact RPC identities enumerated above; preserve service/method identity; conflict resolution not inferred
   cli: .product-experience/pdp-3-product-experience/cli/command-registry.yaml has 11 synthetic fixture commands; separate root cli-command-registry.yaml has 12 proposal records; production CLI remains unconnected
-  sdk: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml; 27 registry methods; legacy AudioVideoClient is distinct; consumer parity and operation links unresolved
+  sdk: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml; 27 raw records, of which 24 are public method identities and three are parser artifacts; legacy AudioVideoClient is distinct; consumer parity and operation links unresolved
   tool: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml; four handler identities; no admitted Media domain-tool schema/binding established
   event: .product-experience/pdp-3-product-experience/events/event-registry.yaml; 15 separate local client-listener notifications. PDP1-004 events.yaml separately inventories 7 runtime publisher call sites/9 concrete event types; populations are not equivalent. Event triggers are source observations only; canonical taxonomy, producer authority, delivery guarantees, evidence links, and operation links unresolved
 ownerReview: pending-owner-review

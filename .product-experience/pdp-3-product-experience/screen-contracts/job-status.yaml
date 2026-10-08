@@ -10,26 +10,40 @@ patternIds: [media.gui.pattern.job-status-and-recovery]
 tokenDependencies: []
 domainObjectRefs: []
 operationRefs: []
+requirementRefs: [MEDIA-REQ-CAP-JOB]
+requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 stateRefs: []
 entry: []
 exit: []
 actionConsequences:
   - actionId: media.action.view-job-status
+    capabilityRefs: [media.job.view-status]
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     status: pending-owner-binding
   - actionId: media.action.request-cancellation
+    capabilityRefs: [media.job.cancel]
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     status: pending-owner-binding
   - actionId: media.action.check-job-outcome
+    capabilityRefs: [media.job.check-outcome]
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     status: pending-owner-binding
   - actionId: media.action.retry-job
+    capabilityRefs: [media.job.retry]
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -51,6 +65,7 @@ fieldBindingStatus:
   tokenDependencies: no-canonical-references-declared
   domainObjectRefs: no-canonical-references-declared
   operationRefs: no-canonical-references-declared
+  requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: no-PDP1-state-references-declared
   entry: no-canonical-entry-contract-declared
   exit: no-canonical-exit-contract-declared

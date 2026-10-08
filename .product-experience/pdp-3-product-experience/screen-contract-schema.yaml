@@ -15,6 +15,7 @@ requiredTopLevelFields:
   - tokenDependencies
   - domainObjectRefs
   - operationRefs
+  - requirementRefs
   - stateRefs
   - entry
   - exit
@@ -29,7 +30,7 @@ valueRules:
       A nullable or empty candidate is allowed only when its binding genuinely
       remains unresolved; fieldBindingStatus must give that field a non-empty
       reason and identify the pending authority or evidence.
-    appliesTo: [surfaceId, templateId, layoutIds, componentIds, patternIds, tokenDependencies, domainObjectRefs, operationRefs, stateRefs, entry, exit, actionConsequences, responsiveBehavior, fixtures]
+    appliesTo: [surfaceId, templateId, layoutIds, componentIds, patternIds, tokenDependencies, domainObjectRefs, operationRefs, requirementRefs, stateRefs, entry, exit, actionConsequences, responsiveBehavior, fixtures]
   fieldBindingStatus:
     required: true
     rule: Every required field has an explicit binding record with status and a reason; unresolved candidates remain proposals.

@@ -25,11 +25,17 @@ test("PDP-0 ProductDefinition candidate is schema and public-validator conforman
   assert.equal(projection.candidateModel.requirements.length, 52);
   assert.equal(projection.candidateModel.userIntents.length, 0, "priority and primary actor are not inferred");
   assert.equal(projection.candidateModel.nonGoals.length, 0, "scope authority exclusions are not reclassified as product non-goals");
-  assert.ok(projection.candidateModel.requirements.every((item) => item.traceToIntentIds.length === 0));
+  const functionalRequirements = readYaml(".product-experience/pdp-0-product-truth/requirements.yaml").requirements;
+  assert.ok(functionalRequirements.some((item) => item.traceToIntentIds.length > 0), "the source intent traces remain available for crosswalk resolution");
+  assert.ok(projection.candidateModel.requirements.every((item) => item.traceToIntentIds.length === 0), "unresolved userIntent targets are not emitted as dangling refs");
   assert.equal(projection.candidateModel.actors.find(({ id }) => id === "media.external-provider").kind, "external-service");
-  assert.equal(projection.fieldMappingBlockers.length, 19);
+  assert.equal(projection.candidateModel.policies.length, 9, "explicit fail-closed enforcement points map to strict product policies");
+  assert.equal(projection.fieldMappingBlockers.length, 12);
   assert.equal(Object.keys(projection.candidateFieldSources).length, 22);
   assert.ok(projection.fieldMappingBlockers.every((item) => !/ACCEPTED|CLOSED/u.test(item.status)));
+  assert.match(projection.candidateMappingReview.fieldDispositions.policies.status, /DIRECT_FAIL_CLOSED_ENFORCEMENT_MAPPING/u);
+  assert.match(projection.candidateMappingReview.fieldDispositions.capabilities.status, /DIRECT_SOURCE_MAPPING/u);
+  assert.match(projection.candidateMappingReview.fieldDispositions.requirements.status, /INTENT_TARGETS_UNRESOLVED/u);
 });
 
 test("all 462 capability leaves have operation-specific inputs, outcomes, preconditions, constraints, and acceptance cases", () => {
@@ -55,6 +61,12 @@ test("all 462 capability leaves have operation-specific inputs, outcomes, precon
   const reviewed = readYaml(".product-experience/pdp-0-product-truth/capability-leaf-review.yaml");
   assert.equal(reviewed.denominatorReconciliation.capabilityLeaves, 462);
   assert.equal(reviewed.denominatorReconciliation.leavesWithoutJourneyRefs, 385);
+  assert.equal(reviewed.denominatorReconciliation.leavesWithOwnerCoverageDisposition, 79);
+  assert.equal(reviewed.denominatorReconciliation.leavesWithUnresolvedApplicability, 383);
+  assert.equal(reviewed.denominatorReconciliation.machineOperationDispositions, 0);
+  assert.ok(reviewed.leaves.every((leaf) => leaf.coverageDecision.purposeSpecificOutcomeRefs?.length));
+  assert.ok(reviewed.leaves.every((leaf) => leaf.coverageDecision.proposedInterfaceRefs?.every((ref) => leaf.coverageDecision.normativeRefs.includes(`.product-experience/pdp-0-product-truth/applications-channels.yaml#${ref}`))));
+  assert.ok(reviewed.leaves.filter((leaf) => leaf.coverageDecision.disposition === "UNRESOLVED").every((leaf) => leaf.coverageDecision.proposedInterfaceRefs?.length && /not established/u.test(leaf.coverageDecision.interfaceAdmissionStatus)));
   assert.match(reviewed.status, /does-not-close|pending|best-effort/iu);
   assert.equal(reviewed.leaves.length, 462);
   const journeySource = readYaml(".product-experience/pdp-0-product-truth/journey-catalog.yaml");
@@ -93,5 +105,12 @@ test("migration extraction keeps the mixed blocks and unresolved owner review vi
   assert.equal(review.counts.blockStructureProposalCounts.MIXED_REQUIRES_DECOMPOSITION, 123);
   assert.equal(review.counts.blockStructureProposalCounts.ownerReviewed, 0);
   assert.match(review.blockStructureProposalAuthority, /Proposal-only/u);
+  assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0);
+  for (const id of ["MPSEM-0178", "MPSEM-0211"]) {
+    const item = review.items.find((candidate) => candidate.itemId === id);
+    assert.equal(item.classification, "UNRESOLVED");
+    assert.ok(item.partialClaimMappings?.length);
+    assert.ok(item.partialClaimMappings.every((claim) => claim.disposition.includes("block-remains-UNRESOLVED")));
+  }
   assert.match(review.systematicScope.gapState, /open/u);
 });

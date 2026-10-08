@@ -8,13 +8,13 @@ import { tmpdir } from "node:os";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-function checkWithScreenMutation(mutate) {
+function checkWithScreenMutation(mutate, contract = "create-media.yaml") {
   const fixture = mkdtempSync(`${tmpdir()}/media-pdp-check-`);
   try {
     for (const path of [".product-experience", "apps/media-experience-explorer", "docs", "libs/media-experience-simulation"]) {
       cpSync(resolve(repositoryRoot, path), resolve(fixture, path), { recursive: true });
     }
-    const contractPath = resolve(fixture, ".product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml");
+    const contractPath = resolve(fixture, `.product-experience/pdp-3-product-experience/${contract.includes("journey-contracts/") ? contract : `screen-contracts/${contract}`}`);
     const source = readFileSync(contractPath, "utf8");
     const mutated = mutate(source);
     assert.notEqual(mutated, source, "test mutation must change the fixture");
@@ -41,6 +41,8 @@ test("Product Definition local invariant check covers all phase denominators", (
   assert.match(output, /28 baseline plus J-29\/J-30 extensions/u);
   assert.match(output, /currentness\.yaml is absent/u);
   assert.match(output, /47 required shapes/u);
+  assert.match(output, /21 of 47 screen views have direct action-capability requirement crosswalks/u);
+  assert.match(output, /18 of 18 action-bearing journey steps map through direct Action Registry capability refs/u);
   assert.match(output, /Tools Product Definition\/Experience validation and lifecycle currentness outputs are not bound in this checkout/u);
 });
 
@@ -68,4 +70,22 @@ test("accepted or complete screen binding statuses are rejected", () => {
     assert.notEqual(result.status, 0, `${status} status must not pass`);
     assert.match(result.stderr, /unapproved accepted\/complete fieldBindingStatus for surfaceId/u);
   }
+});
+
+test("screen requirement references must equal the direct action-capability crosswalk", () => {
+  const result = checkWithScreenMutation((source) => source.replace(
+    /^requirementRefs: \[[^\]]+\]$/mu,
+    "requirementRefs: []",
+  ), "correct-captions.yaml");
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /media\.view\.correct-captions requirementRefs do not match/u);
+});
+
+test("journey step requirement references must equal the direct action-capability crosswalk", () => {
+  const result = checkWithScreenMutation((source) => source.replace(
+    /^\s+requirementRefs: \[MEDIA-REQ-CAP-ARTIFACT\]$/mu,
+    "        requirementRefs: []",
+  ), "journey-contracts/transcribe-and-correct-captions.yaml");
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Journey step media\.action\.choose-source requirementRefs do not match/u);
 });

@@ -10,31 +10,48 @@ patternIds: [media.gui.pattern.quality-and-uncertainty]
 tokenDependencies: []
 domainObjectRefs: []
 operationRefs: []
+requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 stateRefs: []
 entry: []
 exit: []
 actionConsequences:
   - actionId: media.action.inspect-artifact
+    capabilityRefs: [media.artifact.inspect]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     status: pending-owner-binding
   - actionId: media.action.inspect-provenance
+    capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     status: pending-owner-binding
   - actionId: media.action.inspect-output-preview-and-version
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     status: pending-owner-binding
   - actionId: media.action.inspect-quality-evidence
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     status: pending-owner-binding
   - actionId: media.action.open-admitted-delivery-action
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -54,6 +71,7 @@ fieldBindingStatus:
   tokenDependencies: no-canonical-references-declared
   domainObjectRefs: no-canonical-references-declared
   operationRefs: no-canonical-references-declared
+  requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: no-PDP1-state-references-declared
   entry: no-canonical-entry-contract-declared
   exit: no-canonical-exit-contract-declared

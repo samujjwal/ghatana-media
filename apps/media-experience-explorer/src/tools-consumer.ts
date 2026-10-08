@@ -5,6 +5,19 @@ import { validateProductExperiencePackage } from "@ghatana/experience-package";
 import { projectProductDefinition } from "@ghatana/development-traceability";
 import { createMediaProductExperiencePackage } from "@ghatana/media-experience-simulation";
 
+const MEDIA_RENDERER_PUBLIC_EXPORT = "@audio-video/ui#MediaProductRenderer" as const;
+type MediaRendererBinding = {
+  readonly identity: typeof MEDIA_RENDERER_PUBLIC_EXPORT;
+  readonly status: "CANDIDATE_NOT_ADMITTED";
+  readonly rendererId: string;
+  readonly ports: {
+    readonly input: { readonly type: "MediaProductRendererProps"; readonly variant: string; readonly scenarioId: string };
+    readonly state: { readonly type: "MediaExperienceState"; readonly stateRef: string; readonly sequence: number };
+    readonly action: { readonly type: "MediaActionPort"; readonly actionIds: readonly string[] };
+    readonly error: { readonly type: "MediaActionDispatchResult"; readonly outcomes: readonly string[] };
+  };
+};
+
 const mediaPackageReference: PackageReference = Object.freeze({
   packageId: "media.experience.simulation",
   subjectId: "media",
@@ -30,6 +43,19 @@ const MEDIA_AUTHORITIES = Object.freeze([
   ".product-experience/explorer/media-experience-package.yaml",
   ".product-experience/explorer/verification-matrix.yaml",
 ] as const);
+
+function readRendererBinding(render: ReturnType<ReturnType<typeof createExplorer>["render"]>): MediaRendererBinding {
+  const output = render?.output;
+  if (!output || typeof output !== "object" || Array.isArray(output)) throw new Error("Tools render result has no Media renderer binding payload.");
+  const binding = (output as { readonly rendererBinding?: MediaRendererBinding }).rendererBinding;
+  if (!binding || binding.identity !== MEDIA_RENDERER_PUBLIC_EXPORT || binding.status !== "CANDIDATE_NOT_ADMITTED") {
+    throw new Error(`Tools render result is not bound to ${MEDIA_RENDERER_PUBLIC_EXPORT}.`);
+  }
+  if (binding.rendererId !== render?.rendererId || !binding.ports?.input || !binding.ports?.state || !binding.ports?.action || !binding.ports?.error) {
+    throw new Error("Tools render result has an incomplete Media renderer port contract.");
+  }
+  return binding;
+}
 
 async function loadMediaAuthorities(): Promise<readonly { path: string; content: string }[]> {
   // Node consumer checks exercise the package API without a browser origin;
@@ -79,6 +105,10 @@ export async function exerciseMediaToolsConsumer() {
     explorer.loader.register(mediaPackageReference, mediaPackage);
     await explorer.loadPackage(mediaPackageReference);
     const initialRender = explorer.render();
+    const rendererBinding = readRendererBinding(initialRender);
+    if (typeof document !== "undefined") {
+      document.dispatchEvent(new CustomEvent("media-tools-renderer-binding", { detail: rendererBinding }));
+    }
     const initialInspection = explorer.inspect();
     const initialOutput = initialRender?.output as { readonly sourceStatus?: string } | undefined;
     const transition = explorer.dispatch({
@@ -86,6 +116,7 @@ export async function exerciseMediaToolsConsumer() {
       correlationId: "media-tools-consumer-choose-source",
     });
     const updatedRender = explorer.render();
+    const updatedRendererBinding = readRendererBinding(updatedRender);
     const updatedInspection = explorer.inspect();
     const updatedOutput = updatedRender?.output as { readonly sourceStatus?: string } | undefined;
     const updatedOutputRecord = updatedRender?.output as Readonly<Record<string, unknown>> | undefined;
@@ -105,6 +136,8 @@ export async function exerciseMediaToolsConsumer() {
         relationCount: traceProjection.relations.length,
       },
       initialRenderKind: initialRender?.kind ?? null,
+      rendererBinding,
+      updatedRendererBinding,
       initialSourceStatus: initialOutput?.sourceStatus ?? null,
       initialStateRef: initialInspection?.currentStateRef ?? null,
       dispatchProducedResult: transition !== null,

@@ -15,7 +15,7 @@ function fixture({ presentation = "export const Screen = () => null;", explorer 
   write(root, "libs/audio-video-ui/package.json", JSON.stringify({ name: "@audio-video/ui", exports: { ".": "./dist/index.js", "./screens": "./dist/screens/index.js" } }));
   write(root, "libs/audio-video-ui/src/index.ts", presentation);
   write(root, "apps/media-experience-explorer/src/main.ts", explorer);
-  write(root, "apps/web/src/routes/screen.ts", production);
+  if (production !== null) write(root, "apps/web/src/routes/screen.ts", production);
   if (consumer) write(root, "modules/consumer/src/index.ts", consumer);
   if (admission) write(root, ".product-experience/executable-representation/admissions/screen.yaml", admission);
   if (pdp2) {
@@ -70,6 +70,33 @@ test("the review host imports the exact candidate product-renderer export intend
   assert.equal(result.summary.explorerProductRendererImports, 1);
   assert.equal(result.summary.productionHostsPresent, true);
   assert.equal(result.summary.productionProductRendererImports, 1);
+}));
+
+test("public Explorer render binding carries typed ports and the Tools Product viewport consumes it", () => run({
+  explorer: `import { MediaProductRenderer } from "@audio-video/ui";`,
+  production: null,
+  exportMap: `exports:\n  - subpath: .\n    publicNames: [MediaProductRenderer]\nrendererAdapters:\n  - id: media.adapter.product-renderer\n    package: "@audio-video/ui"\n    subpath: .\n    exportName: MediaProductRenderer\n    source: libs/audio-video-ui/src/screens/MediaProductRenderer.tsx\n`,
+}, (root) => {
+  write(root, "libs/audio-video-ui/src/screens/MediaProductRenderer.tsx", "export function MediaProductRenderer() { return null; }");
+  write(root, "libs/media-experience-simulation/src/product-experience-package.ts", `
+export const renderer = "@audio-video/ui#MediaProductRenderer";
+export interface Ports { input: { type: "MediaProductRendererProps" }; state: { type: "MediaExperienceState" }; action: { type: "MediaActionPort" }; error: { type: "MediaActionDispatchResult" }; }
+return { rendererBinding: rendererBinding(state) };
+`);
+  write(root, "apps/media-experience-explorer/src/tools-consumer.ts", `
+if (binding.identity !== MEDIA_RENDERER_PUBLIC_EXPORT) throw new Error("bad rendererBinding");
+document.dispatchEvent(new CustomEvent("media-tools-renderer-binding", { detail: rendererBinding }));
+`);
+  write(root, "apps/media-experience-explorer/src/product-review.tsx", `
+document.addEventListener("media-tools-renderer-binding", (event) => setBinding(event.detail));
+const result = <MediaProductRenderer />;
+const bindingMatchesFixture = true;
+`);
+  const result = analyzeMediaPresentationArchitecture({ repoRoot: root });
+  assert.equal(result.ok, true, JSON.stringify(result.issues));
+  assert.equal(result.summary.toolsRendererBindingContractPresent, true);
+  assert.equal(result.summary.toolsConsumesExactRendererBinding, true);
+  assert.equal(result.summary.productionHostParity, "NOT_PROVEN_NO_PRODUCTION_WEB_HOST");
 }));
 
 test("admitted Web record passes only with identical public export and resolvable PDP-2 provenance", () => run({

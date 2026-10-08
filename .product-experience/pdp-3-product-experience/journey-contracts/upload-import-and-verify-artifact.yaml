@@ -98,6 +98,8 @@ steps:
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.import-media
     action: media.action.begin-artifact-upload
+    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs: [media.artifact.upload, media.artifact.import]
     result: one-stable-upload-identity-is-established-and-only-acknowledged-transfer-progress-is-reported
     surfaceRefs:
     - media.surface.web
@@ -143,7 +145,7 @@ steps:
         integrity state, and return destination; unknown finality requires inspection of the same upload identity before
         any successor request.
     postconditions: []
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
       requiredChecks:
@@ -176,11 +178,13 @@ steps:
       degradedBehavior: pending-explicit-step-degraded-behavior
       recovery: candidate-proposal-only; journey-level recovery not allocated to this step
       postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-step-requirement-crosswalk
+      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.import-media
     action: media.action.resume-artifact-upload
+    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs: [media.artifact.upload.resume]
     when: an-existing-upload-is-interrupted-and-its-identity-source-metadata-and-current-authority-still-match
     result: resume-the-matching-upload-or-explain-why-it-cannot-resume; never-create-a-duplicate-from-an-unknown-result
     surfaceRefs:
@@ -227,7 +231,7 @@ steps:
         integrity state, and return destination; unknown finality requires inspection of the same upload identity before
         any successor request.
     postconditions: []
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
       requiredChecks:
@@ -260,7 +264,7 @@ steps:
       degradedBehavior: pending-explicit-step-degraded-behavior
       recovery: candidate-proposal-only; journey-level recovery not allocated to this step
       postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-step-requirement-crosswalk
+      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.job-status
@@ -348,6 +352,8 @@ steps:
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.inspect-media
     action: media.action.inspect-artifact
+    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs: [media.artifact.inspect]
     when: the-artifact-state-is-AVAILABLE-or-an-authorized-review-is-required
     result: show-the-exact-artifact-version-integrity-state-and-separately-recorded-policy-dispositions
     surfaceRefs:
@@ -394,7 +400,7 @@ steps:
         integrity state, and return destination; unknown finality requires inspection of the same upload identity before
         any successor request.
     postconditions: []
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
       requiredChecks:
@@ -427,7 +433,7 @@ steps:
       degradedBehavior: pending-explicit-step-degraded-behavior
       recovery: candidate-proposal-only; journey-level recovery not allocated to this step
       postconditions: pending-explicit-step-postconditions
-      requirementRefs: pending-explicit-step-requirement-crosswalk
+      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
       verification: not-run; no evidence refs recorded
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
 optionalContinuation:

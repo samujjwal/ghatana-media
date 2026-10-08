@@ -13,21 +13,32 @@ patternIds:
 tokenDependencies: []
 domainObjectRefs: []
 operationRefs: []
+requirementRefs: []
+requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 stateRefs: []
 entry: []
 exit: []
 actionConsequences:
   - actionId: media.action.start-upstream-identity-handoff
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.select-identity-confirmed-workspace
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.return-to-requested-destination-after-identity-confirmation
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -58,6 +69,7 @@ fieldBindingStatus:
   tokenDependencies: unresolved-no-direct-canonical-reference
   domainObjectRefs: unresolved-no-direct-canonical-reference
   operationRefs: unresolved-no-direct-canonical-reference
+  requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: unresolved-no-PDP-1-canonical-reference; local-UI-states-not-promoted
   entry: unresolved-no-direct-canonical-reference
   exit: unresolved-no-direct-canonical-reference

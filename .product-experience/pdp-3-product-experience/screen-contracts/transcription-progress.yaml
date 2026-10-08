@@ -20,6 +20,8 @@ tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
 domainObjectRefs: []
 domainObjectRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 operationRefs: []
+requirementRefs: [MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
+requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 operationRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 stateRefs: []
 stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
@@ -29,21 +31,33 @@ exit: []
 exitBindingStatus: unresolved-no-exact-canonical-reference-declared
 actionConsequences:
   - actionId: media.action.request-transcription
+    capabilityRefs: [media.job.submit, media.speech.transcription.file]
+    requirementRefs: [MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.view-job-status
+    capabilityRefs: [media.job.view-status]
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.request-cancellation
+    capabilityRefs: [media.job.cancel]
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.check-job-outcome
+    capabilityRefs: [media.job.check-outcome]
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -80,6 +94,7 @@ fieldBindingStatus:
   tokenDependencies: unresolved; no-canonical-reference-declared
   domainObjectRefs: unresolved; no-canonical-reference-declared
   operationRefs: unresolved; no-canonical-reference-declared
+  requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: unresolved; local-UI-state-labels-not-promoted
   entry: unresolved; no-canonical-reference-declared
   exit: unresolved; no-canonical-reference-declared

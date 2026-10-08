@@ -22,6 +22,8 @@ tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
 domainObjectRefs: []
 domainObjectRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 operationRefs: []
+requirementRefs: []
+requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 operationRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 stateRefs: []
 stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
@@ -31,21 +33,33 @@ exit: []
 exitBindingStatus: unresolved-no-exact-canonical-reference-declared
 actionConsequences:
   - actionId: media.action.inspect-consent-and-permitted-use
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.request-authorized-review
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.continue-within-recorded-scope
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.stop-authorized-voice-use
+    capabilityRefs: []
+    requirementRefs: []
+    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null
     effectRef: null
     consequence: unresolved
@@ -80,6 +94,7 @@ fieldBindingStatus:
   tokenDependencies: unresolved; no-canonical-reference-declared
   domainObjectRefs: unresolved; no-canonical-reference-declared
   operationRefs: unresolved; no-canonical-reference-declared
+  requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: unresolved; local-UI-state-labels-not-promoted
   entry: unresolved; no-canonical-reference-declared
   exit: unresolved; no-canonical-reference-declared
