@@ -54,9 +54,6 @@
 ## 4. Exact 71-task action matrix
 Rows reproduce the current ledger IDs, titles and statuses but the action is the owner-reviewed concrete *remaining* work. The original plan's full Done criteria remain controlling when more detailed than this summary.
 
-| ID / ledger state | Exact owning file(s) | Next implementation / requested change | Required exit proof |
-| --- | --- | --- | --- |
-
 ### G workstream
 
 | Task | What and where | Next action | Exit |
