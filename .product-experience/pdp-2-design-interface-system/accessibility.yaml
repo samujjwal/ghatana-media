@@ -2,7 +2,41 @@ schemaVersion: media.accessibility-language.v1
 productId: media
 authority: Media-specific accessibility contracts over Shared primitives
 status: authored-proposal; accessibility-specialist-and-P0-010-review-pending
-reviewTarget: applicable-WCAG-criteria-to-be-selected-by-the-accessibility-owner
+reviewTarget: WCAG-2.2-AA-for-graphical-and-web-experiences; EN-301-549-where-applicable
+selectedPolicy:
+  decision: delegated-Media-product-owner-standard-selection
+  standard: WCAG 2.2
+  level: AA
+  scope: Applicable web and graphical Media views, Explorer review modes and reused Media UI components; machine-only products use semantic output, documentation and applicable nonvisual operation obligations instead of invented graphical screens
+  policyStatus: SELECTED_AS_ACCEPTANCE_TARGET_NOT_CERTIFIED
+  assistiveReview: Independent keyboard and screen-reader verification required for accepted critical flows; no automated-only certification
+  nonVisualAlternatives: Timeline, waveform, graph, animation and canvas interactions require inspectable semantic data and keyboard-equivalent operations
+  mandatoryFailureMode: Unsupported assistive semantics remain explicit and prevent corresponding representation acceptance
+accessibilityRules:
+  - id: media.a11y.keyboard-equivalence
+    standard: WCAG 2.2
+    level: AA
+    requirement: Actions and time-based editing have named keyboard and non-drag equivalents with visible focus and predictable order.
+  - id: media.a11y.programmatic-state
+    standard: WCAG 2.2
+    level: AA
+    requirement: Exact source versions, selected ranges, operation state, uncertainty, errors and next steps are programmatically determinable.
+  - id: media.a11y.media-alternatives
+    standard: WCAG 2.2
+    level: AA
+    requirement: Speech, video, waveform, spectrogram, timeline and canvas semantics have appropriate captions/transcripts/textual or structured alternatives.
+  - id: media.a11y.readability-reflow
+    standard: WCAG 2.2
+    level: AA
+    requirement: Content works with supported text resizing, reflow and long localization without loss of safety, state or actions.
+  - id: media.a11y.noncolor
+    standard: WCAG 2.2
+    level: AA
+    requirement: Status, provenance and selection are expressed without relying only on color, sound, animation or position.
+  - id: media.a11y.movement-and-status
+    standard: WCAG 2.2
+    level: AA
+    requirement: Reduced motion, live status announcements and focus restoration preserve comprehension without repeated disruptive announcements.
 requirements:
   - All visible actions have a keyboard path, visible focus, and accessible name that includes purpose and affected object.
   - Playback, transcript, waveform, and timeline have equivalent semantic controls; no operation depends only on drag, color, sound, or motion.
