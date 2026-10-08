@@ -382,5 +382,13 @@
     "No original task newly satisfies all Done criteria in this batch.",
     "No existing AI provider opts in to typed references.",
     "No independent specialist acceptance, native Lifecycle phase receipt, commercial release, codec qualification or production availability is inferred."
-  ]
+  ],
+  "implementationCommit": "ee4ad8fb5c92b780804aa2b6ec9173b7c7ecae8f",
+  "integrationVerification": {
+    "branch": "main",
+    "localHeadEqualsOriginMain": true,
+    "worktreeAtImplementationCommit": "clean; observed before next authorized batch",
+    "publicProjectionChecks": "PASS",
+    "lifecycleSourceCheck": "PASS"
+  }
 }
