@@ -311,6 +311,37 @@ const definitions = [
         }));
       const outcomes = finality.rules ?? [];
       const consequentialRule = outcomes.find((rule) => /consequential effects/u.test(rule));
+      const validDensities = new Set(["minimal", "compact", "standard", "rich"]);
+      const densityIds = new Set((typography.densityProfiles ?? []).map((profile) => profile.id));
+      const declaredTemplates = new Set((templateCatalog.templates ?? []).map((template) => template.id));
+      const declaredPatterns = new Set((patterns.patterns ?? []).map((pattern) => pattern.id));
+      if (!densityIds.size || densityIds.size !== (typography.densityProfiles ?? []).length
+        || (typography.densityProfiles ?? []).some((profile) => !validDensities.has(profile.density))) {
+        throw new Error("Selected Media density profiles must be unique and use the public Tools density enum");
+      }
+      if (!(typography.presentationProfiles ?? []).length || (typography.presentationProfiles ?? [])
+        .some((profile) => !densityIds.has(profile.densityRef))) {
+        throw new Error("Media presentation profiles must reference an existing selected density");
+      }
+      if (!(typography.progressiveDisclosureRules ?? []).length || (typography.progressiveDisclosureRules ?? [])
+        .some((rule) => !rule.trigger || !rule.reveals)) {
+        throw new Error("Media progressive disclosure must identify trigger and revealed content");
+      }
+      if (!(accessibility.accessibilityRules ?? []).length || (accessibility.accessibilityRules ?? [])
+        .some((rule) => rule.standard !== "WCAG 2.2" || rule.level !== "AA")) {
+        throw new Error("Media's owner-selected accessibility target must be WCAG 2.2 AA");
+      }
+      if (!(finality.recoveryPatterns ?? []).length || (finality.recoveryPatterns ?? [])
+        .some((pattern) => typeof pattern.automaticRecovery !== "boolean")) {
+        throw new Error("Media recovery patterns must decide automatic/manual recovery explicitly");
+      }
+      if ((recipeCatalog.recipes ?? []).length !== declaredTemplates.size ||
+        new Set((recipeCatalog.recipes ?? []).map((recipe) => recipe.id)).size !== declaredTemplates.size ||
+        (recipeCatalog.recipes ?? []).some((recipe) =>
+          !declaredTemplates.has(recipe.templateRef) || !declaredPatterns.has(recipe.semanticPattern))) {
+        throw new Error("Every GUI template must have one distinct recipe and a registered pattern");
+      }
+
       return {
         id: "media.experience-language.candidate",
         subjectId: typography.productId,
