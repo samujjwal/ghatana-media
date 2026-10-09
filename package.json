@@ -33,7 +33,8 @@
     "test:product-experience-local": "node --test tests/product-experience-local.test.mjs",
     "test:tools-media-consumer": "node scripts/test-tools-media-consumer.mjs",
     "test:shared-media-consumer": "node scripts/verify-media-shared-artifact-consumer.mjs",
-    "test:experience-browser": "node scripts/check-experience-browser.mjs"
+    "test:experience-browser": "node scripts/check-experience-browser.mjs",
+    "report:pdp-readiness": "node scripts/report-media-pdp-readiness.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",

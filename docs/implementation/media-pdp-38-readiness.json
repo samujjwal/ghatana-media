@@ -1,0 +1,2026 @@
+{
+  "schemaVersion": "media.pdp-38-readiness.v1",
+  "mainSha": "89ae715de2b9283db44cd4e86193c8112638887b",
+  "authority": "Diagnostic scope overlay. Original ledger and independent/Lifecycle authorities are unchanged. Previous audit residuals are historical, not a live semantic census.",
+  "taskCount": 38,
+  "sourceFingerprints": {
+    "../ghatana-shared/platform/typescript/design-system/package.json": "c404fe96c02c49e4efa46b5d2a55f6fc20ba2cd17f9b1b33186b9bb3f46c2e59",
+    "../ghatana-shared/platform/typescript/tokens/package.json": "75a3c9c366943586f5a21af8caada0123c7d104c4fbf61cc8a8cbba653b28241",
+    ".product-experience/acceptance.yaml": "6c1b05efccb672949d583820eb428ca07c819e3268c8c94e2e5cfce61c6bbf71",
+    ".product-experience/closure-dashboard.yaml": "0924ea4240c4c0ebf6465973220ef3b18f3f136bf2804b2660ee37332860cb05",
+    ".product-experience/gaps.yaml": "89f29e53648259175588a11a5d3c9d0355efbf2af837ab697169f4382b4f5b88",
+    ".product-experience/interface-parity/operation-parity.yaml": "c10ba970d51a9a0296e4a8a90e0cdbdb3bbe93c57eca8e7283ec9cb62cfa5c6d",
+    ".product-experience/interface-parity/typed-contract-bindings.json": "402c7fd54a2f7dd1d262996a6e058144fc45a114392ea4bcc7dfd23f813f0143",
+    ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "9f077be079a1815ea15988fd0a01a142351ab8137f299d24d1be7b72c8bd2af1",
+    ".product-experience/pdp-0-product-truth/applications-channels.yaml": "e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "e90a5d3422f6b6ffe0af8f25dda62bbd402e723b94bd5a5a743446be36e41a47",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "7bef39bcbb4d787d33496d483922aeeed019f5d91a6c65aca42bcf709195db1d",
+    ".product-experience/pdp-0-product-truth/constitution.yaml": "fe10aaf5f79a1b48b38b1cdc1519bb7cdd9db72fdc149e11d235baa683dcce45",
+    ".product-experience/pdp-0-product-truth/domain-model.yaml": "16d5e8ea54d6fea6279830d6ecbfd65fc5ef36612bd87822f5f49dbeb747dcc3",
+    ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json": "e917c75849b86d42ff9287437ded41b2bd6a79c369d6574b40228765dde9086b",
+    ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "74f9a10de4e959d1874e7e83d42fb6ff04b25b5a427230e1bf343c6ece8520d2",
+    ".product-experience/pdp-0-product-truth/intent-resolutions.yaml": "2bbc74c35dfdae2d9e940ff31a5487a5707118fdb76f2ed4a250f51853530898",
+    ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml": "5ff75c37d816290bad071c4fa887126bbed4e6b7a10bfe8182b394cd5fdce677",
+    ".product-experience/pdp-0-product-truth/journey-catalog.yaml": "fd955e1b4b038c42806a514a1a3e24466b8f6a339cf30b3b15060eb32860fa75",
+    ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml": "a9f8d13c67c25f1c120b1a5b9e468554cf6877a39dc3332da3cce43d460c1958",
+    ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "b11dd59871423a9d1e4eaae0af3f46bceac251e1f19624ace7a374558d26ecca",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "28ba1f0584803976209087dda80b4507283382e1e9632721a3c580eabd05b637",
+    ".product-experience/pdp-0-product-truth/qualification-policy.yaml": "caacc481ab3afc4dc6228e88e462b712bcb5e8c71feca15908ea655e21e602db",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "7586eb21922018f30c38ab6b3c94a3d12058867327ed398e57870a6856ddef5a",
+    ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8af5908812f6e225ada134063eacbb920c8bd629b3e6050569a08b7022ed9e68",
+    ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md": "5c85a4e9d5f44251c5ab554aa99acc1a710181a106076111fa1211535bb3d72e",
+    ".product-experience/pdp-1-domain-data/action-contracts.yaml": "9159fdcc1a943a4da9a1ac87d112a5be0d59becee3a9adae8187023fa596d067",
+    ".product-experience/pdp-1-domain-data/authority.yaml": "d195c36f25fce2e65f7dcbdb90a21a4bb4f8b8dbee5042376d551fe35bd8f85b",
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "fba56330b2993892c6cb4a2a1b66e05ef0e22615460c378f301a4ac4d1890d67",
+    ".product-experience/pdp-1-domain-data/events.yaml": "ab5d4692dc7736372383524bac098f0076580f57f7da6942063ef825e6da31b4",
+    ".product-experience/pdp-1-domain-data/evidence.yaml": "2f477abea3a58b86b2f5a79460d34cee173e65649eb1e589496d3edcfdfa10a5",
+    ".product-experience/pdp-1-domain-data/interoperability.yaml": "4517be29d78ab9a8442acd562a2bf0e1c003b15d60475de1bb5eb1686626eb77",
+    ".product-experience/pdp-1-domain-data/offline-sync.yaml": "80604abd1ca45c19c9aa8ec393f6b6e7a406449d051a91a4b60d4a9718e9a985",
+    ".product-experience/pdp-1-domain-data/operations.yaml": "a6649e2da47f75eb57fad5fc5037f13a1a1ab0800f36e3d9d3cd1b844ea47fde",
+    ".product-experience/pdp-1-domain-data/privacy.yaml": "0bd65b95358e88fd174950568a0942465aada0c837216fc83f69d2725e23b309",
+    ".product-experience/pdp-1-domain-data/provenance.yaml": "0789e99909c9129ec11e465b30cd9eaaa68955d4b91e8da3d1600e93e70d3e5b",
+    ".product-experience/pdp-1-domain-data/relationships.yaml": "4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df",
+    ".product-experience/pdp-1-domain-data/state-adjudication.yaml": "06c987fcc9e6e420f37cbdb483e47c4916ac22660fe88a322df9698f3253839d",
+    ".product-experience/pdp-1-domain-data/states.yaml": "53c310be8c3e1ced1d90db5450a1e5a7bd6973a8c7ec443c7a50e214cdc58110",
+    ".product-experience/pdp-1-domain-data/transitions.yaml": "6c5c0cd9f96ad277b1f6f8761398946ebb315bfa860e0656d9773182203cc488",
+    ".product-experience/pdp-1-domain-data/value-objects.yaml": "479909f18cd7f9c1ae944efc3ac170326e15a7157c4f5da7174380c9461c9321",
+    ".product-experience/pdp-1-domain-data/versioning.yaml": "0f1cfd09dad8596d714c236057a2e3f5aaa23169004e1e3c01456bd335cbcd90",
+    ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md": "464ee389abd2016e79c2ec7994d626a9abcf825a605aa7dbdc18339d76634e19",
+    ".product-experience/pdp-2-design-interface-system/accessibility.yaml": "50bb4b2ebee7a4c8e9a9949f64fa831d9cfd7a8dfa7fa61003b28f201c617324",
+    ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml": "cc8eb097e6f7366d5f6454d450e0d5ac4c6732d79b5c04188ef450f017c6786f",
+    ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "5548cce38c72f5705a20c64a1800c5b1f0fd7ef16c4df29b8e66c225ee62df18",
+    ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml": "aab04101e875e25509a8b0171e3f2e4518c78e56aca41a49a3531ad6350762a2",
+    ".product-experience/pdp-2-design-interface-system/component-contracts.yaml": "3f653e0ca8777041e43a0670f88626d9b0521955f5fa5eed465ec894dd69a279",
+    ".product-experience/pdp-2-design-interface-system/design-governance.json": "389c9a61387f3e66cec94a1182695b134fa3a87a4ebf941d845b07f35c7db415",
+    ".product-experience/pdp-2-design-interface-system/events/conventions.yaml": "201057c68b5d7269a9914317f3c208bb678e2ee931216004b2e858474fb51b2b",
+    ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json": "f18030bdc6051efb8907fcb6c0cfff6b54ad3290af60857afcc29d3d5ebf4095",
+    ".product-experience/pdp-2-design-interface-system/gui/layout.yaml": "66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a",
+    ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml": "ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f",
+    ".product-experience/pdp-2-design-interface-system/gui/primitives.yaml": "589aed129ad1ce793031a4ba0dd9d65671436154854505bbc8e748d6733571c8",
+    ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml": "d85ce0ebd2efd44354c20cc09347c04f4b269845f953d47cb35f96c2c0340a12",
+    ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml": "0b2d59df84303b554530f035983abb76ded8fe16009afe01d1b426e672d392f9",
+    ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml": "31e926c8d4b09f0ab384367fa86c2f27320bcfeb2c6300488e423c35319a4ed3",
+    ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml": "26db5c0586e1fc47b44f75a41acd1f3ab4bc7cbc2bd3642c23b0b84a03d9e1ed",
+    ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml": "ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b",
+    ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml": "4c06c5ad25fbba4cddea43b83f2f39ad4295eb3e2f898a9b50ab5b8cff8c6dbc",
+    ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml": "5223265683c29877d272a42c0dc8f2503f970fb1a211632213057d14c459a91a",
+    ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml": "5cceab0c9fb471824129a016853a9a4b7ba90f1934ae74b6f00d8ca0dcbecbba",
+    ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5527e311866f824fdb343e19ea02366c18a58dd71ffa4aaa229ac5be7a421a1d",
+    ".product-experience/pdp-3-product-experience/action-registry.yaml": "32219fa8c38be2c7c68d086aa6e6f7cffef9c4125c0e314e4551f55b22877499",
+    ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml": "ad6e611941b89d8687e324421bfb9b84c5d16236770bb40ecf72967ed2a97eb6",
+    ".product-experience/pdp-3-product-experience/application-channel-registry.yaml": "87fa98b2d9266126caa8cf1ac9c3db3e4a846b9483b93a035c8641d10e08d729",
+    ".product-experience/pdp-3-product-experience/events/event-registry.yaml": "1620f2e0f3239e60c5237d604077efa69fbe0bfb70dec50953abba2016cdcbf8",
+    ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml": "9fcf0e857f8a49b5b4f4348427d18a370149f747d5d91bea6e33a7b5cf5894ac",
+    ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json": "ee7cf40667a72961162a19fff4b602363c4e8e735d2062875529d0b38351f43d",
+    ".product-experience/pdp-3-product-experience/journey-registry.yaml": "49916f070192e66e5193de1a4824bcc15decbd31112a43210272d4908aca23bb",
+    ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml": "630c2b4f0d9301795625d33719836a30680c61043e314570c5c13afc842a2df9",
+    ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml": "d55af8c6648dc20fe60202b82de2347e4b6a1656865ebb24d3d65df92da75a08",
+    ".product-experience/pdp-3-product-experience/screen-registry.yaml": "8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336",
+    ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml": "773492977fcd6fa1196b52ee164f332d9db517244c5dff697cbb6024f06118c5",
+    ".product-experience/pdp-3-product-experience/simulation-semantics.yaml": "2d8ec033ccce6f908e614e1ce809bbe732203d4b504f2916abb210bf320e05e0",
+    ".product-experience/surface-registry.yaml": "3d4955aa77c9fdd142682df8b247853d98183f56276394dbb6eb6e5954d320f6",
+    ".product-experience/traceability.yaml": "4f66d55fa3d32713b9f01927cd2042a9553cb0c606c7f36dc5954e6dcdd8ecfd",
+    ".product-experience/vision-requirements-coverage.yaml": "e9932db5d893276ebdcc53af484debe993e84352b719ebade40146aadcba4272",
+    "config/closure/media-product-definition/obligations.json": "0f2e1de300326f25494ce9872a794cc78c31c4a59921a24b508967e8ba86f097",
+    "config/closure/media-product-definition/phase-binding.json": "1f3f38beb9792e395a2047ce015ecfb2caafd71c58f0e1402a8bdd4b1cb20416",
+    "config/closure/media-product-definition/phase-program.json": "5c8373d7528c951d4d6fa2954af7655973504fcbce6c6c7af36cbb0a4524b7ee",
+    "contracts/openapi/media.yaml": "fedd60d8a04ce320f28c143406110b6ccf14ab94afd00f8d2445bfeb1637b1ef",
+    "docs/implementation/media-product-definition-submission-batch-2026-10-08.json": "875e81ca055f0e2b6f7bacd8880767fb0e54eb56068aadd162a80677e3b3a4bc",
+    "docs/implementation/media-task-completion-blocker-report-2026-10-08.json": "5eb9732527c577aa5149e67bf9ee2129308c8d071595f98d67b0970877f30687",
+    "docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log": "cf13fada19a5d3d0670779051f462e54bebba0d89d1081bf99a86bb51b1452cb",
+    "docs/migration/expert-reviewed-master-plan.md": "c2d9d1f1fcc35b0804f69335657c3b8058ff5163ac1eefb78c6b9bc7d9ab11da",
+    "launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java": "df9929559342429c94c296e255c9f599fe231d2cc1a22f5bca867fa96f7d35df",
+    "launcher/src/test/java/com/ghatana/media/launcher/MediaLifecyclePublisherTest.java": "af76303e8b03fbac3c7f3b4ab9a76ca308d64334b858198a729ff624d231becb",
+    "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java": "51435393fda2c09531795ba457fa1e427c10fa7b67254194f8a30e83923b7771",
+    "libs/audio-video-client/src/canonical-routes.ts": "dd15c9ec5cf5454b0e1b25728c709b21825004875674e28b5b584b9684d773b9",
+    "libs/audio-video-client/src/index.ts": "08458d366a6a8de4efc7cf9253541c0f85174c6915f5e4982d2c3bbd1bbe9701",
+    "libs/audio-video-client/src/operations.ts": "2acebaf784aca759c58815ba71b670abf10e5cc87dd139b8203bf8369eb946e5",
+    "libs/audio-video-types/src/contracts.ts": "dcde1914f3219c64b3401510a34c2f372ca5bff568cb581fd8d0f25b43aacb5b",
+    "libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java": "f156ef62dacb95fbc835e79569fcdc14502354eca4a4c28afa5c1ded5e929d3b",
+    "libs/media-experience-simulation/src/fixtures.ts": "178585922cf4860cb47d5e45406c5495958374651fb4f73dbaca77bf2325b4c0",
+    "libs/media-experience-simulation/tests/simulation.test.mjs": "51cc7dcb43f46ba7e74535595b9844a02fb735c453b0e418b1c38fc7ceb184e5",
+    "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto": "6936aa8e02c91a33457ac1f6d334345c6803661ea287ba184ac9362afca04b98",
+    "modules/speech/stt-service/src/main/proto/stt_service.proto": "250f6c301bb406a93dbb5f6de727b52cf346dbc5685cb9446451ecf5ef2360c6",
+    "modules/speech/tts-service/src/main/proto/tts_service.proto": "79cb7f271b9720aecc63a3e46adef8137330b9fe53875c883c83fc7751b501b6",
+    "modules/vision/vision-service/src/main/proto/vision_service.proto": "7452112bd784c3881388d263e736bc9ca697fb6c418544eb93903678a30b4df0",
+    "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java": "b2f9d17388e16cfa24695c866edba0767df48de33c8721d812f045ae75ed8850",
+    "scripts/check-media-contract-parity.mjs": "fba5f0cabddec623903adc156fdd9f049dc686bb55c507293758a5f10db03edb",
+    "scripts/generate-media-phase-projections.mjs": "021a20315f62d037b534c17573711800d158427f08e85b0653eca3dc82d34811",
+    "scripts/lib/media-product-definition-residuals.mjs": "efd6a0ee11da8305f2c39d41a008c40cba1e49d9daa83582f4705309bba0fd31",
+    "tests/experience-browser-audit.test.mjs": "56268d2b847476432a83d528a78c9a2536e6a943ea55fb39d5ee57715f85e0e6",
+    "tests/media-agent-tool-contracts.test.mjs": "4c1cf42aa54b69e2e17328e73361b999aa3a5d12d05d544075e462644ff26c0c",
+    "tests/media-capability-review-source-impact.test.mjs": "1d59681e041d49f383bdb636260f2a1c7e9d5a45956fbedc13a06f0a12e2624e",
+    "tests/media-caption-version-operation-definitions.test.mjs": "c1259ade1a08b11d80626d0f0fcd34fc8834509644ce46b8df9d314bae6fb167",
+    "tests/media-caption-version-operation-parity.test.mjs": "419b29c42211a69c10a6cd4baac0c216d78fa85a3c287b17a029ddb3e291c5a8",
+    "tests/media-contract-parity.test.mjs": "907673caeaa3b5636575627c37b78ffab08cb309c12844a2b1c477669b41b276",
+    "tests/media-design-conformance.test.mjs": "3de604fc60e5415aeab4e9bfdebf53b48c24246b0e4dc21f94eb62933078d09b",
+    "tests/media-domain-identity-reconciliation.test.mjs": "52bc062126d97e3b3e98a248ae1122b7d6a5ac6bad6e43d1f9fdfffa0cbbcbf8",
+    "tests/media-event-source-parity.test.mjs": "fb0ec6bcbb42dcf4577fadbd4e1ee36927acb8b0a99731e97a931db90f9e926c",
+    "tests/media-grpc-projection-crosswalk.test.mjs": "68b02d3c6f5ff87507c8a693c76f4870e835c7f7b7c8604eaa8a58e53cc9f3a6",
+    "tests/media-migration-semantics-ledger.test.mjs": "286227833c1f422c1dfc592dbc50f4abd9cfcf403c4a1ee1421aa7c1bb8b22f5",
+    "tests/media-operation-bounds.test.mjs": "f314d66c620cb49e708e7c97e15e3ef88e5569e02f012f20ee9c72ad25df0df8",
+    "tests/media-p0-07-feature-channel-review.test.mjs": "0c388c4b408c50859829a070d3b12042b38629b5e3626fc77178c4216e6817be",
+    "tests/media-privacy-consistency-source.test.mjs": "2ed3254c310782ff04aa1b142b79e2f6ab0de24b7cd847df3ddce05300ef414a",
+    "tests/media-product-definition-resolved-intents.test.mjs": "c11363e92c05c6d4b866a30084bc0cf8531e2998f978ff971f9323ada6e2a55a",
+    "tests/media-runtime-openapi-job-status.test.mjs": "f81cdb1f7e5e7f2b7f3eeebc29d2f9801cf4d766cc81c089dcf58cb119633418",
+    "tests/media-state-machine-extraction.test.mjs": "1cb4ff8a5be9d6f8353e3c8b290c7e2bd5675e999a888451742d5797de966641",
+    "tests/media-temporal-spatial-semantics.test.mjs": "b143823d5c7fd6716145846d115263678b752168e4138532c5f12197cb02fbd7",
+    "tests/media-transcript-version-definition.test.mjs": "4bfb3a621d1ab15280c7b7e5a7750d3967b7c7374cd08546ddd6bf9a8d23962a",
+    "tests/media-transcription-submission-definition.test.mjs": "955ea840f83b1be399bf220ceead50fcb46b6585ccbf1a8c77b29ab1b4cc3740",
+    "tests/media-transcription-submission-interface-grammar.test.mjs": "ff7f8f999355ca364719a50b622ca6a75c615c9c92b96cc91689255bc115b86d",
+    "tests/media-typed-contract-bindings.test.mjs": "0a1842deb60aad44b6bd351bf7c32f2b3c0d04a70dcbb38ec6a5003188a9fe3d",
+    "tests/media-ui-reuse-inventory.test.mjs": "16572d28e9bbe337a84616628ca0614f25bc2cc5733367f47d5f7ddecf80a035",
+    "tests/pdp-0-06-measures-provenance.test.mjs": "e76cd70c7d06781dc4c315b2c5497d3647da316e832857a6fd6ae1aac2d21c90",
+    "tests/pdp-0-final.test.mjs": "735468953ded5affe7222362946f1195f78633b812cbefab263ddc67f9a648c7",
+    "tests/product-definition-authority.test.mjs": "df62038af6c9aa63417e9a5ba24021c568cfc27c1a8c8196eb853ddbd06e3bcd"
+  },
+  "tasks": [
+    {
+      "id": "P0-01",
+      "title": "Resolve the remaining 383 capability leaves individually",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "462/462 leaves have exact valid dispositions, 0 unjustified unresolved; invalid/stale references fail a generated coverage test.",
+      "dependencies": "G-03, P1-03 for semantic operation IDs (workstreams can advance in parallel).",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "383 of 462 leaves remain unresolved; only 79 have a disposition and the current full accepted coverage count is zero. The submitted project/transcript/caption/transcription slices add bounded source review but do not resolve their entire applicability/profile/channel population.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media PDP-0 capability owner",
+          "nextClosureEvidence": "For each unchanged leaf ID, bind exact journey step, operation, read model, platform contract, or justified exclusion; crosswalk actor/source/profile/channel and prove no denominator shrink with generated negative tests."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "tests/media-capability-review-source-impact.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P0-02",
+      "title": "Define operation-specific requirement bounds and availability",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "all applicable leaves are testable; `DEFINED` never implies `IMPLEMENTED/QUALIFIED/AVAILABLE`; NFR targets have owned measurement methods.",
+      "dependencies": "P0-01, can proceed family-by-family.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "445 capability leaves still lack complete parameter/bound/profile definitions; the current residual source lists 77 journey-step leaves, 0 machine-operation leaves, 2 platform dependencies and 383 unresolved targets. No full applicable leaf population or per-operation falsifiable bounds is available.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/requirements.yaml; .product-experience/pdp-0-product-truth/profile-semantics.yaml; scripts/lib/media-product-definition-residuals.mjs",
+          "owner": "Media PDP-0 requirements/profile owners",
+          "nextClosureEvidence": "Complete applicability first per P0-01, then define units, range/default, selected profile and DEFINED/IMPLEMENTED/QUALIFIED/AVAILABLE distinctions for each applicable leaf; include falsifiable bounds tests."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+        ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
+        "tests/media-operation-bounds.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P0-03",
+      "title": "Decompose and own all migration semantic claims",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "zero unexplained normative claims, zero active double ownership, all superseded/historical blocks explicitly justified, independent migration semantic reconciliation passes.",
+      "dependencies": "G-05; can run parallel to P0-01.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "260 semantic migration items remain unresolved (124 mixed); the master-plan pin remains stale at recorded/current line counts 2815/2829. Only 89 of the 349 original structural observations have bounded non-normative dispositions. Recent claim-level reconciliations do not disposition full parent claims.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml; docs/migration/expert-reviewed-master-plan.md; scripts/lib/media-product-definition-residuals.mjs",
+          "owner": "Media migration semantic owner; independent migration reviewer for review criterion",
+          "nextClosureEvidence": "Resolve remaining full claim units against exact historical and current source, preserve MPSEM denominator/pins, assign one normative PDP owner or justified structural disposition, then obtain independent migration semantic review."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml",
+        "docs/migration/expert-reviewed-master-plan.md",
+        "tests/media-migration-semantics-ledger.test.mjs",
+        "scripts/lib/media-product-definition-residuals.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P0-04",
+      "title": "Resolve ProductDefinition actor, user intent, requirement and journey mappings",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "VERIFIED_IN_CURRENT_SOURCE",
+      "definitionCriterionSatisfied": true,
+      "dependencyReady": "NOT_ESTABLISHED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "`userIntents`, `requirements`, `journeys` direct mapping blockers eliminated with role, priority and cross-ref negative tests.",
+      "dependencies": "P0-01/P0-03.",
+      "previousAuditAssessment": "task-specific-done-pending-dependencies",
+      "previousAuditResiduals": [],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "tests/pdp-0-final.test.mjs",
+        "tests/media-product-definition-resolved-intents.test.mjs"
+      ],
+      "verification": {
+        "status": "PASS",
+        "command": "node --test tests/pdp-0-final.test.mjs tests/media-product-definition-resolved-intents.test.mjs",
+        "exitCode": 0,
+        "outputSha256": "e784b54bed0fe62d4a8ace5a4109139cab18cdcd09fb9d68b8af7ceda06140f8",
+        "testSourceFingerprints": {
+          "tests/pdp-0-final.test.mjs": "735468953ded5affe7222362946f1195f78633b812cbefab263ddc67f9a648c7",
+          "tests/media-product-definition-resolved-intents.test.mjs": "c11363e92c05c6d4b866a30084bc0cf8531e2998f978ff971f9323ada6e2a55a"
+        }
+      }
+    },
+    {
+      "id": "P0-05",
+      "title": "Resolve ProductDefinition rules, invariants, trust and ownership",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "`domainRules`, `invariants`, `trustContexts`, `ownershipRules` fields directly mapped; illicit state transitions, incorrect owners and unsafe trust-level coercions are rejected.",
+      "dependencies": "P1-01/P1-02 and G-05.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "The cross-phase rule/invariant/trust/ownership population is not fully mapped to accepted PDP-1 semantic owners; state/transition meanings remain pending and projections cannot safely claim complete ProductDefinition rules from unresolved or proposed IDs.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json; .product-experience/pdp-1-domain-data/states.yaml; .product-experience/pdp-1-domain-data/transitions.yaml; .product-experience/pdp-1-domain-data/state-adjudication.yaml; .product-experience/pdp-1-domain-data/authority.yaml; tests/product-definition-authority.test.mjs",
+          "owner": "Media PDP-0/PDP-1 owners",
+          "nextClosureEvidence": "Adjudicate every applicable rule with accepted source ID, scope, owner, violation response and trust context; validate no duplicate authority, invented mapping or unsafe transition."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-0-product-truth/constitution.yaml",
+        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+        ".product-experience/pdp-0-product-truth/domain-model.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-1-domain-data/transitions.yaml",
+        ".product-experience/pdp-1-domain-data/authority.yaml",
+        "scripts/generate-media-phase-projections.mjs",
+        "tests/product-definition-authority.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P0-06",
+      "title": "Resolve measures, timestamps, policy/profiles and quality applicability",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "`successMeasures`, `createdAt`, `updatedAt` have honest semantics/accepted mappings; metric-to-capability crosswalk and timestamp-provenance negative tests pass.",
+      "dependencies": "P0-01, X-01 where Tools schema changes are required.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "The four metric source definitions and public successMeasures mapping are present with no field blocker, but the capabilityRefs intentionally trace a bounded set and do not yet prove the complete applicable capability population; 383 P0-01 leaves remain unresolved. This is the remaining source-crosswalk dependency, not a missing measured baseline or target.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml; .product-experience/pdp-0-product-truth/capability-leaf-review.yaml; .product-experience/pdp-0-product-truth/generated/product-definition.candidate.json; tests/pdp-0-06-measures-provenance.test.mjs",
+          "owner": "Media PDP-0 measurement and capability owners",
+          "nextClosureEvidence": "Complete P0-01 applicability and verify every applicable measure-to-capability relation; preserve baseline, target and calibration as NOT_EVALUATED until qualified observations exist."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json",
+        "tests/pdp-0-06-measures-provenance.test.mjs",
+        "docs/implementation/media-product-definition-submission-batch-2026-10-08.json"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P0-07",
+      "title": "Reconcile complete product feature and channel scope",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "all mandatory review dimensions have an accepted requirement/contract or a source-backed exclusion, with explicit profile applicability and no invented GUI.",
+      "dependencies": "P0-01/P0-02.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Feature-by-channel applicability is not complete across Web, CLI, SDK, HTTP, gRPC, event and Agent. The 462-leaf population includes 383 unresolved leaves, and accepted source-backed exclusions/contract references are not complete for all product types.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/capabilities.yaml; .product-experience/pdp-0-product-truth/applications-channels.yaml; .product-experience/pdp-0-product-truth/requirements.yaml; tests/media-p0-07-feature-channel-review.test.mjs",
+          "owner": "Media PDP-0 channel/scope owner",
+          "nextClosureEvidence": "Reconcile every applicable feature against each channel with exact requirement/contract identity or reasoned exclusion; preserve machine-only capabilities as non-GUI and prove completeness against all 462 leaves."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        ".product-experience/vision-requirements-coverage.yaml",
+        ".product-experience/surface-registry.yaml",
+        "tests/media-p0-07-feature-channel-review.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P0-08",
+      "title": "Conduct independent PDP-0 semantic acceptance (P0-010)",
+      "originalLedgerStatus": "blocked-external/independent",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "blocked-external/independent",
+      "taskSpecificDoneClause": "acceptance ledger has actual reviewer outcomes and complete denominator; PDP-0 semantic acceptance inputs are ready for Lifecycle and no unexplained applicable requirement remains.",
+      "dependencies": "P0-01 through P0-07.",
+      "previousAuditAssessment": "partial-with-independent-gate",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Prerequisite input is incomplete: P0-01 through P0-07 are not all complete (notably 383 unresolved leaves and 260 semantic migration items). No actual independent PDP-0/P0-010 reviewer outcome is recorded.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/gaps.yaml; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media PDP-0 owners",
+          "nextClosureEvidence": "Complete P0-01..07 and assemble exact acceptance packet before seeking signoff."
+        },
+        {
+          "predicate": "Independent P0-010 authority is absent; do not infer review from Media owner decisions or green source validators.",
+          "category": "independent-authority",
+          "evidence": ".product-experience/acceptance.yaml; .product-experience/authority-map.yaml",
+          "owner": "Independent PDP-0 reviewer / Lifecycle authority",
+          "nextClosureEvidence": "Record an attributed independent decision with reviewer, scope, disagreements and objective oracles; only then record acceptance."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/acceptance.yaml",
+        ".product-experience/traceability.yaml",
+        ".product-experience/gaps.yaml",
+        "tests/pdp-0-final.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P1-01",
+      "title": "Adjudicate all canonical domain entities and immutable identities",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "no unnamed cross-entity references; immutable artifact/caption/project revisions and source lineage have fail-closed tests; PDP-0 rules have one PDP-1 meaning owner.",
+      "dependencies": "P0-02/P0-05 (initial review may proceed in parallel).",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Only bounded object slices (project/revision, upload/artifact, transcript version, caption version/draft) have recent source definitions/tests; the full 38-object identity/relationship inventory, persistence/wire DTO exact matches, collision and lineage coverage is not reconciled. Existing old transcription UUID is explicitly not equivalent to canonical transcript-version identity.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-1-domain-data/domain-objects.yaml; .product-experience/pdp-1-domain-data/operations.yaml; libs/audio-video-types/src/contracts.ts; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media PDP-1 domain owner",
+          "nextClosureEvidence": "Enumerate all 38 objects and exact typed identities/tenant scope/version lineage; compare wire/persisted DTOs and add collision/lineage negatives for each selected object."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        ".product-experience/pdp-1-domain-data/value-objects.yaml",
+        ".product-experience/pdp-1-domain-data/relationships.yaml",
+        ".product-experience/pdp-1-domain-data/versioning.yaml",
+        ".product-experience/pdp-1-domain-data/authority.yaml",
+        "libs/audio-video-types/src/contracts.ts",
+        "tests/media-domain-identity-reconciliation.test.mjs",
+        "tests/media-caption-version-operation-definitions.test.mjs",
+        "tests/media-transcript-version-definition.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P1-02",
+      "title": "Finish job/attempt/stream/delivery state machines and finality",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "all valid/invalid transition edges are tested; stale fencing, process death, unknown outcome, cancel race, duplicate retry and delivery uncertainty fail safely; owner signs canonical semantics, runtime implementation proof remains separate.",
+      "dependencies": "P1-01.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "State and transition inventory is not fully adjudicated: several machine meanings/edges remain pending, and current source definitions (including submission) explicitly avoid asserting QUEUED/RUNNING or job-state finality. Existing restart tests cover bounded scenarios, not all job/attempt/stream/delivery crash, fencing, cancellation race, duplicate retry and delivery uncertainty cases.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-1-domain-data/states.yaml; .product-experience/pdp-1-domain-data/transitions.yaml; .product-experience/pdp-1-domain-data/state-adjudication.yaml; tests/media-state-machine-extraction.test.mjs; tests/media-runtime-openapi-job-status.test.mjs",
+          "owner": "Media PDP-1 state/runtime owners",
+          "nextClosureEvidence": "Define every valid/invalid edge and finality semantics, then run durable runtime tests for process death, fencing, retries, cancellation races and delivery uncertainty; preserve UNKNOWN as distinct."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-1-domain-data/transitions.yaml",
+        ".product-experience/pdp-1-domain-data/state-adjudication.yaml",
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java",
+        "tests/media-state-machine-extraction.test.mjs",
+        "tests/media-runtime-openapi-job-status.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P1-03",
+      "title": "Establish canonical operations below the nine family headings",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "every applicable interface can reference an **exact** logical operation (not only a family), or an explicitly source-backed non-operation disposition. Reject name-based presumed equivalence.",
+      "dependencies": "P0-01, P1-02.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Recent project, upload, caption/transcript, and file-audio submission definitions are selected slices, not all existing operations/actions. Exact per-operation request/result/error/authority/effect/finality meanings and non-operation dispositions remain missing for a broad source population; no claim follows merely from nine family labels or matching names.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-1-domain-data/operations.yaml; .product-experience/pdp-3-product-experience/action-registry.yaml; .product-experience/interface-parity/operation-parity.yaml; residual report",
+          "owner": "Media PDP-1 operation owner",
+          "nextClosureEvidence": "Enumerate all existing applicable UI/machine actions and bind each to exact command/query operation and complete guards/effects/finality/errors or a justified non-domain role; add name-equivalence negatives."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+        ".product-experience/pdp-1-domain-data/transitions.yaml",
+        ".product-experience/pdp-1-domain-data/authority.yaml",
+        ".product-experience/interface-parity/operation-parity.yaml",
+        "tests/media-caption-version-operation-parity.test.mjs",
+        "tests/media-transcription-submission-definition.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P1-04",
+      "title": "Reconcile the historical 47 parity findings and all individual interfaces",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "zero unreviewed structural source findings and zero unexplained applicable semantic operation links; method/path/schema, auth, idempotency and finality parity tests prove each mapping or explicit non-admission.",
+      "dependencies": "P1-03; parallel protocol slices allowed.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Two historical semantic parity findings remain open; current census contains 286 identities with 190 unresolved and zero owner-accepted full interface bindings. Do not treat source name equality or partial operation grammar as accepted behavioral parity.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/interface-parity/operation-parity.yaml; tests/media-contract-parity.test.mjs; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media interface owners",
+          "nextClosureEvidence": "Disposition both historical findings with source evidence and reconcile each applicable identity’s method/path/schema, authority, idempotency and finality; run negative drift tests."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/interface-parity/operation-parity.yaml",
+        "tests/media-contract-parity.test.mjs",
+        "scripts/check-media-contract-parity.mjs",
+        "docs/implementation/media-product-definition-submission-batch-2026-10-08.json"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P1-05",
+      "title": "Complete canonical HTTP/gRPC/SDK/CLI contract and compatibility crosswalk",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "exact wire ↔ logical operation ↔ typed result/error ↔ SDK/CLI/Agent/consumer mapping verified and invalid routes rejected; no client broken by silent endpoint removal.",
+      "dependencies": "P1-03/P1-04.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Observed 27 HTTP, 43 gRPC, 11 fixture CLI and 28 typed SDK identities need exact crosswalks to canonical operation/request/result/error/version and verified runtime reachability. Latest definition-only batch changed no runtime implementation; candidate mappings/source identities alone do not show all interfaces behave equivalently or preserve legacy consumers.",
+          "category": "unfinished-definition",
+          "evidence": "contracts/openapi/media.yaml; .product-experience/interface-parity/operation-parity.yaml; libs/audio-video-client/src/operations.ts; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media transport/SDK owners",
+          "nextClosureEvidence": "Reconcile every observed identity individually, run wire-level behavior and invalid-route tests, and verify compatibility/NOT_ADMITTED disposition without silently removing a consumer."
+        }
+      ],
+      "priorEvidenceSources": [
+        "contracts/openapi/media.yaml",
+        "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto",
+        "modules/vision/vision-service/src/main/proto/vision_service.proto",
+        "modules/speech/stt-service/src/main/proto/stt_service.proto",
+        "modules/speech/tts-service/src/main/proto/tts_service.proto",
+        "libs/audio-video-client/src/operations.ts",
+        "libs/audio-video-client/src/index.ts",
+        "libs/audio-video-client/src/canonical-routes.ts",
+        "tests/media-grpc-projection-crosswalk.test.mjs",
+        "tests/media-runtime-openapi-job-status.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P1-06",
+      "title": "Verify exhaustive TypeScript contract-role catalog (`VERIFY_MERGED_WORK`)",
+      "originalLedgerStatus": "complete",
+      "originalFullTaskDone": true,
+      "taskSpecificSourceDone": "VERIFIED_IN_CURRENT_SOURCE",
+      "definitionCriterionSatisfied": true,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "complete",
+      "taskSpecificDoneClause": "type/schema-source role finding independently green; other two historic parity findings still visible until qualified; new types immediately require new bindings.",
+      "dependencies": "G-02/P1-01.",
+      "previousAuditAssessment": "met",
+      "previousAuditResiduals": [],
+      "priorEvidenceSources": [
+        ".product-experience/interface-parity/typed-contract-bindings.json",
+        "libs/audio-video-types/src/contracts.ts",
+        "tests/media-typed-contract-bindings.test.mjs",
+        "scripts/check-media-contract-parity.mjs"
+      ],
+      "verification": {
+        "status": "PASS",
+        "command": "node --test tests/media-typed-contract-bindings.test.mjs",
+        "exitCode": 0,
+        "outputSha256": "72e243f631d38af610f34047f1ef3fd504cf228f06576ccd1e25647784dda339",
+        "testSourceFingerprints": {
+          "tests/media-typed-contract-bindings.test.mjs": "0a1842deb60aad44b6bd351bf7c32f2b3c0d04a70dcbb38ec6a5003188a9fe3d"
+        }
+      }
+    },
+    {
+      "id": "P1-07",
+      "title": "Define real Agent Tool contracts for all four handlers",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "full schema/adversarial/authority and handler parity for each tool; no prompt/media injection authority bypass or fictitious model/output support.",
+      "dependencies": "P1-03/P1-05, X-03 and X-05 for public services.",
+      "previousAuditAssessment": "partial-with-independent-gate",
+      "previousAuditResiduals": [
+        {
+          "predicate": "The four Java handlers and adversarial tests were hardened, but admission is intentionally false because the public Shared invocation contract/runtime qualification dependency is not accepted. Definition-side closed schemas and source tests do not prove Shared’s qualified authority/context, deadline, cancellation and provenance envelope is available to the consumer.",
+          "category": "independent-authority",
+          "evidence": ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml; .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml; tests/media-agent-tool-contracts.test.mjs",
+          "owner": "Shared contract owner plus Media integration owner",
+          "nextClosureEvidence": "Obtain a versioned qualified Shared public invocation contract with required context fields, and prove installed consumer tests against it; keep executionAdmitted=false until qualification."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
+        ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml",
+        "libs/common/src/main/java/com/ghatana/audio/video/tools",
+        "libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java",
+        "tests/media-agent-tool-contracts.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P1-08",
+      "title": "Finish Media event taxonomy and safe delivery semantics",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "generated/observed event contracts and negative replay/duplication/stale-order tests pass; no notification counts as authoritative provider finality.",
+      "dependencies": "P1-02/P1-03, X-06.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Nine runtime event and 15 client notification identities are not all reconciled to producers, schema, order, deduplication, privacy and durable delivery. Existing publisher/event tests cover only implemented source paths and do not qualify Event Plane delivery or prove outbox/replay/partial failure across all events.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-1-domain-data/events.yaml; .product-experience/pdp-3-product-experience/events/event-registry.yaml; launcher/src/test/java/com/ghatana/media/launcher/MediaLifecyclePublisherTest.java",
+          "owner": "Media PDP-1 event owner and Event Plane integration owner",
+          "nextClosureEvidence": "Map all nine events and 15 notifications individually; implement durable outbox/replay/ordering/dedup behavior and failure tests; verify public Event Plane contract without treating notifications as authoritative finality."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-1-domain-data/events.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-1-domain-data/provenance.yaml",
+        ".product-experience/pdp-1-domain-data/evidence.yaml",
+        ".product-experience/pdp-2-design-interface-system/events/conventions.yaml",
+        ".product-experience/pdp-3-product-experience/events/event-registry.yaml",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaLifecyclePublisherTest.java",
+        "tests/media-event-source-parity.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P1-09",
+      "title": "Complete temporal/spatial/media scientific data semantics",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "precision/overflow/drift/round-trip, source mapping and representative temporal/spatial interchange tests, with loss accounting.",
+      "dependencies": "P1-01, P0-06.",
+      "previousAuditAssessment": "partial-with-independent-gate",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Typed time/clock/coordinate conversion and loss disclosures are only partially defined and tested per selected profile. Qualification of scientific fidelity and representative transformations is absent; unqualified source clock/provider timing cannot be promoted to scientifically aligned data.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-1-domain-data/value-objects.yaml; .product-experience/pdp-1-domain-data/interoperability.yaml; .product-experience/pdp-1-domain-data/provenance.yaml; tests/media-temporal-spatial-semantics.test.mjs",
+          "owner": "Media PDP-1 value-semantics owner",
+          "nextClosureEvidence": "Define exact source/target units, precision/overflow/drift/loss and round-trip behavior for each supported profile, then add representative interchange tests."
+        },
+        {
+          "predicate": "Independent scientific/domain-expert qualification is not recorded.",
+          "category": "independent-authority",
+          "evidence": ".product-experience/acceptance.yaml; .product-experience/pdp-0-product-truth/qualification-policy.yaml",
+          "owner": "Independent scientific/domain expert",
+          "nextClosureEvidence": "Submit defined transform profiles and test evidence for attributed expert qualification; do not claim scientific quality before this review."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-1-domain-data/value-objects.yaml",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml",
+        ".product-experience/pdp-1-domain-data/versioning.yaml",
+        ".product-experience/pdp-1-domain-data/provenance.yaml",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml",
+        "tests/media-temporal-spatial-semantics.test.mjs",
+        "libs/media-experience-simulation/tests/simulation.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P1-10",
+      "title": "Close identity/tenant, consent, privacy, revision and offline consistency contracts",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "independent security/privacy review plus denial, cross-tenant, revocation, legal hold, stale edit, partial erasure and duplicate-effect negative cases pass.",
+      "dependencies": "P1-02/P1-03, X-03.",
+      "previousAuditAssessment": "partial-with-independent-gate",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Source policy definitions and selected tests do not prove every effect boundary enforces trusted tenant/principal, live rights/consent, revocation, offline conflict, retention/legal hold, partial erasure, and duplicate-effect prevention. Shared public trust integration is not qualified; definition-only task boundary explicitly defers such app/runtime work.",
+          "category": "runtime-outside-current-scope",
+          "evidence": ".product-experience/pdp-1-domain-data/privacy.yaml; .product-experience/pdp-1-domain-data/authority.yaml; .product-experience/pdp-1-domain-data/offline-sync.yaml; .product-experience/pdp-1-domain-data/versioning.yaml; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media runtime/security owner and Shared trust owner",
+          "nextClosureEvidence": "Implement current policy checks at each effect boundary; add denial/cross-tenant/revocation/legal-hold/stale-edit/partial-erasure/replay tests and qualify public Shared trust integration."
+        },
+        {
+          "predicate": "Independent security/privacy review is required before claiming complete review acceptance.",
+          "category": "independent-authority",
+          "evidence": ".product-experience/acceptance.yaml; .product-experience/pdp-1-domain-data/privacy.yaml",
+          "owner": "Independent security/privacy reviewer",
+          "nextClosureEvidence": "Review the implemented threat model and adversarial evidence; record attributed scope, findings, and acceptance."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-1-domain-data/privacy.yaml",
+        ".product-experience/pdp-1-domain-data/authority.yaml",
+        ".product-experience/pdp-1-domain-data/offline-sync.yaml",
+        ".product-experience/pdp-1-domain-data/versioning.yaml",
+        ".product-experience/pdp-1-domain-data/evidence.yaml",
+        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
+        "tests/media-privacy-consistency-source.test.mjs",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P1-11",
+      "title": "Obtain independent PDP-1 domain/interface semantic acceptance",
+      "originalLedgerStatus": "blocked-external/independent",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "blocked-external/independent",
+      "taskSpecificDoneClause": "PDP-1 domain/data authority has actual accepted specialist decisions and no unexplained applicable invariants or interface semantic mappings; qualified proofs can proceed to Lifecycle.",
+      "dependencies": "P1-01 through P1-10.",
+      "previousAuditAssessment": "partial-with-independent-gate",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Prerequisites P1-01 through P1-10 remain open, including unresolved object/operation populations, parity identities, state/event/runtime behavior, and security/scientific review evidence.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/gaps.yaml; current PDP-1 source/tests; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media PDP-1 owners",
+          "nextClosureEvidence": "Resolve all applicable P1-01..10 blockers and prepare an exact, source-linked domain/interface acceptance packet."
+        },
+        {
+          "predicate": "No independent PDP-1 semantic acceptance record is present; Media owner choices and source tests are not independent approval.",
+          "category": "independent-authority",
+          "evidence": ".product-experience/acceptance.yaml; .product-experience/authority-map.yaml",
+          "owner": "Independent domain/interface reviewers / Lifecycle authority",
+          "nextClosureEvidence": "Record scoped reviewer decisions only after prerequisite inputs are complete; do not mark phase accepted from local validations."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/acceptance.yaml",
+        ".product-experience/gaps.yaml"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P2-01",
+      "title": "Recompute six ExperienceLanguage mappings (`VERIFY_MERGED_WORK`)",
+      "originalLedgerStatus": "complete",
+      "originalFullTaskDone": true,
+      "taskSpecificSourceDone": "VERIFIED_IN_CURRENT_SOURCE",
+      "definitionCriterionSatisfied": true,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "complete",
+      "taskSpecificDoneClause": "prior six candidate field issues demonstrably resolved after regeneration, or exact residual source blockers output.",
+      "dependencies": "G-02/X-01.",
+      "previousAuditAssessment": "met",
+      "previousAuditResiduals": [],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json"
+      ],
+      "verification": {
+        "status": "PASS",
+        "command": "node --test tests/pdp-2-tools-experience-language-contract.test.mjs tests/pdp-2-experience-language-projection.test.mjs",
+        "exitCode": 0,
+        "outputSha256": "f91f03c032b8b9b9b18912292848ba6ae97adca2c14f9827a82632ed2634d019",
+        "testSourceFingerprints": {
+          "tests/pdp-2-tools-experience-language-contract.test.mjs": "8d362d3dc881dd803e93c1d9ba4e11a7ea0dacd3efe4540767e8a7a201aa2023",
+          "tests/pdp-2-experience-language-projection.test.mjs": "edbe8a841dd9c28ccecb0c51bdb6a5d097d521d87926ee66c83d97ad2aae4746"
+        }
+      }
+    },
+    {
+      "id": "P2-02",
+      "title": "Qualify public Shared token/theme/design primitives",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "immutable or pinned development-artifact public consumer proof, no unresolved aliases, exact cross-owner acceptance and nonmisleading package-license classification; release publication is tracked separately.",
+      "dependencies": "X-03, can start W0.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Existing isolated public-artifact consumer tests pass against locally packed Shared source-snapshot artifacts, and Media consumes the strict-CSP stylesheet for selected controls; the whole required token/theme/profile population still lacks complete alias resolution, exact cross-owner acceptance, and nonmisleading license classification.",
+          "owner": "Media design-system consumer + Ghatana Shared owner + dependency/license reviewers",
+          "category": [
+            "media-definition-actionable",
+            "shared-owner-approval",
+            "dependency-license-review"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/primitives.yaml",
+            "../ghatana-shared/platform/typescript/design-system/package.json",
+            "../ghatana-shared/platform/typescript/tokens/package.json",
+            ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#sharedStylesheetBindingReview.uiStylesRecipeCandidate.variableAudit",
+            "docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log",
+            "tests/media-ui-reuse-inventory.test.mjs"
+          ],
+          "nextClosureEvidence": "Extend the passing source-snapshot consumer proof to the complete required token/theme/profile population, resolve every applicable alias, and record exact Shared owner acceptance and license classification. The canonical criterion accepts a pinned development artifact; publication is not required for this criterion."
+        },
+        {
+          "predicate": "The candidate @ghatana/ui-styles stylesheet audit records unresolved references and no admitted complete token/unit bridge; this is scoped to that recipe stylesheet and does not negate the passing installed-snapshot consumer or selected-control stylesheet use.",
+          "owner": "Media design-system consumer + Ghatana Shared owner + dependency/license reviewers",
+          "category": [
+            "media-definition-actionable",
+            "shared-owner-approval",
+            "dependency-license-review"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/primitives.yaml",
+            "../ghatana-shared/platform/typescript/design-system/package.json",
+            "../ghatana-shared/platform/typescript/tokens/package.json",
+            ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#sharedStylesheetBindingReview.uiStylesRecipeCandidate.variableAudit",
+            "docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log",
+            "tests/media-ui-reuse-inventory.test.mjs"
+          ],
+          "nextClosureEvidence": "Extend the passing source-snapshot consumer proof to the complete required token/theme/profile population, resolve every applicable alias, and record exact Shared owner acceptance and license classification. The canonical criterion accepts a pinned development artifact; publication is not required for this criterion."
+        },
+        {
+          "predicate": "Complete light/dark token/theme alias, focus/keyboard/forced-colors/reduced-motion and semantic qualification plus package license/distribution classification remain.",
+          "owner": "Media design-system consumer + Ghatana Shared owner + dependency/license reviewers",
+          "category": [
+            "media-definition-actionable",
+            "shared-owner-approval",
+            "dependency-license-review"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/primitives.yaml",
+            "../ghatana-shared/platform/typescript/design-system/package.json",
+            "../ghatana-shared/platform/typescript/tokens/package.json",
+            ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#sharedStylesheetBindingReview.uiStylesRecipeCandidate.variableAudit",
+            "docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log",
+            "tests/media-ui-reuse-inventory.test.mjs"
+          ],
+          "nextClosureEvidence": "Extend the passing source-snapshot consumer proof to the complete required token/theme/profile population, resolve every applicable alias, and record exact Shared owner acceptance and license classification. The canonical criterion accepts a pinned development artifact; publication is not required for this criterion."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/primitives.yaml",
+        "../ghatana-shared/platform/typescript/design-system/package.json",
+        "../ghatana-shared/platform/typescript/tokens/package.json",
+        ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#sharedStylesheetBindingReview.uiStylesRecipeCandidate.variableAudit",
+        "docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log",
+        "tests/media-ui-reuse-inventory.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P2-03",
+      "title": "Resolve the seven design-governance gates explicitly",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "seven-of-seven gates have real accepted source/reviewer disposition; zero unexplained applicable findings; stale tokens and fake/duplicated approval statuses fail tests.",
+      "dependencies": "P2-01/P2-02/P2-04/P2-05/P2-08.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Governance has seven gates, with five Media-owned gates RESOLVED_OWNER; shared-artifact-binding is EXTERNAL_PENDING and conformance-and-specialist-review is INDEPENDENT_PENDING.",
+          "owner": "Media design authority; Shared package owner and independent conformance reviewer for external gates",
+          "category": [
+            "media-definition-actionable",
+            "shared-owner-approval",
+            "independent-conformance"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/design-governance.json",
+            "tests/media-design-conformance.test.mjs",
+            ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml"
+          ],
+          "nextClosureEvidence": "Source-backed Media gate dispositions are largely complete. Remaining authority cannot be represented by another local status edit; obtain Shared artifact binding and independent conformance evidence."
+        },
+        {
+          "predicate": "No conformance/visual/accessibility review evidence closes those two gates.",
+          "owner": "Media design authority; Shared package owner and independent conformance reviewer for external gates",
+          "category": [
+            "media-definition-actionable",
+            "shared-owner-approval",
+            "independent-conformance"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/design-governance.json",
+            "tests/media-design-conformance.test.mjs",
+            ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml"
+          ],
+          "nextClosureEvidence": "Source-backed Media gate dispositions are largely complete. Remaining authority cannot be represented by another local status edit; obtain Shared artifact binding and independent conformance evidence."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/design-governance.json",
+        "tests/media-design-conformance.test.mjs",
+        ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P2-04",
+      "title": "Qualify all genuinely reusable components",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "every applicable component family has exported public implementation or explicit contract-only status; `@audio-video/ui` and AI Voice consumers compile and behave identically with same props; inaccessible state/style variants fail tests.",
+      "dependencies": "P2-02/P2-03.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "31 definition bindings include selected source mappings, but only bounded components have tested public-source reuse; no complete implementation reachability/version/artifact qualification for every reusable family.",
+          "owner": "Media component owners + Ghatana Shared owner + accessibility specialist",
+          "category": [
+            "media-definition-actionable",
+            "shared-owner-approval",
+            "independent-accessibility"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
+            "../ghatana-shared/platform/typescript/design-system/src"
+          ],
+          "nextClosureEvidence": "Media-owned source bindings still finishable where local exports already exist. Shared compatibility and specialist a11y evidence are external gates."
+        },
+        {
+          "predicate": "Shared package and independent specialist accessibility/design acceptance are absent.",
+          "owner": "Media component owners + Ghatana Shared owner + accessibility specialist",
+          "category": [
+            "media-definition-actionable",
+            "shared-owner-approval",
+            "independent-accessibility"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
+            "../ghatana-shared/platform/typescript/design-system/src"
+          ],
+          "nextClosureEvidence": "Media-owned source bindings still finishable where local exports already exist. Shared compatibility and specialist a11y evidence are external gates."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
+        "../ghatana-shared/platform/typescript/design-system/src"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P2-05",
+      "title": "Finish central templates, layouts and recipes, recompose screens",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "all template/layout/recipe references resolve bidirectionally; schema and composition tests reject missing pattern/region/keyboard/focus/unknown-finality semantics.",
+      "dependencies": "P2-01/P2-04.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Source catalogs are admitted as Media-owned definitions, but the latest owner batch still records six withheld template/layout purpose mismatches and unresolved per-screen recipe/behavior bindings.",
+          "owner": "Media Product Experience/design-system owner",
+          "category": [
+            "media-definition-actionable",
+            "current-source-validation",
+            "independent-accessibility"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/layout.yaml"
+          ],
+          "nextClosureEvidence": "Exact catalog reconciliation is Media-owned and can continue without new approval; independent rendering/accessibility and Shared admission remain separate."
+        },
+        {
+          "predicate": "All screen compositions remain unadmitted; current local checks do not prove rendered behavior or keyboard/focus/unknown-finality semantics.",
+          "owner": "Media Product Experience/design-system owner",
+          "category": [
+            "media-definition-actionable",
+            "current-source-validation",
+            "independent-accessibility"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/layout.yaml"
+          ],
+          "nextClosureEvidence": "Exact catalog reconciliation is Media-owned and can continue without new approval; independent rendering/accessibility and Shared admission remain separate."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/layout.yaml"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P2-06",
+      "title": "Define consistent, low-cognitive-load visual presentation",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "visually coherent across screens, no local competing color/typography/layout authority, critical controls remain discoverable at narrow widths, verified by references and cross-viewport review.",
+      "dependencies": "P2-04/P2-05.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Typography/layout source remains proposal with Shared token binding and P0-010 review pending.",
+          "owner": "Media Product Experience/design-system owner + independent visual reviewer",
+          "category": [
+            "media-definition-actionable",
+            "human-review"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
+            ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
+            ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
+            "docs/implementation/verification/media-experience-browser-audit-2026-10-08"
+          ],
+          "nextClosureEvidence": "Media can produce source-defined review cases and test actual layouts now; human comprehension and Shared typography/token authority remain unproven."
+        },
+        {
+          "predicate": "No fresh documented representative comprehension review for narrow/medium/wide compositions is identified; browser audits are structural/rendering evidence, not comprehension review.",
+          "owner": "Media Product Experience/design-system owner + independent visual reviewer",
+          "category": [
+            "media-definition-actionable",
+            "human-review"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
+            ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
+            ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
+            "docs/implementation/verification/media-experience-browser-audit-2026-10-08"
+          ],
+          "nextClosureEvidence": "Media can produce source-defined review cases and test actual layouts now; human comprehension and Shared typography/token authority remain unproven."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
+        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
+        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
+        "docs/implementation/verification/media-experience-browser-audit-2026-10-08"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P2-07",
+      "title": "Complete machine interface conventions independently of GUI",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "all applicable protocol grammar contracts are internally consistent and accepted; per-channel consumer conformance and negative examples, no fake GUI.",
+      "dependencies": "P1-03/P1-05/P1-07/P1-08.",
+      "previousAuditAssessment": "partial",
+      "previousAuditResiduals": [
+        {
+          "predicate": "PDP-2 conventions contain definitions, but P1 operation semantics, channel applicability and parity remain unaccepted for many identities.",
+          "owner": "Media API/SDK/CLI/event/tool owners + applicable external interface owners",
+          "category": [
+            "media-definition-actionable",
+            "cross-interface-owner-review"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
+            ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml",
+            ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml",
+            ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "tests/media-transcription-submission-interface-grammar.test.mjs"
+          ],
+          "nextClosureEvidence": "Continue individually reconciling applicable exact operation identities/field and error contracts and negative source tests. Runtime/channel admission and unresolved owner APIs remain separate."
+        },
+        {
+          "predicate": "Current source audit has zero accepted full cross-interface bindings; matching method/route names do not prove request/result/error/authority equivalence.",
+          "owner": "Media API/SDK/CLI/event/tool owners + applicable external interface owners",
+          "category": [
+            "media-definition-actionable",
+            "cross-interface-owner-review"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
+            ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml",
+            ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml",
+            ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "tests/media-transcription-submission-interface-grammar.test.mjs"
+          ],
+          "nextClosureEvidence": "Continue individually reconciling applicable exact operation identities/field and error contracts and negative source tests. Runtime/channel admission and unresolved owner APIs remain separate."
+        },
+        {
+          "predicate": "Selected HTTP/SDK/CLI source bindings remain definition-only and runtime NOT_ADMITTED.",
+          "owner": "Media API/SDK/CLI/event/tool owners + applicable external interface owners",
+          "category": [
+            "media-definition-actionable",
+            "cross-interface-owner-review"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
+            ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml",
+            ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml",
+            ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "tests/media-transcription-submission-interface-grammar.test.mjs"
+          ],
+          "nextClosureEvidence": "Continue individually reconciling applicable exact operation identities/field and error contracts and negative source tests. Runtime/channel admission and unresolved owner APIs remain separate."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
+        ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml",
+        ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml",
+        ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "tests/media-transcription-submission-interface-grammar.test.mjs"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P2-08",
+      "title": "Run independent visual and assistive-technology reviews",
+      "originalLedgerStatus": "blocked-external/independent",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "blocked-external/independent",
+      "taskSpecificDoneClause": "signed/auditable applicable specialist findings resolved; screenshots/semantic-tree/regressions and responsible approvals attached to exact version; no fabricated screen-reader PASS.",
+      "dependencies": "P2-05/P2-06, X-03.",
+      "previousAuditAssessment": "blocked-independent",
+      "previousAuditResiduals": [
+        {
+          "predicate": "No independent human visual and supported screen-reader/keyboard WCAG 2.2 AA review record with reviewer identity, environment, findings, and disposition.",
+          "owner": "Independent visual/accessibility reviewer and Ghatana Shared component owner",
+          "category": [
+            "independent-human-review",
+            "shared-owner-approval"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
+            "tests/experience-browser-audit.test.mjs",
+            "docs/implementation/verification/media-experience-browser-audit-2026-10-08",
+            "../ghatana-shared/platform/typescript/design-system"
+          ],
+          "nextClosureEvidence": "Media can prepare exact review build/cases and resolve found defects; independent human reviewer and supported screen-reader environment are required for Done."
+        },
+        {
+          "predicate": "Automated browser/CSP/keyboard checks are not independent AT certification; Shared component owner review remains open.",
+          "owner": "Independent visual/accessibility reviewer and Ghatana Shared component owner",
+          "category": [
+            "independent-human-review",
+            "shared-owner-approval"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
+            "tests/experience-browser-audit.test.mjs",
+            "docs/implementation/verification/media-experience-browser-audit-2026-10-08",
+            "../ghatana-shared/platform/typescript/design-system"
+          ],
+          "nextClosureEvidence": "Media can prepare exact review build/cases and resolve found defects; independent human reviewer and supported screen-reader environment are required for Done."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
+        "tests/experience-browser-audit.test.mjs",
+        "docs/implementation/verification/media-experience-browser-audit-2026-10-08",
+        "../ghatana-shared/platform/typescript/design-system"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P2-09",
+      "title": "Accept final ExperienceLanguage source authority",
+      "originalLedgerStatus": "blocked-external/independent",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "blocked-external/independent",
+      "taskSpecificDoneClause": "zero PDP-2 semantic/resolver/authority findings and qualified independent review for applicable design claims; actual closure receipt remains Lifecycle-owned.",
+      "dependencies": "P2-01 through P2-08.",
+      "previousAuditAssessment": "blocked-prerequisite",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Final Design Language source authority cannot be accepted until P2-01–08 are complete, including Shared and independent review.",
+          "owner": "Authorized independent PDP-2/Design Language reviewer and Lifecycle authority",
+          "category": [
+            "independent-phase-review",
+            "lifecycle-authority"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
+            ".product-experience/pdp-2-design-interface-system/design-governance.json"
+          ],
+          "nextClosureEvidence": "Resolve Media-owned P2 gaps first; final source-authority review must be recorded by the authorized independent/design reviewer."
+        },
+        {
+          "predicate": "Acceptance.yaml records PDP-2/phase authority pending; no external authority receipt.",
+          "owner": "Authorized independent PDP-2/Design Language reviewer and Lifecycle authority",
+          "category": [
+            "independent-phase-review",
+            "lifecycle-authority"
+          ],
+          "evidence": [
+            ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
+            ".product-experience/pdp-2-design-interface-system/design-governance.json"
+          ],
+          "nextClosureEvidence": "Resolve Media-owned P2 gaps first; final source-authority review must be recorded by the authorized independent/design reviewer."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
+        ".product-experience/pdp-2-design-interface-system/design-governance.json"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P3-01",
+      "title": "Close all 14 ExperienceSpecification mapping fields by source relationships",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "all mapped public model fields validate with owner resolvers, zero unadjudicated applicable semantic field blockers, negative stale-reference and wrong-effect tests.",
+      "dependencies": "G-03, P1-03, P2-09.",
+      "previousAuditAssessment": "unfinished-definition",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Nine of 21 ExperienceSpecification fields remain unresolved; the candidate is GENERATED_CANDIDATE_NOT_ACCEPTED_NOT_CURRENT.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#/projections[PDP-3]",
+            ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json#fieldMappingBlockers",
+            ".product-experience/pdp-3-product-experience/action-registry.yaml",
+            ".product-experience/pdp-3-product-experience/journey-contracts/"
+          ],
+          "nextClosureEvidence": "Resolve each of the nine blockers from exact owner sources; pass public schema, semantic mapping, stale-reference/wrong-effect and empty-collection negatives; obtain owner review."
+        },
+        {
+          "predicate": "Canonical action/effect/finality, exact component props, transition legality, state/object/authority/requirement bindings and remaining recovery/scenario semantics are incomplete; top-level mappings do not meet nested semantic completeness.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#/projections[PDP-3]",
+            ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json#fieldMappingBlockers",
+            ".product-experience/pdp-3-product-experience/action-registry.yaml",
+            ".product-experience/pdp-3-product-experience/journey-contracts/"
+          ],
+          "nextClosureEvidence": "Resolve each of the nine blockers from exact owner sources; pass public schema, semantic mapping, stale-reference/wrong-effect and empty-collection negatives; obtain owner review."
+        }
+      ],
+      "priorEvidenceSources": [
+        "/tmp/media-execution/full-blocker-residual-2026-10-08.json#/projections[PDP-3]",
+        ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json#fieldMappingBlockers",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P3-02",
+      "title": "Resolve all 47 canonical GUI screen contracts",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "all 47 have a complete source-validated applicability/binding matrix, exact accepted references and specified happy/negative/recovery behavior; view definitions do not claim 47 live production routes.",
+      "dependencies": "P1-03/P2-05/P3-01.",
+      "previousAuditAssessment": "unfinished-definition",
+      "previousAuditResiduals": [
+        {
+          "predicate": "47 view records and all 130 step-to-screen links exist, but six withheld template/layout composition mismatches and incomplete action/state/component/behavior bindings leave the 47-screen matrix incomplete.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience",
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-3-product-experience/screen-contracts/",
+            ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml"
+          ],
+          "nextClosureEvidence": "Complete applicable per-screen contracts and disposition non-equivalent compositions; record Shared owner artifact binding plus independent conformance evidence."
+        },
+        {
+          "predicate": "Shared artifact binding is external-pending; conformance/specialist review is NOT_RUN.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience",
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-3-product-experience/screen-contracts/",
+            ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml"
+          ],
+          "nextClosureEvidence": "Complete applicable per-screen contracts and disposition non-equivalent compositions; record Shared owner artifact binding plus independent conformance evidence."
+        }
+      ],
+      "priorEvidenceSources": [
+        "/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience",
+        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+        ".product-experience/pdp-3-product-experience/screen-contracts/",
+        ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P3-03",
+      "title": "Finish 30 end-to-end journeys and all 130 ordered steps",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "30/30 journeys and every applicable step semantically bound, with at least one error/denial/unknown branch per relevant consequential step; orphan/duplicate/missing stage detection.",
+      "dependencies": "P0-04, P1-03, P3-02.",
+      "previousAuditAssessment": "unfinished-definition",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Inventory is 30 journeys/130 steps, but only 23 steps have authored IDs and 14 action intents; 18/130 are action-linked, 112 lack action bindings.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience",
+            ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+            ".product-experience/pdp-3-product-experience/journey-contracts/",
+            ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+            "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#beforeAfter"
+          ],
+          "nextClosureEvidence": "Bind remaining steps individually to exact actor, object, current authority, legal transitions/actions, branch/recovery, scenario and verification; retain NOT_RUN until behavior is executed."
+        },
+        {
+          "predicate": "128 transitionRef values are null; 13 have explicit no-transition reasons. Other unresolved bindings: 116 empty objectRefs, 122 empty stateRefs, 115 null authorityRefs, 112 empty requirementRefs, 130 verification=not-run, and only 3/30 journeys have scenario refs.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience",
+            ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+            ".product-experience/pdp-3-product-experience/journey-contracts/",
+            ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+            "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#beforeAfter"
+          ],
+          "nextClosureEvidence": "Bind remaining steps individually to exact actor, object, current authority, legal transitions/actions, branch/recovery, scenario and verification; retain NOT_RUN until behavior is executed."
+        },
+        {
+          "predicate": "J01/J02/J03 definition batches cover bounded subsets only, not all journey branches or execution.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience",
+            ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+            ".product-experience/pdp-3-product-experience/journey-contracts/",
+            ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+            "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#beforeAfter"
+          ],
+          "nextClosureEvidence": "Bind remaining steps individually to exact actor, object, current authority, legal transitions/actions, branch/recovery, scenario and verification; retain NOT_RUN until behavior is executed."
+        }
+      ],
+      "priorEvidenceSources": [
+        "/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience",
+        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/",
+        ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+        "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#beforeAfter"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P3-04",
+      "title": "Bind every PDP-3 interaction/action/effect/finality to canonical behavior",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "`interactions`, `transitions`, `actions`, `effects`, `finality`, `recovery` public fields have no hollow or contradictory mappings; negative tests show unauthorized/stale/unknown effects do not proceed.",
+      "dependencies": "P1-02/P1-03/P3-03.",
+      "previousAuditAssessment": "unfinished-definition",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Only a small selected subset of 146 actions has typed effect/finality definitions; residual projection maps 3 unconditional effects and 21 finality records, while 132 actions remain unresolved by parity inventory.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#/projections[PDP-3]",
+            ".product-experience/pdp-3-product-experience/action-registry.yaml",
+            ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml"
+          ],
+          "nextClosureEvidence": "Bind each applicable existing action to exact operation, authorization, legal state/transition, effect, confirmation/finality and recovery; add adversarial tests and retain conditional reversibility as conditional."
+        },
+        {
+          "predicate": "Conditional/unknown reversibility correctly has no public boolean; remaining actions, canonical operations/guards and attachment behavior are undefined.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#/projections[PDP-3]",
+            ".product-experience/pdp-3-product-experience/action-registry.yaml",
+            ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+            ".product-experience/pdp-1-domain-data/action-contracts.yaml"
+          ],
+          "nextClosureEvidence": "Bind each applicable existing action to exact operation, authorization, legal state/transition, effect, confirmation/finality and recovery; add adversarial tests and retain conditional reversibility as conditional."
+        }
+      ],
+      "priorEvidenceSources": [
+        "/tmp/media-execution/full-blocker-residual-2026-10-08.json#/projections[PDP-3]",
+        ".product-experience/pdp-3-product-experience/action-registry.yaml",
+        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
+        ".product-experience/pdp-1-domain-data/action-contracts.yaml"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P3-05",
+      "title": "Build the complete executable scenario/fixture matrix",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "every applicable critical journey has positive, negative and recovery fixtures; fixtures are versioned and referenced by PDP-3 and verification cases; no cross-tenant or unsafe-effect bypass.",
+      "dependencies": "P3-03/P3-04.",
+      "previousAuditAssessment": "unfinished-definition",
+      "previousAuditResiduals": [
+        {
+          "predicate": "31 scenarios: 30 seeded and one retry-eligible scenario unseeded; 15 seeded scenarios lack accepted PDP-1 canonical starts (14 no state link, one only PDP-0 proposal state).",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+            "libs/media-experience-simulation/src/fixtures.ts",
+            ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience"
+          ],
+          "nextClosureEvidence": "Complete source-grounded fixtures/start states, positive/denial/unknown/recovery cases and executable oracles for every applicable journey; resolve retry-eligible prior-attempt source without inventing policy."
+        },
+        {
+          "predicate": "Only 3/30 journeys have complete exact simulation seeds; expected outcomes remain prose, model.effects is empty, and executable canonical oracles/runtime proof are absent.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+            "libs/media-experience-simulation/src/fixtures.ts",
+            ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience"
+          ],
+          "nextClosureEvidence": "Complete source-grounded fixtures/start states, positive/denial/unknown/recovery cases and executable oracles for every applicable journey; resolve retry-eligible prior-attempt source without inventing policy."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+        "libs/media-experience-simulation/src/fixtures.ts",
+        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
+        "/tmp/media-execution/full-blocker-residual-2026-10-08.json#productExperience"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P3-06",
+      "title": "Finish Web presentation through one Media-owned public renderer",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "exact public-export identity and action/DOM/accessibility equality for every admitted compatible GUI family; missing/unsupported production implementation labeled honestly.",
+      "dependencies": "P2-04/P3-02/P3-05.",
+      "previousAuditAssessment": "runtime-outside-current-scope",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Renderer family behavior must meet the exact-export and action/DOM/accessibility equality criterion for every admitted compatible GUI family; current evidence is four source-backed families and 22/22 UI tests, while dependencies P2-04, P3-02 and P3-05 remain open.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "runtime-outside-current-scope",
+          "evidence": [
+            "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#scope",
+            ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#sharedBinding/conformance",
+            "apps/media-experience-explorer/",
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#designConformance"
+          ],
+          "nextClosureEvidence": "Verify exact public-export/action/DOM/accessibility equality across every currently admitted compatible renderer family and resolve applicable P2-04/P3-02/P3-05 definition dependencies. Keep unsupported production implementation explicitly staged; evaluate production-host parity only as downstream runtime qualification."
+        },
+        {
+          "predicate": "Current evidence must continue to label unsupported production implementation honestly. The absent production host is a separate downstream runtime/deployment qualification and is not itself a PDP-3 definition blocker.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "runtime-outside-current-scope",
+          "evidence": [
+            "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#scope",
+            ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#sharedBinding/conformance",
+            "apps/media-experience-explorer/",
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#designConformance"
+          ],
+          "nextClosureEvidence": "Verify exact public-export/action/DOM/accessibility equality across every currently admitted compatible renderer family and resolve applicable P2-04/P3-02/P3-05 definition dependencies. Keep unsupported production implementation explicitly staged; evaluate production-host parity only as downstream runtime qualification."
+        }
+      ],
+      "priorEvidenceSources": [
+        "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#scope",
+        ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#sharedBinding/conformance",
+        "apps/media-experience-explorer/",
+        "/tmp/media-execution/full-blocker-residual-2026-10-08.json#designConformance"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P3-07",
+      "title": "Define non-GUI experiences and typed search/inspection semantics",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "`search`/`inspections` fields directly mapped with public schema and owner refs; all applicable machine channels inspectable and runnable in deterministic mock/fixture mode, no unauthorized real effect.",
+      "dependencies": "P1-05/P2-07/P3-05.",
+      "previousAuditAssessment": "runtime-outside-current-scope",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Bounded upload/artifact/job and selected SDK/CLI reads have exact definitions; task Done also requires applicable machine channels runnable in deterministic mock/fixture mode.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "runtime-outside-current-scope",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#operationParity",
+            ".product-experience/interface-parity/operation-parity.yaml",
+            ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
+            ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml"
+          ],
+          "nextClosureEvidence": "Resolve applicable existing identity/behavior mappings to owning operation contracts and implement/test scoped deterministic interfaces; keep absent interfaces absent and qualify production separately."
+        },
+        {
+          "predicate": "Across 286 identities on nine surfaces, 190 mappings are unresolved and accepted bindings=0. Absence of an Agent Tool is recorded accurately; parity does not follow.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "runtime-outside-current-scope",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#operationParity",
+            ".product-experience/interface-parity/operation-parity.yaml",
+            ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
+            ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml"
+          ],
+          "nextClosureEvidence": "Resolve applicable existing identity/behavior mappings to owning operation contracts and implement/test scoped deterministic interfaces; keep absent interfaces absent and qualify production separately."
+        }
+      ],
+      "priorEvidenceSources": [
+        "/tmp/media-execution/full-blocker-residual-2026-10-08.json#operationParity",
+        ".product-experience/interface-parity/operation-parity.yaml",
+        ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
+        ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P3-08",
+      "title": "Cover feature families and representative complete examples",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "each selected product capability family has a traceable accepted end-to-end example or reviewed explicit exclusion; no example claims an unqualified provider is live.",
+      "dependencies": "P0-07/P3-03/P3-05.",
+      "previousAuditAssessment": "unfinished-definition",
+      "previousAuditResiduals": [
+        {
+          "predicate": "J02 has one source-defined example, not a complete accepted example or reviewed exclusion for every applicable family.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#capabilityCoverage",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            ".product-experience/pdp-3-product-experience/journey-contracts/",
+            ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml"
+          ],
+          "nextClosureEvidence": "Complete a source-backed existing-family example or reviewed exclusion for each applicable family with action/operation/state/scenario/owner/runtime evidence."
+        },
+        {
+          "predicate": "462 capability leaves, 383 unresolved and acceptedCoverageCount=0; provider/runtime/license evidence remains unqualified.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "unfinished-definition",
+          "evidence": [
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#capabilityCoverage",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            ".product-experience/pdp-3-product-experience/journey-contracts/",
+            ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml"
+          ],
+          "nextClosureEvidence": "Complete a source-backed existing-family example or reviewed exclusion for each applicable family with action/operation/state/scenario/owner/runtime evidence."
+        }
+      ],
+      "priorEvidenceSources": [
+        "/tmp/media-execution/full-blocker-residual-2026-10-08.json#capabilityCoverage",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        ".product-experience/pdp-3-product-experience/journey-contracts/",
+        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P3-09",
+      "title": "Validate accessibility, localization, responsive behavior and browser parity",
+      "originalLedgerStatus": "partial",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "partial",
+      "taskSpecificDoneClause": "accepted behavior conformant across applicable variants, zero unreviewed critical visual/accessibility defects, and clear distinction between proposal routes and admitted functionality.",
+      "dependencies": "P2-08/P3-06/P3-05.",
+      "previousAuditAssessment": "independent-authority",
+      "previousAuditResiduals": [
+        {
+          "predicate": "Local browser audit covered 317 indexed records and 47 views across six viewports (282 route/viewport observations), not WCAG/screen-reader or localization/RTL acceptance.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "independent-authority",
+          "evidence": [
+            "docs/implementation/verification/media-experience-browser-audit-2026-10-08/",
+            ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#conformance",
+            "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#outstandingIndependentAuthorities"
+          ],
+          "nextClosureEvidence": "Obtain attributed assistive-technology, visual, responsive, keyboard and localization/RTL review; fix and retest findings. Record production-host checks separately only where a downstream runtime claim requires them."
+        },
+        {
+          "predicate": "Independent review findings and resolution are absent; Shared artifact binding remains owner-pending; production-host qualification is downstream and not a PDP definition gate.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "independent-authority",
+          "evidence": [
+            "docs/implementation/verification/media-experience-browser-audit-2026-10-08/",
+            ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#conformance",
+            "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#outstandingIndependentAuthorities"
+          ],
+          "nextClosureEvidence": "Obtain attributed assistive-technology, visual, responsive, keyboard and localization/RTL review; fix and retest findings. Record production-host checks separately only where a downstream runtime claim requires them."
+        }
+      ],
+      "priorEvidenceSources": [
+        "docs/implementation/verification/media-experience-browser-audit-2026-10-08/",
+        ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#conformance",
+        "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#outstandingIndependentAuthorities"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    },
+    {
+      "id": "P3-10",
+      "title": "Submit independent complete-experience acceptance",
+      "originalLedgerStatus": "blocked-external/independent",
+      "originalFullTaskDone": false,
+      "taskSpecificSourceDone": "NOT_ESTABLISHED",
+      "definitionCriterionSatisfied": false,
+      "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
+      "independentOrPublisherAccepted": "NOT_EVALUATED",
+      "independentReviewAccepted": "NOT_EVALUATED",
+      "nativePhaseProofCurrent": "NOT_EVALUATED",
+      "LifecyclePhaseReceiptCurrent": "NOT_EVALUATED",
+      "overallDone": "blocked-external/independent",
+      "taskSpecificDoneClause": "semantic completeness and required independent expertise recorded; PDP-3 has zero unexplained applicable definition obligations and is eligible for actual Lifecycle evaluation.",
+      "dependencies": "P3-01 through P3-09.",
+      "previousAuditAssessment": "independent-authority",
+      "previousAuditResiduals": [
+        {
+          "predicate": "P3-01..P3-09 remain incomplete; candidate ExperienceSpecification has nine unresolved fields.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "independent-authority",
+          "evidence": [
+            ".product-experience/acceptance.yaml#independentExperienceReviewInputs20261008",
+            ".product-experience/closure-dashboard.yaml#phases.PDP-3",
+            "config/closure/media-product-definition/phase-program.json",
+            "config/closure/media-product-definition/phase-binding.json",
+            "config/closure/media-product-definition/obligations.json",
+            "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#phaseAcceptance",
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle.localReceiptRecordCount=0,authoritativeReceiptCount=null,receiptEvaluation=NOT_EVALUATED"
+          ],
+          "nextClosureEvidence": "After P3-01..09, obtain named independent findings/fixes, admitted Lifecycle evidence and an authoritative current PDP-3 receipt."
+        },
+        {
+          "predicate": "There are zero bound local receipt records; authoritative receipt count is null and receipt/currentness evaluation is NOT_EVALUATED. This does not establish that the global Lifecycle issuer has issued zero receipts.",
+          "owner": "Media PDP-3 owner and corresponding PDP-0/1/2 semantic owners; independent reviewers where stated",
+          "category": "independent-authority",
+          "evidence": [
+            ".product-experience/acceptance.yaml#independentExperienceReviewInputs20261008",
+            ".product-experience/closure-dashboard.yaml#phases.PDP-3",
+            "config/closure/media-product-definition/phase-program.json",
+            "config/closure/media-product-definition/phase-binding.json",
+            "config/closure/media-product-definition/obligations.json",
+            "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#phaseAcceptance",
+            "/tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle.localReceiptRecordCount=0,authoritativeReceiptCount=null,receiptEvaluation=NOT_EVALUATED"
+          ],
+          "nextClosureEvidence": "After P3-01..09, obtain named independent findings/fixes, admitted Lifecycle evidence and an authoritative current PDP-3 receipt."
+        }
+      ],
+      "priorEvidenceSources": [
+        ".product-experience/acceptance.yaml#independentExperienceReviewInputs20261008",
+        ".product-experience/closure-dashboard.yaml#phases.PDP-3",
+        "config/closure/media-product-definition/phase-program.json",
+        "config/closure/media-product-definition/phase-binding.json",
+        "config/closure/media-product-definition/obligations.json",
+        "docs/implementation/media-product-definition-submission-batch-2026-10-08.json#phaseAcceptance",
+        "/tmp/media-execution/full-blocker-residual-2026-10-08.json#lifecycle.localReceiptRecordCount=0,authoritativeReceiptCount=null,receiptEvaluation=NOT_EVALUATED"
+      ],
+      "verification": {
+        "status": "NOT_RUN"
+      }
+    }
+  ],
+  "phases": [
+    {
+      "id": "PDP-0",
+      "definition": "INCOMPLETE",
+      "sourceValidation": "SEE_VERIFICATION_RECORDS",
+      "semanticAcceptance": "NOT_ESTABLISHED",
+      "independentReview": "NOT_EVALUATED",
+      "proofAdmission": "NOT_EVALUATED",
+      "lifecycleCurrent": "NOT_EVALUATED"
+    },
+    {
+      "id": "PDP-1",
+      "definition": "INCOMPLETE",
+      "sourceValidation": "SEE_VERIFICATION_RECORDS",
+      "semanticAcceptance": "NOT_ESTABLISHED",
+      "independentReview": "NOT_EVALUATED",
+      "proofAdmission": "NOT_EVALUATED",
+      "lifecycleCurrent": "NOT_EVALUATED"
+    },
+    {
+      "id": "PDP-2",
+      "definition": "INCOMPLETE",
+      "sourceValidation": "SEE_VERIFICATION_RECORDS",
+      "semanticAcceptance": "NOT_ESTABLISHED",
+      "independentReview": "NOT_EVALUATED",
+      "proofAdmission": "NOT_EVALUATED",
+      "lifecycleCurrent": "NOT_EVALUATED"
+    },
+    {
+      "id": "PDP-3",
+      "definition": "INCOMPLETE",
+      "sourceValidation": "SEE_VERIFICATION_RECORDS",
+      "semanticAcceptance": "NOT_ESTABLISHED",
+      "independentReview": "NOT_EVALUATED",
+      "proofAdmission": "NOT_EVALUATED",
+      "lifecycleCurrent": "NOT_EVALUATED"
+    }
+  ],
+  "currentCounters": {
+    "capabilityLeaves": 462,
+    "unresolvedCapabilityTargets": 383,
+    "migrationSemanticUnresolved": 260,
+    "migrationMixed": 124,
+    "interfaceIdentities": 286,
+    "interfaceUnresolved": 190,
+    "acceptedInterfaceBindings": 0,
+    "designGates": 7,
+    "designOpenGates": 2,
+    "screens": 47,
+    "journeys": 30,
+    "steps": 130,
+    "stepsWithoutActions": 112,
+    "projectionBlockers": {
+      "PDP-0": 0,
+      "PDP-2": 0,
+      "PDP-3": 9
+    },
+    "obligations": 348,
+    "obligationsWithoutCases": 249,
+    "localReceiptRecords": 0,
+    "authoritativeReceiptCount": null,
+    "currentness": {
+      "status": "NOT_EVALUATED",
+      "authoritativeCurrentness": null
+    }
+  },
+  "diagnostics": []
+}
