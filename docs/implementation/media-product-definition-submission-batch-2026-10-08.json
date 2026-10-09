@@ -340,7 +340,7 @@
     "tests/pdp-3-screen-journey-crosslinks.test.mjs",
     "tests/product-definition-authority.test.mjs"
   ],
-  "worktreeAtVerification": "Reviewed definition-only changes on main before source commit; origin/main matches baseMain; full suite/source checks pass; deferred implementation stash retained.",
+  "worktreeAtVerification": "CLEAN after source commit/push; main and origin/main match verifiedMainCommit; deferred implementation stash retained.",
   "selectedDefinition": {
     "operation": "media.operation.transcription-submission",
     "stepId": "J03-2",
@@ -352,5 +352,7 @@
     "runtimeChecks": "All130stepsNOT_RUN; actual evidence empty",
     "fullCapabilityAdmission": "NOT_CLAIMED",
     "recognitionAndJobState": "Not implied by stable request acknowledgment"
-  }
+  },
+  "verifiedMainCommit": "3cde3aee2f4700106ef9ae5d714fae090bff9d18",
+  "originMainAtVerification": "3cde3aee2f4700106ef9ae5d714fae090bff9d18"
 }
