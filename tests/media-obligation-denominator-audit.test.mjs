@@ -21,15 +21,15 @@ const input = () => ({
   parseYaml: parse,
 });
 
-test('audits exact 344 obligation denominator, four phase counts, memberships, and resolvable source records', () => {
+test('audits exact 347 obligation denominator, four phase counts, memberships, and resolvable source records', () => {
   const report = auditMediaObligationDenominator(input());
-  assert.equal(report.total, 344);
-  assert.equal(report.uniqueIds, 344);
-  assert.deepEqual(report.phaseCounts, { 'PDP-0': 38, 'PDP-1': 146, 'PDP-2': 83, 'PDP-3': 77 });
-  assert.equal(report.dispositionRecords, 344);
-  assert.deepEqual(report.sourceReferences, { total: 344, resolved: 344, unresolved: 0 });
+  assert.equal(report.total, 347);
+  assert.equal(report.uniqueIds, 347);
+  assert.deepEqual(report.phaseCounts, { 'PDP-0': 38, 'PDP-1': 149, 'PDP-2': 83, 'PDP-3': 77 });
+  assert.equal(report.dispositionRecords, 347);
+  assert.deepEqual(report.sourceReferences, { total: 347, resolved: 347, unresolved: 0 });
   assert.ok(Object.keys(report.sourceFingerprints.files).length > 0);
-  assert.deepEqual(report.sourceFingerprints.comparison, { present: 344, matching: 344, stale: 0, absent: 0 });
+  assert.deepEqual(report.sourceFingerprints.comparison, { present: 347, matching: 347, stale: 0, absent: 0 });
   assert.equal(report.authoritativeObserverAssignments, 0);
   assert.equal(report.authoritativeOracleAssignments, 0);
   assert.equal(report.status, 'DENOMINATOR_AND_MEMBERSHIP_CHECKED_SOURCE_SEMANTIC_ACCEPTANCE_PENDING');
@@ -50,7 +50,7 @@ test('refreshes the nine operation-source fingerprints only after their semantic
   assert.equal(finalDelta.currentSha256, reconciliation.currentSha256);
 
   const sourced = obligations.filter(({ extensions }) => extensions?.['media-source']?.sourceRef?.startsWith('.product-experience/pdp-1-domain-data/operations.yaml#'));
-  assert.equal(sourced.length, 24);
+  assert.equal(sourced.length, 27);
   const digests = new Set(sourced.map(({ extensions }) => extensions['media-source'].sourceDigest));
   const currentSourceDigest = createHash('sha256')
     .update(fs.readFileSync(path.join(root, '.product-experience/pdp-1-domain-data/operations.yaml'))).digest('hex');
@@ -67,7 +67,7 @@ test('refreshes the nine operation-source fingerprints only after their semantic
   const previouslyReviewed = sourced.filter(({ extensions }) => previouslyReviewedIds.has(extensions['media-source'].recordId));
   assert.equal(previouslyReviewed.length, 9);
   const newlyEnumerated = sourced.filter(({ extensions }) => !previouslyReviewedIds.has(extensions['media-source'].recordId));
-  assert.equal(newlyEnumerated.length, 15);
+  assert.equal(newlyEnumerated.length, 18);
   for (const obligation of previouslyReviewed) {
     const source = obligation.extensions['media-source'];
     const recordId = source.recordId;
@@ -80,13 +80,13 @@ test('refreshes the nine operation-source fingerprints only after their semantic
   assert.match(finalDelta.reviewedCapabilityEvidence.impact, /no capability-leaf operation binding/u);
 });
 
-test('ten individual source slices add obligations but no case, observer, oracle, or admission claims', () => {
+test('thirteen individual source slices add obligations but no case, observer, oracle, or admission claims', () => {
   const obligations = readJson('config/closure/media-product-definition/obligations.json');
   const operations = parse(fs.readFileSync(path.join(root, '.product-experience/pdp-1-domain-data/operations.yaml'), 'utf8'));
   const records = operations.individualOperationContracts.records;
   const ids = records.map(({ id }) => id);
-  assert.equal(records.length, 10);
-  assert.equal(new Set(ids).size, 10);
+  assert.equal(records.length, 13);
+  assert.equal(new Set(ids).size, 13);
   for (const record of records) {
     assert.ok(record.sourceRef, `${record.id} cites a source route`);
     assert.ok(record.sourceBounds, `${record.id} scopes its source claims`);
@@ -99,6 +99,16 @@ test('ten individual source slices add obligations but no case, observer, oracle
     assert.deepEqual(obligation.observerIds, []);
     assert.deepEqual(obligation.oracleIds, []);
     assert.equal(obligation.extensions['media-source'].recordId, record.id);
+  }
+  for (const id of [
+    'media.operation-slice.create-project',
+    'media.operation-slice.list-projects',
+    'media.operation-slice.inspect-project',
+  ]) {
+    const record = records.find((item) => item.id === id);
+    assert.ok(record.sourceBounds, `${id} separates journey requirements from owner-defined details and runtime claims`);
+    assert.match(record.sourceBounds, /J-01/u);
+    assert.match(record.sourceBounds, /no deployed|does not establish|do not establish|do not prescribe/u);
   }
 });
 
@@ -140,10 +150,16 @@ test('PXD-032 adds only the required source-proposal obligation for the progress
   assert.ok(item);
   assert.equal(item.disposition, 'REQUIRED');
   assert.deepEqual(item.phaseSemantics, { applicableIn: ['PDP-2'], blockingIn: ['PDP-2'], affects: ['PDP-2'] });
-  assert.deepEqual(item.caseIds, []);
+  assert.deepEqual(item.caseIds, ['media.definition-case.component-binding.progress-indicator']);
   assert.deepEqual(item.observerIds, []);
   assert.deepEqual(item.oracleIds, []);
   assert.equal(item.extensions['media-source'].recordId, 'media.component.progress-indicator');
+  const caseLinks = readJson('config/closure/media-product-definition/l02-source-case-links.json');
+  const link = caseLinks.candidateLinks.find(({ obligationId }) => obligationId === item.id);
+  assert.equal(link.caseId, 'media.definition-case.component-binding.progress-indicator');
+  assert.equal(link.method, 'PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS');
+  assert.equal(link.scope, 'PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY');
+  assert.equal(link.admission, 'NOT_LIFECYCLE_ADMITTED');
   assert.equal(item.extensions['media-source'].sourceRef, '.product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/media.component.progress-indicator');
   const acceptance = parse(fs.readFileSync(path.join(root, '.product-experience/acceptance.yaml'), 'utf8'));
   const decision = acceptance.recordedHumanDecisionInputs.find(({ id }) => id === 'ACCEPT-INPUT-MEDIA-OWNER-PDP2-PROGRESS-OBLIGATION-20261008');
@@ -180,6 +196,6 @@ test('flags a missing persisted source digest', () => {
   const data = input();
   delete data.obligations[0].extensions['media-source'].sourceDigest;
   const report = auditMediaObligationDenominator(data);
-  assert.deepEqual(report.sourceFingerprints.comparison, { present: 343, matching: 343, stale: 0, absent: 1 });
+  assert.deepEqual(report.sourceFingerprints.comparison, { present: 346, matching: 346, stale: 0, absent: 1 });
   assert.ok(report.issues.some((issue) => issue.code === 'MISSING_SOURCE_FINGERPRINT'));
 });

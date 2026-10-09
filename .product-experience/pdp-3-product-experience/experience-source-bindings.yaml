@@ -5,6 +5,7 @@ authority: Media PDP-3 scenario fixture registry, existing deterministic simulat
 sourceRefs:
   - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
   - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+  - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml
   - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
   - .product-experience/pdp-3-product-experience/search-inspection-contracts.yaml
   - .product-experience/pdp-0-product-truth/state-models.yaml
@@ -97,6 +98,56 @@ recoveryCrossReferences:
     scenarioRefs: [media.scenario.caption-conflict]
     actionRefs: [media.action.resolve-caption-conflict]
     rationale: The recovery path preserves both versions and requires an explicit resolution; the linked fixture has concurrent caption versions and a conflicted draft.
+j01StepBindings:
+  status: SOURCE_DEFINED_OWNER_ACCEPTED
+  journeyRef: J-01
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-054
+  reviewDecisionRef: .product-experience/decision-log.md#PXD-055
+  runtimeAdmission: NOT_ADMITTED
+  steps:
+    - stepId: J01-1
+      screenRef: media.view.authenticate-and-select-context
+      actorRefs: [media.creator, media.editor, media.administrator]
+      operationRef: null
+      externalHandoffRef: media.handoff.identity
+      domainObjectRefs: []
+      authority: Shared admitted identity contract establishes trusted principal and authorized workspace; Media does not authenticate or infer authority from actor labels.
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      transitionReason: External identity/context handoff; no Media domain state changes.
+    - stepId: J01-2
+      screenRef: media.view.resume-work
+      actorRefs: [media.creator, media.editor]
+      operationRef: media.operation-slice.list-projects
+      domainObjectRefs: [media.domain.project]
+      stateRefs: [media-project/ACTIVE, media-project/ARCHIVED]
+      authority: Current trusted tenant/principal plus currently authorized selected workspace; project policy filters every returned summary.
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      transitionReason: Time-scoped authorized collection query; empty results are not global absence.
+    - stepId: J01-3
+      screenRef: media.view.find-projects
+      actorRefs: [media.creator, media.editor, media.administrator]
+      actionRef: media.action.create-project
+      operationRef: media.operation-slice.create-project
+      domainObjectRefs: [media.domain.project, media.domain.project-revision]
+      stateRefs: [media-project/ACTIVE, media-project-version/COMMITTED]
+      authority: Trusted tenant/principal, selected authorized workspace, and current project-create policy at effect boundary; actor labels do not grant permission.
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      transitionReason: Atomic initial aggregate creation establishes ACTIVE project and empty immutable COMMITTED revision; no transition edge is inferred.
+      unknownRecoveryOperationRef: media.operation-slice.inspect-project
+      unknownRecoverySelector: creationRequestId bound to the same tenant/principal/workspace/title; absence or unavailable observation is not proof of no effect.
+    - stepId: J01-4
+      screenRef: media.view.work-in-project
+      actorRefs: [media.creator, media.editor, media.reviewer]
+      operationRef: media.operation-slice.inspect-project
+      domainObjectRefs: [media.domain.project, media.domain.project-revision]
+      stateRefs: [media-project/ACTIVE, media-project/ARCHIVED, media-project-version/COMMITTED]
+      authority: Current authorization for the exact project in the selected tenant/workspace; reads expose project/revision metadata only.
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      transitionReason: Exact project head observation is read-only; it grants no artifact rights or availability.
+  screenApplicability:
+    required: [media.view.authenticate-and-select-context, media.view.resume-work, media.view.find-projects, media.view.work-in-project]
+    optionalPostJourneyContinuation: media.view.create-media
+    optionalContinuationBoundary: Project creation is the J-01 terminal outcome; intent selection or processing submission belongs to its own journey and operation.
 j02RecoveryApplicability:
   status: SOURCE_DEFINED_OWNER_ACCEPTED
   journeyRef: J-02

@@ -1,6 +1,7 @@
 schemaVersion: media.journey-registry.v1
 productId: media
-status: all-28-required-journeys-have-proposal-files; J-01-J-03-and-J-20-retain-scoped-proposal-slices; full-pdp-3-contracts-and-acceptance-pending
+status: all-28-required-journeys-have-proposal-files; J-01-J-03-and-J-20-retain-scoped-proposal-slices;
+  full-pdp-3-contracts-and-acceptance-pending
 pdp0Authority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
 journeySource: docs/migration/expert-reviewed-master-plan.md#20-4-required-end-to-end-journeys
 requiredMasterPlanJourneyCount: 28
@@ -11,7 +12,8 @@ journeys:
   pdp0JourneyRef: J-01
   requiredByMasterPlan: true
   contract: journey-contracts/first-use-and-project-creation.yaml
-  detailState: proposal-authored; six-synthetic-first-use-pdp-3-fixtures-authored; identity-service-and-complete-channel-coverage-pending
+  detailState: proposal-authored; six-synthetic-first-use-pdp-3-fixtures-authored;
+    identity-service-and-complete-channel-coverage-pending
 - id: J-02
   title: Upload/import, inspect, and produce a usable artifact
   pdp0JourneyRef: J-02
@@ -186,8 +188,8 @@ journeys:
   requiredByMasterPlan: false
   contract: journey-contracts/check-which-processing-options-are-eligible.yaml
   detailState: pdp-0-grounded-contract-authored; option-eligibility-fixtures-and-owner-semantics-review-pending
-coverageRule: Every-required-journey-needs-a-complete-channel-contract; the J-03 lane contract does not pass full
-  PDP-3 acceptance.
+coverageRule: Every-required-journey-needs-a-complete-channel-contract; the J-03 lane
+  contract does not pass full PDP-3 acceptance.
 coverageObservation:
   status: source-inventory-only; semantic-acceptance-pending
   journeyContractCount: 30
@@ -196,27 +198,42 @@ coverageObservation:
     screenContractRef:
       linked: 130
       unresolved: 0
-      blocker: none; J-29-and-J-30-step-views-are-owner-selected-from-the-exact-PDP-0-view-inventory-and-canonical-PDP-3-screen-contracts; proposal-binding-and-screen-admission-remain-pending
+      blocker: none; J-29-and-J-30-step-views-are-owner-selected-from-the-exact-PDP-0-view-inventory-and-canonical-PDP-3-screen-contracts;
+        proposal-binding-and-screen-admission-remain-pending
     action:
       linked: 18
       unresolved: 112
       blocker: remaining-steps-have-no-exact-step-level-action-allocation; screen-action-candidates-are-not-equivalent-to-journey-step-actions
     objectRefs:
-      empty: 125
-      blocker: canonical-domain-semantics-and-step-object-allocation-remain-unresolved
+      empty: 122
+      blocker: 122 ordered steps still have no explicit canonical domain-object binding;
+        J-01 contributes four scoped step definitions, three with project identities,
+        while the remainder stays unresolved.
     stateRefs:
-      empty: 125
-      blocker: accepted-state-machine-binding-and-step-transition-allocation-remain-unresolved
+      empty: 122
+      blocker: 122 ordered steps still have no explicit canonical state binding; J-01
+        contributes four scoped step definitions, three with exact project lifecycle
+        states, while the remainder stays unresolved.
     canonicalOperationRef:
       null: 114
-      nonNullCandidateRefs: 16
-      acceptance: pending; non-null-proposal-references-do-not-establish-operation-equivalence
+      nonNullCandidateRefs: 19
+      acceptance: J-01 adds three exact bounded project operation references under
+        PDP-1; all remain NOT_ADMITTED and other non-null proposal references do not
+        establish operation equivalence.
+      'null': 111
     authorityRef:
       null: 125
-      blocker: step-level-authority-allocation-remains-unresolved
+      blocker: 121 ordered steps still lack an explicit step-level authority reference;
+        J-01 defines four bounded authority boundaries, with runtime identity and
+        policy enforcement unqualified.
+      'null': 121
     transitionRef:
       null: 128
-      blocker: canonical-legal-transition-allocation-remains-unresolved
+      blocker: 'No J-01 transition was fabricated: four no-transition dispositions
+        cover external identity handoff, scoped project queries, and atomic initial
+        aggregate creation; 128 null refs remain and unrelated transitions are unresolved.'
+      'null': 128
+      sourceDefinedNoMutationReasonCount: 7
     requirementRefs:
       empty: 112
       blocker: requirement-to-step-crosswalk-remains-unresolved
@@ -224,11 +241,17 @@ coverageObservation:
       notRun: 130
       evidenceRefsPresent: 0
       accepted: 0
+    evidenceBasis: Parsed all 30 ordered journey contracts and the scenario fixture
+      registry; J-01 has four owner-defined steps linked to three exact project slices
+      and explicit no-transition dispositions, while runtime admission, independent
+      review, behavioral evidence and currentness remain pending.
   scenarioReferences:
     journeysWithRefs: 3
     journeysWithoutRefs: 27
     status: deterministic-seed-payloads-exist-for-J-01-through-J-03-only; remaining-journey-scenarios-uncovered
-  evidenceBasis: parsed-journey-contract-directory-and-scenario-fixture-registry; J-29-and-J-30-views-are-bounded-Media-owner-selections-from-exact-PDP-0-view-intents-and-PDP-3-screen-contracts; counts-are-proposal-inventory-and-do-not-establish-behavior-acceptance-or-currentness
+  evidenceBasis: parsed-journey-contract-directory-and-scenario-fixture-registry;
+    J-29-and-J-30-views-are-bounded-Media-owner-selections-from-exact-PDP-0-view-intents-and-PDP-3-screen-contracts;
+    counts-are-proposal-inventory-and-do-not-establish-behavior-acceptance-or-currentness
 
 selectedDefinitionReviewObservation:
   sourceRef: journey-contracts/upload-import-and-verify-artifact.yaml#definitionReview
@@ -237,3 +260,16 @@ selectedDefinitionReviewObservation:
   existingStepsWithBoundedDefinition: 5
   phaseAcceptance: NOT_CLAIMED
   runtimeAdmission: NOT_ADMITTED
+j01DefinitionReviewObservation:
+  sourceRef: journey-contracts/first-use-and-project-creation.yaml#definitionReview
+  decisionRef: .product-experience/decision-log.md#PXD-055
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-054
+  journeyId: J-01
+  existingStepsWithBoundedDefinition: 4
+  requiredScreenContracts: 4
+  optionalPostJourneyScreen: media.view.create-media
+  exactProjectOperationReferences: 3
+  projectStateTransitionReferences: 0
+  runtimeAdmission: NOT_ADMITTED
+  independentReview: PENDING
+  phaseAcceptance: NOT_CLAIMED

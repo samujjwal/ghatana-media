@@ -89,7 +89,7 @@ acceptance.
   candidate that passes its available public validator. It projects 31
   component contracts, 47 views, 30 journey records with 130 of 130 source
   steps, 20 interactions,
-  49 states, 0 transitions, 146 actions, 1 effect, 19 finality candidates,
+  49 states, 0 transitions, 146 actions, 2 effects, 20 finality candidates,
   5 recovery records, 15 scenarios, 15 fixture descriptors, 3 search
   definitions, and 5 inspection definitions. Its nine semantic blockers are
   `componentContracts`, `views`,

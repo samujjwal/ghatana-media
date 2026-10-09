@@ -84,6 +84,10 @@ test("PDP-1 state inventory preserves the PDP-0 proposal without accepting its s
     assert.equal(machine.stateCount, sourceStateIds.length);
     if (machine.machineId === "media-upload-and-artifact") {
       assert.match(machine.meaningDisposition, /bounded-RECEIVING-VERIFYING-AVAILABLE-QUARANTINED-REJECTED-meanings-and-T01-T02-guards-defined-under-PXD-049; EXPIRED-and-remaining-lifecycle-guards-open; runtime-NOT_ADMITTED/u);
+    } else if (machine.machineId === "media-project") {
+      assert.match(machine.meaningDisposition, /bounded-J01-ACTIVE-initial-create-and-authorized-inspection-semantics-under-PXD-054; archive-and-restore-guards-remain-pending/u);
+    } else if (machine.machineId === "media-project-version") {
+      assert.match(machine.meaningDisposition, /bounded-J01-COMMITTED-empty-initial-revision-and-immutable-head-identity-under-PXD-054; draft-commit-branch-restore-and-conflict-guards-remain-pending/u);
     } else {
       assert.match(machine.meaningDisposition, /pending-owner-review|owner decision required/u);
     }
@@ -124,6 +128,10 @@ test("PDP-1 transition extraction preserves every source edge and leaves guards 
       assert.deepEqual(transition.operationRefs, []);
       assert.match(transition.operationBinding, /no-existing-verification-operation-identity/u);
       assert.equal(transition.evidenceGuards.outcomeRules.AVAILABLE, "all-applicable-records-current-positive-and-bound-to-the-same-exact-subject");
+    } else if (transition.sourceMachineId.startsWith("media-project")) {
+      assert.match(transition.guardDisposition, /pending-owner-review/u);
+      assert.deepEqual(transition.operationRefs, []);
+      assert.match(transition.operationBinding, /unresolved/u);
     } else {
       assert.match(transition.guardDisposition, /pending-owner-review/u);
       assert.match(transition.operationBinding, /unresolved/u);

@@ -20,13 +20,13 @@ patternIds:
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
-domainObjectRefs: []
+domainObjectRefs: [media.domain.project, media.domain.project-revision]
 domainObjectRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-operationRefs: []
+operationRefs: [media.operation-slice.inspect-project]
 requirementRefs: []
 requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 operationRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-stateRefs: []
+stateRefs: [media-project/ACTIVE, media-project/ARCHIVED, media-project-version/COMMITTED]
 stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 entry: []
 entryBindingStatus: unresolved-no-exact-canonical-reference-declared
@@ -146,3 +146,12 @@ journeyRefs:
   - J-01
   - J-20
   - J-23
+journeyDefinitionBindings:
+  journeyRef: J-01
+  decisionRef: .product-experience/decision-log.md#PXD-055
+  runtimeAdmission: NOT_ADMITTED
+  applicability: required-J01-view
+  operationRefs: [media.operation-slice.inspect-project]
+  domainObjectRefs: [media.domain.project, media.domain.project-revision]
+  stateRefs: [media-project/ACTIVE, media-project/ARCHIVED, media-project-version/COMMITTED]
+  semanticBoundary: Exact authorized project/current head metadata only; no artifact bytes, rights, or availability.

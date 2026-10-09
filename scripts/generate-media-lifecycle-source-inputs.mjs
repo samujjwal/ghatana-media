@@ -103,6 +103,8 @@ l02.obligationIds = allIds;
 l02.unmappedObligationIds = allIds.filter((id) => !linkedIds.has(id));
 
 const l03 = readJson(`${base}/l03-proof-route-candidates.json`);
+l03.l02CaseLinkReview.reviewedLinkCount = l02.candidateLinks.length;
+l03.l02CaseLinkReview.reviewedObligationCount = linkedIds.size;
 l03.l02CaseLinkReview.obligationDenominator = allIds.length;
 l03.l02CaseLinkReview.unmappedObligationCount = l02.unmappedObligationIds.length;
 l03.l02CaseLinkReview.authoritativeAssignments = `UNCHANGED_ZERO_OF_${allIds.length}`;

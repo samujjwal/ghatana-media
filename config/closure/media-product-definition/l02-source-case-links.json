@@ -2,7 +2,7 @@
   "schemaVersion": "ghatana.closure.l02-source-case-links",
   "linkSetId": "media.product-definition.l02-source-case-links.v1",
   "status": "SOURCE_LINK_PROPOSAL_PARTIAL_NOT_EXECUTION_ADMITTED",
-  "description": "Local source links from exact existing obligation case IDs to deterministic simulation test declarations that construct those same scenarios and assert relevant behavior. These are not Lifecycle registrations, admitted proof cases, authoritative observers/oracles, receipts, or PASS results.",
+  "description": "Exact existing source obligation links to simulation assertions and authored parameterized component-definition cases. Definition cases test role/interaction/source integrity with per-component negative mutations; they do not prove rendered behavior or independent conformance. No Lifecycle registrations, authoritative observers/oracles, receipts or whole-obligation PASS is claimed.",
   "obligationIds": [
     "media.pdp-0.requirement.media-req-cap-animation",
     "media.pdp-0.requirement.media-req-cap-animation-editing",
@@ -145,9 +145,12 @@
     "media.pdp-1.requirement.media.operation-slice.cancel-job",
     "media.pdp-1.requirement.media.operation-slice.check-job-outcome",
     "media.pdp-1.requirement.media.operation-slice.complete-upload",
+    "media.pdp-1.requirement.media.operation-slice.create-project",
     "media.pdp-1.requirement.media.operation-slice.inspect-artifact",
     "media.pdp-1.requirement.media.operation-slice.inspect-job",
+    "media.pdp-1.requirement.media.operation-slice.inspect-project",
     "media.pdp-1.requirement.media.operation-slice.inspect-upload",
+    "media.pdp-1.requirement.media.operation-slice.list-projects",
     "media.pdp-1.requirement.media.operation-slice.retry-job",
     "media.pdp-1.requirement.media.operation-slice.submit-job",
     "media.pdp-1.requirement.media.operation.artifact-ingest",
@@ -611,6 +614,812 @@
       },
       "assertionEvidence": "assert.deepEqual(parsed.action, { type: \"media.action.request-transcription\", languageTag: \"en-US\" })",
       "scope": "PARTIAL_CASE_ASSERTIONS_ONLY"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.identity-context-boundary",
+      "caseId": "media.definition-case.component-binding.identity-context-boundary",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.identity-context-boundary"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.identity-context-boundary",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 0
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.intent-launcher",
+      "caseId": "media.definition-case.component-binding.intent-launcher",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.intent-launcher"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.intent-launcher",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 1
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.project-browser",
+      "caseId": "media.definition-case.component-binding.project-browser",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.project-browser"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.project-browser",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 2
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.project-context-summary",
+      "caseId": "media.definition-case.component-binding.project-context-summary",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.project-context-summary"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.project-context-summary",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 3
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.creation-plan-summary",
+      "caseId": "media.definition-case.component-binding.creation-plan-summary",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.creation-plan-summary"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.creation-plan-summary",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 4
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.source-picker",
+      "caseId": "media.definition-case.component-binding.source-picker",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.source-picker"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.source-picker",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 5
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.source-player",
+      "caseId": "media.definition-case.component-binding.source-player",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.source-player"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.source-player",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 6
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.transcript-review",
+      "caseId": "media.definition-case.component-binding.transcript-review",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.transcript-review"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.transcript-review",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 7
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.caption-track-editor",
+      "caseId": "media.definition-case.component-binding.caption-track-editor",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.caption-track-editor"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.caption-track-editor",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 8
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.job-status-card",
+      "caseId": "media.definition-case.component-binding.job-status-card",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.job-status-card"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.job-status-card",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 9
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.provenance-summary",
+      "caseId": "media.definition-case.component-binding.provenance-summary",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.provenance-summary"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.provenance-summary",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 10
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.artifact-source-picker",
+      "caseId": "media.definition-case.component-binding.artifact-source-picker",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.artifact-source-picker"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.artifact-source-picker",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 11
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.artifact-transfer-status",
+      "caseId": "media.definition-case.component-binding.artifact-transfer-status",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.artifact-transfer-status"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.artifact-transfer-status",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 12
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.artifact-integrity-summary",
+      "caseId": "media.definition-case.component-binding.artifact-integrity-summary",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.artifact-integrity-summary"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.artifact-integrity-summary",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 13
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.artifact-browser",
+      "caseId": "media.definition-case.component-binding.artifact-browser",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.artifact-browser"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.artifact-browser",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 14
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.waveform-spectrogram",
+      "caseId": "media.definition-case.component-binding.waveform-spectrogram",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.waveform-spectrogram"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.waveform-spectrogram",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 15
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.storyboard",
+      "caseId": "media.definition-case.component-binding.storyboard",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.storyboard"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.storyboard",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 16
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.timeline-keyframe-editor",
+      "caseId": "media.definition-case.component-binding.timeline-keyframe-editor",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.timeline-keyframe-editor"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.timeline-keyframe-editor",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 17
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.audio-mixer",
+      "caseId": "media.definition-case.component-binding.audio-mixer",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.audio-mixer"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.audio-mixer",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 18
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.mask-tracking-editor",
+      "caseId": "media.definition-case.component-binding.mask-tracking-editor",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.mask-tracking-editor"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.mask-tracking-editor",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 19
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.scene-inspector",
+      "caseId": "media.definition-case.component-binding.scene-inspector",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.scene-inspector"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.scene-inspector",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 20
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.simulation-instruments",
+      "caseId": "media.definition-case.component-binding.simulation-instruments",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.simulation-instruments"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.simulation-instruments",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 21
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.result-comparison",
+      "caseId": "media.definition-case.component-binding.result-comparison",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.result-comparison"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.result-comparison",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 22
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.quality-inspector",
+      "caseId": "media.definition-case.component-binding.quality-inspector",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.quality-inspector"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.quality-inspector",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 23
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.delivery-profile-picker",
+      "caseId": "media.definition-case.component-binding.delivery-profile-picker",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.delivery-profile-picker"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.delivery-profile-picker",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 24
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.rights-retention-review",
+      "caseId": "media.definition-case.component-binding.rights-retention-review",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.rights-retention-review"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.rights-retention-review",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 25
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.activity-recovery-feed",
+      "caseId": "media.definition-case.component-binding.activity-recovery-feed",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.activity-recovery-feed"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.activity-recovery-feed",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 26
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.progress-indicator",
+      "caseId": "media.definition-case.component-binding.progress-indicator",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.progress-indicator"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.progress-indicator",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 27
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.task-flow",
+      "caseId": "media.definition-case.component-binding.task-flow",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.task-flow"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.task-flow",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 28
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.voice-production-workflow",
+      "caseId": "media.definition-case.component-binding.voice-production-workflow",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.voice-production-workflow"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.voice-production-workflow",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 29
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
+    },
+    {
+      "obligationId": "media.pdp-2.requirement.media.component.cli-output",
+      "caseId": "media.definition-case.component-binding.cli-output",
+      "method": "PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-component-definition-proof-cases.test.mjs",
+        "testName": "component definition proof: media.component.cli-output"
+      },
+      "parameterizedCase": {
+        "parameterName": "componentRef",
+        "parameterValue": "media.component.cli-output",
+        "template": "component definition proof: ${componentRef}",
+        "sourcePopulationRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components",
+        "sourceRecordIndex": 30
+      },
+      "assertionEvidence": "assert.deepEqual(validateComponentDefinitionBindings(bindings, contracts), []);",
+      "negativeAssertions": [
+        "stale-role",
+        "missing-keyboard-source",
+        "forged-implementation-admission",
+        "missing-selected-component"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-057"
     }
   ],
   "unmappedObligationIds": [
@@ -755,9 +1564,12 @@
     "media.pdp-1.requirement.media.operation-slice.cancel-job",
     "media.pdp-1.requirement.media.operation-slice.check-job-outcome",
     "media.pdp-1.requirement.media.operation-slice.complete-upload",
+    "media.pdp-1.requirement.media.operation-slice.create-project",
     "media.pdp-1.requirement.media.operation-slice.inspect-artifact",
     "media.pdp-1.requirement.media.operation-slice.inspect-job",
+    "media.pdp-1.requirement.media.operation-slice.inspect-project",
     "media.pdp-1.requirement.media.operation-slice.inspect-upload",
+    "media.pdp-1.requirement.media.operation-slice.list-projects",
     "media.pdp-1.requirement.media.operation-slice.retry-job",
     "media.pdp-1.requirement.media.operation-slice.submit-job",
     "media.pdp-1.requirement.media.operation.artifact-ingest",
@@ -798,37 +1610,6 @@
     "media.pdp-1.requirement.media.value.source-pts",
     "media.pdp-1.requirement.media.value.uncertainty",
     "media.pdp-1.requirement.media.value.wall-clock-instant",
-    "media.pdp-2.requirement.media.component.activity-recovery-feed",
-    "media.pdp-2.requirement.media.component.artifact-browser",
-    "media.pdp-2.requirement.media.component.artifact-integrity-summary",
-    "media.pdp-2.requirement.media.component.artifact-source-picker",
-    "media.pdp-2.requirement.media.component.artifact-transfer-status",
-    "media.pdp-2.requirement.media.component.audio-mixer",
-    "media.pdp-2.requirement.media.component.caption-track-editor",
-    "media.pdp-2.requirement.media.component.cli-output",
-    "media.pdp-2.requirement.media.component.creation-plan-summary",
-    "media.pdp-2.requirement.media.component.delivery-profile-picker",
-    "media.pdp-2.requirement.media.component.identity-context-boundary",
-    "media.pdp-2.requirement.media.component.intent-launcher",
-    "media.pdp-2.requirement.media.component.job-status-card",
-    "media.pdp-2.requirement.media.component.mask-tracking-editor",
-    "media.pdp-2.requirement.media.component.progress-indicator",
-    "media.pdp-2.requirement.media.component.project-browser",
-    "media.pdp-2.requirement.media.component.project-context-summary",
-    "media.pdp-2.requirement.media.component.provenance-summary",
-    "media.pdp-2.requirement.media.component.quality-inspector",
-    "media.pdp-2.requirement.media.component.result-comparison",
-    "media.pdp-2.requirement.media.component.rights-retention-review",
-    "media.pdp-2.requirement.media.component.scene-inspector",
-    "media.pdp-2.requirement.media.component.simulation-instruments",
-    "media.pdp-2.requirement.media.component.source-picker",
-    "media.pdp-2.requirement.media.component.source-player",
-    "media.pdp-2.requirement.media.component.storyboard",
-    "media.pdp-2.requirement.media.component.task-flow",
-    "media.pdp-2.requirement.media.component.timeline-keyframe-editor",
-    "media.pdp-2.requirement.media.component.transcript-review",
-    "media.pdp-2.requirement.media.component.voice-production-workflow",
-    "media.pdp-2.requirement.media.component.waveform-spectrogram",
     "media.pdp-2.requirement.media.gui.layout.collection",
     "media.pdp-2.requirement.media.gui.layout.consent",
     "media.pdp-2.requirement.media.gui.layout.job-observation",

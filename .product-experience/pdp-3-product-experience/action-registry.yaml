@@ -156,6 +156,28 @@ actions:
   componentRefs:
   - media.component.project-browser
   componentBindingState: component-use-proposed; interaction-and-owner-binding-pending
+  actionDefinitionSemantics:
+    actionRef: media.action.create-project
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-054
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-055
+    runtimeAdmission: NOT_ADMITTED
+    operationRef: media.operation-slice.create-project
+    effectKind: state-change
+    reversibility:
+      kind: NOT_REVERSIBLE
+      scope: One atomic create establishes the project, its empty immutable initial revision, and its head reference; no project-delete or undo operation is defined here.
+    publicEffect:
+      id: media.effect.create-empty-project
+      name: Create empty project
+      kind: state-change
+      description: Create one authorized ACTIVE project with an empty immutable COMMITTED initial revision and matching head identity after an authoritative durable commit receipt.
+      reversible: false
+    publicFinality:
+      id: media.finality.create-empty-project
+      actionRef: media.action.create-project
+      description: Confirm creation only when the durable atomic project, initial revision, and head receipt returns the same opaque identities.
+      confirmationRequired: true
+      undoable: false
 - id: media.action.inspect-project-creation
   label: Inspect project creation status
   actorRefs: [media.creator, media.administrator]
@@ -165,6 +187,18 @@ actions:
   reversible: true
   finality: read-only; unknown-remains-unknown-without-authoritative-project-evidence
   failure: preserve-the-same-request-identity-and-do-not-offer-blind-duplicate-creation
+  actionDefinitionSemantics:
+    actionRef: media.action.inspect-project-creation
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-054
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-055
+    runtimeAdmission: NOT_ADMITTED
+    operationRef: media.operation-slice.inspect-project
+    selector: creationRequestId-bound-to-same-tenant-principal-workspace-and-exact-original-title
+    effectKind: external-call
+    reversibility:
+      kind: UNKNOWN
+      scope: Reconciliation is read-only for project state, but durable access observations may exist; scoped absence or unavailability does not resolve whether create committed.
+    publicBooleanDisposition: PUBLIC_BOOLEAN_NOT_REPRESENTABLE
 - id: media.action.open-project
   label: Open this project
   actorRefs: [media.creator, media.editor, media.reviewer]
@@ -177,6 +211,18 @@ actions:
   componentRefs:
   - media.component.project-browser
   componentBindingState: component-use-proposed; interaction-and-owner-binding-pending
+  actionDefinitionSemantics:
+    actionRef: media.action.open-project
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-054
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-055
+    runtimeAdmission: NOT_ADMITTED
+    operationRef: media.operation-slice.inspect-project
+    selector: exact-projectId-in-current-tenant-principal-and-selected-workspace-scope
+    effectKind: external-call
+    reversibility:
+      kind: UNKNOWN
+      scope: The query does not mutate project state, but durable access observations may exist and cannot be undone by navigation away.
+    publicBooleanDisposition: PUBLIC_BOOLEAN_NOT_REPRESENTABLE
 - id: media.action.choose-source
   label: Choose a recording
   actorRefs: [media.creator, media.editor]

@@ -9,17 +9,21 @@ objects:
   - id: media.domain.project
     name: MediaProject
     kind: entity
-    identity: stable-opaque-project-id
-    lifecycle: versioned-metadata; revisions-reference-artifact-versions
-    scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject]
+    identity: tenantId-plus-stable-opaque-projectId; workspaceId-is-an-explicit-owner-scope; projectId-is-never-reused-within-tenant
+    lifecycle: ACTIVE-or-ARCHIVED-container; title-and-headRevisionId-change-only-through-versioned-revision; referenced-artifact-bytes-are-not-embedded
+    initialState: create-establishes-ACTIVE-project-and-its-head-to-an-immutable-empty-COMMITTED-revision-atomically
+    titleSemantics: required-user-supplied-display-title; trimmed-for-blank-validation-but-the-recorded-title-is-the-submitted-Unicode-string; no-silent-title-generation
+    authorityBoundary: tenant-and-workspace-context-come-from-authenticated-host; project-policy-decides-current-principal-access; actor-role-labels-do-not-grant
+    scopeStatus: bounded-J01-owner-definition-under-PXD-054; independent-PDP1-review-open; runtime-NOT_ADMITTED
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject, .product-experience/pdp-0-product-truth/state-models.yaml#media-project, docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities]
   - id: media.domain.project-revision
     name: ProjectRevision
     kind: immutable-project-snapshot
-    identity: project-id-and-revision-reference; exact-format-unbound
-    lifecycle: append-only-revision
-    scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject]
+    identity: tenantId-plus-projectId-plus-stable-opaque-revisionId; revisionId-is-not-a-content-digest
+    lifecycle: immutable-after-commit; every-project-has-one-current-head-reference; any later semantic edit creates a new revision
+    initialRevision: unique-opaque-revisionId; COMMITTED; parentRevisionId-null; empty assets-scenes-timelines-and-settings; created atomically with project
+    scopeStatus: bounded-J01-owner-definition-under-PXD-054; independent-PDP1-review-open; runtime-NOT_ADMITTED
+    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject, .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version, docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities]
   - id: media.domain.artifact
     name: MediaArtifact
     kind: entity

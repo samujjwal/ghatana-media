@@ -121,7 +121,7 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   }, {
     resolvedActorCount: 30,
     unresolvedActorCount: 0,
-    authoredStepIds: 13,
+    authoredStepIds: 17,
     authoredIntents: 8,
     authoredViewIntents: 98,
     authoredLabels: 4,
@@ -175,7 +175,7 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.linkedViewPurposeProposalOnlyCount, 24);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.omitted.length, 0);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNullCount, 128);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNoMutationReasonCount, 3);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNoMutationReasonCount, 7);
   assert.match(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.disposition, /required schema placeholder/u);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.transitionRefsNull, 128);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.stepViewUnresolved, 0);
@@ -246,7 +246,7 @@ test('PDP-3 finality projects only explicit confirmations and source boolean rev
   const explicit = actionRegistry.actions.flatMap((action) => action.actionDefinitionSemantics?.publicFinality ? [action.actionDefinitionSemantics.publicFinality] : []);
   const explicitActions = new Set(explicit.map((entry) => entry.actionRef));
   assert.equal(model.finality.length, expected.filter((action) => !explicitActions.has(action.id)).length + explicit.length);
-  assert.equal(model.finality.length, 19);
+  assert.equal(model.finality.length, 20);
   for (const finality of model.finality) {
     const action = sourceById.get(finality.actionRef);
     assert.ok(action, `finality action ${finality.actionRef} is exact`);
@@ -272,7 +272,8 @@ test('PDP-3 preserves exact action prose while leaving unsupported effect taxono
     if (["CONDITIONAL", "UNKNOWN"].includes(source.actionDefinitionSemantics?.reversibility.kind)) assert.equal(definedEffect, undefined);
   }
   assert.deepEqual(model.effects, actionRegistry.actions.flatMap((action) => action.actionDefinitionSemantics?.publicEffect ? [action.actionDefinitionSemantics.publicEffect] : []));
-  assert.equal(model.effects.length, 1, 'only the unconditional attachment definition has a directly representable effect');
+  assert.equal(model.effects.length, 2, 'the unconditional attachment and project-creation definitions have directly representable effects');
+  assert.deepEqual(model.effects.map(({ id }) => id).sort(), ['media.effect.attach-source-version', 'media.effect.create-empty-project']);
   const blocker = specification.fieldMappingBlockers.find(({ field }) => field === 'effects');
   assert.ok(blocker?.reasons?.some((reason) => /effect kind|reversib/iu.test(reason)));
 });

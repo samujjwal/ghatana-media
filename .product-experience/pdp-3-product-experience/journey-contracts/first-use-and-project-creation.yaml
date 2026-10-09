@@ -3,15 +3,20 @@ productId: media
 journeyId: J-01
 title: First use, authentication, context, and project creation
 status: proposal; upstream-acceptance-and-role-review-pending
-scope: create-an-empty-versioned-project-in-an-authorized-workspace; media-processing-and-output-delivery-remain-outside-this-journey
+scope: resolve-identity-and-authorized-workspace-through-external-Shared-contract;
+  observe-only-authorized-projects; create-one-empty-versioned-project; inspect-exact-project-head;
+  processing-intent-selection-remains-outside-J-01
 outcomes: [media.goal.finished-asset, media.goal.resolve-safely, media.goal.preserve-source]
 actors: [media.creator, media.administrator, media.editor, media.operator]
 intent: media.intent.restore-project
 channels: [media.channel.web]
 preconditions:
-  - Resolve an authenticated principal and authorized tenant/workspace through the admitted Shared identity contract before showing protected project data.
-  - Project creation requires current project-scoped authority; actor and responsibility-role labels do not grant permission.
-  - No source media, provider, model, engine, or processing request is required to create an empty project.
+- Resolve an authenticated principal and authorized tenant/workspace through the admitted
+  Shared identity contract before showing protected project data.
+- Project creation requires current project-scoped authority; actor and responsibility-role
+  labels do not grant permission.
+- No source media, provider, model, engine, or processing request is required to create
+  an empty project.
 steps:
 - view: media.view.authenticate-and-select-context
   screenContractRef: screen-contracts/authenticate-and-select-context.yaml
@@ -21,39 +26,38 @@ steps:
   - media.surface.web
   objectRefs: []
   stateRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
+  canonicalOperationRef:
+  authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+  decisionRef: .product-experience/decision-log.md#PXD-055
+  transitionRef:
   handoffRef: media.handoff.identity
   success:
-    status: candidate-proposal
-    scope: existing-step-result
-    sourceRef: journey.steps[1].result
-    proposal: current-principal-and-authorized-workspace-are-resolved-or-a-recoverable-access-state-is-shown
+    status: source-defined; runtime-admission-pending
+    scope: external-identity-handoff
+    sourceRef: media.handoff.identity
+    proposal: The admitted Shared identity consumer contract establishes the current
+      principal and an authorized tenant/workspace, or returns a recoverable identity/access
+      state.
   failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: identity-not-established
-      response: preserve-the-return-destination; do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
-    - id: workspace-access-denied
-      response: keep-project-data-hidden; explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
-    - id: project-create-not-authorized
-      response: keep-the-project-list-and-workspace-context; explain-the-required-access-without-claiming-creation
-    - id: project-create-outcome-unknown
-      response: keep-the-same-create-request-identity; inspect-or-reconcile-its-result-before-offering-another-create-action
-    - id: requested-intent-unavailable
-      response: keep-the-empty-project; explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
-  degradedBehavior: null
+    status: source-defined; runtime-admission-pending
+    scope: step-specific-fail-closed
+    sourceRef: media.handoff.identity
+    proposal: If identity or workspace authority is absent, denied, stale, or unavailable,
+      preserve the return destination and do not query protected project data; Media
+      does not collect credentials or infer a principal from actor labels.
+  degradedBehavior: Preserve last observation as stale/unknown; keep protected data
+    hidden when identity or authorization cannot be confirmed.
   recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Preserve the return destination, selected workspace, and any non-sensitive intent draft across re-authentication;
-      never infer successful project creation from a lost response or retry an unknown effect blindly.
-  postconditions: []
+    status: source-defined; runtime-admission-pending
+    scope: same-identity-and-current-authority
+    sourceRef: media.handoff.identity
+    proposal: Continue only through the external Shared identity contract; after return,
+      recheck the selected workspace before any Media project query.
+  postconditions:
+  - No credential is collected by Media.
+  - No principal, tenant, or workspace authority is synthesized from actor or role
+    labels.
+  - No project query occurs before trusted identity and workspace context are established.
   requirementRefs: []
   verification:
     status: not-run
@@ -62,71 +66,101 @@ steps:
     - focused PDP3-005 ten-contract structural/reference check
     actualEvidence: []
   contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
+    status: source-defined; runtime-admission-pending
+    fields:
     - return-destination
     - selected-workspace
-    - selected-project-identity-and-version
-    - selected-intent-when-present
+    - selected-project-identity-and-revision-when-known
+    - same-create-requestId-while-outcome-is-unknown
+    sensitivity: Never persist or expose credentials; preserve only context permitted
+      by the Shared identity contract.
   bindingStatus:
-    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
-    objectRefs: pending-explicit-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference
-    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-legal-transition-binding
-    handoffRef: candidate-reference-present; handoff-condition-and-owner-contract-pending
-    success: candidate-proposal-only; not accepted step behavior
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; not accepted step recovery
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    surfaceRefs: screen contract source-linked; host admission pending
+    objectRefs: exact PDP-1 project identities bound where applicable
+    stateRefs: exact PDP-1 project lifecycle states bound where applicable; no UI
+      labels promoted
+    canonicalOperationRef: exact PDP-1 project operation bound where applicable; external
+      identity handoff has no Media operation
+    authorityRef: identity/policy authority source identified; runtime enforcement
+      not admitted
+    decisionRef: PXD-055 Media definition; independent review pending
+    transitionRef: no transition applies to these query/handoff steps or atomic initial
+      aggregate creation
+    handoffRef: external Shared identity contract only; not Media self-authentication
+    success: step-specific semantics source-defined; runtime evidence pending
+    failure: scoped failure and UNKNOWN_OUTCOME semantics source-defined; runtime
+      evidence pending
+    degradedBehavior: stale/unavailable/unknown distinction defined; host behavior
+      pending
+    recovery: same-identity recovery defined; runtime evidence pending
+    postconditions: exact source-defined boundaries recorded
+    requirementRefs: existing requirement refs retained; satisfaction not claimed
+    verification: source contract tests required; runtime verification not run
+    contextPreservation: bounded context fields defined; host binding pending
+  stepId: J01-1
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.administrator
+  actorBindingReason: Actor references describe the interaction participant only;
+    trusted tenant/principal identity and current policy authorization come from the
+    owning identity/policy authorities.
+  requiredOperationRefs: []
+  transitionDisposition:
+    status: NOT_APPLICABLE_WITH_REASON
+    transitionRef:
+    decisionRef: .product-experience/decision-log.md#PXD-055
+    reason: 'No Media domain transition applies: this step is an external identity/context
+      handoff.'
+  definitionVerification:
+    status: source-contract-checked
+    evidence:
+    - tests/media-j01-definition-semantics.test.mjs
+    - tests/product-definition-authority.test.mjs
+    - scripts/check-product-experience-local.mjs
+    runtimeAdmission: NOT_ADMITTED
+    runtimeVerification: not-run
 - view: media.view.resume-work
   screenContractRef: screen-contracts/resume-work.yaml
   result: authorized-projects-or-a-purposeful-first-use-state-are-shown; no-cross-tenant-project-data-is-visible
   surfaceRefs:
   - media.surface.web
-  objectRefs: []
-  stateRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
+  objectRefs:
+  - media.domain.project
+  stateRefs:
+  - media-project/ACTIVE
+  - media-project/ARCHIVED
+  canonicalOperationRef: media.operation-slice.list-projects
+  authorityRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation-slice.list-projects
+  decisionRef: .product-experience/decision-log.md#PXD-055
+  transitionRef:
+  handoffRef:
   success:
-    status: candidate-proposal
-    scope: existing-step-result
-    sourceRef: journey.steps[2].result
-    proposal: authorized-projects-or-a-purposeful-first-use-state-are-shown; no-cross-tenant-project-data-is-visible
+    status: source-defined; runtime-admission-pending
+    scope: authorized-project-collection-observation
+    sourceRef: media.operation-slice.list-projects
+    proposal: Return only project summaries currently visible to this trusted principal
+      in the selected authorized workspace, with observation freshness explicit.
   failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: identity-not-established
-      response: preserve-the-return-destination; do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
-    - id: workspace-access-denied
-      response: keep-project-data-hidden; explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
-    - id: project-create-not-authorized
-      response: keep-the-project-list-and-workspace-context; explain-the-required-access-without-claiming-creation
-    - id: project-create-outcome-unknown
-      response: keep-the-same-create-request-identity; inspect-or-reconcile-its-result-before-offering-another-create-action
-    - id: requested-intent-unavailable
-      response: keep-the-empty-project; explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
-  degradedBehavior: null
+    status: source-defined; runtime-admission-pending
+    scope: step-specific-fail-closed
+    sourceRef: media.operation-slice.list-projects
+    proposal: Denied, stale, unavailable, or empty results are scoped to the current
+      principal/workspace/query. An empty page never means global absence; do not
+      expose cross-workspace or unauthorized project metadata.
+  degradedBehavior: Preserve last observation as stale/unknown; keep protected data
+    hidden when identity or authorization cannot be confirmed.
   recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Preserve the return destination, selected workspace, and any non-sensitive intent draft across re-authentication;
-      never infer successful project creation from a lost response or retry an unknown effect blindly.
-  postconditions: []
+    status: source-defined; runtime-admission-pending
+    scope: same-identity-and-current-authority
+    sourceRef: media.operation-slice.list-projects
+    proposal: Re-observe only within the same tenant, principal, selected workspace,
+      and query scope after authority is current; use an opaque page token only with
+      its original scope.
+  postconditions:
+  - The query changes no project or revision state.
+  - Only currently authorized project summaries are visible.
+  - Empty results describe this query scope and observation time only.
   requirementRefs: []
   verification:
     status: not-run
@@ -135,31 +169,60 @@ steps:
     - focused PDP3-005 ten-contract structural/reference check
     actualEvidence: []
   contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
+    status: source-defined; runtime-admission-pending
+    fields:
     - return-destination
     - selected-workspace
-    - selected-project-identity-and-version
-    - selected-intent-when-present
+    - selected-project-identity-and-revision-when-known
+    - same-create-requestId-while-outcome-is-unknown
+    sensitivity: Never persist or expose credentials; preserve only context permitted
+      by the Shared identity contract.
   bindingStatus:
-    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
-    objectRefs: pending-explicit-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference
-    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-binding
-    success: candidate-proposal-only; not accepted step behavior
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; not accepted step recovery
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    surfaceRefs: screen contract source-linked; host admission pending
+    objectRefs: exact PDP-1 project identities bound where applicable
+    stateRefs: exact PDP-1 project lifecycle states bound where applicable; no UI
+      labels promoted
+    canonicalOperationRef: exact PDP-1 project operation bound where applicable; external
+      identity handoff has no Media operation
+    authorityRef: identity/policy authority source identified; runtime enforcement
+      not admitted
+    decisionRef: PXD-055 Media definition; independent review pending
+    transitionRef: no transition applies to these query/handoff steps or atomic initial
+      aggregate creation
+    handoffRef: external Shared identity contract only; not Media self-authentication
+    success: step-specific semantics source-defined; runtime evidence pending
+    failure: scoped failure and UNKNOWN_OUTCOME semantics source-defined; runtime
+      evidence pending
+    degradedBehavior: stale/unavailable/unknown distinction defined; host behavior
+      pending
+    recovery: same-identity recovery defined; runtime evidence pending
+    postconditions: exact source-defined boundaries recorded
+    requirementRefs: existing requirement refs retained; satisfaction not claimed
+    verification: source contract tests required; runtime verification not run
+    contextPreservation: bounded context fields defined; host binding pending
+  stepId: J01-2
+  actorRefs:
+  - media.creator
+  - media.editor
+  actorBindingReason: Actor references describe the interaction participant only;
+    trusted tenant/principal identity and current policy authorization come from the
+    owning identity/policy authorities.
+  requiredOperationRefs:
+  - media.operation-slice.list-projects
+  transitionDisposition:
+    status: NOT_APPLICABLE_WITH_REASON
+    transitionRef:
+    decisionRef: .product-experience/decision-log.md#PXD-055
+    reason: 'No Media domain transition applies: project collection observation is
+      read-only.'
+  definitionVerification:
+    status: source-contract-checked
+    evidence:
+    - tests/media-j01-definition-semantics.test.mjs
+    - tests/product-definition-authority.test.mjs
+    - scripts/check-product-experience-local.mjs
+    runtimeAdmission: NOT_ADMITTED
+    runtimeVerification: not-run
 - view: media.view.find-projects
   screenContractRef: screen-contracts/find-projects.yaml
   action: media.action.create-project
@@ -168,41 +231,46 @@ steps:
   result: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
   surfaceRefs:
   - media.surface.web
-  objectRefs: []
-  stateRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
+  objectRefs:
+  - media.domain.project
+  - media.domain.project-revision
+  stateRefs:
+  - media-project/ACTIVE
+  - media-project-version/COMMITTED
+  canonicalOperationRef: media.operation-slice.create-project
+  authorityRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation-slice.create-project
+  decisionRef: .product-experience/decision-log.md#PXD-055
+  transitionRef:
+  handoffRef:
   success:
-    status: candidate-proposal
-    scope: existing-step-result
-    sourceRef: journey.steps[3].result
-    proposal: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
+    status: source-defined; runtime-admission-pending
+    scope: atomic-project-and-initial-revision-commit
+    sourceRef: media.operation-slice.create-project
+    proposal: After an authoritative durable commit receipt, return the same opaque
+      projectId and initial revisionId for one ACTIVE project with an empty immutable
+      COMMITTED revision and matching headRevisionId.
   failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: identity-not-established
-      response: preserve-the-return-destination; do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
-    - id: workspace-access-denied
-      response: keep-project-data-hidden; explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
-    - id: project-create-not-authorized
-      response: keep-the-project-list-and-workspace-context; explain-the-required-access-without-claiming-creation
-    - id: project-create-outcome-unknown
-      response: keep-the-same-create-request-identity; inspect-or-reconcile-its-result-before-offering-another-create-action
-    - id: requested-intent-unavailable
-      response: keep-the-empty-project; explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
-  degradedBehavior: null
+    status: source-defined; runtime-admission-pending
+    scope: step-specific-fail-closed
+    sourceRef: media.operation-slice.create-project
+    proposal: Reject missing trusted identity, unauthorized workspace/policy, blank
+      title, or mismatched idempotency replay without mutation. After dispatch ambiguity
+      preserve UNKNOWN_OUTCOME and the same requestId; never infer no effect from
+      absence/unavailability or blindly resubmit.
+  degradedBehavior: Preserve last observation as stale/unknown; keep protected data
+    hidden when identity or authorization cannot be confirmed.
   recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Preserve the return destination, selected workspace, and any non-sensitive intent draft across re-authentication;
-      never infer successful project creation from a lost response or retry an unknown effect blindly.
-  postconditions: []
+    status: source-defined; runtime-admission-pending
+    scope: same-identity-and-current-authority
+    sourceRef: media.operation-slice.create-project
+    proposal: Reconcile with inspect-project using the same creationRequestId, tenant,
+      principal, and workspace. Resubmit only after an authoritative safe disposition;
+      never create a second request identity to bypass unknown.
+  postconditions:
+  - Project, initial revision, and head reference commit atomically.
+  - The initial revision has no media assets, scenes, timelines, or settings.
+  - No provider, model, engine, processing job, source media, artifact rights, or
+    artifact availability is implied.
   requirementRefs: [MEDIA-REQ-CAP-PROJECT]
   verification:
     status: not-run
@@ -211,71 +279,104 @@ steps:
     - focused PDP3-005 ten-contract structural/reference check
     actualEvidence: []
   contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
+    status: source-defined; runtime-admission-pending
+    fields:
     - return-destination
     - selected-workspace
-    - selected-project-identity-and-version
-    - selected-intent-when-present
+    - selected-project-identity-and-revision-when-known
+    - same-create-requestId-while-outcome-is-unknown
+    sensitivity: Never persist or expose credentials; preserve only context permitted
+      by the Shared identity contract.
   bindingStatus:
-    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
-    objectRefs: pending-explicit-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference
-    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-binding
-    success: candidate-proposal-only; not accepted step behavior
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; not accepted step recovery
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    surfaceRefs: screen contract source-linked; host admission pending
+    objectRefs: exact PDP-1 project identities bound where applicable
+    stateRefs: exact PDP-1 project lifecycle states bound where applicable; no UI
+      labels promoted
+    canonicalOperationRef: exact PDP-1 project operation bound where applicable; external
+      identity handoff has no Media operation
+    authorityRef: identity/policy authority source identified; runtime enforcement
+      not admitted
+    decisionRef: PXD-055 Media definition; independent review pending
+    transitionRef: no transition applies to these query/handoff steps or atomic initial
+      aggregate creation
+    handoffRef: external Shared identity contract only; not Media self-authentication
+    success: step-specific semantics source-defined; runtime evidence pending
+    failure: scoped failure and UNKNOWN_OUTCOME semantics source-defined; runtime
+      evidence pending
+    degradedBehavior: stale/unavailable/unknown distinction defined; host behavior
+      pending
+    recovery: same-identity recovery defined; runtime evidence pending
+    postconditions: exact source-defined boundaries recorded
+    requirementRefs: existing requirement refs retained; satisfaction not claimed
+    verification: source contract tests required; runtime verification not run
+    contextPreservation: bounded context fields defined; host binding pending
+  stepId: J01-3
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.administrator
+  actorBindingReason: Actor references describe the interaction participant only;
+    trusted tenant/principal identity and current policy authorization come from the
+    owning identity/policy authorities.
+  requiredOperationRefs:
+  - media.operation-slice.create-project
+  transitionDisposition:
+    status: NOT_APPLICABLE_WITH_REASON
+    transitionRef:
+    decisionRef: .product-experience/decision-log.md#PXD-055
+    reason: 'No lifecycle transition applies: create establishes the initial ACTIVE
+      project and immutable COMMITTED revision atomically.'
+  definitionVerification:
+    status: source-contract-checked
+    evidence:
+    - tests/media-j01-definition-semantics.test.mjs
+    - tests/product-definition-authority.test.mjs
+    - scripts/check-product-experience-local.mjs
+    runtimeAdmission: NOT_ADMITTED
+    runtimeVerification: not-run
 - view: media.view.work-in-project
   screenContractRef: screen-contracts/work-in-project.yaml
   result: the-exact-project-identity-and-version-are-visible-with-a-safe-next-action
   surfaceRefs:
   - media.surface.web
-  objectRefs: []
-  stateRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
+  objectRefs:
+  - media.domain.project
+  - media.domain.project-revision
+  stateRefs:
+  - media-project/ACTIVE
+  - media-project/ARCHIVED
+  - media-project-version/COMMITTED
+  canonicalOperationRef: media.operation-slice.inspect-project
+  authorityRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation-slice.inspect-project
+  decisionRef: .product-experience/decision-log.md#PXD-055
+  transitionRef:
+  handoffRef:
   success:
-    status: candidate-proposal
-    scope: existing-step-result
-    sourceRef: journey.steps[4].result
-    proposal: the-exact-project-identity-and-version-are-visible-with-a-safe-next-action
+    status: source-defined; runtime-admission-pending
+    scope: exact-project-head-observation
+    sourceRef: media.operation-slice.inspect-project
+    proposal: Return the authorized project identity and exact opaque current headRevisionId
+      plus its immutable revision snapshot identity, as observed at an explicit time.
   failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: identity-not-established
-      response: preserve-the-return-destination; do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
-    - id: workspace-access-denied
-      response: keep-project-data-hidden; explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
-    - id: project-create-not-authorized
-      response: keep-the-project-list-and-workspace-context; explain-the-required-access-without-claiming-creation
-    - id: project-create-outcome-unknown
-      response: keep-the-same-create-request-identity; inspect-or-reconcile-its-result-before-offering-another-create-action
-    - id: requested-intent-unavailable
-      response: keep-the-empty-project; explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
-  degradedBehavior: null
+    status: source-defined; runtime-admission-pending
+    scope: step-specific-fail-closed
+    sourceRef: media.operation-slice.inspect-project
+    proposal: A scoped NOT_FOUND means absent or inaccessible within this caller scope
+      only. Denied, unavailable, stale, or unknown observations never prove global
+      absence, prior non-creation, artifact rights, or content availability.
+  degradedBehavior: Preserve last observation as stale/unknown; keep protected data
+    hidden when identity or authorization cannot be confirmed.
   recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Preserve the return destination, selected workspace, and any non-sensitive intent draft across re-authentication;
-      never infer successful project creation from a lost response or retry an unknown effect blindly.
-  postconditions: []
+    status: source-defined; runtime-admission-pending
+    scope: same-identity-and-current-authority
+    sourceRef: media.operation-slice.inspect-project
+    proposal: Re-observe the same projectId under current tenant/principal/workspace
+      authorization. For uncertain create, inspect only the same creationRequestId;
+      do not infer or retry from scoped absence.
+  postconditions:
+  - The operation reads project and revision metadata only.
+  - The exact head revision identity is preserved; digest is not substituted for revisionId.
+  - No artifact bytes, current rights, or processing availability is exposed or implied.
   requirementRefs: []
   verification:
     status: not-run
@@ -284,62 +385,107 @@ steps:
     - focused PDP3-005 ten-contract structural/reference check
     actualEvidence: []
   contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
+    status: source-defined; runtime-admission-pending
+    fields:
     - return-destination
     - selected-workspace
-    - selected-project-identity-and-version
-    - selected-intent-when-present
+    - selected-project-identity-and-revision-when-known
+    - same-create-requestId-while-outcome-is-unknown
+    sensitivity: Never persist or expose credentials; preserve only context permitted
+      by the Shared identity contract.
   bindingStatus:
-    surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal; channel admission and step-specific mapping remain pending
-    objectRefs: pending-explicit-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference
-    canonicalOperationRef: pending-canonical-logical-operation-binding; transport routes and action refs are not converted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-binding
-    success: candidate-proposal-only; not accepted step behavior
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; not accepted step recovery
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    surfaceRefs: screen contract source-linked; host admission pending
+    objectRefs: exact PDP-1 project identities bound where applicable
+    stateRefs: exact PDP-1 project lifecycle states bound where applicable; no UI
+      labels promoted
+    canonicalOperationRef: exact PDP-1 project operation bound where applicable; external
+      identity handoff has no Media operation
+    authorityRef: identity/policy authority source identified; runtime enforcement
+      not admitted
+    decisionRef: PXD-055 Media definition; independent review pending
+    transitionRef: no transition applies to these query/handoff steps or atomic initial
+      aggregate creation
+    handoffRef: external Shared identity contract only; not Media self-authentication
+    success: step-specific semantics source-defined; runtime evidence pending
+    failure: scoped failure and UNKNOWN_OUTCOME semantics source-defined; runtime
+      evidence pending
+    degradedBehavior: stale/unavailable/unknown distinction defined; host behavior
+      pending
+    recovery: same-identity recovery defined; runtime evidence pending
+    postconditions: exact source-defined boundaries recorded
+    requirementRefs: existing requirement refs retained; satisfaction not claimed
+    verification: source contract tests required; runtime verification not run
+    contextPreservation: bounded context fields defined; host binding pending
+  stepId: J01-4
+  actorRefs:
+  - media.creator
+  - media.editor
+  - media.reviewer
+  actorBindingReason: Actor references describe the interaction participant only;
+    trusted tenant/principal identity and current policy authorization come from the
+    owning identity/policy authorities.
+  requiredOperationRefs:
+  - media.operation-slice.inspect-project
+  transitionDisposition:
+    status: NOT_APPLICABLE_WITH_REASON
+    transitionRef:
+    decisionRef: .product-experience/decision-log.md#PXD-055
+    reason: 'No Media domain transition applies: exact project/head observation is
+      read-only.'
+  definitionVerification:
+    status: source-contract-checked
+    evidence:
+    - tests/media-j01-definition-semantics.test.mjs
+    - tests/product-definition-authority.test.mjs
+    - scripts/check-product-experience-local.mjs
+    runtimeAdmission: NOT_ADMITTED
+    runtimeVerification: not-run
 optionalContinuation:
   view: media.view.create-media
   intentSelectionAction: media.action.choose-intent
   planReviewView: media.view.review-creation-plan
   boundary: J-01-completes-after-project-creation; selecting-a-processing-intent-or-submitting-work-belongs-to-its-own-journey-and-action
-terminalSuccess: An authorized creator has a versioned empty project in the selected workspace and can see a safe next action without selecting a provider, model, queue, or engine.
+terminalSuccess: An authorized creator has a versioned empty project in the selected
+  workspace and can see a safe next action without selecting a provider, model, queue,
+  or engine.
 criticalNonhappyPaths:
-  - id: identity-not-established
-    response: preserve-the-return-destination; do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
-  - id: workspace-access-denied
-    response: keep-project-data-hidden; explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
-  - id: project-create-not-authorized
-    response: keep-the-project-list-and-workspace-context; explain-the-required-access-without-claiming-creation
-  - id: project-create-outcome-unknown
-    response: keep-the-same-create-request-identity; inspect-or-reconcile-its-result-before-offering-another-create-action
-  - id: requested-intent-unavailable
-    response: keep-the-empty-project; explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
-recovery: Preserve the return destination, selected workspace, and any non-sensitive intent draft across re-authentication; never infer successful project creation from a lost response or retry an unknown effect blindly.
-contextPreserved: [return-destination, selected-workspace, selected-project-identity-and-version, selected-intent-when-present]
+- id: identity-not-established
+  response: preserve-the-return-destination; do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
+- id: workspace-access-denied
+  response: keep-project-data-hidden; explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
+- id: project-create-not-authorized
+  response: keep-the-project-list-and-workspace-context; explain-the-required-access-without-claiming-creation
+- id: project-create-outcome-unknown
+  response: keep-the-same-create-request-identity; inspect-or-reconcile-its-result-before-offering-another-create-action
+- id: requested-intent-unavailable
+  response: keep-the-empty-project; explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
+recovery: Preserve the return destination, selected workspace, and any non-sensitive
+  intent draft across re-authentication; never infer successful project creation from
+  a lost response or retry an unknown effect blindly.
+contextPreserved: [return-destination, selected-workspace, selected-project-identity-and-version,
+  selected-intent-when-present]
 channelEquivalents: [web]
 accessibilityRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml
 requiredScenarioBehaviors:
   status: six-synthetic-PDP-3-fixtures-authored; Shared-identity-and-project-service-bindings-pending
   scenarios:
-    - media.scenario.first-use-empty
-    - media.scenario.identity-required
-    - media.scenario.workspace-access-denied
-    - media.scenario.project-create-outcome-unknown
-    - media.scenario.project-created-empty
-    - media.scenario.intent-unavailable
-scenarioRefs: [media.scenario.first-use-empty, media.scenario.identity-required, media.scenario.workspace-access-denied, media.scenario.project-create-outcome-unknown, media.scenario.project-created-empty, media.scenario.intent-unavailable]
+  - media.scenario.first-use-empty
+  - media.scenario.identity-required
+  - media.scenario.workspace-access-denied
+  - media.scenario.project-create-outcome-unknown
+  - media.scenario.project-created-empty
+  - media.scenario.intent-unavailable
+scenarioRefs: [media.scenario.first-use-empty, media.scenario.identity-required, media.scenario.workspace-access-denied,
+  media.scenario.project-create-outcome-unknown, media.scenario.project-created-empty,
+  media.scenario.intent-unavailable]
 unresolvedProductDecisions:
-  - project-creation-input-shape-and-name-generation-policy-remain-pending-the-media.project.create-leaf-owner-review
-  - exact-authentication-return-and-access-request-bindings-remain-pending-the-published-Shared-identity-consumer-contract
+- project-creation-input-shape-and-name-generation-policy-remain-pending-the-media.project.create-leaf-owner-review
+- exact-authentication-return-and-access-request-bindings-remain-pending-the-published-Shared-identity-consumer-contract
+definitionReview:
+  status: SOURCE_DEFINED_OWNER_ACCEPTED
+  decisionRef: .product-experience/decision-log.md#PXD-055
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-054
+  boundary: Four ordered J-01 steps are source-defined; the registered create-media
+    screen is optional continuation after this journey completes.
+  runtimeAdmission: NOT_ADMITTED
+  independentReview: PENDING

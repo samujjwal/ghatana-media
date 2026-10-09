@@ -1,0 +1,353 @@
+{
+  "schemaVersion": "media.product-definition-project-batch.v1",
+  "date": "2026-10-08",
+  "baseMain": "35c0d26e5e704a6bb0b18e8d3e461c52e5afc19c",
+  "branch": "main",
+  "scope": "Four PDP phases: definitions, validation and acceptance inputs only; application implementation deferred under latest direct user instruction",
+  "delegation": "Three Luna agents authored canonical project slices, J01 experience/source bindings, interface grammar and exact integration repairs; coordinator reviewed Media decisions, definition projections and case catalog.",
+  "ownerDecisions": [
+    "PXD-054",
+    "PXD-055",
+    "PXD-056",
+    "PXD-057"
+  ],
+  "original71Tasks": {
+    "complete": 6,
+    "partial": 51,
+    "blockedExternalIndependent": 14,
+    "newlyComplete": 0,
+    "criteria": "Original IDs, titles and full Done predicates preserved; partial definition evidence is not full implementation or independent acceptance."
+  },
+  "beforeAfter": {
+    "projectionBlockers": {
+      "phaseOrder": [
+        "PDP-0",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "before": [
+        0,
+        0,
+        9
+      ],
+      "after": [
+        0,
+        0,
+        9
+      ]
+    },
+    "capabilityLeaves": [
+      462,
+      462
+    ],
+    "unresolvedCapabilityTargets": [
+      383,
+      383
+    ],
+    "unboundedCapabilityLeaves": [
+      445,
+      445
+    ],
+    "fullAcceptedCapabilityCoverage": [
+      0,
+      0
+    ],
+    "migrationOriginalObservations": [
+      349,
+      349
+    ],
+    "migrationSemanticsUnresolved": [
+      260,
+      260
+    ],
+    "interfaceIdentities": [
+      286,
+      286
+    ],
+    "interfaceUnresolved": [
+      190,
+      190
+    ],
+    "fullAcceptedInterfaceBindings": [
+      0,
+      0
+    ],
+    "historicalParityFindingsOpen": [
+      2,
+      2
+    ],
+    "designGatesOpen": [
+      2,
+      2
+    ],
+    "journeys": [
+      30,
+      30
+    ],
+    "orderedSteps": [
+      130,
+      130
+    ],
+    "screenLinkedSteps": [
+      130,
+      130
+    ],
+    "actionLinkedSteps": [
+      18,
+      18
+    ],
+    "authoredStepIds": [
+      13,
+      17
+    ],
+    "exactNonNullOperationRefs": [
+      16,
+      19
+    ],
+    "emptyObjectRefs": [
+      125,
+      122
+    ],
+    "emptyStateRefs": [
+      125,
+      122
+    ],
+    "nullAuthorityRefs": [
+      125,
+      121
+    ],
+    "sourceNoTransitionReasons": [
+      3,
+      7
+    ],
+    "projectedUnconditionalEffects": [
+      1,
+      2
+    ],
+    "projectedFinalityRecords": [
+      19,
+      20
+    ],
+    "publicRecoveryDefinitions": [
+      5,
+      5
+    ],
+    "lifecycleObligations": [
+      344,
+      347
+    ],
+    "obligationsWithCaseIds": [
+      62,
+      93
+    ],
+    "obligationsWithoutCaseIds": [
+      282,
+      254
+    ],
+    "sourceCaseCandidateLinks": [
+      28,
+      59
+    ],
+    "sourceCaseLinkedObligations": [
+      7,
+      38
+    ],
+    "unmappedSourceCaseObligations": [
+      337,
+      309
+    ],
+    "observerAssignments": [
+      0,
+      0
+    ],
+    "oracleAssignments": [
+      0,
+      0
+    ],
+    "providerBindings": [
+      0,
+      0
+    ],
+    "boundNativePhaseReceipts": [
+      0,
+      0
+    ]
+  },
+  "populationJustification": {
+    "newOperationSlices": [
+      "media.operation-slice.create-project",
+      "media.operation-slice.list-projects",
+      "media.operation-slice.inspect-project"
+    ],
+    "sourceIdentity": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#J-01",
+    "reason": "Necessary operation-level definitions for three existing J01 steps; no capability, journey, step, action, operation family or optional feature added.",
+    "acceptanceTests": [
+      "tests/media-j01-project-operation-definitions.test.mjs",
+      "tests/media-j01-project-setup-grammar.test.mjs",
+      "tests/media-j01-definition-semantics.test.mjs"
+    ],
+    "proofRoute": "Actual source contract assertions, independent domain/interface/experience review, then native Lifecycle case/provider/observer/oracle admission; the latter remains absent."
+  },
+  "componentCases": {
+    "count": 31,
+    "testCommand": "node --test tests/media-component-definition-proof-cases.test.mjs",
+    "positive": "Exact component binding and source population",
+    "negatives": [
+      "stale-role",
+      "missing-keyboard-source",
+      "forged-implementation-admission",
+      "missing-selected-component"
+    ],
+    "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+    "admission": "NOT_LIFECYCLE_ADMITTED",
+    "obligationsAdded": 0
+  },
+  "j01Boundary": {
+    "orderedSteps": 4,
+    "registeredScreens": 5,
+    "optionalPostJourneyScreen": "media.view.create-media",
+    "creationReconciliation": "Original immutable receipt and initial revision remain distinct from current project head; scoped absence or expired evidence cannot authorize replay."
+  },
+  "verification": {
+    "initialIntegration": {
+      "tests": 422,
+      "pass": 405,
+      "fail": 17,
+      "reason": "Stale source pins, generated populations and assertions were repaired with exact bounded scope; subsequent focused read overlapped ongoing edits, then sources were frozen."
+    },
+    "secondIntegration": {
+      "tests": 424,
+      "pass": 421,
+      "fail": 3,
+      "reason": "Three remaining legacy structural assertions required scoped definition handling; no product source was reverted."
+    },
+    "fullNode": {
+      "command": "node --test tests/*.test.mjs",
+      "tests": 427,
+      "pass": 427,
+      "fail": 0,
+      "skip": 0,
+      "log": "/tmp/media-execution/definition-project-node-final2.log"
+    },
+    "residualDiagnostics": [],
+    "sourceChecks": "Authority, local structure, Lifecycle input validation and347-obligation audit PASS",
+    "publicSchemasAndValidators": "All three candidates VALID/PASS",
+    "design": "NON-GREEN: two external/independent gates",
+    "parity": "NON-GREEN: two full semantic findings",
+    "strictProjectionChecks": {
+      "command": "node scripts/generate-media-phase-projections.mjs --check --strict",
+      "runs": 2,
+      "result": "PASS"
+    },
+    "componentSourceCaseExecution": {
+      "tests": 31,
+      "pass": 31,
+      "fail": 0,
+      "scope": "Local source-definition checks only; not rendered accessibility or native proof admission"
+    },
+    "lifecycleSourceInputDriftCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "finalSemanticRepair": "Collection listing has no selected-project action; exact inspection binds open-project and inspect-project-creation. Dedicated crosslink regression test passes."
+  },
+  "dependencies": {
+    "Tools": "0.1.0-rc.1",
+    "Lifecycle": "0.1.0-rc.1",
+    "Shared": "0.1.0-SNAPSHOT",
+    "DocumentIntelligence": "0.1.0",
+    "AIInference": "1.1.0",
+    "DataCloud": "1.2.1",
+    "ActionPlane": "1.2.0",
+    "EventPlane": "1.3.0",
+    "NetworkNT": "3.0.6"
+  },
+  "dependencyBoundary": "Source/development observations unchanged; no new immutable distribution or external approval claimed",
+  "runtimeImplementationChanged": false,
+  "preservedPendingImplementationStash": "dd69e97b095b7ef5abc9b8b157e1a0d2561736da",
+  "phaseAcceptance": {
+    "PDP-0": "OPEN; native acceptance not claimed",
+    "PDP-1": "OPEN; native acceptance not claimed",
+    "PDP-2": "OPEN; native acceptance not claimed",
+    "PDP-3": "OPEN; native acceptance not claimed"
+  },
+  "outstandingIndependentAuthorities": [
+    "Independent PDP semantic and complete-experience reviewers",
+    "Shared package owner and visual/assistive-technology reviewers",
+    "Lifecycle registry/distribution owner and native phase receipt issuer"
+  ],
+  "nextExecutableDefinitionBatch": "Bind existing J03 transcript/caption revision actions and legal transitions to individual canonical definitions, keeping PXD026..039 approved scopes and external scientific/identity admission distinct.",
+  "authoritativeReceiptEvaluation": {
+    "status": "NOT_EVALUATED",
+    "authoritativeReceiptCount": null,
+    "boundLocalReceiptRecords": 0
+  },
+  "worktreeAtVerification": "Reviewed definition changes pending commit on main; stash preserved; origin/main matched baseMain at fetch.",
+  "independentReviewInputs": [
+    {
+      "authority": "Independent PDP domain/interface/complete-experience reviewers",
+      "artifact": ".product-experience/acceptance.yaml#definitionProjectReviewInputs20261008",
+      "test": "node --test tests/media-j01-project-operation-definitions.test.mjs tests/media-j01-project-setup-grammar.test.mjs tests/media-j01-definition-semantics.test.mjs",
+      "acceptance": "Attributed independent source semantic assessment against original phase criteria; local owner decisions are not independent signoff."
+    },
+    {
+      "authority": "Shared package owner and accessibility/visual reviewers",
+      "artifact": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml and tests/media-component-definition-proof-cases.test.mjs",
+      "test": "node scripts/check-media-design-conformance.mjs",
+      "acceptance": "Qualified public Shared artifact binding and attributed rendered/assistive-technology conformance review; the31 metadata cases cannot satisfy these gates."
+    },
+    {
+      "authority": "Lifecycle registry/distribution owner and native phase receipt issuer",
+      "artifact": "config/closure/media-product-definition/{obligations,l02-source-case-links,l03-proof-route-candidates,phase-program,phase-binding}.json",
+      "test": "node scripts/check-media-lifecycle-closure-inputs.mjs; node scripts/generate-media-lifecycle-source-inputs.mjs --check",
+      "acceptance": "Registered case-specific provider/observer/oracle bindings with admitted methods, exact dependency fingerprints and authoritative current PDP phase receipts; local input readiness is insufficient."
+    }
+  ],
+  "changedFiles": [
+    ".product-experience/acceptance.yaml",
+    ".product-experience/closure-dashboard.yaml",
+    ".product-experience/decision-log.md",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+    ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+    ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+    ".product-experience/pdp-1-domain-data/operations.yaml",
+    ".product-experience/pdp-1-domain-data/states.yaml",
+    ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+    ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json",
+    ".product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md",
+    ".product-experience/pdp-3-product-experience/action-registry.yaml",
+    ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+    ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
+    ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
+    ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml",
+    ".product-experience/source-manifest.yaml",
+    "config/closure/media-product-definition/l02-source-case-links.json",
+    "config/closure/media-product-definition/l03-proof-route-candidates.json",
+    "config/closure/media-product-definition/obligations.json",
+    "config/closure/media-product-definition/phase-binding.json",
+    "config/closure/media-product-definition/phase-program.json",
+    "config/closure/media-product-definition/surface.json",
+    "docs/implementation/media-product-definition-continuation-2026-10-08.json",
+    "docs/implementation/media-product-definition-project-batch-2026-10-08.json",
+    "scripts/generate-media-lifecycle-source-inputs.mjs",
+    "scripts/lib/media-experience-definition-mapping.mjs",
+    "tests/media-capability-review-source-impact.test.mjs",
+    "tests/media-component-definition-proof-cases.test.mjs",
+    "tests/media-experience-specification-projection.test.mjs",
+    "tests/media-j01-definition-semantics.test.mjs",
+    "tests/media-j01-project-operation-definitions.test.mjs",
+    "tests/media-j01-project-setup-grammar.test.mjs",
+    "tests/media-lifecycle-l02-source-case-links.test.mjs",
+    "tests/media-lifecycle-l03-proof-route-candidates.test.mjs",
+    "tests/media-obligation-denominator-audit.test.mjs",
+    "tests/media-product-definition-residuals.test.mjs",
+    "tests/media-state-machine-extraction.test.mjs",
+    "tests/pdp-3-screen-journey-crosslinks.test.mjs",
+    "tests/pdp-overview-currentness.test.mjs",
+    "tests/product-definition-authority.test.mjs"
+  ]
+}

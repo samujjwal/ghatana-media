@@ -1136,3 +1136,140 @@ individualOperationContracts:
       finality: only a current authoritative reconciliation receipt may resolve OUTCOME_UNKNOWN; timeout, absent response, or local cache cannot resolve it.
       negativeCases: [use-local-cache-as-oracle, timeout-means-failed, missing-job-means-no-effect, replay-before-reconciliation]
       status: proposal-only; authoritative-observer-contract-missing
+    - id: media.operation-slice.create-project
+      sourceOperation: J-01 project creation intent; capability media.project.create
+      sourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-01
+      sourceBounds: >-
+        J-01 requires an authorized selected tenant/workspace and a versioned empty
+        project without selecting a provider/model/engine; PDP-0 names project create
+        and the MediaProject metadata/revision boundary. J-01 and the capability source do
+        not prescribe title normalization, request-key grammar, receipt retention, or a
+        wire/runtime route; those are bounded Media owner-definition choices under
+        prospective PXD-054. No deployed identity/policy provider or runtime behavior is
+        claimed.
+      requestFields: [trustedTenantId, trustedPrincipalId, selectedAuthorizedWorkspaceId, title, requestId]
+      contractVersion: 1
+      operationKind: COMMAND
+      resourceScope: tenant-workspace-and-creating-principal
+      requestIdentity: requestId-is-an-opaque-client-supplied-idempotency-identity-scoped-by-tenantId-and-principalId-and-bound-to-workspaceId-and-exact-title
+      actionIntentRefs: [media.action.create-project]
+      actionBindingDisposition: create-one-empty-project-and-its-first-version-only; processing-intent-selection-is-outside-J01
+      authority:
+        trustedContext: tenantId-and-principalId-are-established-by-the-admitted-host-identity-contract; request-body-or-header-values-alone-are-not-authority
+        workspace: workspaceId-is-the-explicit-current-selected-context-and-must-be-authorized-for-the-principal
+        projectPolicy: current-project-create-policy-must-authorize-this-principal-in-this-workspace-at-the-effect-boundary
+        ownerRefs: [.product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy]
+        deploymentStatus: identity-delegation-and-project-policy-provider-bindings-not-established
+      inputSemantics:
+        title: required-user-supplied-Unicode-display-title; reject-empty-or-whitespace-only; preserve-the-submitted-string-after-validation; do-not-silently-generate-a-title
+        requestId: required-1-to-128-character-ASCII-opaque-replay-key-matching-A-Za-z0-9-dot-underscore-tilde-hyphen; same-key-and-identical-workspace-plus-title-resolves-to-the-original-create-receipt-and-initial-revision; same-key-with-any-different-payload-conflicts
+        forbiddenInputs: [artifactIds, assets, provider, model, engine, job-or-processing-request, caller-selected-principal-or-tenant-authority]
+      effect:
+        commitUnit: project-record-and-initial-revision-record-and-project-head-reference-commit-atomically
+        project: create-one-ACTIVE-project-with-opaque-projectId-in-the-authorized-tenant-and-workspace
+        initialRevision: create-one-empty-immutable-COMMITTED-ProjectRevision-with-opaque-revisionId-parentRevisionId-null-and-zero-assets-scenes-timelines-and-settings
+        projectHead: headRevisionId-equals-the-initial-revisionId
+        repeat: matching-replay-returns-the-same-projectId-and-revisionId-without-a-second-project
+      affectedObjects:
+        exactRefs: [media.domain.project, media.domain.project-revision]
+        excluded: [media.domain.media-asset, media.domain.artifact, media.domain.processing-job]
+      transition:
+        initialStates: {media-project: ACTIVE, media-project-version: COMMITTED}
+        transitionRefs: []
+        rationale: creation-establishes-the-initial-aggregate-and-immutable-head; it-is-not-an-archive-restore-or-draft-commit-transition
+      outcomes:
+        success: authoritative-durable-commit-receipt-for-project-revision-and-head-returns-the-same-opaque-identities
+        declaredProblems: [INVALID_REQUEST, ACCESS_DENIED, IDEMPOTENCY_CONFLICT, UNAVAILABLE, UNKNOWN_OUTCOME]
+        unknownOutcome: after-dispatch-without-authoritative-commit-receipt-preserve-requestId-as-UNKNOWN_OUTCOME; inspect-by-the-same-requestId-before-any-resubmission
+        noGlobalAbsence: an-unavailable-or-scoped-absent-reconciliation-result-never-proves-no-project-was-created
+      finality: only-the-atomic-authoritative-commit-receipt-establishes-project-creation; HTTP-acknowledgement-or-local-dispatch-alone-is-not-finality
+      retry: no-automatic-retry-after-an-ambiguous-dispatch; first-reconcile-the-same-requestId
+      idempotency:
+        keyScope: tenantId-plus-principalId-plus-requestId
+        payloadBinding: exact-selected-workspaceId-and-validated-title
+        matchingReplay: return-original-projectId-and-initial-revisionId-without-a-second-effect
+        mismatchingReplay: IDEMPOTENCY_CONFLICT; never-rebind-the-key
+        retention: preserve-the-reconciliation-record-for-the-project-lifetime; if-evidence-is-expired-or-lost-report-UNKNOWN_OUTCOME-and-require-authoritative-manual-reconciliation; never-treat-expiry-as-safe-replay-or-permission-to-use-a-new-key
+      negativeCases: [missing-trusted-identity, unauthorized-or-cross-tenant-workspace, blank-title, same-key-different-title, same-key-different-workspace, unknown-outcome-blind-replay, provider-or-processing-intent-injected, partial-project-without-initial-revision]
+      status: bounded-J01-owner-definition-under-PXD-054; runtime-NOT_ADMITTED; independent-PDP1-review-open
+      executionAdmission: NOT_ADMITTED
+    - id: media.operation-slice.list-projects
+      sourceOperation: J-01 authorized project collection observation; capability media.project.inspect
+      sourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-01
+      sourceBounds: >-
+        J-01 requires showing only authorized projects in the selected workspace and
+        returning to that project context. PDP-0 assigns tenant/workspace ownership policy
+        to Media and identity/delegation mechanics to Shared/identity owners. Sources do
+        not establish a deployed listing route, pagination behavior, or membership service;
+        the bounded query shape is a Media owner definition under prospective PXD-054, not
+        an implementation or provider claim.
+      requestFields: [trustedTenantId, trustedPrincipalId, selectedAuthorizedWorkspaceId]
+      optionalRequestFields: [pageToken]
+      contractVersion: 1
+      operationKind: QUERY
+      resourceScope: currently-authorized-projects-within-one-tenant-and-selected-workspace
+      requestIdentity: tenantId-principalId-workspaceId-and-opaque-pageToken
+      actionIntentRefs: []
+      authority:
+        trustedContext: tenantId-and-principalId-come-from-the-admitted-host-identity-contract
+        workspace: require-current-authorized-workspace-context-before-query
+        visibility: return-only-projects-that-current-project-policy-authorizes-for-this-principal-at-observation-time
+        ownerRefs: [.product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy]
+        deploymentStatus: identity-delegation-and-project-policy-provider-bindings-not-established
+      resultFields: [projectId, workspaceId, title, headRevisionId, projectState, observedAt, nextPageToken]
+      resultSemantics:
+        pageToken: opaque-and-bound-to-the-same-tenant-principal-workspace-and-query; invalid-or-reused-out-of-scope-token-is-rejected
+        freshness: snapshot-or-observation-time-is-explicit; a page-is-not-a-live-currentness-guarantee
+        visibility: only-authorized-project-summaries-are-returned; no membership-directory-or-cross-workspace-discovery
+      outcomes:
+        success: time-scoped-authorized-project-summary-page
+        declaredProblems: [INVALID_REQUEST, ACCESS_DENIED, UNAVAILABLE]
+        noGlobalAbsence: empty-page-means-no-visible-match-in-this-query-scope-at-observedAt-only
+      finality: read-only-observation; never-a-project-existence-proof-outside-caller-scope-or-an-authorization-grant
+      retry: bounded-query-reobservation-only; no-command-replay
+      negativeCases: [missing-trusted-identity, unauthorized-workspace, cross-tenant-enumeration, cross-principal-page-token, infer-global-nonexistence-from-empty-page, stale-page-as-current-state]
+      status: bounded-J01-owner-definition-under-PXD-054; runtime-NOT_ADMITTED; independent-PDP1-review-open
+      executionAdmission: NOT_ADMITTED
+    - id: media.operation-slice.inspect-project
+      sourceOperation: J-01 exact project and version context; capability media.project.inspect
+      sourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-01
+      sourceBounds: >-
+        J-01 requires showing the exact project identity/version; PDP-0 defines the
+        project metadata and immutable revision boundary and requires authorized inspection.
+        The current artifact-read contract is unrelated and does not establish a project
+        read route. Request-receipt lookup is included only to satisfy J-01 unknown-create
+        recovery, remains scoped to the original trusted identity and payload, and claims no
+        deployed receipt store or runtime admission.
+      requestFields: [trustedTenantId, trustedPrincipalId, selectedAuthorizedWorkspaceId, projectId-or-creationRequestId]
+      contractVersion: 1
+      operationKind: QUERY
+      resourceScope: tenant-workspace-and-currently-authorized-principal
+      requestIdentity: tenantId-principalId-workspaceId-and-exactly-one-of-projectId-or-creationRequestId
+      actionIntentRefs: [media.action.open-project, media.action.inspect-project-creation]
+      authority:
+        trustedContext: tenantId-and-principalId-come-from-the-admitted-host-identity-contract
+        workspace: require-current-authorization-to-the-selected-workspace-and-project
+        ownerRefs: [.product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy]
+        deploymentStatus: identity-delegation-and-project-policy-provider-bindings-not-established
+      selectorSemantics:
+        projectId: read-the-selected-project-and-its-exact-current-head-revision
+        creationRequestId: reconcile-only-the-same-create-project-requestId-and-its-original-requestFingerprint-bound-to-the-original-tenant-principal-and-workspace; returns-the-original-creation-receipt-and-initialRevisionId-even-if-the-project-head-has-since-advanced; never-creates-or-replays
+        exclusive: exactly-one-selector-is-required; conflicting-or-absent-selectors-are-invalid
+      resultFields: [selectorKind, projectId, workspaceId, title, projectState, headRevisionId, headRevisionState, headRevisionSnapshot, creationRequestId, requestFingerprint, initialRevisionId, creationOutcome, observedAt]
+      resultSemantics:
+        projectIdSelector: returns-the-time-scoped-current-head-revision-observation
+        creationRequestIdSelector: returns-the-original-immutable-create-receipt-and-initialRevisionId-bound-to-the-original-requestFingerprint; must-not-substitute-the-current-head-for-the-created-revision
+        requestBinding: reconcile-request-is-bound-to-the-original-trusted-tenantId-principalId-workspaceId-and-exact-title-fingerprint; callers-cannot-rebind-it
+        absentOrExpired: scoped-absence-or-expired-reconciliation-evidence-does-not-prove-no-effect-and-cannot-authorize-resubmission-under-a-new-requestId
+      revisionSemantics: return-exact-opaque-revision-identities-and-immutable-snapshot-identity; never-substitute-content-digest-or-infer-another-version
+      contentBoundary: project-and-revision-metadata-only; no-artifact-bytes-current-rights-content-availability-or-processing-claim
+      outcomes:
+        success: time-scoped-project-and-exact-head-revision-observation
+        declaredProblems: [INVALID_REQUEST, ACCESS_DENIED, NOT_FOUND_IN_CALLER_SCOPE, UNAVAILABLE, UNKNOWN_OUTCOME]
+        notFound: absent-or-inaccessible-within-the-current-caller-scope; never-global-nonexistence-or-proof-of-no-prior-create-effect
+        unknownCreate: if-reconciliation-cannot-establish-the-original-creation-receipt-and-initialRevisionId-return-UNKNOWN_OUTCOME; only-an-authoritative-durable-rejection-receipt-establishes-definitive-no-create; never-convert-scoped-absence-to-not-found-or-failed
+      finality: observation-only; returned-head-is-current-as-of-observedAt-and-is-not-a-write-precondition-or-rights-proof
+      retry: bounded-read-reobservation-only; no-create-command-replay
+      negativeCases: [missing-trusted-identity, cross-tenant-projectId, unauthorized-project, both-selectors, no-selector, mismatched-original-requestFingerprint, cross-principal-or-workspace-request-reconciliation, replace-initialRevisionId-with-new-current-head, use-project-title-as-identity, infer-rights-from-project-read, treat-404-as-global-absence, treat-unavailable-create-lookup-as-no-effect, treat-expired-dedupe-evidence-as-safe-new-request]
+      status: bounded-J01-owner-definition-under-PXD-054; runtime-NOT_ADMITTED; independent-PDP1-review-open
+      executionAdmission: NOT_ADMITTED

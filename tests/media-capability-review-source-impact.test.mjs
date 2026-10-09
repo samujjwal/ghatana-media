@@ -90,7 +90,9 @@ test("operation source changes reconcile affected leaf links without promoting c
   assert.equal(hash(sourceText), sourcePin.sha256);
   const definitionDelta = review.definitionOnlySourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
   assert.equal(definitionDelta.previousSha256, review.uploadOwnerDefinitionSourceReconciliation.currentSha256);
-  assert.equal(sourcePin.sha256, definitionDelta.currentSha256);
+  const projectDelta = review.projectDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
+  assert.equal(projectDelta.previousSha256, definitionDelta.currentSha256, "new project definitions chain from the preserved upload-definition digest");
+  assert.equal(sourcePin.sha256, projectDelta.currentSha256);
   assert.equal(review.canonicalReadSourceReconciliation.previousSha256, impact.sceneTextAdapterSourceDelta.currentSha256);
   assert.deepEqual(review.canonicalReadSourceReconciliation.exactChangedRecords, [
     'media.operation-slice.inspect-upload', 'media.operation-slice.inspect-artifact',
@@ -102,7 +104,7 @@ test("operation source changes reconcile affected leaf links without promoting c
   const uploadDelta = review.uploadMutationSourceReconciliation;
   assert.equal(uploadDelta.previousSha256, review.canonicalReadSourceReconciliation.currentSha256);
   assert.equal(uploadDelta.currentSha256, review.uploadOwnerDefinitionSourceReconciliation.previousSha256);
-  assert.equal(definitionDelta.currentSha256, hash(sourceText));
+  assert.equal(projectDelta.currentSha256, hash(sourceText));
   assert.equal(review.uploadOwnerDefinitionSourceReconciliation.ownerDecisionRef, ".product-experience/decision-log.md#PXD-046");
   assert.deepEqual(uploadDelta.exactChangedRecords, [
     "media.operation-slice.begin-upload",
@@ -276,7 +278,9 @@ test("domain catalog identity changes reconcile to zero capability leaf referenc
   assert.equal(hash(sourceText), sourcePin.sha256);
   const definitionDelta = review.definitionOnlySourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
   assert.equal(definitionDelta.previousSha256, impact.currentSha256);
-  assert.equal(sourcePin.sha256, definitionDelta.currentSha256);
+  const projectDelta = review.projectDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
+  assert.equal(projectDelta.previousSha256, definitionDelta.currentSha256, "new project identities chain from the preserved upload-definition digest");
+  assert.equal(sourcePin.sha256, projectDelta.currentSha256);
   assert.equal(impact.previousSha256, "b958fc9c56449d87b0113d17eb97838801cbe7d4ec73bf4dc8f1a21d04bc173f");
   assert.notEqual(impact.previousSha256, impact.currentSha256);
   assert.match(impact.result, /semantic-source-change-reconciled/u);
@@ -335,12 +339,47 @@ test("non-inventoried constitution and actor records are not misrepresented as c
 test('selected action definition source change retains historical pins without promoting capability coverage', () => {
   const delta = review.experienceDefinitionSourceReconciliation;
   const historical = review.definitionOnlySourceReconciliations.find(({ path }) => path === delta.path);
+  const projectDelta = review.projectDefinitionSourceReconciliations.find(({ path }) => path === delta.path);
   const sourcePin = review.sourceInventory.find(({ path }) => path === delta.path);
   assert.equal(delta.previousSha256, historical.currentSha256);
-  assert.equal(delta.currentSha256, hash(readFileSync(resolve(root, delta.path))));
-  assert.equal(sourcePin.sha256, delta.currentSha256);
+  assert.equal(projectDelta.previousSha256, delta.currentSha256, "J-01 action definitions preserve the earlier J-02 action-history chain");
+  assert.equal(projectDelta.currentSha256, hash(readFileSync(resolve(root, delta.path))));
+  assert.equal(sourcePin.sha256, projectDelta.currentSha256);
   assert.equal(delta.ownerDecisionRef, '.product-experience/decision-log.md#PXD-052');
   assert.equal(delta.coverageEffect, 'no-full-leaf-admission-or-denominator-reduction');
   assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
   assert.equal(review.denominatorReconciliation.unresolvedCoverageDispositions, 383);
+});
+
+test('project definition source reconciliations retain exact HEAD history and current pins without capability promotion', () => {
+  const expectedPreviousHashes = {
+    '.product-experience/pdp-1-domain-data/operations.yaml': 'a7e653096364252f388bee5d06361b2a0472e088ef426b2c3602d80a4a71b8b6',
+    '.product-experience/pdp-1-domain-data/domain-objects.yaml': '348d755cad07ba1fd88976088191c06602d023593ad4cb5b0b818b8a2725185f',
+    '.product-experience/pdp-1-domain-data/action-contracts.yaml': '00b766c8e78cbf71ce9c2cee794a68327a61bf14c625ca222d30c9b23d2d491f',
+    '.product-experience/pdp-1-domain-data/states.yaml': '2e3576c6ef7f27ca64da3de86f66890a1c119cc015184cc9369878ce40ee9348',
+    '.product-experience/pdp-3-product-experience/action-registry.yaml': 'b2c39d7dc1141a22a7c7b73611811dac01462757ff13a8cd3fdcfddd55865073',
+  };
+  const expectedPaths = Object.keys(expectedPreviousHashes);
+  const records = review.projectDefinitionSourceReconciliations;
+  assert.deepEqual(records.map(({ path }) => path), expectedPaths);
+  assert.equal(new Set(records.map(({ path }) => path)).size, expectedPaths.length);
+  for (const record of records) {
+    assert.equal(record.previousSha256, expectedPreviousHashes[record.path], `${record.path} preserves its exact HEAD digest`);
+    assert.equal(record.currentSha256, hash(readFileSync(resolve(root, record.path))));
+    assert.equal(review.sourceInventory.find(({ path }) => path === record.path)?.sha256, record.currentSha256);
+    assert.match(record.ownerDecisionRef, /\.product-experience\/decision-log\.md#PXD-05[45]$/u);
+    assert.match(record.semanticImpact, /J-01|project/iu);
+    assert.match(record.capabilityImpact, /383.*unresolved/u);
+    assert.match(record.acceptanceEffect, /no capability|no .*capability|no .*phase|no runtime/u);
+  }
+  const byPath = new Map(records.map((record) => [record.path, record]));
+  const previousOperations = review.definitionOnlySourceReconciliations.find(({ path }) => path === expectedPaths[0]);
+  const previousObjects = review.definitionOnlySourceReconciliations.find(({ path }) => path === expectedPaths[1]);
+  assert.equal(byPath.get(expectedPaths[0]).previousSha256, previousOperations.currentSha256);
+  assert.equal(byPath.get(expectedPaths[1]).previousSha256, previousObjects.currentSha256);
+  assert.equal(byPath.get(expectedPaths[4]).previousSha256, review.experienceDefinitionSourceReconciliation.currentSha256);
+  assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
+  assert.equal(review.denominatorReconciliation.unresolvedCoverageDispositions, 383);
+  assert.equal(review.denominatorReconciliation.machineOperationDispositions, 0);
+  assert.equal(review.leaves.filter(({ coverageDecision }) => coverageDecision.disposition === 'ACCEPTED').length, 0);
 });

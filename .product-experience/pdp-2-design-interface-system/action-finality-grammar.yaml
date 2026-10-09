@@ -80,6 +80,84 @@ boundedUploadArtifactSlice:
       prohibition: do-not-map-a-media-artifact-reference-input-in-an-unrelated-analysis-tool-to-upload-or-artifact-inspection
   runtimeAdmission: NOT_ADMITTED
   phaseAdmission: pending-independent-PDP2-review
+boundedProjectSetupSlice:
+  status: bounded-definition-grammar-under-PXD-056; Shared-identity-authority-and-runtime-admission-open
+  decisionRef: .product-experience/decision-log.md#PXD-056
+  journeyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-01
+  journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#journeyId
+  scope: create-an-empty-project-with-its-initial-immutable-revision; intent-selection-and-media-processing-are-outside-J-01
+  domainRefs: [media.domain.project, media.domain.project-revision]
+  authorityRefs:
+    identity: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    projectAccessPolicy: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+    deploymentQualification: NOT_ADMITTED
+  identityAndContext:
+    handoff: Shared-owned-authentication-and-identity-handoff; exact-Shared-authority-and-deployment-binding-remain-unqualified
+    protectedDataGate: resolve-current-principal-tenant-and-authorized-workspace-before-project-list-inspection-or-mutation
+    workspaceSelection: user-selected-context-is-not-itself-authentication-or-project-access-authority
+    failure: preserve-return-destination-and-nonsensitive-intent-draft; keep-protected-project-data-hidden
+  operations:
+    create:
+      operationRef: media.operation-slice.create-project
+      actionRef: media.action.create-project
+      requestIdentity: trusted-tenant-principal-workspace-plus-stable-caller-requestId-and-canonical-create-payload
+      requestFields: [trustedTenantId, trustedPrincipalId, selectedAuthorizedWorkspaceId, title, requestId]
+      userDecisionFields: [title, selectedAuthorizedWorkspaceId]
+      callerGeneratedFields: [requestId]
+      trustedContextFields: [trustedTenantId, trustedPrincipalId]
+      confirmation: before-dispatch-show-the-selected-workspace-and-exact-title-and-require-explicit-user-confirmation
+      successReceipt: authoritative-durable-commit-of-project-and-initial-revision; result-projectId-and-revisionId-with-headRevisionId-equal-to-revisionId
+      committedState: media-project/ACTIVE-plus-media-project-version/COMMITTED
+      duplicateRequest: same-requestId-and-same-canonical-payload-resolves-to-the-same-project-and-revision-identities
+      conflictingRequest: same-requestId-with-different-canonical-payload-returns-IDEMPOTENCY_CONFLICT
+      uncertainOutcome: UNKNOWN_OUTCOME; inspect-the-same-creationRequestId-and-original-requestFingerprint-in-the-original-tenant-principal-and-workspace-scope; unresolved-or-expired-evidence-does-not-authorize-replay-or-a-new-requestId
+      prohibited: [blind-create-replay, silent-workspace-or-title-replacement, infer-commit-from-transport-acknowledgement]
+    list:
+      operationRef: media.operation-slice.list-projects
+      actionRef: null
+      intent: read-only-currently-authorized-project-summaries-in-trusted-caller-scope
+      output: [projectId, workspaceId, title, headRevisionId, projectState, observedAt, nextPageToken]
+      limits: [page-bounded, cursor-opaque, read-may-be-stale, never-count-or-suggest-out-of-scope-projects]
+    inspect:
+      operationRef: media.operation-slice.inspect-project
+      actionRefs: [media.action.open-project]
+      selector: exactly-one-of-projectId-or-creationRequestId; selectorKind-identifies-the-selected-branch
+      requestIdentitySelector: creationRequestId-is-the-same-requestId-and-original-requestFingerprint-used-for-create-and-is-scoped-to-original-tenant-principal-workspace
+      output: [selectorKind, projectId, workspaceId, title, projectState, headRevisionId, headRevisionState, headRevisionSnapshot, creationRequestId, requestFingerprint, initialRevisionId, creationOutcome, observedAt]
+      reconciliation: creationRequestId-returns-original-create-receipt-and-initialRevisionId-even-if-project-head-has-advanced; never-substitute-current-head-for-created-revision
+      limits: [read-only, may-be-stale, no-media-bytes, no-rights-proof, no-global-absence-inference]
+      notFound: NOT_FOUND_IN_CALLER_SCOPE; indistinguishable-outside-scope; never-authorizes-create-replay
+  problemCodes: [INVALID_REQUEST, ACCESS_DENIED, NOT_FOUND_IN_CALLER_SCOPE, IDEMPOTENCY_CONFLICT, UNAVAILABLE, UNKNOWN_OUTCOME]
+  interactionGrammar:
+    orderedJourneySteps: 4
+    stepBindings:
+      J01-1: {view: media.view.authenticate-and-select-context, kind: external-identity-handoff, operationRefs: [], transitionDisposition: NOT_APPLICABLE_WITH_REASON}
+      J01-2: {view: media.view.resume-work, kind: authorized-project-list-query, operationRefs: [media.operation-slice.list-projects], transitionDisposition: NOT_APPLICABLE_WITH_REASON}
+      J01-3: {view: media.view.find-projects, kind: explicit-confirmed-project-create, operationRefs: [media.operation-slice.create-project], transitionDisposition: NOT_APPLICABLE_WITH_REASON}
+      J01-4: {view: media.view.work-in-project, kind: exact-project-and-head-inspection, operationRefs: [media.operation-slice.inspect-project], transitionDisposition: NOT_APPLICABLE_WITH_REASON}
+    identityAndWorkspace: [resolve-Shared-identity-handoff, select-or-confirm-authorized-workspace, do-not-read-protected-data-before-handoff]
+    resume: list-projects-read-only; present-purposeful-empty-state-when-no-visible-projects
+    create: review-exact-title-and-workspace; explicit-confirmation; preserve-requestId-across-uncertain-outcome
+    open: inspect-exact-project-and-head-revision-before-entering-project-context
+    optionalContinuation: create-media-and-processing-intent-selection-belong-after-J01-and-are-not-project-creation
+  channelApplicability:
+    web:
+      definition: J-01-four-step-project-setup-grammar
+      implementation: screen-and-host-qualification-open
+    http:
+      definition: canonical-logical-operation-records-only
+      currentRouteBinding: none-claimed; no-route-or-wire-equivalence-inferred
+    sdk:
+      currentMatchingMethods: []
+      status: no-project-create-list-or-inspect-method-identity-claimed
+    cli:
+      currentMatchingCommands: []
+      status: no-project-create-list-or-inspect-command-identity-claimed
+    agentTool:
+      currentMatchingTools: []
+      status: no-current-registered-tool-identity-claimed
+  runtimeAdmission: NOT_ADMITTED
+  phaseAdmission: pending-independent-PDP2-review
 outcomes:
   - id: media.action-outcome.applied
     label: Request recorded

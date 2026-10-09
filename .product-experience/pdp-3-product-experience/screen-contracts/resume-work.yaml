@@ -8,11 +8,11 @@ layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pen
 componentIds: [media.component.project-context-summary, media.component.intent-launcher]
 patternIds: [media.gui.pattern.project-browser]
 tokenDependencies: []
-domainObjectRefs: []
-operationRefs: []
+domainObjectRefs: [media.domain.project]
+operationRefs: [media.operation-slice.list-projects]
 requirementRefs: []
 requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
-stateRefs: []
+stateRefs: [media-project/ACTIVE, media-project/ARCHIVED]
 entry: []
 exit: []
 actionConsequences:
@@ -113,3 +113,12 @@ sourceRefs:
 - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-01
+journeyDefinitionBindings:
+  journeyRef: J-01
+  decisionRef: .product-experience/decision-log.md#PXD-055
+  runtimeAdmission: NOT_ADMITTED
+  applicability: required-J01-view
+  operationRefs: [media.operation-slice.list-projects]
+  domainObjectRefs: [media.domain.project]
+  stateRefs: [media-project/ACTIVE, media-project/ARCHIVED]
+  semanticBoundary: Current-principal and selected-workspace project summaries only; empty is not global absence.

@@ -424,3 +424,26 @@ definitionContinuation20261008:
   fullCrossInterfaceBindingsAccepted: 0
   evidenceReport: docs/implementation/media-product-definition-continuation-2026-10-08.json
   phaseAcceptance: NOT_CLAIMED
+
+definitionProjectBatch20261008:
+  scope: PDP-0 through PDP-3 definitions only; implementation deferred.
+  decisionRefs: [PXD-054, PXD-055, PXD-056, PXD-057]
+  journey: J-01
+  orderedSteps: 4
+  optionalContinuationScreens: 1
+  necessaryCanonicalProjectSlices: 3
+  projectedUnconditionalEffects: 2
+  projectedFinalityRecords: 20
+  existingComponentsWithAuthoredSourceDefinitionCases: 31
+  obligationPopulationBefore: 344
+  obligationPopulationAfter: 347
+  caseIdsPresentBefore: 62
+  caseIdsPresentAfter: 93
+  missingCaseIdsBefore: 282
+  missingCaseIdsAfter: 254
+  sourceCaseCandidateLinks: 59
+  sourceCaseLinkedObligations: 38
+  obligationsWithoutSourceCaseLinks: 309
+  observerOracleProviderAdmissions: 0
+  phaseAcceptance: NOT_CLAIMED
+  evidenceReport: docs/implementation/media-product-definition-project-batch-2026-10-08.json

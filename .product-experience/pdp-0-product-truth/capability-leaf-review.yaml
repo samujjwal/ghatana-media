@@ -18,11 +18,15 @@ sourceInventory:
 - path: .product-experience/pdp-0-product-truth/applications-channels.yaml
   sha256: e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d
 - path: .product-experience/pdp-1-domain-data/operations.yaml
-  sha256: a7e653096364252f388bee5d06361b2a0472e088ef426b2c3602d80a4a71b8b6
+  sha256: bee4b826a3f5ab15290d80e80184044e51cdf810154eac903aace28099524185
+- path: .product-experience/pdp-1-domain-data/action-contracts.yaml
+  sha256: 122e3fd6e35c46d5a3cfa22951ef36e586a789b75396c4ddb64a66f3c1488851
+- path: .product-experience/pdp-1-domain-data/states.yaml
+  sha256: 53c310be8c3e1ced1d90db5450a1e5a7bd6973a8c7ec443c7a50e214cdc58110
 - path: .product-experience/pdp-3-product-experience/action-registry.yaml
-  sha256: b2c39d7dc1141a22a7c7b73611811dac01462757ff13a8cd3fdcfddd55865073
+  sha256: ed643131760a1d0ccd98ce418d33595173c1e1d41e15c708ba5c7ef4cb6c3258
 - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
-  sha256: 348d755cad07ba1fd88976088191c06602d023593ad4cb5b0b818b8a2725185f
+  sha256: 52c38599cd1d6b429b46fc2e049c68f7344c769b952a7419b27dc5a0d110ce27
 denominatorReconciliation:
   capabilityFamilies: 38
   capabilityLeaves: 462
@@ -61851,3 +61855,47 @@ experienceDefinitionSourceReconciliation:
   ownerDecisionRef: .product-experience/decision-log.md#PXD-052
   scope: Four selected action definition records; preserves all capability IDs, operation associations and historical reconciliation records.
   coverageEffect: no-full-leaf-admission-or-denominator-reduction
+
+# PXD-054/PXD-055 project-definition reconciliation; current pins move forward while
+# the earlier upload and J-02 history above remains immutable.
+projectDefinitionSourceReconciliations:
+- path: .product-experience/pdp-1-domain-data/operations.yaml
+  previousSha256: a7e653096364252f388bee5d06361b2a0472e088ef426b2c3602d80a4a71b8b6
+  currentSha256: bee4b826a3f5ab15290d80e80184044e51cdf810154eac903aace28099524185
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-054
+  exactChangedRecords: [media.operation-slice.create-project, media.operation-slice.list-projects, media.operation-slice.inspect-project]
+  semanticImpact: Three existing J-01 operation slices define empty-project creation with same-request identity reconciliation, authorized project listing, and exact project/head or original creation-receipt inspection.
+  capabilityImpact: No capability-leaf operation association or applicability disposition changed; 383 remain unresolved and machine-operation coverage remains zero.
+  acceptanceEffect: Definition-only source reconciliation; operation execution remains NOT_ADMITTED and no capability or phase is accepted.
+- path: .product-experience/pdp-1-domain-data/domain-objects.yaml
+  previousSha256: 348d755cad07ba1fd88976088191c06602d023593ad4cb5b0b818b8a2725185f
+  currentSha256: 52c38599cd1d6b429b46fc2e049c68f7344c769b952a7419b27dc5a0d110ce27
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-054
+  exactChangedRecords: [media.domain.project, media.domain.project-revision]
+  semanticImpact: Existing project and immutable project-revision identities now define an empty initial committed revision and stable project head without synthesizing a media asset or processing job.
+  capabilityImpact: Leaf-to-domain-object associations remain unchanged and empty; 383 capability leaves remain unresolved.
+  acceptanceEffect: Bounded object-definition reconciliation only; no runtime persistence, capability, or phase acceptance.
+- path: .product-experience/pdp-1-domain-data/action-contracts.yaml
+  previousSha256: 00b766c8e78cbf71ce9c2cee794a68327a61bf14c625ca222d30c9b23d2d491f
+  currentSha256: 122e3fd6e35c46d5a3cfa22951ef36e586a789b75396c4ddb64a66f3c1488851
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-054
+  exactChangedRecords: [media.operation-slice.create-project, media.operation-slice.list-projects, media.operation-slice.inspect-project]
+  semanticImpact: Existing create/open actions are bounded to empty-project creation, authorized project listing, and exact project inspection; list and inspect remain read-only.
+  capabilityImpact: No capability-leaf operation binding or accepted coverage changes; 383 remain unresolved and machine-operation dispositions remain zero.
+  acceptanceEffect: Source-level action/operation definition only; no transport, runtime, or capability acceptance.
+- path: .product-experience/pdp-1-domain-data/states.yaml
+  previousSha256: 2e3576c6ef7f27ca64da3de86f66890a1c119cc015184cc9369878ce40ee9348
+  currentSha256: 53c310be8c3e1ced1d90db5450a1e5a7bd6973a8c7ec443c7a50e214cdc58110
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-054
+  exactChangedRecords: [media-project, media-project-version]
+  semanticImpact: Project ACTIVE and initial revision COMMITTED are explicit initial aggregate states; creation has no transition edge and is atomic by definition.
+  capabilityImpact: No machine-operation or capability-leaf coverage disposition changes; 383 remain unresolved.
+  acceptanceEffect: State vocabulary and initial-state definition only; no runtime transition or lifecycle admission.
+- path: .product-experience/pdp-3-product-experience/action-registry.yaml
+  previousSha256: b2c39d7dc1141a22a7c7b73611811dac01462757ff13a8cd3fdcfddd55865073
+  currentSha256: ed643131760a1d0ccd98ce418d33595173c1e1d41e15c708ba5c7ef4cb6c3258
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-055
+  exactChangedRecords: [media.action.create-project, media.action.inspect-project-creation, media.action.open-project]
+  semanticImpact: J-01 actions define explicit create confirmation and same-request recovery; query/open actions preserve scope, stale observations, and unknown creation finality.
+  capabilityImpact: Existing 462-leaf population and action-to-capability associations remain unchanged; 383 applicability decisions remain unresolved.
+  acceptanceEffect: Selected J-01 definition only; no user-interface availability, capability coverage, runtime, or phase admission.

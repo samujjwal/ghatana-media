@@ -17,13 +17,13 @@ patternBindingStatus: proposal-copied-from-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenBindingStatus: pending-canonical-token-binding
 domainObjectRefs: []
-domainObjectBindingStatus: pending-canonical-domain-object-binding
+domainObjectBindingStatus: PDP-1 exact project identities bound; runtime NOT_ADMITTED
 operationRefs: []
 requirementRefs: []
 requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
-operationBindingStatus: pending-canonical-operation-binding
+operationBindingStatus: PDP-1 exact project operations bound; runtime NOT_ADMITTED
 stateRefs: []
-stateBindingStatus: pending-PDP-1-state-binding; local-UI-state-labels-not-promoted
+stateBindingStatus: PDP-1 exact project lifecycle states bound; no transition is implied
 entry: []
 entryBindingStatus: pending-canonical-entry-condition-binding
 exit: []
@@ -144,3 +144,12 @@ journeyRefs:
   - J-01
   - J-09
   - J-24
+journeyDefinitionBindings:
+  journeyRef: J-01
+  decisionRef: .product-experience/decision-log.md#PXD-055
+  runtimeAdmission: NOT_ADMITTED
+  applicability: optional-post-J01-continuation
+  operationRefs: []
+  domainObjectRefs: []
+  stateRefs: []
+  semanticBoundary: Optional post-J-01 continuation only. Intent selection/submission is outside first-use project creation; no project-creation operation is bound to this screen.

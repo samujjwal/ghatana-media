@@ -2,14 +2,79 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { validateScopeStatuses } from "../scripts/normalize-media-scope-status.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
+const requireTools = createRequire(resolve(root, "../ghatana-tools/package.json"));
+const { parse: parseYaml } = requireTools("yaml");
+const readYaml = (path) => parseYaml(readFileSync(resolve(root, path), "utf8"));
+
+function validateBoundedJ01ProjectDefinitions(journey) {
+  assert.equal(journey.journeyId, "J-01");
+  assert.equal(journey.steps.length, 4);
+  assert.deepEqual(journey.steps.map(({ stepId }) => stepId), ["J01-1", "J01-2", "J01-3", "J01-4"]);
+  const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml").individualOperationContracts.records;
+  const operationById = new Map(operations.map((record) => [record.id, record]));
+  const objectIds = new Set(readYaml(".product-experience/pdp-1-domain-data/domain-objects.yaml").objects.map(({ id }) => id));
+  const stateIds = new Set(readYaml(".product-experience/pdp-1-domain-data/states.yaml").stateMachines
+    .flatMap(({ machineId, stateIds: states }) => states.map((state) => `${machineId}/${state}`)));
+  const actions = readYaml(".product-experience/pdp-3-product-experience/action-registry.yaml").actions;
+  const actionById = new Map(actions.map((action) => [action.id, action]));
+
+  for (const step of journey.steps) {
+    assert.equal(step.decisionRef, ".product-experience/decision-log.md#PXD-055", `${step.stepId} decision must be exact`);
+    assert.equal(step.definitionVerification?.runtimeAdmission, "NOT_ADMITTED", `${step.stepId} cannot claim execution admission`);
+    assert.equal(step.transitionDisposition?.status, "NOT_APPLICABLE_WITH_REASON", `${step.stepId} has no invented project-state edge`);
+    assert.equal(step.transitionDisposition?.decisionRef, ".product-experience/decision-log.md#PXD-055");
+    assert.ok(step.transitionDisposition?.reason, `${step.stepId} must explain why no transition applies`);
+    for (const objectId of step.objectRefs ?? []) assert.ok(objectIds.has(objectId), `${step.stepId} has stale domain object ${objectId}`);
+    for (const stateRef of step.stateRefs ?? []) assert.ok(stateIds.has(stateRef), `${step.stepId} has stale state ${stateRef}`);
+    const operationRefs = new Set([...(step.requiredOperationRefs ?? []), ...(step.canonicalOperationRef ? [step.canonicalOperationRef] : [])]);
+    for (const operationRef of operationRefs) {
+      const operation = operationById.get(operationRef);
+      assert.ok(operation, `${step.stepId} operation ${operationRef} must resolve to PDP-1`);
+      assert.match(operation.status, /bounded-J01-owner-definition-under-PXD-054/u);
+      assert.equal(operation.executionAdmission, "NOT_ADMITTED");
+      assert.equal(operation.sourceRef, ".product-experience/pdp-0-product-truth/journey-catalog.yaml#J-01");
+      assert.ok(operation.sourceBounds, `${operationRef} must retain explicit source bounds`);
+    }
+    for (const actionRef of [step.action, ...(step.actionRefs ?? [])].filter(Boolean)) {
+      const action = actionById.get(actionRef);
+      assert.ok(action, `${step.stepId} action ${actionRef} must resolve to the action registry`);
+      assert.equal(action.actionDefinitionSemantics?.sourceDecisionRef, ".product-experience/decision-log.md#PXD-054");
+      assert.equal(action.actionDefinitionSemantics?.reviewDecisionRef, ".product-experience/decision-log.md#PXD-055");
+      assert.equal(action.actionDefinitionSemantics?.runtimeAdmission, "NOT_ADMITTED");
+      if (action.actionDefinitionSemantics.operationRef) {
+        assert.ok(operationRefs.has(action.actionDefinitionSemantics.operationRef), `${actionRef} operation is not the exact operation on ${step.stepId}`);
+      }
+    }
+  }
+  assert.equal(journey.steps[0].handoffRef, "media.handoff.identity", "the first step remains an external Shared handoff");
+  assert.deepEqual(journey.steps[0].requiredOperationRefs, [], "Media does not invent an identity operation");
+  assert.equal(journey.steps[1].canonicalOperationRef, "media.operation-slice.list-projects");
+  assert.equal(journey.steps[2].canonicalOperationRef, "media.operation-slice.create-project");
+  assert.equal(journey.steps[3].canonicalOperationRef, "media.operation-slice.inspect-project");
+}
 
 test("canonical Media product-definition authority is structurally closed locally", () => {
   const output = execFileSync(process.execPath, ["scripts/check-product-definition-authority.mjs"], { cwd: root, encoding: "utf8" });
   assert.match(output, /authority check passed/u);
+});
+
+test("bounded J-01 source bindings fail closed on forged authority, operation, or runtime admission", () => {
+  const journey = readYaml(".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml");
+  assert.doesNotThrow(() => validateBoundedJ01ProjectDefinitions(journey));
+  const badDecision = structuredClone(journey);
+  badDecision.steps[0].decisionRef = ".product-experience/decision-log.md#PXD-999";
+  assert.throws(() => validateBoundedJ01ProjectDefinitions(badDecision), /decision must be exact/u);
+  const badAdmission = structuredClone(journey);
+  badAdmission.steps[2].definitionVerification.runtimeAdmission = "ADMITTED";
+  assert.throws(() => validateBoundedJ01ProjectDefinitions(badAdmission), /cannot claim execution admission/u);
+  const swappedOperation = structuredClone(journey);
+  swappedOperation.steps[2].canonicalOperationRef = "media.operation-slice.inspect-project";
+  assert.throws(() => validateBoundedJ01ProjectDefinitions(swappedOperation), /create-project/u);
 });
 
 test("PDP3 screen registry has 47 structurally complete v2 canonical screen proposals", () => {
@@ -60,8 +125,16 @@ test("PDP3 screen registry has 47 structurally complete v2 canonical screen prop
     assert.equal(consequenceIds.length, actions.length, `${screenId} consequence count must match actions`);
     assert.deepEqual(consequenceIds, actions, `${screenId} consequence refs must match action IDs and order`);
     if (actions.length) {
-      assert.match(consequencesBody, /effectRef: (?:null|unresolved)/u, `${screenId} must not invent action effects`);
-      assert.match(consequencesBody, /(?:bindingStatus|status): pending/u, `${screenId} action consequences remain unresolved`);
+      assert.match(consequencesBody, /effectRef:\s*(?:null|unresolved)?\s*$/mu, `${screenId} must keep public effects null unless exactly source-defined`);
+      if (screenId === "media.view.find-projects") {
+        assert.deepEqual(consequenceIds, ["media.action.open-project", "media.action.create-project"]);
+        assert.match(consequencesBody, /source-defined under PXD-054\/055; execution NOT_ADMITTED/u,
+          `${screenId} bounded source definition cannot imply runtime admission`);
+        assert.match(consequencesBody, /operationRef: media\.operation-slice\.inspect-project/u);
+        assert.match(consequencesBody, /operationRef: media\.operation-slice\.create-project/u);
+      } else {
+        assert.match(consequencesBody, /(?:bindingStatus|status): pending/u, `${screenId} action consequences remain unresolved`);
+      }
     }
     assert.match(contract, new RegExp(`^responsiveBehavior:[\\s\\S]*?${centralResponsiveAuthority.replaceAll(".", "\\.")}`, "mu"), `${screenId} responsive authority must be central PDP-2`);
     assert.match(contract, /^verification:\n  status: not-run\n/mu, `${screenId} verification remains unrun`);
@@ -226,12 +299,19 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
   const journeyCatalog = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/journey-catalog.yaml"), "utf8");
   const journeys = new Map();
 
+  let boundedJ01Validated = false;
   for (const path of files) {
     const content = readFileSync(path, "utf8");
     const journeyId = content.match(/^journeyId: (J-\d{2})$/mu)?.[1];
     assert.ok(journeyId, `${path} must declare a source-grounded journey ID`);
     assert.match(journeyCatalog, new RegExp(`^- id: ${journeyId}$`, "mu"), `${journeyId} must exist in PDP-0 catalog`);
     assert.ok(!journeys.has(journeyId), `${journeyId} must be unique`);
+    const parsedJourney = parseYaml(content);
+    const sourceDefinedJ01 = journeyId === "J-01";
+    if (sourceDefinedJ01) {
+      validateBoundedJ01ProjectDefinitions(parsedJourney);
+      boundedJ01Validated = true;
+    }
     const lines = content.split(/\r?\n/u);
     const stepsKey = lines.findIndex((line) => /^steps:\s*$/u.test(line));
     assert.notEqual(stepsKey, -1, `${journeyId} must declare steps`);
@@ -279,8 +359,14 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
         assert.ok(directReason || listedReason || localStatus,
           `${journeyId}/${stepId} missing binding status/reason for ${field}`);
         const reason = directReason ?? bindingReason ?? localStatus;
-        assert.ok(reason && /pending|candidate|unresolved|not-run|not-specified|not-accepted/iu.test(reason),
-          `${journeyId}/${stepId} binding reason for ${field} must retain its proposal/unresolved status`);
+        const pendingReason = reason && /pending|candidate|unresolved|not-run|not-specified|not-accepted/iu.test(reason);
+        const boundedDefinitionReason = sourceDefinedJ01 && boundedJ01Validated
+          && content.includes(".product-experience/decision-log.md#PXD-055")
+          && content.includes("runtimeAdmission: NOT_ADMITTED");
+        const externalIdentityHandoffReason = sourceDefinedJ01 && itemIndex === 0 && field === "handoffRef"
+          && content.includes("runtimeAdmission: NOT_ADMITTED") && /external Shared identity contract only/iu.test(reason ?? "");
+        assert.ok(pendingReason || boundedDefinitionReason || externalIdentityHandoffReason,
+          `${journeyId}/${stepId} binding reason for ${field} must remain proposal/unresolved or pass exact J-01 source-definition and NOT_ADMITTED validation`);
       }
       const verificationBlock = block.match(new RegExp(`^${fieldIndent}verification:\\n([\\s\\S]*?)(?=^${fieldIndent}[A-Za-z][A-Za-z0-9]*:|$(?![\\s\\S]))`, "mu"))?.[1] ?? "";
       assert.match(verificationBlock, /^\s+status: not-run$/mu, `${journeyId}/${stepId} verification must remain not-run`);
@@ -293,8 +379,10 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
         `${journeyId}/${stepId} verification must declare actualEvidence or evidenceRefs`);
       assert.ok(emptyEvidenceField(hasActualEvidence ? "actualEvidence" : "evidenceRefs"),
         `${journeyId}/${stepId} verification evidence list must be exactly empty`);
-      const operation = block.match(new RegExp(`^${fieldIndent}canonicalOperationRef:\\s*(.+)$`, "mu"))?.[1].trim();
-      assert.ok(operation === "null" || /^media\.operation(?:-slice)?\.[a-z0-9.-]+$/u.test(operation),
+      const operation = block.match(new RegExp(`^${fieldIndent}canonicalOperationRef:[ \\t]*(.*)$`, "mu"))?.[1].trim();
+      const externalIdentityNoOperation = sourceDefinedJ01 && itemIndex === 0
+        && operation === "" && boundedJ01Validated;
+      assert.ok(externalIdentityNoOperation || operation === "null" || /^media\.operation(?:-slice)?\.[a-z0-9.-]+$/u.test(operation ?? ""),
         `${journeyId}/${stepId} canonicalOperationRef must be null or a logical operation ID, never a transport route`);
       const screenRef = block.match(new RegExp(`^${fieldIndent}screenContractRef:\\s*([^\\s]+)$`, "mu"))?.[1];
       if (screenRef) {
@@ -316,6 +404,7 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
   }
 
   assert.equal(journeys.size, 30, "all 30 distinct journey IDs must be represented");
+  assert.equal(boundedJ01Validated, true, "J-01 source-defined bindings require their bounded source checks");
   assert.deepEqual(journeys.get("J-29"), [
     "detect-loss-or-consent-change", "fence-new-frame-submission", "reconcile-dispatched-frame-effects", "present-bounded-return-state",
   ]);

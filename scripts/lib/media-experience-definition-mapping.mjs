@@ -13,10 +13,16 @@ export function resolveExperienceDefinitionSemantics(actions, recoveryContracts)
   const finalityKeys = ['id', 'actionRef', 'description', 'confirmationRequired', 'undoable'];
   const recoveryKeys = ['id', 'errorKind', 'recoveryPath', 'automaticRecovery', 'userActionRequired'];
   const claimId = (id) => { if (!nonempty(id) || seen.has(id)) fail(`missing or duplicate record ${id}`); seen.add(id); };
+  const projectReviewOperations = new Map([
+    ['media.action.create-project', 'media.operation-slice.create-project'],
+    ['media.action.open-project', 'media.operation-slice.inspect-project'],
+    ['media.action.inspect-project-creation', 'media.operation-slice.inspect-project'],
+  ]);
   for (const action of actions) {
     const definition = action.actionDefinitionSemantics;
     if (!definition) continue;
-    if (definition.actionRef !== action.id || definition.runtimeAdmission !== 'NOT_ADMITTED' || definition.reviewDecisionRef !== '.product-experience/decision-log.md#PXD-052') fail(`unbounded action review ${action.id}`);
+    const reviewed = definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-052' || (definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-055' && definition.sourceDecisionRef === '.product-experience/decision-log.md#PXD-054' && projectReviewOperations.has(action.id) && definition.operationRef === projectReviewOperations.get(action.id));
+    if (definition.actionRef !== action.id || definition.runtimeAdmission !== 'NOT_ADMITTED' || !reviewed) fail(`unbounded action review ${action.id}`);
     const kind = definition.reversibility?.kind;
     if (!['CONDITIONAL', 'NOT_REVERSIBLE', 'REVERSIBLE', 'UNKNOWN'].includes(kind)) fail(`missing reversibility ${action.id}`);
     if (kind === 'CONDITIONAL' || kind === 'UNKNOWN') {

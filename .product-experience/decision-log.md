@@ -941,6 +941,38 @@ constitute runtime or phase acceptance.
 
 **Alternatives and exclusions:** Reject accepting neighboring journey requirements or all J-02 meaning from this table header. MPSEM-0557 and MPSEM-0560 remain independently unresolved; the latter retains remote-import and wire-version-identity gaps despite bounded upload/recovery definition sources. Historical source pins stay stale. No semantic equivalence, runtime behavior, independent review or phase acceptance is inferred.
 
+## PXD-054 — Canonical J-01 project definition contracts
+
+**Decision:** Under delegated Media semantic ownership, accept three required slices for the existing J-01: create-project, list-projects and inspect-project. Creation atomically establishes one ACTIVE project, an empty immutable COMMITTED initial revision, and its matching head. Trusted tenant/principal, currently authorized workspace and current project policy govern the effect. Preserve the submitted nonblank title and bind the opaque request key to its exact workspace/title payload. Matching replay returns the original receipt; mismatching replay conflicts. Unknown outcomes retain the original key and require reconciliation, including when deduplication evidence is unavailable.
+
+**Sources and acceptance:** `pdp-1-domain-data/operations.yaml#individualOperationContracts`, project/revision objects, initial state meanings and action contracts; `tests/media-j01-project-operation-definitions.test.mjs`; existing J-01 and project capabilities. These three individual obligations are necessary refinements of an existing journey, taking the enumerated population from 344 to 347 without adding a capability, journey or operation family. Their proof route is authored contract checks followed by independent PDP-1 review and native Lifecycle admission.
+
+**Rejected alternatives and limits:** A current-head read cannot replace the original initial revision in a creation receipt. An empty scoped list or absent reconciliation result cannot prove no creation occurred. Queries neither grant authority nor admit artifact content. No archive/restore or draft-commit transition, transport endpoint, runtime implementation, policy provider, durability qualification or external acceptance is selected. Detailed title/resource limits remain unqualified and do not establish complete per-operation bounds.
+
+## PXD-055 — Four-step J-01 experience definition
+
+**Decision:** Accept exact operation, authority, object, state, failure and recovery bindings for the four ordered J-01 steps. Identity/context handoff precedes protected project reads; project creation ends the journey once its authoritative atomic receipt is established. The fifth registered screen, create-media, is an optional continuation after completion and adds no step. Create has an explicitly irreversible effect and receipt-bound confirmation; remote project reads retain unknown reversibility rather than an invented undo boolean.
+
+**Sources and acceptance:** `pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml`, its five screen contracts, action registry and `experience-source-bindings.yaml#j01StepBindings`; `tests/media-j01-definition-semantics.test.mjs`. Project only the exact create effect/finality definitions. Existing 30 journeys, 130 steps and 146 actions remain unchanged.
+
+**Limits:** Initial aggregate creation is not a fabricated existing-state transition. Shared authentication and host identity remain qualified by their real owners. This accepts source definitions only, excluding rendered/assistive-technology behavior, runtime, independent experience assessment, Lifecycle receipts and phase closure.
+
+## PXD-056 — J-01 interface interaction grammar
+
+**Decision:** Accept the four step-to-operation relations and exact request, scoped result/error, duplicate/conflicting identity, authoritative finality and same-request unknown-outcome grammar. The three canonical operation slices define intent while current HTTP, SDK, CLI and Agent Tool implementations remain unbound. Shared identity/context handoff requires its own qualified contract.
+
+**Sources and acceptance:** `pdp-2-design-interface-system/action-finality-grammar.yaml#boundedProjectSetupSlice`; `tests/media-j01-project-setup-grammar.test.mjs`, checked against PDP-1 slices and the four actual J-01 steps.
+
+**Limits:** Matching names are not behavior parity. No endpoint, method, command, tool, event or host availability is invented. No independent interface acceptance, native Lifecycle receipt or phase closure is asserted.
+
+## PXD-057 — Component source-definition case catalog
+
+**Decision:** Accept 31 authored case identities for the existing 31 component obligations, each bound to its exact component source index and an executable parameterized source test. Positive binding checks and stale-role, missing keyboard source, forged implementation admission and missing-component negative assertions establish partial source-definition evidence only.
+
+**Sources and acceptance:** `tests/media-component-definition-proof-cases.test.mjs`, existing component contracts and definition bindings, `config/closure/media-product-definition/l02-source-case-links.json` and obligations. Run all 31 actual test cases; preserve their exact assertion identity and source population. Candidate links are marked NOT_LIFECYCLE_ADMITTED.
+
+**Limits:** Case IDs are authored identities, not proof receipts. These tests do not establish full component obligation satisfaction, rendered keyboard behavior, independent accessibility assessment, Shared package approval, registered observers/oracles/providers, native Lifecycle admission or phase closure. No component or obligation is added by this case catalog.
+
 ## Governance decisions for this authority root
 
 ### GOV-AUTH-001 — Use authored partial relations for traceability

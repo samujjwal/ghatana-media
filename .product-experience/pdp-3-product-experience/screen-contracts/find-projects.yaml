@@ -14,14 +14,14 @@ patternIds:
 patternBindingStatus: proposal-copied-from-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenBindingStatus: pending-canonical-token-binding
-domainObjectRefs: []
-domainObjectBindingStatus: pending-canonical-domain-object-binding
-operationRefs: []
+domainObjectRefs: [media.domain.project, media.domain.project-revision]
+domainObjectBindingStatus: PDP-1 exact project identities bound; runtime NOT_ADMITTED
+operationRefs: [media.operation-slice.list-projects, media.operation-slice.create-project, media.operation-slice.inspect-project]
 requirementRefs: [MEDIA-REQ-CAP-PROJECT]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
-operationBindingStatus: pending-canonical-operation-binding
-stateRefs: []
-stateBindingStatus: pending-PDP-1-state-binding; local-UI-state-labels-not-promoted
+operationBindingStatus: PDP-1 exact project operations bound; runtime NOT_ADMITTED
+stateRefs: [media-project/ACTIVE, media-project/ARCHIVED, media-project-version/COMMITTED]
+stateBindingStatus: PDP-1 exact project lifecycle states bound; no transition is implied
 entry: []
 entryBindingStatus: pending-canonical-entry-condition-binding
 exit: []
@@ -31,18 +31,18 @@ actionConsequences:
     capabilityRefs: [media.project.inspect]
     requirementRefs: [MEDIA-REQ-CAP-PROJECT]
     referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
+    operationRef: media.operation-slice.inspect-project
     effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    consequence: Read the exact currently authorized project head; scoped absence is not global absence.
+    bindingStatus: source-defined under PXD-054/055; execution NOT_ADMITTED
   - actionId: media.action.create-project
     capabilityRefs: [media.project.create]
     requirementRefs: [MEDIA-REQ-CAP-PROJECT]
     referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
+    operationRef: media.operation-slice.create-project
     effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    consequence: Create one empty ACTIVE project and immutable COMMITTED initial revision atomically after current trusted-context/project-policy authorization and explicit request confirmation; UNKNOWN_OUTCOME requires same-request inspection.
+    bindingStatus: source-defined under PXD-054/055; execution NOT_ADMITTED
 actionConsequencesBindingStatus: pending-owner-capability-effect-finality-binding
 responsiveBehavior:
   ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
@@ -149,3 +149,12 @@ sourceRefs:
 - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-01
+journeyDefinitionBindings:
+  journeyRef: J-01
+  decisionRef: .product-experience/decision-log.md#PXD-055
+  runtimeAdmission: NOT_ADMITTED
+  applicability: required-J01-view
+  operationRefs: [media.operation-slice.list-projects, media.operation-slice.create-project, media.operation-slice.inspect-project]
+  domainObjectRefs: [media.domain.project, media.domain.project-revision]
+  stateRefs: [media-project/ACTIVE, media-project/ARCHIVED, media-project-version/COMMITTED]
+  semanticBoundary: Authorized scoped list, explicit create with exact title/requestId, and same-request reconciliation; no blind retry.

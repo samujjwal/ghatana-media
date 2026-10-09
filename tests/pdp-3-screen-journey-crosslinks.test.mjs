@@ -27,10 +27,21 @@ function assertActorsWithinSource(contractActors, sourceActors, label) {
   }
 }
 
-function assertOperationRequiresAction(step, label) {
+function assertOperationRequiresAction(step, label, journeyId, operationById) {
   if (!step.action && !step.actionRef) {
-    assert.equal(step.canonicalOperationRef ?? null, null,
-      `${label} cannot bind an operation without an explicit action`);
+    const operationRef = step.canonicalOperationRef ?? null;
+    if (operationRef === null) return;
+    const allowedJ01Queries = {
+      "J01-2": { view: "media.view.resume-work", operationRef: "media.operation-slice.list-projects" },
+      "J01-4": { view: "media.view.work-in-project", operationRef: "media.operation-slice.inspect-project" },
+    };
+    const allowedQuery = journeyId === "J-01" ? allowedJ01Queries[step.stepId] : null;
+    if (!allowedQuery || step.view !== allowedQuery.view || operationRef !== allowedQuery.operationRef) {
+      assert.fail(`${label} cannot bind an operation without an explicit action`);
+    }
+    const operation = operationById.get(operationRef);
+    assert.equal(operation?.operationKind, "QUERY", `${label} operation without an action must be a read-only query`);
+    assert.equal(operation?.executionAdmission, "NOT_ADMITTED", `${label} query remains definition-only`);
   }
 }
 
@@ -50,6 +61,7 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
   const journeyIds = new Set(journeys.journeys.map((journey) => journey.id));
   const actionIds = new Set(actions.actions.map((action) => action.id));
   const operationIds = new Set([...operations.operations.map((operation) => operation.id), ...(operations.individualOperationContracts?.records ?? []).map((operation) => operation.id)]);
+  const operationById = new Map((operations.individualOperationContracts?.records ?? []).map((operation) => [operation.id, operation]));
   const requirementIds = new Set(requirements.requirements.map((item) => item.id));
   const capabilityIds = new Set(capabilities.capabilities.map((item) => item.id));
   const goalIds = new Set(goals.outcomes.map((item) => item.id));
@@ -140,7 +152,7 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
         operationLinks++;
       }
       assertUniqueKnownRefs(step.requiredOperationRefs ?? [], operationIds, `${journey.id}.requiredOperationRefs`);
-      assertOperationRequiresAction(step, `${journey.id} step ${step.view}`);
+      assertOperationRequiresAction(step, `${journey.id} step ${step.view}`, journey.id, operationById);
     }
   }
   assert.equal(stepCount, 130);
@@ -150,7 +162,7 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
   assert.equal(journeys.coverageObservation.stepBindings.screenContractRef.blocker.startsWith("none;"), true);
   assert.equal(linkedViewJourneyRefs, 132);
   assert.deepEqual({ actionLinks, requirementLinks, capabilityLinks, outcomeLinks, operationLinks }, {
-    actionLinks: 18, requirementLinks: 20, capabilityLinks: 22, outcomeLinks: 72, operationLinks: 16,
+    actionLinks: 18, requirementLinks: 20, capabilityLinks: 22, outcomeLinks: 72, operationLinks: 19,
   });
 });
 
@@ -281,6 +293,23 @@ test("PDP-3 navigation-only steps reject operation placeholders", () => {
     ...navigationOnlyStep,
     canonicalOperationRef: "media.operation.job-lifecycle",
   }, "J-test step 1"), /cannot bind an operation without an explicit action/u);
+});
+
+test("J-01 passive project reads admit only their exact source identity, view, and unadmitted QUERY", () => {
+  const valid = {
+    stepId: "J01-2", view: "media.view.resume-work", canonicalOperationRef: "media.operation-slice.list-projects",
+  };
+  const queries = new Map([[valid.canonicalOperationRef, { operationKind: "QUERY", executionAdmission: "NOT_ADMITTED" }]]);
+  assert.doesNotThrow(() => assertOperationRequiresAction(valid, "J-01 step 2", "J-01", queries));
+  assert.throws(() => assertOperationRequiresAction({ ...valid, view: "media.view.work-in-project" }, "wrong view", "J-01", queries), /cannot bind/u);
+  assert.throws(() => assertOperationRequiresAction({ ...valid, canonicalOperationRef: "media.operation-slice.inspect-project" }, "swapped query", "J-01", queries), /cannot bind/u);
+  assert.throws(() => assertOperationRequiresAction({ ...valid, stepId: "J01-3" }, "wrong step", "J-01", queries), /cannot bind/u);
+  assert.throws(() => assertOperationRequiresAction(valid, "wrong operation kind", "J-01", new Map([
+    [valid.canonicalOperationRef, { operationKind: "COMMAND", executionAdmission: "NOT_ADMITTED" }],
+  ])), /read-only query/u);
+  assert.throws(() => assertOperationRequiresAction(valid, "admitted operation", "J-01", new Map([
+    [valid.canonicalOperationRef, { operationKind: "QUERY", executionAdmission: "ADMITTED" }],
+  ])), /definition-only/u);
 });
 
 

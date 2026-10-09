@@ -83,6 +83,15 @@ operationSliceBindings:
   media.operation-slice.inspect-artifact:
     actionIntentRefs: [media.action.inspect-artifact]
     disposition: exact-bounded-read-intent; no-bytes-rights-or-project-attachment
+  media.operation-slice.create-project:
+    actionIntentRefs: [media.action.create-project]
+    disposition: create-only-empty-project-and-atomic-initial-immutable-revision; exact-request-replay-is-not-a-second-effect; unknown-outcome-requires-same-requestId-reconciliation; runtime-NOT_ADMITTED
+  media.operation-slice.list-projects:
+    actionIntentRefs: []
+    disposition: tenant-workspace-principal-scoped-authorized-summary-observation; empty-result-is-not-global-absence; runtime-NOT_ADMITTED
+  media.operation-slice.inspect-project:
+    actionIntentRefs: [media.action.open-project, media.action.inspect-project-creation]
+    disposition: exact-project-and-current-head-revision-read-or-create-request-reconciliation; read-only-time-scoped; no-artifact-bytes-or-rights-claim; runtime-NOT_ADMITTED
 bindingRules:
   - above-family-lists-are-allowed-result-shapes-not-guaranteed-result-support
   - each-HTTP-gRPC-SDK-CLI-Agent-tool-and-event-adapter-must-declare-its-actual-supported-subset

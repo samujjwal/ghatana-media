@@ -146,3 +146,12 @@ sourceRefs:
 - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-01
+journeyDefinitionBindings:
+  journeyRef: J-01
+  decisionRef: .product-experience/decision-log.md#PXD-055
+  runtimeAdmission: NOT_ADMITTED
+  applicability: required-J01-view
+  operationRefs: []
+  domainObjectRefs: []
+  stateRefs: []
+  semanticBoundary: External Shared identity handoff only; no Media-owned authentication action or project query before trusted context.

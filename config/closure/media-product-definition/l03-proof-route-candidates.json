@@ -5,19 +5,19 @@
   "description": "Source-resolvable L-03 proof-route candidates. These records document actual local producer/criterion/test identities and method results; they are not Lifecycle observer/oracle registrations, case admission, independent review, or proof receipts.",
   "l02CaseLinkReview": {
     "sourcePath": "config/closure/media-product-definition/l02-source-case-links.json",
-    "reviewedLinkCount": 28,
-    "reviewedObligationCount": 7,
-    "obligationDenominator": 344,
-    "unmappedObligationCount": 337,
+    "reviewedLinkCount": 59,
+    "reviewedObligationCount": 38,
+    "obligationDenominator": 347,
+    "unmappedObligationCount": 309,
     "candidateRouteCount": 0,
     "status": "NO_CASE_SPECIFIC_OBSERVER_OR_ORACLE_CANDIDATE_IDENTIFIED",
     "missingSemantics": [
-      "The linked declarations are deterministic simulation assertions; no registered Evidence Generator producer declares libs/media-experience-simulation or its test command in unitScope.",
-      "The producer and criterion registries contain no case-specific input/result schema, oracle ID, positive/negative expectation, or comparison rule for the linked simulation assertions. assertionEvidence literals in L-02 prove source presence only, not a named L-03 oracle.",
+      "The linked declarations are deterministic simulation assertions or parameterized component source-definition checks; no registered Evidence Generator producer declares either libs/media-experience-simulation or tests/media-component-definition-proof-cases.test.mjs and their test command in unitScope.",
+      "The producer and criterion registries contain no case-specific input/result schema, oracle ID, positive/negative expectation, or comparison rule for the linked simulation assertions or component source-definition cases. Exact L-02 assertions identify partial source checks only, not a named L-03 oracle.",
       "The existing runtime, provider-fallback, and production-state routes target different PDP-1 obligations and methods; they do not observe the linked PDP-3 scenarios or their simulation test outcomes.",
-      "A local Node test result is not an admitted Lifecycle observer, an independent review, or a qualified production/browser observation. Case execution and Lifecycle binding remain deferred."
+      "Actual local Node case execution does not establish an admitted Lifecycle observer, independent review, rendered accessibility or qualified production/browser observation. Native case admission and Lifecycle binding remain deferred."
     ],
-    "authoritativeAssignments": "UNCHANGED_ZERO_OF_344"
+    "authoritativeAssignments": "UNCHANGED_ZERO_OF_347"
   },
   "routes": [
     {

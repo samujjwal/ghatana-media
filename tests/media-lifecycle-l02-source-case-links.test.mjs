@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
+const parseYaml = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url))('yaml').parse;
+const componentContracts = parseYaml(fs.readFileSync('.product-experience/pdp-2-design-interface-system/component-contracts.yaml', 'utf8')).components;
 
 const proposal = JSON.parse(fs.readFileSync('config/closure/media-product-definition/l02-source-case-links.json', 'utf8'));
 const obligations = JSON.parse(fs.readFileSync('config/closure/media-product-definition/obligations.json', 'utf8'));
@@ -42,6 +45,31 @@ function validateLink(link) {
   const obligation = obligationsById.get(link.obligationId);
   assert.ok(obligation.caseIds.includes(link.caseId), `${link.caseId} is not a case of ${link.obligationId}`);
   const sourcePath = link.testIdentity?.sourcePath;
+  if (link.method === 'PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS') {
+    assert.equal(sourcePath, 'tests/media-component-definition-proof-cases.test.mjs');
+    const parameter = link.parameterizedCase;
+    const component = componentContracts[parameter?.sourceRecordIndex];
+    assert.ok(component && component.id === parameter.parameterValue, 'stale parameterized component source');
+    assert.equal(parameter.parameterName, 'componentRef');
+    assert.equal(parameter.sourcePopulationRef, '.product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components');
+    assert.equal(parameter.template, 'component definition proof: ${componentRef}');
+    assert.equal(link.testIdentity.testName, `component definition proof: ${component.id}`);
+    assert.equal(link.obligationId, `media.pdp-2.requirement.${component.id}`);
+    assert.equal(link.caseId, `media.definition-case.component-binding.${component.id.slice('media.component.'.length)}`);
+    assert.equal(link.ownerDecisionRef, '.product-experience/decision-log.md#PXD-057');
+    assert.equal(link.admission, 'NOT_LIFECYCLE_ADMITTED');
+    assert.equal(link.scope, 'PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY');
+    assert.deepEqual(link.negativeAssertions, ['stale-role', 'missing-keyboard-source', 'forged-implementation-admission', 'missing-selected-component']);
+    const source = fs.readFileSync(sourcePath, 'utf8');
+    assert.ok(source.includes('test(`component definition proof: ${componentRef}`'));
+    assert.ok(source.includes(link.assertionEvidence));
+    assert.ok(source.includes('staleRole.definitionBindings[index].role'));
+    assert.ok(source.includes('missingInteraction.definitionBindings[index].interactionSource'));
+    assert.ok(source.includes('forgedAdmission.definitionBindings[index].implementationAdmission'));
+    assert.ok(source.includes('missingRecord.definitionBindings.splice(index, 1)'));
+    return;
+  }
+
   assert.match(sourcePath ?? '', /^libs\/media-experience-simulation\/tests\/[a-z0-9-]+\.test\.mjs$/u,
     'test source is outside the registered simulation suite');
   assert.match(simulationPackage.scripts.test, /node --test tests\/\*\.test\.mjs/u,
@@ -67,10 +95,10 @@ function validateLink(link) {
 test('L-02 source-link proposal preserves all obligations and validates exact existing test identities', () => {
   assert.equal(proposal.status, 'SOURCE_LINK_PROPOSAL_PARTIAL_NOT_EXECUTION_ADMITTED');
   assert.deepEqual(proposal.obligationIds, obligationIds, 'proposal denominator must preserve every obligation ID in source order');
-  assert.equal(new Set(proposal.obligationIds).size, 344);
-  assert.equal(new Set(proposal.candidateLinks.map(({ obligationId }) => obligationId)).size, 7);
-  assert.equal(proposal.candidateLinks.length, 28);
-  assert.equal(proposal.unmappedObligationIds.length, 337);
+  assert.equal(new Set(proposal.obligationIds).size, 347);
+  assert.equal(new Set(proposal.candidateLinks.map(({ obligationId }) => obligationId)).size, 38);
+  assert.equal(proposal.candidateLinks.length, 59);
+  assert.equal(proposal.unmappedObligationIds.length, 309);
   assert.deepEqual(new Set(proposal.unmappedObligationIds), new Set(obligationIds.filter((id) =>
     !proposal.candidateLinks.some((link) => link.obligationId === id))));
 
@@ -109,4 +137,18 @@ test('L-02 source links reject stale cases and unregistered or unrelated test id
     ...linkWithAssertionEvidence,
     assertionEvidence: 'assertion evidence that is not present in the test',
   }), /no longer asserts the linked effect/u);
+});
+
+
+test('parameterized definition cases reject swapped scope, parameters and invented admission', () => {
+  const valid = proposal.candidateLinks.find((link) => link.method === 'PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS');
+  assert.ok(valid);
+  for (const mutate of [
+    (link) => { link.parameterizedCase.parameterValue = 'media.component.deleted'; },
+    (link) => { link.testIdentity.testName = 'invented test'; },
+    (link) => { link.scope = 'FULL_OBLIGATION_PASS'; },
+    (link) => { link.admission = 'ADMITTED'; },
+    (link) => { link.ownerDecisionRef = 'invented decision'; },
+    (link) => { link.testIdentity.sourcePath = 'apps/invented-test.mjs'; },
+  ]) { const link = structuredClone(valid); mutate(link); assert.throws(() => validateLink(link)); }
 });

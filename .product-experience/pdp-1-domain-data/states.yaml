@@ -82,14 +82,14 @@ stateMachines:
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project
     stateIds: [ACTIVE, ARCHIVED]
     stateCount: 2
-    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+    meaningDisposition: bounded-J01-ACTIVE-initial-create-and-authorized-inspection-semantics-under-PXD-054; archive-and-restore-guards-remain-pending
   - machineId: media-project-version
     sourceMachineId: media-project-version
     statusDimension: project-revision-lifecycle
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
     stateIds: [DRAFT, COMMITTED, SUPERSEDED, CONFLICTED, ABANDONED]
     stateCount: 5
-    meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+    meaningDisposition: bounded-J01-COMMITTED-empty-initial-revision-and-immutable-head-identity-under-PXD-054; draft-commit-branch-restore-and-conflict-guards-remain-pending
   - machineId: media-project-membership
     sourceMachineId: media-project-membership
     statusDimension: project-membership-lifecycle

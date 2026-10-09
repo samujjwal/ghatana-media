@@ -205,7 +205,7 @@
     "PDP-2": "OPEN; native acceptance not claimed",
     "PDP-3": "OPEN; native acceptance not claimed"
   },
-  "nextExecutableDefinitionBatch": "Complete canonical project create/read identity and unknown-outcome semantics needed by the five existing J-01 steps, then bind existing actions/effects/recovery and source-check their projections; application implementation remains deferred.",
+  "nextExecutableDefinitionBatch": "Complete canonical project create/read identity and unknown-outcome semantics needed by the four existing J-01 steps, then bind existing actions/effects/recovery and source-check their projections; application implementation remains deferred.",
   "changedFiles": [
     ".product-experience/acceptance.yaml",
     ".product-experience/closure-dashboard.yaml",
@@ -258,5 +258,6 @@
     "worktreeAfterSourceCommit": "CLEAN",
     "implementationStashRetained": true,
     "boundary": "Subsequent report-only checkpoint; source validation does not assert Lifecycle currentness"
-  }
+  },
+  "j01StepCountCorrection": "J-01 has four ordered steps and five registered screens; create-media is an optional post-journey continuation. The earlier prospective batch wording was corrected without changing the original 130-step population."
 }
