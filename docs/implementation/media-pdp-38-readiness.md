@@ -4,8 +4,8 @@ Source HEAD: `2ea980485da076b459f89f21246b5ef08539f28c`. Exactly 38 tasks. Sourc
 
 | Task | Original status | Direct source criterion | Dependencies | Independent/publisher | Native phase proof |
 | --- | --- | --- | --- | --- | --- |
-| P0-01 | partial | VERIFIED_IN_CURRENT_SOURCE | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
-| P0-02 | partial | VERIFIED_IN_CURRENT_SOURCE | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
+| P0-01 | partial | REOPENED_SOURCE_CONTRACT_CORRECTION_REQUIRED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
+| P0-02 | partial | REOPENED_SOURCE_CONTRACT_CORRECTION_REQUIRED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
 | P0-03 | partial | NOT_ESTABLISHED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
 | P0-04 | partial | VERIFIED_IN_CURRENT_SOURCE | NOT_ESTABLISHED | NOT_EVALUATED | NOT_EVALUATED |
 | P0-05 | partial | NOT_ESTABLISHED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
@@ -78,3 +78,5 @@ Current source counters:
   }
 }
 ```
+
+Coordinator corrective review PXD-092 reopens P0-01/P0-02 after material simulation output/crosswalk and editing contract defects. The three remaining verified direct criteria are P0-04, P1-06 and P2-01. Prior passing tests and owner approvals remain historical; current fixes require operation-specific negative tests and material reassessment. This is not independent acceptance or a Lifecycle receipt.

@@ -1262,3 +1262,11 @@ register; see [`source-manifest.yaml`](./source-manifest.yaml) and
 - **Verification:** coordinator repeated eight full-population schema/leaf/NFR tests, including required-field omission, overposting/trusted-context injection, unknown/rejected result contradictions, wrong/missing reference and same-count NFR substitution. Existing PXD-081 separately covers the exact four-business-measure applicability population. The current review artifact retains source/test fingerprints and raw output digest; source changes require relevant currentness review.
 - **Reporting:** `direct-definition-criteria-review.json` permits only these two current direct-definition predicates to be reported satisfied after their current verification passes. Original full ledger status, dependencies, independent or publisher acceptance and Lifecycle phase currentness remain separate and unpromoted.
 - **Excludes:** P0-03 migration parity, other PDP task criteria, actual implementation/availability/qualification, SRE/AT/legal/scientific acceptance, independent phase review and Lifecycle receipts.
+
+### PXD-092 — Reopen capability criteria after material contract review
+
+- **Authority:** user-delegated Media definition ownership; coordinator material review of published source.
+- **Finding:** eleven simulation pass leaves share an output without a pass discriminator and with input-shaped fields; thirty-three simulation crosswalks confuse input SimulationWorld provenance with output; eighteen edit leaves share generic controls/results without exact operation restrictions.
+- **Current disposition:** P0-01 and P0-02 require corrective implementation and material reassessment. Preserve PXD-089 and its actual passing tests as history; do not infer satisfaction from unchanged hashes or those tests. P0-04, P1-06 and P2-01 remain separately verified.
+- **Required verification:** all affected leaf inputs/outputs reject cross-operation substitutions, absent output identity/provenance and unsafe preservation; source crosswalks name actual outputs. The new source cut must be reviewed before closing this correction.
+- **Acceptance boundary:** no original full-task completion, independent phase acceptance, external owner qualification or native Lifecycle receipt is granted.

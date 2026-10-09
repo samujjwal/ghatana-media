@@ -62,14 +62,15 @@ const implementationScopes = {
 export function buildReadiness({audit, residual, verification = {}, mainSha, fingerprints, definitionCensus = null, sourceWorkingTree = null, definitionCriterionReviews = {}}) {
   const tasks = audit.tasks.filter(t => taskIds.includes(t.id)).map(t => {
     const ownerReview=definitionCriterionReviews[t.id];
-    const reviewedDefinition=ownerReview?.status==='APPROVED_DIRECT_DEFINITION_CRITERION' && ownerReview?.sourceCutCurrent===true;
+    const correctionOpen=Boolean(ownerReview?.currentCorrectiveReview && ownerReview.currentCorrectiveReview.status!=='APPROVED_CURRENT_CORRECTION');
+    const reviewedDefinition=ownerReview?.status==='APPROVED_DIRECT_DEFINITION_CRITERION' && ownerReview?.sourceCutCurrent===true && !correctionOpen;
     const knownMet = t.id === 'P0-04' || t.ledgerStatus === 'complete' || reviewedDefinition;
     const check = verification[t.id];
     const verified = knownMet && check?.status === 'PASS';
     return {
       id:t.id, title:t.title, originalLedgerStatus:t.ledgerStatus,
       originalFullTaskDone: t.ledgerStatus === 'complete',
-      taskSpecificSourceDone: verified ? 'VERIFIED_IN_CURRENT_SOURCE' : knownMet ? 'PRIOR_SOURCE_AUDIT_MET_REVALIDATION_REQUIRED' : 'NOT_ESTABLISHED',
+      taskSpecificSourceDone: correctionOpen ? 'REOPENED_SOURCE_CONTRACT_CORRECTION_REQUIRED' : verified ? 'VERIFIED_IN_CURRENT_SOURCE' : knownMet ? 'PRIOR_SOURCE_AUDIT_MET_REVALIDATION_REQUIRED' : 'NOT_ESTABLISHED',
       definitionCriterionSatisfied:verified,
       definitionCriterionOwnerReview:ownerReview ?? null,
       dependencyReady: t.unmetPlanDependencies?.length ? 'NOT_ESTABLISHED' : 'PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED',

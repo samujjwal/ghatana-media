@@ -59,4 +59,8 @@ test('a reviewed current direct definition criterion remains separate from origi
  assert.equal(make(review).LifecyclePhaseReceiptCurrent,'NOT_EVALUATED');
  assert.equal(make({...review,sourceCutCurrent:false}).definitionCriterionSatisfied,false);
  assert.equal(make({...review,status:'PROPOSED'}).definitionCriterionSatisfied,false);
+ const reopened=make({...review,currentCorrectiveReview:{status:'OPEN_MATERIAL_CORRECTION'}});
+ assert.equal(reopened.definitionCriterionSatisfied,false,'prior green tests and matching hashes cannot close a known semantic defect');
+ assert.equal(reopened.taskSpecificSourceDone,'REOPENED_SOURCE_CONTRACT_CORRECTION_REQUIRED');
+ assert.equal(make({...review,currentCorrectiveReview:{status:'APPROVED_CURRENT_CORRECTION'}}).definitionCriterionSatisfied,true);
 });

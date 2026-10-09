@@ -689,8 +689,8 @@
       "title": "Resolve the remaining 383 capability leaves individually",
       "originalLedgerStatus": "partial",
       "originalFullTaskDone": false,
-      "taskSpecificSourceDone": "VERIFIED_IN_CURRENT_SOURCE",
-      "definitionCriterionSatisfied": true,
+      "taskSpecificSourceDone": "REOPENED_SOURCE_CONTRACT_CORRECTION_REQUIRED",
+      "definitionCriterionSatisfied": false,
       "definitionCriterionOwnerReview": {
         "taskId": "P0-01",
         "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
@@ -708,7 +708,15 @@
           "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7"
         },
         "artifactRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-        "sourceCutCurrent": true
+        "sourceCutCurrent": true,
+        "currentCorrectiveReview": {
+          "status": "OPEN_MATERIAL_CORRECTION",
+          "decisionRef": ".product-experience/decision-log.md#PXD-092",
+          "publishedSourceCommit": "86f533c6b8abeb6bd88872f770669f4e9af2d08d",
+          "scope": "11 simulation-pass output contracts lack pass discrimination and copy input-shaped fields; 33 simulation output crosswalks misidentify input world as output; 18 editing leaves lack exact operation-specific control/output restrictions.",
+          "requiredVerification": "Whole finite cross-operation input/output substitution matrices; corrected typed output identity/provenance and exact source crosswalks; coordinator material reassessment before current approval.",
+          "acceptanceEffect": "Prior approval and passing source tests remain historical. Current direct definition satisfaction is reopened; no original task, independent phase or Lifecycle receipt acceptance."
+        }
       },
       "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
       "independentOrPublisherAccepted": "NOT_EVALUATED",
@@ -1199,8 +1207,8 @@
       "title": "Define operation-specific requirement bounds and availability",
       "originalLedgerStatus": "partial",
       "originalFullTaskDone": false,
-      "taskSpecificSourceDone": "VERIFIED_IN_CURRENT_SOURCE",
-      "definitionCriterionSatisfied": true,
+      "taskSpecificSourceDone": "REOPENED_SOURCE_CONTRACT_CORRECTION_REQUIRED",
+      "definitionCriterionSatisfied": false,
       "definitionCriterionOwnerReview": {
         "taskId": "P0-02",
         "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
@@ -1218,7 +1226,15 @@
           "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7"
         },
         "artifactRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-        "sourceCutCurrent": true
+        "sourceCutCurrent": true,
+        "currentCorrectiveReview": {
+          "status": "OPEN_MATERIAL_CORRECTION",
+          "decisionRef": ".product-experience/decision-log.md#PXD-092",
+          "publishedSourceCommit": "86f533c6b8abeb6bd88872f770669f4e9af2d08d",
+          "scope": "11 simulation-pass output contracts lack pass discrimination and copy input-shaped fields; 33 simulation output crosswalks misidentify input world as output; 18 editing leaves lack exact operation-specific control/output restrictions.",
+          "requiredVerification": "Whole finite cross-operation input/output substitution matrices; corrected typed output identity/provenance and exact source crosswalks; coordinator material reassessment before current approval.",
+          "acceptanceEffect": "Prior approval and passing source tests remain historical. Current direct definition satisfaction is reopened; no original task, independent phase or Lifecycle receipt acceptance."
+        }
       },
       "dependencyReady": "PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED",
       "independentOrPublisherAccepted": "NOT_EVALUATED",
@@ -5005,5 +5021,17 @@
       "authoritativeCurrentness": null
     }
   },
-  "diagnostics": []
+  "diagnostics": [],
+  "correctiveReviewUpdate": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-092",
+    "publishedSourceCommit": "86f533c6b8abeb6bd88872f770669f4e9af2d08d",
+    "priorReportSha256": "38eaf067d1d685bb8e5ae27de06f33d38b2220abd5802418df34002edcf8a975",
+    "priorCriterionArtifactSha256": "a74cb4a141d500bd6f6d90b1fe4cf1af528b330de383cea9f2a6d67647750f82",
+    "verifiedDirectCriteriaAfterReopening": [
+      "P0-04",
+      "P1-06",
+      "P2-01"
+    ],
+    "boundary": "This changes current criterion conclusions after material source review. Existing source/test/dependency observations remain the prior published wave; ongoing working-tree corrections are not claimed complete."
+  }
 }
