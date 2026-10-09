@@ -47,20 +47,26 @@ function protoSourceIds(sources) {
 }
 
 function candidateIds(surfaceText) {
-  const block = surfaceText.match(/\n    (?:proposedSemanticCandidates|explicitlyProposed):\n([\s\S]*?)(?=\n    unresolved:)/u)?.[1] ?? "";
+  const block = surfaceText.match(/\n    (?:proposedSemanticCandidates|explicitlyProposed):\n([\s\S]*?)(?=\n    (?:ownerAdapterRequired|unresolved):)/u)?.[1] ?? "";
   return [...block.matchAll(/\[([^\]]*)\]/gu)]
     .flatMap(([, values]) => values.split(",").map((value) => value.trim()).filter(Boolean));
 }
 
 function grpcUnresolvedIds(surfaceText) {
-  const block = surfaceText.match(/\n    unresolved:\n([\s\S]*?)(?=\n    dispositionCounts:)/u)?.[1] ?? "";
+  const block = surfaceText.match(/\n    unresolved:\n([\s\S]*?)(?=\n    sourceBackedNonOperationDispositions:)/u)?.[1] ?? "";
   return [...block.matchAll(/^      (\w+): \[([^\]]*)\]$/gmu)]
     .flatMap(([, serviceName, values]) => values.split(",").filter((method) => method.trim()).map((method) => `${serviceName}.${method.trim()}`));
 }
 
+function grpcOwnerAdapterRequiredIds(surfaceText) {
+  const block = surfaceText.match(/\n    ownerAdapterRequired:\n([\s\S]*?)(?=\n    unresolved:)/u)?.[1] ?? "";
+  return [...block.matchAll(/^      (\w+): \[([^\]]*)\]$/gmu)]
+    .flatMap(([, serviceName, values]) => values.split(",").map((method) => method.trim()).filter(Boolean).map((method) => `${serviceName}.${method}`));
+}
+
 function grpcNonOperationIds(surfaceText) {
   const block = surfaceText.match(/\n    sourceBackedNonOperationDispositions:\n([\s\S]*?)(?=\n    dispositionCounts:)/u)?.[1] ?? "";
-  return [...block.matchAll(/^        - ([^\n]+)$/gmu)].map(([, id]) => id);
+  return [...block.matchAll(/^\s+- ([A-Za-z][A-Za-z0-9_.]+)$/gmu)].map(([, id]) => id);
 }
 
 function assertExactPartition(sourceIds, partitionIds, label) {
@@ -80,25 +86,28 @@ test("HTTP and gRPC proposal/unresolved crosswalks partition exact current sourc
 
   const grpc = surface("gRPC", "CLI fixture commands");
   const grpcSource = protoSourceIds(protos);
-  const grpcCrosswalk = [...candidateIds(grpc), ...grpcUnresolvedIds(grpc), ...grpcNonOperationIds(grpc)];
+  const grpcAdapterRequired = grpcOwnerAdapterRequiredIds(grpc);
+  const grpcCrosswalk = [...candidateIds(grpc), ...grpcAdapterRequired, ...grpcUnresolvedIds(grpc), ...grpcNonOperationIds(grpc)];
   assert.equal(grpcSource.length, 43);
   assertExactPartition(grpcSource, grpcCrosswalk, "gRPC");
   assert.equal(candidateIds(grpc).length, 17, "the recorded gRPC candidate count remains source-inventory-only");
-  assert.equal(grpcUnresolvedIds(grpc).length, 8, "only profile-adaptation and feedback identities remain semantically unresolved");
-  assert.equal(grpcNonOperationIds(grpc).length, 18, "health/metrics and provider administration retain explicit non-domain role dispositions");
+  assert.equal(grpcAdapterRequired.length, 4, "four STT profile methods have exact owner definitions and still need field-level adapters");
+  assert.equal(grpcUnresolvedIds(grpc).length, 0, "all current gRPC identities have a candidate, adapter-required, or source-backed non-operation role");
+  assert.equal(grpcNonOperationIds(grpc).length, 22, "health, provider administration, legacy TTS profiles, and unimplemented feedback retain explicit non-domain dispositions");
 });
 
 test("HTTP and gRPC source partitions reject stale, missing, and duplicate crosswalk identities", () => {
   const grpc = surface("gRPC", "CLI fixture commands");
   const sourceIds = protoSourceIds(protos);
   const candidates = candidateIds(grpc);
+  const adapterRequired = grpcOwnerAdapterRequiredIds(grpc);
   const unresolved = grpcUnresolvedIds(grpc);
   const nonOperation = grpcNonOperationIds(grpc);
   const expectRejected = (ids, reason) => assert.throws(() => assertExactPartition(sourceIds, ids, "gRPC"), reason);
 
-  expectRejected([...candidates, ...unresolved.slice(1), ...nonOperation], /covers exactly the source identities/u);
-  expectRejected([...candidates, ...unresolved, ...nonOperation, "VisionService.StaleMethod"], /covers exactly the source identities/u);
-  expectRejected([...candidates, ...unresolved, ...nonOperation, candidates[0]], /crosswalk identities are unique/u);
+  expectRejected([...candidates, ...adapterRequired.slice(1), ...unresolved, ...nonOperation], /covers exactly the source identities/u);
+  expectRejected([...candidates, ...adapterRequired, ...unresolved, ...nonOperation, "VisionService.StaleMethod"], /covers exactly the source identities/u);
+  expectRejected([...candidates, ...adapterRequired, ...unresolved, ...nonOperation, candidates[0]], /crosswalk identities are unique/u);
 
   const http = surface("HTTP", "gRPC");
   const httpIds = httpSourceIds(openApi);
@@ -134,6 +143,7 @@ test("CLI crosswalk is exact and SDK registry reports exact source-pair discrepa
   const transportOnlyIds = inlineList(sdkSurface, "TRANSPORT_ONLY");
   const clientOnlyIds = inlineList(sdkSurface, "CLIENT_ONLY");
   const providerAdapterIds = inlineList(sdkSurface, "PROVIDER_ADAPTER");
+  const legacyCatalogReadIds = inlineList(sdkSurface, "LEGACY_PROVIDER_CATALOG_READ");
   const notAdmittedIds = inlineList(sdkSurface, "NOT_ADMITTED");
   const boundedCanonicalReadIds = inlineList(sdkSurface, "boundedCanonicalReads");
   const boundedCanonicalOperationIds = inlineList(sdkSurface, "boundedCanonicalOperations");
@@ -144,7 +154,8 @@ test("CLI crosswalk is exact and SDK registry reports exact source-pair discrepa
   const nonOperationIds = [...transportOnlyIds, ...clientOnlyIds];
   assert.deepEqual(transportOnlyIds.sort(), ["media.sdk.getAllServicesStatus", "media.sdk.getServiceStatus"]);
   assert.deepEqual(clientOnlyIds.sort(), ["media.sdk.addEventListener", "media.sdk.removeEventListener"]);
-  const semanticPartition = [...candidateIds(sdkSurface), ...boundedCanonicalOperationIds, ...boundedCanonicalReadIds, ...inlineList(sdkSurface, "unresolved"), ...nonOperationIds, ...providerAdapterIds, ...notAdmittedIds];
+  assert.deepEqual(legacyCatalogReadIds, ["media.sdk.listProviderCapabilities"]);
+  const semanticPartition = [...candidateIds(sdkSurface), ...boundedCanonicalOperationIds, ...boundedCanonicalReadIds, ...inlineList(sdkSurface, "unresolved"), ...nonOperationIds, ...providerAdapterIds, ...legacyCatalogReadIds, ...notAdmittedIds];
   assert.equal(new Set(sdkRows.map(({ id }) => id)).size, sdkRows.length, "SDK registry identities are unique");
   assertExactPartition(
     sdkRows.filter(({ id }) => !artifactIds.has(id)).map(({ id }) => id),

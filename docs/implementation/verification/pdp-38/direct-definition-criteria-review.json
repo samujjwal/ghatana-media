@@ -20,12 +20,42 @@
         "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7"
       },
       "currentCorrectiveReview": {
-        "status": "OPEN_MATERIAL_CORRECTION",
-        "decisionRef": ".product-experience/decision-log.md#PXD-092",
+        "status": "APPROVED_CURRENT_CORRECTION",
+        "decisionRef": ".product-experience/decision-log.md#PXD-093",
         "publishedSourceCommit": "86f533c6b8abeb6bd88872f770669f4e9af2d08d",
         "scope": "11 simulation-pass output contracts lack pass discrimination and copy input-shaped fields; 33 simulation output crosswalks misidentify input world as output; 18 editing leaves lack exact operation-specific control/output restrictions.",
         "requiredVerification": "Whole finite cross-operation input/output substitution matrices; corrected typed output identity/provenance and exact source crosswalks; coordinator material reassessment before current approval.",
-        "acceptanceEffect": "Prior approval and passing source tests remain historical. Current direct definition satisfaction is reopened; no original task, independent phase or Lifecycle receipt acceptance."
+        "acceptanceEffect": "Current bounded direct source criterion approved; original full-task ledger, dependencies, independent acceptance, runtime qualification and Lifecycle receipts remain separate.",
+        "reopenedDecisionRef": ".product-experience/decision-log.md#PXD-092",
+        "reviewArtifactRef": "docs/implementation/verification/pdp-38/corrective-criterion-review.json",
+        "sourceFingerprints": {
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "377cca25c6f24c93b25e992d1f1cd75ef4806a9cda4fe64037707b29a090ba35",
+          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "446a1ec5cfcf15d6c2ee4c5e84046fd5fead37b1400e5e561bfa0f56be5fb3ca",
+          ".product-experience/pdp-0-product-truth/quality-policy.yaml": "046932f222691ba17503d520d379df4eb390047eed9752093b8ae58879edd721",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "28b87b3026a8c8ef4c4a16de213bc112432fc37b086d5d02e912214a4d225cea",
+          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "b0ef43bf780e4579be38524eb35a8566ea4b1414e61ee20eba5cffb361a71d21",
+          ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "dd453e9870dbb97380a0acaf0d93f9ef006ca9456e035ba4ec6dec34860096f8",
+          ".product-experience/pdp-0-product-truth/qualification-policy.yaml": "11b9cd4189060ed3c8747ec69be7b3cccba34c2afa0aec494ac796655f3c9cf8",
+          ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+          ".product-experience/pdp-1-domain-data/operations.yaml": "16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54",
+          ".product-experience/pdp-1-domain-data/domain-objects.yaml": "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af",
+          "scripts/lib/pdp-owner-leaf-wire-validation.mjs": "2fae1f22134104179705fbe0f197648d748b8956e093988e1f9da602a4cc4260",
+          "scripts/lib/pdp-truth-domain-schema-validator.mjs": "b04aad21e03acfc211bada296dcc7af066a54d758e6a41360e6fa8e2d4cfe1c8",
+          "tests/pdp-truth-domain-schema-validation.test.mjs": "3b262e8a233c6746de55906c151a30bcad9b014c86369387ccadb8bf174d5f9d",
+          "tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs": "3e0e1679fbc951af4bfb42db9db5bf2a6d42ea639ddee4dfe161bff9e3f7ed33",
+          "tests/pdp-migration-capability-leaf-narrowing.test.mjs": "3f50e3ea4a877b76759669c65739dc466fa73105f2e795c7220b85ab6fbff0aa",
+          "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7",
+          "tests/pdp-truth-domain-output-producer-applicability.test.mjs": "723605d1b836cd64d6d3387e12ab190723b6408266837d6552fdfe1860a5ee4e",
+          "tests/pdp-truth-domain-quality-applicability.test.mjs": "f0cf2c514adfac9a2214ed7fe01fc5a70814f0888f997c1b515c327aeb948439",
+          "tests/pdp-truth-domain.test.mjs": "7cdb2d38dc189bfab3b55be7a6805125ec27bcd295820b7aebcac2eb38184ad1",
+          "tests/pdp-0-06-measures-provenance.test.mjs": "d5872dcd5c6aa41df56f9c273ce7b032d736a91630aa7829b001ddabf87d48bf",
+          "tests/media-measure-applicability-crosswalk.test.mjs": "fae5d535aa0c7aaedaada1aa6d22d3284f61e8e46b3dbe93f46fc3471a8b9051"
+        },
+        "verification": {
+          "status": "PASS",
+          "passedTests": 44,
+          "evidenceRef": "docs/implementation/verification/pdp-38/corrective-criterion-review.json"
+        }
       }
     },
     {
@@ -45,12 +75,42 @@
         "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7"
       },
       "currentCorrectiveReview": {
-        "status": "OPEN_MATERIAL_CORRECTION",
-        "decisionRef": ".product-experience/decision-log.md#PXD-092",
+        "status": "APPROVED_CURRENT_CORRECTION",
+        "decisionRef": ".product-experience/decision-log.md#PXD-093",
         "publishedSourceCommit": "86f533c6b8abeb6bd88872f770669f4e9af2d08d",
         "scope": "11 simulation-pass output contracts lack pass discrimination and copy input-shaped fields; 33 simulation output crosswalks misidentify input world as output; 18 editing leaves lack exact operation-specific control/output restrictions.",
         "requiredVerification": "Whole finite cross-operation input/output substitution matrices; corrected typed output identity/provenance and exact source crosswalks; coordinator material reassessment before current approval.",
-        "acceptanceEffect": "Prior approval and passing source tests remain historical. Current direct definition satisfaction is reopened; no original task, independent phase or Lifecycle receipt acceptance."
+        "acceptanceEffect": "Current bounded direct source criterion approved; original full-task ledger, dependencies, independent acceptance, runtime qualification and Lifecycle receipts remain separate.",
+        "reopenedDecisionRef": ".product-experience/decision-log.md#PXD-092",
+        "reviewArtifactRef": "docs/implementation/verification/pdp-38/corrective-criterion-review.json",
+        "sourceFingerprints": {
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "377cca25c6f24c93b25e992d1f1cd75ef4806a9cda4fe64037707b29a090ba35",
+          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "446a1ec5cfcf15d6c2ee4c5e84046fd5fead37b1400e5e561bfa0f56be5fb3ca",
+          ".product-experience/pdp-0-product-truth/quality-policy.yaml": "046932f222691ba17503d520d379df4eb390047eed9752093b8ae58879edd721",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "28b87b3026a8c8ef4c4a16de213bc112432fc37b086d5d02e912214a4d225cea",
+          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "b0ef43bf780e4579be38524eb35a8566ea4b1414e61ee20eba5cffb361a71d21",
+          ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "dd453e9870dbb97380a0acaf0d93f9ef006ca9456e035ba4ec6dec34860096f8",
+          ".product-experience/pdp-0-product-truth/qualification-policy.yaml": "11b9cd4189060ed3c8747ec69be7b3cccba34c2afa0aec494ac796655f3c9cf8",
+          ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+          ".product-experience/pdp-1-domain-data/operations.yaml": "16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54",
+          ".product-experience/pdp-1-domain-data/domain-objects.yaml": "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af",
+          "scripts/lib/pdp-owner-leaf-wire-validation.mjs": "2fae1f22134104179705fbe0f197648d748b8956e093988e1f9da602a4cc4260",
+          "scripts/lib/pdp-truth-domain-schema-validator.mjs": "b04aad21e03acfc211bada296dcc7af066a54d758e6a41360e6fa8e2d4cfe1c8",
+          "tests/pdp-truth-domain-schema-validation.test.mjs": "3b262e8a233c6746de55906c151a30bcad9b014c86369387ccadb8bf174d5f9d",
+          "tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs": "3e0e1679fbc951af4bfb42db9db5bf2a6d42ea639ddee4dfe161bff9e3f7ed33",
+          "tests/pdp-migration-capability-leaf-narrowing.test.mjs": "3f50e3ea4a877b76759669c65739dc466fa73105f2e795c7220b85ab6fbff0aa",
+          "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7",
+          "tests/pdp-truth-domain-output-producer-applicability.test.mjs": "723605d1b836cd64d6d3387e12ab190723b6408266837d6552fdfe1860a5ee4e",
+          "tests/pdp-truth-domain-quality-applicability.test.mjs": "f0cf2c514adfac9a2214ed7fe01fc5a70814f0888f997c1b515c327aeb948439",
+          "tests/pdp-truth-domain.test.mjs": "7cdb2d38dc189bfab3b55be7a6805125ec27bcd295820b7aebcac2eb38184ad1",
+          "tests/pdp-0-06-measures-provenance.test.mjs": "d5872dcd5c6aa41df56f9c273ce7b032d736a91630aa7829b001ddabf87d48bf",
+          "tests/media-measure-applicability-crosswalk.test.mjs": "fae5d535aa0c7aaedaada1aa6d22d3284f61e8e46b3dbe93f46fc3471a8b9051"
+        },
+        "verification": {
+          "status": "PASS",
+          "passedTests": 44,
+          "evidenceRef": "docs/implementation/verification/pdp-38/corrective-criterion-review.json"
+        }
       }
     }
   ],

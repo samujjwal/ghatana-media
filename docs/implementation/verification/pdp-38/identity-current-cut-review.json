@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "media.pdp38-identity-cut-review.v1",
+  "scope": "38 current registry identities,33 canonical+5 source observations; exact scalar refs and shared ProcessingJob subtype namespace, collision/lineage/tenant negatives. Complete current output-applicability rechecked. Persistence/wire/runtime and whole-task acceptance unclaimed.",
+  "verification": {
+    "sourceFingerprints": {
+      ".product-experience/pdp-1-domain-data/domain-objects.yaml": "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af",
+      ".product-experience/pdp-1-domain-data/operations.yaml": "16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54",
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "377cca25c6f24c93b25e992d1f1cd75ef4806a9cda4fe64037707b29a090ba35",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "446a1ec5cfcf15d6c2ee4c5e84046fd5fead37b1400e5e561bfa0f56be5fb3ca",
+      ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "28b87b3026a8c8ef4c4a16de213bc112432fc37b086d5d02e912214a4d225cea",
+      "scripts/lib/pdp-truth-domain-identity-oracle.mjs": "b2d2462d021ffcf56e664c142406fb031ad5e91db5b8298c716e8068bc51c06c",
+      "tests/pdp-truth-domain-owner-identity-contracts.test.mjs": "7ebe15dfe9dcd105b2f4970076bc05e04c30d99f0538918f011b7dc726ee2782",
+      "tests/pdp-truth-domain.test.mjs": "7cdb2d38dc189bfab3b55be7a6805125ec27bcd295820b7aebcac2eb38184ad1"
+    },
+    "command": [
+      "node",
+      "--test",
+      "--test-name-pattern=P0-06 enumerates|identit|named cross-entity|version identity",
+      "tests/pdp-truth-domain.test.mjs",
+      "tests/pdp-truth-domain-owner-identity-contracts.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "docs/implementation/verification/pdp-38/identity-and-output-current-cut-review.log",
+    "logSha256": "9ee4c9cfe089fda3129fa8e7109a4e80015beba8deed1617b1b0c7077041da3b",
+    "changedSources": [],
+    "passedTests": 9,
+    "status": "PASS"
+  },
+  "sourceFingerprints": {
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af",
+    ".product-experience/pdp-1-domain-data/operations.yaml": "16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "377cca25c6f24c93b25e992d1f1cd75ef4806a9cda4fe64037707b29a090ba35",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "446a1ec5cfcf15d6c2ee4c5e84046fd5fead37b1400e5e561bfa0f56be5fb3ca",
+    ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "28b87b3026a8c8ef4c4a16de213bc112432fc37b086d5d02e912214a4d225cea",
+    "scripts/lib/pdp-truth-domain-identity-oracle.mjs": "b2d2462d021ffcf56e664c142406fb031ad5e91db5b8298c716e8068bc51c06c",
+    "tests/pdp-truth-domain-owner-identity-contracts.test.mjs": "7ebe15dfe9dcd105b2f4970076bc05e04c30d99f0538918f011b7dc726ee2782",
+    "tests/pdp-truth-domain.test.mjs": "7cdb2d38dc189bfab3b55be7a6805125ec27bcd295820b7aebcac2eb38184ad1"
+  }
+}

@@ -1,9 +1,13 @@
 schemaVersion: media.agent-tools-conventions.v1
 owner: ghatana-media-product-agent-interface
 authority:
-  media: Owns tool purpose, domain meaning, domain effects, and the policy decision required for each effect.
-  shared: Owns generic agent-runtime interfaces, execution mechanics, transport, handler lifecycle, and runtime enforcement.
-  boundary: A Media declaration does not implement or grant a Shared runtime capability; Shared runtime availability does not define Media domain permission.
+  media: Owns tool purpose, domain meaning, domain effects, and the policy
+    decision required for each effect.
+  shared: Owns generic agent-runtime interfaces, execution mechanics, transport,
+    handler lifecycle, and runtime enforcement.
+  boundary: A Media declaration does not implement or grant a Shared runtime
+    capability; Shared runtime availability does not define Media domain
+    permission.
 sourceRefs:
   - .product-experience/pdp-2-design-interface-system/api/auth.yaml
   - .product-experience/pdp-2-design-interface-system/api/idempotency.yaml
@@ -14,18 +18,88 @@ sourceRefs:
 scopeStatus: proposal; no tool is admitted, callable, or authorized by this convention
 currentRuntimeBindingObservation:
   status: source-observation-only; owner-and-public-export-binding-pending
-  mediaBuildResolution: Current composite build compiles the handler APIs from the Ghatana Tools runtime/java/tool-contracts and runtime/java/tool-runtime sources.
-  sharedPublicAgentToolContract: No matching ToolExecutionEnvelope, ToolExecutionResult, ToolContract, or ToolHandler source/export was found in the inspected Shared platform/java/agent-core or platform/java/agent-runtime trees; Media handlers consume the separately owned Ghatana Tools runtime SPI.
-  consequence: Shared owner confirmation of the public Agent Tool/runtime contract and a consumer binding is still required; the Tools build resolution does not establish Shared acceptance or execution admission.
+  mediaBuildResolution: Current composite build compiles the handler APIs from the
+    Ghatana Tools runtime/java/tool-contracts and runtime/java/tool-runtime
+    sources.
+  sharedPublicAgentToolContract: No matching ToolExecutionEnvelope,
+    ToolExecutionResult, ToolContract, or ToolHandler source/export was found in
+    the inspected Shared platform/java/agent-core or platform/java/agent-runtime
+    trees; Media handlers consume the separately owned Ghatana Tools runtime
+    SPI.
+  consequence: Shared owner confirmation of the public Agent Tool/runtime contract
+    and a consumer binding is still required; the Tools build resolution does
+    not establish Shared acceptance or execution admission.
+toolsRuntimeSourceObservation:
+  status: source-observation-only; Ghatana Tools owns these generic runtime types
+  sourceRefs:
+    - ../ghatana-tools/runtime/java/tool-contracts/src/main/java/com/ghatana/agent/framework/tools/ToolExecutionEnvelope.java
+    - ../ghatana-tools/runtime/java/tool-contracts/src/main/java/com/ghatana/agent/framework/tools/ToolExecutionResult.java
+    - ../ghatana-tools/runtime/java/tool-runtime/src/main/java/com/ghatana/toolruntime/ToolExecutionBudget.java
+    - ../ghatana-tools/runtime/java/tool-runtime-api/src/main/java/com/ghatana/toolruntime/ToolTransportInvocationContext.java
+  observedEnvelopeFields:
+    [
+      invocationId,
+      toolId,
+      toolVersion,
+      callerAgentId,
+      callerReleaseId,
+      tenantId,
+      actionClass,
+      requestSchemaVersion,
+      input,
+      requestedAt
+    ]
+  observedTransportContextFields:
+    [
+      tenantId,
+      invocationId,
+      idempotencyKey,
+      commandFingerprint,
+      attempt,
+      leaseToken,
+      admissionDeadline,
+      executionDeadline,
+      maximumInputBytes,
+      maximumOutputBytes,
+      maximumRetries,
+      cancellation,
+      progress,
+      correlationId,
+      traceContext
+    ]
+  observedRuntimeOutcomeSupport: ToolExecutionResult supports non-final
+    OUTCOME_UNKNOWN and CANCELLATION_REQUESTED with operation/attempt identity
+    and no success output.
+  notProvidedByTheseTypes:
+    [
+      principalId,
+      delegationChain,
+      exactMediaResourceVersion,
+      purposeAndPolicyEvidence,
+      consentAndRightsEvidence,
+      outputProvenanceContract
+    ]
+  boundary: Runtime budget/cancellation/idempotency mechanics are observable in
+    Tools source; they do not prove Shared public ownership, consumer package
+    availability, Media policy enforcement, or handler-level operation
+    equivalence.
 acceptance:
   status: pending-agent-and-runtime-owner-review
   criteria:
-    - Every admitted tool has one stable canonical ID and an explicitly versioned, bounded input and result schema.
-    - Every tool declares authority, delegation, effect class, idempotency, timeout, cancellation, unknown-outcome, evidence, and safe-failure behavior.
-    - Authorization and current-resource preconditions are enforced by the owning runtime at invocation; consequential effects require explicit policy and provenance.
-    - The exact handler, capability, transport, runtime, and consumer bindings are verified before admission.
+    - Every admitted tool has one stable canonical ID and an explicitly
+      versioned, bounded input and result schema.
+    - Every tool declares authority, delegation, effect class, idempotency,
+      timeout, cancellation, unknown-outcome, evidence, and safe-failure
+      behavior.
+    - Authorization and current-resource preconditions are enforced by the
+      owning runtime at invocation; consequential effects require explicit
+      policy and provenance.
+    - The exact handler, capability, transport, runtime, and consumer bindings
+      are verified before admission.
 verification:
-  method: Adversarially test schema bounds, authorization and delegation, prompt/tool-description injection, duplicate invocation, timeout, cancellation races, unknown outcomes, evidence provenance, and safe failure.
+  method: Adversarially test schema bounds, authorization and delegation,
+    prompt/tool-description injection, duplicate invocation, timeout,
+    cancellation races, unknown outcomes, evidence provenance, and safe failure.
   status: not-run
 
 # Normative shape. A concrete tool record must resolve every field below; an
@@ -33,34 +107,72 @@ verification:
 perToolContract:
   requiredFields:
     canonicalToolId:
-      rule: Stable, globally unambiguous, namespaced ID. Never derive identity from display name, prompt text, handler class name, or transport route.
+      rule: Stable, globally unambiguous, namespaced ID. Never derive identity from
+        display name, prompt text, handler class name, or transport route.
     inputSchema:
-      rule: Versioned, machine-validated closed schema; declare required/optional fields, types, bounds, formats, resource scope, and rejection behavior. Reject unknown fields unless an explicitly versioned extension is defined.
+      rule: Versioned, machine-validated closed schema; declare required/optional
+        fields, types, bounds, formats, resource scope, and rejection behavior.
+        Reject unknown fields unless an explicitly versioned extension is
+        defined.
     resultSchema:
-      rule: Versioned closed schema; distinguish success, safe failure, pending, cancelled, and outcome-unknown. Include operation identity, finality, and evidence references only when actually available; never represent missing evidence as success.
+      rule: Versioned closed schema; distinguish success, safe failure, pending,
+        cancelled, and outcome-unknown. Include operation identity, finality,
+        and evidence references only when actually available; never represent
+        missing evidence as success.
     authorityAndDelegation:
-      rule: Declare effect class, principal/tenant/resource scope, required policy and consent evidence, delegation chain, and invocation-time checks. The least-privilege runtime must reject absent, expired, mismatched, or unverifiable authority.
+      rule: Declare effect class, principal/tenant/resource scope, required policy and
+        consent evidence, delegation chain, and invocation-time checks. The
+        least-privilege runtime must reject absent, expired, mismatched, or
+        unverifiable authority.
     idempotency:
-      rule: Declare whether the operation is read-only or effectful, its idempotency-key scope and retention, duplicate behavior, and whether the same key returns the original operation/result. If safe deduplication cannot be established, do not retry an effect automatically.
+      rule: Declare whether the operation is read-only or effectful, its
+        idempotency-key scope and retention, duplicate behavior, and whether the
+        same key returns the original operation/result. If safe deduplication
+        cannot be established, do not retry an effect automatically.
     timeout:
-      rule: Declare a finite invocation deadline, including whether it covers queueing and downstream work; timeout is not proof that the effect did not happen.
+      rule: Declare a finite invocation deadline, including whether it covers queueing
+        and downstream work; timeout is not proof that the effect did not
+        happen.
     cancellation:
-      rule: Declare when cancellation is accepted, what work can be stopped, and how races are reported. Cancellation requested or acknowledged is not proof of rollback or non-execution.
+      rule: Declare when cancellation is accepted, what work can be stopped, and how
+        races are reported. Cancellation requested or acknowledged is not proof
+        of rollback or non-execution.
     unknownOutcome:
-      rule: Return an explicit non-final unknown state with the original operation ID and a safe status-resolution path. Do not convert uncertainty to failure or success and do not blindly resubmit an effect.
+      rule: Return an explicit non-final unknown state with the original operation ID
+        and a safe status-resolution path. Do not convert uncertainty to failure
+        or success and do not blindly resubmit an effect.
     evidence:
-      rule: Declare provenance, issuer, subject/resource and version scope, timestamps, correlation/operation IDs, and integrity/currentness checks for every authority or effect claim. Emit only evidence actually observed; distinguish request, decision, execution, and verified outcome.
+      rule: Declare provenance, issuer, subject/resource and version scope,
+        timestamps, correlation/operation IDs, and integrity/currentness checks
+        for every authority or effect claim. Emit only evidence actually
+        observed; distinguish request, decision, execution, and verified
+        outcome.
     safeFailure:
-      rule: Before dispatch, fail closed on invalid input, unresolved authority, stale resource state, unavailable runtime/provider, or unverifiable evidence. After dispatch, a timeout or cancellation race returns outcome-unknown with original operation identity; it must not imply that the effect did or did not occur. Return a bounded non-sensitive error and safe recovery/status guidance; do not leak secrets.
+      rule: Before dispatch, fail closed on invalid input, unresolved authority, stale
+        resource state, unavailable runtime/provider, or unverifiable evidence.
+        After dispatch, a timeout or cancellation race returns outcome-unknown
+        with original operation identity; it must not imply that the effect did
+        or did not occur. Return a bounded non-sensitive error and safe
+        recovery/status guidance; do not leak secrets.
   defaultSafeBehavior:
-    - No authority is inferred from tool availability, a description, prompt, model-generated argument, or agent intent.
-    - No user consent, authorization, delegation, or policy approval is inferred from a tool call or from wording that claims it exists.
-    - Missing or ambiguous contract fields deny invocation; there is no permissive fallback.
-    - Read and mutation effects are separate contracts; a read capability cannot be upgraded into a mutation.
-    - Validate caller, tenant, exact resource/version, current state, schema, and policy at invocation time; deny cross-tenant or out-of-scope access.
-    - Expose no unrestricted filesystem, network, credential, or arbitrary-code capability; allowlist any required resource access in the runtime contract.
-    - Unknown outcome blocks automatic retry of a consequential effect until the original operation is resolved or an authorized recovery decision is recorded.
-    - Logs and results exclude secrets and sensitive payloads; evidence references are scoped and access-controlled.
+    - No authority is inferred from tool availability, a description, prompt,
+      model-generated argument, or agent intent.
+    - No user consent, authorization, delegation, or policy approval is inferred
+      from a tool call or from wording that claims it exists.
+    - Missing or ambiguous contract fields deny invocation; there is no
+      permissive fallback.
+    - Read and mutation effects are separate contracts; a read capability cannot
+      be upgraded into a mutation.
+    - Validate caller, tenant, exact resource/version, current state, schema,
+      and policy at invocation time; deny cross-tenant or out-of-scope access.
+    - Expose no unrestricted filesystem, network, credential, or arbitrary-code
+      capability; allowlist any required resource access in the runtime
+      contract.
+    - Unknown outcome blocks automatic retry of a consequential effect until the
+      original operation is resolved or an authorized recovery decision is
+      recorded.
+    - Logs and results exclude secrets and sensitive payloads; evidence
+      references are scoped and access-controlled.
 
 # Bounded J-02 interaction-slice disposition. No current registered Agent Tool
 # exposes upload-session begin/append/complete or scoped artifact inspection.
@@ -69,11 +181,19 @@ perToolContract:
 mediaUploadArtifactSlice:
   status: no-current-registered-tool-matches-the-bounded-slice
   ownerDecisionRef: .product-experience/decision-log.md#PXD-051
-  registeredToolIds: [av.speech-to-text, av.text-to-speech, av.vision-analysis, av.multimodal-inference]
+  registeredToolIds:
+    [
+      av.speech-to-text,
+      av.text-to-speech,
+      av.vision-analysis,
+      av.multimodal-inference
+    ]
   matchingToolIds: []
   operationRefs: []
   runtimeAdmission: NOT_ADMITTED
-  reason: Existing handlers perform delegated inference or synthesis; none exposes the exact PDP-1 upload command or scoped metadata query with its required authority, finality, and reconciliation semantics.
+  reason: Existing handlers perform delegated inference or synthesis; none exposes
+    the exact PDP-1 upload command or scoped metadata query with its required
+    authority, finality, and reconciliation semantics.
   prohibitedInference: Artifact-reference-input-on-an-analysis-tool-does-not-bind-that-tool-to-media.operation-slice.inspect-artifact-or-upload-actions.
 
 # Observed handler IDs below are an inventory seed only. The source handlers
@@ -92,73 +212,144 @@ observedHandlerInventory:
       inputSchema:
         status: observed-subset-not-authoritative
         fields:
-          audioSource: "Observed: object containing mediaArtifactId or audioBytes; a flat mediaArtifactId fallback also exists. Full types, limits, source authorization, and closed-schema behavior are unresolved."
-      resultSchema: unresolved; define versioned success, failure, pending, cancellation, unknown-outcome, operation identity, and evidence fields before admission
-      authorityAndDelegation: unresolved; require invocation-time tenant/resource authorization and any required consent/policy; handler identity or model request grants none
-      idempotency: unresolved; transcription/provider side effects and duplicate semantics are not established; default no automatic retry
-      timeout: unresolved finite bound; runtime binding pending; timeout must not imply non-execution
+          audioSource: "Observed: required object with exactly one nonblank
+            mediaArtifactId or bounded Base64 audioBytes; the flat
+            mediaArtifactId fallback is rejected. Nested unknown keys are
+            rejected."
+      resultSchema: unresolved; define versioned success, failure, pending,
+        cancellation, unknown-outcome, operation identity, and evidence fields
+        before admission
+      authorityAndDelegation: unresolved; require invocation-time tenant/resource
+        authorization and any required consent/policy; handler identity or model
+        request grants none
+      idempotency: unresolved; transcription/provider side effects and duplicate
+        semantics are not established; default no automatic retry
+      timeout: unresolved finite bound; runtime binding pending; timeout must not
+        imply non-execution
       cancellation: unresolved; runtime/provider cancellation and race semantics pending
-      unknownOutcome: unresolved result binding; require original operation resolution before retry
-      evidence: unresolved provenance/currentness contract; do not claim transcript/source lineage from handler invocation alone
-      safeFailure: observed handler returns failure for invalid/missing source or unavailable delegate; post-dispatch ambiguity is preserved for runtime reconciliation; canonical sanitized error/result semantics remain pending
+      unknownOutcome: unresolved result binding; require original operation resolution
+        before retry
+      evidence: unresolved provenance/currentness contract; do not claim
+        transcript/source lineage from handler invocation alone
+      safeFailure: observed handler returns failure for invalid/missing source or
+        unavailable delegate; post-dispatch ambiguity is preserved for runtime
+        reconciliation; canonical sanitized error/result semantics remain
+        pending
     - canonicalToolId: av.text-to-speech
       idStatus: observed-in-handler; canonical registry admission pending
       inputSchema:
         status: observed-subset-not-authoritative
         fields:
           text: "Observed required nonblank string."
-          voiceId: "Observed optional value, default en-US-default; allowed values and schema bounds unresolved."
-          speakingRate: "Observed optional Number, default 1.0; rejects non-finite values and values outside the inclusive range 0.25..4.0."
+          voiceId: "Observed optional value, default en-US-default; allowed values and
+            schema bounds unresolved."
+          speakingRate: "Observed optional Number, default 1.0; rejects non-finite values
+            and values outside the inclusive range 0.25..4.0."
           audioEncoding: "Observed optional value, default MP3; supported enum unresolved."
-          storeAsArtifact: "Observed boolean controlling requested artifact storage; storage effect, authorization, and defaults require canonical definition."
-      resultSchema: unresolved; define versioned output/artifact identity, finality, operation identity, failure, and evidence before admission
-      authorityAndDelegation: unresolved; artifact creation/storage requires explicit invocation-time authority, scope, and consent/policy where applicable
-      idempotency: unresolved; artifact creation and provider duplicate behavior are not established; default no automatic retry
-      timeout: unresolved finite bound; runtime/provider binding pending; timeout must not imply no artifact was created
-      cancellation: unresolved; runtime/provider cancellation and possible artifact side effects pending
-      unknownOutcome: unresolved result binding; resolve original operation and artifact state before any retry
-      evidence: unresolved; generated audio, storage, provenance, and artifact-version evidence must be specified and observed
-      safeFailure: observed handler rejects blank text and reports unavailable delegate; post-dispatch ambiguity is preserved for runtime reconciliation; canonical sanitized errors and partial-effect handling remain pending
+          storeAsArtifact: "Observed boolean controlling requested artifact storage;
+            storage effect, authorization, and defaults require canonical
+            definition."
+      resultSchema: unresolved; define versioned output/artifact identity, finality,
+        operation identity, failure, and evidence before admission
+      authorityAndDelegation: unresolved; artifact creation/storage requires explicit
+        invocation-time authority, scope, and consent/policy where applicable
+      idempotency: unresolved; artifact creation and provider duplicate behavior are
+        not established; default no automatic retry
+      timeout: unresolved finite bound; runtime/provider binding pending; timeout must
+        not imply no artifact was created
+      cancellation: unresolved; runtime/provider cancellation and possible artifact
+        side effects pending
+      unknownOutcome: unresolved result binding; resolve original operation and
+        artifact state before any retry
+      evidence: unresolved; generated audio, storage, provenance, and artifact-version
+        evidence must be specified and observed
+      safeFailure: observed handler rejects blank text and reports unavailable
+        delegate; post-dispatch ambiguity is preserved for runtime
+        reconciliation; canonical sanitized errors and partial-effect handling
+        remain pending
     - canonicalToolId: av.vision-analysis
       idStatus: observed-in-handler; canonical registry admission pending
       inputSchema:
         status: observed-subset-not-authoritative
         fields:
-          mediaSource: "Observed: object containing mediaArtifactId or imageBytes; a flat mediaArtifactId fallback also exists. Full types, limits, source authorization, and closed-schema behavior are unresolved."
-          analysisTypes: "Observed optional list, default [OBJECT_DETECTION]; supported values and bounds unresolved."
-          maxResults: "Observed optional integer conversion, default 10; valid range unresolved."
-      resultSchema: unresolved; define versioned findings, uncertainty, finality, operation identity, and evidence before admission
-      authorityAndDelegation: unresolved; require invocation-time tenant/resource authorization and any required consent/policy; analysis output is not authorization
-      idempotency: unresolved provider and duplicate semantics; default no automatic retry until side-effect and billing behavior are bounded
-      timeout: unresolved finite bound; runtime/provider binding pending; timeout must not imply analysis did not run
+          mediaSource: "Observed: required object with exactly one nonblank
+            mediaArtifactId or bounded Base64 imageBytes; optional mimeType is
+            limited to image/jpeg, image/png, or image/webp. Flat fallback and
+            nested unknown keys are rejected."
+          analysisTypes: "Observed optional list, default [OBJECT_DETECTION], 1..8 entries
+            when provided; each entry is one of OBJECT_DETECTION,
+            SCENE_CLASSIFICATION, OCR, FACE_DETECTION, LABEL_DETECTION,
+            CUSTOM_MODEL."
+          maxResults: "Observed optional integer, default 10, inclusive range 1..100."
+      resultSchema: unresolved; define versioned findings, uncertainty, finality,
+        operation identity, and evidence before admission
+      authorityAndDelegation: unresolved; require invocation-time tenant/resource
+        authorization and any required consent/policy; analysis output is not
+        authorization
+      idempotency: unresolved provider and duplicate semantics; default no automatic
+        retry until side-effect and billing behavior are bounded
+      timeout: unresolved finite bound; runtime/provider binding pending; timeout must
+        not imply analysis did not run
       cancellation: unresolved; runtime/provider cancellation and race semantics pending
-      unknownOutcome: unresolved result binding; require original operation resolution before retry
-      evidence: unresolved model/provider provenance, source/version scope, and integrity/currentness contract
-      safeFailure: observed handler rejects missing source and reports unavailable delegate; post-dispatch ambiguity is preserved for runtime reconciliation; canonical sanitized errors and partial-result rules remain pending
+      unknownOutcome: unresolved result binding; require original operation resolution
+        before retry
+      evidence: unresolved model/provider provenance, source/version scope, and
+        integrity/currentness contract
+      safeFailure: observed handler rejects missing source and reports unavailable
+        delegate; post-dispatch ambiguity is preserved for runtime
+        reconciliation; canonical sanitized errors and partial-result rules
+        remain pending
     - canonicalToolId: av.multimodal-inference
       idStatus: observed-in-handler; canonical registry admission pending
       inputSchema:
         status: observed-subset-not-authoritative
         fields:
           mediaArtifactId: "Observed required nonblank string."
-          inferenceMode: "Observed optional value, default SUMMARY; allowed values and bounds unresolved."
-          enableTranscription: "Observed optional boolean-like value, default enabled unless explicitly false."
-          enableVisionAnalysis: "Observed optional boolean-like value, default enabled unless explicitly false."
-      resultSchema: unresolved; define versioned component outputs, partial/failure semantics, finality, operation identity, and evidence before admission
-      authorityAndDelegation: unresolved; require authorization for exact artifact/version and each enabled analysis; one permission must not imply another
-      idempotency: unresolved across component calls and provider effects; default no automatic retry
-      timeout: unresolved finite end-to-end and component bounds; runtime binding pending; timeout must not imply no component ran
-      cancellation: unresolved across component calls; partial completion and cancellation races pending
-      unknownOutcome: unresolved result binding; resolve original operation and component states before retry
-      evidence: unresolved per-component source/version, provider/model, provenance, and partial-result evidence
-      safeFailure: observed handler rejects missing artifact ID and reports unavailable delegate; post-dispatch ambiguity is preserved for runtime reconciliation; canonical sanitized errors and partial-effect/result rules remain pending
+          inferenceMode: "Observed optional strict enum
+            SUMMARY|SEGMENT|FRAME_BY_FRAME|FULL, default SUMMARY."
+          samplingRateMs: "Observed optional integer in inclusive range 100..60000,
+            default 1000."
+          enableTranscription: "Observed optional strict boolean, default true;
+            non-boolean values reject."
+          enableVisionAnalysis: "Observed optional strict boolean, default true;
+            non-boolean values reject."
+          languageCode: "Observed optional BCP-47 language tag, default en-US."
+          rejection: "Rejects unknown top-level fields and rejects when both modality
+            flags are false."
+      resultSchema: unresolved; define versioned component outputs, partial/failure
+        semantics, finality, operation identity, and evidence before admission
+      authorityAndDelegation: unresolved; require authorization for exact
+        artifact/version and each enabled analysis; one permission must not
+        imply another
+      idempotency: unresolved across component calls and provider effects; default no
+        automatic retry
+      timeout: unresolved finite end-to-end and component bounds; runtime binding
+        pending; timeout must not imply no component ran
+      cancellation: unresolved across component calls; partial completion and
+        cancellation races pending
+      unknownOutcome: unresolved result binding; resolve original operation and
+        component states before retry
+      evidence: unresolved per-component source/version, provider/model, provenance,
+        and partial-result evidence
+      safeFailure: observed handler rejects missing artifact ID and reports
+        unavailable delegate; post-dispatch ambiguity is preserved for runtime
+        reconciliation; canonical sanitized errors and partial-effect/result
+        rules remain pending
 
 admissionGates:
-  handlerCapabilityTransportRuntimeBindings: pending; resolve exact registered capability, handler, transport, schema, identity, and runtime enforcement without inferring from class names or source observations
-  mediaDomainMeaningAndPolicy: pending Media owner approval for each tool's purpose, data scope, effects, and required policy/consent evidence
-  sharedRuntimeOwnership: pending Shared owner verification of generic runtime authorization, delegation, idempotency, timeout, cancellation, outcome resolution, evidence, and safe-failure mechanisms
-  adversarialVerification: pending schema, authority, injection, duplicate, timeout, cancellation-race, unknown-outcome, evidence, and secret-leakage tests
-  acceptance: pending; no Agent Tool contract, handler capability, or PDP phase is accepted by this proposal
+  handlerCapabilityTransportRuntimeBindings: pending; resolve exact registered
+    capability, handler, transport, schema, identity, and runtime enforcement
+    without inferring from class names or source observations
+  mediaDomainMeaningAndPolicy: pending Media owner approval for each tool's
+    purpose, data scope, effects, and required policy/consent evidence
+  sharedRuntimeOwnership: pending Shared owner verification of generic runtime
+    authorization, delegation, idempotency, timeout, cancellation, outcome
+    resolution, evidence, and safe-failure mechanisms
+  adversarialVerification: pending schema, authority, injection, duplicate,
+    timeout, cancellation-race, unknown-outcome, evidence, and secret-leakage
+    tests
+  acceptance: pending; no Agent Tool contract, handler capability, or PDP phase is
+    accepted by this proposal
 
 # Delegated product-owner semantics for the four observed public Agent Tools.
 # These selections authorize *definition* only. Java handler/Shared runtime
@@ -168,40 +359,72 @@ ownerSemanticSelections:
   status: OWNER_POLICY_ACCEPTED; CONTRACT_AND_EXECUTION_ADMISSION_PENDING
   sourceDecision: .product-experience/decision-log.md#PXD-027
   invariantRules:
-    - Agent tool listings and descriptions never grant domain, tenant, rights, consent, identity or delegation authority.
-    - An invocation requires caller, tenant, purpose, exact resource/version and current policy at effect boundaries.
-    - Request receipt is not execution completion; timeout, disconnect or cancellation request does not prove non-execution.
-    - A repeated effect requires stable idempotency scope and proof of safe deduplication, otherwise prohibit automatic retry.
-    - A finite named execution-profile deadline is required before runnable admission; a missing limit is not an infinite fallback.
-    - Missing or unqualified provider, audio codec, language, model, weights or source authorization is a typed non-admission outcome.
-    - Return original operation/attempt identities for reconciliation and distinguish missing evidence from a negative result.
-    - Prompt content, uploaded media and AI-generated descriptions are untrusted input, never execution instructions or grants.
+    - Agent tool listings and descriptions never grant domain, tenant, rights,
+      consent, identity or delegation authority.
+    - An invocation requires caller, tenant, purpose, exact resource/version and
+      current policy at effect boundaries.
+    - Request receipt is not execution completion; timeout, disconnect or
+      cancellation request does not prove non-execution.
+    - A repeated effect requires stable idempotency scope and proof of safe
+      deduplication, otherwise prohibit automatic retry.
+    - A finite named execution-profile deadline is required before runnable
+      admission; a missing limit is not an infinite fallback.
+    - Missing or unqualified provider, audio codec, language, model, weights or
+      source authorization is a typed non-admission outcome.
+    - Return original operation/attempt identities for reconciliation and
+      distinguish missing evidence from a negative result.
+    - Prompt content, uploaded media and AI-generated descriptions are untrusted
+      input, never execution instructions or grants.
   tools:
     - toolId: av.speech-to-text
       canonicalOperationFamily: media.operation.transcription
-      inputBoundary: Only authorized audio asset/version or a separately admitted bounded raw-audio payload; no trust in caller-supplied artifact ID alone.
-      effectSemantics: Submit a bounded recognition request and expose job/attempt/result finality separately; a transcript result does not imply user-approved captions.
-      requiredProof: exact-input-schema; size-format-language-profile; principal-resource-rights; stable-idempotency-key; finite-timeout; cancellation-race; model-provenance; unknown-outcome-reconciliation
+      inputBoundary: Only authorized audio asset/version or a separately admitted
+        bounded raw-audio payload; no trust in caller-supplied artifact ID
+        alone.
+      effectSemantics: Submit a bounded recognition request and expose
+        job/attempt/result finality separately; a transcript result does not
+        imply user-approved captions.
+      requiredProof: exact-input-schema; size-format-language-profile;
+        principal-resource-rights; stable-idempotency-key; finite-timeout;
+        cancellation-race; model-provenance; unknown-outcome-reconciliation
       executionAdmitted: false
     - toolId: av.text-to-speech
       canonicalOperationFamily: media.operation.synthesis
-      inputBoundary: Nonblank bounded text, authorized voice/profile, accepted speech and audio-format capability, explicit artifact-write authority where requested.
-      effectSemantics: Produce governed synthesis output or an explicit pending/unknown outcome; a successful provider response does not grant use, cloning or publishing rights.
-      requiredProof: exact-text-voice-format-schema; consent-and-voice-authorization; finite-timeout; artifact-write-idempotency; output-version-and-provenance; cancellation-finality; unknown-effect-reconciliation
+      inputBoundary: Nonblank bounded text, authorized voice/profile, accepted speech
+        and audio-format capability, explicit artifact-write authority where
+        requested.
+      effectSemantics: Produce governed synthesis output or an explicit
+        pending/unknown outcome; a successful provider response does not grant
+        use, cloning or publishing rights.
+      requiredProof: exact-text-voice-format-schema; consent-and-voice-authorization;
+        finite-timeout; artifact-write-idempotency;
+        output-version-and-provenance; cancellation-finality;
+        unknown-effect-reconciliation
       executionAdmitted: false
     - toolId: av.vision-analysis
       canonicalOperationFamily: media.operation.vision-analysis
-      inputBoundary: Exact authorized source asset/version and accepted analysis operation list, result bound and image/video format profile.
-      effectSemantics: Generate scoped observations carrying per-region/temporal context and uncertainty; not scientific or factual authority without qualification.
-      requiredProof: exact-input-schema; source-version-rights; analysis-type-bounds; model-dataset-scope; finite-timeout; result-provenance; safety-and-injection; safe-failure
+      inputBoundary: Exact authorized source asset/version and accepted analysis
+        operation list, result bound and image/video format profile.
+      effectSemantics: Generate scoped observations carrying per-region/temporal
+        context and uncertainty; not scientific or factual authority without
+        qualification.
+      requiredProof: exact-input-schema; source-version-rights; analysis-type-bounds;
+        model-dataset-scope; finite-timeout; result-provenance;
+        safety-and-injection; safe-failure
       executionAdmitted: false
     - toolId: av.multimodal-inference
       canonicalOperationFamily: media.operation.multimodal-analysis
-      inputBoundary: Exact authorized artifact/version with separately approved enabled transcription and/or vision sub-capabilities and bounded aggregate resource budget.
-      effectSemantics: Treat each modality as a distinct sub-effect; report partial, unknown and per-component provenance without overclaiming aggregate success.
-      requiredProof: exact-composition-schema; per-modality-policy; sub-effect-idempotency; partial-finality; finite-aggregate-and-component-timeout; per-component-provenance; cancellation-and-reconcile
+      inputBoundary: Exact authorized artifact/version with separately approved
+        enabled transcription and/or vision sub-capabilities and bounded
+        aggregate resource budget.
+      effectSemantics: Treat each modality as a distinct sub-effect; report partial,
+        unknown and per-component provenance without overclaiming aggregate
+        success.
+      requiredProof: exact-composition-schema; per-modality-policy;
+        sub-effect-idempotency; partial-finality;
+        finite-aggregate-and-component-timeout; per-component-provenance;
+        cancellation-and-reconcile
       executionAdmitted: false
-
 
 mediaHandlerImplementationObservation:
   status: hardened-adapter-contract; execution-not-admitted
@@ -209,20 +432,1729 @@ mediaHandlerImplementationObservation:
     - libs/common/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java
     - libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java
   implementedChecks:
-    - Tool ID, version and effect-class binding between invocation envelope and declared tool contract.
-    - Closed top-level input fields and type/bound validation for accepted handler parameters.
-    - Malformed artifact references and malformed byte inputs fail closed; inline bytes have a 20 MiB adapter bound.
-    - Invalid optional values are rejected rather than silently defaulted or coerced.
-    - Successful delegate output is validated with NetworkNT 3.0.6 Draft 2020-12 against the matching ToolContract outputSchema; strict unknown-keyword handling, disabled remote-reference loading, and serialized-character, depth, and node bounds fail closed. Output bounds apply even if the supplied result schema is empty.
+    - Tool ID, version and effect-class binding between invocation envelope and
+      declared tool contract.
+    - Closed top-level input fields and type/bound validation for accepted
+      handler parameters.
+    - Malformed artifact references and malformed byte inputs fail closed;
+      inline bytes have a 20 MiB adapter bound.
+    - Invalid optional values are rejected rather than silently defaulted or
+      coerced.
+    - Successful delegate output is validated with NetworkNT 3.0.6 Draft 2020-12
+      against the matching ToolContract outputSchema; strict unknown-keyword
+      handling, disabled remote-reference loading, and serialized-character,
+      depth, and node bounds fail closed. Output bounds apply even if the
+      supplied result schema is empty.
   limits:
-    - The invocation envelope itself has no idempotency key, deadline, cancellation token, or authority/delegation evidence fields; the runtime supplies idempotency, deadline, cancellation, and attempt context separately through ToolExecutionBudget and ToolTransportInvocationContext.
-    - Ghatana Tools ToolExecutionResult now supports non-final OUTCOME_UNKNOWN and CANCELLATION_REQUESTED values with operation/attempt references. Media handlers preserve post-dispatch ambiguity on the promise error channel, validate returned invocation identity, and do not persist or reconcile operation state themselves.
-    - Handler checks are schema/context validation only; they do not authorize tenant/resource access or enforce consent, rights, policy, idempotency, or provenance.
-    - Empty ToolContract output schemas remain unresolved and pass through; this adapter behavior does not bind the four capability YAML outputSchema descriptors as canonical registered result schemas. Additional properties remain permitted unless the supplied schema prohibits them, and unsupported schema keywords are not enforced.
-    - Structural output checks do not define semantic result meaning, provenance, evidence, completeness, finality, rights, or production qualification. Media handlers preserve delegate rejection and reject malformed successful payloads on the promise error channel; at the Ghatana Tools DefaultToolExecutor boundary, ambiguous effectful failures map to non-final OUTCOME_UNKNOWN while read-only failures map to FAILED.
+    - The invocation envelope itself has no idempotency key, deadline,
+      cancellation token, or authority/delegation evidence fields; the runtime
+      supplies idempotency, deadline, cancellation, and attempt context
+      separately through ToolExecutionBudget and ToolTransportInvocationContext.
+    - Ghatana Tools ToolExecutionResult now supports non-final OUTCOME_UNKNOWN
+      and CANCELLATION_REQUESTED values with operation/attempt references. Media
+      handlers preserve post-dispatch ambiguity on the promise error channel,
+      validate returned invocation identity, and do not persist or reconcile
+      operation state themselves.
+    - Handler checks are schema/context validation only; they do not authorize
+      tenant/resource access or enforce consent, rights, policy, idempotency, or
+      provenance.
+    - Empty ToolContract output schemas remain unresolved and pass through; this
+      adapter behavior does not bind the four capability YAML outputSchema
+      descriptors as canonical registered result schemas. Additional properties
+      remain permitted unless the supplied schema prohibits them, and
+      unsupported schema keywords are not enforced.
+    - Structural output checks do not define semantic result meaning,
+      provenance, evidence, completeness, finality, rights, or production
+      qualification. Media handlers preserve delegate rejection and reject
+      malformed successful payloads on the promise error channel; at the Ghatana
+      Tools DefaultToolExecutor boundary, ambiguous effectful failures map to
+      non-final OUTCOME_UNKNOWN while read-only failures map to FAILED.
   executionAdmitted: false
   requiredSharedOwnerIntegration:
-    - Publish and qualify the generic invocation SPI with principal/delegation, exact resource scope, invocation deadline, idempotency key, cancellation signal and operation identity.
-    - Publish an explicit non-final outcome-unknown result and status-resolution contract preserving original operation and attempt IDs.
-    - Qualify async completion/error mapping, cancellation races, and effect reconciliation semantics in the Shared runtime.
-    - Bind Media tools to exact canonical operation contracts and independently tested output/provenance schemas.
+    - Publish and qualify the generic invocation SPI with principal/delegation,
+      exact resource scope, invocation deadline, idempotency key, cancellation
+      signal and operation identity.
+    - Publish an explicit non-final outcome-unknown result and status-resolution
+      contract preserving original operation and attempt IDs.
+    - Qualify async completion/error mapping, cancellation races, and effect
+      reconciliation semantics in the Shared runtime.
+    - Bind Media tools to exact canonical operation contracts and independently
+      tested output/provenance schemas.
+
+# Media-owned definition contracts. These closed schemas define the intended
+# Media boundary; they are not schemas published by Shared or enforced by the
+# observed handler adapters. Adapter and public-runtime bindings remain pending.
+mediaOwnedToolDefinitionContracts:
+  status: MEDIA_OWNER_DEFINITION_ONLY; public-runtime-binding-pending
+  schemaDialect: https://json-schema.org/draft/2020-12/schema
+  hostInvocationContext:
+    id: media.agent-tool-host-context.v1
+    ownership: host/runtime supplied out-of-band; never copied from model/tool input
+    schema:
+      type: object
+      additionalProperties: false
+      required:
+        - principalRef
+        - tenantRef
+        - delegationChainRef
+        - purposeRef
+        - resourceBindings
+        - invocationId
+        - deadline
+        - idempotencyDisposition
+        - cancellationRef
+      properties:
+        principalRef:
+          type: string
+          minLength: 1
+          maxLength: 512
+        tenantRef:
+          type: string
+          minLength: 1
+          maxLength: 512
+        delegationChainRef:
+          type: string
+          minLength: 1
+          maxLength: 1024
+        purposeRef:
+          type: string
+          minLength: 1
+          maxLength: 256
+        invocationId:
+          type: string
+          minLength: 1
+          maxLength: 256
+        deadline:
+          type: string
+          format: date-time
+        idempotencyDisposition:
+          enum:
+            - READ_ONLY_NO_KEY
+            - REQUIRED_SCOPED_KEY
+            - UNSUPPORTED_NO_DISPATCH
+        idempotencyKeyRef:
+          type: string
+          minLength: 1
+          maxLength: 512
+        cancellationRef:
+          type: string
+          minLength: 1
+          maxLength: 512
+        policyDecisionRefs:
+          type: array
+          maxItems: 32
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 1024
+        resourceBindings:
+          type: array
+          minItems: 1
+          maxItems: 32
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - objectRef
+              - versionRef
+              - tenantRef
+              - purposeRef
+              - authorityDecisionRef
+              - decision
+              - evidenceRef
+              - observedAt
+              - validUntil
+            properties:
+              objectRef:
+                type: string
+                minLength: 1
+                maxLength: 512
+              versionRef:
+                type: string
+                minLength: 1
+                maxLength: 512
+              tenantRef:
+                type: string
+                minLength: 1
+                maxLength: 512
+              purposeRef:
+                type: string
+                minLength: 1
+                maxLength: 256
+              authorityDecisionRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              decision:
+                const: AUTHORIZED
+              evidenceRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              observedAt:
+                type: string
+                format: date-time
+              validUntil:
+                type: string
+                format: date-time
+      allOf:
+        - if:
+            properties:
+              idempotencyDisposition:
+                const: READ_ONLY_NO_KEY
+            required:
+              - idempotencyDisposition
+          then:
+            not:
+              required:
+                - idempotencyKeyRef
+        - if:
+            properties:
+              idempotencyDisposition:
+                const: REQUIRED_SCOPED_KEY
+            required:
+              - idempotencyDisposition
+          then:
+            required:
+              - idempotencyKeyRef
+        - if:
+            properties:
+              idempotencyDisposition:
+                const: UNSUPPORTED_NO_DISPATCH
+            required:
+              - idempotencyDisposition
+          then:
+            not:
+              required:
+                - idempotencyKeyRef
+    enforcementBoundary: Shared runtime must attest the tuple at invocation and
+      recheck current resource/policy facts at every effect boundary; Media's
+      current envelope exposes only tool/version/invocation/tenant/action/input
+      and does not carry this context. Resource bindings are exact
+      object/version/tenant/purpose tuples with an authority decision, evidence,
+      and observed validity interval; shape validation does not authenticate the
+      issuer or establish current rights.
+    bindingRules:
+      - Each binding object/version must be a canonical source identity, not a
+        free-form resource label.
+      - binding.tenantRef must equal host tenantRef; binding.purposeRef must
+        equal host purposeRef; authority decision must be current at trusted
+        evaluation time and bind the exact object/version tuple.
+      - The host schema validates shape only; trusted runtime verifies issuer,
+        signature, currentness, authorization, expiry, and source resolution. A
+        valid-looking ref is not proof.
+  invocationSemantics:
+    authority: Deny when principal, tenant, delegation chain, purpose, exact
+      resource/version, rights/consent, or current policy evidence is missing,
+      expired, mismatched, or unverified. Tool availability and model-generated
+      arguments confer no authority.
+    deadline: Require a finite host-issued deadline covering queue and downstream
+      execution. Expiry after dispatch yields UNKNOWN unless authoritative
+      reconciliation proves an outcome.
+    idempotency: Read-only queries use READ_ONLY_NO_KEY. Mutations require a stable
+      scoped key and owner-confirmed deduplication contract; absent proof means
+      UNSUPPORTED_NO_DISPATCH. Never retry an unresolved effect.
+    cancellation: Cancellation is a request; it may stop not-yet-dispatched work,
+      but accepted/racing cancellation does not prove rollback. Return the
+      original operation identity and UNKNOWN when effect status is unresolved.
+    unknownOutcome: Preserve operationId and attemptId, return no success payload,
+      expose only an authorized status-query reference, and require
+      reconciliation before another effect.
+    provenance: Bind output to exact input object/version, operation/attempt,
+      producer/profile/version, observedAt, and evidence refs. Omit unavailable
+      provenance; never infer it from handler invocation. A successful terminal
+      result also carries exact finality evidence; no submission/accepted
+      receipt is a completed output.
+    adapterBoundary: Candidate input/result schemas below are Media-owned definition
+      contracts. The current Java handlers forward the original envelope and
+      supplied ToolContract; they do not adapt or enforce these host-context
+      fields or Media result variants.
+    resultDisposition:
+      SUCCEEDED: Only after exact canonical operation payload, subject version,
+        authority, provenance, and required component results validate.
+      ACCEPTED: Receipt only; never implies processing completion, output
+        registration, or publication.
+      OUTCOME_UNKNOWN: Must preserve the original operation and attempt identity and
+        provide authorized status resolution; no success payload and no repeat
+        effect.
+      FAILED: Only an owner-confirmed terminal failure; transport rejection/timeout
+        after dispatch is unknown.
+      CANCELLATION_REQUESTED: Request acknowledgment only; no rollback or stopped-effect claim.
+      CANCELLED: Only owner-confirmed cancellation finality; does not imply artifact
+        erasure or rollback of an already-applied effect.
+    id: media.agent-tool-invocation-policy.v1
+    scopeStatus: MEDIA_OWNER_DEFINITION_ONLY; host verification, public binding, and
+      runtime admission pending
+    rulesRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/invocationSemantics
+  contracts:
+    - id: media.agent-tool-contract.speech-to-text.v1
+      toolId: av.speech-to-text
+      handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java
+      operationFamilyRef: media.operation.transcription
+      canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission
+      operationBindingStatus: OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and
+        runtime admission pending
+      requestAdapter:
+        status: NOT_IMPLEMENTED
+        mappings:
+          - audioSource.mediaArtifactId -> canonical source artifactId + trusted
+            host artifactVersionRef
+          - languageCode -> validated requested language intent
+          - invocationId -> host request correlation
+        refusedInputs:
+          - audioSource.audioBytes requires a separately admitted upload/staging
+            operation
+          - enableDiarization and model require exact qualified profile
+            parameters
+        canonicalContractRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/ownerWireSchema
+      resultAdapter:
+        status: NOT_IMPLEMENTED
+        mappings:
+          - canonical accepted receipt -> ACCEPTED with stable operationId only
+          - canonical transcript/output evidence -> SUCCEEDED only after exact
+            typed output and source-version validation
+          - unresolved dispatch -> OUTCOME_UNKNOWN with original
+            operationId/attemptId
+        failureRule: REJECTED_PRE_DISPATCH carries no operation identity; ACCEPTED is
+          only the canonical submission receipt; SUCCEEDED requires an
+          independently observed typed canonical result and
+          source-version/provenance evidence; any uncertain post-dispatch result
+          remains OUTCOME_UNKNOWN.
+      inputSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        $id: urn:media:agent-tool-input:speech-to-text:v1
+        type: object
+        additionalProperties: false
+        required:
+          - audioSource
+        properties:
+          audioSource:
+            type: object
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - mediaArtifactId
+                properties:
+                  mediaArtifactId:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+              - type: object
+                additionalProperties: false
+                required:
+                  - audioBytes
+                properties:
+                  audioBytes:
+                    type: string
+                    minLength: 4
+                    maxLength: 27962028
+                    contentEncoding: base64
+                    pattern: ^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$
+          languageCode:
+            type: string
+            minLength: 1
+            maxLength: 64
+            default: en-US
+            pattern: ^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$
+          enableDiarization:
+            type: boolean
+            default: false
+          model:
+            enum:
+              - default
+              - enhanced
+              - telephony
+            default: default
+      resultSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        $id: urn:media:agent-tool-result:speech-to-text:v1
+        type: object
+        oneOf:
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - invocationId
+              - safeErrorCode
+              - rejectedAt
+            properties:
+              contractId: &a1
+                const: media.agent-tool-contract.speech-to-text.v1
+              toolId: &a2
+                const: av.speech-to-text
+              outcome:
+                const: REJECTED_PRE_DISPATCH
+              invocationId: &a3
+                type: string
+                minLength: 1
+                maxLength: 512
+              safeErrorCode:
+                type: string
+                pattern: ^[A-Z][A-Z0-9_]{1,63}$
+              rejectedAt: &a4
+                type: string
+                format: date-time
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - acceptedAt
+              - statusQueryRef
+              - requestFingerprint
+            properties:
+              contractId: *a1
+              toolId: *a2
+              outcome:
+                const: ACCEPTED
+              operationRef: &a5
+                const: media.operation.transcription-submission
+              operationId: *a3
+              acceptedAt: *a4
+              statusQueryRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              requestFingerprint:
+                type: string
+                pattern: ^sha256:[a-f0-9]{64}$
+              attemptId:
+                type: string
+                minLength: 1
+                maxLength: 256
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - invocationId
+              - requestFingerprint
+              - identityDisposition
+              - observedAt
+            properties:
+              contractId: *a1
+              toolId: *a2
+              outcome:
+                const: OUTCOME_UNKNOWN
+              operationRef:
+                const: media.operation.transcription-submission
+              operationId:
+                type: string
+                minLength: 1
+                maxLength: 512
+              attemptId:
+                type: string
+                minLength: 1
+                maxLength: 256
+              invocationId: *a3
+              requestFingerprint:
+                type: string
+                pattern: ^sha256:[a-f0-9]{64}$
+              statusQueryRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              identityDisposition:
+                enum:
+                  - OPERATION_ID_KNOWN
+                  - DISPATCHED_IDENTITY_UNRESOLVED
+              observedAt: *a4
+            oneOf:
+              - required:
+                  - identityDisposition
+                  - operationRef
+                  - operationId
+                  - statusQueryRef
+                properties:
+                  identityDisposition:
+                    const: OPERATION_ID_KNOWN
+              - required:
+                  - identityDisposition
+                  - invocationId
+                  - requestFingerprint
+                properties:
+                  identityDisposition:
+                    const: DISPATCHED_IDENTITY_UNRESOLVED
+                not:
+                  required:
+                    - operationId
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - attemptId
+              - safeErrorCode
+              - terminalEvidenceRef
+              - observedAt
+            properties:
+              contractId: *a1
+              toolId: *a2
+              outcome:
+                const: FAILED
+              operationRef: *a5
+              operationId: *a3
+              attemptId: *a3
+              safeErrorCode:
+                type: string
+                pattern: ^[A-Z][A-Z0-9_]{1,63}$
+              terminalEvidenceRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              observedAt: *a4
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - requestedAt
+              - statusQueryRef
+            properties:
+              contractId: *a1
+              toolId: *a2
+              outcome:
+                const: CANCELLATION_REQUESTED
+              operationRef: *a5
+              operationId: *a3
+              attemptId:
+                type: string
+                minLength: 1
+                maxLength: 256
+              requestedAt: *a4
+              statusQueryRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - attemptId
+              - terminalEvidenceRef
+              - observedAt
+            properties:
+              contractId: *a1
+              toolId: *a2
+              outcome:
+                const: CANCELLED
+              operationRef: *a5
+              operationId: *a3
+              attemptId: *a3
+              terminalEvidenceRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              observedAt: *a4
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission
+        - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#dataHandling/purposeBoundDataAccess
+      runtimeAdmission: NOT_ADMITTED
+    - id: media.agent-tool-contract.text-to-speech.v1
+      toolId: av.text-to-speech
+      handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java
+      operationFamilyRef: media.operation.synthesis
+      canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech
+      operationBindingStatus: OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and
+        runtime admission pending
+      requestAdapter:
+        status: NOT_IMPLEMENTED
+        mappings:
+          - text -> canonical text-or-speech-intent payload
+          - voiceId -> voice/profile selection only after exact authorized
+            profile resolution
+          - language/encoding/rate/pitch -> explicit canonical parameters only
+            when the selected profile declares them
+        refusedInputs:
+          - storeAsArtifact has no bound artifact-registration operation in this
+            adapter
+        canonicalContractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech/requestSchema
+      resultAdapter:
+        status: NOT_IMPLEMENTED
+        mappings:
+          - canonical generated candidate output -> SUCCEEDED only after typed
+            payload
+          - source text
+          - voice/profile
+          - rights
+          - and provenance validation
+          - unresolved dispatch -> OUTCOME_UNKNOWN with original operation
+            identity
+        failureRule: REJECTED_PRE_DISPATCH carries no operation identity; ACCEPTED is
+          only the canonical submission receipt; SUCCEEDED requires an
+          independently observed typed canonical result and
+          source-version/provenance evidence; any uncertain post-dispatch result
+          remains OUTCOME_UNKNOWN.
+      inputSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        $id: urn:media:agent-tool-input:text-to-speech:v1
+        type: object
+        additionalProperties: false
+        required:
+          - text
+        properties:
+          text:
+            type: string
+            minLength: 1
+            maxLength: 10000
+            pattern: \S
+          voiceId:
+            type: string
+            minLength: 1
+            maxLength: 128
+            default: en-US-default
+          speakingRate:
+            type: number
+            minimum: 0.25
+            maximum: 4
+            default: 1
+          pitch:
+            type: number
+            minimum: -20
+            maximum: 20
+            default: 0
+          audioEncoding:
+            enum:
+              - MP3
+              - WAV
+              - OGG_OPUS
+              - LINEAR16
+            default: MP3
+          storeAsArtifact:
+            type: boolean
+            default: false
+      resultSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        $id: urn:media:agent-tool-result:text-to-speech:v1
+        type: object
+        oneOf:
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - invocationId
+              - safeErrorCode
+              - rejectedAt
+            properties:
+              contractId: &a6
+                const: media.agent-tool-contract.text-to-speech.v1
+              toolId: &a7
+                const: av.text-to-speech
+              outcome:
+                const: REJECTED_PRE_DISPATCH
+              invocationId: &a8
+                type: string
+                minLength: 1
+                maxLength: 512
+              safeErrorCode:
+                type: string
+                pattern: ^[A-Z][A-Z0-9_]{1,63}$
+              rejectedAt: &a9
+                type: string
+                format: date-time
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - acceptedAt
+              - statusQueryRef
+              - requestFingerprint
+            properties:
+              contractId: *a6
+              toolId: *a7
+              outcome:
+                const: ACCEPTED
+              operationRef: &a10
+                const: media.operation.capability.media-speech-synthesis-text-to-speech
+              operationId: *a8
+              acceptedAt: *a9
+              statusQueryRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              requestFingerprint:
+                type: string
+                pattern: ^sha256:[a-f0-9]{64}$
+              attemptId:
+                type: string
+                minLength: 1
+                maxLength: 256
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - invocationId
+              - requestFingerprint
+              - identityDisposition
+              - observedAt
+            properties:
+              contractId: *a6
+              toolId: *a7
+              outcome:
+                const: OUTCOME_UNKNOWN
+              operationRef:
+                const: media.operation.capability.media-speech-synthesis-text-to-speech
+              operationId:
+                type: string
+                minLength: 1
+                maxLength: 512
+              attemptId:
+                type: string
+                minLength: 1
+                maxLength: 256
+              invocationId: *a8
+              requestFingerprint:
+                type: string
+                pattern: ^sha256:[a-f0-9]{64}$
+              statusQueryRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              identityDisposition:
+                enum:
+                  - OPERATION_ID_KNOWN
+                  - DISPATCHED_IDENTITY_UNRESOLVED
+              observedAt: *a9
+            oneOf:
+              - required:
+                  - identityDisposition
+                  - operationRef
+                  - operationId
+                  - statusQueryRef
+                properties:
+                  identityDisposition:
+                    const: OPERATION_ID_KNOWN
+              - required:
+                  - identityDisposition
+                  - invocationId
+                  - requestFingerprint
+                properties:
+                  identityDisposition:
+                    const: DISPATCHED_IDENTITY_UNRESOLVED
+                not:
+                  required:
+                    - operationId
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - attemptId
+              - safeErrorCode
+              - terminalEvidenceRef
+              - observedAt
+            properties:
+              contractId: *a6
+              toolId: *a7
+              outcome:
+                const: FAILED
+              operationRef: *a10
+              operationId: *a8
+              attemptId: *a8
+              safeErrorCode:
+                type: string
+                pattern: ^[A-Z][A-Z0-9_]{1,63}$
+              terminalEvidenceRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              observedAt: *a9
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - requestedAt
+              - statusQueryRef
+            properties:
+              contractId: *a6
+              toolId: *a7
+              outcome:
+                const: CANCELLATION_REQUESTED
+              operationRef: *a10
+              operationId: *a8
+              attemptId:
+                type: string
+                minLength: 1
+                maxLength: 256
+              requestedAt: *a9
+              statusQueryRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - attemptId
+              - terminalEvidenceRef
+              - observedAt
+            properties:
+              contractId: *a6
+              toolId: *a7
+              outcome:
+                const: CANCELLED
+              operationRef: *a10
+              operationId: *a8
+              attemptId: *a8
+              terminalEvidenceRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              observedAt: *a9
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - attemptId
+              - completedAt
+              - canonicalPayload
+              - finalityEvidenceRef
+            properties:
+              contractId: *a6
+              toolId: *a7
+              outcome:
+                const: SUCCEEDED
+              operationRef: *a10
+              operationId: *a8
+              attemptId: *a8
+              completedAt: *a9
+              canonicalPayload:
+                type: object
+                additionalProperties: false
+                required:
+                  - payloadTypeRef
+                  - payloadSchemaRef
+                  - payloadRef
+                  - subjectObjectRef
+                  - subjectVersionRef
+                  - producerRef
+                  - profileRef
+                  - profileVersionRef
+                  - provenanceRef
+                  - evidenceRefs
+                  - observedAt
+                properties:
+                  payloadTypeRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  payloadSchemaRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 1024
+                  payloadRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 1024
+                  subjectObjectRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  subjectVersionRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  producerRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  profileRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  profileVersionRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  provenanceRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 1024
+                  evidenceRefs:
+                    type: array
+                    minItems: 1
+                    maxItems: 64
+                    uniqueItems: true
+                    items:
+                      type: string
+                      minLength: 1
+                      maxLength: 1024
+                  observedAt: *a9
+              finalityEvidenceRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech
+        - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#dataHandling/purposeBoundDataAccess
+      runtimeAdmission: NOT_ADMITTED
+    - id: media.agent-tool-contract.vision-analysis.v1
+      toolId: av.vision-analysis
+      handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java
+      operationFamilyRef: media.operation.vision-analysis
+      canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect
+      operationBindingStatus: OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and
+        runtime admission pending
+      requestAdapter:
+        status: NOT_IMPLEMENTED
+        mappings:
+          - mediaSource.mediaArtifactId -> canonical image/video artifactId plus
+            trusted immutable version
+          - analysisTypes -> only exact canonical detect parameters supported by
+            the selected profile
+          - maxResults/confidenceThreshold -> explicit bounded parameters when
+            declared
+        refusedInputs:
+          - inline imageBytes requires a separately admitted upload/staging
+            operation
+          - customModelId is rejected unless its exact model/profile/version is
+            admitted
+        canonicalContractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect/requestSchema
+      resultAdapter:
+        status: NOT_IMPLEMENTED
+        mappings:
+          - canonical typed observation payload -> SUCCEEDED only with exact
+            subject version
+          - method/profile
+          - uncertainty
+          - and provenance validation
+          - unresolved dispatch -> OUTCOME_UNKNOWN
+        failureRule: REJECTED_PRE_DISPATCH carries no operation identity; ACCEPTED is
+          only the canonical submission receipt; SUCCEEDED requires an
+          independently observed typed canonical result and
+          source-version/provenance evidence; any uncertain post-dispatch result
+          remains OUTCOME_UNKNOWN.
+      inputSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        $id: urn:media:agent-tool-input:vision-analysis:v1
+        type: object
+        additionalProperties: false
+        required:
+          - mediaSource
+        properties:
+          mediaSource:
+            type: object
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - mediaArtifactId
+                properties:
+                  mediaArtifactId:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  mimeType:
+                    enum:
+                      - image/jpeg
+                      - image/png
+                      - image/webp
+              - type: object
+                additionalProperties: false
+                required:
+                  - imageBytes
+                properties:
+                  imageBytes:
+                    type: string
+                    minLength: 4
+                    maxLength: 27962028
+                    contentEncoding: base64
+                    pattern: ^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$
+                  mimeType:
+                    enum:
+                      - image/jpeg
+                      - image/png
+                      - image/webp
+          analysisTypes:
+            type: array
+            minItems: 1
+            maxItems: 8
+            default:
+              - OBJECT_DETECTION
+            items:
+              enum:
+                - OBJECT_DETECTION
+                - SCENE_CLASSIFICATION
+                - OCR
+                - FACE_DETECTION
+                - LABEL_DETECTION
+                - CUSTOM_MODEL
+          maxResults:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          confidenceThreshold:
+            type: number
+            minimum: 0
+            maximum: 1
+            default: 0.5
+          customModelId:
+            type: string
+            minLength: 1
+            maxLength: 512
+        allOf:
+          - if:
+              properties:
+                analysisTypes:
+                  contains:
+                    const: CUSTOM_MODEL
+              required:
+                - analysisTypes
+            then:
+              required:
+                - customModelId
+      resultSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        $id: urn:media:agent-tool-result:vision-analysis:v1
+        type: object
+        oneOf:
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - invocationId
+              - safeErrorCode
+              - rejectedAt
+            properties:
+              contractId: &a11
+                const: media.agent-tool-contract.vision-analysis.v1
+              toolId: &a12
+                const: av.vision-analysis
+              outcome:
+                const: REJECTED_PRE_DISPATCH
+              invocationId: &a13
+                type: string
+                minLength: 1
+                maxLength: 512
+              safeErrorCode:
+                type: string
+                pattern: ^[A-Z][A-Z0-9_]{1,63}$
+              rejectedAt: &a14
+                type: string
+                format: date-time
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - acceptedAt
+              - statusQueryRef
+              - requestFingerprint
+            properties:
+              contractId: *a11
+              toolId: *a12
+              outcome:
+                const: ACCEPTED
+              operationRef: &a15
+                const: media.operation.capability.media-vision-detect
+              operationId: *a13
+              acceptedAt: *a14
+              statusQueryRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              requestFingerprint:
+                type: string
+                pattern: ^sha256:[a-f0-9]{64}$
+              attemptId:
+                type: string
+                minLength: 1
+                maxLength: 256
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - invocationId
+              - requestFingerprint
+              - identityDisposition
+              - observedAt
+            properties:
+              contractId: *a11
+              toolId: *a12
+              outcome:
+                const: OUTCOME_UNKNOWN
+              operationRef:
+                const: media.operation.capability.media-vision-detect
+              operationId:
+                type: string
+                minLength: 1
+                maxLength: 512
+              attemptId:
+                type: string
+                minLength: 1
+                maxLength: 256
+              invocationId: *a13
+              requestFingerprint:
+                type: string
+                pattern: ^sha256:[a-f0-9]{64}$
+              statusQueryRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              identityDisposition:
+                enum:
+                  - OPERATION_ID_KNOWN
+                  - DISPATCHED_IDENTITY_UNRESOLVED
+              observedAt: *a14
+            oneOf:
+              - required:
+                  - identityDisposition
+                  - operationRef
+                  - operationId
+                  - statusQueryRef
+                properties:
+                  identityDisposition:
+                    const: OPERATION_ID_KNOWN
+              - required:
+                  - identityDisposition
+                  - invocationId
+                  - requestFingerprint
+                properties:
+                  identityDisposition:
+                    const: DISPATCHED_IDENTITY_UNRESOLVED
+                not:
+                  required:
+                    - operationId
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - attemptId
+              - safeErrorCode
+              - terminalEvidenceRef
+              - observedAt
+            properties:
+              contractId: *a11
+              toolId: *a12
+              outcome:
+                const: FAILED
+              operationRef: *a15
+              operationId: *a13
+              attemptId: *a13
+              safeErrorCode:
+                type: string
+                pattern: ^[A-Z][A-Z0-9_]{1,63}$
+              terminalEvidenceRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              observedAt: *a14
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - requestedAt
+              - statusQueryRef
+            properties:
+              contractId: *a11
+              toolId: *a12
+              outcome:
+                const: CANCELLATION_REQUESTED
+              operationRef: *a15
+              operationId: *a13
+              attemptId:
+                type: string
+                minLength: 1
+                maxLength: 256
+              requestedAt: *a14
+              statusQueryRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - attemptId
+              - terminalEvidenceRef
+              - observedAt
+            properties:
+              contractId: *a11
+              toolId: *a12
+              outcome:
+                const: CANCELLED
+              operationRef: *a15
+              operationId: *a13
+              attemptId: *a13
+              terminalEvidenceRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              observedAt: *a14
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - attemptId
+              - completedAt
+              - canonicalPayload
+              - finalityEvidenceRef
+            properties:
+              contractId: *a11
+              toolId: *a12
+              outcome:
+                const: SUCCEEDED
+              operationRef: *a15
+              operationId: *a13
+              attemptId: *a13
+              completedAt: *a14
+              canonicalPayload:
+                type: object
+                additionalProperties: false
+                required:
+                  - payloadTypeRef
+                  - payloadSchemaRef
+                  - payloadRef
+                  - subjectObjectRef
+                  - subjectVersionRef
+                  - producerRef
+                  - profileRef
+                  - profileVersionRef
+                  - provenanceRef
+                  - evidenceRefs
+                  - observedAt
+                properties:
+                  payloadTypeRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  payloadSchemaRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 1024
+                  payloadRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 1024
+                  subjectObjectRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  subjectVersionRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  producerRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  profileRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  profileVersionRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  provenanceRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 1024
+                  evidenceRefs:
+                    type: array
+                    minItems: 1
+                    maxItems: 64
+                    uniqueItems: true
+                    items:
+                      type: string
+                      minLength: 1
+                      maxLength: 1024
+                  observedAt: *a14
+              finalityEvidenceRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect
+        - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#dataHandling/purposeBoundDataAccess
+      runtimeAdmission: NOT_ADMITTED
+    - id: media.agent-tool-contract.multimodal-inference.v1
+      toolId: av.multimodal-inference
+      handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java
+      operationFamilyRef: media.operation.multimodal-analysis
+      canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal
+      operationBindingStatus: OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and
+        runtime admission pending
+      requestAdapter:
+        status: NOT_IMPLEMENTED
+        mappings:
+          - mediaArtifactId -> canonical authorized-media-artifacts artifactId
+            plus trusted immutable version
+          - inferenceMode and samplingRateMs -> explicit profile parameters only
+            when admitted
+          - enabled modalities -> separate exact capability refs and independent
+            authority
+        refusedInputs:
+          - languageCode and per-modality toggles require exact canonical
+            profile parameters; reject unsupported combinations before dispatch
+        canonicalContractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal/requestSchema
+      resultAdapter:
+        status: NOT_IMPLEMENTED
+        mappings:
+          - each modality result -> independently typed output/evidence ref
+          - aggregate SUCCEEDED only when every requested component has a typed
+            terminal outcome
+          - unresolved component -> OUTCOME_UNKNOWN or explicit partial result
+        failureRule: REJECTED_PRE_DISPATCH carries no operation identity; ACCEPTED is
+          only the canonical submission receipt; SUCCEEDED requires an
+          independently observed typed canonical result and
+          source-version/provenance evidence; any uncertain post-dispatch result
+          remains OUTCOME_UNKNOWN.
+      inputSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        $id: urn:media:agent-tool-input:multimodal-inference:v1
+        type: object
+        additionalProperties: false
+        required:
+          - mediaArtifactId
+        properties:
+          mediaArtifactId:
+            type: string
+            minLength: 1
+            maxLength: 512
+          inferenceMode:
+            enum:
+              - SUMMARY
+              - SEGMENT
+              - FRAME_BY_FRAME
+              - FULL
+            default: SUMMARY
+          samplingRateMs:
+            type: integer
+            minimum: 100
+            maximum: 60000
+            default: 1000
+          enableTranscription:
+            type: boolean
+            default: true
+          enableVisionAnalysis:
+            type: boolean
+            default: true
+          languageCode:
+            type: string
+            minLength: 1
+            maxLength: 64
+            default: en-US
+            pattern: ^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$
+        allOf:
+          - not:
+              properties:
+                enableTranscription:
+                  const: false
+                enableVisionAnalysis:
+                  const: false
+              required:
+                - enableTranscription
+                - enableVisionAnalysis
+      resultSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        $id: urn:media:agent-tool-result:multimodal-inference:v1
+        type: object
+        oneOf:
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - invocationId
+              - safeErrorCode
+              - rejectedAt
+            properties:
+              contractId: &a16
+                const: media.agent-tool-contract.multimodal-inference.v1
+              toolId: &a17
+                const: av.multimodal-inference
+              outcome:
+                const: REJECTED_PRE_DISPATCH
+              invocationId: &a18
+                type: string
+                minLength: 1
+                maxLength: 512
+              safeErrorCode:
+                type: string
+                pattern: ^[A-Z][A-Z0-9_]{1,63}$
+              rejectedAt: &a19
+                type: string
+                format: date-time
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - acceptedAt
+              - statusQueryRef
+              - requestFingerprint
+            properties:
+              contractId: *a16
+              toolId: *a17
+              outcome:
+                const: ACCEPTED
+              operationRef: &a20
+                const: media.operation.capability.media-multimodal-analyze-cross-modal
+              operationId: *a18
+              acceptedAt: *a19
+              statusQueryRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              requestFingerprint:
+                type: string
+                pattern: ^sha256:[a-f0-9]{64}$
+              attemptId:
+                type: string
+                minLength: 1
+                maxLength: 256
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - invocationId
+              - requestFingerprint
+              - identityDisposition
+              - observedAt
+            properties:
+              contractId: *a16
+              toolId: *a17
+              outcome:
+                const: OUTCOME_UNKNOWN
+              operationRef:
+                const: media.operation.capability.media-multimodal-analyze-cross-modal
+              operationId:
+                type: string
+                minLength: 1
+                maxLength: 512
+              attemptId:
+                type: string
+                minLength: 1
+                maxLength: 256
+              invocationId: *a18
+              requestFingerprint:
+                type: string
+                pattern: ^sha256:[a-f0-9]{64}$
+              statusQueryRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              identityDisposition:
+                enum:
+                  - OPERATION_ID_KNOWN
+                  - DISPATCHED_IDENTITY_UNRESOLVED
+              observedAt: *a19
+            oneOf:
+              - required:
+                  - identityDisposition
+                  - operationRef
+                  - operationId
+                  - statusQueryRef
+                properties:
+                  identityDisposition:
+                    const: OPERATION_ID_KNOWN
+              - required:
+                  - identityDisposition
+                  - invocationId
+                  - requestFingerprint
+                properties:
+                  identityDisposition:
+                    const: DISPATCHED_IDENTITY_UNRESOLVED
+                not:
+                  required:
+                    - operationId
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - attemptId
+              - safeErrorCode
+              - terminalEvidenceRef
+              - observedAt
+            properties:
+              contractId: *a16
+              toolId: *a17
+              outcome:
+                const: FAILED
+              operationRef: *a20
+              operationId: *a18
+              attemptId: *a18
+              safeErrorCode:
+                type: string
+                pattern: ^[A-Z][A-Z0-9_]{1,63}$
+              terminalEvidenceRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              observedAt: *a19
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - requestedAt
+              - statusQueryRef
+            properties:
+              contractId: *a16
+              toolId: *a17
+              outcome:
+                const: CANCELLATION_REQUESTED
+              operationRef: *a20
+              operationId: *a18
+              attemptId:
+                type: string
+                minLength: 1
+                maxLength: 256
+              requestedAt: *a19
+              statusQueryRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - attemptId
+              - terminalEvidenceRef
+              - observedAt
+            properties:
+              contractId: *a16
+              toolId: *a17
+              outcome:
+                const: CANCELLED
+              operationRef: *a20
+              operationId: *a18
+              attemptId: *a18
+              terminalEvidenceRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+              observedAt: *a19
+          - type: object
+            additionalProperties: false
+            required:
+              - contractId
+              - toolId
+              - outcome
+              - operationRef
+              - operationId
+              - attemptId
+              - completedAt
+              - canonicalPayload
+              - finalityEvidenceRef
+            properties:
+              contractId: *a16
+              toolId: *a17
+              outcome:
+                const: SUCCEEDED
+              operationRef: *a20
+              operationId: *a18
+              attemptId: *a18
+              completedAt: *a19
+              canonicalPayload:
+                type: object
+                additionalProperties: false
+                required:
+                  - payloadTypeRef
+                  - payloadSchemaRef
+                  - payloadRef
+                  - subjectObjectRef
+                  - subjectVersionRef
+                  - producerRef
+                  - profileRef
+                  - profileVersionRef
+                  - provenanceRef
+                  - evidenceRefs
+                  - observedAt
+                properties:
+                  payloadTypeRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  payloadSchemaRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 1024
+                  payloadRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 1024
+                  subjectObjectRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  subjectVersionRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  producerRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  profileRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  profileVersionRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                  provenanceRef:
+                    type: string
+                    minLength: 1
+                    maxLength: 1024
+                  evidenceRefs:
+                    type: array
+                    minItems: 1
+                    maxItems: 64
+                    uniqueItems: true
+                    items:
+                      type: string
+                      minLength: 1
+                      maxLength: 1024
+                  observedAt: *a19
+              finalityEvidenceRef:
+                type: string
+                minLength: 1
+                maxLength: 1024
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal
+        - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#dataHandling/purposeBoundDataAccess
+      runtimeAdmission: NOT_ADMITTED
+  sharedBinding:
+    status: NOT_BOUND
+    ownerBoundaries:
+      media: product inputs
+      operation meanings: null
+      policy preconditions and payload/provenance mapping: null
+      tools: generic invocation budget
+      transport: null
+      cancellation and outcome mechanics: null
+      shared-and-identity: authenticated principal/delegation and public host-context integration
+    missingPublicRuntimeContract: Need a public, consumer-testable integration
+      contract joining trusted Shared/identity principal and delegation to the
+      existing Tools invocation budget/context and Media exact
+      resource/purpose/policy evidence. Tools source already has deadline,
+      idempotency, attempt, lease, cancellation and non-final unknown support;
+      it does not carry principal, delegation, Media resource-version,
+      purpose/rights evidence or output provenance. The public integrated
+      package, owner-approved adapter contract and qualified enforcement
+      behavior are not established here.
+    adapterStatus: NOT_IMPLEMENTED; no Media adapter currently maps the proposed
+      Media result schemas to the installed Tools SPI.
+    prohibitedClaim: Handler source validation and Media-owned schema validity do
+      not establish Shared ownership, public package availability, authorization
+      enforcement, runtime availability, or execution admission.
+  resultRules:
+    preDispatchFailure: REJECTED_PRE_DISPATCH identifies only the invocation and
+      bounded local error; operationId is forbidden because dispatch did not
+      create an operation.
+    acceptedReceipt: ACCEPTED is a canonical operation receipt only. attemptId is
+      optional and is never fabricated; acceptance does not mean output exists
+      or processing completed.
+    unknown: OUTCOME_UNKNOWN allows either a known operation identity or an
+      unresolved dispatch identity. It never includes a success payload, and
+      requires invocation/request correlation; an unresolved effect blocks
+      retry.
+    terminalFailure: FAILED is only an authoritative terminal post-dispatch result
+      with operation, attempt, and terminal evidence. An unclassified rejection
+      or timeout is OUTCOME_UNKNOWN.
+    success: SUCCEEDED requires exact operation and attempt identity plus a typed
+      canonical payload reference/schema, exact subject object/version,
+      producer/profile/version, provenance, evidence, and timestamp. A
+      submission receipt alone cannot be SUCCEEDED.
+    transcription: For speech-to-text, transcription-submission may yield ACCEPTED
+      only. SUCCEEDED requires a separate exact transcript-version read/result
+      operation and must not relabel its submission receipt as a completed
+      transcript.
+  binaryInputBounds:
+    enforcement: JSON Schema contentEncoding/base64 pattern validates alphabet/shape
+      but does not enforce decoded byte count. The adapter candidate must decode
+      and count bytes before dispatch; schema maxLength alone is insufficient.
+    tools:
+      av.speech-to-text:
+        field: audioSource.audioBytes
+        maximumDecodedBytes: 20971520
+        sourceRef: libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java#resolveAudioSource
+      av.vision-analysis:
+        field: mediaSource.imageBytes
+        maximumDecodedBytes: 20971520
+        sourceRef: libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java#resolveMediaSource

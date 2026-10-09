@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: source applicability validates the exact Cartesian population without admitting measurement
+ok 1 - source applicability validates the exact Cartesian population without admitting measurement
+  ---
+  duration_ms: 2.70257
+  type: 'test'
+  ...
+# Subtest: actual PDP-0 owner applicability source closes all pairs and exact binding projections
+ok 2 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
+  ---
+  duration_ms: 8864.772052
+  type: 'test'
+  ...
+# Subtest: unknown applicability, missing evidence and invented measurements remain errors
+ok 3 - unknown applicability, missing evidence and invented measurements remain errors
+  ---
+  duration_ms: 1.571579
+  type: 'test'
+  ...
+# Subtest: explicit applicability decision keeps missing output identity in scope without qualified measurements
+ok 4 - explicit applicability decision keeps missing output identity in scope without qualified measurements
+  ---
+  duration_ms: 3.297988
+  type: 'test'
+  ...
+# Subtest: P0-06 projects accepted measurement definitions while keeping actual profile measurement and qualification unevaluated
+ok 5 - P0-06 projects accepted measurement definitions while keeping actual profile measurement and qualification unevaluated
+  ---
+  duration_ms: 6112.24372
+  type: 'test'
+  ...
+# Subtest: P0-06 defines exact outcome/capability crosswalks and deterministic profile-scoped numerators and denominators
+ok 6 - P0-06 defines exact outcome/capability crosswalks and deterministic profile-scoped numerators and denominators
+  ---
+  duration_ms: 8370.352163
+  type: 'test'
+  ...
+# Subtest: P0-06 retains source-defined measurement applicability without turning it into a pass or target
+ok 7 - P0-06 retains source-defined measurement applicability without turning it into a pass or target
+  ---
+  duration_ms: 2870.23489
+  type: 'test'
+  ...
+# Subtest: P0-06 profiles and proposed budgets do not claim capability availability or qualified success targets
+ok 8 - P0-06 profiles and proposed budgets do not claim capability availability or qualified success targets
+  ---
+  duration_ms: 27.617059
+  type: 'test'
+  ...
+# Subtest: P0-06 keeps privacy and locality applicability as independent policy decisions
+ok 9 - P0-06 keeps privacy and locality applicability as independent policy decisions
+  ---
+  duration_ms: 11.457319
+  type: 'test'
+  ...
+# Subtest: P0-06 omits authored ProductDefinition timestamps when Media has no timestamp provenance
+ok 10 - P0-06 omits authored ProductDefinition timestamps when Media has no timestamp provenance
+  ---
+  duration_ms: 5.520599
+  type: 'test'
+  ...
+# Subtest: measurement projection rejects stale identity, guessed scope, empty grammar and forged qualified values
+ok 11 - measurement projection rejects stale identity, guessed scope, empty grammar and forged qualified values
+  ---
+  duration_ms: 8015.11095
+  type: 'test'
+  ...
+# Subtest: P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+ok 12 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+  ---
+  duration_ms: 26907.942642
+  type: 'test'
+  ...
+# Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
+ok 13 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
+  ---
+  duration_ms: 9577.963999
+  type: 'test'
+  ...
+# Subtest: P0-06 enumerates exact capability applicability without inventing a measured population
+ok 14 - P0-06 enumerates exact capability applicability without inventing a measured population
+  ---
+  duration_ms: 19633.764421
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 56613.707391

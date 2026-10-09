@@ -74961,6 +74961,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.simulation.output.rgb
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.simulation-rgb.v1
     familyId: media.simulation.output
     operation: rgb
     label: Produce RGB pass
@@ -74986,8 +74987,10 @@ capabilities:
     inputArtifactTypes: &id304
       - simulation-state-and-execution-output
       - requested-pass-contract
-    outputArtifactTypes:
+    historicalOutputArtifactTypes:
       - typed-simulation-pass-with-produced-versus-estimated-provenance
+    outputArtifactTypes:
+      - simulation-pass-result-rgb
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -75189,6 +75192,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-rgb.v1
       operationRefs:
         - media.operation.capability.media-simulation-output-rgb
       operationKind: COMMAND
@@ -75225,8 +75229,8 @@ capabilities:
             maximum: 1000000
         emptyDisposition: NOT_EMPTY
       successOutputs:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
-          payloadSchemaRef: media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-rgb
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.simulation-rgb.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -75280,6 +75284,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.simulation.output.depth
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.simulation-depth.v1
     familyId: media.simulation.output
     operation: depth
     label: Produce depth pass
@@ -75300,8 +75305,10 @@ capabilities:
     actorBindingState: role-reference-proposed;
       domain-owner-appointment-required-before-affected-acceptance
     inputArtifactTypes: *id304
-    outputArtifactTypes:
+    historicalOutputArtifactTypes:
       - typed-simulation-pass-with-produced-versus-estimated-provenance
+    outputArtifactTypes:
+      - simulation-pass-result-depth
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -75503,6 +75510,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-depth.v1
       operationRefs:
         - media.operation.capability.media-simulation-output-depth
       operationKind: COMMAND
@@ -75539,8 +75547,8 @@ capabilities:
             maximum: 1000000
         emptyDisposition: NOT_EMPTY
       successOutputs:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
-          payloadSchemaRef: media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-depth
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.simulation-depth.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -75594,6 +75602,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.simulation.output.normals
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.simulation-normals.v1
     familyId: media.simulation.output
     operation: normals
     label: Produce normals pass
@@ -75614,8 +75623,10 @@ capabilities:
     actorBindingState: role-reference-proposed;
       domain-owner-appointment-required-before-affected-acceptance
     inputArtifactTypes: *id304
-    outputArtifactTypes:
+    historicalOutputArtifactTypes:
       - typed-simulation-pass-with-produced-versus-estimated-provenance
+    outputArtifactTypes:
+      - simulation-pass-result-normals
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -75817,6 +75828,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-normals.v1
       operationRefs:
         - media.operation.capability.media-simulation-output-normals
       operationKind: COMMAND
@@ -75853,8 +75865,8 @@ capabilities:
             maximum: 1000000
         emptyDisposition: NOT_EMPTY
       successOutputs:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
-          payloadSchemaRef: media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-normals
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.simulation-normals.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -75908,6 +75920,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.simulation.output.segmentation
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.simulation-segmentation.v1
     familyId: media.simulation.output
     operation: segmentation
     label: Produce segmentation pass
@@ -75928,8 +75941,10 @@ capabilities:
     actorBindingState: role-reference-proposed;
       domain-owner-appointment-required-before-affected-acceptance
     inputArtifactTypes: *id304
-    outputArtifactTypes:
+    historicalOutputArtifactTypes:
       - typed-simulation-pass-with-produced-versus-estimated-provenance
+    outputArtifactTypes:
+      - simulation-pass-result-segmentation
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -76131,6 +76146,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-segmentation.v1
       operationRefs:
         - media.operation.capability.media-simulation-output-segmentation
       operationKind: COMMAND
@@ -76167,8 +76183,8 @@ capabilities:
             maximum: 1000000
         emptyDisposition: NOT_EMPTY
       successOutputs:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
-          payloadSchemaRef: media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-segmentation
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.simulation-segmentation.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -76222,6 +76238,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.simulation.output.optical-flow
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.simulation-optical-flow.v1
     familyId: media.simulation.output
     operation: optical-flow
     label: Produce optical-flow pass
@@ -76242,8 +76259,10 @@ capabilities:
     actorBindingState: role-reference-proposed;
       domain-owner-appointment-required-before-affected-acceptance
     inputArtifactTypes: *id304
-    outputArtifactTypes:
+    historicalOutputArtifactTypes:
       - typed-simulation-pass-with-produced-versus-estimated-provenance
+    outputArtifactTypes:
+      - simulation-pass-result-optical-flow
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -76445,6 +76464,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-optical-flow.v1
       operationRefs:
         - media.operation.capability.media-simulation-output-optical-flow
       operationKind: COMMAND
@@ -76481,8 +76501,8 @@ capabilities:
             maximum: 1000000
         emptyDisposition: NOT_EMPTY
       successOutputs:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
-          payloadSchemaRef: media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-optical-flow
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.simulation-optical-flow.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -76536,6 +76556,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.simulation.output.motion-vectors
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.simulation-motion-vectors.v1
     familyId: media.simulation.output
     operation: motion-vectors
     label: Produce motion-vector pass
@@ -76556,8 +76577,10 @@ capabilities:
     actorBindingState: role-reference-proposed;
       domain-owner-appointment-required-before-affected-acceptance
     inputArtifactTypes: *id304
-    outputArtifactTypes:
+    historicalOutputArtifactTypes:
       - typed-simulation-pass-with-produced-versus-estimated-provenance
+    outputArtifactTypes:
+      - simulation-pass-result-motion-vectors
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -76759,6 +76782,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-motion-vectors.v1
       operationRefs:
         - media.operation.capability.media-simulation-output-motion-vectors
       operationKind: COMMAND
@@ -76795,8 +76819,8 @@ capabilities:
             maximum: 1000000
         emptyDisposition: NOT_EMPTY
       successOutputs:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
-          payloadSchemaRef: media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-motion-vectors
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.simulation-motion-vectors.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -76850,6 +76874,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.simulation.output.object-ids
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.simulation-object-ids.v1
     familyId: media.simulation.output
     operation: object-ids
     label: Produce object-ID pass
@@ -76870,8 +76895,10 @@ capabilities:
     actorBindingState: role-reference-proposed;
       domain-owner-appointment-required-before-affected-acceptance
     inputArtifactTypes: *id304
-    outputArtifactTypes:
+    historicalOutputArtifactTypes:
       - typed-simulation-pass-with-produced-versus-estimated-provenance
+    outputArtifactTypes:
+      - simulation-pass-result-object-ids
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -77073,6 +77100,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-object-ids.v1
       operationRefs:
         - media.operation.capability.media-simulation-output-object-ids
       operationKind: COMMAND
@@ -77109,8 +77137,8 @@ capabilities:
             maximum: 1000000
         emptyDisposition: NOT_EMPTY
       successOutputs:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
-          payloadSchemaRef: media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-object-ids
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.simulation-object-ids.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -77164,6 +77192,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.simulation.output.contacts
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.simulation-contacts.v1
     familyId: media.simulation.output
     operation: contacts
     label: Produce contacts pass
@@ -77184,8 +77213,10 @@ capabilities:
     actorBindingState: role-reference-proposed;
       domain-owner-appointment-required-before-affected-acceptance
     inputArtifactTypes: *id304
-    outputArtifactTypes:
+    historicalOutputArtifactTypes:
       - typed-simulation-pass-with-produced-versus-estimated-provenance
+    outputArtifactTypes:
+      - simulation-pass-result-contacts
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -77387,6 +77418,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-contacts.v1
       operationRefs:
         - media.operation.capability.media-simulation-output-contacts
       operationKind: COMMAND
@@ -77423,8 +77455,8 @@ capabilities:
             maximum: 1000000
         emptyDisposition: NOT_EMPTY
       successOutputs:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
-          payloadSchemaRef: media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-contacts
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.simulation-contacts.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -77478,6 +77510,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.simulation.output.physical-events
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.simulation-physical-events.v1
     familyId: media.simulation.output
     operation: physical-events
     label: Produce physical-events pass
@@ -77498,8 +77531,10 @@ capabilities:
     actorBindingState: role-reference-proposed;
       domain-owner-appointment-required-before-affected-acceptance
     inputArtifactTypes: *id304
-    outputArtifactTypes:
+    historicalOutputArtifactTypes:
       - typed-simulation-pass-with-produced-versus-estimated-provenance
+    outputArtifactTypes:
+      - simulation-pass-result-physical-events
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -77701,6 +77736,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-physical-events.v1
       operationRefs:
         - media.operation.capability.media-simulation-output-physical-events
       operationKind: COMMAND
@@ -77737,8 +77773,8 @@ capabilities:
             maximum: 1000000
         emptyDisposition: NOT_EMPTY
       successOutputs:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
-          payloadSchemaRef: media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-physical-events
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.simulation-physical-events.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -77792,6 +77828,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.simulation.output.measurements
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.simulation-measurements.v1
     familyId: media.simulation.output
     operation: measurements
     label: Produce measurements
@@ -77812,8 +77849,10 @@ capabilities:
     actorBindingState: role-reference-proposed;
       domain-owner-appointment-required-before-affected-acceptance
     inputArtifactTypes: *id304
-    outputArtifactTypes:
+    historicalOutputArtifactTypes:
       - typed-simulation-pass-with-produced-versus-estimated-provenance
+    outputArtifactTypes:
+      - simulation-pass-result-measurements
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -78015,6 +78054,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-measurements.v1
       operationRefs:
         - media.operation.capability.media-simulation-output-measurements
       operationKind: COMMAND
@@ -78051,8 +78091,8 @@ capabilities:
             maximum: 1000000
         emptyDisposition: NOT_EMPTY
       successOutputs:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
-          payloadSchemaRef: media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-measurements
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.simulation-measurements.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -78106,6 +78146,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.simulation.output.timestamped-state
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.simulation-timestamped-state.v1
     familyId: media.simulation.output
     operation: timestamped-state
     label: Produce timestamped state
@@ -78126,8 +78167,10 @@ capabilities:
     actorBindingState: role-reference-proposed;
       domain-owner-appointment-required-before-affected-acceptance
     inputArtifactTypes: *id304
-    outputArtifactTypes:
+    historicalOutputArtifactTypes:
       - typed-simulation-pass-with-produced-versus-estimated-provenance
+    outputArtifactTypes:
+      - simulation-pass-result-timestamped-state
     preconditions:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible,
@@ -78329,6 +78372,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-timestamped-state.v1
       operationRefs:
         - media.operation.capability.media-simulation-output-timestamped-state
       operationKind: COMMAND
@@ -78365,8 +78409,8 @@ capabilities:
             maximum: 1000000
         emptyDisposition: NOT_EMPTY
       successOutputs:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
-          payloadSchemaRef: media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-timestamped-state
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.simulation-timestamped-state.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -99332,6 +99376,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.inpaint
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-inpaint.v1
     familyId: media.edit
     operation: inpaint
     label: Inpaint image/video
@@ -99553,6 +99598,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-inpaint.v1
       operationRefs:
         - media.operation.capability.media-edit-inpaint
       operationKind: COMMAND
@@ -99579,7 +99625,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-inpaint.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -99633,6 +99679,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.outpaint
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-outpaint.v1
     familyId: media.edit
     operation: outpaint
     label: Outpaint image/video
@@ -99850,6 +99897,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-outpaint.v1
       operationRefs:
         - media.operation.capability.media-edit-outpaint
       operationKind: COMMAND
@@ -99876,7 +99924,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-outpaint.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -99930,6 +99978,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.object-remove
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-object-remove.v1
     familyId: media.edit
     operation: object-remove
     label: Remove object
@@ -100147,6 +100196,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-object-remove.v1
       operationRefs:
         - media.operation.capability.media-edit-object-remove
       operationKind: COMMAND
@@ -100173,7 +100223,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-object-remove.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -100227,6 +100277,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.object-replace
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-object-replace.v1
     familyId: media.edit
     operation: object-replace
     label: Replace object
@@ -100444,6 +100495,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-object-replace.v1
       operationRefs:
         - media.operation.capability.media-edit-object-replace
       operationKind: COMMAND
@@ -100470,7 +100522,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-object-replace.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -100524,6 +100576,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.background-remove
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-background-remove.v1
     familyId: media.edit
     operation: background-remove
     label: Remove background
@@ -100741,6 +100794,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-background-remove.v1
       operationRefs:
         - media.operation.capability.media-edit-background-remove
       operationKind: COMMAND
@@ -100767,7 +100821,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-background-remove.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -100821,6 +100875,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.background-replace
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-background-replace.v1
     familyId: media.edit
     operation: background-replace
     label: Replace background
@@ -101038,6 +101093,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-background-replace.v1
       operationRefs:
         - media.operation.capability.media-edit-background-replace
       operationKind: COMMAND
@@ -101064,7 +101120,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-background-replace.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -101118,6 +101174,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.matte
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-matte.v1
     familyId: media.edit
     operation: matte
     label: Edit matte
@@ -101335,6 +101392,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-matte.v1
       operationRefs:
         - media.operation.capability.media-edit-matte
       operationKind: COMMAND
@@ -101361,7 +101419,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-matte.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -101415,6 +101473,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.relight
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-relight.v1
     familyId: media.edit
     operation: relight
     label: Relight media
@@ -101632,6 +101691,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-relight.v1
       operationRefs:
         - media.operation.capability.media-edit-relight
       operationKind: COMMAND
@@ -101658,7 +101718,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-relight.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -101712,6 +101772,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.recolor
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-recolor.v1
     familyId: media.edit
     operation: recolor
     label: Recolor media
@@ -101929,6 +101990,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-recolor.v1
       operationRefs:
         - media.operation.capability.media-edit-recolor
       operationKind: COMMAND
@@ -101955,7 +102017,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-recolor.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -102009,6 +102071,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.colorize
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-colorize.v1
     familyId: media.edit
     operation: colorize
     label: Colorize media
@@ -102226,6 +102289,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-colorize.v1
       operationRefs:
         - media.operation.capability.media-edit-colorize
       operationKind: COMMAND
@@ -102252,7 +102316,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-colorize.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -102306,6 +102370,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.style-transfer
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-style-transfer.v1
     familyId: media.edit
     operation: style-transfer
     label: Apply style transfer
@@ -102523,6 +102588,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-style-transfer.v1
       operationRefs:
         - media.operation.capability.media-edit-style-transfer
       operationKind: COMMAND
@@ -102549,7 +102615,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-style-transfer.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -102603,6 +102669,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.retime-slow-motion-speed-ramp
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-retime-slow-motion-speed-ramp.v1
     familyId: media.edit
     operation: retime-slow-motion-speed-ramp
     label: Retime/slow-motion/speed-ramp
@@ -102820,6 +102887,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-retime-slow-motion-speed-ramp.v1
       operationRefs:
         - media.operation.capability.media-edit-retime-slow-motion-speed-ramp
       operationKind: COMMAND
@@ -102846,7 +102914,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-retime-slow-motion-speed-ramp.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -102900,6 +102968,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.smart-crop-auto-reframe
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-smart-crop-auto-reframe.v1
     familyId: media.edit
     operation: smart-crop-auto-reframe
     label: Smart crop/auto reframe
@@ -103117,6 +103186,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-smart-crop-auto-reframe.v1
       operationRefs:
         - media.operation.capability.media-edit-smart-crop-auto-reframe
       operationKind: COMMAND
@@ -103143,7 +103213,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-smart-crop-auto-reframe.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -103197,6 +103267,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.shot-color-match
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-shot-color-match.v1
     familyId: media.edit
     operation: shot-color-match
     label: Match shots/colors
@@ -103414,6 +103485,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-shot-color-match.v1
       operationRefs:
         - media.operation.capability.media-edit-shot-color-match
       operationKind: COMMAND
@@ -103440,7 +103512,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-shot-color-match.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -103494,6 +103566,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.region-correction
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-region-correction.v1
     familyId: media.edit
     operation: region-correction
     label: Correct region
@@ -103711,6 +103784,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-region-correction.v1
       operationRefs:
         - media.operation.capability.media-edit-region-correction
       operationKind: COMMAND
@@ -103737,7 +103811,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-region-correction.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -103791,6 +103865,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.face-correction
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-face-correction.v1
     familyId: media.edit
     operation: face-correction
     label: Correct face
@@ -104013,6 +104088,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-face-correction.v1
       operationRefs:
         - media.operation.capability.media-edit-face-correction
       operationKind: COMMAND
@@ -104039,7 +104115,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-face-correction.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -104093,6 +104169,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.hand-correction
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-hand-correction.v1
     familyId: media.edit
     operation: hand-correction
     label: Correct hand
@@ -104310,6 +104387,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-hand-correction.v1
       operationRefs:
         - media.operation.capability.media-edit-hand-correction
       operationKind: COMMAND
@@ -104336,7 +104414,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-hand-correction.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -104390,6 +104468,7 @@ capabilities:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
   - id: media.edit.propagate-keyframe-mask-effect
     scopeStatus: TARGET
+    ownerLeafWireContractRef: media.owner-wire-contract.edit-propagate-keyframe-mask-effect.v1
     familyId: media.edit
     operation: propagate-keyframe-mask-effect
     label: Propagate keyframe/mask/effect
@@ -104607,6 +104686,7 @@ capabilities:
       decisionId: MEDIA-OWNER-2026-10-08-PDP0-LEAF-OPERATION-BOUNDS-01
       ownerDisposition: MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-propagate-keyframe-mask-effect.v1
       operationRefs:
         - media.operation.capability.media-edit-propagate-keyframe-mask-effect
       operationKind: COMMAND
@@ -104633,7 +104713,7 @@ capabilities:
         emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
       successOutputs:
         - artifactType: versioned-edited-artifact-or-project-change
-          payloadSchemaRef: media.typed-output.versioned-edited-artifact-or-project-change
+          payloadSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.media.owner-wire-contract.edit-propagate-keyframe-mask-effect.v1.resultSchema.properties.outputs.items
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []

@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { addPdpTruthDomainKeywords, assertPdpTruthDomainSchemaKeywords } from "../scripts/lib/pdp-truth-domain-schema-validator.mjs";
+import { resolveEffectiveOwnerLeafWireContract } from "../scripts/lib/pdp-owner-leaf-wire-validation.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
@@ -40,6 +41,8 @@ function example(schema) {
   if (schema.type === "boolean") return false;
   if (schema.type === "null") return null;
   if (schema.type === "string") {
+    if (schema.pattern?.startsWith("^video/")) return "video/mp4";
+    if (schema.pattern?.startsWith("^(?:image|video)/")) return "image/png";
     if (schema.format === "date-time") return "2026-10-08T12:00:00Z";
     if (schema.pattern?.includes("sha256:")) return `sha256:${"a".repeat(64)}`;
     if (schema.pattern?.includes("{64}")) return "a".repeat(64);
@@ -106,6 +109,18 @@ function buildAjv() {
 }
 
 function resolvedSchemas(row) {
+  const effectiveWire = resolveEffectiveOwnerLeafWireContract(operations, row.capabilityRef);
+  if (row.ownerLeafWireContractRef) {
+    assert.equal(effectiveWire.valid, true, `${row.id} effective owner wire ref resolves through the production resolver`);
+    assert.equal(effectiveWire.contract.id, row.ownerLeafWireContractRef, `${row.id} has exact owner overlay identity`);
+    assert.equal(effectiveWire.contract.operationRef, row.id, `${row.id} overlay is bound to this canonical operation`);
+    const request = structuredClone(effectiveWire.contract.requestSchema);
+    const result = structuredClone(effectiveWire.contract.resultSchema);
+    const item = result.properties?.outputs?.items;
+    assert.ok(item, `${row.id} effective overlay declares its exact result output schema`);
+    return { request, result, outputSchemas: [item], effectiveOwnerWire: effectiveWire.contract };
+  }
+  assert.equal(effectiveWire.reason, "OWNER_WIRE_OVERLAY_NOT_BOUND", `${row.id} remains on its canonical base schema`);
   const inputById = new Map(contract.inputPayloadSchemas.map((item) => [item.id, item]));
   const outputById = new Map(contract.outputPayloadSchemas.map((item) => [item.id, item]));
   const request = structuredClone(row.requestSchema);
@@ -131,6 +146,10 @@ function resolvedSchemas(row) {
 test("all 448 canonical capability request and result schemas close against exact typed payload/scalar definitions", () => {
   const rows = contract.records.filter((row) => row.recordKind === "CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION");
   assert.equal(rows.length, 448);
+  const effectiveRows = rows.filter((row) => row.ownerLeafWireContractRef);
+  assert.equal(effectiveRows.length, 29, "the exact current overlays replace the historical base schemas for 29 leaves");
+  assert.equal(rows.length - effectiveRows.length, 419, "the remaining canonical rows retain their base operation schemas");
+  assert.equal(new Set(effectiveRows.map((row) => row.ownerLeafWireContractRef)).size, 29, "no two leaves may alias one effective overlay");
   const inputIds = new Set(contract.inputPayloadSchemas.map(({ id }) => id));
   const outputIds = new Set(contract.outputPayloadSchemas.map(({ id }) => id));
   const profileIds = new Set(contract.families.map(({ id }) => id));

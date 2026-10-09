@@ -12,6 +12,8 @@ const registryText = () => readFileSync(registryPath, "utf8");
 const definitions = [
   {
     id: "av.speech-to-text",
+    operation: "media.operation.transcription-submission",
+    family: "media.operation.transcription",
     handler: "SpeechToTextToolHandler",
     factoryId: "TOOL_ID_STT",
     source: "SpeechToTextToolHandler.java",
@@ -22,6 +24,8 @@ const definitions = [
   },
   {
     id: "av.text-to-speech",
+    operation: "media.operation.capability.media-speech-synthesis-text-to-speech",
+    family: "media.operation.synthesis",
     handler: "TextToSpeechToolHandler",
     factoryId: "TOOL_ID_TTS",
     source: "TextToSpeechToolHandler.java",
@@ -32,6 +36,8 @@ const definitions = [
   },
   {
     id: "av.vision-analysis",
+    operation: "media.operation.capability.media-vision-detect",
+    family: "media.operation.vision-analysis",
     handler: "VisionAnalysisToolHandler",
     factoryId: "TOOL_ID_VISION",
     source: "VisionAnalysisToolHandler.java",
@@ -42,6 +48,8 @@ const definitions = [
   },
   {
     id: "av.multimodal-inference",
+    operation: "media.operation.capability.media-multimodal-analyze-cross-modal",
+    family: "media.operation.multimodal-analysis",
     handler: "MultimodalInferenceToolHandler",
     factoryId: "TOOL_ID_MULTIMODAL",
     source: "MultimodalInferenceToolHandler.java",
@@ -70,7 +78,7 @@ function checkRegistry(text, sources) {
   for (const id of new Set(observedIds.filter((item, index) => observedIds.indexOf(item) !== index))) errors.push(`duplicate tool entry: ${id}`);
   if (text.includes("executionAdmitted: true")) errors.push("tool registry must not admit execution");
   if (!text.includes("schemaVersion: NOT_DECLARED_BY_HANDLER")) errors.push("handler schema version must remain explicitly undeclared");
-  if (!text.includes("operationBinding: UNRESOLVED")) errors.push("PDP-1 operation binding must remain unresolved");
+  if (!text.includes("operationBinding: Media operation candidates must remain distinct from handler/runtime parity; exact operation IDs below are definition-only candidates, not proof of handler/API equivalence or Shared runtime binding.")) errors.push("Media operation candidates must remain distinct from handler/runtime parity");
   if (!text.includes("asynchronousFailure: The adapter preserves delegate rejection and synchronous throw, and rejects null promises, mismatched invocationId results, and malformed successful payloads on the promise error channel. The DefaultToolExecutor boundary maps effectful post-dispatch ambiguity to non-final OUTCOME_UNKNOWN")) errors.push("delegate ambiguity and output-validation error semantics must remain explicit");
   if (!text.includes("Successful delegate outputs receive bounded Draft 2020-12 validation against the outputSchema supplied by the matching ToolContract")) errors.push("registered-contract output validation must remain source-bounded");
   if (!text.includes("An empty schema remains unresolved and passes through")) errors.push("empty/unbound result schemas must remain unresolved");
@@ -125,7 +133,8 @@ function checkRegistry(text, sources) {
     if (!block.includes("authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}")) errors.push(`${definition.id}: authority must remain unresolved`);
     if (!block.includes("availability: {value: null, status: unresolved-delegate-and-runtime-binding}")) errors.push(`${definition.id}: runtime availability must remain unresolved`);
     if (!block.includes("executionAdmitted: false")) errors.push(`${definition.id}: execution admission must remain false`);
-    if (!block.includes("operationBinding: {value: null, status: unresolved-owner-and-operation-mapping}")) errors.push(`${definition.id}: operation binding must remain unresolved`);
+    if (!block.includes(`operationBinding: {value: ${definition.operation}, status: owner-defined-operation-candidate; adapter-mapping-and-runtime-pending}`)) errors.push(`${definition.id}: exact owner operation candidate missing`);
+    if (!block.includes(`media.agent-tool-contract.${definition.id.slice(3)}.v1`)) errors.push(`${definition.id}: versioned Media definition contract reference missing`);
   }
   return errors;
 }
@@ -150,7 +159,7 @@ test("all four entries inventory validated inputs while retaining output and ope
       : "success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; field semantics, provenance, evidence, and output admission remain unresolved."));
     assert.match(block, /schemaVersion: \{value: null, status: not-declared-by-handler-or-delegate-contract\}/u);
     assert.match(block, /finality: Tools result enum carries non-final unknown\/cancellation-requested states; handler does not validate operation-specific output finality\./u);
-    assert.match(block, /operationBinding: \{value: null, status: unresolved-owner-and-operation-mapping\}/u);
+    assert.match(block, /operationBinding: \{value: media\.operation\.[a-z.-]+, status: owner-defined-operation-candidate; adapter-mapping-and-runtime-pending\}/u);
     assert.match(block, /executionAdmitted: false/u);
   }
 });
@@ -192,14 +201,14 @@ test("registry distinguishes pre-dispatch local failures from ambiguous post-dis
 test("registry rejects accidental runtime, operation, authority, or finality promotion", () => {
   const registry = registryText();
   assert.match(checkRegistry(registry.replace("executionAdmitted: false", "executionAdmitted: true"), sources).join("\n"), /must not admit execution/u);
-  assert.match(checkRegistry(registry.replace("operationBinding: UNRESOLVED", "operationBinding: media\.operation\.transcribe"), sources).join("\n"), /operation binding must remain unresolved/u);
+  assert.match(checkRegistry(registry.replace("operationBinding: Media operation candidates must remain distinct from handler/runtime parity; exact operation IDs below are definition-only candidates, not proof of handler/API equivalence or Shared runtime binding.", "operationBinding: accepted"), sources).join("\n"), /Media operation candidates must remain distinct/u);
   assert.match(checkRegistry(registry.replace("finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.", "finality: final"), sources).join("\n"), /result finality capability and limit must be accurate/u);
   assert.match(checkRegistry(registry.replace("availability: {value: null, status: unresolved-delegate-and-runtime-binding}", "availability: available"), sources).join("\n"), /runtime availability must remain unresolved/u);
   assert.match(checkRegistry(registry.replace("authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}", "authority: authorized"), sources).join("\n"), /authority must remain unresolved/u);
 });
 
 test("runtime source observation does not turn Tools build resolution into Shared owner acceptance", () => {
-  const conventions = readFileSync(conventionsPath, "utf8");
+  const conventions = readFileSync(conventionsPath, "utf8").replace(/\s+/gu, " ");
   assert.match(conventions, /status: source-observation-only; owner-and-public-export-binding-pending/u);
   assert.match(conventions, /Current composite build compiles the handler APIs from the Ghatana Tools runtime\/java\/tool-contracts and runtime\/java\/tool-runtime sources\./u);
   assert.match(conventions, /No matching ToolExecutionEnvelope, ToolExecutionResult, ToolContract, or ToolHandler source\/export was found in the inspected Shared/u);
@@ -209,11 +218,11 @@ test("runtime source observation does not turn Tools build resolution into Share
 test("owner-selected operation families remain definition-only until handler bindings and admission are proved", () => {
   const conventions = readFileSync(conventionsPath, "utf8");
   assert.match(conventions, /status: OWNER_POLICY_ACCEPTED; CONTRACT_AND_EXECUTION_ADMISSION_PENDING/u);
-  for (const [id, family] of [
-    ["av.speech-to-text", "media.operation.transcription"],
-    ["av.text-to-speech", "media.operation.synthesis"],
-    ["av.vision-analysis", "media.operation.vision-analysis"],
-    ["av.multimodal-inference", "media.operation.multimodal-analysis"],
+  for (const [id, family, operation] of [
+    ["av.speech-to-text", "media.operation.transcription", "media.operation.transcription-submission"],
+    ["av.text-to-speech", "media.operation.synthesis", "media.operation.capability.media-speech-synthesis-text-to-speech"],
+    ["av.vision-analysis", "media.operation.vision-analysis", "media.operation.capability.media-vision-detect"],
+    ["av.multimodal-inference", "media.operation.multimodal-analysis", "media.operation.capability.media-multimodal-analyze-cross-modal"],
   ]) {
     const ownerSelection = conventions.match(new RegExp(
       `    - toolId: ${id}\\s+canonicalOperationFamily: ${family}\\s+[\\s\\S]*?executionAdmitted: false`, "u"));
@@ -221,7 +230,7 @@ test("owner-selected operation families remain definition-only until handler bin
     const registryEntry = getBlock(registryText(), id);
     assert.ok(registryEntry, `${id}: registry entry is present`);
     assert.match(registryEntry, /executionAdmitted: false/u);
-    assert.match(registryEntry, /operationBinding: \{value: null, status: unresolved-owner-and-operation-mapping\}/u);
+    assert.match(registryEntry, new RegExp(`operationBinding: \\{value: ${operation.replaceAll(".", "\\.")}, status: owner-defined-operation-candidate; adapter-mapping-and-runtime-pending\\}`, "u"));
   }
 });
 

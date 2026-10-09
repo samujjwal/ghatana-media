@@ -11,6 +11,12 @@ const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const generator = path.join(repo, 'scripts/generate-media-lifecycle-source-inputs.mjs');
 const phaseSourcePaths = [
   '.product-experience/pdp-0-product-truth/requirements.yaml',
+  '.product-experience/pdp-0-product-truth/domain-model.yaml',
+  '.product-experience/pdp-0-product-truth/journey-catalog.yaml',
+  '.product-experience/pdp-0-product-truth/handoff-contracts.yaml',
+  '.product-experience/pdp-0-product-truth/quality-policy.yaml',
+  '.product-experience/pdp-1-domain-data/interoperability.yaml',
+  '.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml',
   '.product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml',
   '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml',
   '.product-experience/pdp-0-product-truth/goals-jtbd.yaml',
@@ -25,6 +31,8 @@ const phaseSourcePaths = [
   '.product-experience/pdp-2-design-interface-system/component-contracts.yaml',
   '.product-experience/pdp-2-design-interface-system/component-value-types.yaml',
   '.product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml',
+  '.product-experience/pdp-2-design-interface-system/api/conventions.yaml',
+  '.product-experience/pdp-2-design-interface-system/cli-language.yaml',
   '.product-experience/pdp-2-design-interface-system/gui/layout.yaml',
   '.product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml',
   '.product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml',
@@ -49,7 +57,7 @@ function fixture() {
   };
   for (const relativePath of phaseSourcePaths) {
     const collections = {
-      'goals-jtbd.yaml': 'goals',
+      'goals-jtbd.yaml': 'goals', 'handoff-contracts.yaml': 'handoffs',
       'capability-leaf-review.yaml': 'leaves',
       'requirements.yaml': 'requirements', 'nonfunctional-requirements.yaml': 'ownerMeasurementDefinitions.records', 'states.yaml': 'stateMachines',
       'transition-guard-contracts.yaml': 'records',
@@ -59,6 +67,7 @@ function fixture() {
       'view-state-binding-dispositions.yaml': 'views',
       'step-definition-oracles.yaml': 'journeys',
       'composition-validation-grammar.yaml': 'normativeRuleRecords',
+      'cli-language.yaml': 'normativeRuleRecords',
       'component-value-types.yaml': 'normativeTypeRecords',
       'handoff-bindings.yaml': 'handoffs',
       'transitions.yaml': 'transitionRecords', 'domain-objects.yaml': 'objects',
@@ -71,15 +80,23 @@ function fixture() {
     };
     const collection = collections[path.basename(relativePath)];
     const extra = relativePath.endsWith('screen-registry.yaml') ? '\nlaneViews: []\n'
-      : relativePath.endsWith('operations.yaml') ? '\nindividualOperationContracts:\n  records: []\nownerDefinedOperationContracts:\n  records: []\nownerDefinedOperationProfiles:\n  profiles: []\ncapabilityOperationContracts:\n  records: []\n  families: []\n  bounds: []\n  inputPayloadSchemas: []\n  outputPayloadSchemas: []\n  scalarTypeRecords: []\n'
-      : relativePath.endsWith('goals-jtbd.yaml') ? '\nsuccessMeasureContracts:\n  ownerCapabilityApplicabilityCrosswalk:\n    measureApplicabilityRecords:\n      records: []\n'
-      : relativePath.endsWith('domain-objects.yaml') ? '\nownerOutputArtifactTypeCrosswalk:\n  records: []\n'
+      : relativePath.endsWith('operations.yaml') ? '\nindividualOperationContracts:\n  records: []\nownerDefinedOperationContracts:\n  records: []\nownerDefinedOperationProfiles:\n  profiles: []\nownerTypedObservationContracts:\n  records: []\nownerTypedObservationValidationRules:\n  records: []\nownerLeafWireContracts:\n  records: []\n  outputTypes:\n    records: []\n  mediaTypePolicies:\n    records: []\ncapabilityOperationContracts:\n  records: []\n  families: []\n  bounds: []\n  inputPayloadSchemas: []\n  outputPayloadSchemas: []\n  scalarTypeRecords: []\n'
+      : relativePath.endsWith('goals-jtbd.yaml') ? '\nownerDefinedMigrationRules:\n  records: []\nsuccessMeasureContracts:\n  ownerCapabilityApplicabilityCrosswalk:\n    measureApplicabilityRecords:\n      records: []\n'
+      : relativePath.endsWith('domain-objects.yaml') ? '\nownerOutputArtifactTypeCrosswalk:\n  records: []\nownerTypedIdentityContracts:\n  records: []\n  relationshipBindings: []\n  tupleRules: []\n  persistenceAndWireSemantics:\n    id: fixture.identity-boundary\n'
       : relativePath.endsWith('events.yaml') ? '\nownerEventContracts:\n  records: []\n  notificationRecords: []\n'
-      : relativePath.endsWith('transitions.yaml') ? '\nownerDefinedTransitionRecords: []\n'
+      : relativePath.endsWith('transitions.yaml') ? '\nownerDefinedTransitionRecords: []\nownerMachineRaceApplicability:\n  records: []\nownerRaceResolutionContract:\n  id: fixture.race-contract\n  invariants: []\n  resolutionCases: []\n'
       : relativePath.endsWith('value-objects.yaml') ? '\ncanonicalConversionDefinitions:\n  records: []\nownerDescriptorDefinitions:\n  records: []\n'
       : relativePath.endsWith('capability-leaf-review.yaml') ? '\nownerCapabilityLeafAdjudication:\n  records: []\n'
       : relativePath.endsWith('action-registry.yaml') ? '\nactions: []\n' : '';
-    put(relativePath, relativePath.endsWith('nonfunctional-requirements.yaml') ? 'ownerMeasurementDefinitions:\n  records: []\n' : `${collection}: []${extra}`);
+    const dedicated = {
+      'domain-model.yaml': 'ownerDefinedMigrationRules:\n  records: []\n',
+      'journey-catalog.yaml': 'ownerMigrationSemanticRules:\n  records: []\n',
+      'quality-policy.yaml': 'qualityDimensions: []\nmetricDefinitions: []\nownerQualityApplicabilityCrosswalk:\n  records: []\n',
+      'interoperability.yaml': 'packageCompatibilityBoundary:\n  id: fixture.compatibility\n',
+      'conventions.yaml': 'mediaOwnedToolDefinitionContracts:\n  contracts: []\n  hostInvocationContext:\n    id: fixture.host-context\n  invocationSemantics:\n    id: fixture.invocation-policy\n',
+      'nonfunctional-requirements.yaml': 'ownerMeasurementDefinitions:\n  records: []\n',
+    };
+    put(relativePath, relativePath.endsWith('/api/conventions.yaml') ? 'normativeRuleRecords: []\n' : dedicated[path.basename(relativePath)] ?? `${collection}: []${extra}`);
   }
   const base = 'config/closure/media-product-definition';
   const json = (relativePath, value) => put(`${base}/${relativePath}`, `${JSON.stringify(value, null, 2)}\n`);
@@ -112,7 +129,7 @@ function snapshot(root) {
 test('generator refuses duplicate source identities without modifying closure inputs', () => {
   const f = fixture();
   try {
-    f.put(phaseSourcePaths.find(p=>p.endsWith('/operations.yaml')), 'operations:\n  - id: media.operation.same\n  - id: media.operation.same\nindividualOperationContracts:\n  records: []\nownerDefinedOperationContracts:\n  records: []\nownerDefinedOperationProfiles:\n  profiles: []\ncapabilityOperationContracts:\n  records: []\n  families: []\n  bounds: []\n  inputPayloadSchemas: []\n  outputPayloadSchemas: []\n  scalarTypeRecords: []\n');
+    f.put(phaseSourcePaths.find(p=>p.endsWith('/operations.yaml')), 'operations:\n  - id: media.operation.same\n  - id: media.operation.same\nindividualOperationContracts:\n  records: []\nownerDefinedOperationContracts:\n  records: []\nownerDefinedOperationProfiles:\n  profiles: []\nownerTypedObservationContracts:\n  records: []\nownerTypedObservationValidationRules:\n  records: []\nownerLeafWireContracts:\n  records: []\n  outputTypes:\n    records: []\n  mediaTypePolicies:\n    records: []\ncapabilityOperationContracts:\n  records: []\n  families: []\n  bounds: []\n  inputPayloadSchemas: []\n  outputPayloadSchemas: []\n  scalarTypeRecords: []\n');
     const before = snapshot(f.root);
     const result = run(f.root);
     assert.notEqual(result.status, 0);
@@ -130,6 +147,29 @@ test('generator refuses omitted source collections before any output is written'
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /SOURCE_ENUMERATION_COLLECTION/u);
     assert.deepEqual(snapshot(f.root), before);
+  } finally { f.cleanup(); }
+});
+
+test('singleton normative contracts have exact anchors and reject array or anonymous substitutions', () => {
+  const f = fixture();
+  try {
+    assert.equal(run(f.root).status, 0);
+    const obligations = JSON.parse(fs.readFileSync(path.join(f.root, 'config/closure/media-product-definition/obligations.json'), 'utf8'));
+    const context = obligations.find(record => record.id.endsWith('fixture.host-context'));
+    assert.equal(context.extensions['media-source'].sourceRef,
+      '.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#/mediaOwnedToolDefinitionContracts/hostInvocationContext');
+    assert.deepEqual(context.observerIds, []);
+    assert.deepEqual(context.oracleIds, []);
+    const source = '.product-experience/pdp-1-domain-data/interoperability.yaml';
+    for (const [body, errorCode] of [['packageCompatibilityBoundary: []\n', 'SOURCE_ENUMERATION_COLLECTION'],
+      ['packageCompatibilityBoundary:\n  meaning: no identity\n', 'SOURCE_ENUMERATION_ID']]) {
+      f.put(source, body);
+      const before = snapshot(f.root);
+      const result = run(f.root);
+      assert.notEqual(result.status, 0);
+      assert.ok(result.stderr.includes(errorCode), result.stderr);
+      assert.deepEqual(snapshot(f.root), before);
+    }
   } finally { f.cleanup(); }
 });
 
@@ -161,11 +201,32 @@ test('source-owned nested wire schemas have their own obligations and exact pare
     const generated = run(f.root);
     assert.equal(generated.status, 0, generated.stderr);
     const obligations = JSON.parse(fs.readFileSync(path.join(f.root, 'config/closure/media-product-definition/obligations.json'), 'utf8'));
-    assert.equal(obligations.length, 2);
+    assert.equal(obligations.length, 7);
     const wire = obligations.find(r => r.id.endsWith('media.operation-wire-schema.fixture'));
     assert.ok(wire, 'the independently normative wire contract is not hidden in its parent operation');
     assert.match(JSON.stringify(wire), /ownerDefinedOperationContracts\/records\/media\.operation\.fixture\/ownerWireSchema/);
     assert.notEqual(wire.id, obligations.find(r => r !== wire).id);
+  } finally { f.cleanup(); }
+});
+
+test('effective leaf wire, output type and modality policies enter the proof denominator without admission', () => {
+  const f = fixture();
+  try {
+    const source = phaseSourcePaths.find(p => p.endsWith('/operations.yaml'));
+    const original = fs.readFileSync(path.join(f.root, source), 'utf8');
+    f.put(source, original.replace('ownerLeafWireContracts:\n  records: []\n  outputTypes:\n    records: []\n  mediaTypePolicies:\n    records: []',
+      'ownerLeafWireContracts:\n  records:\n    - id: fixture.leaf-wire\n      meaning: exact effective request and result\n  outputTypes:\n    records:\n      - id: fixture.pass-output\n        meaning: typed produced versus estimated observation\n  mediaTypePolicies:\n    records:\n      - id: fixture.video-only\n        meaning: reject image input for a temporal video edit'));
+    const generated = run(f.root);
+    assert.equal(generated.status, 0, generated.stderr);
+    const obligations = JSON.parse(fs.readFileSync(path.join(f.root, 'config/closure/media-product-definition/obligations.json'), 'utf8'));
+    for (const [id, collection] of [['fixture.leaf-wire', 'records'], ['fixture.pass-output', 'outputTypes/records'], ['fixture.video-only', 'mediaTypePolicies/records']]) {
+      const obligation = obligations.find(row => row.id.endsWith(id));
+      assert.ok(obligation, `${id} remains in the normative source denominator`);
+      assert.equal(obligation.extensions['media-source'].sourceRef, `${source}#/ownerLeafWireContracts/${collection}/${id}`);
+      assert.deepEqual(obligation.caseIds, []);
+      assert.deepEqual(obligation.observerIds, []);
+      assert.deepEqual(obligation.oracleIds, []);
+    }
   } finally { f.cleanup(); }
 });
 
@@ -177,8 +238,10 @@ test('nested step definitions remain distinct obligations without inventing case
     const generated = run(f.root);
     assert.equal(generated.status, 0, generated.stderr);
     const obligations = JSON.parse(fs.readFileSync(path.join(f.root, 'config/closure/media-product-definition/obligations.json'), 'utf8'));
-    assert.equal(obligations.length, 2);
-    for (const [index, obligation] of obligations.entries()) {
+    assert.equal(obligations.length, 7);
+    const stepObligations = obligations.filter(obligation => obligation.extensions['media-source'].sourceRef.startsWith(`${source}#/journeys/`));
+    assert.equal(stepObligations.length, 2);
+    for (const [index, obligation] of stepObligations.entries()) {
       assert.equal(obligation.extensions['media-source'].sourceRef, `${source}#/journeys/0/steps/${index}/canonicalBindings`);
       assert.deepEqual(obligation.caseIds, []);
       assert.deepEqual(obligation.observerIds, []);

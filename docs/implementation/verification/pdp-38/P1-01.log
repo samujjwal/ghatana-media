@@ -1,88 +1,82 @@
 TAP version 13
-# Subtest: PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence
-ok 1 - PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence
+# Subtest: PDP-1 canonical references resolve only to catalogued domain objects
+ok 1 - PDP-1 canonical references resolve only to catalogued domain objects
   ---
-  duration_ms: 86.03878
+  duration_ms: 305.867248
   type: 'test'
   ...
-# Subtest: PDP-1 state meanings and transitions preserve all source dimensions, guards, and endpoints
-ok 2 - PDP-1 state meanings and transitions preserve all source dimensions, guards, and endpoints
+# Subtest: PDP-1 overview reports exact registry count and separates bounded definitions from observed materialization
+ok 2 - PDP-1 overview reports exact registry count and separates bounded definitions from observed materialization
   ---
-  duration_ms: 92.968538
+  duration_ms: 290.46545
   type: 'test'
   ...
-# Subtest: all 146 action identities have a source-backed operation or non-operation disposition
-ok 3 - all 146 action identities have a source-backed operation or non-operation disposition
+# Subtest: PDP-1 object source references resolve to files and PDP-0 anchors resolve to named records
+ok 3 - PDP-1 object source references resolve to files and PDP-0 anchors resolve to named records
   ---
-  duration_ms: 5900.119812
+  duration_ms: 82.56535
   type: 'test'
   ...
-# Subtest: P0 exact capability-to-operation decisions resolve only fully classified action slices
-ok 4 - P0 exact capability-to-operation decisions resolve only fully classified action slices
+# Subtest: caption version has bounded immutable domain semantics while the simulation shape remains synthetic
+ok 4 - caption version has bounded immutable domain semantics while the simulation shape remains synthetic
   ---
-  duration_ms: 10552.604522
+  duration_ms: 1.127369
   type: 'test'
   ...
-# Subtest: P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
-ok 5 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+# Subtest: artifact, job, and lease identities preserve the source-specific keys without promoting them
+ok 5 - artifact, job, and lease identities preserve the source-specific keys without promoting them
   ---
-  duration_ms: 12852.769811
+  duration_ms: 1.735747
   type: 'test'
   ...
-# Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
-ok 6 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
+# Subtest: PDP-1 observes the current Media runtime job enum without accepting a canonical mapping
+ok 6 - PDP-1 observes the current Media runtime job enum without accepting a canonical mapping
   ---
-  duration_ms: 4030.598327
+  duration_ms: 38.24946
   type: 'test'
   ...
-# Subtest: P1-08 distinguishes nine durable event definitions from fifteen local notifications
-ok 7 - P1-08 distinguishes nine durable event definitions from fifteen local notifications
+# Subtest: all 38 current object identities have explicit typed owner or source-observation dispositions
+ok 7 - all 38 current object identities have explicit typed owner or source-observation dispositions
   ---
-  duration_ms: 58.868791
+  duration_ms: 3.810645
   type: 'test'
   ...
-# Subtest: P0-06 enumerates exact capability applicability without inventing a measured population
-ok 8 - P0-06 enumerates exact capability applicability without inventing a measured population
+# Subtest: named cross-entity relationships bind exact same-tenant typed references
+ok 8 - named cross-entity relationships bind exact same-tenant typed references
   ---
-  duration_ms: 11231.292728
+  duration_ms: 0.708878
   type: 'test'
   ...
-# Subtest: P0 capability schemas use closed typed payloads, scalar validators, and the exact flat request envelope
-ok 9 - P0 capability schemas use closed typed payloads, scalar validators, and the exact flat request envelope
+# Subtest: identity oracle rejects missing or caller-overridden tenant, malformed IDs, and same-tenant collisions
+ok 9 - identity oracle rejects missing or caller-overridden tenant, malformed IDs, and same-tenant collisions
   ---
-  duration_ms: 4719.996274
+  duration_ms: 3.668513
   type: 'test'
   ...
-# Subtest: P0 canonical capability request schemas accept typed inputs and reject malformed or over-posted requests
-ok 10 - P0 canonical capability request schemas accept typed inputs and reject malformed or over-posted requests
+# Subtest: shared subtype identity namespaces collide on the canonical ProcessingJob tuple
+ok 10 - shared subtype identity namespaces collide on the canonical ProcessingJob tuple
   ---
-  duration_ms: 6738.967755
+  duration_ms: 0.716994
   type: 'test'
   ...
-# Subtest: P1-10 owner boundaries fail closed while leaving enforcement and qualification unclaimed
-ok 11 - P1-10 owner boundaries fail closed while leaving enforcement and qualification unclaimed
+# Subtest: every canonical identity tuple has an executable typed positive and missing/malformed negative
+ok 11 - every canonical identity tuple has an executable typed positive and missing/malformed negative
   ---
-  duration_ms: 41.614386
+  duration_ms: 6.222091
   type: 'test'
   ...
-# Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
-ok 12 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
+# Subtest: version identity is independent from digest and lineage rejects cross-tenant, kind-mismatch, and cycles
+ok 12 - version identity is independent from digest and lineage rejects cross-tenant, kind-mismatch, and cycles
   ---
-  duration_ms: 83.558151
+  duration_ms: 2.224409
   type: 'test'
   ...
-# Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
-ok 13 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
-  ---
-  duration_ms: 152.414731
-  type: 'test'
-  ...
-1..13
-# tests 13
+1..12
+# tests 12
 # suites 0
-# pass 13
+# pass 12
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 57186.076334
+# duration_ms 7594.136771

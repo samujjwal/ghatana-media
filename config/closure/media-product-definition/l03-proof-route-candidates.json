@@ -7,8 +7,8 @@
     "sourcePath": "config/closure/media-product-definition/l02-source-case-links.json",
     "reviewedLinkCount": 65,
     "reviewedObligationCount": 44,
-    "obligationDenominator": 5161,
-    "unmappedObligationCount": 5117,
+    "obligationDenominator": 5860,
+    "unmappedObligationCount": 5816,
     "candidateRouteCount": 0,
     "status": "NO_CASE_SPECIFIC_OBSERVER_OR_ORACLE_CANDIDATE_IDENTIFIED",
     "missingSemantics": [
@@ -18,7 +18,7 @@
       "Local test execution does not establish an admitted Lifecycle observer, independent review, runtime behavior, rendered accessibility, or qualified production/browser observation. Native case admission and Lifecycle binding remain deferred.",
       "The source-only transcription-submission assertions in tests/media-transcription-submission-definition.test.mjs are not declared by a registered case-specific Evidence Generator producer, observer or oracle. Request acceptance definitions and their adversarial metadata checks do not establish a qualified recognition provider, runtime dispatch observation or native proof route."
     ],
-    "authoritativeAssignments": "UNCHANGED_ZERO_OF_5161"
+    "authoritativeAssignments": "UNCHANGED_ZERO_OF_5860"
   },
   "routes": [
     {

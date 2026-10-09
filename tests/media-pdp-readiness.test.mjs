@@ -1,11 +1,26 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { buildReadiness, validateTaskPopulation, taskIds, verificationCutChanged } from '../scripts/report-media-pdp-readiness.mjs';
+import { buildReadiness, validateTaskPopulation, taskIds, verificationCutChanged, resolveCriterionReviewSourceCut } from '../scripts/report-media-pdp-readiness.mjs';
 import { buildMediaProductDefinitionResidualReport } from '../scripts/lib/media-product-definition-residuals.mjs';
 const audit=JSON.parse(fs.readFileSync('docs/implementation/media-task-completion-blocker-report-2026-10-08.json','utf8'));
 const residual=buildMediaProductDefinitionResidualReport();
 const build=verification=>buildReadiness({audit,residual,verification,mainSha:'fixture',fingerprints:{}});
+test('a corrective approval uses its own reviewed source cut and preserves historical pins',()=>{
+ const historical={sourceFingerprints:{source:'old'}};
+ const current=file=>file==='source'?'new':null;
+ assert.equal(resolveCriterionReviewSourceCut(historical,current).sourceCutCurrent,false);
+ const correction={status:'APPROVED_CURRENT_CORRECTION',sourceFingerprints:{source:'new'}};
+ const reviewed=resolveCriterionReviewSourceCut({...historical,currentCorrectiveReview:correction},current);
+ assert.equal(reviewed.sourceCutCurrent,true);
+ assert.equal(reviewed.historicalSourceCutCurrent,false);
+ assert.deepEqual(reviewed.sourceFingerprints,{source:'old'});
+ for(const pins of [undefined,{}, {source:'old'}, {missing:'new'}]) {
+   assert.equal(resolveCriterionReviewSourceCut({...historical,currentCorrectiveReview:{...correction,sourceFingerprints:pins}},current).sourceCutCurrent,false);
+ }
+ const old=file=>file==='source'?'old':null;
+ assert.equal(resolveCriterionReviewSourceCut({...historical,currentCorrectiveReview:{status:'APPROVED_CURRENT_CORRECTION'}},old).sourceCutCurrent,false,'an old matching cut cannot substitute for corrective evidence');
+});
 test('fixed 38-task scope rejects extras, duplicates and missing tasks',()=>{
   const rows=taskIds.map(id=>({id}));
   validateTaskPopulation(rows);

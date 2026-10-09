@@ -1,15 +1,16 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, statSync } from "node:fs";
+import { createRequire } from "node:module";
+import { resolve } from "node:path";
 import test from "node:test";
+
+const require = createRequire(resolve(process.cwd(), "../ghatana-tools/package.json"));
+const { parse } = require("yaml");
 
 const domainObjectsPath = ".product-experience/pdp-1-domain-data/domain-objects.yaml";
 const relationshipsPath = ".product-experience/pdp-1-domain-data/relationships.yaml";
 const reconciliationPath = ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml";
 const domainModelPath = ".product-experience/pdp-0-product-truth/domain-model.yaml";
-
-function idsIn(text, indent = "  ") {
-  return [...text.matchAll(new RegExp(`^${indent}- id: ([^\\n]+)$`, "gmu"))].map((match) => match[1]);
-}
 
 function blockForId(text, id) {
   const marker = `  - id: ${id}`;
@@ -20,31 +21,40 @@ function blockForId(text, id) {
 }
 
 test("PDP-1 canonical references resolve only to catalogued domain objects", () => {
-  const domainObjects = readFileSync(domainObjectsPath, "utf8");
-  const relationships = readFileSync(relationshipsPath, "utf8");
-  const reconciliation = readFileSync(reconciliationPath, "utf8");
-  const objectIds = idsIn(domainObjects);
+  const domainObjects = parse(readFileSync(domainObjectsPath, "utf8"));
+  const relationships = parse(readFileSync(relationshipsPath, "utf8"));
+  const reconciliation = parse(readFileSync(reconciliationPath, "utf8"));
+  const objectIds = domainObjects.objects.map(({ id }) => id);
+  const objectIdSet = new Set(objectIds);
 
   assert.equal(new Set(objectIds).size, objectIds.length, "domain object IDs must be unique");
-  assert.equal(objectIds.length, 39, "the audited domain-object denominator changed; review the identity crosswalk");
+  assert.equal(objectIds.length, 39, "count only the canonical objects collection, not nested owner indexes");
+  assert.equal(domainObjects.canonicalIdentityAdjudication.registeredObjectIdentityCount, 38,
+    "the separate 38-identity owner population remains distinct from the 39 source object records");
 
-  for (const match of reconciliation.matchAll(/^    canonicalRef: ([^\n]+)$/gmu)) {
-    assert.ok(objectIds.includes(match[1]), `canonical reconciliation ref ${match[1]} has no domain-object record`);
+  for (const concept of reconciliation.concepts) {
+    assert.ok(objectIdSet.has(concept.canonicalRef), `canonical reconciliation ref ${concept.canonicalRef} has no domain-object record`);
   }
 
-  for (const match of relationships.matchAll(/^    (?:from|to): (.+)$/gmu)) {
-    for (const endpoint of match[1].match(/media\.domain\.[a-z0-9-]+/gu) ?? []) {
-      assert.ok(objectIds.includes(endpoint), `relationship endpoint ${endpoint} has no domain-object record`);
+  for (const relationship of relationships.relationships) {
+    for (const field of ["from", "to"]) {
+      const endpoints = Array.isArray(relationship[field]) ? relationship[field] : [relationship[field]];
+      for (const endpoint of endpoints) {
+        assert.ok(objectIdSet.has(endpoint), `${relationship.id} endpoint ${endpoint} has no domain-object record`);
+      }
     }
   }
 });
 
 test("PDP-1 overview reports exact registry count and separates bounded definitions from observed materialization", () => {
-  const domainObjects = readFileSync(domainObjectsPath, "utf8");
+  const domainObjects = parse(readFileSync(domainObjectsPath, "utf8"));
+  const valueObjects = parse(readFileSync(".product-experience/pdp-1-domain-data/value-objects.yaml", "utf8"));
   const overview = readFileSync(".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md", "utf8");
-  const objectIds = idsIn(domainObjects);
+  const objectIds = domainObjects.objects.map(({ id }) => id);
 
   assert.equal(objectIds.length, 39);
+  assert.equal(valueObjects.values.length, 13);
+  assert.equal(domainObjects.canonicalIdentityAdjudication.registeredObjectIdentityCount, 38);
   assert.match(overview, /39 domain-object records, 13 value-object/u);
   assert.match(overview, /bounded canonical caption\/transcript version definitions/u);
   assert.match(overview, /local simulation projection\nremains synthetic, not an observed runtime or persistence record/u);
@@ -53,13 +63,13 @@ test("PDP-1 overview reports exact registry count and separates bounded definiti
 });
 
 test("PDP-1 object source references resolve to files and PDP-0 anchors resolve to named records", () => {
-  const domainObjects = readFileSync(domainObjectsPath, "utf8");
+  const domainObjectsText = readFileSync(domainObjectsPath, "utf8");
+  const domainObjects = parse(domainObjectsText);
   const domainModel = readFileSync(domainModelPath, "utf8");
   const domainModelIds = new Set([...domainModel.matchAll(/^  - id: ([^\n]+)$/gmu)].map((match) => match[1]));
 
-  for (const match of domainObjects.matchAll(/^    sourceRefs: \[([^\]]*)\]$/gmu)) {
-    for (const rawRef of match[1].split(",")) {
-      const ref = rawRef.trim();
+  for (const object of domainObjects.objects) {
+    for (const ref of object.sourceRefs ?? []) {
       const [path, anchor] = ref.split("#", 2);
       assert.ok(existsSync(path), `source path ${path} exists`);
       assert.ok(statSync(path).isFile(), `source ref ${path} identifies a file`);
@@ -118,16 +128,18 @@ test("artifact, job, and lease identities preserve the source-specific keys with
 
 test("PDP-1 observes the current Media runtime job enum without accepting a canonical mapping", () => {
   const runtime = readFileSync("runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java", "utf8");
-  const stateInventory = readFileSync(".product-experience/pdp-1-domain-data/states.yaml", "utf8");
+  const stateInventory = parse(readFileSync(".product-experience/pdp-1-domain-data/states.yaml", "utf8"));
   const adjudication = readFileSync(".product-experience/pdp-1-domain-data/state-adjudication.yaml", "utf8");
   const reconciliation = readFileSync(".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml", "utf8");
   const runtimeEnum = runtime.match(/public enum JobStatus \{([^}]+)\}/u)?.[1];
   assert.ok(runtimeEnum, "current runtime JobStatus enum must remain discoverable");
   const runtimeValues = runtimeEnum.split(",").map((value) => value.trim());
-  const stateRecord = stateInventory.match(/      - source: runtime-contracts\/src\/main\/java\/com\/ghatana\/media\/runtime\/MediaRuntimeContracts\.java#JobStatus\n        values: \[([^\]]+)\]([\s\S]*?)(?=\n      - source:|\n  [^ ]|\n[^ ])/u);
-  assert.ok(stateRecord, "PDP-1 state inventory must pin the current runtime enum");
-  assert.deepEqual(stateRecord[1].split(",").map((value) => value.trim()), runtimeValues);
-  assert.match(stateRecord[2], /canonical job-state mapping/u);
+  const exactObserved = stateInventory.crossSourceReconciliation.projectionMappings.unresolvedObservedMappings.find((mapping) =>
+    mapping.source === "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#JobStatus");
+  assert.ok(exactObserved, "PDP-1 state inventory must pin the current runtime enum as an observed source record");
+  assert.deepEqual(exactObserved.values, runtimeValues);
+  assert.match(exactObserved.disposition, /observed; request\/job spelling does not establish canonical/u,
+    "runtime enum observation does not imply canonical mapping acceptance");
   assert.match(adjudication, /current-runtime-enum-observed; per-state canonical and wire mapping unresolved/u);
   assert.match(adjudication, /ACCEPTED is not evidence of durable job queueing/u);
   assert.match(reconciliation, /Java tenantId\+jobId and JobStatus \[ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED\]/u);

@@ -106321,11 +106321,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-rigid-body
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -106438,11 +106436,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-soft-body
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -106555,11 +106551,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-cloth
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -106672,11 +106666,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-rope
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -106789,11 +106781,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-particle
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -106906,11 +106896,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-fluid
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -107023,11 +107011,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-smoke
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -107140,11 +107126,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-fire
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -107257,11 +107241,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-collision
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -107374,11 +107356,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-constraint
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -107491,11 +107471,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-vehicle
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -107608,11 +107586,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-crowd
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -107725,11 +107701,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-agent
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -107842,11 +107816,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-human-motion
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -107959,11 +107931,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-procedural-world
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -108076,11 +108046,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-camera-experiment
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -108193,11 +108161,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-lighting-experiment
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -108310,11 +108276,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-educational-demo
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -108427,11 +108391,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-scientific-demo
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -108544,11 +108506,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-robotics
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -108661,11 +108621,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-kinematics
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -108778,11 +108736,9 @@ ownerCapabilityLeafAdjudication:
       outputArtifactTypeBindings:
         - artifactType: qualified-simulation-observation-or-output
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-synthetic-data
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -108801,7 +108757,10 @@ ownerCapabilityLeafAdjudication:
         - simulation-state-and-execution-output
         - requested-pass-contract
       exactTypedOutputs:
-        - typed-simulation-pass-with-produced-versus-estimated-provenance
+        - simulation-pass-result-rgb
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-rgb.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.simulation-rgb.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.simulation-world
         - media.domain.provenance-manifest
@@ -108894,13 +108853,11 @@ ownerCapabilityLeafAdjudication:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
       outputArtifactTypeBindings:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-rgb
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-output-rgb
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -108919,7 +108876,10 @@ ownerCapabilityLeafAdjudication:
         - simulation-state-and-execution-output
         - requested-pass-contract
       exactTypedOutputs:
-        - typed-simulation-pass-with-produced-versus-estimated-provenance
+        - simulation-pass-result-depth
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-depth.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.simulation-depth.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.simulation-world
         - media.domain.provenance-manifest
@@ -109012,13 +108972,11 @@ ownerCapabilityLeafAdjudication:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
       outputArtifactTypeBindings:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-depth
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-output-depth
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -109037,7 +108995,10 @@ ownerCapabilityLeafAdjudication:
         - simulation-state-and-execution-output
         - requested-pass-contract
       exactTypedOutputs:
-        - typed-simulation-pass-with-produced-versus-estimated-provenance
+        - simulation-pass-result-normals
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-normals.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.simulation-normals.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.simulation-world
         - media.domain.provenance-manifest
@@ -109130,13 +109091,11 @@ ownerCapabilityLeafAdjudication:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
       outputArtifactTypeBindings:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-normals
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-output-normals
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -109155,7 +109114,10 @@ ownerCapabilityLeafAdjudication:
         - simulation-state-and-execution-output
         - requested-pass-contract
       exactTypedOutputs:
-        - typed-simulation-pass-with-produced-versus-estimated-provenance
+        - simulation-pass-result-segmentation
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-segmentation.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.simulation-segmentation.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.simulation-world
         - media.domain.provenance-manifest
@@ -109248,13 +109210,11 @@ ownerCapabilityLeafAdjudication:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
       outputArtifactTypeBindings:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-segmentation
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-output-segmentation
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -109273,7 +109233,10 @@ ownerCapabilityLeafAdjudication:
         - simulation-state-and-execution-output
         - requested-pass-contract
       exactTypedOutputs:
-        - typed-simulation-pass-with-produced-versus-estimated-provenance
+        - simulation-pass-result-optical-flow
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-optical-flow.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.simulation-optical-flow.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.simulation-world
         - media.domain.provenance-manifest
@@ -109366,13 +109329,11 @@ ownerCapabilityLeafAdjudication:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
       outputArtifactTypeBindings:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-optical-flow
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-output-optical-flow
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -109391,7 +109352,10 @@ ownerCapabilityLeafAdjudication:
         - simulation-state-and-execution-output
         - requested-pass-contract
       exactTypedOutputs:
-        - typed-simulation-pass-with-produced-versus-estimated-provenance
+        - simulation-pass-result-motion-vectors
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-motion-vectors.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.simulation-motion-vectors.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.simulation-world
         - media.domain.provenance-manifest
@@ -109484,13 +109448,11 @@ ownerCapabilityLeafAdjudication:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
       outputArtifactTypeBindings:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-motion-vectors
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-output-motion-vectors
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -109509,7 +109471,10 @@ ownerCapabilityLeafAdjudication:
         - simulation-state-and-execution-output
         - requested-pass-contract
       exactTypedOutputs:
-        - typed-simulation-pass-with-produced-versus-estimated-provenance
+        - simulation-pass-result-object-ids
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-object-ids.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.simulation-object-ids.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.simulation-world
         - media.domain.provenance-manifest
@@ -109602,13 +109567,11 @@ ownerCapabilityLeafAdjudication:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
       outputArtifactTypeBindings:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-object-ids
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-output-object-ids
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -109627,7 +109590,10 @@ ownerCapabilityLeafAdjudication:
         - simulation-state-and-execution-output
         - requested-pass-contract
       exactTypedOutputs:
-        - typed-simulation-pass-with-produced-versus-estimated-provenance
+        - simulation-pass-result-contacts
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-contacts.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.simulation-contacts.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.simulation-world
         - media.domain.provenance-manifest
@@ -109720,13 +109686,11 @@ ownerCapabilityLeafAdjudication:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
       outputArtifactTypeBindings:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-contacts
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-output-contacts
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -109745,7 +109709,10 @@ ownerCapabilityLeafAdjudication:
         - simulation-state-and-execution-output
         - requested-pass-contract
       exactTypedOutputs:
-        - typed-simulation-pass-with-produced-versus-estimated-provenance
+        - simulation-pass-result-physical-events
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-physical-events.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.simulation-physical-events.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.simulation-world
         - media.domain.provenance-manifest
@@ -109838,13 +109805,11 @@ ownerCapabilityLeafAdjudication:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
       outputArtifactTypeBindings:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-physical-events
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-output-physical-events
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -109863,7 +109828,10 @@ ownerCapabilityLeafAdjudication:
         - simulation-state-and-execution-output
         - requested-pass-contract
       exactTypedOutputs:
-        - typed-simulation-pass-with-produced-versus-estimated-provenance
+        - simulation-pass-result-measurements
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-measurements.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.simulation-measurements.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.simulation-world
         - media.domain.provenance-manifest
@@ -109956,13 +109924,11 @@ ownerCapabilityLeafAdjudication:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
       outputArtifactTypeBindings:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-measurements
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-output-measurements
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -109981,7 +109947,10 @@ ownerCapabilityLeafAdjudication:
         - simulation-state-and-execution-output
         - requested-pass-contract
       exactTypedOutputs:
-        - typed-simulation-pass-with-produced-versus-estimated-provenance
+        - simulation-pass-result-timestamped-state
+      ownerLeafWireContractRef: media.owner-wire-contract.simulation-timestamped-state.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.simulation-timestamped-state.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.simulation-world
         - media.domain.provenance-manifest
@@ -110074,13 +110043,11 @@ ownerCapabilityLeafAdjudication:
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
         - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
       outputArtifactTypeBindings:
-        - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
+        - artifactType: simulation-pass-result-timestamped-state
           domainObjectRefs:
-            - media.domain.simulation-world
             - media.domain.media-run
           disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
       outputDomainObjectRefs:
-        - media.domain.simulation-world
         - media.domain.media-run
       id: media.capability-adjudication.simulation-output-timestamped-state
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
@@ -118513,6 +118480,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-inpaint.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-inpaint.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -118633,6 +118603,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-outpaint.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-outpaint.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -118753,6 +118726,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-object-remove.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-object-remove.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -118873,6 +118849,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-object-replace.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-object-replace.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -118993,6 +118972,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-background-remove.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-background-remove.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -119113,6 +119095,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-background-replace.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-background-replace.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -119233,6 +119218,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-matte.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-matte.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -119353,6 +119341,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-relight.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-relight.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -119473,6 +119464,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-recolor.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-recolor.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -119593,6 +119587,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-colorize.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-colorize.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -119713,6 +119710,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-style-transfer.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-style-transfer.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -119833,6 +119833,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-retime-slow-motion-speed-ramp.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-retime-slow-motion-speed-ramp.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -119953,6 +119956,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-smart-crop-auto-reframe.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-smart-crop-auto-reframe.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -120073,6 +120079,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-shot-color-match.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-shot-color-match.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -120193,6 +120202,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-region-correction.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-region-correction.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -120313,6 +120325,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-face-correction.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-face-correction.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -120433,6 +120448,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-hand-correction.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-hand-correction.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version
@@ -120553,6 +120571,9 @@ ownerCapabilityLeafAdjudication:
         - edit-intent-and-preservation-policy
       exactTypedOutputs:
         - versioned-edited-artifact-or-project-change
+      ownerLeafWireContractRef: media.owner-wire-contract.edit-propagate-keyframe-mask-effect.v1
+      exactTypedOutputSchemaRefs:
+        - media.owner-wire-contract.edit-propagate-keyframe-mask-effect.v1#/resultSchema/properties/outputs/items
       domainObjectRefs:
         - media.domain.artifact
         - media.domain.artifact-version

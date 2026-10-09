@@ -638,10 +638,12 @@ function migrationSemanticsReport(root, diagnostics) {
 function operationParityReport(root, diagnostics) {
   const path = ".product-experience/interface-parity/operation-parity.yaml";
   const source = readText(root, path);
+  const authored = parseYaml(source);
   const surfacesSection = topLevelSection(source, "surfaces");
   const blocks = surfacesSection.split(/(?=^  - surface: )/mu).filter((block) => /^  - surface: /mu.test(block));
   const surfaces = blocks.map((block) => {
     const name = block.match(/^  - surface: ([^\n]+)/mu)?.[1]?.trim();
+    const authoredSurface = authored.surfaces.find(surface => surface.surface === name);
     const denominator = block.match(/^    denominator: (\d+)\s*$/mu)?.[1];
     const counts = objectField(block, "operationBindingCounts") ?? objectField(block, "dispositionCounts") ?? {};
     const proposedIdentities = [...new Set([
@@ -653,30 +655,34 @@ function operationParityReport(root, diagnostics) {
     let observedIdentities = identities;
     if (name === "UI action registry") {
       const actionSource = readText(root, ".product-experience/pdp-3-product-experience/action-registry.yaml");
-      observedIdentities = [...actionSource.matchAll(/^- id: (media\.action\.[^\n]+)/gmu)].map((match) => match[1].trim()).sort();
-      const proposed = new Set(proposedIdentities);
+      const actions = parseYaml(actionSource);
+      observedIdentities = [...actions.actions, ...(actions.ownerDefinedActions ?? [])].map(action => action.id).sort();
+      const ownerIntentIds = (authored.typedUiActionDispositions?.entries ?? []).filter(entry =>
+        entry.ownerOperationIntentRef && (actions.ownerDefinedActions ?? []).some(action =>
+          action.id === entry.identity && action.operationRef === entry.ownerOperationIntentRef)).map(entry => entry.identity);
+      const proposed = new Set([...proposedIdentities, ...ownerIntentIds]);
       if (unresolvedIdentities.length === 0) unresolvedIdentities.push(...observedIdentities.filter((identity) => !proposed.has(identity)));
     } else if (name === "HTTP") {
       observedIdentities = identities;
     } else if (name === "gRPC") {
       const dispositionBlock = indentedSection(block, "sourceBackedNonOperationDispositions", 4);
       const disposedIdentities = [...dispositionBlock.matchAll(/^        - ([^\n]+)\s*$/gmu)].map(match => match[1].trim());
-      observedIdentities = [...proposedIdentities, ...unresolvedIdentities, ...disposedIdentities].sort();
+      const adapterRequired = Object.entries(authoredSurface.ownerAdapterRequired ?? {}).flatMap(([service, methods]) => methods.map(method => `${service}.${method}`));
+      observedIdentities = [...proposedIdentities, ...unresolvedIdentities, ...disposedIdentities, ...adapterRequired].sort();
       if (new Set(observedIdentities).size !== observedIdentities.length) diagnostics.push(`${path} gRPC identity dispositions overlap`);
     } else if (name === "CLI fixture commands") {
       observedIdentities = identities;
     } else if (name === "CLI host-configured runtime consumers") {
       observedIdentities = identities;
     } else if (name === "SDK registry") {
-      const nonOperationDispositions = nestedInlineArrays(block, "sourceBackedNonOperationDispositions");
+      const nonOperationGroups = authoredSurface.sourceBackedNonOperationDispositions ?? {};
+      const nonOperationDispositions = Object.values(nonOperationGroups).flat();
       const boundedCanonicalReads = declaredInlineArray(block, "boundedCanonicalReads", 4);
       const boundedCanonicalOperations = declaredInlineArray(block, "boundedCanonicalOperations", 4);
       observedIdentities = [...new Set([...proposedIdentities, ...boundedCanonicalReads, ...boundedCanonicalOperations, ...unresolvedIdentities, ...nonOperationDispositions])].sort();
       const sdkRegistry = readText(root, ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml");
       const sourceIdentities = [...sdkRegistry.matchAll(/^  - id: (media\.sdk\.[^\n]+)\n    method: [^\n]+\n    visibility: public\n    source: [^\n]+/gmu)].map((match) => match[1].trim());
       const parserArtifacts = declaredInlineArray(block, "parserArtifactTokensExcludedFromMethodDenominator", 4);
-      const nonOperationGroups = Object.fromEntries([...block.matchAll(/^      (TRANSPORT_ONLY|CLIENT_ONLY|PROVIDER_ADAPTER|NOT_ADMITTED):\s*\[([^\]]*)\]\s*$/gmu)]
-        .map(([, key, values]) => [key, parseInlineArray(values)]));
       const categories = {
         proposed: proposedIdentities,
         boundedCanonicalReads,
@@ -726,6 +732,7 @@ function operationParityReport(root, diagnostics) {
       proposedIdentities,
       unresolvedIdentities: unresolvedIdentities.sort(),
       excludedIdentities: declaredInlineArray(block, "parserArtifactTokensExcludedFromMethodDenominator", 4),
+      historicalSnapshot: authoredSurface.historicalSnapshot ?? null,
       unresolvedIdentityEvidence: name === "internal runtime events"
         ? { exactIds: observedIdentities, dynamicPattern: block.match(/^    dynamicEventPattern: ([^\n]+)/mu)?.[1]?.trim() ?? null, expandedFrom: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#terminal(JobStatus)", exactResidualIdsEnumerated: unresolvedIdentities.length === (counts.unresolved ?? 0) }
         : null,

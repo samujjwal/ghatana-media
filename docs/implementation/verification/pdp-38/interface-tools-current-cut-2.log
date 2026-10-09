@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: current parity census includes owner intents, adapter-required methods and legacy reads without widening acceptance
+ok 1 - current parity census includes owner intents, adapter-required methods and legacy reads without widening acceptance
+  ---
+  duration_ms: 3249.080482
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3385.691887

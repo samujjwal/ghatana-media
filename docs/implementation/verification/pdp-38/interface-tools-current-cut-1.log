@@ -1,0 +1,154 @@
+TAP version 13
+# Subtest: HTTP health and diagnostic identities have exact source-backed transport dispositions
+ok 1 - HTTP health and diagnostic identities have exact source-backed transport dispositions
+  ---
+  duration_ms: 75.139221
+  type: 'test'
+  ...
+# Subtest: HTTP identities carry exact route, request/result, role, and bounded-or-candidate operation evidence
+ok 2 - HTTP identities carry exact route, request/result, role, and bounded-or-candidate operation evidence
+  ---
+  duration_ms: 10271.728333
+  type: 'test'
+  ...
+# Subtest: HTTP crosswalk rejects semantic drift even when an identity and route still exist
+ok 3 - HTTP crosswalk rejects semantic drift even when an identity and route still exist
+  ---
+  duration_ms: 81.24991
+  type: 'test'
+  ...
+# Subtest: gRPC transport and provider administration methods partition the exact observed service inventory
+ok 4 - gRPC transport and provider administration methods partition the exact observed service inventory
+  ---
+  duration_ms: 8408.150389
+  type: 'test'
+  ...
+# Subtest: gRPC crosswalk rejects request/result or streaming drift and invented domain equivalence
+ok 5 - gRPC crosswalk rejects request/result or streaming drift and invented domain equivalence
+  ---
+  duration_ms: 1.410049
+  type: 'test'
+  ...
+# Subtest: gRPC identities retain every exact request/result field while leaving semantic field parity open
+ok 6 - gRPC identities retain every exact request/result field while leaving semantic field parity open
+  ---
+  duration_ms: 7699.117735
+  type: 'test'
+  ...
+# Subtest: TTS profile RPCs remain provider-engine administration and feedback remains explicitly unimplemented
+ok 7 - TTS profile RPCs remain provider-engine administration and feedback remains explicitly unimplemented
+  ---
+  duration_ms: 6.617168
+  type: 'test'
+  ...
+# Subtest: STT file-transcription candidate records the exact canonical adapter gaps and rejects false parity
+ok 8 - STT file-transcription candidate records the exact canonical adapter gaps and rejects false parity
+  ---
+  duration_ms: 0.993027
+  type: 'test'
+  ...
+# Subtest: STT streaming candidate separates transport chunks from canonical versioned-stream inputs and receipts
+ok 9 - STT streaming candidate separates transport chunks from canonical versioned-stream inputs and receipts
+  ---
+  duration_ms: 0.897063
+  type: 'test'
+  ...
+# Subtest: STT correction acknowledgement stub cannot be promoted to a canonical correction effect
+ok 10 - STT correction acknowledgement stub cannot be promoted to a canonical correction effect
+  ---
+  duration_ms: 0.944663
+  type: 'test'
+  ...
+# Subtest: STT profile and adaptation identities retain source-exact effects while canonical ownership remains unresolved
+ok 11 - STT profile and adaptation identities retain source-exact effects while canonical ownership remains unresolved
+  ---
+  duration_ms: 1.01524
+  type: 'test'
+  ...
+# Subtest: TTS synthesis remains a family candidate because its implementation lacks canonical authority and durable receipts
+ok 12 - TTS synthesis remains a family candidate because its implementation lacks canonical authority and durable receipts
+  ---
+  duration_ms: 0.700688
+  type: 'test'
+  ...
+# Subtest: TTS voice cloning remains unadmitted until exact voice-rights and enrollment-source semantics exist
+ok 13 - TTS voice cloning remains unadmitted until exact voice-rights and enrollment-source semantics exist
+  ---
+  duration_ms: 0.510441
+  type: 'test'
+  ...
+# Subtest: parity inventory fails closed on duplicate or stale disposition identities
+ok 14 - parity inventory fails closed on duplicate or stale disposition identities
+  ---
+  duration_ms: 0.58694
+  type: 'test'
+  ...
+# Subtest: Media interface grammar resolves every source and preserves the complete finality safety vocabulary
+ok 15 - Media interface grammar resolves every source and preserves the complete finality safety vocabulary
+  ---
+  duration_ms: 0.466615
+  type: 'test'
+  ...
+# Subtest: legacy and candidate SDK paths stay explicitly unadmitted when absent from the active route manifest
+ok 16 - legacy and candidate SDK paths stay explicitly unadmitted when absent from the active route manifest
+  ---
+  duration_ms: 0.374092
+  type: 'test'
+  ...
+# Subtest: remaining machine-channel identities are finite, source-backed, and explicitly non-accepted
+ok 17 - remaining machine-channel identities are finite, source-backed, and explicitly non-accepted
+  ---
+  duration_ms: 75.336308
+  type: 'test'
+  ...
+# Subtest: client callbacks and UI action intents are not canonical lifecycle events
+ok 18 - client callbacks and UI action intents are not canonical lifecycle events
+  ---
+  duration_ms: 2.22627
+  type: 'test'
+  ...
+# Subtest: all UI action effect contracts are source-exact and stay separate from operation acceptance
+ok 19 - all UI action effect contracts are source-exact and stay separate from operation acceptance
+  ---
+  duration_ms: 6.091793
+  type: 'test'
+  ...
+# Subtest: runtime lifecycle events and client notifications keep their distinct exact source roles
+ok 20 - runtime lifecycle events and client notifications keep their distinct exact source roles
+  ---
+  duration_ms: 0.534507
+  type: 'test'
+  ...
+# Subtest: fixture CLI crosswalk rejects a different parser action and production-scope promotion
+ok 21 - fixture CLI crosswalk rejects a different parser action and production-scope promotion
+  ---
+  duration_ms: 0.432365
+  type: 'test'
+  ...
+# Subtest: SDK crosswalk rejects wrong leaf bindings, client-local promotion, and unadmitted retry
+ok 22 - SDK crosswalk rejects wrong leaf bindings, client-local promotion, and unadmitted retry
+  ---
+  duration_ms: 0.482212
+  type: 'test'
+  ...
+# Subtest: all 13 HTTP consent, job, and stream candidates have exact adapter gaps and source identities
+ok 23 - all 13 HTTP consent, job, and stream candidates have exact adapter gaps and source identities
+  ---
+  duration_ms: 5.764351
+  type: 'test'
+  ...
+# Subtest: adapter assessment rejects omission, wrong route, invented operation, and lost consent/finality gaps
+ok 24 - adapter assessment rejects omission, wrong route, invented operation, and lost consent/finality gaps
+  ---
+  duration_ms: 2.993276
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 27813.614758

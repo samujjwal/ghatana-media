@@ -20,15 +20,36 @@ const SOURCE_ENUMERATORS = [
   ['PDP-0', '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml', 'ownerCapabilityLeafAdjudication.records', 'product-truth'],
   ['PDP-0', '.product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml', 'ownerMeasurementDefinitions.records', 'product-truth'],
   ['PDP-0', '.product-experience/pdp-0-product-truth/goals-jtbd.yaml', 'successMeasureContracts.ownerCapabilityApplicabilityCrosswalk.measureApplicabilityRecords.records', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/goals-jtbd.yaml', 'ownerDefinedMigrationRules.records', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/domain-model.yaml', 'ownerDefinedMigrationRules.records', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/journey-catalog.yaml', 'ownerMigrationSemanticRules.records', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/handoff-contracts.yaml', 'handoffs', 'product-truth', 'boundedWorkerExceptionRule'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/quality-policy.yaml', 'qualityDimensions', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/quality-policy.yaml', 'metricDefinitions', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/quality-policy.yaml', 'ownerQualityApplicabilityCrosswalk.records', 'product-truth'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/states.yaml', 'stateMachines', 'state-machine'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'transitionRecords', 'transition'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'ownerDefinedTransitionRecords', 'transition'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'ownerRaceResolutionContract', 'transition', undefined, 'id', false, true],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'ownerRaceResolutionContract.invariants', 'transition'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'ownerRaceResolutionContract.resolutionCases', 'transition'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'ownerMachineRaceApplicability.records', 'transition'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/transition-guard-contracts.yaml', 'records', 'transition'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/domain-objects.yaml', 'objects', 'domain-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/domain-objects.yaml', 'ownerTypedIdentityContracts.records', 'domain-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/domain-objects.yaml', 'ownerTypedIdentityContracts.relationshipBindings', 'relationship'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/domain-objects.yaml', 'ownerTypedIdentityContracts.tupleRules', 'domain-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/domain-objects.yaml', 'ownerTypedIdentityContracts.persistenceAndWireSemantics', 'domain-object', undefined, 'id', false, true],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/interoperability.yaml', 'packageCompatibilityBoundary', 'value-object', undefined, 'id', false, true],
   ['PDP-1', '.product-experience/pdp-1-domain-data/domain-objects.yaml', 'ownerOutputArtifactTypeCrosswalk.records', 'value-object'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'operations', 'operation-family'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'individualOperationContracts.records', 'operation-family'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerDefinedOperationContracts.records', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerTypedObservationContracts.records', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerTypedObservationValidationRules.records', 'value-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerLeafWireContracts.records', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerLeafWireContracts.outputTypes.records', 'value-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerLeafWireContracts.mediaTypePolicies.records', 'value-object'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'operations', 'value-object', 'ownerWireSchema'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'individualOperationContracts.records', 'value-object', 'ownerWireSchema'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerDefinedOperationContracts.records', 'value-object', 'ownerWireSchema'],
@@ -48,6 +69,9 @@ const SOURCE_ENUMERATORS = [
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/component-contracts.yaml', 'components', 'component-contract'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/component-contracts.yaml', 'components', 'value-object', 'typedDefinition'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/component-value-types.yaml', 'normativeTypeRecords', 'value-object'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml', 'mediaOwnedToolDefinitionContracts.contracts', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml', 'mediaOwnedToolDefinitionContracts.hostInvocationContext', 'value-object', undefined, 'id', false, true],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml', 'mediaOwnedToolDefinitionContracts.invocationSemantics', 'action-contract', undefined, 'id', false, true],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml', 'normativeRuleRecords', 'component-contract'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/layout.yaml', 'layouts', 'layout'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml', 'patterns', 'interaction-pattern'],
@@ -71,7 +95,7 @@ export function enumerateExpectedMediaObligations({ root, parseYaml }) {
   const issues = [];
   const sourceDocuments = new Map();
   const sourceDigests = {};
-  for (const [phase, sourcePath, collection, dimension, childField, identityField = 'id', requiredChild = false] of SOURCE_ENUMERATORS) {
+  for (const [phase, sourcePath, collection, dimension, childField, identityField = 'id', requiredChild = false, singleton = false] of SOURCE_ENUMERATORS) {
     const absolutePath = path.resolve(root, sourcePath);
     if (!fs.existsSync(absolutePath)) {
       issues.push({ code: 'SOURCE_ENUMERATION_MISSING', detail: `Cannot enumerate ${sourcePath}` });
@@ -104,10 +128,12 @@ export function enumerateExpectedMediaObligations({ root, parseYaml }) {
       } else visit(value?.[remaining[0]], remaining.slice(1), [...pointer, remaining[0]]);
     };
     if (nested) visit(document, collectionPath);
-    const candidates = nested ? (validCollection ? entries.map(({ record }) => record) : undefined)
+    const collectionValue = nested ? (validCollection ? entries.map(({ record }) => record) : undefined)
       : collectionPath.reduce((value, segment) => value?.[segment], document);
+    const candidates = singleton && collectionValue && typeof collectionValue === 'object' && !Array.isArray(collectionValue)
+      ? [collectionValue] : singleton ? undefined : collectionValue;
     if (!Array.isArray(candidates)) {
-      issues.push({ code: 'SOURCE_ENUMERATION_COLLECTION', detail: `${sourcePath} has no ${collection} array` });
+      issues.push({ code: 'SOURCE_ENUMERATION_COLLECTION', detail: `${sourcePath} has no ${collection} ${singleton ? 'record' : 'array'}` });
       continue;
     }
     for (const [index, sourceRecord] of candidates.entries()) {
@@ -129,6 +155,7 @@ export function enumerateExpectedMediaObligations({ root, parseYaml }) {
         sourcePath,
         sourceRef: nested
           ? `${sourcePath}#/${[...entries[index].pointer, ...(childField ? [childField] : [])].join('/')}`
+          : singleton ? `${sourcePath}#/${collectionPath.join('/')}`
           : `${sourcePath}#/${collectionPath.join('/')}/${childField ? `${sourceRecordId}/${childField}` : recordId}`,
         recordId,
         obligationId: `media.${phase.toLowerCase()}.requirement.${recordId.toLowerCase()}`,

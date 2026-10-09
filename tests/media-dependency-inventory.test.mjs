@@ -16,7 +16,7 @@ const EXPECTED_DENOMINATORS = Object.freeze({
   gradleDeclarationCount: 315,
   dockerfileCount: 9,
   pythonDependencyManifestCount: 0,
-  trackedAssetOrFixtureCount: 21,
+  trackedAssetOrFixtureCount: 22,
   modelOrWeightBinaryCount: 0,
   fontBinaryCount: 0,
   gradleLockOrVerificationFileCount: 0,
@@ -34,6 +34,14 @@ test("dependency inventory preserves current source denominators and lock member
   assert.equal(asyncTestSupport[0].configuration, 'testImplementation');
   assert.equal(asyncTestSupport[0].distributionProfile, 'TEST_ONLY');
   assert.deepEqual(report.denominators, EXPECTED_DENOMINATORS);
+  // Historical baseline: 21 tracked assets/fixtures. The current PDP-3
+  // scenario fixture registry is a newly tracked source fixture, making the
+  // live denominator 22 without changing any license/admission conclusion.
+  const currentScenarioRegistry = report.trackedAssets.find(({ path }) =>
+    path === ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml");
+  assert.ok(currentScenarioRegistry, "current denominator includes the source-owned PDP-3 scenario fixture registry");
+  assert.equal(currentScenarioRegistry.kind, "SOURCE_FIXTURE_OR_TEST_DATA");
+  assert.equal(currentScenarioRegistry.sha256, `sha256:${createHash("sha256").update(readFileSync(resolve(root, currentScenarioRegistry.sourceRef))).digest("hex")}`);
   // Eight committed browser-reference screenshots joined the tracked inventory.
   // They are evidence inputs, not a license or independent-review receipt.
   const browserScreenshots = report.trackedAssets.filter(({ path }) =>

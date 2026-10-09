@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: owner race contract has stable IDs, exact machine refs and explicit non-runtime status
+ok 1 - owner race contract has stable IDs, exact machine refs and explicit non-runtime status
+  ---
+  duration_ms: 2.829023
+  type: 'test'
+  ...
+# Subtest: fence, process death, unknown result and cancel race fail closed
+ok 2 - fence, process death, unknown result and cancel race fail closed
+  ---
+  duration_ms: 0.653109
+  type: 'test'
+  ...
+# Subtest: process death reconciles only a current verified receipt bound to the durable dispatch tuple
+ok 3 - process death reconciles only a current verified receipt bound to the durable dispatch tuple
+  ---
+  duration_ms: 0.486542
+  type: 'test'
+  ...
+# Subtest: retry requires current typed outcome and policy evidence, remaining budget, a new attempt and a greater fence
+ok 4 - retry requires current typed outcome and policy evidence, remaining budget, a new attempt and a greater fence
+  ---
+  duration_ms: 0.93491
+  type: 'test'
+  ...
+# Subtest: authoritative job outcome reconciliation requires current exact subject and authority
+ok 5 - authoritative job outcome reconciliation requires current exact subject and authority
+  ---
+  duration_ms: 0.457845
+  type: 'test'
+  ...
+# Subtest: delivery acknowledgment requires a current verified destination receipt bound to the exact output and request
+ok 6 - delivery acknowledgment requires a current verified destination receipt bound to the exact output and request
+  ---
+  duration_ms: 0.505714
+  type: 'test'
+  ...
+# Subtest: race applicability accounts for all 11 machines, 87 states and 55 source/owner edges
+ok 7 - race applicability accounts for all 11 machines, 87 states and 55 source/owner edges
+  ---
+  duration_ms: 3.844852
+  type: 'test'
+  ...
+# Subtest: all 55 transitions allow each declared legal edge and reject every forbidden source pair
+ok 8 - all 55 transitions allow each declared legal edge and reject every forbidden source pair
+  ---
+  duration_ms: 136.773743
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 559.178126

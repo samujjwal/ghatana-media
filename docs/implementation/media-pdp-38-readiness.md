@@ -1,11 +1,11 @@
 # PDP-0 through PDP-3 readiness
 
-Source HEAD: `2ea980485da076b459f89f21246b5ef08539f28c`. Exactly 38 tasks. Source criteria, dependencies, independent acceptance and Lifecycle currentness are separate. Historical ledger criteria/status are preserved. See JSON for current source fingerprints, test outputs and historical residual provenance.
+Source HEAD: `f5a9a5153ef6b82026d84553cd90a094cb1169c5`. Exactly 38 tasks. Source criteria, dependencies, independent acceptance and Lifecycle currentness are separate. Historical ledger criteria/status are preserved. See JSON for current source fingerprints, test outputs and historical residual provenance.
 
 | Task | Original status | Direct source criterion | Dependencies | Independent/publisher | Native phase proof |
 | --- | --- | --- | --- | --- | --- |
-| P0-01 | partial | REOPENED_SOURCE_CONTRACT_CORRECTION_REQUIRED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
-| P0-02 | partial | REOPENED_SOURCE_CONTRACT_CORRECTION_REQUIRED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
+| P0-01 | partial | VERIFIED_IN_CURRENT_SOURCE | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
+| P0-02 | partial | VERIFIED_IN_CURRENT_SOURCE | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
 | P0-03 | partial | NOT_ESTABLISHED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
 | P0-04 | partial | VERIFIED_IN_CURRENT_SOURCE | NOT_ESTABLISHED | NOT_EVALUATED | NOT_EVALUATED |
 | P0-05 | partial | NOT_ESTABLISHED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
@@ -52,24 +52,25 @@ Current source counters:
   "authoredCapabilityContractRecords": 462,
   "historicalMigrationSemanticUnresolved": 260,
   "historicalMigrationMixed": 124,
-  "interfaceIdentities": 286,
-  "interfaceUnresolved": 164,
+  "interfaceIdentities": 287,
+  "interfaceUnresolved": 154,
   "acceptedInterfaceBindings": 0,
   "designGates": 7,
   "designOpenGates": 2,
   "screens": 47,
   "journeys": 30,
   "steps": 130,
-  "stepsWithoutActions": 10,
+  "stepsWithoutDirectActionRef": 10,
+  "unresolvedCurrentStepBindingRoles": 0,
   "projectionBlockers": {
     "PDP-0": 0,
     "PDP-2": 0,
     "PDP-3": 9
   },
-  "obligations": 5161,
-  "sourceEnumeratedObligations": 5161,
+  "obligations": 5860,
+  "sourceEnumeratedObligations": 5860,
   "persistedObligationPopulationCountMatchesSource": true,
-  "obligationsWithoutCases": 5062,
+  "obligationsWithoutCases": 5761,
   "localReceiptRecords": 0,
   "authoritativeReceiptCount": null,
   "currentness": {
@@ -78,5 +79,3 @@ Current source counters:
   }
 }
 ```
-
-Coordinator corrective review PXD-092 reopens P0-01/P0-02 after material simulation output/crosswalk and editing contract defects. The three remaining verified direct criteria are P0-04, P1-06 and P2-01. Prior passing tests and owner approvals remain historical; current fixes require operation-specific negative tests and material reassessment. This is not independent acceptance or a Lifecycle receipt.

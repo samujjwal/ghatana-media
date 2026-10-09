@@ -11,6 +11,33 @@ const { parse } = require("yaml");
 const review = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml"), "utf8"));
 const readYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
 const hash = (value) => createHash("sha256").update(value).digest("hex");
+const reviewedGoalCut = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-goals-owner-source-impact.json"), "utf8"));
+const reviewedOperationCut = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/owner-query-current-cut-review.json"), "utf8"));
+const reviewedIdentityCut = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/identity-current-cut-review.json"), "utf8"));
+
+function reviewedCurrentHash(path, currentOwnerSource) {
+  const reviewedHash = path.endsWith("/operations.yaml")
+    ? reviewedOperationCut.sourceFingerprints[path]
+    : path.endsWith("/domain-objects.yaml")
+      ? reviewedIdentityCut.sourceFingerprints[path]
+      : path.endsWith("/goals-jtbd.yaml")
+        ? reviewedGoalCut.currentFileSha256
+        : currentOwnerSource.currentSha256;
+  return reviewedHash;
+}
+
+function assertCurrentCutIsReviewed(path, currentOwnerSource, sourceText = readFileSync(resolve(root, path))) {
+  const reviewedHash = reviewedCurrentHash(path, currentOwnerSource);
+  assert.equal(hash(sourceText), reviewedHash,
+    `${path} bytes equal the exact current reviewed artifact; unreviewed later changes remain stale`);
+}
+
+test("an unreviewed byte change cannot pass the exact current-cut comparison", () => {
+  const path = ".product-experience/pdp-1-domain-data/operations.yaml";
+  const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path: sourcePath }) => sourcePath === path);
+  const reviewedBytes = readFileSync(resolve(root, path));
+  assert.throws(() => assertCurrentCutIsReviewed(path, currentOwnerSource, Buffer.concat([reviewedBytes, Buffer.from("\n# unreviewed\n")])), /exact current reviewed artifact/u);
+});
 
 function resolvePointer(reference) {
   const separator = reference.indexOf("#");
@@ -35,7 +62,12 @@ test("capability review source pin changes are reconciled to the reviewed goal s
   assert.ok(impact, "the changed goal pin has a semantic impact record");
   const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path }) => path === goalPath);
   assert.ok(currentOwnerSource, "the current owner-definition overlay is separate from the historical source pin");
-  assert.equal(hash(goalsText), currentOwnerSource.currentSha256);
+  assert.equal(reviewedGoalCut.decisionRef, ".product-experience/decision-log.md#PXD-090");
+  assert.equal(reviewedGoalCut.sourcePath, goalPath);
+  assert.equal(reviewedGoalCut.currentFileSha256, hash(goalsText), "the latest reviewed goal owner cut binds the complete current bytes");
+  assertCurrentCutIsReviewed(goalPath, currentOwnerSource, goalsText);
+  assert.equal(currentOwnerSource.currentSha256, "055d8ee224a82899b54531d2b71139bb01f0784e9c439e308ec4a84a9cb2a4ef",
+    "the earlier source overlay remains an immutable historical observation, not a silently refreshed pin");
   const definitionDelta = review.definitionOnlySourceReconciliations.find(({ path }) => path === goalPath);
   assert.equal(definitionDelta.previousSha256, impact.currentSha256);
   assert.equal(goalPin.sha256, definitionDelta.currentSha256);
@@ -91,7 +123,12 @@ test("operation source changes reconcile affected leaf links without promoting c
   assert.ok(impact, "the changed canonical operation source has a semantic reconciliation");
   const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path: sourcePath }) => sourcePath === path);
   assert.ok(currentOwnerSource, "current operation semantics use the additive owner-definition overlay");
-  assert.equal(hash(sourceText), currentOwnerSource.currentSha256);
+  const reviewedOperationHash = reviewedOperationCut.sourceFingerprints[path];
+  assert.equal(reviewedOperationCut.decisionRef, ".product-experience/decision-log.md#PXD-094");
+  assert.equal(reviewedOperationHash, "16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54");
+  assert.equal(currentOwnerSource.currentSha256, "f279538b72a1bdd73a6cf88556eebdaf91c9799a033f460233b796bf8df8f89d",
+    "the prior owner-definition overlay is preserved as history");
+  assertCurrentCutIsReviewed(path, currentOwnerSource, sourceText);
   const definitionDelta = review.definitionOnlySourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
   assert.equal(definitionDelta.previousSha256, review.uploadOwnerDefinitionSourceReconciliation.currentSha256);
   const projectDelta = review.projectDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
@@ -311,7 +348,8 @@ test("domain catalog identity changes reconcile to zero capability leaf referenc
   assert.ok(impact, "the changed domain-object source pin has a semantic impact record");
   const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path: sourcePath }) => sourcePath === path);
   assert.ok(currentOwnerSource, "current domain identity semantics use the additive owner-definition overlay");
-  assert.equal(hash(sourceText), currentOwnerSource.currentSha256);
+  assert.equal(reviewedIdentityCut.sourceFingerprints[path], "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af");
+  assert.equal(hash(sourceText), reviewedIdentityCut.sourceFingerprints[path], "PXD-093 identity review binds the exact current object cut");
   const definitionDelta = review.definitionOnlySourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
   assert.equal(definitionDelta.previousSha256, impact.currentSha256);
   const projectDelta = review.projectDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
@@ -533,8 +571,7 @@ test('transcript-version source reconciliations chain from caption pins without 
       `${path} transcript digest remains intact as a historical chain tip`);
     const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path: sourcePath }) => sourcePath === path);
     assert.ok(currentOwnerSource, `${path} current semantics have an additive source overlay`);
-    assert.equal(currentOwnerSource.currentSha256, hash(readFileSync(resolve(root, path))),
-      `${path} current source hash matches the current owner overlay`);
+    assertCurrentCutIsReviewed(path, currentOwnerSource);
     assert.equal(review.sourceInventory.find(({ path: sourcePath }) => sourcePath === path)?.sha256,
       submissionByPath.get(path)?.currentSha256 ?? draftDelta?.currentSha256 ?? record.currentSha256, `${path} inventory points to the latest chain head`);
     assert.deepEqual(record.exactChangedRecords, expectedChanges[path]);
@@ -619,7 +656,7 @@ test('transcription-submission definition reconciliation extends the draft chain
     assert.equal(record.previousSha256, draftByPath.get(record.path)?.currentSha256);
     const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path }) => path === record.path);
     assert.ok(currentOwnerSource, `${record.path} current semantics have an additive source overlay`);
-    assert.equal(currentOwnerSource.currentSha256, hash(readFileSync(resolve(root, record.path))));
+    assertCurrentCutIsReviewed(record.path, currentOwnerSource);
     assert.equal(review.sourceInventory.find(({ path }) => path === record.path)?.sha256, record.currentSha256);
     assert.deepEqual(record.exactChangedRecords, expectedChanges[record.path]);
     assert.equal(record.ownerDecisionRef, record.path.endsWith('action-registry.yaml')

@@ -50,8 +50,11 @@ test("linked PDP source changes remain stale until their migration item claims a
     assert.equal(record.pinnedSha256, pin, `${path} pin is not silently refreshed`);
     if (path.endsWith('/goals-jtbd.yaml')) {
       const current = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/goal-measure-current-impact.json'), 'utf8'));
+      const latestOwnerCut = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/migration-goals-owner-source-impact.json'), 'utf8'));
       assert.equal(record.observedCurrentSha256, '74f9a10de4e959d1874e7e83d42fb6ff04b25b5a427230e1bf343c6ece8520d2', 'preserve prior impact observation');
-      assert.equal(current.currentSha256, currentHash, 'current reviewed measure observation binds exact bytes');
+      assert.equal(current.decisionRef, '.product-experience/decision-log.md#PXD-081', 'the four-measure observation remains an immutable historical cut');
+      assert.equal(latestOwnerCut.decisionRef, '.product-experience/decision-log.md#PXD-090');
+      assert.equal(latestOwnerCut.currentFileSha256, currentHash, 'the latest reviewed goal owner cut binds exact current bytes');
     } else {
       const historicalHashes = {
         '.product-experience/pdp-0-product-truth/actors-responsibilities.yaml': '9f077be079a1815ea15988fd0a01a142351ab8137f299d24d1be7b72c8bd2af1',
@@ -61,7 +64,13 @@ test("linked PDP source changes remain stale until their migration item claims a
       else assert.equal(record.observedCurrentSha256, currentHash);
     }
     const currentObservation = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/linked-pdp-current-fingerprints.json'), 'utf8'));
-    assert.equal(currentObservation.sources.find(source => source.path === path)?.sha256, currentHash);
+    if (path.endsWith('/goals-jtbd.yaml')) {
+      assert.equal(currentObservation.sources.find(source => source.path === path)?.sha256,
+        JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/goal-measure-current-impact.json'), 'utf8')).currentSha256,
+        'the PXD-081 measurement snapshot remains preserved after the PXD-090 owner-source review');
+      assert.notEqual(currentObservation.sources.find(source => source.path === path)?.sha256, currentHash,
+        'the old current-fingerprint artifact is not silently rewritten to the later reviewed cut');
+    } else assert.equal(currentObservation.sources.find(source => source.path === path)?.sha256, currentHash);
     assert.match(currentObservation.authority, /Does not establish migration semantic parity/);
     assert.notEqual(pin, currentHash, `${path} remains stale pending reconciliation`);
     assert.equal(record.disposition, "keep-stale-needs-claim-level-reconciliation");
@@ -135,8 +144,10 @@ test("the stale pin impact describes the exact newly added PDP claims", () => {
   const goalLines = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/goals-jtbd.yaml"), "utf8").split("\n");
   // The old span records a prior observation, not the later PXD-081 population.
   const currentImpact=JSON.parse(readFileSync(resolve(root,"docs/implementation/verification/pdp-38/goal-measure-current-impact.json"),"utf8"));
+  const latestOwnerCut=JSON.parse(readFileSync(resolve(root,"docs/implementation/verification/pdp-38/migration-goals-owner-source-impact.json"),"utf8"));
   assert.equal(currentImpact.decisionRef,".product-experience/decision-log.md#PXD-081");
-  assert.equal(currentImpact.currentSha256,hashFile(currentImpact.source));
+  assert.equal(latestOwnerCut.decisionRef,".product-experience/decision-log.md#PXD-090");
+  assert.equal(latestOwnerCut.currentFileSha256,hashFile(currentImpact.source));
   assert.deepEqual(currentImpact.historicalSuccessMeasureBlock.span,goalImpact.additionalCurrentBlocks[0].span);
   const [first,last]=currentImpact.currentSuccessMeasureBlock.span;
   assert.equal(goalLines[first-1],"successMeasureContracts:");

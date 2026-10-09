@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createRequire } from "node:module";
 import { analyzeContractParity, collectLiveInput, discoverSdkSourceFiles, parseNotAdmittedSdkRoutes, parseSdkHttpCalls, parseSdkOpenApiDispositions, parseSdkRegistryMethods, validateTypedContractBindings } from "../scripts/check-media-contract-parity.mjs";
 
 const typedBindingFixture = {
@@ -78,24 +79,30 @@ test("preserves matching OpenAPI/runtime/PDP-3 route identity while reporting se
   assert.match(result.gaps.join("\n"), /not accepted mappings/);
 });
 
-test("keeps the two remaining parity findings open because current sources lack authoritative contracts", () => {
+test("records four exact Media operation candidates while keeping handler parity and runtime admission open", () => {
   const toolRegistry = readFileSync(".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml", "utf8");
   const operations = readFileSync(".product-experience/pdp-1-domain-data/operations.yaml", "utf8");
   const conventions = readFileSync(".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml", "utf8");
-  const inputSchemaVersions = [...toolRegistry.matchAll(/schemaVersion: \{value: null, status: not-declared-by-handler\}/gu)];
-  const resultSchemaVersions = [...toolRegistry.matchAll(/schemaVersion: \{value: null, status: not-declared-by-handler-or-delegate-contract\}/gu)];
-  const unresolvedToolBindings = [...toolRegistry.matchAll(/operationBinding: \{value: null, status: unresolved-owner-and-operation-mapping\}/gu)];
+  const { parse } = createRequire(join(process.cwd(), "../ghatana-tools/package.json"))("yaml");
+  const parsedRegistry = parse(toolRegistry);
+  const inputSchemaVersions = parsedRegistry.tools.filter(({ inputSchema }) => inputSchema?.schemaVersion?.value === null && inputSchema?.schemaVersion?.status === "not-declared-by-handler");
+  const resultSchemaVersions = parsedRegistry.tools.filter(({ observedResult }) => observedResult?.schemaVersion?.value === null && observedResult?.schemaVersion?.status === "not-declared-by-handler-or-delegate-contract");
+  const operationCandidates = parsedRegistry.tools.filter(({ operationBinding }) => /^media\.operation\./u.test(operationBinding?.value ?? "") && operationBinding?.status === "owner-defined-operation-candidate; adapter-mapping-and-runtime-pending");
 
-  // Current handler observations do not define versioned canonical inputs or
-  // outputs, and no PDP-1 mapping has been selected. Replacing the finding
-  // with inferred contracts would invent owner-level semantics.
+  // The four Media definition schemas and operation candidates are explicit,
+  // but the Java adapter still forwards the supplied ToolContract unchanged.
+  // A candidate association is not canonical handler/API parity or admission.
   assert.equal(inputSchemaVersions.length, 4);
   assert.equal(resultSchemaVersions.length, 4);
-  assert.equal(unresolvedToolBindings.length, 4);
-  assert.match(toolRegistry, /inputSchema: Media adapters enforce closed top-level key sets and local field validation, but these Java checks are not a published JSON Schema/u);
-  assert.match(toolRegistry, /outputSchema: Successful delegate outputs receive bounded Draft 2020-12 validation/u);
-  assert.match(toolRegistry, /does not bind the four YAML descriptors as canonical registered result schemas/u);
-  assert.match(toolRegistry, /An empty schema remains unresolved/u);
+  assert.equal(operationCandidates.length, 4);
+  assert.match(toolRegistry, /adapter-mapping-and-runtime-pending/u);
+  assert.match(conventions, /mediaOwnedToolDefinitionContracts/u);
+  assert.match(conventions, /status: NOT_IMPLEMENTED/u);
+  assert.match(parsedRegistry.contractObservationPolicy.inputSchema, /closed top-level key sets and local field validation/u);
+  assert.match(parsedRegistry.contractObservationPolicy.inputSchema, /not a published JSON Schema/u);
+  assert.match(parsedRegistry.contractObservationPolicy.outputSchema, /bounded Draft 2020-12 validation/u);
+  assert.match(parsedRegistry.contractObservationPolicy.outputSchema, /does not bind the four YAML descriptors as canonical registered result schemas/u);
+  assert.match(parsedRegistry.contractObservationPolicy.outputSchema, /An empty schema remains unresolved/u);
   assert.match(conventions, /no tool is admitted, callable, or authorized by this convention/u);
 
   // The operation catalog explicitly remains proposal-only, with cross-
@@ -104,7 +111,7 @@ test("keeps the two remaining parity findings open because current sources lack 
   assert.match(operations, /^scopeStatus: proposal-only;[\s\S]*?cross-interface-bindings-and-owner-review-pending$/mu);
   const parity = readFileSync(".product-experience/interface-parity/operation-parity.yaml", "utf8");
   assert.match(parity, /bindingStatus: names align to existing operation family names; handler schema\/authority contract and semantic-owner acceptance remain pending/u);
-  assert.match(parity, /bindingStatus: 17-domain-operation-candidates-remain-proposed; eight-source-evidenced-health-or-metrics-identities-are-transport-only; ten-model-or-voice-administration-identities-are-provider-admin; eight-profile-adaptation-or-feedback-identities-remain-unresolved/u);
+  assert.match(parity, /bindingStatus: 17-domain-operation-candidates-remain-proposed; eight-source-evidenced-health-or-metrics-identities-are-transport-only; ten-model-or-voice-administration-identities-are-provider-admin; four-STT-profile-operations-have-exact-owner-definitions-but-legacy-adapters-are-required-and-wire-parity-is-not-established; three-TTS-profile-RPCs-are-source-backed-engine-profile-administration-not-Media-domain-operations; SubmitFeedback-is-explicitly-unimplemented-pending-persistence-and-learning-provider/u);
 
   const actual = analyzeContractParity(validStructuralInput({
     agentToolRegistry: toolRegistry,
@@ -381,23 +388,27 @@ test("SDK source discovery includes a third recursively discovered public class 
   }
 });
 
-test("typed UI action dispositions reconcile exactly to the 146 source identities", () => {
+test("typed UI action dispositions reconcile current and historical action identity snapshots", () => {
   const actionRegistry = readFileSync(".product-experience/pdp-3-product-experience/action-registry.yaml", "utf8");
   const parity = readFileSync(".product-experience/interface-parity/operation-parity.yaml", "utf8");
   const operations = readFileSync(".product-experience/pdp-1-domain-data/operations.yaml", "utf8");
-  const sourceIds = [...actionRegistry.matchAll(/^- id: (media\.action\.[^\n]+)/gmu)].map((m) => m[1]);
+  const sourceIds = [
+    ...[...actionRegistry.matchAll(/^- id: (media\.action\.[^\n]+)/gmu)].map((m) => m[1]),
+    ...[...(actionRegistry.split(/^ownerDefinedActions:\s*$/mu)[1] ?? "").matchAll(/^\s{2}- id: (media\.action\.[^\n]+)/gmu)].map((m) => m[1]),
+  ];
   const ui = parity.split("\ntypedUiActionDispositions:\n")[1];
   assert.ok(ui, "typed UI action disposition section is present");
-  assert.match(ui, /^  denominator: 146$/mu);
+  assert.match(ui, /^  denominator: 147$/mu);
+  assert.match(ui, /^    denominator: 146$/mu);
   const entriesText = ui.split("\n  entries:\n")[1].split(/\n(?=[a-zA-Z][\w-]*:)/u)[0];
   const entries = entriesText.trimEnd().split(/(?=^  - identity: )/mu).map((text) => {
     const [, identity, body] = text.match(/^  - identity: (media\.action\.[^\n]+)\n([\s\S]*)$/u) ?? [];
     return [text, identity, body];
   });
   const typedIds = entries.map((entry) => entry[1]);
-  assert.equal(sourceIds.length, 146);
-  assert.equal(typedIds.length, 146);
-  assert.equal(new Set(typedIds).size, 146, "typed identities are unique");
+  assert.equal(sourceIds.length, 147);
+  assert.equal(typedIds.length, 147);
+  assert.equal(new Set(typedIds).size, 147, "current typed identities are unique");
   assert.deepEqual([...typedIds].sort(), [...sourceIds].sort());
 
   const allowed = new Set([
@@ -410,17 +421,18 @@ test("typed UI action dispositions reconcile exactly to the 146 source identitie
     assert.ok(allowed.has(type), `${identity} has an approved typed disposition`);
     counts[type] = (counts[type] ?? 0) + 1;
     const operationRef = body.match(/^    operationRef: (media\.operation\.[^\n]+)$/mu)?.[1];
-    if (type === "DOMAIN_COMMAND") assert.ok(operationRef, `${identity} command has an exact PDP-1 operation`);
+    const ownerOperationIntentRef = body.match(/^    ownerOperationIntentRef: (media\.operation\.[^\n]+)$/mu)?.[1];
+    if (type === "DOMAIN_COMMAND") assert.ok(operationRef || ownerOperationIntentRef, `${identity} command has an exact PDP-1 operation intent`);
     if (operationRef) {
       const operationBlock = operations.match(new RegExp(`- id: ${operationRef}\\n([\\s\\S]*?)(?=\\n  - id: media\\.operation\\.|\\nchannelFamilies:)`))?.[1];
       assert.ok(operationBlock, `${identity} references an existing PDP-1 operation`);
       assert.match(operationBlock, new RegExp(identity.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     }
-    assert.match(body, /sourceRecord: \.product-experience\/pdp-3-product-experience\/action-registry\.yaml#actions\[media\.action\./u);
+    assert.match(body, /sourceRecord: \.product-experience\/pdp-3-product-experience\/action-registry\.yaml#(?:actions|ownerDefinedActions)\[media\.action\./u);
     for (const field of ["label", "preconditions", "effect", "reversible", "finality"]) assert.match(body, new RegExp(`    - ${field}\\n`, "u"));
   }
   assert.deepEqual(counts, {
-    CLIENT_ONLY: 48, DOMAIN_COMMAND: 9, DOMAIN_QUERY: 49,
+    CLIENT_ONLY: 48, DOMAIN_COMMAND: 10, DOMAIN_QUERY: 49,
     NOT_ADMITTED: 29, NAVIGATION_OR_PRESENTATION: 11,
   });
   for (const [actionId, operationId] of [
@@ -434,13 +446,20 @@ test("typed UI action dispositions reconcile exactly to the 146 source identitie
     const entry = entries.find(([, identity]) => identity === actionId)?.[2];
     assert.match(entry, new RegExp(`^    operationRef: ${operationId}$`, "mu"));
   }
+  const reconnectEntry = entries.find(([, identity]) => identity === "media.action.request-live-session-reconnect")?.[2];
+  assert.match(reconnectEntry, /^    ownerOperationIntentRef: media\.operation\.capability\.media-stream-session-reconnect$/mu);
+  assert.match(reconnectEntry, /operationAssociationStatus: owner-defined-operation-intent-only; not part of PXD-029 accepted set/u);
+  assert.match(reconnectEntry, /^    runtimeAdmission: NOT_ADMITTED$/mu);
 });
 
 test("the two UI action binding views reconcile exact PDP-1 refs and preserve every other action unresolved", () => {
   const actionRegistry = readFileSync(".product-experience/pdp-3-product-experience/action-registry.yaml", "utf8");
   const parity = readFileSync(".product-experience/interface-parity/operation-parity.yaml", "utf8");
   const operations = readFileSync(".product-experience/pdp-1-domain-data/operations.yaml", "utf8");
-  const sourceIds = [...actionRegistry.matchAll(/^- id: (media\.action\.[^\n]+)/gmu)].map((match) => match[1]);
+  const sourceIds = [
+    ...[...actionRegistry.matchAll(/^- id: (media\.action\.[^\n]+)/gmu)].map((match) => match[1]),
+    ...[...(actionRegistry.split(/^ownerDefinedActions:\s*$/mu)[1] ?? "").matchAll(/^\s{2}- id: (media\.action\.[^\n]+)/gmu)].map((match) => match[1]),
+  ];
   const sourceSection = parity.match(/- surface: UI action registry\n([\s\S]*?)\n  - surface: HTTP/u)?.[1];
   assert.ok(sourceSection, "source-denominator UI action section is present");
   const sourceDenominatorSection = operations.match(/uiProductActions:\n([\s\S]*?)\n  httpOperations:/u)?.[1];
@@ -450,18 +469,21 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
   assert.ok(typedSection, "typed UI action section is present");
 
   const parseCounts = (section) => {
-    const match = section.match(/operationBindingCounts:\s*\{([^}]+)\}/u)?.[1]
-      ?? section.match(/operationBindingCounts:\s*\n([\s\S]*?)(?=\n\s+dispositionCounts:)/u)?.[1];
+    const matches = [...section.matchAll(/operationBindingCounts:\s*\{([^}]+)\}|operationBindingCounts:\s*\n([\s\S]*?)(?=\n\s+dispositionCounts:)/gu)];
+    const last = matches.at(-1);
+    const match = last?.[1] ?? last?.[2];
     assert.ok(match, "operation binding counts are explicit");
-    return Object.fromEntries([...match.matchAll(/(mappedProposal|ambiguous|unresolved):\s*(\d+)/gu)]
+    return Object.fromEntries([...match.matchAll(/(mappedProposal|ownerDefinedIntentOnly|ambiguous|unresolved):\s*(\d+)/gu)]
       .map(([, key, value]) => [key, Number(value)]));
   };
   const sourceCounts = parseCounts(sourceSection);
   const typedCounts = parseCounts(typedSection);
-  assert.deepEqual(sourceCounts, { mappedProposal: 14, ambiguous: 0, unresolved: 132 });
+  assert.deepEqual(sourceCounts, { mappedProposal: 14, ownerDefinedIntentOnly: 1, ambiguous: 0, unresolved: 132 });
   assert.deepEqual(typedCounts, sourceCounts, "both views of the UI action denominator agree");
-  assert.match(sourceSection, /^\s+denominator: 146$/mu);
-  assert.match(typedSection, /^  denominator: 146$/mu);
+  assert.match(sourceSection, /^\s+denominator: 147$/mu);
+  assert.match(typedSection, /^  denominator: 147$/mu);
+  assert.match(sourceSection, /historicalSnapshot:\n\s+denominator: 146/u);
+  assert.match(typedSection, /historicalSnapshot:\n\s+denominator: 146/u);
 
   const explicitOperationIds = new Map([...sourceDenominatorSection.matchAll(/^      (media\.action\.[^\n:]+): (media\.operation\.[^\n]+)$/gmu)]
     .map((match) => [match[1], match[2]]));
@@ -492,22 +514,27 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
     assert.match(entry?.body ?? "", /operationAssociationStatus: owner-approved-semantic-intent-only; PXD-029/u);
   }
 
-  const sourceDispositionText = sourceSection.match(/dispositionCounts:\s*\{([^}]+)\}/u)?.[1] ?? "";
+  const sourceDispositionText = [...sourceSection.matchAll(/dispositionCounts:\s*\{([^}]+)\}/gu)].at(-1)?.[1] ?? "";
   const sourceDispositionCounts = Object.fromEntries([...sourceDispositionText.matchAll(/([A-Z_]+):\s*(\d+)/gu)]
     .map((match) => [match[1], Number(match[2])]));
   const typedDispositionCounts = typedEntries.reduce((counts, entry) => {
     counts[entry.type] = (counts[entry.type] ?? 0) + 1;
     return counts;
   }, {});
-  assert.deepEqual(typedDispositionCounts, sourceDispositionCounts, "both views of action dispositions agree");
+  assert.deepEqual(typedDispositionCounts, sourceDispositionCounts, "both views of current action dispositions agree");
 
   const unresolvedText = sourceDenominatorSection.split("    unresolvedActionIds:\n")[1] ?? "";
   const unresolvedIds = [...unresolvedText.matchAll(/^      - (media\.action\.[^\n]+)$/gmu)].map(([, id]) => id);
-  const expectedUnresolved = sourceIds.filter((identity) => !explicitOperationIds.has(identity));
+  const expectedUnresolved = sourceIds.filter((identity) => !explicitOperationIds.has(identity)
+    && identity !== "media.action.request-live-session-reconnect");
   assert.equal(unresolvedIds.length, 132);
   assert.equal(new Set(unresolvedIds).size, 132);
   assert.deepEqual([...unresolvedIds].sort(), [...expectedUnresolved].sort(), "all identities without exact refs remain unresolved");
-  assert.deepEqual(typedEntries.filter((entry) => !entry.operationRef).map((entry) => entry.identity).sort(), [...expectedUnresolved].sort());
+  assert.deepEqual(typedEntries.filter((entry) => !entry.operationRef && !entry.body.includes("ownerOperationIntentRef:")).map((entry) => entry.identity).sort(), [...expectedUnresolved].sort());
+  const reconnect = typedEntries.find((entry) => entry.identity === "media.action.request-live-session-reconnect");
+  assert.equal(reconnect?.type, "DOMAIN_COMMAND");
+  assert.match(reconnect?.body ?? "", /^    ownerOperationIntentRef: media\.operation\.capability\.media-stream-session-reconnect$/mu);
+  assert.match(reconnect?.body ?? "", /not part of PXD-029 accepted set/u);
 
   for (const [identity, operationRef] of typedRefs) {
     const operationBlock = operations.match(new RegExp(`^  - id: ${operationRef}\\n([\\s\\S]*?)(?=^  - id: media\\.operation\\.|^channelFamilies:)`, "mu"))?.[1];
@@ -550,26 +577,43 @@ test("semantic candidates never contradict the HTTP and gRPC typed role disposit
     return [...candidateBlock.matchAll(/\[([^\]]*)\]/gu)].flatMap((match) => match[1].split(",").map((id) => id.trim()));
   };
   const httpRoleOnly = inlineList(typedHttp, "transportOnly");
+  const httpReadinessReadModel = inlineList(typedHttp, "readinessReadModel");
   const sourceTransportOnlyBlock = httpSurface.match(/sourceBackedNonOperationDispositions:\n      TRANSPORT_ONLY:\n([\s\S]*?)(?=\n    dispositionCounts:)/u)?.[1] ?? "";
-  const sourceTransportOnly = [...sourceTransportOnlyBlock.matchAll(/^        - ([^\n]+)$/gmu)].map(([, id]) => id);
+  const sourceTransportOnly = [...sourceTransportOnlyBlock.matchAll(/^        - ([^\n]+)$/gmu)]
+    .map(([, id]) => id).filter((id) => id !== "getMediaProviders");
   const httpUnresolved = inlineList(httpSurface, "unresolved");
   assert.deepEqual(httpRoleOnly.sort(), sourceTransportOnly.sort(), "typed HTTP transport roles reconcile to exact source dispositions");
-  assert.deepEqual(httpUnresolved, ["getMediaProviders"], "provider inventory remains unresolved as a potential product query");
+  const sourceReadinessReadModelBlock = httpSurface.match(/sourceBackedNonOperationDispositions:\n[\s\S]*?      READINESS_READ_MODEL:\n([\s\S]*?)(?=\n    dispositionCounts:)/u)?.[1] ?? "";
+  const sourceReadinessReadModel = [...sourceReadinessReadModelBlock.matchAll(/^        - ([^\n]+)$/gmu)].map(([, id]) => id);
+  assert.deepEqual(httpReadinessReadModel, sourceReadinessReadModel, "typed provider-readiness read model reconciles to its exact source disposition");
+  assert.deepEqual(httpReadinessReadModel, ["getMediaProviders"]);
+  assert.deepEqual(httpUnresolved, [], "provider inventory has a source-backed non-domain disposition");
   assert.equal(httpRoleOnly.some((identity) => candidateIds(httpSurface).includes(identity)), false,
     "transport-only HTTP identities cannot be proposed as domain operations");
-  assert.match(httpSurface, /dispositionCounts: \{mappedProposal: 13, boundedDefinition: 5, transportOnly: 8, unresolved: 1\}/u);
+  assert.match(httpSurface, /dispositionCounts: \{mappedProposal: 13, boundedDefinition: 5, transportOnly: 8, readinessReadModel: 1, unresolved: 0\}/u);
 
-  const grpcRoleOnly = [...inlineList(typedGrpc, "transportOnly"), ...inlineList(typedGrpc, "providerAdmin")];
+  const grpcRoleOnly = [
+    ...inlineList(typedGrpc, "transportOnly"),
+    ...inlineList(typedGrpc, "providerAdmin"),
+    ...inlineList(typedGrpc, "legacyProviderProfileAdmin"),
+    ...inlineList(typedGrpc, "unimplementedEndpoint"),
+  ];
+  const grpcOwnerAdapterRequired = inlineList(typedGrpc, "ownerAdapterRequired");
   const sourceGrpcNonOperationBlock = grpcSurface.match(/sourceBackedNonOperationDispositions:\n([\s\S]*?)(?=\n    dispositionCounts:)/u)?.[1] ?? "";
   const sourceGrpcNonOperation = [...sourceGrpcNonOperationBlock.matchAll(/^        - ([^\n]+)$/gmu)].map(([, id]) => id);
   assert.deepEqual(grpcRoleOnly.sort(), sourceGrpcNonOperation.sort(), "typed gRPC transport/admin roles reconcile to exact source dispositions");
   const grpcCandidateIds = candidateIds(grpcSurface);
-  const grpcUnresolvedRoleIds = [...grpcSurface.matchAll(/^      (\w+): \[([^\]]*)\]$/gmu)]
+  const grpcUnresolvedRoleIds = [...grpcSurface.match(/    unresolved:\n([\s\S]*?)(?=\n    sourceBackedNonOperationDispositions:)/u)?.[1]?.matchAll(/^      (\w+): \[([^\]]*)\]$/gmu) ?? []]
     .flatMap(([, service, methods]) => methods.split(",").filter((method) => method.trim()).map((method) => `${service}.${method.trim()}`));
-  assert.equal(grpcUnresolvedRoleIds.length, 8, "profile/adaptation/feedback methods remain unresolved explicitly");
+  assert.deepEqual(grpcOwnerAdapterRequired.sort(), ["STTService.AdaptModel", "STTService.CreateProfile", "STTService.GetProfile", "STTService.UpdateProfile"]);
+  assert.deepEqual(inlineList(typedGrpc, "legacyProviderProfileAdmin").sort(), [
+    "TTSService.CreateProfile", "TTSService.GetProfile", "TTSService.UpdateProfile",
+  ]);
+  assert.deepEqual(inlineList(typedGrpc, "unimplementedEndpoint"), ["TTSService.SubmitFeedback"]);
+  assert.equal(grpcUnresolvedRoleIds.length, 0, "all remaining profile/feedback identities have explicit source-backed role dispositions");
   assert.equal(grpcRoleOnly.some((identity) => grpcCandidateIds.includes(identity)), false,
     "transport-only/provider-admin gRPC identities cannot be proposed as domain operations");
-  assert.match(grpcSurface, /dispositionCounts: \{mappedProposal: 17, transportOnly: 8, providerAdmin: 10, unresolved: 8\}/u);
+  assert.match(grpcSurface, /dispositionCounts: \{mappedProposal: 17, transportOnly: 8, providerAdmin: 10, legacyProviderProfileAdmin: 3, unimplementedEndpoint: 1, ownerAdapterRequired: 4, unresolved: 0\}/u);
 
   const grpcSource = operations.match(/^  grpcRpcs:\n([\s\S]*?)(?=^  cliSimulationCommands:)/mu)?.[1];
   assert.ok(grpcSource, "PDP-1 gRPC source observation section exists");

@@ -1,0 +1,53 @@
+{
+  "fingerprints": {
+    ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml": "f41320014843ab501dacc56b5334c0b178c0b3a447c7c85fe9d71e3f7665a7d9",
+    ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml": "0d234f321c066a21c5f3b69b0b2cad68997536f4d12b34883f9f1a5816de5432",
+    "tests/media-agent-tool-contracts.test.mjs": "2dc502eb1d37307faf5466c8dabd5e0a4f6e5ebd1826d46a0fdffd2aa37750b3",
+    "tests/media-agent-tool-definition-contracts.test.mjs": "0d9bbcf05ae0975f2117880145b595586a49874d4ec632b9c54d7bfda9fa5723",
+    ".product-experience/interface-parity/operation-parity.yaml": "1b9880161c5c94e75f3fd30ca72a99dbbd35aebae1a0cdd466ea61ee42850b02",
+    "tests/pdp-design-interface-parity.test.mjs": "c5090ee56c325ecfbec248c42656b25917c024d0b47916bb5088cbfe00551855",
+    "tests/pdp-http-canonical-adapter-assessments.test.mjs": "0073bb5c9111158662358368525ef5f03939e431ad901dbd0866f072f15d7578",
+    "scripts/lib/media-product-definition-residuals.mjs": "2c862b2ea3462cfb09d381629cd9bda7c71934d6203cde3e02970fe6dc07e0d3",
+    "tests/media-product-definition-residuals.test.mjs": "74e359c3fe6ad2d10c4a0558011a38ffeff9511a89c92099d7ae13b6ba978b72"
+  },
+  "results": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/media-agent-tool-contracts.test.mjs",
+        "tests/media-agent-tool-definition-contracts.test.mjs"
+      ],
+      "exitCode": 0,
+      "log": "docs/implementation/verification/pdp-38/interface-tools-current-cut-0.log",
+      "sha256": "1daecb5d5eeced1c0690797f97af174c9b124338871497dfeb30856e5777104f"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/pdp-design-interface-parity.test.mjs",
+        "tests/pdp-http-canonical-adapter-assessments.test.mjs"
+      ],
+      "exitCode": 0,
+      "log": "docs/implementation/verification/pdp-38/interface-tools-current-cut-1.log",
+      "sha256": "24b0d4a3b4e3fde64050cb3f4018083b6ce2d7bb73f2b11ae2299e6cafdeb5bb"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "--test-name-pattern=current parity census",
+        "tests/media-product-definition-residuals.test.mjs"
+      ],
+      "exitCode": 0,
+      "log": "docs/implementation/verification/pdp-38/interface-tools-current-cut-2.log",
+      "sha256": "4c52709eb0a288c6fdcd5ccf3600eb88e4e9e12369ddbdf5f64bb47bdbf3e95e"
+    }
+  ],
+  "changedDuringVerification": [],
+  "schemaVersion": "media.owner-definition-current-cut-review.v1",
+  "scope": "Four AgentTools closed owner definitions and exact 287 interface identity census/13 HTTP gap assessments",
+  "acceptanceEffect": "NONE; no Shared invocation, runtime admission or full semantic parity acceptance",
+  "passingChecks": 39
+}

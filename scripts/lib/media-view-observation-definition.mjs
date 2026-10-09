@@ -146,7 +146,7 @@ export function evaluateLocalConnectivity(predicate, fact, trusted) {
   }
   if (predicate.id !== predicate.predicateId || predicate.factKind !== "LOCAL_CONNECTIVITY" ||
       predicate.factPath !== "local.connectivity" ||
-      predicate.factSchemaRef !== ".product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas.media.view-observation-schema.local-connectivity.v1" ||
+      predicate.factSchemaRef !== ".product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.local-connectivity.v1" ||
       predicate.connectivityObservation.expectedReportedState !== "CLIENT_NETWORK_UNAVAILABLE" ||
       predicate.connectivityObservation.nonClaim !== "This does not establish remote service, provider, or in-flight operation status.") {
     return unknown("CONNECTIVITY_DEFINITION_UNSUPPORTED_OR_DRIFTED");
@@ -391,4 +391,363 @@ export function evaluateArtifactLifecycleObservation(predicate, fact, trusted) {
   return observation.lifecycleState === definition.expectedState
     ? { truth: "TRUE", reason: "EXACT_SCOPED_ARTIFACT_LIFECYCLE_OBSERVATION", canonicalStateRef }
     : { truth: "FALSE", reason: "EXACT_SCOPED_ARTIFACT_LIFECYCLE_STATE_DIFFERS", canonicalStateRef };
+}
+
+const OWNER_OBSERVATION_REF = {
+  OWNER_RIGHTS_STATE: ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1",
+  OWNER_QUALITY_STATE: ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1",
+  OWNER_PROFILE_STATE: ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.profile-qualification.v1",
+  OWNER_PROVENANCE_STATE: ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.provenance-completeness.v1",
+};
+const OWNER_OPERATION_REFS = {
+  OWNER_RIGHTS_STATE: ["media.operation.action.inspect-consent-and-permitted-use"],
+  OWNER_QUALITY_STATE: ["media.operation.action.inspect-quality-evidence"],
+  OWNER_PROFILE_STATE: ["media.operation.action.search-named-profiles", "media.operation.action.validate-processing-profile"],
+  OWNER_PROVENANCE_STATE: ["media.operation-slice.inspect-provenance"],
+};
+const OWNER_READ_AUTHORITY_REF = ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation";
+const OWNER_RESULT_KEYS = {
+  OWNER_RIGHTS_STATE: { required: ["tenantScopeRef", "principalRef", "queryId", "operationRef", "requestFingerprint", "readAuthorityRef", "currentness", "decisionKind", "observationStatus", "observedAt", "readVersion"], allowed: ["tenantScopeRef", "principalRef", "queryId", "operationRef", "requestFingerprint", "readAuthorityRef", "currentness", "decisionKind", "observationStatus", "observedAt", "readVersion", "decision", "unknownReasonRef"] },
+  OWNER_QUALITY_STATE: { required: ["tenantScopeRef", "principalRef", "queryId", "operationRef", "requestFingerprint", "readAuthorityRef", "currentness", "subjectArtifactVersionRef", "observationStatus", "observations", "observedAt", "readVersion"], allowed: ["tenantScopeRef", "principalRef", "queryId", "operationRef", "requestFingerprint", "readAuthorityRef", "currentness", "subjectArtifactVersionRef", "observationStatus", "observations", "observedAt", "readVersion", "unknownReasonRef"] },
+  OWNER_PROFILE_STATE: { required: ["tenantScopeRef", "principalRef", "queryId", "operationRef", "requestFingerprint", "readAuthorityRef", "currentness", "profileRef", "targetRef", "domainRef", "qualificationStatus", "observedAt", "readVersion"], allowed: ["tenantScopeRef", "principalRef", "queryId", "operationRef", "requestFingerprint", "readAuthorityRef", "currentness", "profileRef", "profileVersionRef", "targetRef", "domainRef", "providerRef", "qualificationStatus", "qualificationRecordRef", "scopeRef", "validFrom", "validUntil", "observedAt", "readVersion", "evidenceRefs", "unknownReasonRef"] },
+  OWNER_PROVENANCE_STATE: { required: ["tenantScopeRef", "principalRef", "queryId", "operationRef", "requestFingerprint", "readAuthorityRef", "currentness", "subjectArtifactVersionRef", "observationStatus", "completeness", "accessDisposition", "traversedRelationKinds", "lineageEdges", "observedAt", "readVersion"], allowed: ["tenantScopeRef", "principalRef", "queryId", "operationRef", "requestFingerprint", "readAuthorityRef", "currentness", "subjectArtifactVersionRef", "observationStatus", "completeness", "accessDisposition", "traversedRelationKinds", "lineageEdges", "observedAt", "readVersion", "unknownReasonRef"] },
+};
+const canonicalOwnerRef = (value) => nonEmptyString(value) && value.startsWith(".product-experience/");
+const safeAge = (observedAt, now, maxAgeMs) => {
+  if (!canonicalInstant(observedAt) || !canonicalInstant(now) || !Number.isSafeInteger(maxAgeMs) || maxAgeMs < 0) return null;
+  const age = Date.parse(now) - Date.parse(observedAt);
+  return age >= 0 && age <= maxAgeMs ? age : null;
+};
+const sameSet = (left, right) => Array.isArray(left) && Array.isArray(right) &&
+  left.length === right.length && new Set(left).size === left.length && left.every((value) => right.includes(value));
+const nonEmptyUniqueRefs = (items) => Array.isArray(items) && items.length > 0 &&
+  items.every(nonEmptyString) && new Set(items).size === items.length;
+
+const EXTENDED_OWNER_OBSERVATIONS = {
+  "media.observation-contract.declared-options.v1": {
+    factKind: "OWNER_DECLARED_OPTIONS_STATE",
+    operationRef: "media.operation.capability.media-capability-check-declared-options",
+    authorityRef: ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+    requestKeys: ["queryId", "capabilityRef", "operationRef", "profileRef", "dimensionRefs"],
+  },
+  "media.observation-contract.quality-action-plan.v1": {
+    factKind: "OWNER_QUALITY_ACTION_PLAN_STATE",
+    operationRef: "media.operation.action.inspect-quality-evidence",
+    authorityRef: ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+    requestKeys: ["queryId", "subjectArtifactVersionRef", "purposeRef", "scopeRef", "requestedKinds"],
+  },
+  "media.observation-contract.language-uncertainty.v1": {
+    factKind: "OWNER_LANGUAGE_UNCERTAINTY_STATE",
+    operationRef: "media.operation.action.inspect-quality-evidence",
+    authorityRef: ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+    requestKeys: ["queryId", "subjectArtifactVersionRef", "contentKind", "declaredLanguageTag", "purposeRef"],
+  },
+};
+
+function evaluateExtendedOwnerObservation(predicate, fact, trusted) {
+  const unknown = (reason) => ({ truth: "UNKNOWN", reason, runtimeObservation: "UNKNOWN_UNTIL_QUERY_IMPLEMENTED", executionAdmission: "NOT_ADMITTED" });
+  const contractRef = Object.entries(EXTENDED_OWNER_OBSERVATIONS).find(([id]) =>
+    predicate?.ownerObservationContractRef?.endsWith(`/@id=${id}`))?.[0];
+  const contract = contractRef && EXTENDED_OWNER_OBSERVATIONS[contractRef];
+  if (!contract) return null;
+  if (!plainRecord(predicate) || !plainRecord(predicate.ownerObservationExpectation) ||
+      predicate.ownerObservationExpectation.status !== "OWNER_DEFINED_EXPECTATION_REVIEW_PENDING" ||
+      !plainRecord(predicate.ownerObservationExpectation.expected) || !exactKeys(fact, ["viewRef", "queryContractRef", "queryRequest", "queryResult"])) {
+    return unknown("EXTENDED_OWNER_OBSERVATION_INPUT_MALFORMED");
+  }
+  const contractSourceRef = `.product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=${contractRef}`;
+  if (predicate.factKind !== contract.factKind || fact.queryContractRef !== contractSourceRef ||
+      fact.viewRef !== predicate.viewRef || !exactKeys(fact.queryRequest, contract.requestKeys)) return unknown("EXTENDED_OWNER_OBSERVATION_CONTRACT_MISMATCH");
+  const trustedKeysByContract = {
+    "media.observation-contract.declared-options.v1": ["viewRef", "tenantScopeRef", "principalRef", "expectedQueryId", "expectedRequestFingerprint", "expectedOperationRef", "expectedReadAuthorityRef", "expectedReadVersion", "capabilityRef", "profileRef", "dimensionRefs", "now", "maxAgeMs"],
+    "media.observation-contract.quality-action-plan.v1": ["viewRef", "tenantScopeRef", "principalRef", "expectedQueryId", "expectedRequestFingerprint", "expectedOperationRef", "expectedReadAuthorityRef", "expectedReadVersion", "subjectArtifactVersionRef", "purposeRef", "scopeRef", "requestedKinds", "now", "maxAgeMs"],
+    "media.observation-contract.language-uncertainty.v1": ["viewRef", "tenantScopeRef", "principalRef", "expectedQueryId", "expectedRequestFingerprint", "expectedOperationRef", "expectedReadAuthorityRef", "expectedReadVersion", "subjectArtifactVersionRef", "contentKind", "declaredLanguageTag", "purposeRef", "now", "maxAgeMs"],
+  }[contractRef];
+  if (!plainRecord(trusted) || !exactKeys(trusted, trustedKeysByContract)) return unknown("EXTENDED_OWNER_TRUSTED_CONTEXT_NOT_CLOSED");
+  const request = fact.queryRequest;
+  const result = fact.queryResult;
+  const isUniqueRefList = (refs, max) => Array.isArray(refs) && refs.length > 0 && refs.length <= max && refs.every(nonEmptyString) && new Set(refs).size === refs.length;
+  const readEnvelopeKeys = ["tenantScopeRef", "principalRef", "queryId", "operationRef", "requestFingerprint", "readAuthorityRef", "currentness", "observedAt", "readVersion"];
+  const resultKeys = {
+    "media.observation-contract.declared-options.v1": [...readEnvelopeKeys, "capabilityRef", "profileRef", "declarationDisposition", "compatibility", "dimensionResults"],
+    "media.observation-contract.quality-action-plan.v1": [...readEnvelopeKeys, "subjectArtifactVersionRef", "purposeRef", "scopeRef", "assessmentCoverage", "coveredKinds", "assessments"],
+    "media.observation-contract.language-uncertainty.v1": [...readEnvelopeKeys, "subjectArtifactVersionRef", "contentKind", "declaredLanguageTag", "purposeRef", "observedLanguageTag", "languageSource", "uncertaintyDisposition", "uncertaintyReasonRefs", "methodRef", "methodVersionRef", "evidenceRefs", "unknownReasonRef"],
+  }[contractRef];
+  if (!exactKeys(trusted, trustedKeysByContract) || !plainRecord(result) ||
+      Object.keys(result).some((key) => !resultKeys.includes(key)) ||
+      !readEnvelopeKeys.every((key) => Object.hasOwn(result, key))) return unknown("EXTENDED_OWNER_RESULT_NOT_CLOSED");
+  if (trusted.viewRef !== predicate.viewRef || fact.viewRef !== trusted.viewRef ||
+      !nonEmptyString(trusted.tenantScopeRef) || result.tenantScopeRef !== trusted.tenantScopeRef ||
+      !nonEmptyString(trusted.principalRef) || result.principalRef !== trusted.principalRef ||
+      trusted.expectedOperationRef !== contract.operationRef || result.operationRef !== contract.operationRef ||
+      trusted.expectedReadAuthorityRef !== contract.authorityRef || result.readAuthorityRef !== contract.authorityRef ||
+      !/^sha256:[a-f0-9]{64}$/u.test(trusted.expectedRequestFingerprint) || result.requestFingerprint !== trusted.expectedRequestFingerprint ||
+      !nonEmptyString(trusted.expectedQueryId) || request.queryId !== trusted.expectedQueryId || result.queryId !== trusted.expectedQueryId ||
+      !nonEmptyString(trusted.expectedReadVersion) || result.readVersion !== trusted.expectedReadVersion || result.currentness !== "CURRENT" ||
+      safeAge(result.observedAt, trusted.now, trusted.maxAgeMs) === null) return unknown("EXTENDED_OWNER_READ_RECEIPT_STALE_FOREIGN_OR_MISMATCHED");
+
+  if (contractRef === "media.observation-contract.declared-options.v1") {
+    const dims = trusted.dimensionRefs;
+    if (!nonEmptyString(trusted.capabilityRef) || !nonEmptyString(trusted.profileRef) ||
+        !Array.isArray(dims) || dims.length === 0 || dims.length > 64 || dims.some((x) => !nonEmptyString(x)) || new Set(dims).size !== dims.length ||
+        request.capabilityRef !== trusted.capabilityRef || request.operationRef !== contract.operationRef || request.profileRef !== trusted.profileRef ||
+        !sameSet(request.dimensionRefs, dims) || result.capabilityRef !== trusted.capabilityRef || result.profileRef !== trusted.profileRef ||
+        !["DECLARED", "NOT_DECLARED", "UNKNOWN"].includes(result.declarationDisposition) ||
+        !["COMPATIBLE", "INCOMPATIBLE", "PARTIAL", "UNKNOWN"].includes(result.compatibility) ||
+        !Array.isArray(result.dimensionResults) || result.dimensionResults.length !== dims.length) return unknown("DECLARED_OPTIONS_SCOPE_OR_RESULT_INVALID");
+    const rows = result.dimensionResults;
+    if (rows.some((row) => !exactKeys(row, ["dimensionRef", "disposition", "reasonRef", "evidenceRefs"]) ||
+        !nonEmptyString(row.dimensionRef) || !nonEmptyString(row.reasonRef) || !isUniqueRefList(row.evidenceRefs, 32) ||
+        !["SUPPORTED", "UNSUPPORTED", "UNKNOWN", "NOT_APPLICABLE"].includes(row.disposition)) || !sameSet(dims, rows.map(({ dimensionRef }) => dimensionRef))) return unknown("DECLARED_OPTIONS_DIMENSION_SET_INVALID");
+    const disposition = result.declarationDisposition;
+    if (disposition === "UNKNOWN") return unknown("DECLARED_OPTIONS_DISPOSITION_UNKNOWN");
+    const truth = predicate.ownerObservationExpectation.expected.declarationDisposition === disposition;
+    return { truth: truth ? "TRUE" : "FALSE", reason: truth ? "EXACT_VERSIONED_DECLARATION_PRESENT" : "EXACT_VERSIONED_DECLARATION_ABSENT", declarationDisposition: disposition, compatibility: result.compatibility, dimensionResults: rows, runtimeObservation: "UNKNOWN_UNTIL_QUERY_IMPLEMENTED", executionAdmission: "NOT_ADMITTED" };
+  }
+
+  if (contractRef === "media.observation-contract.quality-action-plan.v1") {
+    if (!nonEmptyString(trusted.subjectArtifactVersionRef) || !nonEmptyString(trusted.purposeRef) || !nonEmptyString(trusted.scopeRef) ||
+        request.subjectArtifactVersionRef !== trusted.subjectArtifactVersionRef || request.purposeRef !== trusted.purposeRef || request.scopeRef !== trusted.scopeRef ||
+        result.subjectArtifactVersionRef !== trusted.subjectArtifactVersionRef || result.purposeRef !== trusted.purposeRef || result.scopeRef !== trusted.scopeRef ||
+        !Array.isArray(trusted.requestedKinds) || trusted.requestedKinds.length !== 1 ||
+        !["RECOMMENDATION", "BOUNDED_REPAIR_PLAN"].includes(trusted.requestedKinds[0]) || !sameSet(request.requestedKinds, trusted.requestedKinds) ||
+        !["COMPLETE", "PARTIAL", "UNKNOWN", "NOT_EVALUATED"].includes(result.assessmentCoverage) ||
+        !Array.isArray(result.coveredKinds) || result.coveredKinds.some((kind) => !["RECOMMENDATION", "BOUNDED_REPAIR_PLAN"].includes(kind)) ||
+        !sameSet(result.coveredKinds, trusted.requestedKinds) || !Array.isArray(result.assessments) || result.assessments.length > 2) return unknown("QUALITY_ACTION_PLAN_SCOPE_INVALID");
+    if (result.assessmentCoverage !== "COMPLETE") return unknown("QUALITY_ACTION_PLAN_COVERAGE_INCOMPLETE");
+    const assessmentKeys = ["kind", "subjectArtifactVersionRef", "queryId", "requestFingerprint", "purposeRef", "scopeRef", "methodRef", "methodVersionRef", "profileRef", "profileVersionRef", "validationDisposition", "proposedActionRefs", "resourceBudgetRef", "costBudgetRef", "preservationGuarantees", "evidenceRefs"];
+    const allowedValidation = ["DEFINITION_VALIDATED", "PROPOSAL_ONLY", "BLOCKED", "UNKNOWN", "NOT_APPLICABLE"];
+    for (const row of result.assessments) {
+      if (!plainRecord(row) || Object.keys(row).some((key) => !assessmentKeys.includes(key)) ||
+          !["RECOMMENDATION", "BOUNDED_REPAIR_PLAN"].includes(row.kind) || !trusted.requestedKinds.includes(row.kind) ||
+          row.subjectArtifactVersionRef !== trusted.subjectArtifactVersionRef || row.queryId !== trusted.expectedQueryId ||
+          row.requestFingerprint !== trusted.expectedRequestFingerprint || row.purposeRef !== trusted.purposeRef || row.scopeRef !== trusted.scopeRef ||
+          !nonEmptyString(row.methodRef) || !nonEmptyString(row.methodVersionRef) || !allowedValidation.includes(row.validationDisposition) ||
+          !isUniqueRefList(row.evidenceRefs, 64)) return unknown("QUALITY_ACTION_ASSESSMENT_SCOPE_INVALID");
+      if ((row.profileRef === undefined) !== (row.profileVersionRef === undefined) ||
+          (row.profileRef !== undefined && (!nonEmptyString(row.profileRef) || !nonEmptyString(row.profileVersionRef)))) return unknown("QUALITY_ACTION_PROFILE_VERSION_PAIR_INVALID");
+      if (row.kind === "BOUNDED_REPAIR_PLAN" && row.validationDisposition === "DEFINITION_VALIDATED" &&
+          (!isUniqueRefList(row.proposedActionRefs, 32) || !nonEmptyString(row.resourceBudgetRef) || !nonEmptyString(row.costBudgetRef) ||
+           !Array.isArray(row.preservationGuarantees) || row.preservationGuarantees.length === 0 ||
+           row.preservationGuarantees.some((x) => !["SOURCE_VERSION_UNCHANGED", "UNSELECTED_CONTENT_PRESERVED", "NO_PUBLISH_WITHOUT_APPROVAL", "NO_SILENT_FALLBACK"].includes(x)))) return unknown("REPAIR_PLAN_DEFINITION_BOUNDS_INCOMPLETE");
+    }
+    const requestedKind = trusted.requestedKinds[0];
+    const matches = result.assessments.filter((row) => row.kind === requestedKind);
+    let truth;
+    if (requestedKind === "RECOMMENDATION") truth = matches.length === 1 && result.assessments.length === 1;
+    else truth = matches.length === 1 && result.assessments.length === 1 && matches[0].validationDisposition === "DEFINITION_VALIDATED";
+    const reason = truth ? (requestedKind === "RECOMMENDATION" ? "EXACT_RECOMMENDATION_ONLY" : "EXACT_PLAN_DEFINITION_VALIDATED") : (requestedKind === "RECOMMENDATION" ? "COMPLETE_QUERY_HAS_NO_RECOMMENDATION_ONLY_RESULT" : "COMPLETE_QUERY_HAS_NO_DEFINITION_VALIDATED_PLAN");
+    return { truth: truth ? "TRUE" : "FALSE", reason, assessment: matches[0] ?? null, effect: "NONE", executionApproval: "NOT_ESTABLISHED", runtimeObservation: "UNKNOWN_UNTIL_QUERY_IMPLEMENTED", executionAdmission: "NOT_ADMITTED" };
+  }
+
+  if (contractRef === "media.observation-contract.language-uncertainty.v1") {
+    if (!nonEmptyString(trusted.subjectArtifactVersionRef) || !nonEmptyString(trusted.contentKind) || !nonEmptyString(trusted.declaredLanguageTag) || !nonEmptyString(trusted.purposeRef) ||
+        request.subjectArtifactVersionRef !== trusted.subjectArtifactVersionRef || request.contentKind !== trusted.contentKind ||
+        request.declaredLanguageTag !== trusted.declaredLanguageTag || request.purposeRef !== trusted.purposeRef ||
+        result.subjectArtifactVersionRef !== trusted.subjectArtifactVersionRef || result.contentKind !== trusted.contentKind || result.declaredLanguageTag !== trusted.declaredLanguageTag || !nonEmptyString(trusted.purposeRef) || result.purposeRef !== trusted.purposeRef ||
+        !["DECLARED_METADATA", "OBSERVED_METHOD", "HUMAN_REVIEW", "NONE"].includes(result.languageSource) ||
+        !["UNCERTAIN", "NOT_UNCERTAIN", "NOT_APPLICABLE", "UNKNOWN", "NOT_EVALUATED"].includes(result.uncertaintyDisposition)) return unknown("LANGUAGE_UNCERTAINTY_SCOPE_INVALID");
+    if (["UNKNOWN", "NOT_EVALUATED", "NOT_APPLICABLE"].includes(result.uncertaintyDisposition) || result.languageSource === "NONE") return unknown("LANGUAGE_UNCERTAINTY_NOT_EVALUATED_OR_NOT_APPLICABLE");
+    if (!nonEmptyString(result.methodRef) || !nonEmptyString(result.methodVersionRef) || !isUniqueRefList(result.evidenceRefs, 64)) return unknown("LANGUAGE_UNCERTAINTY_METHOD_EVIDENCE_MISSING");
+    if (!nonEmptyString(result.observedLanguageTag) ||
+        (result.uncertaintyDisposition === "UNCERTAIN" && !isUniqueRefList(result.uncertaintyReasonRefs, 16))) return unknown("LANGUAGE_UNCERTAINTY_REASON_OR_OBSERVATION_MISSING");
+    const expected = predicate.ownerObservationExpectation.expected;
+    const truth = expected.uncertaintyDisposition === result.uncertaintyDisposition && expected.contentKind === result.contentKind;
+    return { truth: truth ? "TRUE" : "FALSE", reason: truth ? "EXACT_LANGUAGE_UNCERTAINTY_REPORTED" : "EXACT_LANGUAGE_UNCERTAINTY_NOT_REPORTED", uncertaintyDisposition: result.uncertaintyDisposition, languageSource: result.languageSource, methodRef: result.methodRef, methodVersionRef: result.methodVersionRef, evidenceRefs: result.evidenceRefs, runtimeObservation: "UNKNOWN_UNTIL_QUERY_IMPLEMENTED", executionAdmission: "NOT_ADMITTED" };
+  }
+  return unknown("EXTENDED_OWNER_OBSERVATION_UNSUPPORTED");
+}
+
+/**
+ * Evaluate one of the four exact owner-defined typed observation queries.
+ * The `trusted` tuple is supplied out-of-band by the host; this function checks
+ * tuple equality and freshness but does not authenticate that host or admit an
+ * endpoint. All four query contracts remain definition-only, so TRUE/FALSE are
+ * source-model oracle results, never live runtime evidence.
+ */
+export function evaluateOwnerTypedObservation(predicate, fact, trusted) {
+  const extended = evaluateExtendedOwnerObservation(predicate, fact, trusted);
+  if (extended) return extended;
+  const unknown = (reason) => ({ truth: "UNKNOWN", reason, runtimeObservation: "UNKNOWN_UNTIL_QUERY_IMPLEMENTED", executionAdmission: "NOT_ADMITTED" });
+  if (!plainRecord(predicate) || !plainRecord(predicate.ownerObservationExpectation) ||
+      !exactKeys(fact, ["viewRef", "queryContractRef", "queryResult"])) return unknown("OWNER_OBSERVATION_INPUT_MALFORMED");
+  const kind = predicate.factKind;
+  const expectedContract = OWNER_OBSERVATION_REF[kind];
+  if (!expectedContract || predicate.ownerObservationContractRef !== expectedContract || fact.queryContractRef !== expectedContract) return unknown("OWNER_OBSERVATION_CONTRACT_UNBOUND");
+  const expectation = predicate.ownerObservationExpectation;
+  if (expectation.status !== "OWNER_DEFINED_EXPECTATION_REVIEW_PENDING" || !plainRecord(expectation.expected)) {
+    return unknown(expectation.unsupportedReason ? `OWNER_LABEL_CONDITION_UNSUPPORTED:${expectation.unsupportedReason}` : "OWNER_LABEL_CONDITION_UNRESOLVED");
+  }
+  if (predicate.id !== predicate.predicateId || fact.viewRef !== predicate.viewRef ||
+      !Array.isArray(predicate.factScope?.requiredIdentityFields)) return unknown("OWNER_OBSERVATION_VIEW_SCOPE_INVALID");
+  const result = fact.queryResult;
+  const expectedTopKeys = OWNER_RESULT_KEYS[kind];
+  if (!plainRecord(result) || Reflect.ownKeys(result).some((key) => typeof key !== "string" || !expectedTopKeys.allowed.includes(key)) ||
+      !expectedTopKeys.required.every((key) => Object.hasOwn(result, key))) return unknown("OWNER_OBSERVATION_RESULT_NOT_CLOSED_OR_INCOMPLETE");
+  const trustedAllowed = {
+    OWNER_RIGHTS_STATE: ["viewRef", "tenantScopeRef", "principalRef", "expectedQueryId", "expectedRequestFingerprint", "expectedOperationRef", "expectedReadAuthorityRef", "expectedReadVersion", "subjectArtifactVersionRef", "purposeRef", "useRef", "regionRef", "retentionPolicyRef", "authorityRef", "authorityVersionRef", "now", "maxAgeMs"],
+    OWNER_QUALITY_STATE: ["viewRef", "tenantScopeRef", "principalRef", "expectedQueryId", "expectedRequestFingerprint", "expectedOperationRef", "expectedReadAuthorityRef", "expectedReadVersion", "subjectArtifactVersionRef", "requestedMetricRefs", "metricRef", "modalityRef", "methodRef", "methodVersionRef", "now", "maxAgeMs"],
+    OWNER_PROFILE_STATE: ["viewRef", "tenantScopeRef", "principalRef", "expectedQueryId", "expectedRequestFingerprint", "expectedOperationRef", "expectedReadAuthorityRef", "expectedReadVersion", "profileRef", "profileVersionRef", "targetRef", "domainRef", "providerRef", "scopeRef", "now", "maxAgeMs"],
+    OWNER_PROVENANCE_STATE: ["viewRef", "tenantScopeRef", "principalRef", "expectedQueryId", "expectedRequestFingerprint", "expectedOperationRef", "expectedReadAuthorityRef", "expectedReadVersion", "subjectArtifactVersionRef", "requestedRelationKinds", "now", "maxAgeMs"],
+  }[kind];
+  if (!plainRecord(trusted) || Reflect.ownKeys(trusted).some((key) => typeof key !== "string" || !trustedAllowed.includes(key))) return unknown("OWNER_OBSERVATION_TRUSTED_CONTEXT_NOT_CLOSED");
+  if (!OWNER_OPERATION_REFS[kind].includes(trusted.expectedOperationRef) || trusted.expectedReadAuthorityRef !== OWNER_READ_AUTHORITY_REF ||
+      !nonEmptyString(trusted.expectedQueryId) || !/^sha256:[a-f0-9]{64}$/u.test(trusted.expectedRequestFingerprint)) return unknown("OWNER_OBSERVATION_EXPECTED_READ_BINDING_MISSING_OR_UNBOUND");
+  if (!nonEmptyString(result.tenantScopeRef) || !nonEmptyString(result.principalRef) ||
+      result.tenantScopeRef !== trusted?.tenantScopeRef || result.principalRef !== trusted?.principalRef ||
+      fact.viewRef !== trusted?.viewRef || !nonEmptyString(trusted?.tenantScopeRef) || !nonEmptyString(trusted?.principalRef)) return unknown("OWNER_OBSERVATION_TRUSTED_IDENTITY_MISMATCH");
+  if (safeAge(result.observedAt, trusted.now, trusted.maxAgeMs) === null || !nonEmptyString(result.readVersion) ||
+      !nonEmptyString(trusted.expectedReadVersion) || result.readVersion !== trusted.expectedReadVersion ||
+      result.queryId !== trusted.expectedQueryId || result.operationRef !== trusted.expectedOperationRef ||
+      result.requestFingerprint !== trusted.expectedRequestFingerprint || result.readAuthorityRef !== trusted.expectedReadAuthorityRef ||
+      result.currentness !== "CURRENT") return unknown("OWNER_OBSERVATION_STALE_OR_UNVERSIONED_OR_FOREIGN_READ_RECEIPT");
+
+  if (kind === "OWNER_RIGHTS_STATE") {
+    const requiredContext = ["subjectArtifactVersionRef", "purposeRef", "useRef", "regionRef", "retentionPolicyRef", "authorityRef", "authorityVersionRef"];
+    if (!requiredContext.every((key) => nonEmptyString(trusted[key]))) return unknown("RIGHTS_TRUSTED_SCOPE_INCOMPLETE");
+    const validStatuses = ["ALLOWED_FOR_DECLARED_SCOPE", "DENIED", "RESTRICTED", "EXPIRED", "REVOKED", "REVIEW_REQUIRED", "APPROVAL_REQUIRED", "CONSENT_REQUIRED", "VOICE_AUTHORIZATION_REQUIRED", "UNKNOWN", "NOT_FOUND"];
+    if (!validStatuses.includes(result.observationStatus)) return unknown("RIGHTS_STATUS_INVALID");
+    if (!["RIGHTS", "CONSENT", "VOICE_AUTHORIZATION", "HUMAN_REVIEW_APPROVAL"].includes(result.decisionKind)) return unknown("RIGHTS_DECISION_KIND_INVALID");
+    if (result.observationStatus === "UNKNOWN" || result.observationStatus === "NOT_FOUND") {
+      if (Object.hasOwn(result, "decision") || !nonEmptyString(result.unknownReasonRef)) return unknown("RIGHTS_UNKNOWN_RESULT_MUST_OMIT_DECISION_AND_GIVE_REASON");
+      const matchesUnknown = expectation.expected.observationStatus === result.observationStatus;
+      return { truth: matchesUnknown ? "TRUE" : "FALSE", reason: matchesUnknown ? "EXACT_SCOPED_RIGHTS_UNKNOWN" : "SCOPED_RIGHTS_UNKNOWN_STATUS_DIFFERS", runtimeObservation: "UNKNOWN_UNTIL_QUERY_IMPLEMENTED", executionAdmission: "NOT_ADMITTED" };
+    }
+    const decisionKeys = ["tenantScopeRef", "principalRef", "subjectArtifactVersionRef", "decisionKind", "purposeRef", "useRef", "regionRef", "retentionPolicyRef", "authorityRef", "authorityVersionRef", "effectDisposition", "validFrom", "evidenceRefs"];
+    if (!(exactKeys(result.decision, decisionKeys) || exactKeys(result.decision, [...decisionKeys, "validUntil"]))) return unknown("RIGHTS_DECISION_SCOPE_SCHEMA_INVALID");
+    const d = result.decision;
+    if (d.decisionKind !== result.decisionKind) return unknown("RIGHTS_RESULT_AND_DECISION_KIND_MISMATCH");
+    for (const key of ["tenantScopeRef", "principalRef", ...requiredContext]) {
+      if (d[key] !== (key === "tenantScopeRef" ? trusted.tenantScopeRef : key === "principalRef" ? trusted.principalRef : trusted[key])) return unknown("RIGHTS_DECISION_TUPLE_MISMATCH");
+    }
+    if (!nonEmptyUniqueRefs(d.evidenceRefs) || !canonicalInstant(d.validFrom) || Date.parse(d.validFrom) > Date.parse(trusted.now) ||
+        (Object.hasOwn(d, "validUntil") && (!canonicalInstant(d.validUntil) ||
+          (result.observationStatus === "EXPIRED" ? Date.parse(trusted.now) < Date.parse(d.validUntil) : Date.parse(trusted.now) >= Date.parse(d.validUntil)))) ||
+        (result.observationStatus === "EXPIRED" && !Object.hasOwn(d, "validUntil"))) return unknown("RIGHTS_DECISION_EVIDENCE_OR_VALIDITY_INVALID");
+    const expected = expectation.expected;
+    const exactMapping = {
+      DENIED: { kinds: ["RIGHTS"], effect: "DENIED" },
+      RESTRICTED: { kinds: ["RIGHTS"], effect: "RESTRICTED" },
+      CONSENT_REQUIRED: { kinds: ["CONSENT"], effect: "CONSENT_REQUIRED" },
+      REVIEW_REQUIRED: { kinds: ["RIGHTS"], effect: "PENDING_REVIEW" },
+      APPROVAL_REQUIRED: { kinds: ["HUMAN_REVIEW_APPROVAL"], effect: "APPROVAL_REQUIRED" },
+      VOICE_AUTHORIZATION_REQUIRED: { kinds: ["VOICE_AUTHORIZATION"], effect: "VOICE_AUTHORIZATION_REQUIRED" },
+      EXPIRED: { kinds: ["RIGHTS", "HUMAN_REVIEW_APPROVAL"], effect: "EXPIRED" },
+      REVOKED: { kinds: ["RIGHTS", "CONSENT"], effect: "REVOKED" },
+    }[result.observationStatus];
+    if (exactMapping && (!exactMapping.kinds.includes(result.decisionKind) || d.effectDisposition !== exactMapping.effect)) return unknown("RIGHTS_STATUS_KIND_DISPOSITION_CONTRADICTS_OWNER_MAPPING");
+    if (result.observationStatus === "ALLOWED_FOR_DECLARED_SCOPE" && d.effectDisposition !== "PERMITTED") return unknown("RIGHTS_ALLOWED_STATUS_WITHOUT_PERMITTED_DISPOSITION");
+    if (!exactMapping && result.observationStatus !== "ALLOWED_FOR_DECLARED_SCOPE") return unknown("RIGHTS_STATUS_HAS_NO_EXACT_OWNER_MAPPING");
+    const match = result.decisionKind === expected.decisionKind && result.observationStatus === expected.observationStatus && d.effectDisposition === expected.effectDisposition;
+    return { truth: match ? "TRUE" : "FALSE", reason: match ? "EXACT_SCOPED_RIGHTS_DECISION_MATCH" : "EXACT_SCOPED_RIGHTS_DECISION_DIFFERS", runtimeObservation: "UNKNOWN_UNTIL_QUERY_IMPLEMENTED", executionAdmission: "NOT_ADMITTED" };
+  }
+
+  if (kind === "OWNER_QUALITY_STATE") {
+    if (!nonEmptyString(trusted.subjectArtifactVersionRef) || result.subjectArtifactVersionRef !== trusted.subjectArtifactVersionRef) return unknown("QUALITY_SUBJECT_VERSION_MISMATCH");
+    if (!Array.isArray(trusted.requestedMetricRefs) || trusted.requestedMetricRefs.length < 1 || trusted.requestedMetricRefs.length > 16 ||
+        trusted.requestedMetricRefs.some((ref) => !nonEmptyString(ref)) || new Set(trusted.requestedMetricRefs).size !== trusted.requestedMetricRefs.length ||
+        !trusted.requestedMetricRefs.includes(trusted.metricRef)) return unknown("QUALITY_REQUESTED_METRIC_SCOPE_INVALID");
+    if (expectation.expected.metricRef !== undefined &&
+        (trusted.metricRef !== expectation.expected.metricRef || !sameSet(trusted.requestedMetricRefs, [expectation.expected.metricRef]))) {
+      return unknown("QUALITY_EXPECTED_METRIC_NOT_EXACTLY_REQUESTED");
+    }
+    if (!["OBSERVATIONS_PRESENT", "NO_OBSERVATIONS", "UNKNOWN", "SUBJECT_NOT_FOUND"].includes(result.observationStatus) || !Array.isArray(result.observations)) return unknown("QUALITY_RESULT_SCHEMA_INVALID");
+    if (result.observationStatus === "UNKNOWN" || result.observationStatus === "SUBJECT_NOT_FOUND") return unknown("QUALITY_OBSERVATION_UNKNOWN_OR_NOT_FOUND");
+    if (result.observationStatus === "NO_OBSERVATIONS") {
+      if (result.observations.length !== 0) return unknown("QUALITY_EMPTY_STATUS_CONTRADICTS_ROWS");
+      const truth = expectation.expected.condition === "NO_OBSERVATIONS";
+      return { truth: truth ? "TRUE" : "FALSE", reason: truth ? "EXACT_NO_QUALITY_OBSERVATIONS" : "QUALITY_OBSERVATIONS_ABSENT", runtimeObservation: "UNKNOWN_UNTIL_QUERY_IMPLEMENTED", executionAdmission: "NOT_ADMITTED" };
+    }
+    if (result.observationStatus !== "OBSERVATIONS_PRESENT" || result.observations.length === 0) return unknown("QUALITY_OBSERVATION_STATUS_CONTRADICTS_ROWS");
+    for (const row of result.observations) {
+      const allowedQualityKeys = ["metricRef", "modalityRef", "methodRef", "methodVersionRef", "applicability", "disposition", "value", "unitRef", "uncertainty", "abstentionReasonRef", "calibrationRef", "evidenceRefs"];
+      const requiredQualityKeys = ["metricRef", "modalityRef", "methodRef", "methodVersionRef", "applicability", "disposition", "evidenceRefs"];
+      if (!plainRecord(row) || Object.keys(row).some((key) => !allowedQualityKeys.includes(key)) || !requiredQualityKeys.every((key) => Object.hasOwn(row,key)) ||
+          !nonEmptyString(row.metricRef) || !nonEmptyString(row.modalityRef) || !nonEmptyString(row.methodRef) || !nonEmptyString(row.methodVersionRef) ||
+          !["APPLICABLE", "NOT_APPLICABLE", "ABSTAINED", "NOT_EVALUATED", "BLOCKED"].includes(row.applicability) ||
+          !["PASS", "FAIL", "INDETERMINATE", "NOT_EVALUATED"].includes(row.disposition) ||
+          !(row.value === undefined || row.value === null || ["number", "string"].includes(typeof row.value)) ||
+          !(row.uncertainty === undefined || row.uncertainty === null || ["number", "string"].includes(typeof row.uncertainty)) ||
+          !nonEmptyUniqueRefs(row.evidenceRefs)) return unknown("QUALITY_ROW_SCHEMA_INVALID");
+      if (!trusted.requestedMetricRefs.includes(row.metricRef) ||
+          (typeof row.value === "number" && !Number.isFinite(row.value)) ||
+          (typeof row.uncertainty === "number" && (!Number.isFinite(row.uncertainty) || row.uncertainty < 0)) ||
+          (["PASS", "FAIL"].includes(row.disposition) && (row.applicability !== "APPLICABLE" || !Object.hasOwn(row, "value") || row.value === null)) ||
+          (["NOT_EVALUATED", "ABSTAINED", "BLOCKED"].includes(row.applicability) && ["PASS", "FAIL"].includes(row.disposition)) ||
+          (typeof row.value === "number" && !nonEmptyString(row.unitRef)) ||
+          (row.unitRef !== undefined && !nonEmptyString(row.unitRef))) return unknown("QUALITY_ROW_VALUE_OR_REQUEST_SCOPE_INVALID");
+    }
+    const matching = result.observations.filter((r) => r.metricRef === trusted.metricRef && r.modalityRef === trusted.modalityRef && r.methodRef === trusted.methodRef && r.methodVersionRef === trusted.methodVersionRef);
+    if (matching.length === 0) return unknown("QUALITY_EXACT_METRIC_METHOD_TUPLE_NOT_OBSERVED");
+    const condition = expectation.expected.condition;
+    const signatures = new Set(matching.map((row) => JSON.stringify([row.applicability, row.disposition, row.value ?? null, row.unitRef ?? null, row.uncertainty ?? null])));
+    if (signatures.size > 1 && condition !== "CONFLICTING_DUPLICATE_METRIC_EVIDENCE") return unknown("QUALITY_DUPLICATE_EXACT_TUPLE_HAS_CONFLICTING_EVIDENCE");
+    let matches = false;
+    if (condition === "APPLICABLE_MEASUREMENT_WITH_VALUE") matches = matching.some((r) => r.applicability === "APPLICABLE" && ["PASS", "FAIL"].includes(r.disposition) && r.value !== null);
+    else if (condition === "PARTIAL_OR_ABSTAINED_EVIDENCE") matches = matching.some((r) => ["ABSTAINED", "NOT_EVALUATED", "BLOCKED"].includes(r.applicability) || ["INDETERMINATE", "NOT_EVALUATED"].includes(r.disposition));
+    else if (condition === "CONFLICTING_DUPLICATE_METRIC_EVIDENCE") {
+      const values = new Set(matching.map((r) => JSON.stringify([r.disposition, r.value, r.unitRef ?? null])));
+      matches = values.size > 1;
+    } else if (condition === "APPLICABLE_DEFECT_METRIC_FAILED") {
+      const defectMetrics = expectation.expected.metricRefs;
+      if (!Array.isArray(defectMetrics) || !defectMetrics.includes(trusted.metricRef)) return unknown("QUALITY_DEFECT_METRIC_ID_UNRESOLVED");
+      matches = matching.some((r) => r.applicability === "APPLICABLE" && r.disposition === "FAIL");
+    } else return unknown("QUALITY_EXPECTATION_UNSUPPORTED");
+    return { truth: matches ? "TRUE" : "FALSE", reason: matches ? "EXACT_TYPED_QUALITY_CONDITION_MATCH" : "EXACT_TYPED_QUALITY_CONDITION_DIFFERS", runtimeObservation: "UNKNOWN_UNTIL_QUERY_IMPLEMENTED", executionAdmission: "NOT_ADMITTED" };
+  }
+
+  if (kind === "OWNER_PROFILE_STATE") {
+    const required = ["profileRef", "profileVersionRef", "targetRef", "domainRef"];
+    if (!required.every((key) => nonEmptyString(trusted[key]))) return unknown("PROFILE_TRUSTED_TUPLE_INCOMPLETE");
+    for (const key of required) if (result[key] !== trusted[key]) return unknown("PROFILE_QUALIFICATION_TUPLE_MISMATCH");
+    if ((trusted.providerRef ?? null) !== (result.providerRef ?? null) || (trusted.scopeRef ?? null) !== (result.scopeRef ?? null)) return unknown("PROFILE_PROVIDER_OR_SCOPE_MISMATCH");
+    const statuses = ["PROPOSAL_ONLY", "IMPLEMENTED_UNQUALIFIED", "OWNER_REVIEW_REQUIRED", "UNQUALIFIED", "QUALIFIED", "EXPIRED", "REVOKED", "UNKNOWN", "NOT_FOUND"];
+    if (!statuses.includes(result.qualificationStatus) || !nonEmptyString(result.qualificationRecordRef) || !nonEmptyString(result.readVersion) || !Array.isArray(result.evidenceRefs) || result.evidenceRefs.length === 0 || !result.evidenceRefs.every(nonEmptyString)) return unknown("PROFILE_QUALIFICATION_EVIDENCE_INCOMPLETE");
+    if (["UNKNOWN", "NOT_FOUND"].includes(result.qualificationStatus)) return unknown("PROFILE_QUALIFICATION_UNKNOWN_OR_NOT_FOUND");
+    if (!canonicalInstant(result.validFrom) || !canonicalInstant(result.validUntil) || Date.parse(result.validFrom) > Date.parse(trusted.now) || Date.parse(trusted.now) >= Date.parse(result.validUntil)) return unknown("PROFILE_QUALIFICATION_WINDOW_INVALID");
+    const matches = result.qualificationStatus === expectation.expected.qualificationStatus;
+    return { truth: matches ? "TRUE" : "FALSE", reason: matches ? "EXACT_VERSIONED_PROFILE_STATUS_MATCH" : "EXACT_VERSIONED_PROFILE_STATUS_DIFFERS", runtimeObservation: "UNKNOWN_UNTIL_QUERY_IMPLEMENTED", executionAdmission: "NOT_ADMITTED" };
+  }
+
+  if (kind === "OWNER_PROVENANCE_STATE") {
+    if (!nonEmptyString(trusted.subjectArtifactVersionRef) || result.subjectArtifactVersionRef !== trusted.subjectArtifactVersionRef) return unknown("PROVENANCE_SUBJECT_VERSION_MISMATCH");
+    const statuses = ["OBSERVED", "PARTIAL", "ACCESS_LIMITED", "UNKNOWN", "NOT_FOUND"];
+    const completeness = ["COMPLETE_FOR_REQUESTED_RELATIONS", "PARTIAL", "UNKNOWN", "NOT_EVALUATED"];
+    const access = ["FULL", "LIMITED", "DENIED", "UNKNOWN"];
+    const relations = ["DERIVED_FROM", "TRANSFORMED_FROM", "GENERATED_FROM", "INFERRED_FROM", "EXECUTED_BY", "AUTHORIZED_BY", "ASSESSED_BY"];
+    if (!statuses.includes(result.observationStatus) || !completeness.includes(result.completeness) || !access.includes(result.accessDisposition) ||
+        !Array.isArray(result.traversedRelationKinds) || result.traversedRelationKinds.some((r) => !relations.includes(r)) ||
+        !Array.isArray(result.lineageEdges) || result.lineageEdges.some((e) => !exactKeys(e,["tenantScopeRef","fromArtifactVersionRef","toArtifactVersionRef","relationKind","sourceRecordRef","edgeDisposition"]) || e.tenantScopeRef !== trusted.tenantScopeRef || !relations.includes(e.relationKind) || !["VERIFIED","DECLARED","INFERRED","UNKNOWN"].includes(e.edgeDisposition) || !nonEmptyString(e.fromArtifactVersionRef) || !nonEmptyString(e.toArtifactVersionRef) || !nonEmptyString(e.sourceRecordRef))) return unknown("PROVENANCE_RESULT_SCHEMA_OR_TENANT_INVALID");
+    if (["UNKNOWN", "NOT_FOUND"].includes(result.observationStatus) || result.completeness === "UNKNOWN" || result.completeness === "NOT_EVALUATED" || result.accessDisposition === "UNKNOWN") return unknown("PROVENANCE_QUERY_UNKNOWN_OR_NOT_FOUND");
+    const requested=trusted.requestedRelationKinds;
+    if (!Array.isArray(requested) || requested.length===0 || requested.some((r)=>!relations.includes(r))) return unknown("PROVENANCE_REQUESTED_RELATIONS_INVALID");
+    if (result.traversedRelationKinds.some((r) => !requested.includes(r)) ||
+        result.lineageEdges.some((e) => !requested.includes(e.relationKind))) return unknown("PROVENANCE_RESULT_ESCAPES_REQUESTED_RELATION_SCOPE");
+    const relatedVersions = new Set([trusted.subjectArtifactVersionRef]);
+    let expanded = true;
+    while (expanded) {
+      expanded = false;
+      for (const edge of result.lineageEdges) {
+        if (relatedVersions.has(edge.fromArtifactVersionRef) && !relatedVersions.has(edge.toArtifactVersionRef)) { relatedVersions.add(edge.toArtifactVersionRef); expanded = true; }
+        if (relatedVersions.has(edge.toArtifactVersionRef) && !relatedVersions.has(edge.fromArtifactVersionRef)) { relatedVersions.add(edge.fromArtifactVersionRef); expanded = true; }
+      }
+    }
+    if (result.lineageEdges.some((e) => !relatedVersions.has(e.fromArtifactVersionRef) || !relatedVersions.has(e.toArtifactVersionRef))) return unknown("PROVENANCE_EDGE_NOT_CONNECTED_TO_EXACT_SUBJECT");
+    const condition=expectation.expected.condition;
+    let matches=false;
+    if(condition==="COMPLETE_VERIFIED_REQUESTED_RELATIONS") matches=result.observationStatus==="OBSERVED"&&result.completeness==="COMPLETE_FOR_REQUESTED_RELATIONS"&&result.accessDisposition==="FULL"&&sameSet(requested,result.traversedRelationKinds)&&result.lineageEdges.every(e=>e.edgeDisposition==="VERIFIED");
+    else if(condition==="PARTIAL_OR_REDACTED_OR_UNVERIFIED_RELATIONS") matches=result.observationStatus==="PARTIAL"||result.completeness==="PARTIAL"||["LIMITED","DENIED"].includes(result.accessDisposition)||result.lineageEdges.some(e=>e.edgeDisposition!=="VERIFIED");
+    else if(condition==="REQUESTED_EXECUTED_BY_RELATION_COMPLETE_AND_ABSENT"){
+      if(!requested.includes("EXECUTED_BY"))return unknown("PROVENANCE_EXECUTION_RELATION_NOT_REQUESTED");
+      if(result.completeness!=="COMPLETE_FOR_REQUESTED_RELATIONS"||!result.traversedRelationKinds.includes("EXECUTED_BY"))return unknown("PROVENANCE_EXECUTION_RELATION_ABSENCE_NOT_COMPLETE");
+      matches=!result.lineageEdges.some(e=>e.relationKind==="EXECUTED_BY");
+    } else if(condition==="EXACT_VERIFIED_GENERATED_FROM_EDGE") matches=result.lineageEdges.some(e=>e.relationKind==="GENERATED_FROM"&&e.edgeDisposition==="VERIFIED");
+    else if(condition==="EXACT_INFERRED_FROM_EDGE") matches=result.lineageEdges.some(e=>e.relationKind==="INFERRED_FROM"&&["INFERRED","DECLARED"].includes(e.edgeDisposition));
+    else if(condition==="ACCESS_LIMITED_OR_DENIED") matches=["ACCESS_LIMITED","PARTIAL"].includes(result.observationStatus)||["LIMITED","DENIED"].includes(result.accessDisposition);
+    else return unknown("PROVENANCE_EXPECTATION_UNSUPPORTED");
+    if(condition==="COMPLETE_VERIFIED_REQUESTED_RELATIONS"&&!matches&&! ["COMPLETE_FOR_REQUESTED_RELATIONS", "PARTIAL"].includes(result.completeness))return unknown("PROVENANCE_COMPLETENESS_NOT_ESTABLISHED");
+    if(condition==="PARTIAL_OR_REDACTED_OR_UNVERIFIED_RELATIONS"&&!matches&&! ["OBSERVED", "PARTIAL"].includes(result.observationStatus))return unknown("PROVENANCE_PARTIALITY_NOT_ESTABLISHED");
+    return {truth:matches?"TRUE":"FALSE",reason:matches?"EXACT_SCOPED_PROVENANCE_CONDITION_MATCH":"EXACT_SCOPED_PROVENANCE_CONDITION_DIFFERS",runtimeObservation:"UNKNOWN_UNTIL_QUERY_IMPLEMENTED",executionAdmission:"NOT_ADMITTED"};
+  }
+  return unknown("OWNER_OBSERVATION_FAMILY_UNSUPPORTED");
 }

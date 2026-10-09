@@ -166,13 +166,14 @@ test("migration review counters include PXD-086 without promoting phase acceptan
   const routed = claims.filter((claim) => claim.disposition === "ROUTED_TO_CURRENT_PDP_AUTHORITY");
   const verified = routed.filter((claim) => claim.semanticReviewStatus === "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED");
   const pending = routed.filter((claim) => claim.semanticReviewStatus === "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
-  assert.equal(routed.length, 863);
-  assert.equal(verified.length, 339);
-  assert.equal(pending.length, 524);
+  assert.equal(routed.length, 862, "the PXD-090 approved claim supersession is counted once, not duplicated as a new routed unit");
+  assert.equal(verified.length, 363);
+  assert.equal(pending.length, 499);
   assert.equal(ledger.sourceOwnerRoutingCount, routed.length);
   assert.equal(ledger.currentOwnerTargetClaimUnitCount, routed.length);
   assert.equal(ledger.semanticParityVerifiedClaimUnitCount, verified.length);
   assert.equal(ledger.candidateTargetPendingSemanticParityCount, pending.length);
-  assert.equal(ledger.nonNormativeSourceMetadataClaimUnitCount, 7);
+  assert.equal(ledger.nonNormativeSourceMetadataClaimUnitCount, 8,
+    "the separately routed source-metadata unit remains outside the 862 normative claim count");
   assert.equal(ledger.acceptanceEffect.startsWith("none; source routing does not establish independent migration review"), true);
 });

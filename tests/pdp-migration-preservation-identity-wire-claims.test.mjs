@@ -25,7 +25,7 @@ const targets = new Map([
   ["MPSEM-0023-C004", `${actorsPath}#wireCompatibilityPreservationRule`],
   ["MPSEM-0187-C002", `${qualityPath}#personAndIdentityInferenceRule`],
   ["MPSEM-0204-C004", `${qualityPath}#preservationSensitiveEnhancementRule`],
-  ["MPSEM-0354-C001", `${glossaryPath}#/terms/@id=media.term.privacy-axes/summaryRule`],
+  ["MPSEM-0354-C001", `${glossaryPath}#/terms/@id=media.term.privacy-axes`],
 ]);
 const predicates = new Map([
   ["MPSEM-0023-C002", ["14-of-14 observed legacy/candidate SDK paths", "absent from the 27-route active manifest", "proves non-admission", "does not choose a replacement route"]],
@@ -63,8 +63,15 @@ test("privacy, preservation, person-inference and wire-compatibility claims bind
   assert.deepEqual(result.errors, []);
   assert.equal(rows.length, targets.size);
   for (const claim of rows) {
-    assert.equal(claim.semanticReviewStatus, "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY", claim.claimId);
+    const approvedBoundedClaim = claim.claimId === "MPSEM-0354-C001";
+    assert.equal(claim.semanticReviewStatus, approvedBoundedClaim
+      ? "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
+      : "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY", claim.claimId);
     assert.equal(claim.acceptanceEffect, "none", claim.claimId);
+    if (approvedBoundedClaim) {
+      assert.equal(claim.coordinatorReviewStatus, "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE");
+      assert.equal(claim.semanticReviewRef, "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0354-C001");
+    }
   }
 });
 

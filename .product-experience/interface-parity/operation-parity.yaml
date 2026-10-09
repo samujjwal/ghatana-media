@@ -12,10 +12,16 @@ dispositions:
   ownerApprovedActionIntentAssociation: PDP-3 UI action intent is associated with a PDP-1 operation; no cross-interface binding or operation behavior accepted
 surfaces:
   - surface: UI action registry
-    denominator: 146
+    denominator: 147
+    historicalSnapshot:
+      denominator: 146
+      source: action-registry.yaml#/actions
+      dispositionCounts: {DOMAIN_COMMAND: 9, DOMAIN_QUERY: 49, CLIENT_ONLY: 48, NAVIGATION_OR_PRESENTATION: 11, NOT_ADMITTED: 29}
+      operationBindingCounts: {mappedProposal: 14, ambiguous: 0, unresolved: 132}
+      note: Immutable pre-PXD-077 baseline; does not include owner-defined reconnect intent.
     source: .product-experience/pdp-3-product-experience/action-registry.yaml
-    dispositionCounts: {DOMAIN_COMMAND: 9, DOMAIN_QUERY: 49, CLIENT_ONLY: 48, NAVIGATION_OR_PRESENTATION: 11, NOT_ADMITTED: 29}
-    operationBindingCounts: {mappedProposal: 14, ambiguous: 0, unresolved: 132}
+    dispositionCounts: {DOMAIN_COMMAND: 10, DOMAIN_QUERY: 49, CLIENT_ONLY: 48, NAVIGATION_OR_PRESENTATION: 11, NOT_ADMITTED: 29}
+    operationBindingCounts: {mappedProposal: 14, ownerDefinedIntentOnly: 1, ambiguous: 0, unresolved: 132}
     explicitlyProposed:
       media.operation.artifact-ingest: [media.action.begin-artifact-upload, media.action.resume-artifact-upload, media.action.inspect-artifact, media.action.attach-source-asset]
       media.operation.job-lifecycle: [media.action.view-job-status, media.action.check-job-outcome, media.action.request-cancellation, media.action.retry-job]
@@ -36,7 +42,7 @@ surfaces:
         media.operation.caption-version-read: [media.action.compare-caption-versions]
     ambiguous: []
     canonicalRefs: .product-experience/pdp-1-domain-data/operations.yaml#/operations/*/actionRefs
-    bindingStatus: exact typed dispositions reconcile below; fourteen actionRefs remain proposed, six UI action intents have separate owner approval, 132 actions lack exact operation refs; zero accepted cross-interface bindings; no runtime reachability implied
+    bindingStatus: current 147 identities reconcile below; fourteen historical actionRefs remain proposed, six UI action intents retain separate PXD-029 approval, one PXD-077 reconnect action has a source-defined operation intent only, 132 actions lack exact operation refs; zero accepted cross-interface bindings; no runtime reachability implied
   - surface: HTTP
     denominator: 27
     source: contracts/openapi/media.yaml
@@ -46,7 +52,7 @@ surfaces:
       artifact-ingest: []
       job-lifecycle: [submitMediaJob, listMediaJobs, getMediaJob, cancelMediaJob]
       stream-session: [openMediaStream, getMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream]
-    unresolved: [getMediaProviders]
+    unresolved: []
     boundedDefinitionBindings:
       decisionRef: .product-experience/decision-log.md#PXD-051
       runtimeAdmission: NOT_ADMITTED
@@ -67,9 +73,11 @@ surfaces:
         - getMediaMetrics
         - getMediaInfo
         - getMediaVersionedHealth
-    dispositionCounts: {mappedProposal: 13, boundedDefinition: 5, transportOnly: 8, unresolved: 1}
+      READINESS_READ_MODEL:
+        - getMediaProviders
+    dispositionCounts: {mappedProposal: 13, boundedDefinition: 5, transportOnly: 8, readinessReadModel: 1, unresolved: 0}
     canonicalRefs: .product-experience/pdp-1-domain-data/operations.yaml#/observedBindings.httpOperations
-    bindingStatus: five-existing-upload-artifact-routes-have-bounded-PDP1-definition-crosslinks; thirteen-domain-candidate-bindings-remain-proposed; eight-health-or-runtime-diagnostic-identities-have-source-backed-transport-only-dispositions; provider-readiness-inventory-remains-unresolved-as-a-possible-product-query; runtime-and-independent-review-open
+    bindingStatus: five-existing-upload-artifact-routes-have-bounded-PDP1-definition-crosslinks; thirteen-domain-candidate-bindings-remain-proposed; eight-health-or-runtime-diagnostic-identities-are-transport-only; getMediaProviders-is-a-source-backed-service-readiness-read-model-not-a-domain-operation-or-provider-qualification; runtime-and-independent-review-open
   - surface: gRPC
     denominator: 43
     source:
@@ -82,9 +90,11 @@ surfaces:
       media.operation.synthesis: [TTSService.Synthesize, TTSService.StreamSynthesize, TTSService.GetVoices, TTSService.CloneVoice]
       media.operation.vision-analysis: [VisionService.DetectObjects, VisionService.AnalyzeImage, VisionService.ClassifyImage, VisionService.AnalyzeVideoFile, VisionService.ProcessVideo]
       media.operation.multimodal-analysis: [MultimodalService.ProcessMultimodal, MultimodalService.AnalyzeVideoWithAudio, MultimodalService.GenerateDescription, MultimodalService.AnalyzeCrossModal, MultimodalService.GetInsights]
-    unresolved:
+    ownerAdapterRequired:
       STTService: [AdaptModel, CreateProfile, GetProfile, UpdateProfile]
-      TTSService: [CreateProfile, GetProfile, UpdateProfile, SubmitFeedback]
+    unresolved:
+      STTService: []
+      TTSService: []
       VisionService: []
       MultimodalService: []
     sourceBackedNonOperationDispositions:
@@ -108,8 +118,14 @@ surfaces:
         - MultimodalService.LoadModel
         - MultimodalService.UnloadModel
         - MultimodalService.ListModels
-    dispositionCounts: {mappedProposal: 17, transportOnly: 8, providerAdmin: 10, unresolved: 8}
-    bindingStatus: 17-domain-operation-candidates-remain-proposed; eight-source-evidenced-health-or-metrics-identities-are-transport-only; ten-model-or-voice-administration-identities-are-provider-admin; eight-profile-adaptation-or-feedback-identities-remain-unresolved; no-domain-operation-equivalence-is-inferred
+      UNIMPLEMENTED_ENDPOINT:
+        - TTSService.SubmitFeedback
+      LEGACY_PROVIDER_PROFILE_ADMIN:
+        - TTSService.CreateProfile
+        - TTSService.GetProfile
+        - TTSService.UpdateProfile
+    dispositionCounts: {mappedProposal: 17, transportOnly: 8, providerAdmin: 10, legacyProviderProfileAdmin: 3, unimplementedEndpoint: 1, ownerAdapterRequired: 4, unresolved: 0}
+    bindingStatus: 17-domain-operation-candidates-remain-proposed; eight-source-evidenced-health-or-metrics-identities-are-transport-only; ten-model-or-voice-administration-identities-are-provider-admin; four-STT-profile-operations-have-exact-owner-definitions-but-legacy-adapters-are-required-and-wire-parity-is-not-established; three-TTS-profile-RPCs-are-source-backed-engine-profile-administration-not-Media-domain-operations; SubmitFeedback-is-explicitly-unimplemented-pending-persistence-and-learning-provider; no-domain-operation-equivalence-is-inferred
   - surface: CLI fixture commands
     denominator: 11
     source: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
@@ -144,7 +160,7 @@ surfaces:
       transcription: [media.sdk.transcribe]
       synthesis: [media.sdk.synthesize]
       multimodal-analysis: [media.sdk.analyzeMultimodal]
-    unresolved: [media.sdk.listProviderCapabilities, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.getOperationResult]
+    unresolved: [media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.getOperationResult]
     boundedCanonicalReads: [media.sdk.getArtifact, media.sdk.getUploadSession]
     boundedCanonicalOperations: [media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession]
     sourceBackedNonOperationDispositions:
@@ -152,12 +168,13 @@ surfaces:
       CLIENT_ONLY: [media.sdk.addEventListener, media.sdk.removeEventListener]
       PROVIDER_ADAPTER: [media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame]
       NOT_ADMITTED: [media.sdk.retry, media.sdk.retryOperation]
+      LEGACY_PROVIDER_CATALOG_READ: [media.sdk.listProviderCapabilities]
     parserArtifactTokensExcludedFromMethodDenominator: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
     parserArtifactEvidence: public-declaration-parser-scans-recursively-discovered-production-TypeScript-sources-under-the-SDK-src-tree; none-of-the-three-token-names-has-a-public-method-declaration; raw-records-retained-for-audit
-    dispositionCounts: {mappedProposal: 9, boundedCanonicalOperation: 3, boundedCanonicalRead: 2, transportOnly: 2, clientOnly: 2, providerAdapter: 1, unadmitted: 2, unresolved: 9}
+    dispositionCounts: {mappedProposal: 9, boundedCanonicalOperation: 3, boundedCanonicalRead: 2, transportOnly: 2, clientOnly: 2, providerAdapter: 1, unadmitted: 2, legacyProviderCatalogRead: 1, unresolved: 8}
     legacyClientSource: libs/audio-video-client/src/index.ts
     sourcePairInventory: public-method-pairs-include-source-and-declaring-class; duplicate-transcribe-and-synthesize-identities-are-separated-by-legacy-source-class
-    bindingStatus: three upload SDK methods bind individually to their exact existing PDP1 command slices under PXD-051; two exact SDK reads bind to bounded queries; six exact source-backed non-operation identities (including two retry methods) are classified below; nine domain-relevant identities remain unresolved; three source-parser artifacts are explicitly excluded; no production reachability or trusted-host identity is implied
+    bindingStatus: three upload SDK methods bind individually to their exact existing PDP1 command slices under PXD-051; two exact SDK reads bind to bounded queries; seven exact source-backed non-operation identities and one legacy provider-catalog read are classified; eight domain-operation identities remain unresolved; three source-parser artifacts are explicitly excluded; no production reachability or trusted-host identity is implied
   - surface: Agent Tool handlers
     denominator: 4
     source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
@@ -302,11 +319,13 @@ typedMethodDispositions:
   ownerDecisionRef: .product-experience/decision-log.md#PXD-040
   bindingEvidence: exact-upload-session-DTO; configured-tenant-and-caller-principal; requested-upload-identity-match; scoped-UPLOAD_NOT_FOUND-preserved; no-state-mutation-rights-or-finality-inference
 - identity: media.sdk.listProviderCapabilities
-  type: PROVIDER_ADMIN
-  semanticBinding: unresolved
-  basis: provider-capability-inventory-boundary-not-admitted-as-media-operation
-  openApiBindingDisposition: PROVIDER_ADMIN
-  bindingEvidence: provider-capability-endpoint-is-observed-in-legacy-client-but-no-matching-active-runtime-openapi-route
+  type: LEGACY_PROVIDER_CATALOG_READ
+  semanticBinding: source-backed-legacy-read-only-provider-catalog; not-a-Media-domain-operation-or-provider-qualification
+  basis: exact-legacy-provider-capability-array-read-with-no-matching-active-route
+  openApiBindingDisposition: NOT_ADMITTED
+  bindingEvidence: operations.ts#listProviderCapabilities-GET-/api/v1/media/providers/capabilities; ProviderCapabilitySchema-validates-exact-list-records; active-HTTP-getMediaProviders-is-a-distinct-service-readiness-schema-and-route
+  canonicalOperationRef: null
+  candidateOperationRef: null
 - identity: media.sdk.transcribe
   type: DOMAIN_COMMAND
   semanticBinding: unresolved
@@ -424,17 +443,21 @@ typedMethodDispositions:
 typedInterfaceIdentityDispositions:
   http:
     transportOnly: [getMediaHealth, getMediaLiveness, getMediaReadiness, getMediaStartup, getMediaReadyAlias, getMediaMetrics, getMediaInfo, getMediaVersionedHealth]
-    unresolved: [getMediaProviders]
+    readinessReadModel: [getMediaProviders]
+    unresolved: []
     domainCommands: [grantMediaConsent, revokeMediaConsent, beginMediaUpload, appendMediaChunk, completeMediaUpload, submitMediaJob, cancelMediaJob, openMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream]
     domainQueries: [listMediaConsents, getMediaConsent, getMediaUpload, getMediaArtifact, listMediaJobs, getMediaJob, getMediaStream]
-    semanticOperationBinding: eight-protocol-diagnostic-identities-are-transport-only; provider-readiness-inventory-remains-unresolved-as-a-possible-product-query; five-upload-artifact-identities-have-bounded-definition-crosslinks; no-full-cross-interface-or-runtime-binding-is-accepted
+    semanticOperationBinding: eight-protocol-diagnostic-identities-are-transport-only; provider-readiness-is-a-source-backed-non-domain-read-model-without-provider-admission-or-qualification-meaning; five-upload-artifact-identities-have-bounded-definition-crosslinks; no-full-cross-interface-or-runtime-binding-is-accepted
   grpc:
     domainCommands: [STTService.Transcribe, STTService.StreamTranscribe, STTService.SubmitCorrection, TTSService.Synthesize, TTSService.StreamSynthesize, TTSService.CloneVoice, VisionService.DetectObjects, VisionService.AnalyzeImage, VisionService.ClassifyImage, VisionService.AnalyzeVideoFile, VisionService.ProcessVideo, MultimodalService.ProcessMultimodal, MultimodalService.AnalyzeVideoWithAudio, MultimodalService.GenerateDescription, MultimodalService.AnalyzeCrossModal, MultimodalService.GetInsights]
     domainQueries: [TTSService.GetVoices]
     providerAdmin: [STTService.LoadModel, STTService.UnloadModel, STTService.ListModels, TTSService.LoadVoice, VisionService.LoadModel, VisionService.UnloadModel, VisionService.ListModels, MultimodalService.LoadModel, MultimodalService.UnloadModel, MultimodalService.ListModels]
-    unresolved: [STTService.AdaptModel, STTService.CreateProfile, STTService.GetProfile, STTService.UpdateProfile, TTSService.CreateProfile, TTSService.GetProfile, TTSService.UpdateProfile, TTSService.SubmitFeedback]
+    legacyProviderProfileAdmin: [TTSService.CreateProfile, TTSService.GetProfile, TTSService.UpdateProfile]
+    unimplementedEndpoint: [TTSService.SubmitFeedback]
+    ownerAdapterRequired: [STTService.AdaptModel, STTService.CreateProfile, STTService.GetProfile, STTService.UpdateProfile]
+    unresolved: []
     transportOnly: [STTService.GetStatus, STTService.HealthCheck, TTSService.GetStatus, TTSService.GetMetrics, VisionService.GetStatus, VisionService.HealthCheck, MultimodalService.GetStatus, MultimodalService.HealthCheck]
-    semanticOperationBinding: 17-domain-candidate-bindings-remain-proposed; transport-and-provider-admin-role-dispositions-are-source-grounded; eight-profile-adaptation-and-feedback-identities-remain-unresolved; no-operation-equivalence-is-accepted
+    semanticOperationBinding: 17-domain-candidate-bindings-remain-proposed; transport-and-provider-admin-role-dispositions-are-source-grounded; four-STT-owner-operations-have-adapter-required-semantic-roles-with-wire-parity-open; three-TTS-profile-RPCs-are-source-backed-engine-profile-administration-not-Media-domain-operations; SubmitFeedback-is-explicitly-unimplemented-pending-persistence-and-learning-provider; no-wire-equivalence-is-accepted
   cliFixture:
     domainCommands: [media.fixture-cli.upload-inspect, media.fixture-cli.upload-resume, media.fixture-cli.transcribe, media.fixture-cli.job-cancel, media.fixture-cli.caption-correct-text, media.fixture-cli.caption-align-timing, media.fixture-cli.caption-save-version]
     domainQueries: [media.fixture-cli.transcript-review, media.fixture-cli.job-status, media.fixture-cli.job-check-outcome, media.fixture-cli.caption-compare-versions]
@@ -479,6 +502,156 @@ typedHttpNonOperationDispositions:
   - {identity: getMediaMetrics, type: TRANSPORT_ONLY, source: contracts/openapi/media.yaml#/paths/~1metrics/get, basis: runtime-metrics-diagnostics-not-product-domain-query}
   - {identity: getMediaInfo, type: TRANSPORT_ONLY, source: contracts/openapi/media.yaml#/paths/~1info/get, basis: runtime-information-diagnostics-not-product-domain-query}
   - {identity: getMediaVersionedHealth, type: TRANSPORT_ONLY, source: contracts/openapi/media.yaml#/paths/~1api~1v1~1health/get, basis: versioned-process-health-observation-only}
+typedHttpReadModelDispositions:
+  - identity: getMediaProviders
+    type: READINESS_READ_MODEL
+    source: contracts/openapi/media.yaml#/paths/~1api~1v1~1providers/get
+    implementationSource: launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java#providers
+    runtimeSource: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#providerIds+streamingProviderIds+capabilityProfiles
+    authorizationSource:
+      - launcher/src/main/java/com/ghatana/media/launcher/MediaRouteManifest.java#requiredPermission
+      - launcher/src/main/java/com/ghatana/media/launcher/MediaSecurityFilter.java#handle
+      - ../ghatana/platform/java/launcher-support/src/main/java/com/ghatana/launcher/security/SecurityFilterSupport.java#handle
+    responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/MediaProviderResponse
+    responseFields: [processingProviders, streamingProviders, capabilityProfiles, artifactStoreId, jobStoreId, streamStoreId, consentAdministrationId, genericModelIntegration, metadataIntegration]
+    authority: Media source interpretation of exact OpenAPI and launcher behavior; definition-level role classification only
+    disposition: SERVICE_READINESS_INVENTORY; NOT_A_DOMAIN_OPERATION; NOT_PROVIDER_ADMISSION; NOT_QUALIFICATION; NOT_RIGHTS_OR_CAPABILITY_ELIGIBILITY
+    evidence: provider IDs and store IDs are copied from runtime inventories/health snapshot; capability profiles are filtered by provider.ready(); response has no qualification, rights, tenant capability, or execution-admission field; JWT route permission is media:provider:read and the route is not public
+    negativeCases:
+      - Do not treat a provider ID as an admitted provider or selected operation implementation.
+      - Do not treat provider.ready() or a returned profile as technical qualification, rights clearance, or capability eligibility.
+      - Do not treat this service-level readiness response as a domain operation result or a cross-tenant absence oracle.
+    acceptanceEffect: none; runtime source observation does not establish independent contract acceptance or provider qualification
+
+# Media-owned adapter definitions for the HTTP identities whose existing
+# family-level candidate is too broad to establish request/result parity. Each
+# record preserves the active wire shape and names the exact canonical leaf
+# candidate (or missing Media owner definition); none accepts the route.
+typedHttpCanonicalAdapterAssessments:
+  status: "SOURCE_BACKED_ADAPTER_REQUIREMENTS; runtimeAdmission: NOT_ADMITTED; crossInterfaceAcceptance: OPEN"
+  records:
+    - identity: grantMediaConsent
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents/post
+      requestSchemaRef: contracts/openapi/media.yaml#/components/schemas/ConsentGrantRequest
+      requestFields: [purposes, allowedRegions, externalProcessingAllowed, biometricProcessingAllowed, expiresAt]
+      responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/ConsentRecord
+      responseFields: [tenantId, consentId, principalId, purposes, allowedRegions, externalProcessingAllowed, biometricProcessingAllowed, grantedAt, expiresAt, revokedAt, version]
+      canonicalOperationRef: null
+      disposition: OWNER_DEFINITION_REQUIRED
+      missingSemantics: [authority-issued-subject-and-principal-binding, exact-purpose-and-region-validity-scope, current-authority-receipt, idempotency-and-replay, explicit-effective-time-and-version, consent-source-of-truth]
+      boundary: response shape alone cannot grant current consent or establish that the external authority accepted the record
+    - identity: listMediaConsents
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents/get
+      requestFields: [tenant-header, principal-header, limit]
+      responseFields: ["consents[]"]
+      canonicalOperationRef: media.operation.action.inspect-consent-and-permitted-use
+      disposition: ADAPTER_REQUIRED
+      missingSemantics: [subject-or-consent-selection, purpose-and-region-scope, exact-version-selection, scoped-empty-result-versus-unauthorized-or-unavailable, current-authority-observation-time]
+      boundary: a collection read is not equivalent to inspecting one permitted-use decision; do not infer consent from an empty or partial collection
+    - identity: getMediaConsent
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents~1{consentId}/get
+      pathFields: [consentId]
+      responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/ConsentRecord
+      responseFields: [tenantId, consentId, principalId, purposes, allowedRegions, externalProcessingAllowed, biometricProcessingAllowed, grantedAt, expiresAt, revokedAt, version]
+      canonicalOperationRef: media.operation.action.inspect-consent-and-permitted-use
+      disposition: ADAPTER_REQUIRED
+      missingSemantics: [host-attested-tenant-and-principal, exact-consent-version, requested-purpose-and-region-evaluation, scope-safe-absence, current-authority-receipt]
+      boundary: consent record retrieval does not itself evaluate whether a protected effect is currently permitted
+    - identity: revokeMediaConsent
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents~1{consentId}/delete
+      pathFields: [consentId]
+      responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/ConsentRecord
+      responseFields: [tenantId, consentId, principalId, purposes, allowedRegions, externalProcessingAllowed, biometricProcessingAllowed, grantedAt, expiresAt, revokedAt, version]
+      canonicalOperationRef: media.operation.action.revoke-authorized-consent
+      disposition: ADAPTER_REQUIRED
+      missingRequestSemantics: [requestId, exactTargetRef, currentAuthorityDecision, explicitConfirmation, declaredScopeRef, purposeRef, validityScope, authorityDecisionRef]
+      missingResultSemantics: [authority-receipt, prior-effect-disposition, unknown-outcome-reconciliation]
+      boundary: DELETE plus a returned record cannot substitute for the canonical explicit scope and current-authority guard
+    - identity: submitMediaJob
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/post
+      requestSchemaRef: contracts/openapi/media.yaml#/components/schemas/ProcessingJobRequest
+      requestFields: [requestId, tenantId, principalId, correlationId, artifactId, jobType, providerHint, parameters, governanceContext]
+      responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/ProcessingJob
+      responseFields: [jobId, requestId, tenantId, principalId, artifactId, jobType, providerId, status, createdAt, startedAt, completedAt, result, failureCode, version, requestFingerprint]
+      canonicalOperationRef: media.operation.job.submit.v1
+      disposition: ADAPTER_REQUIRED
+      missingSemantics: [trusted-host-identity-not-client-supplied, canonical-exact-artifact-version, leaf-specific-typed-parameters-and-profile-version, fresh-tenant-principal-and-consent-guards, durable-dispatch-intent-before-acceptance, receipt-versus-effect-finality]
+      boundary: accepted HTTP job registration is not proof that processing completed or that providerHint is qualified
+    - identity: listMediaJobs
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/get
+      requestFields: [tenant-header, principal-header, limit]
+      responseFields: ["jobs[]"]
+      canonicalOperationRef: null
+      disposition: OWNER_DEFINITION_REQUIRED
+      missingSemantics: [finite-query-filter-schema, stable-order-and-pagination-cursor, exact-tenant-principal-scope, authorization-safe-empty-versus-unavailable, observation-currentness]
+      boundary: collection enumeration cannot be inferred from the single-job inspect operation
+    - identity: getMediaJob
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs~1{jobId}/get
+      pathFields: [jobId]
+      responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/ProcessingJob
+      responseFields: [jobId, requestId, tenantId, principalId, artifactId, jobType, providerId, status, createdAt, startedAt, completedAt, result, failureCode, version, requestFingerprint]
+      canonicalOperationRef: media.operation-slice.inspect-job
+      disposition: ADAPTER_REQUIRED
+      missingSemantics: [trusted-host-tenant-and-principal, exact-job-version, scope-safe-absence, separate-execution-state-effect-finality-and-output-availability]
+      boundary: returned status does not by itself prove effect finality or output availability
+    - identity: cancelMediaJob
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs~1{jobId}~1cancel/post
+      pathFields: [jobId]
+      responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/ProcessingJob
+      responseFields: [jobId, requestId, tenantId, principalId, artifactId, jobType, providerId, status, createdAt, startedAt, completedAt, result, failureCode, version, requestFingerprint]
+      canonicalOperationRef: media.operation-slice.cancel-job
+      disposition: ADAPTER_REQUIRED
+      missingRequestSemantics: [requestId, observed-version-or-CAS, trusted-tenant-principal, cancellation-authority-and-policy]
+      missingResultSemantics: [cancel-requested-versus-cancelled, already-final-versus-unknown, no-duplicate-dispatch]
+      boundary: a successful HTTP response to a cancellation request cannot be treated as confirmed cancellation
+    - identity: openMediaStream
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams/post
+      requestSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamSessionRequest
+      requestFields: [tenantId, principalId, correlationId, streamKind, providerHint, maximumBufferedBytes, leaseDuration, metadata, governanceContext]
+      responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamSessionRegistration
+      responseFields: [session, connectionToken]
+      canonicalOperationRef: media.operation.capability.media-stream-session-open
+      disposition: ADAPTER_REQUIRED
+      missingSemantics: [trusted-host-identity, exact-source-and-consent-versioned-inputs, canonical-clock-and-sequence-start, bounded-token-secret-handling, lease-expiry-versus-close-finality, idempotent-open-reconciliation]
+      boundary: transport session registration is not source authorization or proof any frame was accepted
+    - identity: getMediaStream
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}/get
+      pathFields: [sessionId]
+      responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamSession
+      canonicalOperationRef: null
+      disposition: OWNER_DEFINITION_REQUIRED
+      missingSemantics: [exact-session-observation-operation, trusted-host-tenant-principal, session-version-and-currentness, lease-versus-closed-finality, scope-safe-absence]
+      boundary: do not equate readback with connect, frame acceptance, lease renewal, or session closure
+    - identity: connectMediaStream
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}~1connect/post
+      pathFields: [sessionId]
+      responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamSession
+      canonicalOperationRef: media.operation.capability.media-stream-session-connect
+      disposition: ADAPTER_REQUIRED
+      missingRequestSemantics: [trusted-host-identity, exact-lease-and-session-version, request-identity-and-idempotency]
+      missingResultSemantics: [connected-versus-connect-requested, transport-attachment-versus-session-state, reconnect-reconciliation]
+      boundary: connection establishment is not session authorization or proof of media data acceptance
+    - identity: submitMediaStreamFrame
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}~1frames~1{sequence}/post
+      pathFields: [sessionId, sequence]
+      requestFields: [frame-body, X-End-Of-Stream]
+      responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamAck
+      responseFields: [acceptedSequence, bufferedBytes, backpressured]
+      canonicalOperationRef: media.operation.capability.media-stream-frame-submit
+      disposition: ADAPTER_REQUIRED
+      missingRequestSemantics: [exact-stream-version, source-frame-clock-and-timebase, payload-digest-and-size-bounds, consent-currentness, request-identity]
+      missingResultSemantics: [duplicate-sequence-same-payload-replay, conflicting-sequence-rejection, accepted-versus-buffered-versus-processed-finality]
+      boundary: a transport acknowledgment is not proof of processing or durable media artifact creation
+    - identity: closeMediaStream
+      sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}~1close/post
+      pathFields: [sessionId]
+      responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamSession
+      canonicalOperationRef: media.operation.capability.media-stream-session-close
+      disposition: ADAPTER_REQUIRED
+      missingRequestSemantics: [trusted-host-identity, exact-session-version, request-identity, explicit-close-reason]
+      missingResultSemantics: [close-request-versus-confirmed-closed, pending-frame-disposition, unknown-outcome-reconciliation]
+      boundary: connection detach, lease expiry, and confirmed session closure remain distinct states
+  acceptanceEffect: none
 
 typedGrpcNonOperationDispositions:
   - {identity: STTService.GetStatus, type: TRANSPORT_ONLY, sourceFile: modules/speech/stt-service/src/main/proto/stt_service.proto, sourceMethod: 'rpc GetStatus', basis: provider-service-status-observation}
@@ -499,6 +672,51 @@ typedGrpcNonOperationDispositions:
   - {identity: MultimodalService.LoadModel, type: PROVIDER_ADMIN, sourceFile: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto, sourceMethod: 'rpc LoadModel', basis: provider-model-administration}
   - {identity: MultimodalService.UnloadModel, type: PROVIDER_ADMIN, sourceFile: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto, sourceMethod: 'rpc UnloadModel', basis: provider-model-administration}
   - {identity: MultimodalService.ListModels, type: PROVIDER_ADMIN, sourceFile: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto, sourceMethod: 'rpc ListModels', basis: provider-model-administration}
+  - identity: TTSService.CreateProfile
+    type: LEGACY_PROVIDER_PROFILE_ADMIN
+    sourceFile: modules/speech/tts-service/src/main/proto/tts_service.proto
+    sourceMethod: 'rpc CreateProfile'
+    implementationSource: modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java#createProfile
+    basis: creates-random-id-profile-directly-in-provider-TtsEngine-without-Media-tenant-principal-version-idempotency-or-finality-contract
+    observedRequestFields: [display_name, settings]
+    observedAppliedFields: [display_name, default_options.speed, default_options.pitch, default_options.energy]
+    observedIgnoredSettings: [preferred_language, default_voice_id, adaptation_mode, privacy_level]
+    observedResponseFields: [profile_id, display_name, settings, stats]
+    canonicalOperationRef: null
+    canonicalEquivalence: NOT_ESTABLISHED; provider-engine-profile-is-not-a-Media-canonical-voice-profile
+    runtimeAdmission: NOT_ADMITTED
+  - identity: TTSService.GetProfile
+    type: LEGACY_PROVIDER_PROFILE_ADMIN
+    sourceFile: modules/speech/tts-service/src/main/proto/tts_service.proto
+    sourceMethod: 'rpc GetProfile'
+    implementationSource: modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java#getProfile
+    basis: unversioned-provider-engine-profile-read-by-profile-id-with-provider-NOT_FOUND-and-no-Media-tenant-principal-access-or-scope-safe-absence-contract
+    observedRequestFields: [profile_id]
+    observedResponseFields: [profile_id, display_name, stats]
+    canonicalOperationRef: null
+    canonicalEquivalence: NOT_ESTABLISHED; provider-engine-profile-is-not-a-Media-canonical-voice-profile
+    runtimeAdmission: NOT_ADMITTED
+  - identity: TTSService.UpdateProfile
+    type: LEGACY_PROVIDER_PROFILE_ADMIN
+    sourceFile: modules/speech/tts-service/src/main/proto/tts_service.proto
+    sourceMethod: 'rpc UpdateProfile'
+    implementationSource: modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java#updateProfile
+    basis: unversioned-provider-engine-profile-load-and-save-without-Media-tenant-principal-CAS-idempotency-or-finality-contract
+    observedRequestFields: [profile_id, settings]
+    observedAppliedFields: [default_voice_id, default_options.speed, default_options.pitch, default_options.energy]
+    observedIgnoredSettings: [preferred_language, adaptation_mode, privacy_level]
+    observedResponseFields: [profile_id, display_name, request_settings_echo, stats]
+    canonicalOperationRef: null
+    canonicalEquivalence: NOT_ESTABLISHED; request-settings-echo-does-not-prove-applied-settings-or-Media-profile-equivalence
+    runtimeAdmission: NOT_ADMITTED
+  - identity: TTSService.SubmitFeedback
+    type: UNIMPLEMENTED_ENDPOINT
+    sourceFile: modules/speech/tts-service/src/main/proto/tts_service.proto
+    sourceMethod: 'rpc SubmitFeedback'
+    implementationSource: modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java#submitFeedback
+    basis: implementation-returns-gRPC-UNIMPLEMENTED-until-explicit-feedback-persistence-and-learning-provider-exists
+    canonicalOperationRef: null
+    runtimeAdmission: NOT_ADMITTED
 
 compatibilityRouteFindings:
   disposition: NOT_ADMITTED_TO_CURRENT_RUNTIME_ROUTE_MANIFEST; retained-as-legacy-client-call-sites; each-exact-route-remains-a-transport-mismatch-finding-until-client-or-runtime-contracts-converge
@@ -522,8 +740,17 @@ compatibilityRouteFindings:
     - {source: libs/audio-video-client/src/index.ts, method: POST, path: '/api/multimodal/process'}
 
 typedUiActionDispositions:
-  source: .product-experience/pdp-3-product-experience/action-registry.yaml#/actions
-  denominator: 146
+  source:
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#/actions
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#/ownerDefinedActions
+  denominator: 147
+  historicalSnapshot:
+    denominator: 146
+    source: .product-experience/pdp-3-product-experience/action-registry.yaml#/actions
+    dispositionCounts: {CLIENT_ONLY: 48, DOMAIN_COMMAND: 9, DOMAIN_QUERY: 49, NOT_ADMITTED: 29, NAVIGATION_OR_PRESENTATION: 11}
+    operationBindingCounts: {mappedProposal: 14, ambiguous: 0, unresolved: 132}
+    decisionRef: .product-experience/decision-log.md#PXD-029
+    note: Immutable historical denominator and accepted semantic-intent association scope.
   typeSet:
   - DOMAIN_COMMAND
   - DOMAIN_QUERY
@@ -537,11 +764,12 @@ typedUiActionDispositions:
   evidencePolicy: each-row-cites-its-action-contract-label-preconditions-effect-reversibility-finality; operationRef-is-present-only-for-an-exact-existing-PDP1-actionRef
   operationBindingCounts:
     mappedProposal: 14
+    ownerDefinedIntentOnly: 1
     ambiguous: 0
     unresolved: 132
   dispositionCounts:
     CLIENT_ONLY: 48
-    DOMAIN_COMMAND: 9
+    DOMAIN_COMMAND: 10
     DOMAIN_QUERY: 49
     NOT_ADMITTED: 29
     NAVIGATION_OR_PRESENTATION: 11
@@ -2054,6 +2282,23 @@ typedUiActionDispositions:
     - reversible
     - finality
     classificationBasis: action contract changes view, navigation, or presentation and declares no domain write
+  - identity: media.action.request-live-session-reconnect
+    type: DOMAIN_COMMAND
+    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#ownerDefinedActions[media.action.request-live-session-reconnect]
+    decisionRef: .product-experience/decision-log.md#PXD-077
+    evidenceFields:
+    - label
+    - preconditions
+    - effect
+    - requestSemantics
+    - authorityRefs
+    - recovery
+    - reversible
+    - finality
+    classificationBasis: PXD-077 owner-defined Media command identity with exact operation intent; explicit user request and fail-closed reconnect semantics are source-defined, while cross-interface equivalence and runtime admission remain open
+    operationAssociationStatus: owner-defined-operation-intent-only; not part of PXD-029 accepted set and not an accepted cross-interface binding
+    ownerOperationIntentRef: media.operation.capability.media-stream-session-reconnect
+    runtimeAdmission: NOT_ADMITTED
 
 typedHttpOperationContracts:
   - identity: getMediaHealth
@@ -3158,12 +3403,13 @@ typedHttpOperationContracts:
     sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1providers/get
     method: GET
     path: /api/v1/providers
-    role: UNRESOLVED
-    bindingStatus: UNRESOLVED
-    fieldParityStatus: UNRESOLVED_ROLE_AND_FIELD_PARITY
+    role: READINESS_READ_MODEL
+    bindingStatus: SOURCE_BACKED_NON_OPERATION
+    fieldParityStatus: SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable
     canonicalOperationRef: null
-    bindingBasis: no source-backed canonical identity or transport-only disposition
-      is established
+    bindingBasis: exact OpenAPI response and launcher implementation expose a tenant-authorized
+      service readiness inventory; this is not a Media domain operation, provider admission,
+      technical qualification, rights clearance, or capability eligibility
     requestSchemaRefs: []
     requestMediaTypes: []
     responseContracts:
@@ -3439,12 +3685,12 @@ typedGrpcMethodContracts:
     sourceFile: modules/speech/stt-service/src/main/proto/stt_service.proto
     service: STTService
     method: AdaptModel
-    role: UNRESOLVED
-    bindingStatus: UNRESOLVED
-    fieldParityStatus: UNRESOLVED_ROLE_AND_FIELD_PARITY
+    role: DOMAIN_COMMAND
+    bindingStatus: OWNER_ADAPTER_REQUIRED
+    fieldParityStatus: OWNER_ADAPTER_REQUIRED; legacy-wire-field-parity-not-established
     canonicalFamilyCandidateRef: null
-    bindingBasis: typed profile, adaptation, or feedback request/result has no
-      established PDP-1 canonical operation contract
+    canonicalOwnerOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/@id=media.operation.stt.profile.adapt.v1
+    bindingBasis: exact Media owner operation is defined; observed legacy request lacks required owner context, version, consent, or idempotency fields and cannot bind directly
     inputMessage: AdaptRequest
     inputStream: false
     outputMessage: AdaptResponse
@@ -3480,6 +3726,27 @@ typedGrpcMethodContracts:
       canonicalEquivalence: NOT_ESTABLISHED
       runtimeAdmission: NOT_ADMITTED
       independentAcceptance: OPEN
+    mediaOwnerSemanticAdapter:
+      id: media.interface-adapter.stt-profile-adapt.v1
+      observedSourceRole: DOMAIN_COMMAND
+      ownerOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/@id=media.operation.stt.profile.adapt.v1
+      ownerIntent: Append one immutable tenant-scoped speech-profile revision from explicitly user-confirmed correction examples under active consent and exact profile-head compare-and-set.
+      sourceFieldDisposition:
+        input.profile_id: Direct profile identity candidate only; owner tenant scope and exact expected profile version are absent from this RPC.
+        input.interactions: The observed handler reads corrected_transcript text only; a canonical correction example also needs an exact source-text/version reference and explicit user-confirmation flag.
+        input.mode: Ignored by the observed handler; it cannot select a different owner operation or adaptation policy.
+        output.success: Provider success boolean is not an owner finality receipt or effect identity.
+        output.message: Provider message is not an immutable profile revision or scoped error disposition.
+        output.stats: Provider statistics do not return the new immutable profile revision, current head, audit receipt, or effect identity.
+      missingLegacyFields:
+        - expectedProfileVersionId for compare-and-set
+        - consentRef and purpose-bound host authorization context
+        - requestId for idempotency and ambiguous-outcome reconciliation
+        - sourceTextRef and userConfirmed for each correction example
+        - immutable resulting profileVersionId and owner finality receipt
+      disposition: OWNER_DEFINED_ADAPTER_REQUIRED; do not directly bind this legacy RPC to the canonical command
+      canonicalWireEquivalence: NOT_ESTABLISHED; field names and common profile identity do not establish parity
+      runtimeAdmission: NOT_ADMITTED
   - identity: STTService.GetStatus
     sourceRef: modules/speech/stt-service/src/main/proto/stt_service.proto#service.STTService.rpc.GetStatus
     sourceFile: modules/speech/stt-service/src/main/proto/stt_service.proto
@@ -3546,12 +3813,12 @@ typedGrpcMethodContracts:
     sourceFile: modules/speech/stt-service/src/main/proto/stt_service.proto
     service: STTService
     method: CreateProfile
-    role: UNRESOLVED
-    bindingStatus: UNRESOLVED
-    fieldParityStatus: UNRESOLVED_ROLE_AND_FIELD_PARITY
+    role: DOMAIN_COMMAND
+    bindingStatus: OWNER_ADAPTER_REQUIRED
+    fieldParityStatus: OWNER_ADAPTER_REQUIRED; legacy-wire-field-parity-not-established
     canonicalFamilyCandidateRef: null
-    bindingBasis: typed profile, adaptation, or feedback request/result has no
-      established PDP-1 canonical operation contract
+    canonicalOwnerOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/@id=media.operation.stt.profile.create.v1
+    bindingBasis: exact Media owner operation is defined; observed legacy request lacks required owner context, version, consent, or idempotency fields and cannot bind directly
     inputMessage: CreateProfileRequest
     inputStream: false
     outputMessage: ProfileResponse
@@ -3588,17 +3855,39 @@ typedGrpcMethodContracts:
       canonicalEquivalence: NOT_ESTABLISHED
       runtimeAdmission: NOT_ADMITTED
       independentAcceptance: OPEN
+    mediaOwnerSemanticAdapter:
+      id: media.interface-adapter.stt-profile-create.v1
+      observedSourceRole: DOMAIN_COMMAND
+      ownerOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/@id=media.operation.stt.profile.create.v1
+      ownerIntent: Create an immutable tenant-scoped speech-profile revision from bounded, typed enrollment samples with explicit consent, purpose, and idempotency.
+      sourceFieldDisposition:
+        input.display_name: Value candidate for displayName only after the owner's bounded validation.
+        input.enrollment_audio: Raw repeated bytes are not the required immutable sample references with exact media type, sample rate, channel count, duration, digest, and source identity; the observed handler resamples to fixed 16000-Hz mono 16-bit audio.
+        input.settings: The observed create handler echoes settings in the response but does not pass them to engine profile creation; do not treat requested settings as applied configuration.
+        output.profile_id: Random provider ID lacks a tenant-scoped immutable profile-version identity and configuration digest.
+        output.display_name: Echoed display name does not establish a scoped profile version or applied configuration.
+        output.stats: Provider statistics are not owner profile state or an idempotency/finality receipt.
+        output.settings: Echoed settings were not passed to engine profile creation and cannot be represented as applied configuration.
+      missingLegacyFields:
+        - immutable enrollment sample references and content digests
+        - host-attested tenant/principal context and active consentRef/purpose
+        - requestId for idempotent create and recovery of random-ID creation
+        - explicit profile configuration version and settings actually applied
+        - immutable profileVersionId and canonical creation receipt
+      disposition: OWNER_DEFINED_ADAPTER_REQUIRED; no direct legacy RPC binding
+      canonicalWireEquivalence: NOT_ESTABLISHED; legacy resampling and ignored settings are material differences
+      runtimeAdmission: NOT_ADMITTED
   - identity: STTService.GetProfile
     sourceRef: modules/speech/stt-service/src/main/proto/stt_service.proto#service.STTService.rpc.GetProfile
     sourceFile: modules/speech/stt-service/src/main/proto/stt_service.proto
     service: STTService
     method: GetProfile
-    role: UNRESOLVED
-    bindingStatus: UNRESOLVED
-    fieldParityStatus: UNRESOLVED_ROLE_AND_FIELD_PARITY
+    role: DOMAIN_QUERY
+    bindingStatus: OWNER_ADAPTER_REQUIRED
+    fieldParityStatus: OWNER_ADAPTER_REQUIRED; legacy-wire-field-parity-not-established
     canonicalFamilyCandidateRef: null
-    bindingBasis: typed profile, adaptation, or feedback request/result has no
-      established PDP-1 canonical operation contract
+    canonicalOwnerOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/@id=media.operation.stt.profile.get.v1
+    bindingBasis: exact Media owner operation is defined; observed legacy request lacks required owner context, version, consent, or idempotency fields and cannot bind directly
     inputMessage: GetProfileRequest
     inputStream: false
     outputMessage: ProfileResponse
@@ -3631,17 +3920,38 @@ typedGrpcMethodContracts:
       canonicalEquivalence: NOT_ESTABLISHED
       runtimeAdmission: NOT_ADMITTED
       independentAcceptance: OPEN
+    mediaOwnerSemanticAdapter:
+      id: media.interface-adapter.stt-profile-get.v1
+      observedSourceRole: DOMAIN_QUERY
+      ownerOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/@id=media.operation.stt.profile.get.v1
+      ownerIntent: Read one exact tenant-scoped immutable profile revision without exposing unversioned latest state or turning scoped absence into global absence.
+      sourceFieldDisposition:
+        input.profile_id: Candidate for profileId only; it is an unversioned lookup and supplies no owner tenant context.
+        output.profile_id: Returned provider identity does not include immutable profileVersionId or tenant scope.
+        output.display_name: Display metadata does not include creation/current observation time or scoped access evidence.
+        output.stats: Provider statistics are not a versioned owner profile-state snapshot.
+        output.settings: Returned settings lack an immutable profile version and configuration digest.
+      missingLegacyFields:
+        - profileVersionId selecting the immutable revision
+        - host-attested tenantId and principalId
+        - current access revalidation and scope-safe absence disposition
+        - result version identity and owner observation/provenance fields
+      errorDisposition:
+        not_found: Provider NOT_FOUND does not prove global absence and cannot be returned without scope-safe access semantics.
+      disposition: OWNER_DEFINED_ADAPTER_REQUIRED; unversioned legacy read is not a direct canonical query binding
+      canonicalWireEquivalence: NOT_ESTABLISHED
+      runtimeAdmission: NOT_ADMITTED
   - identity: STTService.UpdateProfile
     sourceRef: modules/speech/stt-service/src/main/proto/stt_service.proto#service.STTService.rpc.UpdateProfile
     sourceFile: modules/speech/stt-service/src/main/proto/stt_service.proto
     service: STTService
     method: UpdateProfile
-    role: UNRESOLVED
-    bindingStatus: UNRESOLVED
-    fieldParityStatus: UNRESOLVED_ROLE_AND_FIELD_PARITY
+    role: DOMAIN_COMMAND
+    bindingStatus: OWNER_ADAPTER_REQUIRED
+    fieldParityStatus: OWNER_ADAPTER_REQUIRED; legacy-wire-field-parity-not-established
     canonicalFamilyCandidateRef: null
-    bindingBasis: typed profile, adaptation, or feedback request/result has no
-      established PDP-1 canonical operation contract
+    canonicalOwnerOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/@id=media.operation.stt.profile.update.v1
+    bindingBasis: exact Media owner operation is defined; observed legacy request lacks required owner context, version, consent, or idempotency fields and cannot bind directly
     inputMessage: UpdateProfileRequest
     inputStream: false
     outputMessage: ProfileResponse
@@ -3675,6 +3985,27 @@ typedGrpcMethodContracts:
       canonicalEquivalence: NOT_ESTABLISHED
       runtimeAdmission: NOT_ADMITTED
       independentAcceptance: OPEN
+    mediaOwnerSemanticAdapter:
+      id: media.interface-adapter.stt-profile-update.v1
+      observedSourceRole: DOMAIN_COMMAND
+      ownerOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/@id=media.operation.stt.profile.update.v1
+      ownerIntent: Append one immutable profile revision for preferredLanguage only, guarded by exact expected-profile-head CAS and current tenant-scoped update authority.
+      sourceFieldDisposition:
+        input.profile_id: Candidate for profileId only; not tenant-scoped by this request.
+        input.settings: The observed handler applies preferred language only and ignores other submitted settings. This legacy shape cannot be interpreted as a general settings replacement or patch.
+        output.profile_id: Returned provider identity has no immutable successor profileVersionId.
+        output.display_name: Echoed metadata is not a write-finality or version receipt.
+        output.stats: Provider statistics do not establish which version was committed.
+        output.settings: Echoed settings do not establish applied fields beyond the observed preferred-language mutation.
+      missingLegacyFields:
+        - expectedProfileVersionId for stale-write detection and compare-and-set
+        - requestId for idempotency and ambiguous-save reconciliation
+        - host-attested tenant/principal and current profile-write authorization
+        - explicit preferredLanguage patch and supported-language policy evidence
+        - immutable successor profileVersionId and owner finality receipt
+      disposition: OWNER_DEFINED_ADAPTER_REQUIRED; no direct legacy RPC binding
+      canonicalWireEquivalence: NOT_ESTABLISHED; unversioned settings request is not the owner-defined preferredLanguage CAS command
+      runtimeAdmission: NOT_ADMITTED
   - identity: STTService.SubmitCorrection
     sourceRef: modules/speech/stt-service/src/main/proto/stt_service.proto#service.STTService.rpc.SubmitCorrection
     sourceFile: modules/speech/stt-service/src/main/proto/stt_service.proto
@@ -3951,12 +4282,11 @@ typedGrpcMethodContracts:
     sourceFile: modules/speech/tts-service/src/main/proto/tts_service.proto
     service: TTSService
     method: CreateProfile
-    role: UNRESOLVED
-    bindingStatus: UNRESOLVED
-    fieldParityStatus: UNRESOLVED_ROLE_AND_FIELD_PARITY
+    role: LEGACY_PROVIDER_PROFILE_ADMIN
+    bindingStatus: SOURCE_BACKED_NON_OPERATION
+    fieldParityStatus: SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable
     canonicalFamilyCandidateRef: null
-    bindingBasis: typed profile, adaptation, or feedback request/result has no
-      established PDP-1 canonical operation contract
+    bindingBasis: exact TtsGrpcService source confirms provider-engine-profile administration with no Media canonical profile or tenant/version contract
     inputMessage: CreateProfileRequest
     inputStream: false
     outputMessage: ProfileResponse
@@ -3978,17 +4308,30 @@ typedGrpcMethodContracts:
         - {number: 4, label: singular, type: ProfileStats, name: stats}
     inputMessageRef: modules/speech/tts-service/src/main/proto/tts_service.proto#message.CreateProfileRequest
     outputMessageRef: modules/speech/tts-service/src/main/proto/tts_service.proto#message.ProfileResponse
+    mediaOwnerImplementationAssessment:
+      id: media.interface-implementation-assessment.grpc.tts-create-profile.v1
+      sourceImplementationRef: modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java#createProfile
+      disposition: LEGACY_PROVIDER_PROFILE_ADMIN; observed engine-profile effect does not establish a Media product profile operation
+      observedEffect: requires-display-name; maps-request-default-speed-pitch-energy-to-positive-values-with-1.0-defaults; generates-random-UUID; calls-engine-createProfile; response-echoes-request-settings
+      sourceInputUse: display_name-and-settings.default_options.speed_pitch_energy; requested-default-voice-is-not-passed-to-engine-profile-creation
+      missingOwnerSemantics:
+        - host-attested tenant/principal and current create authority
+        - idempotent request identity and recovery for random-ID creation
+        - immutable profile version, applied configuration digest, and owner finality receipt
+        - validation bounds and exact meaning for speed, pitch, energy, and voice selection
+      canonicalEquivalence: NOT_ESTABLISHED; response-echoed-settings-can-differ-from-normalized-engine-settings
+      runtimeAdmission: NOT_ADMITTED
+      independentAcceptance: OPEN
   - identity: TTSService.GetProfile
     sourceRef: modules/speech/tts-service/src/main/proto/tts_service.proto#service.TTSService.rpc.GetProfile
     sourceFile: modules/speech/tts-service/src/main/proto/tts_service.proto
     service: TTSService
     method: GetProfile
-    role: UNRESOLVED
-    bindingStatus: UNRESOLVED
-    fieldParityStatus: UNRESOLVED_ROLE_AND_FIELD_PARITY
+    role: LEGACY_PROVIDER_PROFILE_ADMIN
+    bindingStatus: SOURCE_BACKED_NON_OPERATION
+    fieldParityStatus: SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable
     canonicalFamilyCandidateRef: null
-    bindingBasis: typed profile, adaptation, or feedback request/result has no
-      established PDP-1 canonical operation contract
+    bindingBasis: exact TtsGrpcService source confirms provider-engine-profile administration with no Media canonical profile or tenant/version contract
     inputMessage: GetProfileRequest
     inputStream: false
     outputMessage: ProfileResponse
@@ -4009,17 +4352,29 @@ typedGrpcMethodContracts:
         - {number: 4, label: singular, type: ProfileStats, name: stats}
     inputMessageRef: modules/speech/tts-service/src/main/proto/tts_service.proto#message.GetProfileRequest
     outputMessageRef: modules/speech/tts-service/src/main/proto/tts_service.proto#message.ProfileResponse
+    mediaOwnerImplementationAssessment:
+      id: media.interface-implementation-assessment.grpc.tts-get-profile.v1
+      sourceImplementationRef: modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java#getProfile
+      disposition: LEGACY_PROVIDER_PROFILE_ADMIN; observed engine-profile effect does not establish a Media product profile operation
+      observedEffect: unversioned-profile-id-lookup; not-found-returns-provider-NOT_FOUND; response-contains-profile-id-display-name-and-character-count-over-recent-syntheses
+      sourceInputUse: profile_id-only; no-tenant-principal-or-profile-version-input
+      missingOwnerSemantics:
+        - host-attested tenant/principal and current read authorization
+        - immutable profile version and exact configuration/provenance snapshot
+        - scope-safe absence behavior and observation time
+      canonicalEquivalence: NOT_ESTABLISHED; provider-profile-id-does-not-establish-tenant-scoped-version-identity
+      runtimeAdmission: NOT_ADMITTED
+      independentAcceptance: OPEN
   - identity: TTSService.UpdateProfile
     sourceRef: modules/speech/tts-service/src/main/proto/tts_service.proto#service.TTSService.rpc.UpdateProfile
     sourceFile: modules/speech/tts-service/src/main/proto/tts_service.proto
     service: TTSService
     method: UpdateProfile
-    role: UNRESOLVED
-    bindingStatus: UNRESOLVED
-    fieldParityStatus: UNRESOLVED_ROLE_AND_FIELD_PARITY
+    role: LEGACY_PROVIDER_PROFILE_ADMIN
+    bindingStatus: SOURCE_BACKED_NON_OPERATION
+    fieldParityStatus: SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable
     canonicalFamilyCandidateRef: null
-    bindingBasis: typed profile, adaptation, or feedback request/result has no
-      established PDP-1 canonical operation contract
+    bindingBasis: exact TtsGrpcService source confirms provider-engine-profile administration with no Media canonical profile or tenant/version contract
     inputMessage: UpdateProfileRequest
     inputStream: false
     outputMessage: ProfileResponse
@@ -4041,6 +4396,20 @@ typedGrpcMethodContracts:
         - {number: 4, label: singular, type: ProfileStats, name: stats}
     inputMessageRef: modules/speech/tts-service/src/main/proto/tts_service.proto#message.UpdateProfileRequest
     outputMessageRef: modules/speech/tts-service/src/main/proto/tts_service.proto#message.ProfileResponse
+    mediaOwnerImplementationAssessment:
+      id: media.interface-implementation-assessment.grpc.tts-update-profile.v1
+      sourceImplementationRef: modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java#updateProfile
+      disposition: LEGACY_PROVIDER_PROFILE_ADMIN; observed engine-profile effect does not establish a Media product profile operation
+      observedEffect: loads-current-unversioned-profile; substitutes-positive-speed-pitch-energy-or-preserves-existing-values; preserves-existing-voice-on-blank-else-replaces-it; saves-mutated-profile; echoes-request-settings
+      sourceInputUse: profile_id-and-settings.default_voice_id_default_options.speed_pitch_energy
+      missingOwnerSemantics:
+        - host-attested tenant/principal and current profile-write authority
+        - expected profile version and compare-and-set conflict semantics
+        - request idempotency, immutable successor version, finality receipt, and ambiguous-save recovery
+        - explicit supported bounds and distinction between omitted versus default-valued settings
+      canonicalEquivalence: NOT_ESTABLISHED; read-modify-save-without-CAS-is-not-a-versioned-owner-update
+      runtimeAdmission: NOT_ADMITTED
+      independentAcceptance: OPEN
   - identity: TTSService.CloneVoice
     sourceRef: modules/speech/tts-service/src/main/proto/tts_service.proto#service.TTSService.rpc.CloneVoice
     sourceFile: modules/speech/tts-service/src/main/proto/tts_service.proto
@@ -4102,12 +4471,11 @@ typedGrpcMethodContracts:
     sourceFile: modules/speech/tts-service/src/main/proto/tts_service.proto
     service: TTSService
     method: SubmitFeedback
-    role: UNRESOLVED
-    bindingStatus: UNRESOLVED
-    fieldParityStatus: UNRESOLVED_ROLE_AND_FIELD_PARITY
+    role: UNIMPLEMENTED_ENDPOINT
+    bindingStatus: SOURCE_BACKED_NON_OPERATION
+    fieldParityStatus: SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable
     canonicalFamilyCandidateRef: null
-    bindingBasis: typed profile, adaptation, or feedback request/result has no
-      established PDP-1 canonical operation contract
+    bindingBasis: service implementation returns gRPC UNIMPLEMENTED until explicit feedback persistence and learning provider exists
     inputMessage: FeedbackRequest
     inputStream: false
     outputMessage: FeedbackResponse
@@ -4129,6 +4497,19 @@ typedGrpcMethodContracts:
         - {number: 2, label: singular, type: string, name: message}
     inputMessageRef: modules/speech/tts-service/src/main/proto/tts_service.proto#message.FeedbackRequest
     outputMessageRef: modules/speech/tts-service/src/main/proto/tts_service.proto#message.FeedbackResponse
+    mediaOwnerImplementationAssessment:
+      id: media.interface-implementation-assessment.grpc.tts-submit-feedback.v1
+      sourceImplementationRef: modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java#submitFeedback
+      disposition: SOURCE_HANDLER_UNIMPLEMENTED; no feedback persistence-or-learning effect exists
+      observedEffect: returns-UNIMPLEMENTED-error; does-not-read-profile-or-synthesis; does-not-persist-feedback-or-update-learning
+      sourceInputUse: no-request-field-is-consumed
+      missingOwnerSemantics:
+        - current feedback authority and consent/purpose boundaries
+        - exact synthesis artifact/version reference and typed feedback meaning
+        - persistence, idempotency, finality receipt, and correction/retraction policy
+      canonicalEquivalence: NOT_ESTABLISHED; handler has no implemented operation effect
+      runtimeAdmission: NOT_ADMITTED
+      independentAcceptance: OPEN
   - identity: VisionService.DetectObjects
     sourceRef: modules/vision/vision-service/src/main/proto/vision_service.proto#service.VisionService.rpc.DetectObjects
     sourceFile: modules/vision/vision-service/src/main/proto/vision_service.proto
@@ -5125,12 +5506,18 @@ typedSdkMethodContracts:
     method: listProviderCapabilities
     sourceSignature: "listProviderCapabilities( signal?: AbortSignal, ):
       Promise<readonly ProviderCapability[]>"
-    role: PROVIDER_ADMIN
-    bindingStatus: PROVIDER_ADMIN
+    role: LEGACY_PROVIDER_CATALOG_READ
+    bindingStatus: NOT_ADMITTED
     canonicalOperationRef: null
     candidateOperationRef: null
-    semanticBinding: unresolved
-    bindingEvidence: provider-capability-endpoint-is-observed-in-legacy-client-but-no-matching-active-runtime-openapi-route
+    semanticBinding: source-backed-legacy-read-only-provider-catalog; not-a-Media-domain-operation-or-provider-qualification
+    bindingEvidence: operations.ts#listProviderCapabilities-GET-/api/v1/media/providers/capabilities; ProviderCapabilitySchema-validates-exact-list-records; active-HTTP-getMediaProviders-is-a-distinct-service-readiness-schema-and-route
+    responseSchemaRef: libs/audio-video-types/src/contracts.ts#ProviderCapabilitySchema
+    responseFields: [id, providerId, operation, state, supportedMimeTypes, supportedLanguages, maxInputBytes, maxDurationMs, streamingSupported, cancellationSupported, limitations, lastCheckedAt]
+    negativeCases:
+      - providerId-or-ACTIVE-state-does-not-prove-provider-qualification-or-capability-eligibility
+      - this-legacy-path-is-absent-from-the-active-route-manifest
+      - this-legacy-response-is-not-the-getMediaProviders-readiness-response
   - identity: media.sdk.transcribe
     sourceRef: libs/audio-video-client/src/operations.ts#L753
     sourceFile: libs/audio-video-client/src/operations.ts

@@ -255,6 +255,8 @@ function validateCapabilityLeafDefinitions(capabilities, review, operations) {
   const contracts = contractIndex?.records ?? [];
   const inputSchemaRefs = new Set((contractIndex?.inputPayloadSchemas ?? []).map(({ id }) => id));
   const outputSchemaRefs = new Set((contractIndex?.outputPayloadSchemas ?? []).map(({ id }) => id));
+  const ownerWireContracts = operations.ownerLeafWireContracts?.records ?? [];
+  const ownerWireById = new Map(ownerWireContracts.map((record) => [record.id, record]));
   const profiles = new Set((contractIndex?.families ?? []).map(({ id }) => id));
   const bounds = new Map((contractIndex?.bounds ?? []).map((record) => [record.id, record]));
   const sourceIds = new Set(sourceLeaves.map(({ id }) => id));
@@ -278,6 +280,17 @@ function validateCapabilityLeafDefinitions(capabilities, review, operations) {
     if (!profiles.has(record.profileRef) || record.profileRef !== contract.familyProfileRef) return true;
     if (record.exactTypedInputs.join("\0") !== source.inputArtifactTypes.join("\0")) return true;
     if (record.exactTypedOutputs.join("\0") !== source.outputArtifactTypes.join("\0")) return true;
+    const currentWireRef = source.ownerLeafWireContractRef ?? leaf.ownerLeafWireContractRef;
+    if (currentWireRef || record.ownerLeafWireContractRef) {
+      const wire = ownerWireById.get(currentWireRef);
+      const outputType = wire?.resultSchema?.properties?.outputs?.items?.properties?.artifactType?.const;
+      if (!wire || wire.capabilityRef !== source.id || record.ownerLeafWireContractRef !== wire.id
+        || source.ownerDefinition.ownerLeafWireContractRef !== wire.id
+        || !outputType || source.outputArtifactTypes.length !== 1 || source.outputArtifactTypes[0] !== outputType
+        || source.ownerDefinition.successOutputs?.length !== 1
+        || source.ownerDefinition.successOutputs[0].artifactType !== outputType
+        || source.ownerDefinition.successOutputs[0].payloadSchemaRef !== `.product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.${wire.id}.resultSchema.properties.outputs.items`) return true;
+    }
     if (record.requirementRefs.join("\0") !== (source.requirementIds ?? []).join("\0")) return true;
     if (record.implementationState !== "UNKNOWN" || record.qualificationState !== "NOT_EVALUATED"
       || record.runtimeAvailability !== "UNKNOWN") return true;
@@ -350,6 +363,12 @@ test("P0 defines every capability leaf with exact typed operations, bounds, and 
   const unbounded = structuredClone(operations);
   unbounded.capabilityOperationContracts.bounds[0].maximumRequestBytes = 0;
   assert.equal(validateCapabilityLeafDefinitions(capabilities, review, unbounded), false, "zero request bounds cannot be treated as valid operation contracts");
+  const missingWire = structuredClone(capabilities);
+  delete missingWire.capabilities.find(({ id }) => id === "media.simulation.output.rgb").ownerLeafWireContractRef;
+  assert.equal(validateCapabilityLeafDefinitions(missingWire, review, operations), false, "a current leaf overlay cannot be omitted from the canonical capability source");
+  const wrongWireOutput = structuredClone(capabilities);
+  wrongWireOutput.capabilities.find(({ id }) => id === "media.simulation.output.rgb").outputArtifactTypes[0] = "simulation-pass-result-depth";
+  assert.equal(validateCapabilityLeafDefinitions(wrongWireOutput, review, operations), false, "a leaf cannot bind another pass's effective output type");
 });
 
 

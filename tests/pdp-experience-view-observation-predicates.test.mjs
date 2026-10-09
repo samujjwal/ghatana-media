@@ -100,7 +100,7 @@ test("all 47 view definitions enumerate every source label without treating a la
 test("no view-label enum is treated as an observation schema; unsupported fact families fail closed", () => {
   for (const contract of inputContracts.factSchemas) assert.equal("allowedValues" in contract, false, contract.id);
   const executable = new Set(inputContracts.factSchemas.filter((contract) => contract.closedSchema).map(({ factKind }) => factKind));
-  assert.deepEqual([...executable].sort(), ["LOCAL_CONNECTIVITY", "LOCAL_DRAFT", "LOCAL_DRAFT_CLEAN", "LOCAL_INFLIGHT", "LOCAL_QUERY", "LOCAL_STALENESS", "LOCAL_UNKNOWN", "OWNER_ARTIFACT_STATE", "OWNER_JOB_STATE"]);
+  assert.deepEqual([...executable].sort(), ["LOCAL_CONNECTIVITY", "LOCAL_DRAFT", "LOCAL_DRAFT_CLEAN", "LOCAL_INFLIGHT", "LOCAL_QUERY", "LOCAL_STALENESS", "LOCAL_UNKNOWN", "OWNER_ARTIFACT_STATE", "OWNER_DECLARED_OPTIONS_STATE", "OWNER_JOB_STATE", "OWNER_LANGUAGE_UNCERTAINTY_STATE", "OWNER_PROFILE_STATE", "OWNER_PROVENANCE_STATE", "OWNER_QUALITY_ACTION_PLAN_STATE", "OWNER_QUALITY_STATE", "OWNER_RIGHTS_STATE"]);
   for (const row of definitions.predicates) {
     if (!executable.has(row.factKind) && row.factKind !== "LOCAL_QUERY_EMPTY") {
       assert.equal(row.sourceStatus, "MEDIA_OWNER_DEFINITION; RUNTIME_NOT_ADMITTED");
@@ -412,7 +412,7 @@ test("local draft observations compare exact current snapshot and base across ev
     assert.equal(predicate.draftObservation.comparison, "CANONICAL_JSON_STRUCTURAL_EQUALITY");
     assert.equal(predicate.draftObservation.persistenceClaim, "NONE; owner receipt/read required to assert stored state");
     assert.equal(predicate.factSchemaRef,
-      `.product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas.media.view-observation-schema.local-draft${predicate.factKind === "LOCAL_DRAFT_CLEAN" ? "-clean" : ""}.v1`);
+      `.product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.local-draft${predicate.factKind === "LOCAL_DRAFT_CLEAN" ? "-clean" : ""}.v1`);
     const schema = inputContracts.factSchemas.find(({ factKind }) => factKind === predicate.factKind).closedSchema;
     assert.equal(schema.additionalProperties, false);
     assert.deepEqual(schema.required, ["viewRef", "sessionId", "draftId", "draftRevision", "baseVersionRef", "draftValue", "baseValue", "observedAt"]);

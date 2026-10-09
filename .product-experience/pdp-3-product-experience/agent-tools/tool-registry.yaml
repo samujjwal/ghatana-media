@@ -17,7 +17,7 @@ contractObservationPolicy:
   localFailedResultMapping: "Sibling Tools source observation only (runtime/java/tool-contracts/.../ToolExecutionResult.java): the failed(String, String, String, Instant, Duration) factory maps these non-code messages to status FAILED and failure kind INTERNAL/stage EXECUTION; its code normalizer falls back to TOOL_EXECUTION_FAILED for messages that are not a valid code. Installed package resolution and owner acceptance are not established by this Media observation."
   preTryNullArguments: Objects.requireNonNull(envelope/contract) executes before the try block in each handler, so a null argument throws directly. Envelope/contract tool ID, version and action-class mismatch is now rejected inside the validation boundary.
   runtimeAndAvailability: UNRESOLVED; factory registration does not prove a configured delegate, runtime availability, or production readiness.
-  operationBinding: UNRESOLVED; tool identifiers are observed handler IDs and are not mapped to PDP-1 operations here.
+  operationBinding: Media operation candidates must remain distinct from handler/runtime parity; exact operation IDs below are definition-only candidates, not proof of handler/API equivalence or Shared runtime binding.
   executionAdmitted: false
 tools:
   - id: av.speech-to-text
@@ -27,7 +27,8 @@ tools:
     registration: AudioVideoToolHandlerFactory
     experienceBinding: pending-owner-review
     executionAdmitted: false
-    operationBinding: {value: null, status: unresolved-owner-and-operation-mapping}
+    operationBinding: {value: media.operation.transcription-submission, status: owner-defined-operation-candidate; adapter-mapping-and-runtime-pending}
+    mediaDefinitionContractRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/contracts/@id=media.agent-tool-contract.speech-to-text.v1
     inputSchema:
       observationStatus: handler-source-observation-only
       schemaVersion: {value: null, status: not-declared-by-handler}
@@ -64,7 +65,8 @@ tools:
     registration: AudioVideoToolHandlerFactory
     experienceBinding: pending-owner-review
     executionAdmitted: false
-    operationBinding: {value: null, status: unresolved-owner-and-operation-mapping}
+    operationBinding: {value: media.operation.capability.media-speech-synthesis-text-to-speech, status: owner-defined-operation-candidate; adapter-mapping-and-runtime-pending}
+    mediaDefinitionContractRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/contracts/@id=media.agent-tool-contract.text-to-speech.v1
     inputSchema:
       observationStatus: handler-source-observation-only
       schemaVersion: {value: null, status: not-declared-by-handler}
@@ -103,7 +105,8 @@ tools:
     registration: AudioVideoToolHandlerFactory
     experienceBinding: pending-owner-review
     executionAdmitted: false
-    operationBinding: {value: null, status: unresolved-owner-and-operation-mapping}
+    operationBinding: {value: media.operation.capability.media-vision-detect, status: owner-defined-operation-candidate; adapter-mapping-and-runtime-pending}
+    mediaDefinitionContractRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/contracts/@id=media.agent-tool-contract.vision-analysis.v1
     inputSchema:
       observationStatus: handler-source-observation-only
       schemaVersion: {value: null, status: not-declared-by-handler}
@@ -141,7 +144,8 @@ tools:
     registration: AudioVideoToolHandlerFactory
     experienceBinding: pending-owner-review
     executionAdmitted: false
-    operationBinding: {value: null, status: unresolved-owner-and-operation-mapping}
+    operationBinding: {value: media.operation.capability.media-multimodal-analyze-cross-modal, status: owner-defined-operation-candidate; adapter-mapping-and-runtime-pending}
+    mediaDefinitionContractRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/contracts/@id=media.agent-tool-contract.multimodal-inference.v1
     inputSchema:
       observationStatus: handler-source-observation-only
       schemaVersion: {value: null, status: not-declared-by-handler}

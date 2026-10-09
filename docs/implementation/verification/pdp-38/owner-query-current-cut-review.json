@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "media.pdp38-owner-query-review.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-094",
+  "authority": "User-delegated Media definition ownership; coordinator material review",
+  "status": "APPROVED_BOUNDED_SOURCE_DEFINITIONS",
+  "scope": "Seven typed queries and49 experience labels, including five previously unresolved labels. Exact correlation, trusted subject, authority/version/currentness, nested quality-plan scope and language-specific uncertainty; no endpoint or action admission.",
+  "sourceFingerprints": {
+    ".product-experience/pdp-1-domain-data/operations.yaml": "16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54",
+    ".product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml": "af0d1d4eee3c45646fb79c1dffdfa9c72690415e3cfc11f37b85acf34680c1ff",
+    ".product-experience/pdp-3-product-experience/view-observation-predicates.yaml": "4662986ac102675a8de89275f53fb5c80618ef3544146df27792784c272c78cd",
+    "scripts/lib/pdp-truth-domain-observation-currentness.mjs": "6787b6e5fa08206e9c3f9e08122577e4c5cbc490dd08441f39aef6ca7f7b6694",
+    "scripts/lib/media-view-observation-definition.mjs": "c366bed2338c5009861ed24a35518c4904ec83b726e0e692351a293dfd884c8a",
+    "tests/pdp-truth-domain-typed-observations.test.mjs": "441c5fe94fa67804346251c1e0ce51135506cf5a6bbf2d262ef6b30abc96b7fc",
+    "tests/pdp-truth-domain-observation-currentness.test.mjs": "fd1636d2b01174bc4358d115bd506f20779f7110c83d0483770ee4663f356205",
+    "tests/pdp-experience-owner-observation-semantics.test.mjs": "31b3d44a6818068f98e3ba354b83849b79c15cf4e366c993d1b1e070209918ba",
+    "tests/pdp-experience-view-observation-predicates.test.mjs": "980733027099ff6722d8ff812d89bddc6e9ab89129804f79b8c966fd06957d4e"
+  },
+  "verification": {
+    "name": "observation-final-query-review",
+    "command": [
+      "node",
+      "--test",
+      "tests/pdp-truth-domain-typed-observations.test.mjs",
+      "tests/pdp-truth-domain-observation-currentness.test.mjs",
+      "tests/pdp-experience-owner-observation-semantics.test.mjs",
+      "tests/pdp-experience-view-observation-predicates.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "docs/implementation/verification/pdp-38/observation-final-query-review.log",
+    "logSha256": "2bb1992066b5b947657650e33fa699cd7290613322b283421b0d8f021eadb72b",
+    "changedSources": [],
+    "passedTests": 28,
+    "status": "PASS"
+  },
+  "nonClaims": [
+    "Complete130step semantics",
+    "Complete31scenario semantics",
+    "Independent review or specialist acceptance",
+    "Runtime query implementation",
+    "Rights or profile admission",
+    "Lifecycle phase receipt"
+  ]
+}

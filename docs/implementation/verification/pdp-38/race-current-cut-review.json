@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "media.owner-definition-current-cut-review.v1",
+  "scope": "11 machines,87 states,55 edges and eight race definition cases; no runtime or independent acceptance",
+  "fingerprints": {
+    ".product-experience/pdp-1-domain-data/transitions.yaml": "274905d44050a45052fc7b009b0151a4f1c6b972e0046fb977d3327c9d6815ea",
+    "scripts/lib/pdp-truth-domain-race-oracle.mjs": "765eab144031d5a920455f670919b0611d672177a63e561af26c5dd2dad73f4b",
+    "tests/pdp-truth-domain-race-semantics.test.mjs": "10c90d0151b4ba5fca660e3d03a9643da6a8f4efb4a4bb9afe8bc309e9d650d2",
+    "tests/pdp-truth-domain-transition-coverage.test.mjs": "7b577bf33f69fa22b0416cffdde28c84947ad8f9e324136b7370bb327b7841d9"
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/pdp-truth-domain-race-semantics.test.mjs",
+    "tests/pdp-truth-domain-transition-coverage.test.mjs"
+  ],
+  "exitCode": 0,
+  "outputSha256": "d3963bc66453c01ea98c01fae9392c5f1199e9bb3227ff6d2ea2e3c72e6e0031",
+  "changedDuringVerification": [],
+  "acceptanceEffect": "NONE; bounded source verification only"
+}

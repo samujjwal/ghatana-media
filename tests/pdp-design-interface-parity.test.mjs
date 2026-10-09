@@ -93,6 +93,7 @@ test("HTTP health and diagnostic identities have exact source-backed transport d
     mappedProposal: Object.values(surface.proposedSemanticCandidates).flat(),
     boundedDefinition: Object.keys(surface.boundedDefinitionBindings.identities),
     transportOnly: nonOperation.TRANSPORT_ONLY,
+    readinessReadModel: nonOperation.READINESS_READ_MODEL,
     unresolved: surface.unresolved,
   };
   assertPartition(surface.identities, groups, "HTTP");
@@ -101,9 +102,11 @@ test("HTTP health and diagnostic identities have exact source-backed transport d
     mappedProposal: groups.mappedProposal.length,
     boundedDefinition: groups.boundedDefinition.length,
     transportOnly: groups.transportOnly.length,
+    readinessReadModel: groups.readinessReadModel.length,
     unresolved: groups.unresolved.length,
   });
   assert.deepEqual(parity.typedInterfaceIdentityDispositions.http.transportOnly, groups.transportOnly);
+  assert.deepEqual(parity.typedInterfaceIdentityDispositions.http.readinessReadModel, groups.readinessReadModel);
   assert.deepEqual(parity.typedInterfaceIdentityDispositions.http.unresolved, groups.unresolved);
   for (const record of parity.typedHttpNonOperationDispositions) {
     assert.ok(surface.identities.includes(record.identity), `${record.identity} must be an inventoried HTTP operation`);
@@ -112,6 +115,47 @@ test("HTTP health and diagnostic identities have exact source-backed transport d
       `${record.identity} must state the evidence category, not infer from a similar name`);
   }
   assert.equal(parity.typedHttpNonOperationDispositions.length, 8);
+  const providerReadModel = parity.typedHttpReadModelDispositions.find(({ identity }) => identity === "getMediaProviders");
+  assert.ok(providerReadModel, "provider inventory needs an explicit source-backed read-model disposition");
+  assert.deepEqual(providerReadModel.responseFields, [
+    "processingProviders", "streamingProviders", "capabilityProfiles", "artifactStoreId", "jobStoreId",
+    "streamStoreId", "consentAdministrationId", "genericModelIntegration", "metadataIntegration",
+  ]);
+  assert.match(providerReadModel.disposition, /NOT_A_DOMAIN_OPERATION; NOT_PROVIDER_ADMISSION; NOT_QUALIFICATION; NOT_RIGHTS_OR_CAPABILITY_ELIGIBILITY/u);
+  assert.match(providerReadModel.evidence, /provider\.ready\(\)/u);
+  assert.match(providerReadModel.evidence, /media:provider:read/u);
+  const providerSchema = spec.components.schemas.MediaProviderResponse;
+  assert.deepEqual(Object.keys(providerSchema.properties).sort(), [...providerReadModel.responseFields].sort());
+  assert.deepEqual(providerSchema.required.slice().sort(), [...providerReadModel.responseFields].sort());
+  const handler = readFileSync(resolve(root, "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java"), "utf8");
+  const runtime = readFileSync(resolve(root, "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java"), "utf8");
+  const routeManifest = readFileSync(resolve(root, "launcher/src/main/java/com/ghatana/media/launcher/MediaRouteManifest.java"), "utf8");
+  const securityFilter = readFileSync(resolve(root, "launcher/src/main/java/com/ghatana/media/launcher/MediaSecurityFilter.java"), "utf8");
+  const providersHandler = handler.match(/private void providers\(HttpExchange exchange\)[\s\S]*?\n    \}/u)?.[0] ?? "";
+  assert.ok(providersHandler, "provider response needs a source implementation to support this disposition");
+  for (const field of providerReadModel.responseFields) {
+    assert.match(providersHandler, new RegExp(`response\\.put\\("${field}"`), `${field} must be sourced by the exact handler`);
+  }
+  assert.match(runtime, /filter\(MediaProcessingProvider::ready\)/u,
+    "ready capability profiles reflect provider readiness only");
+  assert.match(routeManifest, /GET", "\/api\/v1\/providers"[\s\S]*?"Read provider readiness"/u);
+  assert.match(routeManifest, /"GET"\.equals\(method\) && "\/api\/v1\/providers"\.equals\(path\)\) return "media:provider:read"/u);
+  const publicPaths = securityFilter.match(/PUBLIC_PATHS = Set\.of\(([\s\S]*?)\);/u)?.[1] ?? "";
+  assert.doesNotMatch(publicPaths, /\/api\/v1\/providers/u, "provider readiness is not a public probe");
+  assert.match(securityFilter, /MediaRouteManifest\.requiredPermission\([\s\S]*?identity\.hasPermission\(required\)/u,
+    "the authenticated provider route checks its exact manifest permission");
+  for (const forbidden of ["qualified", "admitted", "rights", "eligible"]) {
+    assert.equal(Object.keys(providerSchema.properties).some((field) => field.toLowerCase().includes(forbidden)), false,
+      `provider read model must not acquire a ${forbidden} field`);
+  }
+  const forgedAdmission = structuredClone(providerReadModel);
+  forgedAdmission.disposition = "PROVIDER_ADMITTED_AND_QUALIFIED";
+  assert.throws(() => assert.match(forgedAdmission.disposition, /NOT_PROVIDER_ADMISSION; NOT_QUALIFICATION/u),
+    /The input did not match the regular expression/u,
+    "provider readiness cannot be promoted to qualification/admission by relabeling");
+  const incompleteFields = providerReadModel.responseFields.filter((field) => field !== "capabilityProfiles");
+  assert.throws(() => assert.deepEqual(incompleteFields.sort(), providerSchema.required.slice().sort()),
+    /Expected values to be strictly deep-equal/u, "the read model must preserve its exact closed response schema");
 });
 
 test("HTTP identities carry exact route, request/result, role, and bounded-or-candidate operation evidence", () => {
@@ -129,6 +173,7 @@ test("HTTP identities carry exact route, request/result, role, and bounded-or-ca
   collectIds(operationSource);
   const bounded = surface.boundedDefinitionBindings.identities;
   const transport = new Set(surface.sourceBackedNonOperationDispositions.TRANSPORT_ONLY);
+  const readinessReadModel = new Set(surface.sourceBackedNonOperationDispositions.READINESS_READ_MODEL);
   const candidates = new Map(Object.entries(surface.proposedSemanticCandidates).flatMap(([family, ids]) => ids.map((id) => [id, family])));
   const fieldParityCounts = {};
   assert.equal(contracts.length, surface.denominator);
@@ -175,6 +220,12 @@ test("HTTP identities carry exact route, request/result, role, and bounded-or-ca
       assert.equal(contract.fieldParityStatus, "SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable");
       assert.equal(contract.role, "transport-diagnostic");
       assert.equal(contract.canonicalOperationRef, null);
+    } else if (readinessReadModel.has(contract.identity)) {
+      assert.equal(contract.bindingStatus, "SOURCE_BACKED_NON_OPERATION");
+      assert.equal(contract.fieldParityStatus, "SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable");
+      assert.equal(contract.role, "READINESS_READ_MODEL");
+      assert.equal(contract.canonicalOperationRef, null);
+      assert.match(contract.bindingBasis, /not a Media domain operation, provider admission, technical qualification/u);
     } else if (bounded[contract.identity]) {
       assert.equal(contract.bindingStatus, "BOUNDED_DEFINITION");
       assert.equal(contract.fieldParityStatus, "BOUNDED_DEFINITION_ONLY; full-wire-field-parity-not-asserted");
@@ -194,10 +245,9 @@ test("HTTP identities carry exact route, request/result, role, and bounded-or-ca
     }
   }
   assert.deepEqual(fieldParityCounts, {
-    "SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable": 8,
+    "SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable": 9,
     "FAMILY_CANDIDATE_ONLY; leaf-and-field-parity-not-asserted": 13,
     "BOUNDED_DEFINITION_ONLY; full-wire-field-parity-not-asserted": 5,
-    UNRESOLVED_ROLE_AND_FIELD_PARITY: 1,
   });
 });
 
@@ -247,31 +297,58 @@ test("gRPC transport and provider administration methods partition the exact obs
   }
   const inventory = [...observed].flatMap(([service, methods]) => methods.map((method) => `${service}.${method}`));
   const proposed = Object.values(surface.explicitlyProposed).flat();
+  const ownerAdapterRequired = Object.entries(surface.ownerAdapterRequired).flatMap(([service, methods]) => methods.map((method) => `${service}.${method}`));
   const unresolved = Object.entries(surface.unresolved).flatMap(([service, methods]) => methods.map((method) => `${service}.${method}`));
   const dispositions = parity.typedGrpcNonOperationDispositions;
   assertPartition(inventory, {
     mappedProposal: proposed,
     transportOnly: dispositions.filter(({ type }) => type === "TRANSPORT_ONLY").map(({ identity }) => identity),
     providerAdmin: dispositions.filter(({ type }) => type === "PROVIDER_ADMIN").map(({ identity }) => identity),
+    legacyProviderProfileAdmin: dispositions.filter(({ type }) => type === "LEGACY_PROVIDER_PROFILE_ADMIN").map(({ identity }) => identity),
+    unimplementedEndpoint: dispositions.filter(({ type }) => type === "UNIMPLEMENTED_ENDPOINT").map(({ identity }) => identity),
+    ownerAdapterRequired,
     unresolved,
   }, "gRPC");
   assert.deepEqual(surface.dispositionCounts, {
     mappedProposal: proposed.length,
     transportOnly: dispositions.filter(({ type }) => type === "TRANSPORT_ONLY").length,
     providerAdmin: dispositions.filter(({ type }) => type === "PROVIDER_ADMIN").length,
+    legacyProviderProfileAdmin: dispositions.filter(({ type }) => type === "LEGACY_PROVIDER_PROFILE_ADMIN").length,
+    unimplementedEndpoint: dispositions.filter(({ type }) => type === "UNIMPLEMENTED_ENDPOINT").length,
+    ownerAdapterRequired: ownerAdapterRequired.length,
     unresolved: unresolved.length,
   });
   assert.deepEqual(parity.typedInterfaceIdentityDispositions.grpc.transportOnly.sort(),
     dispositions.filter(({ type }) => type === "TRANSPORT_ONLY").map(({ identity }) => identity).sort());
   assert.deepEqual(parity.typedInterfaceIdentityDispositions.grpc.providerAdmin.sort(),
     dispositions.filter(({ type }) => type === "PROVIDER_ADMIN").map(({ identity }) => identity).sort());
+  assert.deepEqual(parity.typedInterfaceIdentityDispositions.grpc.legacyProviderProfileAdmin.sort(),
+    dispositions.filter(({ type }) => type === "LEGACY_PROVIDER_PROFILE_ADMIN").map(({ identity }) => identity).sort());
+  assert.deepEqual(parity.typedInterfaceIdentityDispositions.grpc.unimplementedEndpoint.sort(),
+    dispositions.filter(({ type }) => type === "UNIMPLEMENTED_ENDPOINT").map(({ identity }) => identity).sort());
+  assert.deepEqual(parity.typedInterfaceIdentityDispositions.grpc.ownerAdapterRequired.sort(), ownerAdapterRequired.sort());
   assert.deepEqual(parity.typedInterfaceIdentityDispositions.grpc.unresolved.sort(), unresolved.sort());
   for (const record of dispositions) {
     const methods = observed.get(record.identity.split(".")[0]);
     assert.ok(methods?.includes(record.sourceMethod.replace(/^rpc\s+/u, "")), `${record.identity} must exist in its cited proto service`);
     assert.equal(record.sourceFile, surface.source.find((path) => path === record.sourceFile), `${record.identity} source file must be inventoried`);
   }
-  assert.equal(dispositions.length, 18);
+  assert.equal(dispositions.length, 22);
+  const profileAdmin = dispositions.filter(({ type }) => type === "LEGACY_PROVIDER_PROFILE_ADMIN");
+  assert.deepEqual(profileAdmin.map(({ identity }) => identity).sort(), [
+    "TTSService.CreateProfile", "TTSService.GetProfile", "TTSService.UpdateProfile",
+  ]);
+  for (const record of profileAdmin) {
+    assert.equal(record.canonicalOperationRef, null);
+    assert.equal(record.runtimeAdmission, "NOT_ADMITTED");
+    assert.match(record.canonicalEquivalence, /NOT_ESTABLISHED/u);
+  }
+  const feedback = dispositions.find(({ identity }) => identity === "TTSService.SubmitFeedback");
+  assert.equal(feedback.type, "UNIMPLEMENTED_ENDPOINT");
+  assert.equal(feedback.canonicalOperationRef, null);
+  assert.equal(feedback.runtimeAdmission, "NOT_ADMITTED");
+  const feedbackImplementation = readFileSync(resolve(root, "modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java"), "utf8");
+  assert.match(feedbackImplementation, /public void submitFeedback\([\s\S]*?Status\.UNIMPLEMENTED[\s\S]*?explicit persistence and learning provider/u);
 
   const contracts = parity.typedGrpcMethodContracts;
   assert.equal(contracts.length, inventory.length);
@@ -302,7 +379,7 @@ test("gRPC transport and provider administration methods partition the exact obs
       assert.equal(contract.canonicalFamilyCandidateRef, null);
     }
     if (contract.bindingStatus === "SOURCE_BACKED_NON_OPERATION") {
-      assert.ok(["TRANSPORT_ONLY", "PROVIDER_ADMIN"].includes(contract.role));
+      assert.ok(["TRANSPORT_ONLY", "PROVIDER_ADMIN", "LEGACY_PROVIDER_PROFILE_ADMIN", "UNIMPLEMENTED_ENDPOINT"].includes(contract.role));
     } else if (contract.bindingStatus === "UNRESOLVED") {
       assert.equal(contract.role, "UNRESOLVED");
     } else {
@@ -337,6 +414,8 @@ test("gRPC crosswalk rejects request/result or streaming drift and invented doma
 
 test("gRPC identities retain every exact request/result field while leaving semantic field parity open", () => {
   const contracts = parity.typedGrpcMethodContracts;
+  const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
+  const operationIds = new Set(operations.ownerDefinedOperationContracts.records.map(({ id }) => id));
   assert.equal(contracts.length, 43);
   const counts = {};
   for (const contract of contracts) {
@@ -355,6 +434,13 @@ test("gRPC identities retain every exact request/result field while leaving sema
     } else if (contract.bindingStatus === "SOURCE_BACKED_NON_OPERATION") {
       assert.equal(contract.fieldParityStatus, "SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable");
       assert.equal(contract.canonicalFamilyCandidateRef, null);
+    } else if (contract.bindingStatus === "OWNER_ADAPTER_REQUIRED") {
+      assert.equal(contract.fieldParityStatus, "OWNER_ADAPTER_REQUIRED; legacy-wire-field-parity-not-established");
+      assert.ok(operationIds.has(contract.canonicalOwnerOperationRef?.split("@id=")[1]),
+        `${contract.identity} must name its exact owner operation contract`);
+      assert.equal(contract.mediaOwnerSemanticAdapter?.ownerOperationRef, contract.canonicalOwnerOperationRef);
+      assert.match(contract.mediaOwnerSemanticAdapter?.canonicalWireEquivalence ?? "", /NOT_ESTABLISHED/u);
+      assert.equal(contract.mediaOwnerSemanticAdapter?.runtimeAdmission, "NOT_ADMITTED");
     } else {
       assert.equal(contract.bindingStatus, "UNRESOLVED");
       assert.equal(contract.fieldParityStatus, "UNRESOLVED_ROLE_AND_FIELD_PARITY");
@@ -362,8 +448,9 @@ test("gRPC identities retain every exact request/result field while leaving sema
     }
   }
   assert.equal(counts["FAMILY_CANDIDATE_ONLY; leaf-and-field-parity-not-asserted"], 17);
-  assert.equal(counts["SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable"], 18);
-  assert.equal(counts.UNRESOLVED_ROLE_AND_FIELD_PARITY, 8);
+  assert.equal(counts["SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable"], 22);
+  assert.equal(counts["OWNER_ADAPTER_REQUIRED; legacy-wire-field-parity-not-established"], 4);
+  assert.equal(counts.UNRESOLVED_ROLE_AND_FIELD_PARITY ?? 0, 0);
 
   const transcribe = structuredClone(contracts.find(({ identity }) => identity === "STTService.Transcribe"));
   transcribe.inputFieldInventory.fields = transcribe.inputFieldInventory.fields.filter(({ name }) => name !== "tenant_id");
@@ -375,6 +462,46 @@ test("gRPC identities retain every exact request/result field while leaving sema
   assert.throws(() => assert.deepEqual(result.outputFieldInventory.fields,
     protobufMessageFields(result.sourceFile, result.outputMessage)), /Expected values to be strictly deep-equal/u,
   "streaming finality fields cannot disappear from source evidence");
+});
+
+test("TTS profile RPCs remain provider-engine administration and feedback remains explicitly unimplemented", () => {
+  const records = parity.typedGrpcNonOperationDispositions;
+  const profiles = records.filter(({ type }) => type === "LEGACY_PROVIDER_PROFILE_ADMIN");
+  const implementation = readFileSync(resolve(root, "modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java"), "utf8");
+  const proto = readFileSync(resolve(root, "modules/speech/tts-service/src/main/proto/tts_service.proto"), "utf8");
+  assert.deepEqual(profiles.map(({ identity }) => identity).sort(), [
+    "TTSService.CreateProfile", "TTSService.GetProfile", "TTSService.UpdateProfile",
+  ]);
+  const contracts = new Map(parity.typedGrpcMethodContracts.map((record) => [record.identity, record]));
+  for (const record of profiles) {
+    assert.equal(record.canonicalOperationRef, null);
+    assert.equal(record.runtimeAdmission, "NOT_ADMITTED");
+    assert.match(record.canonicalEquivalence, /NOT_ESTABLISHED/u);
+    assert.equal(contracts.get(record.identity).role, "LEGACY_PROVIDER_PROFILE_ADMIN");
+    assert.equal(contracts.get(record.identity).canonicalFamilyCandidateRef, null);
+  }
+  assert.deepEqual(protobufMessageFields("modules/speech/tts-service/src/main/proto/tts_service.proto", "CreateProfileRequest").map(({ name }) => name),
+    ["display_name", "settings"], "create has no tenant, principal, source, consent, or request identity field");
+  assert.deepEqual(protobufMessageFields("modules/speech/tts-service/src/main/proto/tts_service.proto", "GetProfileRequest").map(({ name }) => name),
+    ["profile_id"], "get is only a provider profile ID lookup");
+  assert.deepEqual(protobufMessageFields("modules/speech/tts-service/src/main/proto/tts_service.proto", "UpdateProfileRequest").map(({ name }) => name),
+    ["profile_id", "settings"], "update has no expected version, idempotency key, or principal scope");
+  assert.match(implementation, /UUID\.randomUUID\(\)[\s\S]*?\.createProfile\(profileId, displayName, settings\)/u,
+    "create mutates the provider engine profile store using a random provider ID");
+  assert.match(implementation, /loadProfile\(profileId\)[\s\S]*?Status\.NOT_FOUND/u,
+    "get uses provider-engine profile lookup and provider NOT_FOUND semantics");
+  assert.match(implementation, /engine\.saveProfile\(updated\)[\s\S]*?\.setSettings\(request\.getSettings\(\)\)/u,
+    "update saves a provider profile without CAS and echoes submitted settings in its response");
+  assert.match(implementation, /public void submitFeedback\([\s\S]*?Status\.UNIMPLEMENTED[\s\S]*?explicit persistence and learning provider/u,
+    "feedback has no implemented persistence/learning effect");
+  const forgedDomainOperation = structuredClone(profiles[0]);
+  forgedDomainOperation.type = "DOMAIN_COMMAND";
+  assert.throws(() => assert.ok(["LEGACY_PROVIDER_PROFILE_ADMIN"].includes(forgedDomainOperation.type)),
+    /The expression evaluated to a falsy value/u, "provider profile administration cannot be relabeled as a Media command");
+  const forgedOperationRef = structuredClone(profiles[0]);
+  forgedOperationRef.canonicalOperationRef = "media.operation.voice-profile.update";
+  assert.throws(() => assert.equal(forgedOperationRef.canonicalOperationRef, null),
+    /Expected values to be strictly equal/u, "a similar Media operation name cannot establish source equivalence");
 });
 
 test("STT file-transcription candidate records the exact canonical adapter gaps and rejects false parity", () => {
@@ -665,7 +792,7 @@ test("remaining machine-channel identities are finite, source-backed, and explic
   }, "SDK");
   assert.equal(typedSdkIds.length, sdkSurface.denominator);
   for (const disposition of parity.typedMethodDispositions) {
-    assert.ok(["DOMAIN_COMMAND", "DOMAIN_QUERY", "CLIENT_ONLY", "TRANSPORT_ONLY", "PROVIDER_ADMIN", "PROVIDER_ADAPTER", "COMPATIBILITY_ADAPTER", "NOT_ADMITTED"].includes(disposition.type),
+    assert.ok(["DOMAIN_COMMAND", "DOMAIN_QUERY", "CLIENT_ONLY", "TRANSPORT_ONLY", "PROVIDER_ADMIN", "LEGACY_PROVIDER_CATALOG_READ", "PROVIDER_ADAPTER", "COMPATIBILITY_ADAPTER", "NOT_ADMITTED"].includes(disposition.type),
       `${disposition.identity} needs a finite role disposition`);
     assert.ok(disposition.basis && disposition.bindingEvidence, `${disposition.identity} needs evidence and a role rationale`);
   }
@@ -699,6 +826,28 @@ test("remaining machine-channel identities are finite, source-backed, and explic
     }
     assert.ok(contract.bindingEvidence, `${contract.identity} needs source evidence`);
   }
+  const providerCatalog = typedSdkContracts.find(({ identity }) => identity === "media.sdk.listProviderCapabilities");
+  const providerCatalogRole = parity.typedMethodDispositions.find(({ identity }) => identity === "media.sdk.listProviderCapabilities");
+  assert.equal(providerCatalog.role, "LEGACY_PROVIDER_CATALOG_READ");
+  assert.equal(providerCatalog.bindingStatus, "NOT_ADMITTED");
+  assert.equal(providerCatalog.canonicalOperationRef, null);
+  assert.equal(providerCatalog.candidateOperationRef, null);
+  assert.deepEqual(providerCatalog.responseFields, [
+    "id", "providerId", "operation", "state", "supportedMimeTypes", "supportedLanguages", "maxInputBytes",
+    "maxDurationMs", "streamingSupported", "cancellationSupported", "limitations", "lastCheckedAt",
+  ]);
+  assert.equal(providerCatalogRole.type, "LEGACY_PROVIDER_CATALOG_READ");
+  assert.ok(!sdkSurface.unresolved.includes("media.sdk.listProviderCapabilities"),
+    "source-exact legacy catalog role is not left as an unexplained operation identity");
+  const legacyProviderSource = readFileSync(resolve(root, "libs/audio-video-client/src/operations.ts"), "utf8");
+  const providerTypeSource = readFileSync(resolve(root, "libs/audio-video-types/src/contracts.ts"), "utf8");
+  assert.match(legacyProviderSource, /listProviderCapabilities[\s\S]*?"GET",\s*"\/api\/v1\/media\/providers\/capabilities"/u);
+  assert.match(legacyProviderSource, /ProviderCapabilitySchema\.parse\(item\)/u);
+  for (const field of providerCatalog.responseFields) assert.match(providerTypeSource, new RegExp(`\\b${field}\\s*:`));
+  assert.match(providerCatalog.semanticBinding, /not-a-Media-domain-operation-or-provider-qualification/u);
+  const catalogAsDomainOperation = { ...providerCatalog, role: "DOMAIN_QUERY", canonicalOperationRef: "media.operation.capability-list" };
+  assert.notEqual(catalogAsDomainOperation.role, providerCatalogRole.type,
+    "the legacy provider catalog cannot be promoted to a Media domain query by renaming its role");
 
   const cliSurface = parity.surfaces.find((item) => item.surface === "CLI fixture commands");
   const cliRegistry = readYaml(".product-experience/pdp-3-product-experience/cli/command-registry.yaml");

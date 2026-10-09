@@ -1,22 +1,58 @@
 TAP version 13
-# Subtest: all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
-ok 1 - all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
+# Subtest: all eleven simulation-pass leaves have distinct, operation-bound schemas and typed output shape
+ok 1 - all eleven simulation-pass leaves have distinct, operation-bound schemas and typed output shape
   ---
-  duration_ms: 1458.603999
+  duration_ms: 876.803973
+  type: 'test'
+  ...
+# Subtest: all eighteen edit leaves constrain operation kind, preservation, versions, outputs and cross-field identity
+ok 2 - all eighteen edit leaves constrain operation kind, preservation, versions, outputs and cross-field identity
+  ---
+  duration_ms: 6605.904397
+  type: 'test'
+  ...
+# Subtest: owner wire overlays close all 11 simulation pass leaves and 18 edit leaves
+ok 3 - owner wire overlays close all 11 simulation pass leaves and 18 edit leaves
+  ---
+  duration_ms: 1103.780226
+  type: 'test'
+  ...
+# Subtest: simulation passes reject cross-pass output, missing provenance and wrong source bindings
+ok 4 - simulation passes reject cross-pass output, missing provenance and wrong source bindings
+  ---
+  duration_ms: 63.443942
+  type: 'test'
+  ...
+# Subtest: edit leaves reject wrong operation parameters, unsupported media types and unbound source/output versions
+ok 5 - edit leaves reject wrong operation parameters, unsupported media types and unbound source/output versions
+  ---
+  duration_ms: 58.575507
+  type: 'test'
+  ...
+# Subtest: owner wire schemas reject invalid calendar dates, whitespace identifiers and undeclared formats
+ok 6 - owner wire schemas reject invalid calendar dates, whitespace identifiers and undeclared formats
+  ---
+  duration_ms: 2.424615
+  type: 'test'
+  ...
+# Subtest: all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
+ok 7 - all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
+  ---
+  duration_ms: 1574.389805
   type: 'test'
   ...
 # Subtest: P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
-ok 2 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+ok 8 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
   ---
-  duration_ms: 13503.999089
+  duration_ms: 15444.543886
   type: 'test'
   ...
-1..2
-# tests 2
+1..8
+# tests 8
 # suites 0
-# pass 2
+# pass 8
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 13728.633809
+# duration_ms 27517.819342

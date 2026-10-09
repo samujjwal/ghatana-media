@@ -62,7 +62,13 @@ test('refreshes the nine operation-source fingerprints only after their semantic
     .update(fs.readFileSync(path.join(root, '.product-experience/pdp-1-domain-data/operations.yaml'))).digest('hex');
   assert.deepEqual([...digests], [`sha256:${currentSourceDigest}`]);
   const currentReview = review.ownerDefinitionSourceReconciliation.records.find(record => record.path === '.product-experience/pdp-1-domain-data/operations.yaml');
-  assert.equal(currentSourceDigest, currentReview.currentSha256, 'the additive impact record describes the live source cut');
+  const reviewedOperationCut = readJson('docs/implementation/verification/pdp-38/owner-query-current-cut-review.json');
+  const reviewedOperationDigest = reviewedOperationCut.sourceFingerprints['.product-experience/pdp-1-domain-data/operations.yaml'];
+  assert.equal(reviewedOperationCut.decisionRef, '.product-experience/decision-log.md#PXD-094');
+  assert.equal(reviewedOperationDigest, '16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54');
+  assert.equal(currentSourceDigest, reviewedOperationDigest, 'the denominator source cut matches the exact reviewed operation artifact');
+  assert.equal(currentReview.currentSha256, 'f279538b72a1bdd73a6cf88556eebdaf91c9799a033f460233b796bf8df8f89d',
+    'the older additive source overlay remains immutable history rather than being rewritten to the newer review');
   assert.equal(reviewedSourcePin.sha256, review.transcriptionSubmissionDefinitionSourceReconciliations.find(record => record.path === '.product-experience/pdp-1-domain-data/operations.yaml').currentSha256, 'the historical SDK source pin remains immutable');
   assert.notEqual(currentSourceDigest, finalDelta.currentSha256,
     'new SDK adapter denominator metadata postdates the bounded capability operation review');

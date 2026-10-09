@@ -21,12 +21,12 @@ export function verificationCutChanged(before, after) {
     .filter(file => before[file] !== after[file]).sort();
 }
 const suites = {
-  'P0-01': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp-truth-domain-schema-validation.test.mjs'],
-  'P0-02': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp-truth-domain-schema-validation.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-output-producer-applicability.test.mjs', 'tests/pdp-truth-domain-nfr-measurement-methods.test.mjs'],
+  'P0-01': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp-truth-domain-schema-validation.test.mjs', 'tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs', 'tests/pdp-migration-capability-leaf-narrowing.test.mjs'],
+  'P0-02': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp-truth-domain-schema-validation.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-output-producer-applicability.test.mjs', 'tests/pdp-truth-domain-nfr-measurement-methods.test.mjs', 'tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs', 'tests/pdp-migration-capability-leaf-narrowing.test.mjs'],
   'P0-04': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs'],
   'P1-06': ['tests/media-typed-contract-bindings.test.mjs'],
   'P2-01': ['tests/pdp-2-tools-experience-language-contract.test.mjs', 'tests/pdp-2-experience-language-projection.test.mjs'],
-  'P1-01': ['tests/pdp-truth-domain.test.mjs'],
+  'P1-01': ['tests/media-domain-identity-reconciliation.test.mjs', 'tests/pdp-truth-domain-owner-identity-contracts.test.mjs'],
   'P1-02': ['tests/media-state-machine-extraction.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp1-transition-guard-definition-evaluator.test.mjs'],
   'P1-03': ['tests/pdp-truth-domain.test.mjs'],
   'P1-09': ['tests/media-temporal-spatial-definition-model.test.mjs', 'tests/media-descriptor-definition-oracles.test.mjs'],
@@ -41,9 +41,10 @@ const suites = {
 // Direct task criteria must not inherit failures from unrelated phase work.
 // Those broader diagnostics remain in the full integration verification.
 const directTestNames = {
-  'P0-01': 'P0 defines every capability leaf|all 14 existing-operation capability bindings',
-  'P0-02': 'P0 defines every capability leaf|P0-06 enumerates exact capability applicability|all 448 canonical capability|all 101 input and 69 output|rational frame-rate|all 14 existing-operation|measure|applicability|output producer|recovery|recipe|NFR|performance method|missing method|SLO',
+  'P0-01': 'P0 defines every capability leaf|all 14 existing-operation capability bindings|owner wire|simulation passes reject|edit leaves reject|all eleven simulation-pass|all eighteen edit leaves',
+  'P0-02': 'P0 defines every capability leaf|P0-06 enumerates exact capability applicability|all 448 canonical capability|all 101 input and 69 output|rational frame-rate|all 14 existing-operation|measure|applicability|output producer|recovery|recipe|NFR|performance method|missing method|SLO|owner wire|simulation passes reject|edit leaves reject|all eleven simulation-pass|all eighteen edit leaves',
   'P0-04': 'P0-04|PDP-0 preserves exact collaborator|PDP-0 requirement trace targets',
+  'P0-07': 'P0-07|complete product feature review matrix|every feature leaf has an exact proposal-time channel|channel applicability|P0 channel and dependency',
   'P2-01': 'Tools public ExperienceLanguage|PDP-2 disclosure density|PDP-2 recovery and accessibility|PDP-2 projects exact owner',
 };
 const implementationScopes = {
@@ -59,6 +60,15 @@ const implementationScopes = {
   'P3-03': 'Ordered journey step action/definition semantics; unbound canonical relationships and scenario acceptance remain open.',
   'P3-04': 'All action roles and typed owner-definition source envelopes; classification does not admit unbound consequential effects.',
 };
+export function resolveCriterionReviewSourceCut(record, fileDigest) {
+  const matches = pins => Boolean(pins && Object.keys(pins).length && Object.entries(pins).every(([file, hash]) => fileDigest(file) === hash));
+  const historicalSourceCutCurrent = matches(record.sourceFingerprints);
+  const correction = record.currentCorrectiveReview;
+  const corrected = correction?.status === 'APPROVED_CURRENT_CORRECTION';
+  return {...record, historicalSourceCutCurrent,
+    sourceCutCurrent: corrected ? matches(correction.sourceFingerprints) : historicalSourceCutCurrent};
+}
+
 export function buildReadiness({audit, residual, verification = {}, mainSha, fingerprints, definitionCensus = null, sourceWorkingTree = null, definitionCriterionReviews = {}}) {
   const tasks = audit.tasks.filter(t => taskIds.includes(t.id)).map(t => {
     const ownerReview=definitionCriterionReviews[t.id];
@@ -215,8 +225,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     if(artifact.schemaVersion!=='media.pdp38-direct-definition-criteria-review.v1') throw new Error('Unsupported direct criterion review');
     for(const record of artifact.records) {
       if(!taskIds.includes(record.taskId) || definitionCriterionReviews[record.taskId]) throw new Error('Invalid or duplicate criterion review identity');
-      const current=Object.entries(record.sourceFingerprints??{}).length>0 && Object.entries(record.sourceFingerprints).every(([file,hash])=>fs.existsSync(path.join(root,file))&&digest(file)===hash);
-      definitionCriterionReviews[record.taskId]={...record,artifactRef:criterionReviewPath,sourceCutCurrent:current};
+      definitionCriterionReviews[record.taskId]={...resolveCriterionReviewSourceCut(record, file => fs.existsSync(path.join(root,file)) ? digest(file) : null),artifactRef:criterionReviewPath};
     }
   }
   const report=buildReadiness({audit,residual:buildMediaProductDefinitionResidualReport(root),verification,

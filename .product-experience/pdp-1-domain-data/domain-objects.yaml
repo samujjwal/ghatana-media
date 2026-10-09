@@ -1739,3 +1739,1142 @@ ownerOutputArtifactTypeCrosswalk:
       qualificationState: NOT_EVALUATED
       id: media.output-type-definition.delivery-package-or-explicit-delivery-outcome
   recordIdentityRule: Each record is an independently normative owner definition for one exact PDP-0 output artifact type; it is not output materialization or runtime qualification.
+
+ownerTypedIdentityContracts:
+  decisionId: MEDIA-OWNER-2026-10-09-P1-01-IDENTITY-AND-REFERENCE-CONTRACTS-01
+  authority: user-delegated-Media-product-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  scopeStatus: OWNER_DEFINED_SOURCE_SEMANTICS; independent-review-open;
+    runtime-persistence-and-wire-enforcement-NOT_ADMITTED
+  population:
+    registeredCurrentIdentities: 38
+    canonicalMediaObjects: 33
+    sourceObservationsWithExplicitNonEquivalence: 5
+    excludedLegacyTranscriptionCount: 1
+  scalarTypeAuthority: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes
+  tupleRules:
+  - id: media.identity-rule.trusted-tenant-scope
+    rule: Every canonical identity tuple includes a trusted host-attested tenantId.
+      Caller-supplied tenant labels never replace the authenticated tenant
+      context. Cross-entity references repeat tenant scope and fail closed on
+      tenant mismatch.
+  - id: media.identity-rule.same-tenant-duplicate-conflict
+    rule: Within one tenant and object type, an existing canonical identity cannot
+      be rebound to different immutable content, parentage, authority scope, or
+      semantic version. A duplicate identity with divergent immutable fields is
+      a conflict, not an overwrite.
+  - id: media.identity-rule.content-digest-not-identity
+    rule: Content digests are integrity attributes and never substitute for an
+      opaque object/version identity. Equal bytes may have distinct authored
+      version identities; a digest collision never merges records.
+  - id: media.identity-rule.immutable-version-lineage
+    rule: A registered immutable version has a stable version identity, exact
+      same-tenant parent/source references where required, no mutation of parent
+      bytes, and a directed acyclic lineage graph. Missing or cross-tenant
+      parent references fail closed.
+  - id: media.identity-rule.source-observation-not-promoted
+    rule: Implementation persistence or wire records remain source observations
+      unless a separate exact owner binding defines equivalence. UUID, row key,
+      session id, chunk index, digest, provider id, and transport id are not
+      silently equated with canonical identity.
+  relationshipBindings:
+  - id: media.identity-link.project-revision
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.project-revision
+    sourceRefField: ProjectRevision.projectId
+    targetRef: media.domain.project
+    cardinality: one-project-to-many-revisions
+    sameTenant: true
+    exactVersionRef: ProjectRevision.revisionId
+  - id: media.identity-link.project-asset
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.project-asset
+    sourceRefField: ProjectRevision.assetRefs[]
+    targetRef: media.domain.media-asset
+    cardinality: one-to-many
+    sameTenant: true
+    exactVersionRef: ProjectRevision.revisionId
+  - id: media.identity-link.asset-artifact-version
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.asset-artifact-version
+    sourceRefField: MediaAsset.artifactVersionRef
+    targetRef: media.domain.artifact-version
+    cardinality: many-to-one
+    sameTenant: true
+    exactVersionRef: artifactId + versionId
+  - id: media.identity-link.job-plan
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.job-plan
+    sourceRefField: ProcessingJob.resolvedPlanRef
+    targetRef: media.domain.resolved-plan
+    cardinality: zero-or-one
+    sameTenant: true
+    exactVersionRef: planId + fingerprint
+  - id: media.identity-link.job-attempt
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.job-attempt
+    sourceRefField: JobAttempt.jobId
+    targetRef: media.domain.processing-job
+    cardinality: one-to-many
+    sameTenant: true
+    exactVersionRef: attemptId remains distinct
+  - id: media.identity-link.attempt-lease
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.attempt-lease
+    sourceRefField: JobLease.attemptId
+    targetRef: media.domain.job-attempt
+    cardinality: one-current-fenced-lease-per-attempt
+    sameTenant: true
+    exactVersionRef: fencingToken is a monotonic authority epoch
+  - id: media.identity-link.run-checkpoint
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.run-checkpoint
+    sourceRefField: Checkpoint.runId
+    targetRef: media.domain.media-run
+    cardinality: one-to-many
+    sameTenant: true
+    exactVersionRef: checkpointId + sequence
+  - id: media.identity-link.scene-model-binding
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.scene-model-binding
+    sourceRefField: SceneGraph.modelBindingRefs[]
+    targetRef: media.domain.simulation-world
+    cardinality: many-to-many-through-explicit-binding
+    sameTenant: true
+    exactVersionRef: worldId + semanticVersion
+  - id: media.identity-link.animation-property-owner
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.animation-property-owner
+    sourceRefField: AnimationGraph.propertyOwnerRefs[]
+    targetRef: media.domain.scene-graph
+    cardinality: many-to-many-through-explicit-owner-binding
+    sameTenant: true
+    exactVersionRef: sceneGraphId + semanticVersion
+  - id: media.identity-link.derived-artifact
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.derived-artifact
+    sourceRefField: ArtifactVersion.parentVersionRefs[]
+    targetRef: media.domain.artifact-version
+    cardinality: directed-many-to-many-acyclic
+    sameTenant: true
+    exactVersionRef: artifactId + versionId
+  - id: media.identity-link.assessment-subject
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.assessment-subject
+    sourceRefField: QualityAssessment.subjectRefs[]
+    targetRef:
+    - media.domain.artifact-version
+    - media.domain.processing-job
+    - media.domain.media-run
+    cardinality: one-to-many-explicit-subjects
+    sameTenant: true
+    exactVersionRef: exact subject type plus version where the target is versioned
+  persistenceAndWireSemantics:
+    id: media.identity.persistence-wire-boundary.v1
+    normativeIdentityRule: Exact canonicalIdentityTuple in each canonical object record defines owner identity; the wire/persistence shape is not inferred from row keys, UUIDs, hashes, provider IDs, or transport IDs.
+    canonicalObjectDisposition: IDENTITY_DEFINED; persistenceAdapter_NOT_ADMITTED; wireAdapter_NOT_ADMITTED; exact implementation projection unresolved per record.
+    sourceObservationDisposition: Preserve exact sourceObservationFields only as observations; no canonical tuple, persistence equivalence, DTO equivalence, or owner identity is asserted.
+    trustedTenantDisposition: tenantId is sourced only from trusted authenticated host context; caller-body tenant fields are denied.
+    immutableVersionDisposition: Versioned object identities include the exact declared version component; content digest is an integrity attribute, and lineage must be same-tenant and acyclic.
+    immutableFingerprintDefinition: Any fingerprint used for same-identity collision comparison is a SHA-256 digest encoded exactly as `sha256:` plus 64 lowercase hexadecimal characters, computed from the contract's validated immutable-field projection; arbitrary nonempty strings and content digests used as object identity are rejected.
+    allowedLineageRelationKinds: [version-parent, DERIVED_FROM, TRANSFORMED_FROM, GENERATED_FROM, INFERRED_FROM, EXECUTED_BY, AUTHORIZED_BY, ASSESSED_BY]
+    requiredAdapterProofBeforeBinding: [exact-source-type, exact-field-map, trusted-tenant-injection, immutable-version-collision-policy, cross-entity-reference-resolution, round-trip-or-explicit-loss, stale-version-and-cross-tenant-negative-cases]
+    status: OWNER_DEFINED_SEMANTICS_ONLY; adapter-currentness-UNKNOWN; runtime-enforcement-NOT_ADMITTED; independent-review-open
+
+  records:
+  - id: media.identity-contract.project
+    objectRef: media.domain.project
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.project
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: projectId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - projectId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject
+    - .product-experience/pdp-0-product-truth/state-models.yaml#media-project
+    - docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.project-revision
+    objectRef: media.domain.project-revision
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.project-revision
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: projectId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: revisionId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - projectId
+    - revisionId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject
+    - .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
+    - docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.artifact
+    objectRef: media.domain.artifact
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.artifact
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: artifactId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - artifactId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+    - libs/audio-video-types/src/contracts.ts
+    - contracts/openapi/media.yaml
+    projectionDisposition: OBSERVED_FIELDS_REQUIRE_EXACT_CANONICAL_ADAPTER
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.artifact-version
+    objectRef: media.domain.artifact-version
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.artifact-version
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: artifactId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: versionId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - artifactId
+    - versionId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.media-asset
+    objectRef: media.domain.media-asset
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.media-asset
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: projectId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: assetId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - projectId
+    - assetId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaAsset
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.recipe
+    objectRef: media.domain.recipe
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.recipe
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: recipeId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: semanticVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - recipeId
+    - semanticVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaRecipe
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.processing-graph
+    objectRef: media.domain.processing-graph
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.processing-graph
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: graphId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: semanticVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - graphId
+    - semanticVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaProcessingGraph
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.resolved-plan
+    objectRef: media.domain.resolved-plan
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.resolved-plan
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: planId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - planId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#ResolvedMediaPlan
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.processing-job
+    objectRef: media.domain.processing-job
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.processing-job
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: jobId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - jobId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+    - libs/audio-video-types/src/contracts.ts
+    - contracts/openapi/media.yaml
+    projectionDisposition: OBSERVED_FIELDS_REQUIRE_EXACT_CANONICAL_ADAPTER
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.render-job
+    objectRef: media.domain.render-job
+    canonicalIdentityNamespaceRef: media.domain.processing-job
+    canonicalIdentityNamespaceSourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.processing-job
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.render-job
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: jobId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - jobId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#ProcessingJob-and-RenderJob
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.artifact-verification-job
+    objectRef: media.domain.artifact-verification-job
+    canonicalIdentityNamespaceRef: media.domain.processing-job
+    canonicalIdentityNamespaceSourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.processing-job
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.artifact-verification-job
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: jobId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - jobId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#ArtifactVerificationJob
+    - .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.job-attempt
+    objectRef: media.domain.job-attempt
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.job-attempt
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: jobId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: attemptId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - jobId
+    - attemptId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.job-lease
+    objectRef: media.domain.job-lease
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.job-lease
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: jobId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: ownerId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: fencingToken
+      inlineConstraint:
+        type: integer
+        minimum: 1
+        maximum: 9007199254740991
+        meaning: monotonically increasing authority epoch; not an attempt identity
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - jobId
+    - ownerId
+    - fencingToken
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+    - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java
+    - providers/aws-postgresql/src/main/resources/db/media-runtime/V005__media_job_worker_lease.sql
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#media-runtime-records
+    projectionDisposition: OBSERVED_FIELDS_REQUIRE_EXACT_CANONICAL_ADAPTER
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.media-run
+    objectRef: media.domain.media-run
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.media-run
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: runId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - runId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.checkpoint
+    objectRef: media.domain.checkpoint
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.checkpoint
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: runId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: checkpointId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - runId
+    - checkpointId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.scene-plan
+    objectRef: media.domain.scene-plan
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-plan
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: projectId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: scenePlanId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: semanticVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - projectId
+    - scenePlanId
+    - semanticVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#ScenePlan-and-SceneBrief
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.scene-brief
+    objectRef: media.domain.scene-brief
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-brief
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: projectId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: sceneBriefId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: semanticVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - projectId
+    - sceneBriefId
+    - semanticVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#ScenePlan-and-SceneBrief
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.scene-graph
+    objectRef: media.domain.scene-graph
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-graph
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: projectId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: sceneGraphId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: semanticVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - projectId
+    - sceneGraphId
+    - semanticVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.animation-graph
+    objectRef: media.domain.animation-graph
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.animation-graph
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: projectId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: animationGraphId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: semanticVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - projectId
+    - animationGraphId
+    - semanticVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#AnimationGraph
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.simulation-world
+    objectRef: media.domain.simulation-world
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.simulation-world
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: worldId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: semanticVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - worldId
+    - semanticVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#SimulationWorld
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.timeline
+    objectRef: media.domain.timeline
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.timeline
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: projectId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: timelineId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: semanticVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - projectId
+    - timelineId
+    - semanticVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#Timeline-and-CompositionConfig
+    - .product-experience/pdp-0-product-truth/time-units-fidelity.yaml
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.composition-config
+    objectRef: media.domain.composition-config
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.composition-config
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: projectId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: compositionConfigId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: semanticVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - projectId
+    - compositionConfigId
+    - semanticVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#Timeline-and-CompositionConfig
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.generation-control-bundle
+    objectRef: media.domain.generation-control-bundle
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.generation-control-bundle
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: controlBundleId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: semanticVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - controlBundleId
+    - semanticVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#GenerationControlBundle
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.continuity-state
+    objectRef: media.domain.continuity-state
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.continuity-state
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: projectId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: continuityStateId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: semanticVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - projectId
+    - continuityStateId
+    - semanticVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#ContinuityState
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.quality-assessment
+    objectRef: media.domain.quality-assessment
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.quality-assessment
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: outputArtifactVersionRef
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-versioned-reference
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: assessmentId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: methodVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - outputArtifactVersionRef
+    - assessmentId
+    - methodVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/quality-policy.yaml
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.render-outcome
+    objectRef: media.domain.render-outcome
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.render-outcome
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: jobId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: outcomeId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - jobId
+    - outcomeId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#RenderOutcome-and-DeliveryOutcome
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.delivery-outcome
+    objectRef: media.domain.delivery-outcome
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.delivery-outcome
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: deliveryRequestId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: outcomeId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: destinationRef
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-destination-reference
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - deliveryRequestId
+    - outcomeId
+    - destinationRef
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#RenderOutcome-and-DeliveryOutcome
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.consent-reference
+    objectRef: media.domain.consent-reference
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.consent-reference
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: consentId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_AUTHORITY_ISSUED
+    - field: consentRevisionId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: TRUSTED_AUTHORITY_ISSUED
+    canonicalIdentityTuple:
+    - tenantId
+    - consentId
+    - consentRevisionId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest
+    - .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.rights-decision
+    objectRef: media.domain.rights-decision
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.rights-decision
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: decisionId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_AUTHORITY_ISSUED
+    - field: policyVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: TRUSTED_AUTHORITY_ISSUED
+    canonicalIdentityTuple:
+    - tenantId
+    - decisionId
+    - policyVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest
+    - .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.provenance-manifest
+    objectRef: media.domain.provenance-manifest
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.provenance-manifest
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: manifestId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: semanticVersion
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - manifestId
+    - semanticVersion
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.upload-session
+    objectRef: media.domain.upload-session
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.upload-session
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: uploadId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - uploadId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#UploadSession
+    - libs/audio-video-types/src/contracts.ts#UploadSession
+    - contracts/openapi/media.yaml#/components/schemas/UploadSession
+    - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_upload_sessions
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.upload-chunk
+    objectRef: media.domain.upload-chunk
+    canonicalDisposition: SOURCE_OBSERVATION_NON_EQUIVALENCE
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.upload-chunk
+    identityComponents: []
+    canonicalIdentityTuple: []
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.source-observation-not-promoted
+    sourceObservationFields:
+    - field: tenantId
+      observedType: string
+      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+    - field: uploadId
+      observedType: string
+      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+    - field: chunkIndex
+      observedType: integer
+      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+    - field: storageKey
+      observedType: string
+      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+    sourceProjectionRefs:
+    - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_upload_chunks
+    projectionDisposition: SOURCE_OBSERVATION_ONLY_NO_CANONICAL_DTO_EQUIVALENCE
+    status: SOURCE_OBSERVATION_ONLY; no canonical domain identity asserted
+  - id: media.identity-contract.stream-session
+    objectRef: media.domain.stream-session
+    canonicalDisposition: SOURCE_OBSERVATION_NON_EQUIVALENCE
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.stream-session
+    identityComponents: []
+    canonicalIdentityTuple: []
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.source-observation-not-promoted
+    sourceObservationFields:
+    - field: tenantId
+      observedType: string
+      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+    - field: sessionId
+      observedType: string
+      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+    sourceProjectionRefs:
+    - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamSession
+    - contracts/openapi/media.yaml#/components/schemas/StreamSession
+    - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_stream_sessions
+    projectionDisposition: SOURCE_OBSERVATION_ONLY_NO_CANONICAL_DTO_EQUIVALENCE
+    status: SOURCE_OBSERVATION_ONLY; no canonical domain identity asserted
+  - id: media.identity-contract.stream-frame
+    objectRef: media.domain.stream-frame
+    canonicalDisposition: SOURCE_OBSERVATION_NON_EQUIVALENCE
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.stream-frame
+    identityComponents: []
+    canonicalIdentityTuple: []
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.source-observation-not-promoted
+    sourceObservationFields:
+    - field: sessionId
+      observedType: string
+      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+    - field: sequence
+      observedType: integer
+      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+    sourceProjectionRefs:
+    - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamFrame
+    - modules/speech/stt-service/src/main/proto/stt_service.proto
+    - modules/vision/vision-service/src/main/proto/vision_service.proto
+    projectionDisposition: SOURCE_OBSERVATION_ONLY_NO_CANONICAL_DTO_EQUIVALENCE
+    status: SOURCE_OBSERVATION_ONLY; no canonical domain identity asserted
+  - id: media.identity-contract.consent-record
+    objectRef: media.domain.consent-record
+    canonicalDisposition: SOURCE_OBSERVATION_NON_EQUIVALENCE
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.consent-record
+    identityComponents: []
+    canonicalIdentityTuple: []
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.source-observation-not-promoted
+    sourceObservationFields:
+    - field: tenantId
+      observedType: string
+      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+    - field: consentId
+      observedType: string
+      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+    sourceProjectionRefs:
+    - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ConsentDecision
+    - contracts/openapi/media.yaml#/components/schemas/ConsentRecord
+    - providers/aws-postgresql/src/main/resources/db/media-runtime/V003__media_consent_authority.sql#media_consents
+    projectionDisposition: SOURCE_OBSERVATION_ONLY_NO_CANONICAL_DTO_EQUIVALENCE
+    status: SOURCE_OBSERVATION_ONLY; no canonical domain identity asserted
+  - id: media.identity-contract.persisted-audio-file
+    objectRef: media.domain.persisted-audio-file
+    canonicalDisposition: SOURCE_OBSERVATION_NON_EQUIVALENCE
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.persisted-audio-file
+    identityComponents: []
+    canonicalIdentityTuple: []
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.source-observation-not-promoted
+    sourceObservationFields:
+    - field: tenantId
+      observedType: string
+      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+    - field: legacyUuid
+      observedType: string
+      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+    sourceProjectionRefs:
+    - modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/AudioFileEntity.java
+    - modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql#audio_video.audio_files
+    projectionDisposition: SOURCE_OBSERVATION_ONLY_NO_CANONICAL_DTO_EQUIVALENCE
+    status: SOURCE_OBSERVATION_ONLY; no canonical domain identity asserted
+  - id: media.identity-contract.transcript-version
+    objectRef: media.domain.transcript-version
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.transcript-version
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: transcriptVersionId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - transcriptVersionId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - libs/audio-video-types/src/contracts.ts#TranscriptionResult
+    - modules/speech/stt-service/src/main/proto/stt_service.proto#TranscribeResponse-and-WordTiming
+    - modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/TranscriptionEntity.java
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03
+    projectionDisposition: NO_CROSS_INTERFACE_IDENTITY_PROJECTION_ESTABLISHED
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
+  - id: media.identity-contract.caption-version
+    objectRef: media.domain.caption-version
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
+    ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.caption-version
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
+    - field: sourceArtifactId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: sourceArtifactVersionId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-version-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    - field: captionVersionId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
+    canonicalIdentityTuple:
+    - tenantId
+    - sourceArtifactId
+    - sourceArtifactVersionId
+    - captionVersionId
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields: []
+    sourceProjectionRefs:
+    - libs/media-experience-simulation/src/model.ts#CaptionVersionRecord
+    - libs/media-experience-simulation/src/model.ts#TimedTextSegment
+    - libs/media-experience-simulation/src/model.ts#MediaSource
+    - libs/media-experience-simulation/src/fixtures.ts
+    - .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03
+    projectionDisposition: OBSERVED_FIELDS_REQUIRE_EXACT_CANONICAL_ADAPTER
+    status: OWNER_DEFINED_IDENTITY; projection parity/runtime enforcement separately
+      unresolved
