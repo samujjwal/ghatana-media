@@ -1,22 +1,64 @@
 TAP version 13
-# Subtest: all 130 PDP-3 journey steps preserve their exact source facts and action disposition
-ok 1 - all 130 PDP-3 journey steps preserve their exact source facts and action disposition
+# Subtest: PDP-3 screen and journey contracts preserve exact registry cross-links
+ok 1 - PDP-3 screen and journey contracts preserve exact registry cross-links
   ---
-  duration_ms: 1025.764541
+  duration_ms: 12338.717664
   type: 'test'
   ...
-# Subtest: ambiguous live-session steps are not rebound to unrelated generic job actions
-ok 2 - ambiguous live-session steps are not rebound to unrelated generic job actions
+# Subtest: PDP-3 coverage preserves historical action counts and exposes current per-step dispositions
+ok 2 - PDP-3 coverage preserves historical action counts and exposes current per-step dispositions
   ---
-  duration_ms: 29.317994
+  duration_ms: 1466.074847
   type: 'test'
   ...
-1..2
-# tests 2
+# Subtest: PDP-3 cross-link assertions reject stale, orphan, and duplicate references
+ok 3 - PDP-3 cross-link assertions reject stale, orphan, and duplicate references
+  ---
+  duration_ms: 2.051199
+  type: 'test'
+  ...
+# Subtest: PDP-3 actor projection rejects inferred initiators and invented actors
+ok 4 - PDP-3 actor projection rejects inferred initiators and invented actors
+  ---
+  duration_ms: 0.358384
+  type: 'test'
+  ...
+# Subtest: PDP-3 J-29/J-30 step views use exact owner-selected source contracts and preserve proposal status
+ok 5 - PDP-3 J-29/J-30 step views use exact owner-selected source contracts and preserve proposal status
+  ---
+  duration_ms: 103.201814
+  type: 'test'
+  ...
+# Subtest: J-02 upload workflow binds exact slices and preserves verification authority
+ok 6 - J-02 upload workflow binds exact slices and preserves verification authority
+  ---
+  duration_ms: 7951.351477
+  type: 'test'
+  ...
+# Subtest: PDP-3 navigation-only steps reject operation placeholders
+ok 7 - PDP-3 navigation-only steps reject operation placeholders
+  ---
+  duration_ms: 0.626024
+  type: 'test'
+  ...
+# Subtest: J-01 passive project reads admit only their exact source identity, view, and unadmitted QUERY
+ok 8 - J-01 passive project reads admit only their exact source identity, view, and unadmitted QUERY
+  ---
+  duration_ms: 1.306211
+  type: 'test'
+  ...
+# Subtest: PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk and remain proposals
+ok 9 - PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk and remain proposals
+  ---
+  duration_ms: 5818.63633
+  type: 'test'
+  ...
+1..9
+# tests 9
 # suites 0
-# pass 2
+# pass 9
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2400.860862
+# duration_ms 27945.697143

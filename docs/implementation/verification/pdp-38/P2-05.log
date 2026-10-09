@@ -2,37 +2,37 @@ TAP version 13
 # Subtest: all 47 selected screen compositions resolve central patterns, layouts, components, actions, and responsive grammar
 ok 1 - all 47 selected screen compositions resolve central patterns, layouts, components, actions, and responsive grammar
   ---
-  duration_ms: 261.712466
+  duration_ms: 246.952683
   type: 'test'
   ...
 # Subtest: the reusable composition validator is part of actual source validation and enforces reciprocal catalogs
 ok 2 - the reusable composition validator is part of actual source validation and enforces reciprocal catalogs
   ---
-  duration_ms: 3451.903377
+  duration_ms: 3659.301545
   type: 'test'
   ...
 # Subtest: owner-defined PDP-3 actions participate in actual composition reference resolution
 ok 3 - owner-defined PDP-3 actions participate in actual composition reference resolution
   ---
-  duration_ms: 464.695073
+  duration_ms: 456.236039
   type: 'test'
   ...
 # Subtest: composition validation rejects stale patterns, missing keyboard semantics, and local responsive overrides
 ok 4 - composition validation rejects stale patterns, missing keyboard semantics, and local responsive overrides
   ---
-  duration_ms: 85.030314
+  duration_ms: 76.225536
   type: 'test'
   ...
 # Subtest: every uncertain action retains a template-level unknown-finality recovery pattern
 ok 5 - every uncertain action retains a template-level unknown-finality recovery pattern
   ---
-  duration_ms: 261.876473
+  duration_ms: 246.630832
   type: 'test'
   ...
 # Subtest: central layout and accessibility rules retain critical facts at every density and color mode
 ok 6 - central layout and accessibility rules retain critical facts at every density and color mode
   ---
-  duration_ms: 13.540288
+  duration_ms: 15.467144
   type: 'test'
   ...
 1..6
@@ -43,4 +43,4 @@ ok 6 - central layout and accessibility rules retain critical facts at every den
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6197.78896
+# duration_ms 6479.978043

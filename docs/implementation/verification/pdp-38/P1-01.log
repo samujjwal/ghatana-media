@@ -2,73 +2,73 @@ TAP version 13
 # Subtest: PDP-1 canonical references resolve only to catalogued domain objects
 ok 1 - PDP-1 canonical references resolve only to catalogued domain objects
   ---
-  duration_ms: 305.867248
+  duration_ms: 176.416629
   type: 'test'
   ...
 # Subtest: PDP-1 overview reports exact registry count and separates bounded definitions from observed materialization
 ok 2 - PDP-1 overview reports exact registry count and separates bounded definitions from observed materialization
   ---
-  duration_ms: 290.46545
+  duration_ms: 221.605759
   type: 'test'
   ...
 # Subtest: PDP-1 object source references resolve to files and PDP-0 anchors resolve to named records
 ok 3 - PDP-1 object source references resolve to files and PDP-0 anchors resolve to named records
   ---
-  duration_ms: 82.56535
+  duration_ms: 94.04206
   type: 'test'
   ...
 # Subtest: caption version has bounded immutable domain semantics while the simulation shape remains synthetic
 ok 4 - caption version has bounded immutable domain semantics while the simulation shape remains synthetic
   ---
-  duration_ms: 1.127369
+  duration_ms: 1.213041
   type: 'test'
   ...
 # Subtest: artifact, job, and lease identities preserve the source-specific keys without promoting them
 ok 5 - artifact, job, and lease identities preserve the source-specific keys without promoting them
   ---
-  duration_ms: 1.735747
+  duration_ms: 1.332149
   type: 'test'
   ...
 # Subtest: PDP-1 observes the current Media runtime job enum without accepting a canonical mapping
 ok 6 - PDP-1 observes the current Media runtime job enum without accepting a canonical mapping
   ---
-  duration_ms: 38.24946
+  duration_ms: 20.118838
   type: 'test'
   ...
 # Subtest: all 38 current object identities have explicit typed owner or source-observation dispositions
 ok 7 - all 38 current object identities have explicit typed owner or source-observation dispositions
   ---
-  duration_ms: 3.810645
+  duration_ms: 3.283824
   type: 'test'
   ...
 # Subtest: named cross-entity relationships bind exact same-tenant typed references
 ok 8 - named cross-entity relationships bind exact same-tenant typed references
   ---
-  duration_ms: 0.708878
+  duration_ms: 0.489785
   type: 'test'
   ...
 # Subtest: identity oracle rejects missing or caller-overridden tenant, malformed IDs, and same-tenant collisions
 ok 9 - identity oracle rejects missing or caller-overridden tenant, malformed IDs, and same-tenant collisions
   ---
-  duration_ms: 3.668513
+  duration_ms: 2.21491
   type: 'test'
   ...
 # Subtest: shared subtype identity namespaces collide on the canonical ProcessingJob tuple
 ok 10 - shared subtype identity namespaces collide on the canonical ProcessingJob tuple
   ---
-  duration_ms: 0.716994
+  duration_ms: 0.461606
   type: 'test'
   ...
 # Subtest: every canonical identity tuple has an executable typed positive and missing/malformed negative
 ok 11 - every canonical identity tuple has an executable typed positive and missing/malformed negative
   ---
-  duration_ms: 6.222091
+  duration_ms: 4.015323
   type: 'test'
   ...
 # Subtest: version identity is independent from digest and lineage rejects cross-tenant, kind-mismatch, and cycles
 ok 12 - version identity is independent from digest and lineage rejects cross-tenant, kind-mismatch, and cycles
   ---
-  duration_ms: 2.224409
+  duration_ms: 1.267341
   type: 'test'
   ...
 1..12
@@ -79,4 +79,4 @@ ok 12 - version identity is independent from digest and lineage rejects cross-te
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 7594.136771
+# duration_ms 9108.328251

@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: all 130 PDP-3 journey steps preserve their exact source facts and action disposition
+ok 1 - all 130 PDP-3 journey steps preserve their exact source facts and action disposition
+  ---
+  duration_ms: 942.47038
+  type: 'test'
+  ...
+# Subtest: ambiguous live-session steps are not rebound to unrelated generic job actions
+ok 2 - ambiguous live-session steps are not rebound to unrelated generic job actions
+  ---
+  duration_ms: 42.790941
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2027.771662

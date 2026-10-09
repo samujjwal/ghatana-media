@@ -1,11 +1,11 @@
 # PDP-0 through PDP-3 readiness
 
-Source HEAD: `f5a9a5153ef6b82026d84553cd90a094cb1169c5`. Exactly 38 tasks. Source criteria, dependencies, independent acceptance and Lifecycle currentness are separate. Historical ledger criteria/status are preserved. See JSON for current source fingerprints, test outputs and historical residual provenance.
+Source HEAD: `d99baf7b5df806ed8c528ce1ad4bd90f8640434c`. Exactly 38 tasks. Source criteria, dependencies, independent acceptance and Lifecycle currentness are separate. Historical ledger criteria/status are preserved. See JSON for current source fingerprints, test outputs and historical residual provenance.
 
 | Task | Original status | Direct source criterion | Dependencies | Independent/publisher | Native phase proof |
 | --- | --- | --- | --- | --- | --- |
-| P0-01 | partial | VERIFIED_IN_CURRENT_SOURCE | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
-| P0-02 | partial | VERIFIED_IN_CURRENT_SOURCE | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
+| P0-01 | partial | REOPENED_SOURCE_CONTRACT_CORRECTION_REQUIRED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
+| P0-02 | partial | REOPENED_SOURCE_CONTRACT_CORRECTION_REQUIRED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
 | P0-03 | partial | NOT_ESTABLISHED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
 | P0-04 | partial | VERIFIED_IN_CURRENT_SOURCE | NOT_ESTABLISHED | NOT_EVALUATED | NOT_EVALUATED |
 | P0-05 | partial | NOT_ESTABLISHED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
