@@ -1,0 +1,409 @@
+schemaVersion: media.pdp2.read-consumer-adapters.v1
+artifactId: media.pdp2.read-consumer-adapters
+productId: media
+authority: Media owns its consumer projection and the semantic boundaries below; operation/source owners remain authoritative for their payloads.
+decisionAuthority: .product-experience/decision-log.md#PXD-119
+status: OWNER_DEFINED_READ_ADAPTERS; definition-only; runtime and transport parity NOT_ADMITTED
+normativeRuleRecords:
+  - id: media.p2.rule.artifact-read-consumer-adapter.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/read-consumer-adapters.yaml#ownerDefinedReadAdapters/records/@id=media.pdp2.read-adapter.artifact-metadata.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/read-consumer-adapters.yaml#authority
+    acceptanceEffect: none
+  - id: media.p2.rule.transcript-read-consumer-adapter.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/read-consumer-adapters.yaml#ownerDefinedReadAdapters/records/@id=media.pdp2.read-adapter.transcript-version.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/read-consumer-adapters.yaml#authority
+    acceptanceEffect: none
+ownerDefinedReadAdapters:
+  id: media.pdp2.read-consumer-adapters.v1
+  scope: >-
+    Define the typed Media consumer boundary for exact artifact and transcript
+    reads. A source response is not canonical merely because its route, label,
+    object class, or identifier resembles a Media domain object. Every current
+    mapping preserves exact identity, trusted host context, missing fields,
+    errors, and unknown outcomes. These definitions do not establish a live
+    endpoint, wire parity, authorization implementation, or runtime admission.
+  records:
+    - id: media.pdp2.read-adapter.artifact-metadata.v1
+      actionRef: media.action.inspect-artifact
+      definitionStatus: OWNER_DEFINED_CONSUMER_ADAPTER; independent-interface-review-open
+      runtimeAdmission: NOT_ADMITTED
+      canonicalOperationIntentRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact
+      observedLegacyTransport:
+        method: GET
+        path: /api/v1/artifacts/{artifactId}
+        operationId: getMediaArtifact
+        sourceRefs:
+          - contracts/openapi/media.yaml#/paths/~1api~1v1~1artifacts~1{artifactId}/get
+          - contracts/openapi/media.yaml#/components/schemas/MediaArtifact
+          - launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java#artifact
+          - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifact
+        responseSchemaDisposition: OPENAPI_MEDIA_ARTIFACT_IS_OPEN_OBJECT; exact observed Java record fields are represented below; this is not a closed canonical ArtifactVersion payload
+        consumerLimitations: >-
+          Java declares sizeBytes as a signed long. This JSON consumer accepts only
+          nonnegative values exactly representable by JavaScript Number; larger
+          values are UNKNOWN/UNREPRESENTABLE and must not be rounded. This bounded
+          consumer schema is not a claim that the source Java record has that bound.
+        responseSchema:
+          $schema: https://json-schema.org/draft/2020-12/schema
+          type: object
+          additionalProperties: false
+          required: [tenantId, principalId, artifactId, fileName, contentType, sizeBytes, sha256, objectReference, classification, createdAt, expiresAt, metadata]
+          properties:
+            tenantId: { type: string, minLength: 1 }
+            principalId: { type: string, minLength: 1 }
+            artifactId: { type: string, minLength: 1 }
+            fileName: { type: string, minLength: 1 }
+            contentType: { type: string, minLength: 1 }
+            sizeBytes: { type: integer, minimum: 1, maximum: 9007199254740991 }
+            sha256: { type: string, pattern: '^[a-fA-F0-9]{64}$' }
+            objectReference: { type: string, minLength: 1 }
+            classification: { type: string, minLength: 1 }
+            createdAt: { type: string, format: date-time }
+            expiresAt: { type: string, format: date-time }
+            metadata: { type: object, additionalProperties: true }
+        consumerObservationSchema:
+          $schema: https://json-schema.org/draft/2020-12/schema
+          type: object
+          additionalProperties: false
+          required: [kind, artifact]
+          properties:
+            kind: { const: LEGACY_ARTIFACT_METADATA_OBSERVATION }
+            artifact:
+              type: object
+              additionalProperties: false
+              required: [tenantId, principalId, artifactId, fileName, contentType, sizeBytes, sha256, objectReference, classification, createdAt, expiresAt, metadata]
+              properties:
+                tenantId: { type: string, minLength: 1 }
+                principalId: { type: string, minLength: 1 }
+                artifactId: { type: string, minLength: 1 }
+                fileName: { type: string, minLength: 1 }
+                contentType: { type: string, minLength: 1 }
+                sizeBytes: { type: integer, minimum: 1, maximum: 9007199254740991 }
+                sha256: { type: string, pattern: '^[a-fA-F0-9]{64}$' }
+                objectReference: { type: string, minLength: 1 }
+                classification: { type: string, minLength: 1 }
+                createdAt: { type: string, format: date-time }
+                expiresAt: { type: string, format: date-time }
+                metadata: { type: object, additionalProperties: true }
+        consumerProjectionLimit: >-
+          Java sizeBytes is signed long; this JSON consumer represents only safe
+          integer numbers. A larger value is UNKNOWN/UNREPRESENTABLE rather than
+          rounded. This consumer limit is not a restriction on the source record.
+        requestSchema:
+          $schema: https://json-schema.org/draft/2020-12/schema
+          type: object
+          additionalProperties: false
+          required: [artifactId]
+          properties:
+            artifactId: { type: string, minLength: 1, maxLength: 128 }
+        hostContext:
+          required: [tenantId, principalId]
+          tenantId: authenticated-host-only; never accepted from request JSON or query flags
+          principalId: authenticated-host-only; never accepted from request JSON or query flags
+          comparison: returned tenantId and principalId must exactly match the trusted host context; mismatch is ACCESS_DENIED and no artifact fields are rendered
+        responseMeaning:
+          success: >-
+            This branch is a source-observed legacy metadata read. artifactId
+            identifies the legacy record only; the source has no immutable
+            artifactVersionId, canonical tenant-scoped version tuple, current
+            rights decision, or versioned access receipt. Display the branch
+            as legacy metadata and preserve its exact observed values.
+          failure: >-
+            HTTP 404 means absent OR inaccessible within the current source
+            lookup. It is not global absence. Timeout, malformed fields, or
+            host-context mismatch is UNKNOWN/denied; do not infer an empty
+            artifact, retry with a broader scope, or use the opaque object
+            reference as a download URL.
+          nonEquivalence: >-
+            This response cannot satisfy a canonical immutable ArtifactVersion
+            read, artifact availability, current rights, byte retrieval, or
+            provenance proof. A canonical version inspection must call the
+            exact versioned owner operation below with an artifactId and
+            artifactVersionId pair; no latest-version alias is permitted.
+        exactVersionRead:
+          operationRef: media.operation-slice.inspect-artifact-version
+          requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/requestSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/resultSchema
+          identityRule: require both exact artifactId and immutable artifactVersionId; verify version belongs to that artifact and caller scope
+          missingOrForeignVersion: UNKNOWN_OR_ACCESS_DENIED; never replace with artifactId-only metadata or latest
+          outputValidation: resolve and validate the full owner result schema before exposing a canonical version read
+        negativeCases:
+          - caller supplies tenantId or principalId in request JSON and it overrides host identity
+          - observed tenantId or principalId differs from the trusted host context
+          - artifactId-only response is projected as an immutable artifactVersion
+          - createdAt or expiresAt is treated as current access or rights evidence
+          - opaque objectReference is presented as a URL or byte-download capability
+          - HTTP 404 is interpreted as global nonexistence rather than absent-or-inaccessible
+          - missing exact artifactVersionId is silently replaced with latest
+          - arbitrary metadata key is rendered as trusted policy or provenance
+      sourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema
+        - contracts/openapi/media.yaml#/components/schemas/MediaArtifact
+        - launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java#artifact
+        - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaArtifact
+
+    - id: media.pdp2.read-adapter.transcript-version.v1
+      actionRef: media.action.review-transcript
+      definitionStatus: OWNER_DEFINED_CONSUMER_ADAPTER; independent-interface-review-open
+      runtimeAdmission: NOT_ADMITTED
+      canonicalOperationRef: media.operation.transcript-version-read
+      canonicalOperationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read
+      canonicalDomainObjectRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.transcript-version
+      requestSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        type: object
+        additionalProperties: false
+        required: [transcriptVersionId]
+        properties:
+          transcriptVersionId: { type: string, minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9][A-Za-z0-9._:+-]*$' }
+      hostContext:
+        required: [tenantId, principalId]
+        tenantId: authenticated-host-only; never accepted from request JSON or query flags
+        principalId: authenticated-host-only; never accepted from request JSON or query flags
+        scope: the host resolves current transcript and linked-source read authority for this exact tuple before returning content
+      trustedReadReceiptContract:
+        authority: authenticated host only; not caller JSON, query parameters, transcript payload, or provider output
+        requiredFields: [receiptId, queryId, method, readVersion, policyRevision, requestFingerprint, payloadFingerprint, currentness, tenantId, principalId, transcriptVersionId, sourceArtifactId, sourceArtifactVersionId, authorityRef, policyDecisionRef, checkedAt, expiresAt, hostIssuedProof]
+        currentness: CURRENT only for this read decision and exact identity tuple; stale, expired, absent, malformed, unverifiable, or mismatched receipt means UNKNOWN
+        identityJoin: tenantId + principalId + transcriptVersionId + sourceArtifactId + sourceArtifactVersionId must equal the selected request and canonical response exactly
+        queryIdentity: queryId is exactly media.operation.transcript-version-read; method is EXACT_TRANSCRIPT_VERSION_READ; requestFingerprint binds that operation, authenticated tenant/principal, and exact transcriptVersionId; payloadFingerprint binds the canonical response bytes after deterministic canonical JSON encoding
+        readVersion: opaque nonempty read-model revision; repeated reads do not imply same revision or currentness
+        authorityRefs: authorityRef is .product-experience/pdp-1-domain-data/authority.yaml#ownership/identityAuthenticationAndDelegation; policyDecisionRef is .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        receiptVerification: a trusted host verifier authenticates host issuance and authority; the consumer additionally verifies the independently supplied expected host tuple, exact method/revisions, fingerprints, and issue/expiry interval before accepting it
+        checkedAt: RFC3339 date-time from the trusted host clock; do not derive from response observedAt
+        expiresAt: RFC3339 date-time; must be after checkedAt and still current at evaluation; expired or future-issued receipts are UNKNOWN
+      expectedHostReadTupleSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        type: object
+        additionalProperties: false
+        required: [queryId, method, tenantId, principalId, transcriptVersionId, sourceArtifactId, sourceArtifactVersionId, readVersion, policyRevision, authorityRef, policyDecisionRef]
+        properties:
+          queryId: { const: media.operation.transcript-version-read }
+          method: { const: EXACT_TRANSCRIPT_VERSION_READ }
+          tenantId: { type: string, minLength: 1, maxLength: 128 }
+          principalId: { type: string, minLength: 1, maxLength: 128 }
+          transcriptVersionId: { type: string, minLength: 1, maxLength: 128 }
+          sourceArtifactId: { type: string, minLength: 1, maxLength: 128 }
+          sourceArtifactVersionId: { type: string, minLength: 1, maxLength: 128 }
+          readVersion: { type: string, minLength: 1, maxLength: 256 }
+          policyRevision: { type: string, minLength: 1, maxLength: 256 }
+          authorityRef: { const: .product-experience/pdp-1-domain-data/authority.yaml#ownership/identityAuthenticationAndDelegation }
+          policyDecisionRef: { const: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy }
+      trustedReadReceiptSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        type: object
+        additionalProperties: false
+        required: [receiptId, queryId, method, readVersion, policyRevision, requestFingerprint, payloadFingerprint, currentness, tenantId, principalId, transcriptVersionId, sourceArtifactId, sourceArtifactVersionId, authorityRef, policyDecisionRef, checkedAt, expiresAt, hostIssuedProof]
+        properties:
+          receiptId: { type: string, minLength: 1, maxLength: 256 }
+          queryId: { const: media.operation.transcript-version-read }
+          method: { const: EXACT_TRANSCRIPT_VERSION_READ }
+          readVersion: { type: string, minLength: 1, maxLength: 256 }
+          policyRevision: { type: string, minLength: 1, maxLength: 256 }
+          requestFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+          payloadFingerprint: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+          currentness: { const: CURRENT }
+          tenantId: { type: string, minLength: 1, maxLength: 128 }
+          principalId: { type: string, minLength: 1, maxLength: 128 }
+          transcriptVersionId: { type: string, minLength: 1, maxLength: 128 }
+          sourceArtifactId: { type: string, minLength: 1, maxLength: 128 }
+          sourceArtifactVersionId: { type: string, minLength: 1, maxLength: 128 }
+          authorityRef: { const: .product-experience/pdp-1-domain-data/authority.yaml#ownership/identityAuthenticationAndDelegation }
+          policyDecisionRef: { const: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy }
+          checkedAt: { type: string, format: date-time }
+          expiresAt: { type: string, format: date-time }
+          hostIssuedProof: { type: string, minLength: 1 }
+      canonicalResponseSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        type: object
+        additionalProperties: false
+        required: [observationKind, tenantId, transcriptVersionId, sourceArtifactId, sourceArtifactVersionId, textAvailability, segmentsAvailability, languageAvailability, uncertaintyAvailability, timingAvailability, sourceClockAvailability, evidenceAvailability, observedAt]
+        properties:
+          observationKind: { const: CANONICAL_TRANSCRIPT_VERSION_OBSERVATION }
+          tenantId: { type: string, minLength: 1, maxLength: 128 }
+          transcriptVersionId: { type: string, minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9][A-Za-z0-9._:+-]*$' }
+          sourceArtifactId: { type: string, minLength: 1, maxLength: 128 }
+          sourceArtifactVersionId: { type: string, minLength: 1, maxLength: 128 }
+          textAvailability: { enum: [AVAILABLE, NOT_SUPPLIED] }
+          text: { type: string }
+          segmentsAvailability: { enum: [AVAILABLE, NOT_SUPPLIED] }
+          segments:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              required: [segmentId, text, origin]
+              properties:
+                segmentId: { type: string, minLength: 1 }
+                text: { type: string }
+                origin: { enum: [PROVIDER, USER_EDITED, IMPORTED] }
+          languageAvailability: { enum: [AVAILABLE, NOT_SUPPLIED] }
+          languageTag: { type: string, minLength: 2, maxLength: 64 }
+          uncertaintyAvailability: { enum: [AVAILABLE, NOT_SUPPLIED] }
+          uncertaintyObservations:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              required: [kind, sourceRef]
+              properties:
+                kind: { enum: [PROVIDER_CONFIDENCE, ALTERNATIVE, OTHER_SOURCE_OBSERVATION] }
+                sourceRef: { type: string, minLength: 1 }
+                confidence: { type: number, minimum: 0, maximum: 1 }
+                text: { type: string }
+                observationValue: { type: string, minLength: 1 }
+              oneOf:
+                - required: [kind, confidence]
+                  properties: { kind: { const: PROVIDER_CONFIDENCE } }
+                  not: { anyOf: [{ required: [text] }, { required: [observationValue] }] }
+                - required: [kind, confidence, text]
+                  properties: { kind: { const: ALTERNATIVE } }
+                  not: { required: [observationValue] }
+                - required: [kind, observationValue]
+                  properties: { kind: { const: OTHER_SOURCE_OBSERVATION } }
+                  not: { anyOf: [{ required: [confidence] }, { required: [text] }] }
+          timingAvailability: { enum: [NOT_SUPPLIED, PROVIDER_TIME_UNQUALIFIED, SOURCE_CLOCK_BOUND] }
+          timingObservations:
+            type: array
+            maxItems: 100000
+            items:
+              type: object
+              additionalProperties: false
+              required: [segmentId, start, end, unit, timingOrigin]
+              properties:
+                segmentId: { type: string, minLength: 1, maxLength: 128 }
+                start: { type: string, maxLength: 16, pattern: '^(0|[1-9][0-9]*)$' }
+                end: { type: string, maxLength: 16, pattern: '^(0|[1-9][0-9]*)$' }
+                unit: { enum: [MILLISECONDS, SOURCE_TICKS] }
+                timingOrigin: { enum: [PROVIDER_UNQUALIFIED, AUTHORITATIVE_SOURCE_CLOCK] }
+          sourceClockAvailability: { enum: [AUTHORITATIVELY_BOUND, NOT_AVAILABLE] }
+          sourceClockId: { type: string, minLength: 1 }
+          ticksPerSecond: { type: string, maxLength: 16, pattern: '^[1-9][0-9]*$' }
+          sourceDurationTicks: { type: string, maxLength: 16, pattern: '^(0|[1-9][0-9]*)$' }
+          sourceClockMappingEvidenceRef: { type: string, minLength: 1 }
+          evidenceAvailability: { enum: [AVAILABLE, NOT_SUPPLIED] }
+          evidenceRefs: { type: array, items: { type: string, minLength: 1 } }
+          observedAt: { type: string, format: date-time }
+        allOf:
+          - if: { properties: { textAvailability: { const: AVAILABLE } }, required: [textAvailability] }
+            then: { required: [text] }
+            else: { not: { required: [text] } }
+          - if: { properties: { segmentsAvailability: { const: AVAILABLE } }, required: [segmentsAvailability] }
+            then: { required: [segments] }
+            else: { not: { required: [segments] } }
+          - if: { properties: { languageAvailability: { const: AVAILABLE } }, required: [languageAvailability] }
+            then: { required: [languageTag] }
+            else: { not: { required: [languageTag] } }
+          - if: { properties: { uncertaintyAvailability: { const: AVAILABLE } }, required: [uncertaintyAvailability] }
+            then: { required: [uncertaintyObservations] }
+            else: { not: { required: [uncertaintyObservations] } }
+          - if: { properties: { timingAvailability: { enum: [PROVIDER_TIME_UNQUALIFIED, SOURCE_CLOCK_BOUND] } }, required: [timingAvailability] }
+            then: { required: [timingObservations] }
+            else: { not: { required: [timingObservations] } }
+          - if: { properties: { sourceClockAvailability: { const: AUTHORITATIVELY_BOUND } }, required: [sourceClockAvailability] }
+            then: { required: [sourceClockId, ticksPerSecond, sourceClockMappingEvidenceRef] }
+            else: { not: { anyOf: [{ required: [sourceClockId] }, { required: [ticksPerSecond] }, { required: [sourceDurationTicks] }, { required: [sourceClockMappingEvidenceRef] }] } }
+          - if: { properties: { evidenceAvailability: { const: AVAILABLE } }, required: [evidenceAvailability] }
+            then: { required: [evidenceRefs] }
+            else: { not: { required: [evidenceRefs] } }
+          - if: { properties: { timingAvailability: { const: SOURCE_CLOCK_BOUND } }, required: [timingAvailability] }
+            then: { properties: { timingObservations: { items: { properties: { unit: { const: SOURCE_TICKS }, timingOrigin: { const: AUTHORITATIVE_SOURCE_CLOCK } }, required: [unit, timingOrigin] } }, sourceClockAvailability: { const: AUTHORITATIVELY_BOUND } }, required: [sourceClockAvailability, sourceClockId, ticksPerSecond, sourceClockMappingEvidenceRef] }
+          - if: { properties: { timingAvailability: { const: PROVIDER_TIME_UNQUALIFIED } }, required: [timingAvailability] }
+            then: { properties: { timingObservations: { items: { properties: { unit: { const: MILLISECONDS }, timingOrigin: { const: PROVIDER_UNQUALIFIED } }, required: [unit, timingOrigin] } } } }
+      semanticRules:
+        - If an availability field is NOT_SUPPLIED, its corresponding value field MUST be absent; never synthesize defaults.
+        - SOURCE_CLOCK_BOUND requires authoritative sourceArtifactVersion binding, sourceClockId, positive ticksPerSecond, and mapping evidence; otherwise the timing remains PROVIDER_TIME_UNQUALIFIED or NOT_SUPPLIED.
+        - Source-clock numeric fields use decimal strings bounded to JavaScript safe-integer range; do not coerce other numeric representations through floating-point numbers.
+        - Each timing interval is bound to one exact segmentId and has a strictly increasing start/end pair; each segmentId must resolve exactly once in segments, with no duplicate interval identity. If an authoritative source duration is present, interval end cannot exceed it.
+        - Provider milliseconds remain provider observations and are never relabeled as source ticks without a separately qualified exact mapping.
+        - A canonical transcript result must exactly match the requested tenant and transcriptVersionId and include its exact source artifact/version pair.
+        - Inspection does not correct, approve, register a caption version, establish quality, or publish content.
+      semanticValidationRef: scripts/lib/pdp2-read-consumer-adapters.mjs#classifyTranscriptReadResult
+      schemaValidationBoundary: >-
+        JSON Schema validates decimal-string syntax, size bounds, and conditional
+        field presence. The semantic validator additionally enforces safe integer
+        range, strict interval ordering and segment association, duration bounds,
+        exact request/receipt/payload digests, host receipt authenticity, and
+        currentness. Schema validation alone is insufficient for projection.
+      unavailableResultSchema:
+        $schema: https://json-schema.org/draft/2020-12/schema
+        type: object
+        additionalProperties: false
+        required: [status, code]
+        properties:
+          status: { enum: [UNKNOWN, UNAVAILABLE, ACCESS_DENIED_OR_NOT_FOUND] }
+          code: { enum: [INVALID_REQUEST, ACCESS_DENIED, TRANSCRIPT_VERSION_NOT_FOUND_IN_CALLER_SCOPE, SOURCE_IDENTITY_MISMATCH, UNAVAILABLE] }
+        semanticRule: no transcript content or guessed identity fields are returned on this branch; scoped not-found does not establish global absence
+      legacyResponse:
+        kind: LEGACY_TRANSCRIPTION_RESULT
+        sourceRefs:
+          - libs/audio-video-types/src/contracts.ts#TranscriptionResultSchema
+          - libs/audio-video-types/src/contracts.ts#TranscriptionResult
+          - modules/speech/stt-service/src/main/proto/stt_service.proto#TranscribeResponse
+          - modules/speech/stt-service/src/main/proto/stt_service.proto#WordTiming
+          - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.transcription
+        responseSchema:
+          $schema: https://json-schema.org/draft/2020-12/schema
+          type: object
+          additionalProperties: false
+          required: [artifactId, transcriptArtifactId, text, languageTag, confidence, words, alternatives, providerId, modelId, modelVersion, processingTimeMs]
+          properties:
+            artifactId: { type: string, minLength: 1, maxLength: 256 }
+            transcriptArtifactId: { type: string, minLength: 1, maxLength: 256 }
+            text: { type: string }
+            languageTag: { type: string, minLength: 1 }
+            confidence: { type: number, minimum: 0, maximum: 1 }
+            words:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                required: [text, startMs, endMs, confidence]
+                properties:
+                  text: { type: string }
+                  startMs: { type: integer, minimum: 0, maximum: 9007199254740991 }
+                  endMs: { type: integer, minimum: 0, maximum: 9007199254740991 }
+                  confidence: { type: number, minimum: 0, maximum: 1 }
+                  speakerId: { type: string, minLength: 1, maxLength: 256 }
+            alternatives:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                required: [text, confidence]
+                properties:
+                  text: { type: string }
+                  confidence: { type: number, minimum: 0, maximum: 1 }
+            providerId: { type: string, minLength: 1, maxLength: 256 }
+            modelId: { type: string, minLength: 1, maxLength: 256 }
+            modelVersion: { type: string, minLength: 1 }
+            processingTimeMs: { type: integer, minimum: 0, maximum: 9007199254740991 }
+        disposition: >-
+          A legacy TranscriptionResult lacks transcriptVersionId and
+          sourceArtifactVersionId; its artifactId/transcriptArtifactId and
+          timing values cannot be promoted into a canonical TranscriptVersion.
+          Keep it explicitly labeled legacy or return unavailable for the
+          canonical review action. Do not infer exact source linkage, calibrated
+          confidence, current access, or immutable-version identity.
+      unavailableAndUnknown:
+        missingCanonicalIdentity: return UNAVAILABLE with no fabricated transcriptVersionId or source version
+        foreignOrContradictorySourceLink: return ACCESS_DENIED_OR_INTEGRITY_ERROR and expose no content
+        incompleteUncertaintyOrTiming: preserve NOT_SUPPLIED and render that state; never substitute zero, certainty, or source-clock mapping
+        readTimeout: return UNKNOWN/UNAVAILABLE for the same exact transcriptVersionId; no latest alias or job-result fallback
+      sourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.transcript-version
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.transcription
+        - libs/audio-video-types/src/contracts.ts#TranscriptionResultSchema
+        - modules/speech/stt-service/src/main/proto/stt_service.proto#TranscribeResponse
+        - modules/speech/stt-service/src/main/proto/stt_service.proto#WordTiming
+      negativeCases:
+        - caller supplies tenantId or principalId to override trusted host context
+        - a legacy transcription UUID or transcriptArtifactId is treated as transcriptVersionId
+        - missing sourceArtifactVersionId is reconstructed from artifactId or jobId
+        - provider milliseconds are rendered as source-clock ticks
+        - missing confidence is shown as zero or as certainty
+        - missing text, language, segments, timing, or evidence is filled from a neighboring result
+        - a read timeout switches to latest transcript or another job result
+        - transcript inspection is rendered as caption approval or publication
