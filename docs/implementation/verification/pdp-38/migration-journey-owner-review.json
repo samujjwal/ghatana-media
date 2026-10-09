@@ -1,0 +1,1157 @@
+{
+  "schemaVersion": "media.pdp38-migration-journey-owner-review.v1",
+  "scope": "Exact pending 25-claim journey cohort: 24 normative owner-defined rules plus one nonnormative REV-12 heading classification; historical targets are retained and no ledger status, phase acceptance, runtime evidence, or receipt is changed.",
+  "sourceBaselineSha256": "41b68c2c41ad7ff9e06a6d3e1c4c90665dee13c7b4aed3b587ebbbcf7263c22f",
+  "journeySourceSha256": "f5bc622c1f4d1d6b1474ec2e227203fd5038a43a786a6a090cba46dee6fe9b1a",
+  "recordCount": 25,
+  "normativeRecordCount": 24,
+  "metadataCount": 1,
+  "records": [
+    {
+      "claimId": "MPSEM-0030-C002",
+      "exactSourceText": "U1 §14.1 is broader than AI Inference’s consumer boundary [R03]",
+      "sourceTextSha256": "7dc86f6c60661476b74cbac2e8c8584fa91ce7dd7d94ce4f3e856cc5c97aaa4a",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-04/handoffCondition",
+      "previousTargetValueSha256": "713c643400b1bac97fad732e251c0dc579fa57331a261bcf1e590f0a4c81c66e",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=ai-inference-execution/genericInferenceOwnershipBoundary/rule",
+      "proposedTargetValueSha256": "3917b01a358dceed8905e75180705bdb42e42d5827a8ecaa7e7dd21babef871f",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Generic inference and model/provider selection remain AI Inference-owned, including local deployment. Media-specific bounded worker exceptions require their own exact owner-bound contracts and do not create a generic bypass or tool-listing admission.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0030.c002.required.01",
+          "meaning": "exactInferenceOrModelProviderSelectionBoundaryIdentified"
+        },
+        {
+          "factId": "mpsem.0030.c002.required.02",
+          "meaning": "ownerRouteAndAnyBoundedExceptionAreSeparatelyScoped"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0030.c002.prohibited.01",
+          "meaning": "localDeploymentUsedToInferMediaOwnershipOfGenericInferenceOrProviderSelection"
+        },
+        {
+          "factId": "mpsem.0030.c002.prohibited.02",
+          "meaning": "aiInferenceAdmissionInferredFromToolListingOrName"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0032-C001",
+      "exactSourceText": "| REV-12 — “Deterministic” was undefined",
+      "sourceTextSha256": "6376e4e35b34dbff9d7be97ef4179df32af9ad2172d3b0e47f571d53d149d401",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-12/title",
+      "previousTargetValueSha256": "61b92116570394c2ca0cd0541f9d62bbd8a96b5145860bae06e37255bf0efc08",
+      "proposedTargetRef": null,
+      "proposedTargetValueSha256": null,
+      "classification": "NON_NORMATIVE_SOURCE_METADATA",
+      "materialMeaning": "REV12_TABLE_HEADING_METADATA_ONLY",
+      "sourceProofRequirement": "Verify the complete original REV-12 table row, source hash, and heading/cell structure before retaining this metadata classification.",
+      "semanticReviewStatus": "OWNER_METADATA_CLASSIFICATION_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0090-C002",
+      "exactSourceText": "Own its domain, stores and adapters",
+      "sourceTextSha256": "94bfefabcb64f9059427f3a12ae5ddb6eca23551b628b75205c2341fb4e586c2",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-14/handoffCondition",
+      "previousTargetValueSha256": "57dad6c6850253ea6728d73022e53372a16f55e50f7f6179ac5a0797da1f8ed7",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0090-c002/semanticRule",
+      "proposedTargetValueSha256": "ea416d00f321ec80dda796b4cfa5e7193aee0010a1090539abfc30a1b198bf85",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Ghatana Media owns its media domain semantics, projects and assets, domain stores and adapters, processing intent and job state, timeline and animation/simulation presentation, quality, rights, and delivery intent. Media consumes admitted Ghatana Shared, Tools, and platform generic contracts through explicit Media-owned ports; Media is a product consumer, not a generic platform owner. This definition does not assert store or adapter implementation or runtime admission.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0090.c002.required.01",
+          "meaning": "responsibilityIsScopedToGhatanaMediaOwnedDomainAndAdapters"
+        },
+        {
+          "factId": "mpsem.0090.c002.required.02",
+          "meaning": "sharedPlatformMechanismsRemainConsumedThroughExplicitPorts"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0090.c002.prohibited.01",
+          "meaning": "MediaOwnershipExpandedIntoGenericPlatformOrSharedMechanismOwnership"
+        },
+        {
+          "factId": "mpsem.0090.c002.prohibited.02",
+          "meaning": "domainStoresOrAdaptersInferredToBeRuntimeImplementedFromDefinition"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0163-C002",
+      "exactSourceText": "Regenerate affected projections and rerun affected checks only.",
+      "sourceTextSha256": "c08bd60ebb44c60f25782f74a3a1f82bd0691b0717d22642b75f636c165a2700",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-18/recovery",
+      "previousTargetValueSha256": "d5c16f948f0a8e351a98d84cee2a47d906eb9a27cd62b97d7cf67b87cb92ded2",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0163-c002/semanticRule",
+      "proposedTargetValueSha256": "d7441062bb3761a445a6f3d149fb92ae24835ee285e10e666e3e4763bb0f97c6",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Regenerate only projections and checks in the changed dependency closure; preserve unaffected source versions and approvals. A material output change requires its affected approval to be regenerated.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0163.c002.required.01",
+          "meaning": "changedDependencyClosureIsKnown"
+        },
+        {
+          "factId": "mpsem.0163.c002.required.02",
+          "meaning": "affectedProjectionAndChecksAreRegenerated"
+        },
+        {
+          "factId": "mpsem.0163.c002.required.03",
+          "meaning": "unaffectedVersionsAndApprovalsArePreserved"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0163.c002.prohibited.01",
+          "meaning": "unaffectedApprovalInvalidatedWithoutDependency"
+        },
+        {
+          "factId": "mpsem.0163.c002.prohibited.02",
+          "meaning": "affectedMaterialOutputChangeKeepsOldApproval"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0180-C004",
+      "exactSourceText": "It is a distinct admitted capability bundle, not a generic multimodal rewrite |",
+      "sourceTextSha256": "0ff583de72cf325b00dab4f7bbd0f61746fc65fdd0abdd1957538eb5aa910edd",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-10/handoffCondition",
+      "previousTargetValueSha256": "95555e62ec4af54b003a18f83d0bed5f43428576f55da24cf0ef2a271cac5c8c",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0180-c004/semanticRule",
+      "proposedTargetValueSha256": "14357bb63b08f12e69b5005d048c18a714e015a877c4540d1fc8422df9601cba",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Controlled generation is a distinct, explicitly admitted capability bundle with its own scope and contracts; generic multimodal inference is not a substitute.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0180.c004.required.01",
+          "meaning": "controlledGenerationBundleIsExactAndAdmitted"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0180.c004.prohibited.01",
+          "meaning": "genericMultimodalCapabilityUsedAsControlledGeneration"
+        },
+        {
+          "factId": "mpsem.0180.c004.prohibited.02",
+          "meaning": "bundleAdmissionInferredFromSharedInference"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0212-C006",
+      "exactSourceText": "Rendering success, package validity, successful transport, and public publication are separate outcomes.",
+      "sourceTextSha256": "8bddea6eb40d10fc95eba93d767937a1434fdd2e72b9b0babb601965ffe11e96",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-22/completion",
+      "previousTargetValueSha256": "dd9be55e6e279f8d9053b93cdf66eed376d2e4d15a381bd46d636f8e647247d0",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0212-c006/semanticRule",
+      "proposedTargetValueSha256": "1f1c8189069e326788fbbfd32c1c111af9eefbc22f9c2f7663bf67dd6010e2af",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Rendering, package validity, transport, and publication have separate typed outcome dispositions. Each axis may be SUCCEEDED, FAILED, UNKNOWN, or NOT_APPLICABLE with the corresponding exact evidence or reason; no axis implies another axis succeeded. A truthful partial result need not claim all four axes were observed.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0212.c006.required.01",
+          "meaning": "renderOutcomeDispositionOrUnknownReasonIsExplicit"
+        },
+        {
+          "factId": "mpsem.0212.c006.required.02",
+          "meaning": "packageOutcomeDispositionOrUnknownReasonIsExplicit"
+        },
+        {
+          "factId": "mpsem.0212.c006.required.03",
+          "meaning": "transportOutcomeDispositionOrNotApplicableReasonIsExplicit"
+        },
+        {
+          "factId": "mpsem.0212.c006.required.04",
+          "meaning": "publicationOutcomeDispositionOrUnknownReasonIsExplicit"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0212.c006.prohibited.01",
+          "meaning": "renderSuccessImpliesPackageOrTransportOrPublication"
+        },
+        {
+          "factId": "mpsem.0212.c006.prohibited.02",
+          "meaning": "packageSuccessImpliesTransportOrPublication"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ],
+      "partialCase": {
+        "id": "media.journey-fixture.mpsem-0212-c006.partial.v1",
+        "status": "DEFINITION_ORACLE_FIXTURE_ONLY",
+        "axes": {
+          "render": {
+            "disposition": "SUCCEEDED",
+            "evidenceRef": "fixture:evidence:render-success"
+          },
+          "package": {
+            "disposition": "UNKNOWN",
+            "reasonRef": "fixture:reason:package-not-observed"
+          },
+          "transport": {
+            "disposition": "NOT_APPLICABLE",
+            "reasonRef": "fixture:reason:no-transport-request"
+          },
+          "publication": {
+            "disposition": "UNKNOWN",
+            "reasonRef": "fixture:reason:publication-not-observed"
+          }
+        },
+        "invariants": [
+          "render-success-does-not-imply-package-validity",
+          "render-success-does-not-imply-transport-success",
+          "render-success-does-not-imply-publication",
+          "UNKNOWN-and-NOT_APPLICABLE-remain-distinct-from-SUCCEEDED"
+        ],
+        "runtimeEvidence": "NOT_ASSERTED",
+        "acceptanceEffect": "none"
+      }
+    },
+    {
+      "claimId": "MPSEM-0227-C002",
+      "exactSourceText": "supported interchange subset |",
+      "sourceTextSha256": "91bcbad204978fa06b82a862c4d90ecaf0b1b40a2c91ba710dc9f00d5a25e574",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-13/preconditions",
+      "previousTargetValueSha256": "638c22a075838046752d694bfd00a0b0ffc536047cb17e6b03f52f6fe979c3d6",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0227-c002/semanticRule",
+      "proposedTargetValueSha256": "75ba893111c2211ee2f7920a6704435491591be1e1626ee9abd24b409b581852",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Export requires a named supported interchange subset; unsupported extensions or lossless interchange assumptions block export or require an explicit loss report.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0227.c002.required.01",
+          "meaning": "interchangeSubsetIdIsNamedAndSupported"
+        },
+        {
+          "factId": "mpsem.0227.c002.required.02",
+          "meaning": "subsetCompatibilityIsCurrent"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0227.c002.prohibited.01",
+          "meaning": "unsupportedInterchangeExtensionSilentlyAccepted"
+        },
+        {
+          "factId": "mpsem.0227.c002.prohibited.02",
+          "meaning": "formatNameAloneProvesCompatibility"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0299-C001",
+      "exactSourceText": "Batch requests use a bounded execution group with a stable group ID and per-item semantic keys, budgets and job/output references.",
+      "sourceTextSha256": "4ce89cc668f3e2517e3f772bf6cf293ab2119cd240b6bb0b4aa8add4f19d105d",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-24/contextAndReturn",
+      "previousTargetValueSha256": "da86b9df09ed753b6e7ded8c4bee78207e289b0893e77cce1178fb90d3c80a35",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0299-c001/semanticRule",
+      "proposedTargetValueSha256": "109b33864eb813311a8bde50759b71cf95bdddf9cfe13a15021b66a12bde90d6",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "A batch has one stable group ID and per-item semantic key, budget, operation/job identity, and output reference; item identity and budget cannot be replaced by group-level defaults.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0299.c001.required.01",
+          "meaning": "groupIdStable"
+        },
+        {
+          "factId": "mpsem.0299.c001.required.02",
+          "meaning": "everyItemHasSemanticKey"
+        },
+        {
+          "factId": "mpsem.0299.c001.required.03",
+          "meaning": "everyItemHasOwnBudget"
+        },
+        {
+          "factId": "mpsem.0299.c001.required.04",
+          "meaning": "everyItemHasJobAndOutputRefs"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0299.c001.prohibited.01",
+          "meaning": "groupIdentityReusedForDifferentBatch"
+        },
+        {
+          "factId": "mpsem.0299.c001.prohibited.02",
+          "meaning": "perItemBudgetOrIdentityInferredFromGroup"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0299-C003",
+      "exactSourceText": "a partial group reports each item’s outcome and cannot masquerade as complete.",
+      "sourceTextSha256": "d10dba7c3caf59715389100a09171428661ecf0018fa6e558c194b39f46b95f8",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-24/completion",
+      "previousTargetValueSha256": "127fad69ccda5558ffb7f1f482d8f0aa217d3ca1559a6958d70223b824369334",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0299-c003/semanticRule",
+      "proposedTargetValueSha256": "8a06035593c663054a34fc36703bde74709f3d22356c1e1bd8da7285e64a8cc0",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Report terminal, partial, or unknown disposition for every item. The aggregate is complete only when every required item has a terminal successful result and output reference.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0299.c003.required.01",
+          "meaning": "eachItemDispositionReported"
+        },
+        {
+          "factId": "mpsem.0299.c003.required.02",
+          "meaning": "aggregateCompletionRequiresAllItemsSucceeded"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0299.c003.prohibited.01",
+          "meaning": "partialOrUnknownItemReportedAsComplete"
+        },
+        {
+          "factId": "mpsem.0299.c003.prohibited.02",
+          "meaning": "missingItemOmittedFromAggregate"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0308-C001",
+      "exactSourceText": "Render/master/encode/export/publish as typed jobs/effects",
+      "sourceTextSha256": "0d305c8f913b395a10be899e92ce998a85d3a83b5d0388d381141af295cb544e",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-22/title",
+      "previousTargetValueSha256": "6150ec77d8955cf96a1a3cc3da30a4e0b3a4a7fa48a99d0e58783f78a859ee6f",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0308-c001/semanticRule",
+      "proposedTargetValueSha256": "8497b9a60071caca98530358ab4b85ca13b018f8db3a29eb7b6c2996c00d0e57",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Represent render, master, encode, export, and publish as distinct typed jobs/effects with ordered dependencies and their own finality; no stage is inferred from the next stage name.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0308.c001.required.01",
+          "meaning": "eachStageHasTypedIdentity"
+        },
+        {
+          "factId": "mpsem.0308.c001.required.02",
+          "meaning": "stageOrderAndDependencyAreDeclared"
+        },
+        {
+          "factId": "mpsem.0308.c001.required.03",
+          "meaning": "stageFinalityIsIndependent"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0308.c001.prohibited.01",
+          "meaning": "renderMasterEncodeExportPublishCollapsedIntoOneStatus"
+        },
+        {
+          "factId": "mpsem.0308.c001.prohibited.02",
+          "meaning": "laterStageNameProvesEarlierStageSuccess"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0334-C003",
+      "exactSourceText": "`--output` is a client download destination",
+      "sourceTextSha256": "05c7a6e4b714e9f3c6711df70ea560a3986786d6ca9f9ac73ca4cab66d9a2453",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-22/title",
+      "previousTargetValueSha256": "6150ec77d8955cf96a1a3cc3da30a4e0b3a4a7fa48a99d0e58783f78a859ee6f",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0334-c003/semanticRule",
+      "proposedTargetValueSha256": "b74268d247a64c359b2863902487148700d1afe3eb291e33f500242a78404572",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "The CLI `--output` value is a client-side download destination used after an authorized output read; it is never a server path, server write, or route.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0334.c003.required.01",
+          "meaning": "outputArgumentIsLocalClientDestination"
+        },
+        {
+          "factId": "mpsem.0334.c003.required.02",
+          "meaning": "downloadRequiresAuthorizedOutputRead"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0334.c003.prohibited.01",
+          "meaning": "outputPathForwardedAsServerPath"
+        },
+        {
+          "factId": "mpsem.0334.c003.prohibited.02",
+          "meaning": "outputArgumentAuthorizesServerWrite"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0352-C004",
+      "exactSourceText": "Non-interactive consequential commands must receive explicit approval/policy input and fail rather than block for a prompt.",
+      "sourceTextSha256": "7820d5b0824fa2da4c25994fcc27457676358869c4882a9d1ac58242fa00cbac",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-24/preconditions",
+      "previousTargetValueSha256": "476c46840fdc145854970919dbc8891e314959c2d5e2220463c526fc2f82dbfc",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0352-c004/semanticRule",
+      "proposedTargetValueSha256": "bd8c50e48b558326370a74b68c9a87a61308b34ea6b4e6ebc7830a9270912cc3",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "A consequential noninteractive command requires explicit approval and policy inputs. If either is absent or unresolved, it fails closed without prompting or selecting a default.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0352.c004.required.01",
+          "meaning": "commandIsConsequentialAndNoninteractive"
+        },
+        {
+          "factId": "mpsem.0352.c004.required.02",
+          "meaning": "approvalAndPolicyInputsAreExplicit"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0352.c004.prohibited.01",
+          "meaning": "missingApprovalFallsBackToPromptOrDefault"
+        },
+        {
+          "factId": "mpsem.0352.c004.prohibited.02",
+          "meaning": "modelIntentCountsAsApproval"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0357-C005",
+      "exactSourceText": "cancellation ability and external provider retention remain truthful.",
+      "sourceTextSha256": "20a9a7a7e0dbbd8c54210eb8952631b1650e44c32754fd87792ddb0e830bc7c9",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-26/criticalNonhappy",
+      "previousTargetValueSha256": "55698462857b13bc1e7733fb61d19a4099d95dfca9749acdf37bdfcd050c06a3",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0357-c005/semanticRule",
+      "proposedTargetValueSha256": "5400257276ce3647ae8496f81cf0739f5c3d6b8a84803b7560aba893c1bea2e7",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Cancellation capability and provider-side retention are separate scoped dispositions. Each may be observed, explicitly unknown, or not applicable; do not require evidence for an axis that was not established. A cancellation request or acknowledgment does not prove provider stop, deletion, or retention.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0357.c005.required.01",
+          "meaning": "cancellationCapabilityDispositionAndEvidenceOrUnknownReasonAreExplicit"
+        },
+        {
+          "factId": "mpsem.0357.c005.required.02",
+          "meaning": "providerRetentionDispositionAndEvidenceOrUnknownReasonAreExplicit"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0357.c005.prohibited.01",
+          "meaning": "cancelAcknowledgementMeansProviderStopped"
+        },
+        {
+          "factId": "mpsem.0357.c005.prohibited.02",
+          "meaning": "cancelMeansProviderDeletedData"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ],
+      "partialCase": {
+        "status": "DEFINITION_ORACLE_FIXTURE_ONLY",
+        "axes": {
+          "cancellation-capability": {
+            "disposition": "UNKNOWN",
+            "reasonRef": "reason:provider-cancel-capability-unobserved"
+          },
+          "provider-retention": {
+            "disposition": "UNKNOWN",
+            "reasonRef": "reason:provider-retention-unobserved"
+          }
+        },
+        "invariants": [
+          "cancel-request-does-not-prove-provider-stop",
+          "cancel-ack-does-not-prove-provider-deletion"
+        ]
+      },
+      "outcomeAxes": [
+        {
+          "id": "cancellation-capability",
+          "dispositions": [
+            "OBSERVED",
+            "UNKNOWN",
+            "NOT_APPLICABLE"
+          ],
+          "requiresEvidenceFor": "OBSERVED"
+        },
+        {
+          "id": "provider-retention",
+          "dispositions": [
+            "OBSERVED",
+            "UNKNOWN",
+            "NOT_APPLICABLE"
+          ],
+          "requiresEvidenceFor": "OBSERVED"
+        }
+      ]
+    },
+    {
+      "claimId": "MPSEM-0367-C005",
+      "exactSourceText": "Encryption, key deletion and provider deletion claims need the deployment-specific proof they assert.",
+      "sourceTextSha256": "e0e45f3c8d41203aa8a167ef453e60625335caa298a7613d573e0c519dffcff8",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-26/criticalNonhappy",
+      "previousTargetValueSha256": "55698462857b13bc1e7733fb61d19a4099d95dfca9749acdf37bdfcd050c06a3",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0367-c005/semanticRule",
+      "proposedTargetValueSha256": "5d5be7de10656fb0cf2563eb50352a9a523a85e2e377f8f67c9ce0598ec34d6c",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Report only the requested security or deletion outcome axes, each with deployment-bound evidence or an explicit UNKNOWN/NOT_APPLICABLE disposition. Encryption, key deletion, and provider-side deletion are independent; evidence for one cannot substitute for another, and unrequested axes need not be asserted.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0367.c005.required.01",
+          "meaning": "eachClaimedOutcomeAxisIsBoundToDeploymentScope"
+        },
+        {
+          "factId": "mpsem.0367.c005.required.02",
+          "meaning": "eachAxisHasItsOwnEvidenceOrExplicitUnknownOrNotApplicableDisposition"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0367.c005.prohibited.01",
+          "meaning": "encryptionImpliesKeyDeletionOrProviderDeletion"
+        },
+        {
+          "factId": "mpsem.0367.c005.prohibited.02",
+          "meaning": "genericPolicyProvesDeploymentDeletion"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ],
+      "partialCase": {
+        "status": "DEFINITION_ORACLE_FIXTURE_ONLY",
+        "claimedAxes": [
+          "encryption-at-rest"
+        ],
+        "axes": {
+          "encryption-at-rest": {
+            "disposition": "OBSERVED",
+            "evidenceRef": "evidence:deployment:encryption:1"
+          },
+          "key-deletion": {
+            "disposition": "UNKNOWN",
+            "reasonRef": "reason:key-deletion-not-observed"
+          },
+          "provider-side-deletion": {
+            "disposition": "UNKNOWN",
+            "reasonRef": "reason:provider-deletion-not-observed"
+          }
+        },
+        "invariants": [
+          "encryption-does-not-imply-key-deletion",
+          "encryption-does-not-imply-provider-deletion"
+        ]
+      },
+      "outcomeAxes": [
+        {
+          "id": "encryption-at-rest",
+          "dispositions": [
+            "OBSERVED",
+            "UNKNOWN",
+            "NOT_APPLICABLE"
+          ],
+          "requiresEvidenceFor": "OBSERVED"
+        },
+        {
+          "id": "key-deletion",
+          "dispositions": [
+            "OBSERVED",
+            "UNKNOWN",
+            "NOT_APPLICABLE"
+          ],
+          "requiresEvidenceFor": "OBSERVED"
+        },
+        {
+          "id": "provider-side-deletion",
+          "dispositions": [
+            "OBSERVED",
+            "UNKNOWN",
+            "NOT_APPLICABLE"
+          ],
+          "requiresEvidenceFor": "OBSERVED"
+        }
+      ]
+    },
+    {
+      "claimId": "MPSEM-0377-C004",
+      "exactSourceText": "Profile/model fallback must pass policy/rights/cost/quality eligibility again.",
+      "sourceTextSha256": "19a2218835f4b77baaac41a594b47ee90a5d17812970fb6e553c24a89c4737cd",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-30/recovery",
+      "previousTargetValueSha256": "00e274a617c1a343b77a4fff0c7628ebf0395ecdd6b9a1582f4a18becf65f210",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0377-c004/semanticRule",
+      "proposedTargetValueSha256": "fe08376d6ce50e97df995f13caa34bd345bbfd60eef45d6e9f1a9ef74a282924",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Any fallback rechecks current profile, model policy, rights, cost, quality, and locality eligibility for the fallback candidate; failed or unknown checks block dispatch.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0377.c004.required.01",
+          "meaning": "fallbackCandidateExact"
+        },
+        {
+          "factId": "mpsem.0377.c004.required.02",
+          "meaning": "profileAndModelPolicyCurrent"
+        },
+        {
+          "factId": "mpsem.0377.c004.required.03",
+          "meaning": "rightsCurrent"
+        },
+        {
+          "factId": "mpsem.0377.c004.required.04",
+          "meaning": "costWithinBound"
+        },
+        {
+          "factId": "mpsem.0377.c004.required.05",
+          "meaning": "qualityEligible"
+        },
+        {
+          "factId": "mpsem.0377.c004.required.06",
+          "meaning": "localityEligible"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0377.c004.prohibited.01",
+          "meaning": "originalCandidateChecksReusedForDifferentFallback"
+        },
+        {
+          "factId": "mpsem.0377.c004.prohibited.02",
+          "meaning": "unknownEligibilityTreatedAsEligible"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0378-C005",
+      "exactSourceText": "do not advertise “exactly once” remote inference without a provider contract proving it.",
+      "sourceTextSha256": "1e55c7b98fb596ec5053d6227790b97212b0676fe534c72c7de4446744c105d3",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-05/handoffCondition",
+      "previousTargetValueSha256": "92c6a02a481012254ffab9654fb67496457bbb81836631234f6146d1ce1ff3cf",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0378-c005/semanticRule",
+      "proposedTargetValueSha256": "937e43a13a778645e63c8a0cc3e7bc534e8ec6ff76e00d17e6bbacbee9e67cd5",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Do not claim exactly-once remote inference without an exact provider contract proving durable idempotency across dispatch and reconciliation. Track effect outcome independently: a known success or failure remains reportable without an exactly-once guarantee, while an unknown dispatch outcome is not automatically retried.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0378.c005.required.01",
+          "meaning": "exactlyOnceClaimHasExactVerifiedProviderContractOrExactlyOnceClaimIsOmitted"
+        },
+        {
+          "factId": "mpsem.0378.c005.required.02",
+          "meaning": "effectOutcomeAndRetryDispositionAreReportedIndependently"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0378.c005.prohibited.01",
+          "meaning": "exactlyOnceInferredFromMediaKeyOrRetry"
+        },
+        {
+          "factId": "mpsem.0378.c005.prohibited.02",
+          "meaning": "unknownOutcomeAutomaticallyResubmitted"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ],
+      "partialCase": {
+        "status": "DEFINITION_ORACLE_FIXTURE_ONLY",
+        "effectOutcome": {
+          "disposition": "SUCCEEDED",
+          "evidenceRef": "evidence:provider:result:1"
+        },
+        "exactlyOnceClaim": "OMITTED",
+        "retryDisposition": "NOT_APPLICABLE",
+        "invariants": [
+          "known-success-remains-known-without-exactly-once-proof",
+          "unknown-outcome-is-not-automatically-retried"
+        ]
+      }
+    },
+    {
+      "claimId": "MPSEM-0387-C001",
+      "exactSourceText": "Local/private operation can use deterministic engines and an admitted local inference deployment while preserving AI Inference ownership.",
+      "sourceTextSha256": "084f19247653beb790cad8fa35dd291620bd004f8454d8e3f09b52a315475c1b",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-23/title",
+      "previousTargetValueSha256": "9bbb729bd933eca8ba263fd9085b13c94e6a01f95f994b9f1a3a6abb002f2884",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0387-c001/semanticRule",
+      "proposedTargetValueSha256": "fd066066636388d9ad7023397caafc0f74fb47c137b786f2cf66a6b1d84dd7c5",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Local/private workflows may use deterministic engines or separately admitted local inference while AI Inference remains the owner of inference-domain meaning and policy. Locality is not admission.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0387.c001.required.01",
+          "meaning": "executionLocalityIsExplicit"
+        },
+        {
+          "factId": "mpsem.0387.c001.required.02",
+          "meaning": "engineIsDeterministicOrLocalInferenceAdmitted"
+        },
+        {
+          "factId": "mpsem.0387.c001.required.03",
+          "meaning": "AiInferenceOwnershipPreserved"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0387.c001.prohibited.01",
+          "meaning": "localDeploymentImpliesQualificationOrAdmission"
+        },
+        {
+          "factId": "mpsem.0387.c001.prohibited.02",
+          "meaning": "localExecutionTransfersInferenceOwnership"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0388-C002",
+      "exactSourceText": "It cannot claim fresh remote revocation checks while disconnected.",
+      "sourceTextSha256": "95ca5797fef511c3a7cf0864a82aa29ff3987bd8f90dfa8b612698576ac2a7a9",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-23/title",
+      "previousTargetValueSha256": "9bbb729bd933eca8ba263fd9085b13c94e6a01f95f994b9f1a3a6abb002f2884",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0388-c002/semanticRule",
+      "proposedTargetValueSha256": "8095f72fe00c5081a319d5304be8f05de2005cb164dd0ad9b3983f7df62fb578",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "While disconnected, the client cannot claim a fresh remote revocation check. The cache may be absent, stale, unknown, or current for an exact scope and freshness window; only a matching current cache can support the bounded cached-authority claim, and consequential work is held otherwise.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0388.c002.required.01",
+          "meaning": "connectivityIsDisconnected"
+        },
+        {
+          "factId": "mpsem.0388.c002.required.02",
+          "meaning": "cachedAuthorityDispositionIsExplicitForExactScopeAndFreshnessWindow"
+        },
+        {
+          "factId": "mpsem.0388.c002.required.03",
+          "meaning": "consequentialWorkIsHeldUnlessExactCachedAuthorityIsCurrent"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0388.c002.prohibited.01",
+          "meaning": "freshRemoteRevocationClaimedOffline"
+        },
+        {
+          "factId": "mpsem.0388.c002.prohibited.02",
+          "meaning": "expiredOrUnknownCacheAllowsConsequentialWork"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ],
+      "partialCase": {
+        "status": "DEFINITION_ORACLE_FIXTURE_ONLY",
+        "connectivity": "DISCONNECTED",
+        "cachedAuthority": {
+          "disposition": "ABSENT",
+          "remoteRevocationCheck": "UNKNOWN"
+        },
+        "consequentialWork": "HELD",
+        "invariants": [
+          "offline-does-not-claim-fresh-remote-revocation",
+          "absent-cache-does-not-prove-denial-or-permission"
+        ]
+      },
+      "cacheDispositionVocabulary": [
+        "CURRENT_EXACT_SCOPE",
+        "ABSENT",
+        "EXPIRED",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0446-C005",
+      "exactSourceText": "Review comments bind to artifact version and time/region, not a moving “latest” frame.",
+      "sourceTextSha256": "15841f87fbf1b6541700c655ccba4469635c112f60886fcea148536454975960",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-21/contextAndReturn",
+      "previousTargetValueSha256": "c37f486d758a164ff4d6dd6cbf2d89275f14d3ca7e19b9813c9767e50e80a9d2",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0446-c005/semanticRule",
+      "proposedTargetValueSha256": "ff7a6ec528e86ab9928dace2f9f27f0f808120259334932aa0c43192beae6db0",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "A review comment is anchored to an immutable artifact version plus exact time/region coordinates; “latest” is not a stable review subject.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0446.c005.required.01",
+          "meaning": "commentArtifactVersionExact"
+        },
+        {
+          "factId": "mpsem.0446.c005.required.02",
+          "meaning": "commentTimeOrRegionExact"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0446.c005.prohibited.01",
+          "meaning": "movingLatestFrameUsedAsCommentAnchor"
+        },
+        {
+          "factId": "mpsem.0446.c005.prohibited.02",
+          "meaning": "coordinateWithoutArtifactVersion"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0448-C001",
+      "exactSourceText": "Approvals bind exact output/version, review purpose, approver authority and expiry.",
+      "sourceTextSha256": "dfbcb922fc6015c33de09d04e59e7ba32781ae0abfaadc4a36087441997bcf4f",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-21/preconditions",
+      "previousTargetValueSha256": "44eea8e43de38d8e3c377ba48ede82b6a4f07a3c96e1c885db70c81077a0481a",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0448-c001/semanticRule",
+      "proposedTargetValueSha256": "3b0dae73afae61f428d8926af08f3f5427c3034c50d0ac526a1177bc4cfbcc3a",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "An approval binds the exact output and version, review purpose, approver authority, scope, and expiry; any tuple change invalidates the approval.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0448.c001.required.01",
+          "meaning": "approvedOutputAndVersionExact"
+        },
+        {
+          "factId": "mpsem.0448.c001.required.02",
+          "meaning": "purposeExact"
+        },
+        {
+          "factId": "mpsem.0448.c001.required.03",
+          "meaning": "approverAuthorityCurrent"
+        },
+        {
+          "factId": "mpsem.0448.c001.required.04",
+          "meaning": "approvalScopeAndExpiryValid"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0448.c001.prohibited.01",
+          "meaning": "approvalReusedForDifferentOutputOrPurpose"
+        },
+        {
+          "factId": "mpsem.0448.c001.prohibited.02",
+          "meaning": "expiredApprovalAccepted"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0448-C003",
+      "exactSourceText": "Shared review links have explicit scope, expiry and revocation",
+      "sourceTextSha256": "ae5861348a0bce3165fd5eea9e2aee2007acfb19b7ada2613a645c1269390460",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-21/preconditions",
+      "previousTargetValueSha256": "44eea8e43de38d8e3c377ba48ede82b6a4f07a3c96e1c885db70c81077a0481a",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0448-c003/semanticRule",
+      "proposedTargetValueSha256": "3b6ab02b7f1dcf56bd005f0b0f6d26e69fdc8649ee7112d872e12f91eab1ebc9",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "A shared review link has explicit recipient/resource scope, expiry, and revocation state; absent or unknown scope/currentness prevents access.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0448.c003.required.01",
+          "meaning": "linkScopeExact"
+        },
+        {
+          "factId": "mpsem.0448.c003.required.02",
+          "meaning": "linkExpiryCurrent"
+        },
+        {
+          "factId": "mpsem.0448.c003.required.03",
+          "meaning": "revocationStateCurrent"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0448.c003.prohibited.01",
+          "meaning": "unscopedLinkAccepted"
+        },
+        {
+          "factId": "mpsem.0448.c003.prohibited.02",
+          "meaning": "expiredOrUnknownRevocationAllowsAccess"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0451-C004",
+      "exactSourceText": "keyboard selection/trim/reorder and non-drag alternatives",
+      "sourceTextSha256": "a5708000d94df70d746fc85d3df303c429abcbf9b85983c9f7317ee2f5797fc9",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/accessibilityDisposition/proposedBaseline/1",
+      "previousTargetValueSha256": "ce9cd37d70bae38f06438678f22ab31ba643f6391c7ab4d6c9e25b2bda4a2786",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0451-c004/semanticRule",
+      "proposedTargetValueSha256": "7bfbd382337056fb7789ce57d51ef4b1db1a5b69e82203bee6e306e29676ff72",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Keyboard users can select, trim, and reorder using equivalent non-drag operations with visible focus and announced resulting order; pointer drag is not the sole path.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0451.c004.required.01",
+          "meaning": "keyboardSelectionAvailable"
+        },
+        {
+          "factId": "mpsem.0451.c004.required.02",
+          "meaning": "keyboardTrimAvailable"
+        },
+        {
+          "factId": "mpsem.0451.c004.required.03",
+          "meaning": "keyboardReorderAvailable"
+        },
+        {
+          "factId": "mpsem.0451.c004.required.04",
+          "meaning": "focusAndResultAnnouncementDefined"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0451.c004.prohibited.01",
+          "meaning": "dragOnlyOperation"
+        },
+        {
+          "factId": "mpsem.0451.c004.prohibited.02",
+          "meaning": "keyboardPathHasDifferentMeaningOrResult"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0455-C003",
+      "exactSourceText": "use a bounded public integration",
+      "sourceTextSha256": "778e0afa844050015cd01d885bd987371b0dd63c84cae7e908ad72f83ad1ae4c",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-25/title",
+      "previousTargetValueSha256": "f1e3ab51a4b282ffbb0b020872f7a2194a2e6a315a0536935862984b7f55cd9b",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0455-c003/semanticRule",
+      "proposedTargetValueSha256": "e193274f6ea0ccea01f0ffa6bdde4d6fac64c2bdda3dc35e0f74ffcf5b64f016",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "A public integration exposes only bounded, named Media actions through a public contract with closed typed input/output, host-established authority, and finite resource limits.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0455.c003.required.01",
+          "meaning": "publicContractExact"
+        },
+        {
+          "factId": "mpsem.0455.c003.required.02",
+          "meaning": "actionAllowlistBounded"
+        },
+        {
+          "factId": "mpsem.0455.c003.required.03",
+          "meaning": "ioSchemasClosed"
+        },
+        {
+          "factId": "mpsem.0455.c003.required.04",
+          "meaning": "authorityHostEstablished"
+        },
+        {
+          "factId": "mpsem.0455.c003.required.05",
+          "meaning": "resourceBoundsFinite"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0455.c003.prohibited.01",
+          "meaning": "arbitraryToolsOrCodeExposed"
+        },
+        {
+          "factId": "mpsem.0455.c003.prohibited.02",
+          "meaning": "publicRouteInfersAuthorityFromAgent"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0472-C004",
+      "exactSourceText": "No recursive budget reset or self-authorizing tool call |",
+      "sourceTextSha256": "94b2795373e3830d70aca5e650eb06606974101e1d31b09408630e60540e1c2e",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-25/criticalNonhappy",
+      "previousTargetValueSha256": "2cacfaedcc6879492d18f6e01076c53329584fce416d26436460e5bca1f4371e",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0472-c004/semanticRule",
+      "proposedTargetValueSha256": "bbc749d97522f76940a862c375e3764642563c053e4d257d8b573d21dc452d67",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "Delegation budgets are monotonic and cannot be recursively reset. A tool result cannot authorize itself or expand its own capability/authority.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0472.c004.required.01",
+          "meaning": "delegationBudgetMonotonic"
+        },
+        {
+          "factId": "mpsem.0472.c004.required.02",
+          "meaning": "toolCallAuthorityExternallyEstablished"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0472.c004.prohibited.01",
+          "meaning": "recursiveBudgetReset"
+        },
+        {
+          "factId": "mpsem.0472.c004.prohibited.02",
+          "meaning": "toolResultSelfAuthorizesOrWidensScope"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0475-C001",
+      "exactSourceText": "Pilot recipes preserve breadth while limiting initial implementation cost: uploaded interview cleanup/captions",
+      "sourceTextSha256": "30e379a5c95de8191c640a011887727d947025950b0e55f8e175390fa0cafe2a",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-07/title",
+      "previousTargetValueSha256": "2fc3f7a334b3d297ed3049e464ad74325b4e29440c6d9809e15c2464d2692c81",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0475-c001/semanticRule",
+      "proposedTargetValueSha256": "1d76ca9ef6d9725b1326417f9ac88643c45c13c47e6bbbf3bd37a29581962597",
+      "classification": "NORMATIVE_SOURCE_RULE",
+      "materialMeaning": "The pilot recipe begins with uploaded interview cleanup and captions, retaining the wider product breadth while bounding initial cost and requiring preservation, comparison, and review of exact outputs.",
+      "requiredPredicates": [
+        {
+          "factId": "mpsem.0475.c001.required.01",
+          "meaning": "uploadedInterviewWorkflow"
+        },
+        {
+          "factId": "mpsem.0475.c001.required.02",
+          "meaning": "cleanupAndCaptionsIncluded"
+        },
+        {
+          "factId": "mpsem.0475.c001.required.03",
+          "meaning": "broaderProductBreadthPreserved"
+        },
+        {
+          "factId": "mpsem.0475.c001.required.04",
+          "meaning": "initialCostBounded"
+        },
+        {
+          "factId": "mpsem.0475.c001.required.05",
+          "meaning": "outputPreservationComparisonReview"
+        }
+      ],
+      "prohibitedPredicates": [
+        {
+          "factId": "mpsem.0475.c001.prohibited.01",
+          "meaning": "pilotReducesProductToOnlyTranscript"
+        },
+        {
+          "factId": "mpsem.0475.c001.prohibited.02",
+          "meaning": "unboundedInitialWorkloadOrCost"
+        }
+      ],
+      "semanticReviewStatus": "OWNER_DEFINITION_PROPOSAL_REVIEW_PENDING",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-experience-journey-migration-rules.test.mjs"
+      ]
+    }
+  ]
+}

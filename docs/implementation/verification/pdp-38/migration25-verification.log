@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: the approved journey cohort has exact source-pinned owner rule records and preserves its proposal
+ok 1 - the approved journey cohort has exact source-pinned owner rule records and preserves its proposal
+  ---
+  duration_ms: 2380.461309
+  type: 'test'
+  ...
+# Subtest: every migration rule has executable positive, falsifying, and missing-fact oracle cases
+ok 2 - every migration rule has executable positive, falsifying, and missing-fact oracle cases
+  ---
+  duration_ms: 114.439233
+  type: 'test'
+  ...
+# Subtest: the three corrected rules preserve exact source meaning
+ok 3 - the three corrected rules preserve exact source meaning
+  ---
+  duration_ms: 74.569139
+  type: 'test'
+  ...
+# Subtest: partial cancellation, security, remote-finality and offline outcomes stay independently truthful
+ok 4 - partial cancellation, security, remote-finality and offline outcomes stay independently truthful
+  ---
+  duration_ms: 70.359176
+  type: 'test'
+  ...
+# Subtest: PXD-090 approves the exact 112-row proposal set without rewriting proposal snapshots
+ok 5 - PXD-090 approves the exact 112-row proposal set without rewriting proposal snapshots
+  ---
+  duration_ms: 2422.868964
+  type: 'test'
+  ...
+# Subtest: PXD-090 reconciliation counters are derived from the live 884-unit ledger
+ok 6 - PXD-090 reconciliation counters are derived from the live 884-unit ledger
+  ---
+  duration_ms: 2.870988
+  type: 'test'
+  ...
+# Subtest: the goal-rule addition is isolated and does not rewrite prior goal measures
+ok 7 - the goal-rule addition is isolated and does not rewrite prior goal measures
+  ---
+  duration_ms: 5078.581832
+  type: 'test'
+  ...
+# Subtest: PDP-38 migration overlay exactly partitions all 260 historical unresolved blocks
+ok 8 - PDP-38 migration overlay exactly partitions all 260 historical unresolved blocks
+  ---
+  duration_ms: 23673.354751
+  type: 'test'
+  ...
+# Subtest: the MPSEM-0066 lead-in is classified from its exact colon-and-list source structure
+ok 9 - the MPSEM-0066 lead-in is classified from its exact colon-and-list source structure
+  ---
+  duration_ms: 1.775899
+  type: 'test'
+  ...
+# Subtest: the REV-03 table label is metadata while its problem and required resolution stay separate claims
+ok 10 - the REV-03 table label is metadata while its problem and required resolution stay separate claims
+  ---
+  duration_ms: 1.865814
+  type: 'test'
+  ...
+# Subtest: high-risk cover, identity, phase, and one-owner mappings reject unrelated stable targets
+ok 11 - high-risk cover, identity, phase, and one-owner mappings reject unrelated stable targets
+  ---
+  duration_ms: 4.029898
+  type: 'test'
+  ...
+# Subtest: model-acquisition review preserves the pinned snapshot and records the new owner policy delta
+ok 12 - model-acquisition review preserves the pinned snapshot and records the new owner policy delta
+  ---
+  duration_ms: 0.648274
+  type: 'test'
+  ...
+# Subtest: known migration target corrections preserve the full claim clauses at exact owner sources
+ok 13 - known migration target corrections preserve the full claim clauses at exact owner sources
+  ---
+  duration_ms: 0.643691
+  type: 'test'
+  ...
+# Subtest: mixed four-phase summary is decomposed into exact current owner sources
+ok 14 - mixed four-phase summary is decomposed into exact current owner sources
+  ---
+  duration_ms: 0.253606
+  type: 'test'
+  ...
+# Subtest: erasure negative boundary maps to the actual metadata-only confirmation rule
+ok 15 - erasure negative boundary maps to the actual metadata-only confirmation rule
+  ---
+  duration_ms: 0.305969
+  type: 'test'
+  ...
+# Subtest: license and adapter-sequencing claims preserve their exact owner-defined rules
+ok 16 - license and adapter-sequencing claims preserve their exact owner-defined rules
+  ---
+  duration_ms: 0.784986
+  type: 'test'
+  ...
+# Subtest: semantic assertions reject a stable but unrelated candidate target
+ok 17 - semantic assertions reject a stable but unrelated candidate target
+  ---
+  duration_ms: 1.119884
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23959.081366

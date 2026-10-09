@@ -1263,6 +1263,13 @@ register; see [`source-manifest.yaml`](./source-manifest.yaml) and
 - **Reporting:** `direct-definition-criteria-review.json` permits only these two current direct-definition predicates to be reported satisfied after their current verification passes. Original full ledger status, dependencies, independent or publisher acceptance and Lifecycle phase currentness remain separate and unpromoted.
 - **Excludes:** P0-03 migration parity, other PDP task criteria, actual implementation/availability/qualification, SRE/AT/legal/scientific acceptance, independent phase review and Lifecycle receipts.
 
+### PXD-091 — Approve bounded journey-claim owner routes
+
+- **Authority:** User-delegated Media product-definition ownership; coordinator material-semantic review under the current PDP-0–PDP-3 mandate.
+- **Approved scope:** Exactly 24 normative migration claims and one nonnormative REV-12 heading classification in `docs/implementation/verification/pdp-38/migration-coordinator-review-25.json`. The normative claims route to their exact current Media owner definitions; the metadata record proves the complete source row and preserves C002–C004 as separate normative claims. Prior target references and hashes remain in the immutable proposal record.
+- **Verification:** The journey semantic suite and coordinator review each passed 4/4 checks. The review checks exact cohort membership, current `JSON.stringify` target pins, the full REV-12 row and its neighboring claim boundaries, and partial cancellation, security, finality and offline cases.
+- **Excludes:** Any additional migration claim, migration/task completion, independent specialist or native acceptance, runtime admission, external-owner qualification, and Lifecycle receipt. Source-definition approval does not promote a journey or phase status.
+
 ### PXD-092 — Reopen capability criteria after material contract review
 
 - **Authority:** user-delegated Media definition ownership; coordinator material review of published source.

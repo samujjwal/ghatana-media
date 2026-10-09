@@ -32805,10 +32805,10 @@ pdp38ClaimReconciliation:
   historicalPopulation: {uniqueUnits: 1340, structuralObservations: 349, existingBoundedNonNormativeClassifications: 89, unresolvedAtHistoricalReview: 260, mixedAtHistoricalReview: 124}
   currentClaimRecordCount: 260
   currentClaimUnitCount: 884
-  sourceOwnerRoutingCount: 863
-  semanticParityVerifiedClaimUnitCount: 339
-  candidateTargetPendingSemanticParityCount: 524
-  nonNormativeSourceMetadataClaimUnitCount: 7
+  sourceOwnerRoutingCount: 862
+  semanticParityVerifiedClaimUnitCount: 363
+  candidateTargetPendingSemanticParityCount: 499
+  nonNormativeSourceMetadataClaimUnitCount: 8
   semanticParityRule: Route existence and target digests assign an owner locator only. A claim is parity-verified only when its semanticReviewStatus is CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED and a claim-specific test preserves its material meaning; other routed claims remain explicit candidate targets pending semantic review.
   scopeSupersessionClaimIds: [MPSEM-0005-C002, MPSEM-0005-C003, MPSEM-0005-C004, MPSEM-0006-C001, MPSEM-0006-C002, MPSEM-1222-C005]
   sourcePinDisposition: keep-stale; the original pinned historical source remains the baseline and current-plan source-change ledger remains separate.
@@ -33638,10 +33638,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "U1 §14.1 is broader than AI Inference’s consumer boundary [R03]"
           sourceTextSha256: "7dc86f6c60661476b74cbac2e8c8584fa91ce7dd7d94ce4f3e856cc5c97aaa4a"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-04/handoffCondition"
-          targetTextSha256: "713c643400b1bac97fad732e251c0dc579fa57331a261bcf1e590f0a4c81c66e"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=ai-inference-execution/genericInferenceOwnershipBoundary/rule"
+          targetTextSha256: "cb4fc510d1514689545b03a589c9ac256196a6cec8d1731ed24b22a407e101a8"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Only when the admitted TTS operation is routed through the AI Inference public boundary."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0030-C002"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0030-C003
           exactSourceText: "New model/provider selection and generic inference stay AI Inference-owned, including local deployment."
@@ -33719,11 +33721,13 @@ pdp38ClaimReconciliation:
         - claimId: MPSEM-0032-C001
           exactSourceText: "| REV-12 — “Deterministic” was undefined"
           sourceTextSha256: "6376e4e35b34dbff9d7be97ef4179df32af9ad2172d3b0e47f571d53d149d401"
-          disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-12/title"
-          targetTextSha256: "61b92116570394c2ca0cd0541f9d62bbd8a96b5145860bae06e37255bf0efc08"
-          rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Deterministic 2D/vector/procedural animation"
+          disposition: NON_NORMATIVE_SOURCE_METADATA
+          semanticReviewStatus: CLAIM_SPECIFIC_NON_NORMATIVE_CLASSIFICATION_VERIFIED
+          metadataFields: [table-row-heading]
+          rationale: "REV-12 heading is a table label only; C002-C004 remain normative and retain their separate approved source meanings."
+          sourceEvidenceRef: "docs/migration/expert-reviewed-master-plan.md#L111"
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0032-C001"
+          coordinatorReviewStatus: APPROVED_BOUNDED_NON_NORMATIVE_SOURCE_METADATA_CLASSIFICATION
           acceptanceEffect: none
         - claimId: MPSEM-0032-C002
           exactSourceText: "A seed/version is insufficient for cross-platform identical GPU/model/physics output [W03]"
@@ -35148,10 +35152,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Own its domain, stores and adapters"
           sourceTextSha256: "94bfefabcb64f9059427f3a12ae5ddb6eca23551b628b75205c2341fb4e586c2"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-14/handoffCondition"
-          targetTextSha256: "57dad6c6850253ea6728d73022e53372a16f55e50f7f6179ac5a0797da1f8ed7"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0090-c002/semanticRule"
+          targetTextSha256: "0ffb00a9725df9cc9bbab1deb3ce250e30a87b97074a2d848e988dd42fbc54d6"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Only when the model/experience is TutorPutor-owned; other domain owners require their own admitted references."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0090-C002"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0090-C003
           exactSourceText: "remain a Ghatana product consumer, not a generic platform |"
@@ -35952,10 +35958,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Regenerate affected projections and rerun affected checks only."
           sourceTextSha256: "c08bd60ebb44c60f25782f74a3a1f82bd0691b0717d22642b75f636c165a2700"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-18/recovery"
-          targetTextSha256: "d5c16f948f0a8e351a98d84cee2a47d906eb9a27cd62b97d7cf67b87cb92ded2"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0163-c002/semanticRule"
+          targetTextSha256: "87cfa7de754fcebe9ebd3c55811d3a4ea08600187db263767c1b8732f5340292"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Preserve composition and source versions; replace/review only affected assets and regenerate approval where material output changed."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0163-C002"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0163-C003
           exactSourceText: "An implementation-discovered product change requires the same upstream reconciliation."
@@ -36421,10 +36429,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "It is a distinct admitted capability bundle, not a generic multimodal rewrite |"
           sourceTextSha256: "0ff583de72cf325b00dab4f7bbd0f61746fc65fdd0abdd1957538eb5aa910edd"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-10/handoffCondition"
-          targetTextSha256: "95555e62ec4af54b003a18f83d0bed5f43428576f55da24cf0ef2a271cac5c8c"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0180-c004/semanticRule"
+          targetTextSha256: "c98eddb7036657e48749223d773c2d98fdd8c3e405dd7289bc8e1364204e83e8"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Only when the admitted controlled-generation capability calls the generic inference service."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0180-C004"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
     - itemId: MPSEM-0181
       currentSourceLines: [390, 390]
@@ -36903,10 +36913,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Rendering success, package validity, successful transport, and public publication are separate outcomes."
           sourceTextSha256: "8bddea6eb40d10fc95eba93d767937a1434fdd2e72b9b0babb601965ffe11e96"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-22/completion"
-          targetTextSha256: "dd9be55e6e279f8d9053b93cdf66eed376d2e4d15a381bd46d636f8e647247d0"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0212-c006/semanticRule"
+          targetTextSha256: "6b8322cdb46425aa12d981f891b622ae106fcc419db5575d5842df3938718304"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Package validity, transport, and external publication are reported as distinct finality outcomes."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0212-C006"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
     - itemId: MPSEM-0213
       currentSourceLines: [467, 467]
@@ -37262,10 +37274,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "supported interchange subset |"
           sourceTextSha256: "91bcbad204978fa06b82a862c4d90ecaf0b1b40a2c91ba710dc9f00d5a25e574"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-13/preconditions"
-          targetTextSha256: "638c22a075838046752d694bfd00a0b0ffc536047cb17e6b03f52f6fe979c3d6"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0227-c002/semanticRule"
+          targetTextSha256: "32ae61ce64b2dc8370a6fa7f898499ce7006592d84564df8a9280adfcf1563a0"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Scene/rig assets, coordinate convention, rights, and supported interchange subset are identified."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0227-C002"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
     - itemId: MPSEM-0228
       currentSourceLines: [511, 511]
@@ -38738,10 +38752,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Batch requests use a bounded execution group with a stable group ID and per-item semantic keys, budgets and job/output references."
           sourceTextSha256: "4ce89cc668f3e2517e3f772bf6cf293ab2119cd240b6bb0b4aa8add4f19d105d"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-24/contextAndReturn"
-          targetTextSha256: "da86b9df09ed753b6e7ded8c4bee78207e289b0893e77cce1178fb90d3c80a35"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0299-c001/semanticRule"
+          targetTextSha256: "82c8e03fafaa0ba7a6739b64c32e4e43c2bdcc744fcd33a9d91618dbcb89f458"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Preserve batch/group ID, per-item semantic key, plan fingerprint, output refs, and exit/result disposition."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0299-C001"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0299-C002
           exactSourceText: "Define fail-fast versus continue-on-item-failure explicitly"
@@ -38756,10 +38772,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "a partial group reports each item’s outcome and cannot masquerade as complete."
           sourceTextSha256: "d10dba7c3caf59715389100a09171428661ecf0018fa6e558c194b39f46b95f8"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-24/completion"
-          targetTextSha256: "127fad69ccda5558ffb7f1f482d8f0aa217d3ca1559a6958d70223b824369334"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0299-c003/semanticRule"
+          targetTextSha256: "64e77f4e28c402713fe29f1312370039e98bf02ad437c39d4e994de5e7455ea4"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Each item reports its terminal/partial/unknown outcome and output refs using the same semantics as other channels."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0299-C003"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0299-C004
           exactSourceText: "Retrying a group must reuse completed eligible items and must not resubmit ambiguous ones."
@@ -38966,10 +38984,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Render/master/encode/export/publish as typed jobs/effects"
           sourceTextSha256: "0d305c8f913b395a10be899e92ce998a85d3a83b5d0388d381141af295cb544e"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-22/title"
-          targetTextSha256: "6150ec77d8955cf96a1a3cc3da30a4e0b3a4a7fa48a99d0e58783f78a859ee6f"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0308-c001/semanticRule"
+          targetTextSha256: "0c2f7cf0c1d50e8c3f3f9e06e781cd298e2af8baa276064ffbfd4c43563d08dd"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Export/download/publish with destination acknowledgement"
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0308-C001"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0308-C002
           exactSourceText: "output finality and destination acknowledgement distinct |"
@@ -39677,10 +39697,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "`--output` is a client download destination"
           sourceTextSha256: "05c7a6e4b714e9f3c6711df70ea560a3986786d6ca9f9ac73ca4cab66d9a2453"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-22/title"
-          targetTextSha256: "6150ec77d8955cf96a1a3cc3da30a4e0b3a4a7fa48a99d0e58783f78a859ee6f"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0334-c003/semanticRule"
+          targetTextSha256: "ad63b6fd97142ae7db50412792da7b5d5c4b7356f3c5241ad373a8579751dd53"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Export/download/publish with destination acknowledgement"
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0334-C003"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0334-C004
           exactSourceText: "protect against overwrite, traversal and symlink surprises."
@@ -40141,10 +40163,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Non-interactive consequential commands must receive explicit approval/policy input and fail rather than block for a prompt."
           sourceTextSha256: "7820d5b0824fa2da4c25994fcc27457676358869c4882a9d1ac58242fa00cbac"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-24/preconditions"
-          targetTextSha256: "476c46840fdc145854970919dbc8891e314959c2d5e2220463c526fc2f82dbfc"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0352-c004/semanticRule"
+          targetTextSha256: "2811273db5c0a65e173d069467ff2c158090cd00c91d41eb8f3b0383f9a51ffc"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Public command/request schema, explicit approval/policy input, client keys, and per-item budgets are accepted."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0352-C004"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0352-C005
           exactSourceText: "Do not store bearer credentials in project files, command history or exported plans."
@@ -40418,10 +40442,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "cancellation ability and external provider retention remain truthful."
           sourceTextSha256: "20a9a7a7e0dbbd8c54210eb8952631b1650e44c32754fd87792ddb0e830bc7c9"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-26/criticalNonhappy"
-          targetTextSha256: "55698462857b13bc1e7733fb61d19a4099d95dfca9749acdf37bdfcd050c06a3"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0357-c005/semanticRule"
+          targetTextSha256: "8950bd41b6a4e1929dcde4ae7b7139590360b1f2204f409dccd66c3a7d6790ef"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Retention hold, backup/cache/external copy, provider deletion uncertainty, or partial erasure."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0357-C005"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
     - itemId: MPSEM-0358
       currentSourceLines: [798, 798]
@@ -40594,10 +40620,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Encryption, key deletion and provider deletion claims need the deployment-specific proof they assert."
           sourceTextSha256: "e0e45f3c8d41203aa8a167ef453e60625335caa298a7613d573e0c519dffcff8"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-26/criticalNonhappy"
-          targetTextSha256: "55698462857b13bc1e7733fb61d19a4099d95dfca9749acdf37bdfcd050c06a3"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0367-c005/semanticRule"
+          targetTextSha256: "b4a5bf9e5e3f6447841c094a0036a9fc3eb92bdf6ac5abc15a6ce9dbb3fe0c91"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Retention hold, backup/cache/external copy, provider deletion uncertainty, or partial erasure."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0367-C005"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
     - itemId: MPSEM-0368
       currentSourceLines: [826, 826]
@@ -41092,10 +41120,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Profile/model fallback must pass policy/rights/cost/quality eligibility again."
           sourceTextSha256: "19a2218835f4b77baaac41a594b47ee90a5d17812970fb6e553c24a89c4737cd"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-30/recovery"
-          targetTextSha256: "00e274a617c1a343b77a4fff0c7628ebf0395ecdd6b9a1582f4a18becf65f210"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0377-c004/semanticRule"
+          targetTextSha256: "abfa994b63ae1910b86911509c7213a05c42baa66a0f01b3fcd8e4a6ed4cce1b"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Report unknown or unavailable dimensions honestly; permit fallback only after current policy, rights, cost, quality, and locality checks."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0377-C004"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0377-C005
           exactSourceText: "Do not multiply retries independently in CLI, SDK, API, worker and provider."
@@ -41154,10 +41184,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "do not advertise “exactly once” remote inference without a provider contract proving it."
           sourceTextSha256: "1e55c7b98fb596ec5053d6227790b97212b0676fe534c72c7de4446744c105d3"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-05/handoffCondition"
-          targetTextSha256: "92c6a02a481012254ffab9654fb67496457bbb81836631234f6146d1ce1ff3cf"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0378-c005/semanticRule"
+          targetTextSha256: "a7f4235ef5490a45b4a5dd69881f35f69356028794e2b3ed3681112f8f1f91da"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Only for a capability whose admitted provider contract uses AI Inference."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0378-C005"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
     - itemId: MPSEM-0379
       currentSourceLines: [858, 858]
@@ -41323,10 +41355,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Local/private operation can use deterministic engines and an admitted local inference deployment while preserving AI Inference ownership."
           sourceTextSha256: "084f19247653beb790cad8fa35dd291620bd004f8454d8e3f09b52a315475c1b"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-23/title"
-          targetTextSha256: "9bbb729bd933eca8ba263fd9085b13c94e6a01f95f994b9f1a3a6abb002f2884"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0387-c001/semanticRule"
+          targetTextSha256: "65e71c5cf7ee61c6a2bf4bdbd812a2d74421e6674974a1d0ad0e0387e9a492c1"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Private/local workflow while disconnected and reconnect"
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0387-C001"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0387-C002
           exactSourceText: "Do not introduce a direct-model exception simply because an ONNX file fits on a laptop."
@@ -41376,10 +41410,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "It cannot claim fresh remote revocation checks while disconnected."
           sourceTextSha256: "95ca5797fef511c3a7cf0864a82aa29ff3987bd8f90dfa8b612698576ac2a7a9"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-23/title"
-          targetTextSha256: "9bbb729bd933eca8ba263fd9085b13c94e6a01f95f994b9f1a3a6abb002f2884"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0388-c002/semanticRule"
+          targetTextSha256: "059b9d08ef41773820968679b58ccdf1c50631c2e3f49952a8d8fc9f74bc507c"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Private/local workflow while disconnected and reconnect"
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0388-C002"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0388-C003
           exactSourceText: "No auto-download of models or cloud fallback without approval."
@@ -41717,10 +41753,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Review comments bind to artifact version and time/region, not a moving “latest” frame."
           sourceTextSha256: "15841f87fbf1b6541700c655ccba4469635c112f60886fcea148536454975960"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-21/contextAndReturn"
-          targetTextSha256: "c37f486d758a164ff4d6dd6cbf2d89275f14d3ca7e19b9813c9767e50e80a9d2"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0446-c005/semanticRule"
+          targetTextSha256: "91e4289da3201c6be3566673a0d6437d79abf305767aa58298605e1e7457ceaf"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Retain comments bound to artifact version and time/region and return to the project/output."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0446-C005"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
     - itemId: MPSEM-0447
       currentSourceLines: [1004, 1004]
@@ -41788,10 +41826,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Approvals bind exact output/version, review purpose, approver authority and expiry."
           sourceTextSha256: "dfbcb922fc6015c33de09d04e59e7ba32781ae0abfaadc4a36087441997bcf4f"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-21/preconditions"
-          targetTextSha256: "44eea8e43de38d8e3c377ba48ede82b6a4f07a3c96e1c885db70c81077a0481a"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0448-c001/semanticRule"
+          targetTextSha256: "89157e987d63853655dd4857fe44d1c82151f0002bcb3274a4171201465ed810"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Review purpose, exact artifact version, reviewer authority, and scope/expiry are explicit."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0448-C001"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0448-C002
           exactSourceText: "Regeneration invalidates only approvals whose approved material changed."
@@ -41808,10 +41848,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Shared review links have explicit scope, expiry and revocation"
           sourceTextSha256: "ae5861348a0bce3165fd5eea9e2aee2007acfb19b7ada2613a645c1269390460"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-21/preconditions"
-          targetTextSha256: "44eea8e43de38d8e3c377ba48ede82b6a4f07a3c96e1c885db70c81077a0481a"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0448-c003/semanticRule"
+          targetTextSha256: "818f5c20a01c1d2bd293c3db1ccec2bad5d860cfcb1e2a491a5a5926305e5385"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Review purpose, exact artifact version, reviewer authority, and scope/expiry are explicit."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0448-C003"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0448-C004
           exactSourceText: "unauthenticated access is never implied by a URL."
@@ -41958,10 +42000,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "keyboard selection/trim/reorder and non-drag alternatives"
           sourceTextSha256: "a5708000d94df70d746fc85d3df303c429abcbf9b85983c9f7317ee2f5797fc9"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/accessibilityDisposition/proposedBaseline/1"
-          targetTextSha256: "ce9cd37d70bae38f06438678f22ab31ba643f6391c7ab4d6c9e25b2bda4a2786"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0451-c004/semanticRule"
+          targetTextSha256: "875ed7446d14767e6cb1e442d1c98c42e5f65a509384086964862bd0c4fae3f4"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Keyboard operation and non-drag alternatives for selection, trim, reorder, masks, and controls."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0451-C004"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0451-C005
           exactSourceText: "programmatic errors/status"
@@ -42191,10 +42235,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "use a bounded public integration"
           sourceTextSha256: "778e0afa844050015cd01d885bd987371b0dd63c84cae7e908ad72f83ad1ae4c"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-25/title"
-          targetTextSha256: "f1e3ab51a4b282ffbb0b020872f7a2194a2e6a315a0536935862984b7f55cd9b"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0455-c003/semanticRule"
+          targetTextSha256: "8cea9bed40018196349b85c10567e90a6d28aabd4f1193d7a8f2b6df8afad9ee"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Agent or product integration with bounded delegated Media action"
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0455-C003"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0455-C004
           exactSourceText: "or select an external component after recording why the internal candidate is inadequate."
@@ -42789,10 +42835,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "No recursive budget reset or self-authorizing tool call |"
           sourceTextSha256: "94b2795373e3830d70aca5e650eb06606974101e1d31b09408630e60540e1c2e"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-25/criticalNonhappy"
-          targetTextSha256: "2cacfaedcc6879492d18f6e01076c53329584fce416d26436460e5bca1f4371e"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0472-c004/semanticRule"
+          targetTextSha256: "72d40521f6071ab8c5d3f7ba2ab68beec7e62fb53c4955afb3563fd97c892d37"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Delegation expired, recursive budget reset, self-authorizing action, or result returned without Media finality."
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0472-C004"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
     - itemId: MPSEM-0473
       currentSourceLines: [1149, 1149]
@@ -42869,10 +42917,12 @@ pdp38ClaimReconciliation:
           exactSourceText: "Pilot recipes preserve breadth while limiting initial implementation cost: uploaded interview cleanup/captions"
           sourceTextSha256: "30e379a5c95de8191c640a011887727d947025950b0e55f8e175390fa0cafe2a"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-07/title"
-          targetTextSha256: "2fc3f7a334b3d297ed3049e464ad74325b4e29440c6d9809e15c2464d2692c81"
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/ownerMigrationSemanticRules/records/@id=media.journey-semantic-rule.mpsem-0475-c001/semanticRule"
+          targetTextSha256: "b994fbc7dd4d83022b180d3b0dda45efe17b8bf84fda5f2985dc61970aa24fd5"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: Noisy/clipped interview cleanup with preservation and comparison"
+          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json#/records/@claimId=MPSEM-0475-C001"
+          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
           acceptanceEffect: none
         - claimId: MPSEM-0475-C002
           exactSourceText: "physics/model demonstration with domain-owned fidelity"
@@ -43171,7 +43221,7 @@ pdp38ClaimReconciliation:
           targetTextSha256: "70a446cda0b57d3d8dafa67ff4c94e97d643e2a7351cfce46ff9af34101a1ab1"
           acceptanceEffect: none
   scopeSupersededClaimUnitCount: 6
-  currentOwnerTargetClaimUnitCount: 863
+  currentOwnerTargetClaimUnitCount: 862
   ownerAccountedPendingSemanticDefinitionCount: 0
   retainedHistoricalProgramTruthClaimCount: 7
   outOfScopeHistoricalRequirementCount: 1

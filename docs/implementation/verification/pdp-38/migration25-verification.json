@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "media.pdp38-bounded-source-verification.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-091",
+  "reviewedRecordCount": 25,
+  "normativeClaimCount": 24,
+  "metadataCount": 1,
+  "verification": {
+    "command": "node --test tests/pdp-experience-journey-migration-rules.test.mjs tests/pdp-migration-coordinator-112-approval.test.mjs tests/pdp-migration-semantic-reconciliation.test.mjs",
+    "exitCode": 0,
+    "passedTests": 17,
+    "changedSources": [],
+    "log": "docs/implementation/verification/pdp-38/migration25-verification.log",
+    "outputSha256": "948946074b2470bbc69abf1bd1748c09c544193bfdbe87529388c2d797030541"
+  },
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/journey-catalog.yaml": "167d8f3509a5120b43d004d489a8605d78db40a022776b974d51e85065fdd03f",
+    ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml": "a5b9d07a5d50128f46e7b3b22a9a07b040cc34896e865e0885bc273527727621",
+    "docs/implementation/verification/pdp-38/migration-journey-owner-review.json": "abd27d7c04c95f52131482d5d24c18f785f6aecc66b82bde841f5d21a6a11f6f",
+    "docs/implementation/verification/pdp-38/migration-journey-final-proposal-25.json": "25602ac1627f6c6d3d5f6859e1163407cfce4b12cc2b8884554869d4383273bd",
+    "docs/implementation/verification/pdp-38/migration-coordinator-review-25.json": "d4e204e5db1219ccd4fb3774a0c3a66da5e603379fce3c7c0e0a89523aac038d",
+    "tests/pdp-experience-journey-migration-rules.test.mjs": "ac5b88930f348e40d1b88e32c9a279e63f8198510524cb25281f31df74999912",
+    "tests/pdp-migration-coordinator-112-approval.test.mjs": "06bd14dee97d335e875bbbd2864c0fd9e491bb1854eb5bbf9c88a64716e4ebd0",
+    "tests/pdp-migration-semantic-reconciliation.test.mjs": "d4c16b18bbcf9d36c4778ac73ed78462808834f5735e3cd62fab1cf7942a7f4c"
+  },
+  "nonClaims": [
+    "Whole-task completion",
+    "Current generated global source census",
+    "Independent acceptance",
+    "Runtime admission",
+    "Lifecycle receipts"
+  ]
+}
