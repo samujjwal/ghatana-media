@@ -238,7 +238,7 @@ if (/localProjection: (?:P0|P1|P2|P3)(?:\s|$)/mu.test(coverageSource)) {
   fail("Vision/requirements crosswalk contains legacy P0/P1/P2/P3 projections");
 }
 note(outcomeIds.size + " PDP-0 vision outcomes have journey/supporting-view coverage; " + requirementOutcomeTraceCount + " requirement groups have outcome traces");
-note(`${capabilityIds.size} PDP-0 capability leaves resolve to ${familyIds.size} families and ${requirementIds.size} requirement IDs; ${capabilityCoreComplete} expose the required definition shape; ${operationSpecificParameterProposals} have operation-specific parameter proposals and ${capabilityIds.size - operationSpecificParameterProposals} still require owner-approved bounds`);
+note(`${capabilityIds.size} PDP-0 capability leaves resolve to ${familyIds.size} families and ${requirementIds.size} requirement IDs. Historical inline-field observation: ${capabilityCoreComplete} legacy inline shapes and ${operationSpecificParameterProposals} inline parameter proposals; this parser does not evaluate the additive owner capability/operation contracts or their reviewed bounds`);
 
 const componentSource = read(join(productRoot, "pdp-2-design-interface-system/component-contracts.yaml"));
 const componentIdList = idsFrom(componentSource, /^\s*- id: (media\.component\.[A-Za-z0-9._-]+)$/gmu);
@@ -443,7 +443,7 @@ for (const source of journeySources) {
     if (expectedRequirements.length) journeyStepsWithRequirementCrosswalk += 1;
   }
 }
-note(`${journeyStepsWithRequirementCrosswalk} of ${journeyStepsWithAction} action-bearing journey steps map through direct Action Registry capability refs to PDP-0 requirements; action authority, operation, state transition, oracle, and behavior acceptance remain pending`);
+note(`Historical inline action observation: ${journeyStepsWithRequirementCrosswalk} of ${journeyStepsWithAction} action-bearing journey steps map through direct Action Registry capability refs to PDP-0 requirements; current exact step role/binding observations are reported separately and semantic acceptance remains pending`);
 const journeyViewRefs = collectMatches(journeySources, /^\s*(?:-\s*)?view: (media\.view\.[A-Za-z0-9._-]+)$/gmu);
 const journeyActionRefs = collectMatches(journeySources, /^\s*action: (media\.action\.[A-Za-z0-9._-]+)$/gmu);
 const journeyFileIds = collectMatches(journeySources, /^journeyId: (J-[0-9]+)$/gmu);
@@ -551,7 +551,7 @@ for (const block of eventRegistry.split(/(?=^\s+- id: media\.event\.)/mu).filter
   if (!/^\s+eventName:\s*\S/mu.test(block)) fail(`Event ${id} is missing required eventName shape`);
 }
 note(`Structural references checked against ${operationIds.size} PDP-1 operations, ${domainObjectIds.size} domain-object IDs, ${machineIds.size} state machines, ${httpIds.length} HTTP APIs, ${grpcIds.length} gRPC APIs, and ${eventIds.length} event IDs`);
-note("Requirement→domain/object semantics, action→operation bindings, and PDP-2 surface/layout authority remain unselected or proposal-only in local source; no inferred bindings are accepted");
+note("Historical inline mappings and additive owner definitions are distinct; use the current PDP readiness source census for exact bindings. This local checker does not establish semantic or independent acceptance");
 note("Tools Product Definition/Experience validation and lifecycle currentness outputs are not bound in this checkout; local structural checks do not establish semantic acceptance or currentness");
 
 const mainSource = read(join(root, "apps/media-experience-explorer/src/main.ts"));

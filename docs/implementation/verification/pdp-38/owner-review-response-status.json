@@ -61,5 +61,29 @@
     "No public artifact owner admission",
     "No native Lifecycle phase receipt"
   ],
-  "observedAt": "2026-10-09T07:10:19.128883+00:00"
+  "observedAt": "2026-10-09T07:10:19.128883+00:00",
+  "coordinatorRequestUpdates": [
+    {
+      "repository": "samujjwal/ghatana-media",
+      "issue": 4,
+      "commentId": 6076958923,
+      "immutableMediaCommit": "38b6673",
+      "effect": "REVIEW_REQUEST_ONLY"
+    },
+    {
+      "repository": "samujjwal/ghatana-lifecycle",
+      "issue": 1,
+      "commentId": 6076966374,
+      "immutableMediaCommit": "38b6673",
+      "effect": "PROVIDER_ARTIFACT_AND_ISSUER_REVIEW_REQUEST_ONLY"
+    },
+    {
+      "repository": "samujjwal/ghatana-tools",
+      "issue": 31,
+      "commentId": 6076966554,
+      "immutableMediaCommit": "38b6673",
+      "effect": "EXACT_PUBLIC_INVOCATION_AND_ADMISSION_ARTIFACT_REQUEST_ONLY"
+    }
+  ],
+  "requestUpdatesAt": "2026-10-09T08:04:54.694510+00:00"
 }

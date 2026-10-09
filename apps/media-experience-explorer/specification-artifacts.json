@@ -525,6 +525,13 @@
     "title": "States"
   },
   {
+    "artifactId": "ART-P1-TRANSITION-GUARD-CONTRACTS",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
+    "phase": "PDP-1",
+    "path": ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml",
+    "title": "Transition Guard Contracts"
+  },
+  {
     "artifactId": "ART-MEDIA-1C4EF7DD41BE",
     "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
@@ -700,6 +707,13 @@
     "title": "Component Contracts"
   },
   {
+    "artifactId": "ART-P2-COMPONENT-VALUE-TYPES",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
+    "title": "Component Value Types"
+  },
+  {
     "artifactId": "ART-P2-DESIGN-GOVERNANCE",
     "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
@@ -733,6 +747,13 @@
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json",
     "title": "Experience Language.Candidate"
+  },
+  {
+    "artifactId": "ART-P2-COMPOSITION-VALIDATION-GRAMMAR",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml",
+    "title": "Composition Validation Grammar"
   },
   {
     "artifactId": "ART-MEDIA-8B2627A1C5C0",
@@ -831,6 +852,13 @@
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
     "title": "Catalog"
+  },
+  {
+    "artifactId": "ART-P2-CROSS-CHANNEL-INTERFACE-GRAMMAR",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
+    "title": "Interface Grammar"
   },
   {
     "artifactId": "ART-P1-PHASE-1-DESIGN-LANGUAGE-LOCALIZATION-CONTENT-YAML",
@@ -1757,6 +1785,13 @@
     "title": "Navigation Contracts"
   },
   {
+    "artifactId": "ART-P3-PUBLIC-EFFECT-FINALITY-TAXONOMY",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml",
+    "title": "Public Effect Finality Taxonomy"
+  },
+  {
     "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-RECOVERY-FINALITY-CONTRACTS-YAML",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
@@ -2175,6 +2210,34 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
     "title": "State Transition Bindings"
+  },
+  {
+    "artifactId": "ART-P3-DEFINITION-ORACLES",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml",
+    "title": "Step Definition Oracles"
+  },
+  {
+    "artifactId": "ART-P3-VIEW-OBSERVATION-INPUT-CONTRACTS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml",
+    "title": "View Observation Input Contracts"
+  },
+  {
+    "artifactId": "ART-P3-VIEW-OBSERVATION-PREDICATES",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/view-observation-predicates.yaml",
+    "title": "View Observation Predicates"
+  },
+  {
+    "artifactId": "ART-P3-VIEW-STATE-BINDING-DISPOSITIONS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml",
+    "title": "View State Binding Dispositions"
   },
   {
     "artifactId": "ART-MEDIA-GOV-20261007-ALL-GATE-OWNER-REVIEW",
