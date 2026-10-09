@@ -349,5 +349,8 @@
     "tests/pdp-3-screen-journey-crosslinks.test.mjs",
     "tests/pdp-overview-currentness.test.mjs",
     "tests/product-definition-authority.test.mjs"
-  ]
+  ],
+  "verifiedSourceCommit": "7c6794b9cbea5aa33f2279450fa594fd59afa7f9",
+  "worktreeAtSourceCommit": "clean; main and origin/main matched after successful push",
+  "sourceCheckpointIncludesAllReviewedDefinitionChanges": true
 }

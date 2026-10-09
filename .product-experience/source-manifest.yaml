@@ -1098,7 +1098,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: fe2daacbf444064dbc35be23c9ba3ee34dad14f2fa3d48fbca7b965dcde23f41
+      contentSha256: 43c6c7659121f1567f3c50a1c41685b1caaf963c8ca30223fe761df4051146af
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-INFORMATION-ARCHITECTURE
