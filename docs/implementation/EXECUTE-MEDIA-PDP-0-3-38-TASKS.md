@@ -1,5 +1,13 @@
 # EXECUTE MEDIA PDP-0–PDP-3 — PHASE-ONLY COMPLETION MANDATE
 
+## Current execution override — October 9, 2026
+
+The user's latest instruction limits this execution pass to completing **correct, complete, comprehensive, production-grade PDP-0 through PDP-3 definitions**. Implement the remaining source contracts, cross-phase meanings, interface and design grammar, complete journey/action/state/recovery definitions, and deterministic definition-level validation. The coordinator delegates implementation, verification and fixes to parallel Luna agents and integrates reviewed changes.
+
+**Defer actual closure, evidence collection/production, acceptance receipts, and convergence until a later pass.** Do not execute Gate E or Gate F below, seek external signers or Lifecycle admissions, maintain closure obligation/case/provider inventories, or maintain evidence and convergence artifacts as an implementation workstream. Necessary new source contracts and normative identities remain in scope. Preserve existing historical records without promoting them. Independent acceptance and authoritative phase closure remain unclaimed; their absence does not stop executable definition work in this pass.
+
+Ordinary tests, typed schema validation, generated definition projections, deterministic rendering, and negative contract fixtures remain necessary to establish source correctness. They are engineering validation, not an instruction to create a proof/closure system. Complete every executable source requirement in the 38-task scope, including the source content of review-gated rows, while preserving the original ledger and correctly completed selections and mappings. Runtime deployment, model/codec qualification, standalone Explorer work, release readiness and commercial activation remain excluded. This override controls any conflicting execution or completion instructions below; the earlier mandate is retained for historical task criteria and exact owning paths.
+
 **Instruction date:** October 8, 2026. **Reviewed remote baseline:** `samujjwal/ghatana-media` on `main@0287460f52ac2b9c23f1bea0c9e29e533a3f9eab`. The implementer MUST rediscover live main before edits.  
 **Current objective:** complete the four canonical Product Development Phases **PDP-0, PDP-1, PDP-2 and PDP-3** as self-contained, correct, current, independently acceptable *sources of product truth*.  
 **Task denominator:** **exactly 38** original tasks: `P0-01…P0-08`, `P1-01…P1-11`, `P2-01…P2-09`, `P3-01…P3-10`. **Not** the historical 71-task cross-repository implementation/release backlog.  
