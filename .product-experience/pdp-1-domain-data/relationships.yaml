@@ -49,11 +49,38 @@ relationships:
   - id: media.rel.attempt-lease
     from: media.domain.job-attempt
     to: media.domain.job-lease
-    meaning: current-fenced-lease-authorizes-bounded-attempt-writes
-    cardinality: one-current-lease; historical-cardinality-unbound
-    cardinalityBasis: PDP-0 state-machine semantic proposal; historical cardinality unbound; no storage-key inference; unaccepted pending Media owner review
-    sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml#media-attempt]
-    scopeStatus: PDP-0-state-rule; pending-owner-review
+    meaning: current-fenced-lease-authorizes-bounded-attempt-writes; lease identity remains (tenantId,jobId,ownerId,fencingToken) while activeAttemptRef binds one exact attempt
+    cardinality: one-current-lease-per-exact-attempt; lease renewal retains attempt; retry creates a distinct attempt and fence
+    sourceRefField: JobLease.activeAttemptRef
+    targetIdentityTuple: [tenantId, jobId, attemptId]
+    separateLeaseIdentityTuple: [tenantId, jobId, ownerId, fencingToken]
+    cardinalityBasis: owner-defined logical relationship; source Java lease projection lacks activeAttemptRef; persistence/wire equivalence unverified
+    sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml#media-attempt, .product-experience/pdp-1-domain-data/domain-objects.yaml#media.identity-contract.job-lease]
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP; runtime-NOT_ADMITTED
+  - id: media.rel.upload-session-chunk
+    from: media.domain.upload-session
+    to: media.domain.upload-chunk
+    meaning: each immutable chunk belongs to exactly one tenant-scoped upload session and is keyed by its bounded sequence within that session
+    cardinality: one-upload-to-zero-or-many-immutable-chunks
+    sourceRefField: UploadChunk.uploadId
+    targetIdentityTuple: [tenantId, uploadId]
+    childIdentityTuple: [tenantId, uploadId, chunkIndex]
+    ordering: chunkIndex is nonnegative and unique within one upload; gaps remain explicit and are not synthesized
+    sameTenant: true
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP; persistence-and-wire-equivalence-unverified; runtime-NOT_ADMITTED
+    sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.upload-chunk]
+  - id: media.rel.stream-session-frame
+    from: media.domain.stream-session
+    to: media.domain.stream-frame
+    meaning: each immutable frame belongs to exactly one exact stream session and occupies one unique sequence in that session
+    cardinality: one-session-to-zero-or-many-immutable-frames
+    sourceRefField: StreamFrame.sessionId
+    targetIdentityTuple: [tenantId, sessionId]
+    childIdentityTuple: [tenantId, sessionId, sequence]
+    ordering: sequence is nonnegative and unique within one session; missing sequences are gaps, not successful frames
+    sameTenant: true
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP; frame-storage-and-wire-equivalence-unverified; runtime-NOT_ADMITTED
+    sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.stream-frame]
   - id: media.rel.run-checkpoint
     from: media.domain.media-run
     to: media.domain.checkpoint

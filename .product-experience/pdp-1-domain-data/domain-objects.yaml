@@ -24,10 +24,10 @@ canonicalIdentityAdjudication:
     - .product-experience/pdp-1-domain-data/canonical-reconciliation.yaml
     - .product-experience/pdp-1-domain-data/domain-objects.yaml
   reviewState: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-and-provider-admission-not-claimed
-  populationRule: The 38 current registry identities comprise 33 Media product objects with owner-defined identity rules and 5 implementation source observations with explicit non-equivalence. Source observations never become domain authority solely from this index; the legacy Transcription record is excluded from both populations.
+  populationRule: The 38 current registry identities comprise 37 Media owner-defined logical identities and one retained legacy audio persistence observation. Runtime persistence and wire equivalence remain separately unverified. Source observations never become domain authority solely from this index; the legacy Transcription record is excluded from both populations.
   registeredObjectIdentityCount: 38
-  canonicalProductObjectCount: 33
-  noncanonicalSourceObservationCount: 5
+  canonicalProductObjectCount: 37
+  noncanonicalSourceObservationCount: 1
   registeredObjectIdentityRefs:
     - objectId: media.domain.project
       disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
@@ -154,16 +154,20 @@ canonicalIdentityAdjudication:
       ownerSelectedIdentity: tenantId + stable uploadId; principal ownership and client idempotency key are separately scoped context.
       identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.upload-session
     - objectId: media.domain.upload-chunk
-      disposition: SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + uploadId + bounded chunkIndex; storageKey is never canonical identity.
       identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.upload-chunk
     - objectId: media.domain.stream-session
-      disposition: SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + sessionId; principal and current authority are access scope, not identity.
       identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.stream-session
     - objectId: media.domain.stream-frame
-      disposition: SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + sessionId + bounded nonnegative sequence; session is exact parent and sequence is unique within it.
       identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.stream-frame
     - objectId: media.domain.consent-record
-      disposition: SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + consentId + owner-issued immutable consentRevisionId; legacy integer version does not substitute for revision identity.
       identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.consent-record
     - objectId: media.domain.persisted-audio-file
       disposition: SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE
@@ -260,10 +264,15 @@ objects:
   - id: media.domain.processing-job
     name: ProcessingJob
     kind: mutable-execution-aggregate
-    identity: Java-store-key-tenantId-plus-jobId; TypeScript-tenantId-and-id-fields; SQL-primary-key-(tenant_id,job_id); cross-interface-canonical-key-unbound
+    identity: canonical-owner-tuple-(tenantId,jobId); stable-opaque-jobId-is-issued-within-tenant; render-and-verification-jobs-share-this-identity-namespace
     lifecycle: PDP-0-media-job-state-model; attempts-distinct-from-logical-job
     observedProjection: Java ProcessingJob; TypeScript job union; OpenAPI jobs
-    scopeStatus: PDP-0-semantics-with-observed-projections; pending-owner-review
+    observedIdentityForms:
+      - Java store key `(tenantId, jobId)`
+      - TypeScript fields `(tenantId, id)`; `id` requires an explicit adapter to canonical `jobId`
+      - SQL primary key `(tenant_id, job_id)`
+      - OpenAPI job identifier fields require an explicit adapter to canonical `jobId`
+    scopeStatus: OWNER_DEFINED_LOGICAL_IDENTITY; observed projections do not establish wire or persistence equivalence; adapters and runtime enforcement NOT_ADMITTED
     sourceRefs:
       - .product-experience/pdp-0-product-truth/state-models.yaml#media-job
       - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
@@ -272,35 +281,38 @@ objects:
   - id: media.domain.render-job
     name: RenderJob
     kind: intent-specific-processing-job
-    identity: distinct-logical-job-id
+    identity: canonical-owner-tuple-(tenantId,jobId)-in-the-shared-ProcessingJob-namespace; render-intent-is-a-typed-purpose-not-a-separate-identity
     lifecycle: uses-processing-job-finality; output-version-is-immutable
-    scopeStatus: proposed-specialization; pending-owner-review
+    scopeStatus: OWNER_DEFINED_LOGICAL_IDENTITY; no independent render-job identifier namespace or runtime subtype mapping is asserted
     sourceRefs:
       - .product-experience/pdp-0-product-truth/domain-model.yaml#ProcessingJob-and-RenderJob
   - id: media.domain.artifact-verification-job
     name: ArtifactVerificationJob
     kind: intent-specific-processing-job
-    identity: distinct-stable-job-reference
+    identity: canonical-owner-tuple-(tenantId,jobId)-in-the-shared-ProcessingJob-namespace; verification-target-artifact-and-version-are-references-not-job-identity
     lifecycle: job-finality-does-not-decide-artifact-disposition
-    scopeStatus: proposed; owner-issued-job-contract-unbound; pending-owner-review
+    scopeStatus: OWNER_DEFINED_LOGICAL_IDENTITY; verification target and runtime subtype mapping remain separately unresolved
     sourceRefs:
       - .product-experience/pdp-0-product-truth/domain-model.yaml#ArtifactVerificationJob
       - .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
   - id: media.domain.job-attempt
     name: JobAttempt
     kind: mutable-fenced-execution
-    identity: unique-attempt-id-and-increasing-fence
+    identity: canonical-owner-tuple-(tenantId,jobId,attemptId); fencingToken-is-a-monotonic-authority-epoch-not-part-of-attempt-identity
     lifecycle: PDP-0-media-attempt-state-model
-    scopeStatus: proposed; pending-owner-review
+    scopeStatus: OWNER_DEFINED_LOGICAL_IDENTITY; runtime/persistence projection NOT_ADMITTED
     sourceRefs:
       - .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
   - id: media.domain.job-lease
     name: JobLease
     kind: temporary-execution-claim
-    identity: Java-record-tenantId-plus-jobId-plus-ownerId-plus-fencingToken; PostgreSQL-lease-columns-on-job-row; no-standalone-lease-id
+    identity: canonical-owner-tuple-(tenantId,jobId,ownerId,fencingToken); temporary-claim-has-no-standalone-durable-lease-id; activeAttemptRef-is-a-separate-relationship
     lifecycle: wall-clock-expiry; stale-fence-cannot-commit
     observedProjection: Java JobLease
-    scopeStatus: PDP-0-semantics-with-observed-projection; pending-owner-review
+    observedIdentityForms:
+      - Java JobLease record exposes `(tenantId, jobId, ownerId, fencingToken)`
+      - PostgreSQL stores lease columns on the job row; the row layout is not a standalone lease identity
+    scopeStatus: OWNER_DEFINED_LOGICAL_IDENTITY; current DTO lacks activeAttemptRef; runtime/adapter equivalence NOT_ADMITTED
     sourceRefs:
       - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
       - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java
@@ -458,38 +470,39 @@ objects:
       - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_upload_sessions
   - id: media.domain.upload-chunk
     name: UploadChunk
-    kind: observed-storage-record
-    identity: tenantId-uploadId-chunkIndex-storage-key; domain-identity-unbound
-    lifecycle: persistence-row; product-lifecycle-meaning-unreviewed
-    scopeStatus: storage-observation-only; not-established-as-canonical-domain-object
+    kind: immutable-versioned-upload-part
+    identity: canonical-tuple-(tenantId,uploadId,chunkIndex); chunkIndex-is-a-bounded-nonnegative-safe-integer
+    lifecycle: immutable-part-within-one-upload-session; final-assembly-and-artifact-verification-are-separate
+    scopeStatus: owner-defined-logical-identity; persistence-key-and-cross-interface-adapter-unverified; runtime-NOT_ADMITTED
     sourceRefs:
       - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_upload_chunks
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.upload-session
   - id: media.domain.stream-session
     name: StreamSession
-    kind: observed-runtime-session
-    identity: Java-sessionId; persistence-tenantId-and-sessionId; canonical-identity-unbound
-    lifecycle: runtime-stream-state; exact-product-boundary-pending-review
-    scopeStatus: observed-implementation-projections; owner-review-pending
+    kind: mutable-tenant-scoped-stream-lifecycle
+    identity: canonical-tuple-(tenantId,sessionId); principalId-and-authority-scope-are-separate-owner-guards
+    lifecycle: session-versioned-state; sequence-space-and-closed-session-boundaries-are-explicit; frames-do-not-change-session-identity
+    scopeStatus: owner-defined-logical-identity; existing-DTO-and-storage-equivalence-unverified; runtime-NOT_ADMITTED
     sourceRefs:
       - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamSession
       - contracts/openapi/media.yaml#/components/schemas/StreamSession
       - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_stream_sessions
   - id: media.domain.stream-frame
     name: StreamFrame
-    kind: observed-runtime-message
-    identity: stream-session-and-sequence-in-runtime-contract; durable-record-not-observed-in-listed-migration
-    lifecycle: received-frame-and-ack-projection; retention-and-replay-unbound
-    scopeStatus: observed-implementation-contract-only; owner-review-pending
+    kind: immutable-session-sequence-message
+    identity: canonical-tuple-(tenantId,sessionId,sequence); tenant-is-inherited-from-the-exact-parent-session
+    lifecycle: immutable-frame-input-and-acknowledgement-observation; frame-acceptance-is-not-transcription-or-processing-finality
+    scopeStatus: owner-defined-logical-identity; frame-persistence-and-wire-equivalence-unverified; runtime-NOT_ADMITTED
     sourceRefs:
       - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamFrame
       - modules/speech/stt-service/src/main/proto/stt_service.proto
       - modules/vision/vision-service/src/main/proto/vision_service.proto
   - id: media.domain.consent-record
     name: ConsentRecord
-    kind: observed-api-and-storage-record
-    identity: Java-consentId; persistence-tenantId-and-consentId; canonical-version-key-unbound
-    lifecycle: grant-expiry-revocation-fields-observed; authority-meaning-remains-owner-bound
-    scopeStatus: observed-projection; not-a-canonical-policy-decision
+    kind: append-only-tenant-scoped-consent-revision
+    identity: canonical-tuple-(tenantId,consentId,consentRevisionId); each revision preserves exact issuer-and-scope
+    lifecycle: grant-expiry-revocation-is-a-versioned-record-observation; use-rights-requires-current-authoritative-scoped-decision
+    scopeStatus: owner-defined-logical-identity; legacy-record-version-resolution-and-wire-equivalence-unverified; runtime-NOT_ADMITTED
     sourceRefs:
       - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ConsentDecision
       - contracts/openapi/media.yaml#/components/schemas/ConsentRecord
@@ -935,6 +948,12 @@ canonicalRelationshipAdjudication:
     - objectRef: media.domain.upload-session
       disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
       relationships:
+        - name: upload-session-chunk
+          sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.upload-session-chunk
+          cardinality: one-parent-to-many-exact-children
+          targetObjectRef: media.domain.upload-chunk
+          sameTenant: true
+          status: logical relationship defined; storage/wire mapping remains unverified
         - name: completedArtifact
           cardinality: optional-many-to-one
           meaning: Only after verification may a session reference the registered artifact; upload receipt is not availability.
@@ -946,22 +965,40 @@ canonicalRelationshipAdjudication:
         - .product-experience/pdp-0-product-truth/domain-model.yaml
         - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
     - objectRef: media.domain.upload-chunk
-      disposition: SOURCE_OBSERVATION_NO_CANONICAL_RELATIONSHIP_AUTHORITY
-      relationships: []
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: upload-session-chunk
+          sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.upload-session-chunk
+          cardinality: owner-defined exact tuple relation
+          targetObjectRef: media.domain.upload-session
+          sameTenant: true
+          status: logical-relationship-defined; storage-and-wire-adapter-unverified
       unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
       sourceRefs:
         - .product-experience/pdp-0-product-truth/domain-model.yaml
         - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
     - objectRef: media.domain.stream-session
-      disposition: SOURCE_OBSERVATION_NO_CANONICAL_RELATIONSHIP_AUTHORITY
-      relationships: []
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: stream-session-frame
+          sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.stream-session-frame
+          cardinality: one-parent-to-many-exact-children
+          targetObjectRef: media.domain.stream-frame
+          sameTenant: true
+          status: logical relationship defined; storage/wire mapping remains unverified
       unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
       sourceRefs:
         - .product-experience/pdp-0-product-truth/domain-model.yaml
         - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
     - objectRef: media.domain.stream-frame
-      disposition: SOURCE_OBSERVATION_NO_CANONICAL_RELATIONSHIP_AUTHORITY
-      relationships: []
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: stream-session-frame
+          sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.stream-session-frame
+          cardinality: owner-defined exact tuple relation
+          targetObjectRef: media.domain.stream-session
+          sameTenant: true
+          status: logical-relationship-defined; storage-and-wire-adapter-unverified
       unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
       sourceRefs:
         - .product-experience/pdp-0-product-truth/domain-model.yaml
@@ -1747,8 +1784,8 @@ ownerTypedIdentityContracts:
     runtime-persistence-and-wire-enforcement-NOT_ADMITTED
   population:
     registeredCurrentIdentities: 38
-    canonicalMediaObjects: 33
-    sourceObservationsWithExplicitNonEquivalence: 5
+    canonicalMediaObjects: 37
+    sourceObservationsWithExplicitNonEquivalence: 1
     excludedLegacyTranscriptionCount: 1
   scalarTypeAuthority: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes
   tupleRules:
@@ -1814,11 +1851,25 @@ ownerTypedIdentityContracts:
     exactVersionRef: attemptId remains distinct
   - id: media.identity-link.attempt-lease
     sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.attempt-lease
-    sourceRefField: JobLease.attemptId
+    sourceRefField: JobLease.activeAttemptRef
     targetRef: media.domain.job-attempt
-    cardinality: one-current-fenced-lease-per-attempt
+    cardinality: one-current-fenced-lease-per-exact-attempt; renewed-fence-preserves-attempt; retry-creates-new-attempt-and-fence
     sameTenant: true
-    exactVersionRef: fencingToken is a monotonic authority epoch
+    exactVersionRef: "[tenantId, jobId, attemptId]; fencingToken is the lease separate monotonic authority epoch; ownerId is its holder"
+  - id: media.identity-link.upload-session-chunk
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.upload-session-chunk
+    sourceRefField: UploadChunk.uploadId
+    targetRef: media.domain.upload-session
+    cardinality: one-session-to-many-ordered-chunks
+    sameTenant: true
+    exactVersionRef: [tenantId, uploadId, chunkIndex]
+  - id: media.identity-link.stream-session-frame
+    sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.stream-session-frame
+    sourceRefField: StreamFrame.sessionId
+    targetRef: media.domain.stream-session
+    cardinality: one-session-to-many-sequenced-frames
+    sameTenant: true
+    exactVersionRef: [tenantId, sessionId, sequence]
   - id: media.identity-link.run-checkpoint
     sourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.run-checkpoint
     sourceRefField: Checkpoint.runId
@@ -2198,6 +2249,13 @@ ownerTypedIdentityContracts:
     - jobId
     - ownerId
     - fencingToken
+    relationshipReferenceComponents:
+    - field: activeAttemptRef
+      targetRef: media.domain.job-attempt
+      targetIdentityTuple: [tenantId, jobId, attemptId]
+      exactSourceRelationshipRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.attempt-lease
+      requiredFor: lease-to-attempt relationship only; not part of the lease identity tuple
+      runtimeProjection: not present on the current Java JobLease DTO; no DTO equivalence claimed
     tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
     collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
     sourceObservationFields: []
@@ -2713,92 +2771,106 @@ ownerTypedIdentityContracts:
       unresolved
   - id: media.identity-contract.upload-chunk
     objectRef: media.domain.upload-chunk
-    canonicalDisposition: SOURCE_OBSERVATION_NON_EQUIVALENCE
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
     ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.upload-chunk
-    identityComponents: []
-    canonicalIdentityTuple: []
-    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
-    collisionRuleRef: media.identity-rule.source-observation-not-promoted
-    sourceObservationFields:
+    identityComponents:
     - field: tenantId
-      observedType: string
-      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
     - field: uploadId
-      observedType: string
-      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: EXACT_PARENT_UPLOAD_SESSION
     - field: chunkIndex
-      observedType: integer
-      canonicalBinding: UNRESOLVED_NOT_PROMOTED
-    - field: storageKey
-      observedType: string
-      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+      inlineConstraint: { type: integer, minimum: 0, maximum: 2147483647 }
+      origin: OWNER_ASSIGNED_CONTIGUOUS_SEQUENCE
+    canonicalIdentityTuple: [tenantId, uploadId, chunkIndex]
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields:
+    - { field: tenantId, observedType: string, canonicalBinding: TRUSTED_TENANT_CONTEXT_ONLY }
+    - { field: uploadId, observedType: string, canonicalBinding: tenant-scoped-parent-session-reference }
+    - { field: chunkIndex, observedType: integer, canonicalBinding: bounded-sequence-component }
+    - { field: storageKey, observedType: string, canonicalBinding: NOT_CANONICAL_IDENTITY_OR_PUBLIC_REFERENCE }
     sourceProjectionRefs:
     - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_upload_chunks
-    projectionDisposition: SOURCE_OBSERVATION_ONLY_NO_CANONICAL_DTO_EQUIVALENCE
-    status: SOURCE_OBSERVATION_ONLY; no canonical domain identity asserted
+    projectionDisposition: OBSERVED_FIELDS_REQUIRE_EXACT_CANONICAL_ADAPTER
+    status: OWNER_DEFINED_LOGICAL_IDENTITY; persistence-and-wire-equivalence-unverified; runtime-NOT_ADMITTED
   - id: media.identity-contract.stream-session
     objectRef: media.domain.stream-session
-    canonicalDisposition: SOURCE_OBSERVATION_NON_EQUIVALENCE
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
     ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.stream-session
-    identityComponents: []
-    canonicalIdentityTuple: []
-    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
-    collisionRuleRef: media.identity-rule.source-observation-not-promoted
-    sourceObservationFields:
+    identityComponents:
     - field: tenantId
-      observedType: string
-      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
     - field: sessionId
-      observedType: string
-      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_SESSION_ID
+    canonicalIdentityTuple: [tenantId, sessionId]
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields:
+    - { field: tenantId, observedType: string, canonicalBinding: TRUSTED_TENANT_CONTEXT_ONLY }
+    - { field: sessionId, observedType: string, canonicalBinding: session-identity-candidate; DTO-equivalence-unverified }
     sourceProjectionRefs:
     - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamSession
     - contracts/openapi/media.yaml#/components/schemas/StreamSession
     - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_stream_sessions
-    projectionDisposition: SOURCE_OBSERVATION_ONLY_NO_CANONICAL_DTO_EQUIVALENCE
-    status: SOURCE_OBSERVATION_ONLY; no canonical domain identity asserted
+    projectionDisposition: OBSERVED_FIELDS_REQUIRE_EXACT_CANONICAL_ADAPTER
+    status: OWNER_DEFINED_LOGICAL_IDENTITY; persistence-and-wire-equivalence-unverified; runtime-NOT_ADMITTED
   - id: media.identity-contract.stream-frame
     objectRef: media.domain.stream-frame
-    canonicalDisposition: SOURCE_OBSERVATION_NON_EQUIVALENCE
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
     ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.stream-frame
-    identityComponents: []
-    canonicalIdentityTuple: []
-    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
-    collisionRuleRef: media.identity-rule.source-observation-not-promoted
-    sourceObservationFields:
+    identityComponents:
+    - field: tenantId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT_OR_EXACT_PARENT_SESSION
     - field: sessionId
-      observedType: string
-      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: EXACT_PARENT_SESSION_ID
     - field: sequence
-      observedType: integer
-      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+      inlineConstraint: { type: integer, minimum: 0, maximum: 9007199254740991 }
+      origin: OWNER_ASSIGNED_SESSION_SEQUENCE
+    canonicalIdentityTuple: [tenantId, sessionId, sequence]
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields:
+    - { field: sessionId, observedType: string, canonicalBinding: exact-parent-session-reference }
+    - { field: sequence, observedType: integer, canonicalBinding: bounded-sequence-component }
     sourceProjectionRefs:
     - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamFrame
     - modules/speech/stt-service/src/main/proto/stt_service.proto
     - modules/vision/vision-service/src/main/proto/vision_service.proto
-    projectionDisposition: SOURCE_OBSERVATION_ONLY_NO_CANONICAL_DTO_EQUIVALENCE
-    status: SOURCE_OBSERVATION_ONLY; no canonical domain identity asserted
+    projectionDisposition: OBSERVED_FIELDS_REQUIRE_EXACT_CANONICAL_ADAPTER
+    status: OWNER_DEFINED_LOGICAL_IDENTITY; persistence-and-wire-equivalence-unverified; runtime-NOT_ADMITTED
   - id: media.identity-contract.consent-record
     objectRef: media.domain.consent-record
-    canonicalDisposition: SOURCE_OBSERVATION_NON_EQUIVALENCE
+    canonicalDisposition: CANONICAL_MEDIA_IDENTITY
     ownerIdentitySourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.consent-record
-    identityComponents: []
-    canonicalIdentityTuple: []
-    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
-    collisionRuleRef: media.identity-rule.source-observation-not-promoted
-    sourceObservationFields:
+    identityComponents:
     - field: tenantId
-      observedType: string
-      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: TRUSTED_HOST_CONTEXT
     - field: consentId
-      observedType: string
-      canonicalBinding: UNRESOLVED_NOT_PROMOTED
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
+      origin: OWNER_ISSUED_CONSENT_ID
+    - field: consentRevisionId
+      scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-version-id
+      origin: OWNER_ISSUED_IMMUTABLE_REVISION_ID
+    canonicalIdentityTuple: [tenantId, consentId, consentRevisionId]
+    tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
+    collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
+    sourceObservationFields:
+    - { field: tenantId, observedType: string, canonicalBinding: TRUSTED_TENANT_CONTEXT_ONLY }
+    - { field: consentId, observedType: string, canonicalBinding: consent-identity-candidate; revision-join-unverified }
+    - { field: consentRevisionId, observedType: absent-from-listed-wire-and-storage-shape, canonicalBinding: canonical-owner-version-required; not-derived-from-integer-version }
     sourceProjectionRefs:
     - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ConsentDecision
     - contracts/openapi/media.yaml#/components/schemas/ConsentRecord
     - providers/aws-postgresql/src/main/resources/db/media-runtime/V003__media_consent_authority.sql#media_consents
-    projectionDisposition: SOURCE_OBSERVATION_ONLY_NO_CANONICAL_DTO_EQUIVALENCE
-    status: SOURCE_OBSERVATION_ONLY; no canonical domain identity asserted
+    projectionDisposition: OBSERVED_FIELDS_REQUIRE_EXACT_CANONICAL_ADAPTER
+    status: OWNER_DEFINED_LOGICAL_IDENTITY; legacy-consentRevisionId-resolution-unverified; runtime-NOT_ADMITTED
   - id: media.identity-contract.persisted-audio-file
     objectRef: media.domain.persisted-audio-file
     canonicalDisposition: SOURCE_OBSERVATION_NON_EQUIVALENCE

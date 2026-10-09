@@ -25,8 +25,8 @@ function throwsCode(code, operation) {
 test("all 38 current object identities have explicit typed owner or source-observation dispositions", () => {
   assert.deepEqual(source.population, {
     registeredCurrentIdentities: 38,
-    canonicalMediaObjects: 33,
-    sourceObservationsWithExplicitNonEquivalence: 5,
+    canonicalMediaObjects: 37,
+    sourceObservationsWithExplicitNonEquivalence: 1,
     excludedLegacyTranscriptionCount: 1,
   });
   assert.equal(source.records.length, 38);
@@ -35,8 +35,8 @@ test("all 38 current object identities have explicit typed owner or source-obser
   assert.equal(objects.canonicalIdentityAdjudication.excludedHistoricalRecords[0].objectId, "media.domain.transcription");
   const canonical = source.records.filter((record) => record.canonicalDisposition === "CANONICAL_MEDIA_IDENTITY");
   const observations = source.records.filter((record) => record.canonicalDisposition === "SOURCE_OBSERVATION_NON_EQUIVALENCE");
-  assert.equal(canonical.length, 33);
-  assert.equal(observations.length, 5);
+  assert.equal(canonical.length, 37);
+  assert.equal(observations.length, 1);
   assert.equal(source.persistenceAndWireSemantics.id, "media.identity.persistence-wire-boundary.v1");
   assert.match(source.persistenceAndWireSemantics.canonicalObjectDisposition, /persistenceAdapter_NOT_ADMITTED; wireAdapter_NOT_ADMITTED/);
   assert.match(source.persistenceAndWireSemantics.sourceObservationDisposition, /no canonical tuple/);
@@ -67,16 +67,61 @@ test("all 38 current object identities have explicit typed owner or source-obser
 });
 
 test("named cross-entity relationships bind exact same-tenant typed references", () => {
+  const relationshipById = new Map(relationships.relationships.map((relationship) => [relationship.id, relationship]));
+  const domainObjectIds = new Set(objects.objects.map((object) => object.id));
+  assert.equal(relationshipById.size, relationships.relationships.length, "relationship source IDs are unique");
   assert.equal(source.relationshipBindings.length, relationships.relationships.length);
   assert.equal(new Set(source.relationshipBindings.map((row) => row.sourceRelationshipRef)).size, relationships.relationships.length);
   for (const binding of source.relationshipBindings) {
-    const id = binding.sourceRelationshipRef.split("/").at(-1);
-    assert.ok(relationships.relationships.some((relationship) => relationship.id === id), `relationship ${id} exists`);
+    const match = /^\.product-experience\/pdp-1-domain-data\/relationships\.yaml#relationships\/(.+)$/u.exec(binding.sourceRelationshipRef);
+    assert.ok(match, `relationship selector is exact and source-owned: ${binding.sourceRelationshipRef}`);
+    const id = match[1];
+    const relationship = relationshipById.get(id);
+    assert.ok(relationship, `relationship ${id} exists exactly once`);
+    const targetRefs = Array.isArray(binding.targetRef) ? binding.targetRef : [binding.targetRef];
+    assert.ok(targetRefs.length > 0 && targetRefs.every((targetRef) => domainObjectIds.has(targetRef)), `${id} binding targets resolve to canonical objects`);
+    assert.equal(binding.sameTenant, relationship.sameTenant ?? true, `${id} same-tenant rule agrees`);
     assert.ok(binding.sourceRefField.includes("."), `${id} binds a named field`);
-    assert.equal(binding.sameTenant, true, id);
     assert.ok(binding.targetRef, `${id} names the target object`);
-    assert.match(binding.exactVersionRef, /\S/);
+    assert.ok((typeof binding.exactVersionRef === "string" && /\S/u.test(binding.exactVersionRef))
+      || (Array.isArray(binding.exactVersionRef) && binding.exactVersionRef.length > 0), `${id} declares exact identity/version fields`);
   }
+  const uploadChunkLink = source.relationshipBindings.find((row) => row.id === "media.identity-link.upload-session-chunk");
+  const uploadChunk = relationshipById.get("media.rel.upload-session-chunk");
+  assert.equal(uploadChunkLink.sourceRelationshipRef, ".product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.upload-session-chunk");
+  assert.equal(uploadChunk.from, "media.domain.upload-session");
+  assert.equal(uploadChunk.to, "media.domain.upload-chunk");
+  assert.equal(uploadChunkLink.sourceRefField, "UploadChunk.uploadId");
+  assert.deepEqual(uploadChunkLink.exactVersionRef, ["tenantId", "uploadId", "chunkIndex"]);
+  assert.deepEqual(uploadChunk.targetIdentityTuple, ["tenantId", "uploadId"]);
+  assert.deepEqual(uploadChunk.childIdentityTuple, ["tenantId", "uploadId", "chunkIndex"]);
+  assert.equal(uploadChunk.sameTenant, true);
+  const streamFrameLink = source.relationshipBindings.find((row) => row.id === "media.identity-link.stream-session-frame");
+  const streamFrame = relationshipById.get("media.rel.stream-session-frame");
+  assert.equal(streamFrameLink.sourceRelationshipRef, ".product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.stream-session-frame");
+  assert.equal(streamFrame.from, "media.domain.stream-session");
+  assert.equal(streamFrame.to, "media.domain.stream-frame");
+  assert.equal(streamFrameLink.sourceRefField, "StreamFrame.sessionId");
+  assert.deepEqual(streamFrameLink.exactVersionRef, ["tenantId", "sessionId", "sequence"]);
+  assert.deepEqual(streamFrame.targetIdentityTuple, ["tenantId", "sessionId"]);
+  assert.deepEqual(streamFrame.childIdentityTuple, ["tenantId", "sessionId", "sequence"]);
+  assert.equal(streamFrame.sameTenant, true);
+  const leaseLink = source.relationshipBindings.find((row) => row.id === "media.identity-link.attempt-lease");
+  const lease = relationshipById.get("media.rel.attempt-lease");
+  assert.equal(leaseLink.sourceRelationshipRef, ".product-experience/pdp-1-domain-data/relationships.yaml#relationships/media.rel.attempt-lease");
+  assert.equal(lease.from, "media.domain.job-attempt");
+  assert.equal(lease.to, "media.domain.job-lease");
+  assert.deepEqual(lease.targetIdentityTuple, ["tenantId", "jobId", "attemptId"]);
+  assert.deepEqual(lease.separateLeaseIdentityTuple, ["tenantId", "jobId", "ownerId", "fencingToken"]);
+  assert.equal(lease.sourceRefField, "JobLease.activeAttemptRef");
+  assert.equal(leaseLink.sourceRefField, "JobLease.activeAttemptRef");
+  assert.equal(leaseLink.targetRef, "media.domain.job-attempt");
+  assert.match(leaseLink.exactVersionRef, /tenantId, jobId, attemptId/u);
+  const leaseIdentity = records.get("media.domain.job-lease");
+  assert.deepEqual(leaseIdentity.canonicalIdentityTuple, ["tenantId", "jobId", "ownerId", "fencingToken"]);
+  assert.ok(!leaseIdentity.canonicalIdentityTuple.includes("attemptId"), "active attempt is a relationship, not lease identity");
+  assert.ok(source.records.find((row) => row.objectRef === "media.domain.job-lease").relationshipReferenceComponents
+    .some((component) => component.field === "activeAttemptRef" && component.targetRef === "media.domain.job-attempt"));
   assert.ok(source.tupleRules.some(({ id }) => id === "media.identity-rule.content-digest-not-identity"));
   assert.ok(source.tupleRules.some(({ id }) => id === "media.identity-rule.immutable-version-lineage"));
   assert.ok(source.tupleRules.some(({ id }) => id === "media.identity-rule.source-observation-not-promoted"));
@@ -99,7 +144,7 @@ test("identity oracle rejects missing or caller-overridden tenant, malformed IDs
   throwsCode("UNKNOWN_IDENTITY_FIELD", () => canonicalIdentityKey(project, { ...payload, digest: "sha256:abc" }, "tenant-a", scalarTypeDefinitions));
   throwsCode("IMMUTABLE_FINGERPRINT_INVALID", () => registerImmutableIdentity(registry, project, payload, "tenant-a", "different-immutable-content", scalarTypeDefinitions));
   throwsCode("IDENTITY_COLLISION", () => registerImmutableIdentity(registry, project, payload, "tenant-a", fingerprint("b"), scalarTypeDefinitions));
-  throwsCode("SOURCE_OBSERVATION_NOT_CANONICAL", () => canonicalIdentityKey(records.get("media.domain.stream-session"), { sessionId: "s-1" }, "tenant-a", scalarTypeDefinitions));
+  throwsCode("SOURCE_OBSERVATION_NOT_CANONICAL", () => canonicalIdentityKey(records.get("media.domain.persisted-audio-file"), { legacyUuid: "legacy-1" }, "tenant-a", scalarTypeDefinitions));
   const lease = records.get("media.domain.job-lease");
   throwsCode("IDENTITY_FIELD_INVALID", () => canonicalIdentityKey(lease, { jobId: "j-1", ownerId: "w-1", fencingToken: Number.MAX_SAFE_INTEGER + 1 }, "tenant-a", scalarTypeDefinitions));
   throwsCode("IDENTITY_FIELD_INVALID", () => canonicalIdentityKey(lease, { jobId: "j-1", ownerId: "w-1", fencingToken: 0 }, "tenant-a", scalarTypeDefinitions));
@@ -115,6 +160,23 @@ test("shared subtype identity namespaces collide on the canonical ProcessingJob 
   const processing = structuredClone(records.get("media.domain.processing-job"));
   const render = structuredClone(records.get("media.domain.render-job"));
   const verification = structuredClone(records.get("media.domain.artifact-verification-job"));
+  const objectById = new Map(objects.objects.map((object) => [object.id, object]));
+  assert.match(objectById.get("media.domain.processing-job").identity, /canonical-owner-tuple-\(tenantId,jobId\)/);
+  assert.deepEqual(objectById.get("media.domain.processing-job").observedIdentityForms, [
+    "Java store key `(tenantId, jobId)`",
+    "TypeScript fields `(tenantId, id)`; `id` requires an explicit adapter to canonical `jobId`",
+    "SQL primary key `(tenant_id, job_id)`",
+    "OpenAPI job identifier fields require an explicit adapter to canonical `jobId`",
+  ]);
+  assert.match(objectById.get("media.domain.render-job").identity, /shared-ProcessingJob-namespace/);
+  assert.match(objectById.get("media.domain.artifact-verification-job").identity, /shared-ProcessingJob-namespace/);
+  assert.match(objectById.get("media.domain.job-attempt").identity, /\(tenantId,jobId,attemptId\)/);
+  assert.match(objectById.get("media.domain.job-lease").identity, /\(tenantId,jobId,ownerId,fencingToken\)/);
+  assert.match(objectById.get("media.domain.job-lease").identity, /activeAttemptRef-is-a-separate-relationship/);
+  assert.deepEqual(objectById.get("media.domain.job-lease").observedIdentityForms, [
+    "Java JobLease record exposes `(tenantId, jobId, ownerId, fencingToken)`",
+    "PostgreSQL stores lease columns on the job row; the row layout is not a standalone lease identity",
+  ]);
   assert.equal(render.canonicalIdentityNamespaceRef, "media.domain.processing-job");
   assert.equal(verification.canonicalIdentityNamespaceRef, "media.domain.processing-job");
   for (const contract of [render, verification]) {
