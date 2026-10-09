@@ -447,3 +447,16 @@ definitionProjectBatch20261008:
   observerOracleProviderAdmissions: 0
   phaseAcceptance: NOT_CLAIMED
   evidenceReport: docs/implementation/media-product-definition-project-batch-2026-10-08.json
+
+definitionCaptionContinuation20261008:
+  scope: PDP-0 through PDP-3 definitions only; application implementation deferred.
+  decisionRefs: [PXD-058, PXD-059, PXD-060, PXD-061]
+  selectedJourney: J-03
+  selectedStepIds: [J03-7, J03-8]
+  existingOperationRecordsRefined: 2
+  originalOrderedStepPopulation: 130
+  obligationsAdded: 0
+  sourceCaseLinksAdded: 2
+  runtimeAdmission: NOT_ADMITTED
+  nativeLifecycleAcceptance: NOT_CLAIMED
+  evidenceReport: docs/implementation/media-product-definition-caption-batch-2026-10-08.json

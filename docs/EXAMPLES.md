@@ -50,9 +50,10 @@ full video-transcription path are not established.
   `media.action.correct-caption`, `media.action.align-caption-timing`, and
   `media.action.save-caption-version`. The PDP-1 proposal maps the first two to
   `media.operation.caption-draft-write` and separately maps save to
-  `media.operation.caption-version-write`; J-03 copies that candidate into the
-  save step's `canonicalOperationRef` and marks owner acceptance pending. The
-  comparison step still has no operation assignment.
+  `media.operation.caption-version-write`. Save and compare have bounded source
+  definitions under PXD-060; runtime admission remains `NOT_ADMITTED`. The
+  comparison action binds to `media.operation.caption-version-read`. Draft
+  editing remains proposal-only, and no runtime behavior is implied.
 - **Expected effect:** J-02 proposes an immutable artifact version becoming
   `AVAILABLE` only after verification. J-03 proposes a reviewable caption
   version linked to the exact audio source with timing, language, and provenance.
@@ -63,14 +64,16 @@ full video-transcription path are not established.
   identity for outcome checks, and require an explicit rebase/restart for stale
   source. These are proposed journey semantics, not accepted behavior.
 - **Binding gap:** J-03 still lacks per-step object/state/authority/transition
-  refs and acceptance. Its few action/operation crosswalks are proposal
-  candidates, not accepted behavior. Video transcription/audio extraction is
-  explicitly outside the selected lane.
+  refs and acceptance across the journey. The save/compare definitions are
+  bounded owner-reviewed source definitions; other action/operation
+  crosswalks remain proposal candidates, and runtime admission is not implied.
+  Video transcription/audio extraction is explicitly outside the selected lane.
 
 ## Versioned caption time edits
 
-**Family:** versioned caption time edits. **Status:** proposal; no caption editor
-runtime or accepted edit operation is evidenced.
+**Family:** versioned caption time edits. **Status:** bounded save/compare source
+definitions are owner-reviewed under PXD-060; runtime remains `NOT_ADMITTED`,
+and no caption editor runtime is evidenced.
 
 - **Trace:** [J-03](../.product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml)
   uses `screen-contracts/correct-captions.yaml` and
@@ -78,9 +81,10 @@ runtime or accepted edit operation is evidenced.
   The journey explicitly names `media.action.correct-caption` and
   `media.action.align-caption-timing` with candidate
   `media.operation.caption-draft-write` for draft edits. PDP-1 separately maps
-  `media.action.save-caption-version` to `media.operation.caption-version-write`,
-  which J-03 records as a proposal candidate with owner acceptance pending. The
-  comparison step still has no operation assignment.
+  `media.action.save-caption-version` to `media.operation.caption-version-write`;
+  J-03 binds comparison to `media.operation.caption-version-read`. Save and
+  compare have bounded source definitions under PXD-060; runtime admission
+  remains `NOT_ADMITTED`. Draft editing remains proposal-only.
 - **Expected effect:** the journey-level proposal yields a reviewable caption
   version tied to the exact source, including timing and provenance; compare
   versions before treating a correction as final.
@@ -88,9 +92,11 @@ runtime or accepted edit operation is evidenced.
   correction instead of inventing exact timing. If the parent source changed,
   retain the draft as stale and require rebase/restart. If provider outcome is
   unknown, check the existing job rather than resubmitting.
-- **Binding gap:** draft-edit action/operation links remain proposal candidates;
-  J-03 has not propagated the save operation, and the comparison step has none.
-  State transition, accepted versioning/finality, and owner review remain open.
+- **Binding gap:** draft-edit action/operation links remain proposal candidates.
+  The save/compare source definitions do not establish runtime behavior,
+  independent review, or phase acceptance. State transitions are not applicable
+  to immutable registration and read-only comparison; production admission
+  remains open.
 
 ## Authorized voice synthesis to approved audio
 

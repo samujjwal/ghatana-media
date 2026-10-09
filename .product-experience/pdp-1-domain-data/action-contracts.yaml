@@ -92,6 +92,13 @@ operationSliceBindings:
   media.operation-slice.inspect-project:
     actionIntentRefs: [media.action.open-project, media.action.inspect-project-creation]
     disposition: exact-project-and-current-head-revision-read-or-create-request-reconciliation; read-only-time-scoped; no-artifact-bytes-or-rights-claim; runtime-NOT_ADMITTED
+  media.operation.caption-version-write:
+    actionIntentRefs: [media.action.save-caption-version]
+    disposition: append-one-exact-source-and-parent-bound-immutable-caption-version-with-idempotent-registration-receipt; registration-is-not-review-approval-delivery-or-publication; runtime-NOT_ADMITTED
+  media.operation.caption-version-read:
+    actionIntentRefs: [media.action.compare-caption-versions]
+    reconciliationActionRefs: [media.action.save-caption-version]
+    disposition: read-only-exact-pair-comparison-or-same-scope-original-registration-receipt-observation; preserve-source-and-clock-identities; no-mutation-merge-winner-or-review-approval; runtime-NOT_ADMITTED
 bindingRules:
   - above-family-lists-are-allowed-result-shapes-not-guaranteed-result-support
   - each-HTTP-gRPC-SDK-CLI-Agent-tool-and-event-adapter-must-declare-its-actual-supported-subset

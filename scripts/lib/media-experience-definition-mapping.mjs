@@ -18,10 +18,15 @@ export function resolveExperienceDefinitionSemantics(actions, recoveryContracts)
     ['media.action.open-project', 'media.operation-slice.inspect-project'],
     ['media.action.inspect-project-creation', 'media.operation-slice.inspect-project'],
   ]);
+  const captionReviewOperations = new Map([
+    ['media.action.save-caption-version', 'media.operation.caption-version-write'],
+    ['media.action.compare-caption-versions', 'media.operation.caption-version-read'],
+  ]);
   for (const action of actions) {
     const definition = action.actionDefinitionSemantics;
     if (!definition) continue;
-    const reviewed = definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-052' || (definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-055' && definition.sourceDecisionRef === '.product-experience/decision-log.md#PXD-054' && projectReviewOperations.has(action.id) && definition.operationRef === projectReviewOperations.get(action.id));
+    const captionReviewed = definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-060' && definition.sourceDecisionRef === '.product-experience/decision-log.md#PXD-058' && definition.grammarDecisionRef === '.product-experience/decision-log.md#PXD-059' && captionReviewOperations.has(action.id) && definition.operationRef === captionReviewOperations.get(action.id);
+    const reviewed = captionReviewed || definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-052' || (definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-055' && definition.sourceDecisionRef === '.product-experience/decision-log.md#PXD-054' && projectReviewOperations.has(action.id) && definition.operationRef === projectReviewOperations.get(action.id));
     if (definition.actionRef !== action.id || definition.runtimeAdmission !== 'NOT_ADMITTED' || !reviewed) fail(`unbounded action review ${action.id}`);
     const kind = definition.reversibility?.kind;
     if (!['CONDITIONAL', 'NOT_REVERSIBLE', 'REVERSIBLE', 'UNKNOWN'].includes(kind)) fail(`missing reversibility ${action.id}`);

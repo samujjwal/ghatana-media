@@ -127,15 +127,40 @@ test('documents why current L-02 simulation links do not yet have L-03 observer/
   assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount,
     obligations.length - linkedObligationIds.size);
   assert.equal(obligations.length, 347, 'the authoritative denominator remains 347');
-  assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount, 309);
+  assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount, 307);
   assert.equal(candidates.l02CaseLinkReview.candidateRouteCount, 0);
   assert.equal(candidates.l02CaseLinkReview.status, 'NO_CASE_SPECIFIC_OBSERVER_OR_ORACLE_CANDIDATE_IDENTIFIED');
   assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_347');
-  assert.ok(candidates.l02CaseLinkReview.missingSemantics[0].includes('The linked declarations'));
-  assert.ok(candidates.l02CaseLinkReview.missingSemantics[1].includes('the linked simulation assertions'));
+  assert.ok(candidates.l02CaseLinkReview.missingSemantics[0].includes('linked declarations'));
+  assert.ok(candidates.l02CaseLinkReview.missingSemantics[1].includes('linked simulation'));
+  const missingSemantics = candidates.l02CaseLinkReview.missingSemantics.join(' ');
+  assert.match(missingSemantics, /source-only caption-version definition assertions/u);
+  assert.match(missingSemantics, /tests\/media-caption-version-operation-definitions\.test\.mjs/u);
+  assert.match(missingSemantics, /do not establish an L-03 oracle or native proof route/u);
+  const captionLinks = links.candidateLinks.filter(({ testIdentity }) =>
+    testIdentity.sourcePath === 'tests/media-caption-version-operation-definitions.test.mjs');
+  assert.deepEqual(captionLinks.map(({ caseId, testIdentity, scope, admission }) => ({
+    caseId, testName: testIdentity.testName, scope, admission,
+  })), [
+    {
+      caseId: 'media.definition-case.caption-version.register',
+      testName: 'caption version registration definition',
+      scope: 'PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY',
+      admission: 'NOT_LIFECYCLE_ADMITTED',
+    },
+    {
+      caseId: 'media.definition-case.caption-version.compare',
+      testName: 'caption version comparison definition',
+      scope: 'PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY',
+      admission: 'NOT_LIFECYCLE_ADMITTED',
+    },
+  ]);
+  assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_347');
   assert.ok(linkedTestPaths.size > 0 && [...linkedTestPaths].every((sourcePath) =>
-    sourcePath.startsWith('libs/media-experience-simulation/tests/') || sourcePath === 'tests/media-component-definition-proof-cases.test.mjs'),
-  'the reviewed links are exact simulation or parameterized definition-case sources');
+    sourcePath.startsWith('libs/media-experience-simulation/tests/')
+      || sourcePath === 'tests/media-component-definition-proof-cases.test.mjs'
+      || sourcePath === 'tests/media-caption-version-operation-definitions.test.mjs'),
+  'the reviewed links are exact simulation or parameterized/source-definition case sources');
   assert.ok([...linkedTestPaths].every((testPath) => !producerScopes.some((scope) =>
     testPath === scope || testPath.startsWith(`${scope.replace(/\/$/u, '')}/`))),
   'no registered producer unit scope may be inferred for a simulation test');
@@ -143,6 +168,8 @@ test('documents why current L-02 simulation links do not yet have L-03 observer/
     'no registered criterion may be inferred from test assertion literals alone');
   assert.ok(candidates.routes.every((route) => route.obligationIds.every((id) => !linkedObligationIds.has(id))),
     'existing runtime routes must not be repurposed for unrelated L-02 obligations');
+  assert.ok(candidates.routes.every((route) => !captionLinks.some(({ obligationId }) => route.obligationIds.includes(obligationId))),
+    'source-only caption definition cases do not invent an L-03 native route');
 });
 
 test('rejects empty, missing, stale-source, or unreviewed candidate route records', () => {

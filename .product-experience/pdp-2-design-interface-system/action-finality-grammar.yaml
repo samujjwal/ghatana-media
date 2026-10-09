@@ -158,6 +158,84 @@ boundedProjectSetupSlice:
       status: no-current-registered-tool-identity-claimed
   runtimeAdmission: NOT_ADMITTED
   phaseAdmission: pending-independent-PDP2-review
+boundedCaptionVersionSlice:
+  status: bounded-definition-grammar-under-PXD-059; independent-PDP-review-and-runtime-admission-open
+  decisionRef: .product-experience/decision-log.md#PXD-059
+  journeyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03
+  journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#journeyId
+  scope: register-an-immutable-caption-version-and-compare-two-exact-caption-versions; no-review-approval-or-publication
+  domainRefs: [media.domain.caption-version, media.domain.artifact-version, media.domain.transcription]
+  authorityRefs:
+    identity: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    rightsAndConsent: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+    deploymentQualification: NOT_ADMITTED
+  operations:
+    registerCaptionVersion:
+      operationRef: media.operation.caption-version-write
+      actionRef: media.action.save-caption-version
+      trustedContextFields: [tenantId, principalId]
+      requiredFields: [sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, sourceClockId, ticksPerSecond, sourceDurationTicks, languageDisposition, captionSegments, requestId]
+      optionalFields: [languageTag, purpose]
+      segmentFields: [segmentId, text, startTick, endTick, origin]
+      optionalSegmentFields: [speakerLabel]
+      parentRefKinds: [TRANSCRIPT_VERSION, CAPTION_VERSION]
+      languageDispositionValues: [NOT_SELECTED, DECLARED_BY_USER, UNCERTAIN]
+      segmentOriginValues: [RECOGNIZED, USER_EDITED]
+      exactPayloadBinding: tenantId-principalId-requestId-bound-to-the-exact-canonical-fingerprint-of-source-parent-clock-duration-language-disposition-ordered-segments-origin-purpose-and-optional-speaker-label
+      confirmation: before-registration-show-the-exact-source-version-parent-caption-content-and-source-clock-timing-basis-and-require-explicit-user-confirmation
+      authorization: trusted-current-tenant-and-principal-plus-current-caption-write-policy-consent-and-source-rights-at-the-effect-boundary; actor-role-labels-grant-no-authority
+      immutableEffect: create-a-distinct-immutable-caption-version-linked-to-the-exact-source-artifact-version-and-parent; never-overwrite-parent
+      successReceiptFields: [captionVersionId, registrationReceiptId, requestFingerprint, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, languageDisposition, sourceClockId, registeredAt]
+      finality: durable-caption-version-registration-only; does-not-approve-review-deliver-publish-or-grant-rights
+      sameRequest: exact-same-scope-requestId-and-payload-fingerprint-reconciles-to-the-original-receipt-on-commit; only-a-proven-no-commit-allows-that-same-request-to-proceed-once
+      conflict: same-requestId-with-different-payload-or-stale-source-or-parent-must-fail-without-overwrite
+      unknownOutcome: stop-and-preserve-the-same-requestId-and-payload-fingerprint; exact-same-request-may-reconcile-only-through-the-canonical-durable-idempotency-contract; if-commit-or-noncommit-cannot-be-proven-remain-UNKNOWN_OUTCOME; never-create-a-new-key-or-blindly-resubmit
+      timing: integer-startTick-and-endTick-on-sourceClockId-with-ticksPerSecond-and-sourceDurationTicks; require-startTick>=0-endTick>startTick-and-endTick<=sourceDurationTicks; preserve-submitted-order-and-text-exactly; no-unit-conversion-or-accuracy-claim
+      prohibited: [mutate-parent-version, infer-review-approval-from-registration, infer-publication-or-delivery, infer-rights-from-editor-role, retry-with-new-requestId-after-unknown]
+      problemCodes: [INVALID_REQUEST, ACCESS_DENIED, VERSION_REGISTRATION_NOT_ALLOWED, SOURCE_NOT_READY, CAPTION_DRAFT_EMPTY, CAPTION_ALIGNMENT_REQUIRED, CAPTION_VERSION_CONFLICT, IDEMPOTENCY_CONFLICT, UNAVAILABLE, UNKNOWN_OUTCOME]
+    compareCaptionVersions:
+      operationRef: media.operation.caption-version-read
+      actionRef: media.action.compare-caption-versions
+      selectorKind: EXACT_PAIR
+      requestFields: [leftCaptionVersionId, rightCaptionVersionId]
+      trustedContextFields: [tenantId, principalId]
+      comparisonBounds: exact-distinct-readable-version-pair; claim-comparable-differences-only-when-both-resolve-to-the-same-exact-sourceArtifactId-sourceArtifactVersionId-and-sourceClock
+      resultFields: [leftCaptionVersionRef, rightCaptionVersionRef, comparability, sourceIdentityComparison, languageComparison, segmentDifferences, observedAt]
+      authorization: trusted-current-tenant-and-principal-plus-current-read-policy-for-both-exact-versions
+      finality: read-only-observation; no-merge-no-winning-version-no-review-approval-no-rights-grant
+      mismatch: CAPTION_VERSIONS_NOT_COMPARABLE; preserve-both-identities-and-do-not-normalize-away-source-or-clock-mismatch
+      unknownOutcome: timeout-or-read-failure-is-UNAVAILABLE; no-domain-mutation-or-write-finality-is-implied
+      prohibited: [mutate-either-version, infer-approval-from-comparison, infer-current-rights-from-comparison, select-a-winner]
+      problemCodes: [INVALID_REQUEST, ACCESS_DENIED, CAPTION_VERSION_NOT_FOUND_IN_CALLER_SCOPE, CAPTION_VERSIONS_NOT_COMPARABLE, UNAVAILABLE, UNKNOWN_OUTCOME]
+    registrationReceiptReconciliation:
+      operationRef: media.operation.caption-version-read
+      actionRef: media.action.save-caption-version
+      selectorKind: REGISTRATION_REQUEST
+      requestFields: [requestId, requestFingerprint]
+      trustedContextFields: [tenantId, principalId]
+      scope: same-original-trusted-tenant-and-principal-as-write; exact-full-requestFingerprint-required
+      requiredResultFields: [requestId, requestFingerprint, registrationOutcome, observedAt]
+      registrationOutcomeValues: [REGISTERED, DEFINITIVE_NO_COMMIT]
+      registeredFields: [captionVersionId, registrationReceiptId, originalSourceArtifactId, originalSourceArtifactVersionId, originalParentVersionKind, originalParentVersionId, originalSourceClockId, originalTicksPerSecond]
+      definitiveNoCommitFields: [authoritativeNoCommitEvidenceRef, evidenceObservedAt]
+      registeredOutcomeRequires: all-registeredFields-and-original-receipt-for-exact-same-requestFingerprint
+      noCommitOutcomeRequires: all-definitiveNoCommitFields
+      absentOrUnknown: absent-expired-or-unavailable-receipt-evidence-remains-UNKNOWN_OUTCOME; only-authoritative-proof-may-distinguish-registered-from-definitive-no-commit; never-infers-no-effect-or-authorizes-blind-replay-or-new-requestId
+      prohibited: [mutate-version, replay-write, infer-global-absence, infer-approval]
+      problemCodes: [INVALID_REQUEST, ACCESS_DENIED, CAPTION_VERSION_NOT_FOUND_IN_CALLER_SCOPE, CAPTION_VERSIONS_NOT_COMPARABLE, UNAVAILABLE, UNKNOWN_OUTCOME]
+  observedChannels:
+    web:
+      source: libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+      actions: [media.action.save-caption-version, media.action.compare-caption-versions]
+      disposition: observed-local-action-dispatch; this-grammar-does-not-claim-host-or-runtime-admission
+    syntheticFixtureCli:
+      source: libs/media-experience-simulation/src/cli.ts
+      commands: [media.cli.caption.save-version, media.cli.caption.compare-versions]
+      disposition: fixture-only; no-production-cli-equivalence-or-authority-claim
+    httpSdkGrpcAgentToolEvents:
+      disposition: no-existing-matching-method-or-accepted-binding-claimed
+  runtimeAdmission: NOT_ADMITTED
+  phaseAdmission: pending-independent-PDP2-review
 outcomes:
   - id: media.action-outcome.applied
     label: Request recorded

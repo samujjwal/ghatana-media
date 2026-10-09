@@ -420,32 +420,69 @@ operations:
     operationId: media.operation.caption-version-write
     family: [save-caption-version]
     domainIntent: register-a-new-immutable-caption-artifact-version-with-exact-parent-and-operation-provenance
-    consumerActor: {proposal: authorized-caption-editor, bindingStatus: derived-from-media.action.save-caption-version; authority-review-pending}
-    authority: {semanticOwner: media, commit-identity-rights-and-retention-authority: unresolved}
-    context: {status: unresolved; tenant, editor, current parent version, rights, and retention context need binding}
-    preconditions: {status: proposal; validated draft, current parent, and current commit authority required}
-    inputSemantics: {proposal: valid-caption-draft-current-parent-and-commit-context, status: proposal-pending-owner-review}
-    effect: {proposal: register-a-new-immutable-caption-version; never-mutate-the-parent, status: proposal-pending-owner-review}
-    outputSemantics: {proposal: new-caption-version-identity-and-explicit-registration-finality, status: unresolved}
-    authorization: unresolved; current commit, rights, and retention authority are not bound
-    error: unresolved; conflict, denial, and uncertain registration results need a canonical contract
+    consumerActor: {permittedActorRefs: [media.creator, media.editor], authoritySource: current-trusted-principal-and-policy-decision, bindingStatus: action-identity-source-observed; deployed-identity-binding-unqualified}
+    authority: {semanticOwner: media, identity-and-delegation: Shared-or-identity-owner-contract, current-project-and-derived-version-policy: Media, rights-and-retention-mechanics: respective-policy-and-storage-owners; deployed-bindings-unqualified}
+    context:
+      trustedIdentityFields: [tenantId, principalId]
+      sourceIdentityFields: [sourceArtifactId, sourceArtifactVersionId]
+      parentIdentityFields: [parentVersionKind, parentVersionId]
+      policyInputs: [currentDerivedVersionAuthority, currentRightsAndRetentionDecision]
+    preconditions: [current-principal-and-tenant-from-trusted-host, current-source-read-and-derived-version-registration-authority, source-artifact-version-and-its-clock-metadata-are-authoritatively-resolved-and-available-in-caller-scope, exact-parent-version-is-current-for-the-draft-and-matches-the-same-tenant-source-artifact-source-version-and-source-clock, consent-rights-and-retention-policy-rechecked-at-registration-boundary, nonempty-caption-segment-list, each-segment-has-valid-source-tick-range, language-tag-and-language-disposition-preserved-without-confidence-inference]
+    canonicalParentRequirement: TRANSCRIPT_VERSION-requires-authoritative-canonical-transcript-version-identity-with-sourceArtifactId-sourceArtifactVersionId-sourceClockId-and-ticksPerSecond; legacy-media.domain.transcription-UUID-and-synthetic-fixture-parentVersionId-are-not-equivalent; missing-or-unavailable-canonical-parent-metadata-blocks-registration; CAPTION_VERSION-parent-requires-current-exact-captionVersionId-in-same-source-scope
+    inputSemantics:
+      requiredFields: [sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, sourceClockId, ticksPerSecond, sourceDurationTicks, languageDisposition, captionSegments, requestId]
+      optionalFields: [languageTag, purpose]
+      trustedHostFields: [tenantId, principalId]
+      parentVersionKindValues: [TRANSCRIPT_VERSION, CAPTION_VERSION]
+      segmentFields: [segmentId, text, startTick, endTick, origin]
+      optionalSegmentFields: [speakerLabel]
+      segmentOriginValues: [RECOGNIZED, USER_EDITED]
+      languageDispositionValues: [NOT_SELECTED, DECLARED_BY_USER, UNCERTAIN]
+      purpose: optional-display-label; if-present-trimmed-before-fingerprint-and-storage-and-limited-to-240-Unicode-scalar-values-as-a-Media-owner-bound-consistent-with-the-synthetic-CLI-fixture-limit; omission-and-present-empty-after-trimming-are-invalid-distinct-input-states; never-an-approval-or-authority-token
+      ticks: ticksPerSecond-is-a-positive-safe-integer; sourceDurationTicks,startTick,and-endTick-are-nonnegative-safe-integer-values-with-endTick>startTick-and-endTick<=sourceDurationTicks; require-authoritative-clockId-and-ticksPerSecond-for-the-exact-sourceArtifactVersion; preserve-source-clock-ticks-exactly; no-rescaling-or-wall-clock-conversion; these-structural-rules-do-not-qualify-scientific-alignment-accuracy
+      segmentSequence: preserve-submitted-order; segmentIds-unique-within-this-version; preserve-text-and-origin-exactly; no-automatic-text-normalization-or-timing-sort
+      requestId: required-1-to-128-ASCII-character-opaque-key-matching-A-Za-z0-9-dot-underscore-tilde-hyphen; scoped-by-tenantId-and-principalId
+    effect: append-one-new-immutable-caption-version-linked-to-the-exact-source-and-typed-parent; never-mutate-source-transcript-or-existing-caption-versions
+    outputSemantics:
+      successFields: [captionVersionId, registrationReceiptId, requestFingerprint, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, languageDisposition, sourceClockId, registeredAt]
+      finality: only-authoritative-durable-registration-receipt-establishes-that-the-version-was-registered
+      review: registration-does-not-approve-or-accept-the-caption-content
+      registrationReceiptRetention: retain-authoritative-reconciliation-evidence-for-the-immutable-caption-version-lifetime; expired-or-unavailable-evidence-is-not-proof-of-no-commit
+    authorization: unresolved; deployed identity, policy, rights, and retention provider bindings are not established
+    authorizationSemantics: trusted tenant/principal plus a current source-scoped derived-version decision and current rights/retention checks are required before registration; creator/editor role labels alone grant no authority
+    error: [INVALID_REQUEST, ACCESS_DENIED, VERSION_REGISTRATION_NOT_ALLOWED, SOURCE_NOT_READY, CAPTION_DRAFT_EMPTY, CAPTION_ALIGNMENT_REQUIRED, CAPTION_VERSION_CONFLICT, IDEMPOTENCY_CONFLICT, UNAVAILABLE, UNKNOWN_OUTCOME]
     finality: internal-version-registration-does-not-imply-delivery-or-publication
-    version: creates-a-distinct-immutable-caption-version; exact identity authority unresolved
+    version: captionVersionId-is-an-opaque-stable-identity-scoped-to-tenant-and-exact-source-artifact-version; two-versions-with-identical-bytes-or-text-remain-distinct-identities
     transport: unresolved; no HTTP, SDK, CLI, or gRPC binding is accepted here
-    idempotency: unresolved; write key scope, deduplication and retention are not established
-    cancellation: unresolved; cancellation cannot reverse a committed version
-    affectedObjects: {proposalRefs: [media.domain.artifact-version, media.domain.transcription], exactBindings: unresolved}
-    transition: {status: unresolved; version registration and downstream delivery are separate}
+    idempotency: fingerprint-is-deterministically-computed-from-the-validated-request-before-dispatch-and-covers-tenantId-principalId,sourceArtifactId,sourceArtifactVersionId,typed-parent,sourceClockId,ticksPerSecond,sourceDurationTicks,language-field-presence-and-values,ordered-segment-fields-and-values,origin,purpose-presence-and-normalized-value; preserve-optional-field-presence-and-all-text-and-timing-values-exactly; key-scope-tenantId-principalId-requestId; same-key-same-fingerprint-returns-original-captionVersionId-and-registrationReceiptId-without-a-second-version; same-key-different-fingerprint-is-IDEMPOTENCY_CONFLICT; retain-receipt-for-caption-version-lifetime
+    requestFingerprintDefinition:
+      versionTag: media.caption-registration-request.v1
+      algorithm: SHA-256
+      digestRepresentation: exactly 64 lowercase hexadecimal characters, no prefix or whitespace
+      encoding: UTF-8 bytes of compact JSON array in the declared tuple order; no whitespace outside strings; safe integers use base-10 JSON number form; strings preserve validated Unicode scalar values without normalization
+      tupleFields: [versionTag, tenantId, principalId, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, sourceClockId, ticksPerSecond, sourceDurationTicks, languageDisposition, languageTagPresence, languageTagValue, orderedCaptionSegments, purposePresence, purposeValue]
+      segmentTupleFields: [segmentId, text, startTick, endTick, origin, speakerLabelPresence, speakerLabelValue]
+      stringEncoding: emit valid non-control Unicode scalars directly as UTF-8; escape quotation mark and backslash; use JSON short escapes for backspace, formfeed, newline, carriage return and tab; other U+0000-through-U+001F controls use lowercase hexadecimal Unicode escapes; do not escape slash; reject unpaired surrogates
+      optionalEncoding: absent optional fields encode false then null; present fields encode true then their exact validated value, including empty strings; preserve segment order
+      retainedBeforeDispatch: caller retains the validated snapshot, requestId and computed fingerprint before dispatch; an unseen server-issued fingerprint is not required to reconcile an uncertain request
+      comparison: issuer recomputes the same digest over the validated authoritative-context snapshot; original trusted tenant/principal must match; retain the original snapshot for mismatch diagnosis and never treat a digest as authorization
+      qualification: selected definition recipe only; no runtime, security review or scientific qualification is inferred
+    cancellation: before-dispatch-local-draft-discard-only; after-dispatch-that-may-have-crossed-registration-preserve-UNKNOWN_OUTCOME-and-reconcile-with-same-requestId; after-registration-the-immutable-version-cannot-be-cancelled-or-reversed
+    affectedObjects: {exactBindings: [media.domain.caption-version], referencedObjects: [media.domain.artifact-version, media.domain.transcription], byteMutation: none}
+    transition:
+      applicability: not-a-domain-state-transition
+      registration: append-only-caption-version-record
+      transitionRefs: []
     events: {status: unresolved; no version-created event producer contract bound}
     risk: {status: unresolved; retention, provenance, rights, and commit risks require review}
-    reversibility: {proposal: committed-version-is-immutable; later correction-creates-a-new-version, status: pending-owner-review}
-    commitFinality: {proposal: explicit-registration-finality; no-publication-or-delivery, status: pending-owner-review}
+    reversibility: committed-version-is-immutable; later-correction-creates-a-new-version
+    commitFinality: registrationReceiptId-is-the-durable-caption-registration-receipt-only; no-review-approval-delivery-or-publication
     downstreamEffects: {status: unresolved; consumers and indexes not bound}
-    failure: {status: unresolved; preserve uncertain registration outcome for reconciliation}
-    partialSuccess: {status: unresolved; metadata and version persistence effects need contract}
-    unknownOutcome: {proposal: inspect-current-version-lineage-before-retry, status: pending-review}
-    retry: {status: unresolved; no write idempotency or duplicate prevention inferred}
-    recovery: {proposal: inspect-version-identity-and-parent-lineage-before-resubmission, status: pending-review}
+    failure: preserve-draft; classify-definitive-denial-conflict-and-unknown-separately
+    partialSuccess: no-success-without-atomic-version-and-receipt-commit; if-commit-boundary-may-have-been-crossed-return-UNKNOWN_OUTCOME
+    unknownOutcome: reconcile-before-any-command-replay-using-the-same-tenant-principal-requestId-and-caller-computed-identical-full-requestFingerprint; return-the-original-receipt-if-present; scoped-absence-expiry-or-unavailability-never-proves-no-commit; only-authoritative-durable-terminal-rejection-or-no-effect-receipt-that-excludes-in-flight-or-future-commit-may-establish-DEFINITIVE_NO_COMMIT; otherwise-remain-UNKNOWN_OUTCOME
+    retry: only-after-reconciliation-proves-DEFINITIVE_NO_COMMIT-may-an-explicit-attempt-reuse-the-same-key-and-fingerprint-after-fresh-policy-checks; never-automatic-retry-or-new-key-after-ambiguous-registration
+    recovery: preserve-draft-and-parent; resolve-original-request-receipt-before-any-new-registration
     evidenceAudit: {observedRefs: [media.action.save-caption-version], canonicalEvidenceContract: unresolved}
     nextSafeAction: {proposal: inspect-new-version-identity-and-registration-finality, status: pending-review}
     actionRefs: [media.action.save-caption-version]
@@ -473,37 +510,64 @@ operations:
       SDK: {value: null, status: no-dedicated-source-method; remains-unresolved}
       HTTP: unresolved
       gRPC: unresolved
-    scopeStatus: proposal-only; immutable-version-write-contract-pending-owner-review
+    ownerDefinitionRef: .product-experience/decision-log.md#PXD-058
+    scopeStatus: proposal-only; bounded-owner-semantics-under-PXD-058; runtime-NOT_ADMITTED; transport-and-independent-PDP1-review-pending
   - id: media.operation.caption-version-read
     operationId: media.operation.caption-version-read
     family: [compare-caption-versions]
-    domainIntent: compare-two-exact-caption-version-identities-without-mutating-either
-    consumerActor: {proposal: caption-reviewer, bindingStatus: derived-from-media.action.compare-caption-versions; actor-review-pending}
-    authority: {semanticOwner: media, read-identity-and-authorization-authority: unresolved}
-    context: {status: unresolved; tenant, reviewer, compared versions, and source identity need binding}
-    preconditions: {status: proposal; two exact readable caption versions required}
-    inputSemantics: {proposal: two-readable-caption-version-identities, status: proposal-pending-owner-review}
-    effect: {proposal: read-only-text-timing-provenance-and-source-version-comparison, status: proposal-pending-owner-review}
-    outputSemantics: {proposal: exact-version-pair-and-explicitly-scoped-differences, status: unresolved}
-    authorization: unresolved; exact read authority is not bound
-    error: unresolved; inaccessible, mismatched-source, and incomplete-comparison outcomes remain distinct
+    domainIntent: read-only-exact-caption-version-comparison-or-same-scope-registration-receipt-observation
+    consumerActor: {permittedActorRefs: [media.creator, media.editor, media.reviewer], authoritySource: current-trusted-principal-and-policy-decision, bindingStatus: action-identity-source-observed; deployed-identity-binding-unqualified}
+    authority: {semanticOwner: media, trustedIdentityAndDelegationOwner: Shared-or-identity-owner-contract, currentCaptionVersionReadPolicyOwner: Media, deployedProviderBindings: unqualified}
+    context:
+      trustedIdentityFields: [tenantId, principalId]
+      selectorIdentityFields:
+        EXACT_PAIR: [leftCaptionVersionId, rightCaptionVersionId]
+        REGISTRATION_REQUEST: [requestId, requestFingerprint]
+      requiredPolicyBySelector:
+        EXACT_PAIR: currentReadAuthorityForBoth
+        REGISTRATION_REQUEST: currentReadAuthorityForOriginalRequestScope
+    preconditions: [current-trusted-principal-and-tenant, selector-is-exactly-one-defined-branch, current-source-scoped-read-authority, EXACT_PAIR-resolves-both-distinct-captionVersionIds-and-authoritative-parent-source-clock-metadata-in-caller-scope, REGISTRATION_REQUEST-is-bound-to-original-tenant-principal-requestId-and-full-requestFingerprint, exact-source-artifact-version-and-clock-checked-before-claiming-a-comparable-diff]
+    inputSemantics:
+      selectorKindValues: [EXACT_PAIR, REGISTRATION_REQUEST]
+      trustedHostFields: [tenantId, principalId]
+      selectorBranches:
+        EXACT_PAIR: {requiredFields: [leftCaptionVersionId, rightCaptionVersionId], rule: distinct-exact-captionVersionIds-only; no-global-list-or-latest-alias}
+        REGISTRATION_REQUEST: {requiredFields: [requestId, requestFingerprint], requestId: same-bounded-opaque-key-domain-as-caption-version-write, requestFingerprint: full-original-canonical-request-fingerprint, scope: original-trusted-tenant-and-principal, rule: receipt-observation-only; no-write-or-replay}
+    effect: read-only-exact-pair-comparison-or-same-scope-original-registration-receipt-observation; neither-version-is-mutated-or-selected-as-winner
+    outputSemantics:
+      EXACT_PAIR: {requiredFields: [leftCaptionVersionRef, rightCaptionVersionRef, comparability, sourceIdentityComparison, languageComparison, segmentDifferences, observedAt], preservesExactPair: true, mismatch: CAPTION_VERSIONS_NOT_COMPARABLE-with-both-identities-preserved-and-no-aligned-diff}
+      REGISTRATION_REQUEST:
+        requiredFields: [requestId, requestFingerprint, registrationOutcome, observedAt]
+        registeredFields: [captionVersionId, registrationReceiptId, originalSourceArtifactId, originalSourceArtifactVersionId, originalParentVersionKind, originalParentVersionId, originalSourceClockId, originalTicksPerSecond]
+        definitiveNoCommitFields: [authoritativeNoCommitEvidenceRef, evidenceObservedAt]
+        registrationOutcomeValues: [REGISTERED, DEFINITIVE_NO_COMMIT]
+        registeredOutcomeRequires: all-registeredFields-and-original-receipt-for-exact-same-request-fingerprint
+        noCommitOutcomeRequires: all-definitiveNoCommitFields
+        returnsOriginalReceiptAndImmutableVersionOnly: true
+      registrationRequestRules: requestId-and-full-fingerprint-must-match-the-original-request-in-this-trusted-tenant-and-principal; never-return-a-later-head-as-the-original-result; only-authoritative-proof-may-distinguish-registered-from-definitive-no-commit; absent-expired-or-unavailable-evidence-remains-UNKNOWN_OUTCOME-and-never-authorizes-blind-replay-or-a-new-key
+    authorization: unresolved; deployed identity, policy, and resource-provider bindings are not established
+    authorizationSemantics: exact-pair-comparison-requires-current-read-authority-for-both-versions; registration-request-observation-requires-current-scope-authority-for-original-request; caller-supplied-tenant-or-principal-values-are-not-trusted-identity
+    error: [INVALID_REQUEST, ACCESS_DENIED, CAPTION_VERSION_NOT_FOUND_IN_CALLER_SCOPE, CAPTION_VERSIONS_NOT_COMPARABLE, UNAVAILABLE, UNKNOWN_OUTCOME]
     finality: read-only; comparison-does-not-merge-or-select-a-winning-version
-    version: requires-two-distinct-exact-caption-version-identities; canonical identity unresolved
+    version: EXACT_PAIR-requires-two-distinct-opaque-captionVersionIds-in-current-tenant-and-principal-scope; REGISTRATION_REQUEST-preserves-original-requestId-and-full-requestFingerprint-with-original-immutable-version-only-if-registration-is-proven; IDs-are-not-text-digests-or-latest-version-aliases
     transport: unresolved; no HTTP, SDK, CLI, or gRPC binding is accepted here
     idempotency: read-only-proposal; no transport guarantee inferred
-    cancellation: not-applicable-to-read-proposal
-    affectedObjects: {proposalRefs: [media.domain.artifact-version], exactBindings: unresolved}
-    transition: {status: read-only; no domain transition proposed}
+    cancellation: caller-may-stop-waiting-for-this-read-only-observation; no-registration-is-cancelled-or-reversed-by-this-read; write-after-dispatch-uncertainty-remains-UNKNOWN_OUTCOME-under-the-write-contract
+    affectedObjects: {exactBindings: [media.domain.caption-version], referencedObjects: [media.domain.artifact-version], byteMutation: none}
+    transition:
+      applicability: no-domain-transition
+      effect: read-only
+      transitionRefs: []
     events: {status: no-event-binding-established}
-    risk: {status: unresolved; source/version mismatch and access scope require review}
-    reversibility: {proposal: read-only, status: pending-owner-review}
-    commitFinality: {proposal: comparison-does-not-merge-or-select-a-winning-version, status: pending-owner-review}
+    risk: protect-current-tenant-principal-read-scope; do-not-compare-different-source-artifact-versions-or-clocks-as-if-equivalent
+    reversibility: read-only
+    commitFinality: comparison-does-not-merge-select-a-winning-version-or-approve-caption-content
     downstreamEffects: {status: no-version-mutation-proposed}
-    failure: {status: unresolved; inaccessible, mismatched, and incomplete comparisons remain distinct}
-    partialSuccess: {status: unresolved; field-level comparison completeness needs contract}
-    unknownOutcome: {status: unresolved; timeout does not establish comparison absence}
-    retry: {status: source-specific; no common read retry guarantee inferred}
-    recovery: {proposal: verify-both-exact-version-identities-and-current-read-authority, status: pending-review}
+    failure: inaccessible-version-is-scope-safe-not-found; source-or-clock-mismatch-is-CAPTION_VERSIONS_NOT_COMPARABLE; preserve-explicit-incomplete-fields
+    partialSuccess: field-level-comparison-completeness-is-reported; unavailable-fields-are-not-equal-fields
+    unknownOutcome: REGISTRATION_REQUEST-with-absent-expired-or-unavailable-receipt-evidence-is-UNKNOWN_OUTCOME; it-never-authorizes-blind-replay-or-a-new-request-key; ordinary-pair-read-timeout-is-UNAVAILABLE; no-mutation-or-write-finality-is-implied
+    retry: bounded-read-reobservation-only-under-current-authority
+    recovery: EXACT_PAIR-revalidates-both-exact-version-identities-and-current-read-authority-and-discloses-source-mismatch-without-diffing-as-comparable; REGISTRATION_REQUEST-reobserves-only-original-trusted-tenant-principal-requestId-and-full-requestFingerprint-under-current-read-authority-for-original-request-scope; missing-or-unavailable-proof-preserves-UNKNOWN_OUTCOME-and-never-authorizes-replay
     evidenceAudit: {observedRefs: [media.action.compare-caption-versions], canonicalEvidenceContract: unresolved}
     nextSafeAction: {proposal: review-differences-with-both-version-identities-visible, status: pending-review}
     actionRefs: [media.action.compare-caption-versions]
@@ -531,7 +595,8 @@ operations:
       SDK: {value: null, status: no-dedicated-source-method; remains-unresolved}
       HTTP: unresolved
       gRPC: unresolved
-    scopeStatus: proposal-only; exact-version-read-contract-pending-owner-review
+    ownerDefinitionRef: .product-experience/decision-log.md#PXD-058
+    scopeStatus: proposal-only; bounded-owner-semantics-under-PXD-058; runtime-NOT_ADMITTED; transport-and-independent-PDP1-review-pending
   - id: media.operation.synthesis
     operationId: media.operation.synthesis
     family: [synthesize, stream-synthesis, voice-list-and-profile]

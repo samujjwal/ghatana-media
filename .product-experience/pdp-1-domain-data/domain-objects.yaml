@@ -273,9 +273,15 @@ objects:
     scopeStatus: storage-and-service-observation-only; canonical-transcript-model-pending-owner-review
     sourceRefs: [modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/TranscriptionEntity.java, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql#audio_video.transcriptions, libs/audio-video-types/src/contracts.ts#TranscriptionResult, modules/speech/stt-service/src/main/proto/stt_service.proto#Transcription]
   - id: media.domain.caption-version
-    name: CaptionVersionRecord
-    kind: observed-local-simulation-fixture-record
-    identity: fixture-versionId; canonical-key-unbound
-    lifecycle: fixture-caption-history-entry; immutable-version-and-durable-history-semantics-unbound
-    scopeStatus: local-simulation-fixture-observation-only; not-an-observed-runtime-or-persistence-record
-    sourceRefs: [libs/media-experience-simulation/src/model.ts#CaptionVersionRecord, libs/media-experience-simulation/src/fixtures.ts]
+    name: CaptionVersion
+    kind: immutable-derived-content-version
+    identity: tenantId-plus-sourceArtifactId-plus-sourceArtifactVersionId-plus-opaque-captionVersionId; identity-is-not-a-content-digest
+    lineage: exact-source-artifact-version-and-typed-parent-ref-(TRANSCRIPT_VERSION-or-CAPTION_VERSION); parent-must-belong-to-the-same-tenant-source-artifact-source-version-and-source-clock
+    canonicalParentRequirement: TRANSCRIPT_VERSION-requires-an-authoritative-canonical-transcript-version-identity-and-matching-source-clock; legacy-media.domain.transcription-UUID-and-fixture-parentVersionId-are-not-equivalent; missing-canonical-parent-or-clock-evidence-blocks-registration
+    content: ordered-caption-segments-with-exact-text-stable-segmentIds-and-origin; languageTag-and-languageDisposition-are-preserved; do-not-infer-language-confidence
+    timing: integer-startTick-and-endTick-on-recorded-sourceClockId-with-ticksPerSecond-and-sourceDurationTicks; never-convert-to-wall-clock-or-milliseconds-without-an-explicit-qualified-map
+    lifecycle: append-only-immutable-after-registration; corrections-create-a-new-captionVersionId-and-parent-link; no-mutation-of-source-transcript-or-prior-caption-version
+    registrationBoundary: registration-receipt-and-version-creation-do-not-mean-reviewed-approved-delivered-or-published
+    observedProjection: libs/media-experience-simulation/src/model.ts#CaptionVersionRecord-and-fixtures; fixture-record-uses-untyped-parentVersionId-and-sourceArtifactVersion-only
+    scopeStatus: canonical-owner-semantics-bounded-under-PXD-058; observed-fixture-shape-remains-synthetic; runtime-NOT_ADMITTED; independent-PDP1-review-open
+    sourceRefs: [libs/media-experience-simulation/src/model.ts#CaptionVersionRecord, libs/media-experience-simulation/src/model.ts#TimedTextSegment, libs/media-experience-simulation/src/model.ts#MediaSource, libs/media-experience-simulation/src/fixtures.ts, .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03]

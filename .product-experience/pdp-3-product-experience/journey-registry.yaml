@@ -205,35 +205,34 @@ coverageObservation:
       unresolved: 112
       blocker: remaining-steps-have-no-exact-step-level-action-allocation; screen-action-candidates-are-not-equivalent-to-journey-step-actions
     objectRefs:
-      empty: 122
-      blocker: 122 ordered steps still have no explicit canonical domain-object binding;
-        J-01 contributes four scoped step definitions, three with project identities,
-        while the remainder stays unresolved.
+      empty: 120
+      blocker: 120 ordered steps still have no explicit canonical domain-object binding;
+        J-01 and J-03 contribute scoped source definitions while other steps remain unresolved.
     stateRefs:
       empty: 122
       blocker: 122 ordered steps still have no explicit canonical state binding; J-01
-        contributes four scoped step definitions, three with exact project lifecycle
-        states, while the remainder stays unresolved.
+        contributes exact project lifecycle states while J-03 defines no domain
+        transition or state. Other steps remain unresolved.
     canonicalOperationRef:
-      null: 114
+      null: 111
       nonNullCandidateRefs: 19
-      acceptance: J-01 adds three exact bounded project operation references under
-        PDP-1; all remain NOT_ADMITTED and other non-null proposal references do not
+      acceptance: J-01 and J-03 add bounded owner-reviewed operation definitions;
+        both remain NOT_ADMITTED and other non-null proposal references do not
         establish operation equivalence.
       'null': 111
     authorityRef:
-      null: 125
-      blocker: 121 ordered steps still lack an explicit step-level authority reference;
-        J-01 defines four bounded authority boundaries, with runtime identity and
-        policy enforcement unqualified.
-      'null': 121
+      null: 119
+      blocker: 119 ordered steps still lack an explicit step-level authority reference;
+        J-01 and J-03 define scoped authority boundaries, with identity and policy
+        enforcement unqualified.
+      'null': 119
     transitionRef:
       null: 128
-      blocker: 'No J-01 transition was fabricated: four no-transition dispositions
-        cover external identity handoff, scoped project queries, and atomic initial
-        aggregate creation; 128 null refs remain and unrelated transitions are unresolved.'
+      blocker: 'No J-01 or J-03 transition was fabricated: no-transition dispositions
+        cover scoped queries, atomic initial aggregate creation, and immutable caption
+        version registration; 128 null refs remain and unrelated transitions are unresolved.'
       'null': 128
-      sourceDefinedNoMutationReasonCount: 7
+      sourceDefinedNoMutationReasonCount: 9
     requirementRefs:
       empty: 112
       blocker: requirement-to-step-crosswalk-remains-unresolved
@@ -241,10 +240,11 @@ coverageObservation:
       notRun: 130
       evidenceRefsPresent: 0
       accepted: 0
+      sourceDefinitionCheckedSteps: 2
     evidenceBasis: Parsed all 30 ordered journey contracts and the scenario fixture
-      registry; J-01 has four owner-defined steps linked to three exact project slices
-      and explicit no-transition dispositions, while runtime admission, independent
-      review, behavioral evidence and currentness remain pending.
+      registry; J-01 and J-03 have bounded source-defined steps linked to existing
+      operations, while runtime admission, independent review, behavioral evidence
+      and currentness remain pending.
   scenarioReferences:
     journeysWithRefs: 3
     journeysWithoutRefs: 27
@@ -270,6 +270,19 @@ j01DefinitionReviewObservation:
   optionalPostJourneyScreen: media.view.create-media
   exactProjectOperationReferences: 3
   projectStateTransitionReferences: 0
+  runtimeAdmission: NOT_ADMITTED
+  independentReview: PENDING
+  phaseAcceptance: NOT_CLAIMED
+j03DefinitionReviewObservation:
+  sourceRef: journey-contracts/transcribe-and-correct-captions.yaml#definitionReview
+  decisionRef: .product-experience/decision-log.md#PXD-060
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-058
+  grammarDecisionRef: .product-experience/decision-log.md#PXD-059
+  journeyId: J-03
+  existingStepsWithBoundedDefinition: 2
+  exactCaptionVersionOperationReferences: 2
+  sourceDefinitionCheckedSteps: 2
+  transitionReferences: 0
   runtimeAdmission: NOT_ADMITTED
   independentReview: PENDING
   phaseAcceptance: NOT_CLAIMED

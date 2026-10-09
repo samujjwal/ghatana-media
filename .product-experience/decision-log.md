@@ -973,6 +973,42 @@ constitute runtime or phase acceptance.
 
 **Limits:** Case IDs are authored identities, not proof receipts. These tests do not establish full component obligation satisfaction, rendered keyboard behavior, independent accessibility assessment, Shared package approval, registered observers/oracles/providers, native Lifecycle admission or phase closure. No component or obligation is added by this case catalog.
 
+## PXD-058 — Immutable caption registration and exact read definitions
+
+**Decision:** Accept the bounded definition semantics of the existing caption-version-write and caption-version-read operations and caption-version identity. No operation, family or obligation is added. Registration appends one immutable version and authoritative receipt with exact tenant/source/version, typed parent, source clock, ordered segment content, language disposition and current governing authority. A legacy transcription UUID or untyped fixture parent does not establish canonical transcript-version identity. Structural safe-integer ticks preserve declared source-clock units; they do not establish scientific alignment accuracy.
+
+**Request and recovery:** Select an explicitly versioned fixed-tuple compact JSON/UTF-8 SHA-256 fingerprint recipe, retaining exact validated content, optional-field presence and ordered segment tuples before dispatch. The key remains tenant/principal/request scoped. Identical replay returns the original receipt; mismatching content conflicts. Unknown registration first reconciles the same request and full fingerprint. Absent, expired or unavailable evidence never proves no effect. Only an authoritative durable terminal no-effect receipt excluding in-flight/future commit may permit an explicit same-key retry after fresh policy. The existing read has exclusive EXACT_PAIR and REGISTRATION_REQUEST selectors; request reconciliation returns the original immutable version/receipt, not a later version. Pair mismatch discloses incompatibility without rescaling or choosing a winner.
+
+**Sources and acceptance:** `pdp-1-domain-data/operations.yaml`, `domain-objects.yaml`, `action-contracts.yaml`; `scripts/lib/media-caption-version-definition-validation.mjs`; the two principal executable cases in `tests/media-caption-version-operation-definitions.test.mjs`. Their authored case identities provide partial source-definition evidence for two existing obligations only.
+
+**Limits:** Registration is not review approval, provenance export, delivery, publication or rights clearance. Fixture flags, repeated simulation saves and legacy IDs are observations, not canonical idempotency/authority. Deployed identity, policy/storage providers, transport methods, security/scientific/independent review and native Lifecycle acceptance remain unqualified. No runtime implementation is authorized.
+
+## PXD-059 — Caption registration and comparison interface grammar
+
+**Decision:** Accept exact write fields/results/errors, trusted host fields, typed parent and source-clock guards, full request fingerprint and the two exclusive read selectors. Same-request unknown-outcome reconciliation precedes mutation replay. Pair reads do not approve content, merge versions or grant rights. Registration confirmation and its durable finality are distinct from transport acknowledgment.
+
+**Sources and acceptance:** `pdp-2-design-interface-system/action-finality-grammar.yaml#boundedCaptionVersionSlice`, checked against PXD-058 contracts and J03-7/J03-8 under PXD-060; `tests/media-caption-version-interface-grammar.test.mjs`.
+
+**Limits:** Web action dispatch and synthetic fixture CLI are observed source identities only. No current HTTP, SDK, gRPC, Agent Tool or event equivalence is invented. Scientific accuracy, current policy/provider qualification, independent interface review and native phase acceptance remain separate.
+
+## PXD-060 — J-03 registration/comparison experience and capability correction
+
+**Decision:** Accept the exact definitions for the existing J03-7 registration and J03-8 comparison steps. Preserve the first six steps, selected audio scope and all global populations. Registration is irreversible within this operation and confirmed only by its authoritative receipt; comparison retains unknown reversibility and is not projected as a public undo boolean. Runtime verification remains not run; actual source contract checks are recorded separately.
+
+**Capability correction:** The save action claims output registration only. Its required internal provenance metadata is not provenance export. Propagate the central action crosswalk to each affected screen reference without accepting unrelated screen behavior. The provenance-export capability itself is not retired or accepted by this correction.
+
+**Sources and acceptance:** J-03 journey, action registry, correct-captions/compare-caption-versions screens and the additional edit-captions crosslink, experience source bindings and the recomputed journey registry; `tests/media-caption-version-experience-definitions.test.mjs`. Public effect/finality projection is restricted to the exact write action, source PXD-058 and grammar PXD-059.
+
+**Limits:** No new journey, step, action, operation, transition or runtime behavior is added. Caption creation/comparison is not an invented state transition; canonical scientific quality, full J-03 video scope, independent experience review and native Lifecycle acceptance remain open.
+
+## PXD-061 — Bounded caption capability bindings and source-case evidence
+
+**Decision:** Accept the two existing leaves' captionVersionDefinitionSlice mappings: output registration to J03-7 and caption inspection/comparison to J03-8. Preserve the earlier J-02 inspection definition separately. These mappings establish only the selected caption-domain definitions, not generic artifact wire version identity, content availability or complete leaf coverage.
+
+**Sources and acceptance:** `pdp-0-product-truth/capability-leaf-review.yaml` selected caption slices; PXD-058 canonical records and PXD-060 selected steps. Retain two authored case IDs for the existing caption operation obligations, exact principal test identities, positive contract checks and negative scope/identity/admission checks. Source links remain NOT_LIFECYCLE_ADMITTED.
+
+**Limits:** All 462 leaves, 383 unresolved applicability targets and 445 unbounded leaves remain in the original population. No new capability or Lifecycle obligation is added. Source/parent/receipt integrity and mismatch disclosure are definition criteria; scientific quality, execution location, resource and reproducibility qualification remain open. Internal provenance does not imply export, approval or publication. Generic artifact identity, runtime and independent/native acceptance remain unclaimed.
+
 ## Governance decisions for this authority root
 
 ### GOV-AUTH-001 — Use authored partial relations for traceability

@@ -179,6 +179,47 @@ j02RecoveryApplicability:
       recovery: Do not append or complete until the authoritative rights/workspace source records restored applicable permission; reconcile partial-data disposition under policy.
       automaticRecovery: false
       userActionRequired: true
+j03CaptionVersionBindings:
+  status: SOURCE_DEFINED_OWNER_ACCEPTED
+  journeyRef: J-03
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-058
+  grammarDecisionRef: .product-experience/decision-log.md#PXD-059
+  reviewDecisionRef: .product-experience/decision-log.md#PXD-060
+  runtimeAdmission: NOT_ADMITTED
+  operationSource: .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records
+  steps:
+    - stepId: J03-7
+      screenRef: media.view.correct-captions
+      actorRefs: [media.creator, media.editor]
+      actionRef: media.action.save-caption-version
+      operationRef: media.operation.caption-version-write
+      recoveryOperationRef: media.operation.caption-version-read
+      recoverySelectorKind: REGISTRATION_REQUEST
+      recoverySelectorBinding: same-trusted-tenant-and-principal-plus-original-requestId-and-full-requestFingerprint; receipt-observation-only
+      domainObjectRefs: [media.domain.caption-version, media.domain.artifact-version, media.domain.transcription]
+      stateRefs: []
+      authority: Trusted host tenant/principal and current source, parent, rights, consent, retention, and derived-version policy are required at the effect boundary; actor labels grant no authority.
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      transitionReason: Append-only immutable caption-version and receipt registration is not a domain-state transition.
+      registrationSemantics: Exact sourceArtifactId/sourceArtifactVersionId and typed parentVersionKind/parentVersionId; retain exact sourceClockId/ticksPerSecond/sourceDurationTicks, ordered captionSegments and languageDisposition. Bind requestId to a canonical full-payload requestFingerprint.
+      replayAndFinality: Same tenant/principal/requestId and identical fingerprint reconciles only to the original receipt/version. A proven no-commit permits at most one attempt with that same key; mismatch conflicts; ambiguous, absent, expired, or unavailable evidence stays UNKNOWN_OUTCOME. No automatic replay or new key.
+      effectBoundary: New immutable captionVersionId with durable registrationReceiptId; never overwrites parent. Provenance is registration metadata and does not invoke provenance export.
+      prohibitedClaims: [registration-is-approval, registration-is-publication, registration-is-delivery, editor-role-grants-rights, timing-tick-normalization-or-accuracy-qualification]
+    - stepId: J03-8
+      screenRef: media.view.compare-caption-versions
+      actorRefs: [media.creator, media.editor, media.reviewer]
+      actionRef: media.action.compare-caption-versions
+      operationRef: media.operation.caption-version-read
+      selectorKind: EXACT_PAIR
+      selectorFields: [leftCaptionVersionId, rightCaptionVersionId]
+      domainObjectRefs: [media.domain.caption-version, media.domain.artifact-version]
+      stateRefs: []
+      authority: Trusted host tenant/principal and current read policy for both exact versions; actor labels grant no authority.
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      transitionReason: Exact pair comparison is read-only; neither immutable version is changed.
+      comparisonSemantics: Preserve both identities; claim a comparable difference only when exact source artifact, source artifact version, and source clock match. Preserve field-level incompleteness and report source/clock mismatch as CAPTION_VERSIONS_NOT_COMPARABLE.
+      recovery: Reobserve only the same exact pair under current authority; no mutation or write finality exists to replay.
+      prohibitedClaims: [select-a-winner, merge-versions, approve-content, grant-rights, infer-source-clock-conversion-or-scientific-timing-accuracy]
 searchBindings:
   - searchId: media.search.authorized-projects
     searchableTypeRefs: [media.domain.project]

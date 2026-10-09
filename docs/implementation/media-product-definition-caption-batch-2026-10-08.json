@@ -1,0 +1,333 @@
+{
+  "schemaVersion": "media.product-definition-caption-batch.v1",
+  "date": "2026-10-08",
+  "baseMain": "03baa881398b0c1f0dab943af07b423bb185030a",
+  "branch": "main",
+  "scope": "Four PDP phases: definitions, validation and acceptance inputs only; application implementation deferred under latest direct user instruction",
+  "delegation": "Three Luna agents authored bounded caption operations, interface grammar, experience definitions and exact validation fixes; coordinator reviewed Media semantics and integrated source cases without runtime changes.",
+  "ownerDecisions": [
+    "PXD-058",
+    "PXD-059",
+    "PXD-060",
+    "PXD-061"
+  ],
+  "original71Tasks": {
+    "complete": 6,
+    "partial": 51,
+    "blockedExternalIndependent": 14,
+    "newlyComplete": 0,
+    "criteria": "Original IDs, titles and full Done predicates preserved; partial definition evidence is not full implementation or independent acceptance."
+  },
+  "beforeAfter": {
+    "projectionBlockers": {
+      "phaseOrder": [
+        "PDP-0",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "before": [
+        0,
+        0,
+        9
+      ],
+      "after": [
+        0,
+        0,
+        9
+      ]
+    },
+    "capabilityLeaves": [
+      462,
+      462
+    ],
+    "unresolvedCapabilityTargets": [
+      383,
+      383
+    ],
+    "unboundedCapabilityLeaves": [
+      445,
+      445
+    ],
+    "fullAcceptedCapabilityCoverage": [
+      0,
+      0
+    ],
+    "migrationOriginalObservations": [
+      349,
+      349
+    ],
+    "migrationSemanticsUnresolved": [
+      260,
+      260
+    ],
+    "interfaceIdentities": [
+      286,
+      286
+    ],
+    "interfaceUnresolved": [
+      190,
+      190
+    ],
+    "fullAcceptedInterfaceBindings": [
+      0,
+      0
+    ],
+    "historicalParityFindingsOpen": [
+      2,
+      2
+    ],
+    "designGatesOpen": [
+      2,
+      2
+    ],
+    "journeys": [
+      30,
+      30
+    ],
+    "orderedSteps": [
+      130,
+      130
+    ],
+    "screenLinkedSteps": [
+      130,
+      130
+    ],
+    "actionLinkedSteps": [
+      18,
+      18
+    ],
+    "authoredStepIds": [
+      17,
+      19
+    ],
+    "exactNonNullOperationRefs": [
+      19,
+      19
+    ],
+    "emptyObjectRefs": [
+      122,
+      120
+    ],
+    "emptyStateRefs": [
+      122,
+      122
+    ],
+    "nullAuthorityRefs": [
+      121,
+      119
+    ],
+    "sourceNoTransitionReasons": [
+      7,
+      9
+    ],
+    "projectedUnconditionalEffects": [
+      2,
+      3
+    ],
+    "projectedFinalityRecords": [
+      20,
+      21
+    ],
+    "publicRecoveryDefinitions": [
+      5,
+      5
+    ],
+    "lifecycleObligations": [
+      347,
+      347
+    ],
+    "obligationsWithCaseIds": [
+      93,
+      95
+    ],
+    "obligationsWithoutCaseIds": [
+      254,
+      252
+    ],
+    "sourceCaseCandidateLinks": [
+      59,
+      61
+    ],
+    "sourceCaseLinkedObligations": [
+      38,
+      40
+    ],
+    "unmappedSourceCaseObligations": [
+      309,
+      307
+    ],
+    "observerAssignments": [
+      0,
+      0
+    ],
+    "oracleAssignments": [
+      0,
+      0
+    ],
+    "providerBindings": [
+      0,
+      0
+    ],
+    "boundNativePhaseReceipts": [
+      0,
+      0
+    ]
+  },
+  "populationJustification": {
+    "newOperationSlices": [],
+    "newObligations": 0,
+    "sourceIdentity": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03",
+    "reason": "Refines existing caption-version-write/read records and J03 steps7/8; no optional capability, operation, journey, step, action or proof obligation added.",
+    "acceptanceTests": [
+      "tests/media-caption-version-operation-definitions.test.mjs",
+      "tests/media-caption-version-interface-grammar.test.mjs",
+      "tests/media-caption-version-experience-definitions.test.mjs",
+      "tests/media-caption-capability-definition.test.mjs"
+    ],
+    "proofRoute": "Two actual source contract assertions link existing obligations; native provider/observer/oracle and independent acceptance remain outstanding."
+  },
+  "verification": {
+    "initialIntegration": {
+      "tests": 442,
+      "pass": 434,
+      "fail": 8,
+      "reason": "Three stale assertions, two example assertions and three checks overlapping in-flight metadata edits; sources then frozen and corrections rerun."
+    },
+    "fullNode": {
+      "command": "node --test tests/*.test.mjs",
+      "tests": 442,
+      "pass": 442,
+      "fail": 0,
+      "skip": 0,
+      "log": "/tmp/media-execution/definition-caption-node-final2.log"
+    },
+    "publicSchemasAndValidators": "All three candidates VALID/PASS",
+    "sourceChecks": "Authority, local structure, Lifecycle input validation and347-obligation audit PASS",
+    "design": "NON-GREEN: two external/independent gates",
+    "parity": "NON-GREEN: two full semantic findings",
+    "gitDiffCheck": "PASS",
+    "strictProjectionChecks": {
+      "command": "node scripts/generate-media-phase-projections.mjs --check --strict",
+      "result": "PASS",
+      "runs": 2
+    },
+    "lifecycleSourceInputDriftCheck": "PASS",
+    "residualDiagnostics": [],
+    "finalSemanticRepair": "Coordinator restored all unrelated operation records to parsed base, then made read authority/version/recovery selector-specific; a negative regression rejects pair authority applied to receipt reconciliation."
+  },
+  "dependencies": {
+    "Tools": "0.1.0-rc.1",
+    "Lifecycle": "0.1.0-rc.1",
+    "Shared": "0.1.0-SNAPSHOT",
+    "DocumentIntelligence": "0.1.0",
+    "AIInference": "1.1.0",
+    "DataCloud": "1.2.1",
+    "ActionPlane": "1.2.0",
+    "EventPlane": "1.3.0",
+    "NetworkNT": "3.0.6"
+  },
+  "dependencyBoundary": "Source/development observations unchanged; no new immutable distribution or external approval claimed",
+  "runtimeImplementationChanged": false,
+  "preservedPendingImplementationStash": "dd69e97b095b7ef5abc9b8b157e1a0d2561736da",
+  "phaseAcceptance": {
+    "PDP-0": "OPEN; native acceptance not claimed",
+    "PDP-1": "OPEN; native acceptance not claimed",
+    "PDP-2": "OPEN; native acceptance not claimed",
+    "PDP-3": "OPEN; native acceptance not claimed"
+  },
+  "outstandingIndependentAuthorities": [
+    "Independent PDP semantic and complete-experience reviewers",
+    "Shared package owner and visual/assistive-technology reviewers",
+    "Lifecycle registry/distribution owner and native phase receipt issuer"
+  ],
+  "nextExecutableDefinitionBatch": "Define the canonical transcript-version parent required by caption registration and refine existing transcript-version-read, then bind only existing J03 step4 and review-transcript screen/action with source authority and uncertainty boundaries.",
+  "authoritativeReceiptEvaluation": {
+    "status": "NOT_EVALUATED",
+    "authoritativeReceiptCount": null,
+    "boundLocalReceiptRecords": 0
+  },
+  "worktreeAtVerification": "Definition changes reviewed on main, origin/main matched baseMain after fetch; deferred implementation stash unchanged.",
+  "independentReviewInputs": [
+    {
+      "authority": "Independent PDP domain/interface/complete-experience reviewers",
+      "artifact": ".product-experience/acceptance.yaml#definitionCaptionReviewInputs20261008",
+      "test": "node --test tests/media-caption-version-operation-definitions.test.mjs tests/media-caption-version-interface-grammar.test.mjs tests/media-caption-version-experience-definitions.test.mjs tests/media-caption-capability-definition.test.mjs",
+      "acceptance": "Attributed independent assessment of exact lineage/fingerprint/receipt/query boundaries against original phase criteria; local owner decisions are not independent signoff."
+    },
+    {
+      "authority": "Shared package owner and accessibility/visual reviewers",
+      "artifact": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml and tests/media-component-definition-proof-cases.test.mjs",
+      "test": "node scripts/check-media-design-conformance.mjs",
+      "acceptance": "Qualified public Shared artifact binding and attributed rendered/assistive-technology conformance review; the31 metadata cases cannot satisfy these gates."
+    },
+    {
+      "authority": "Lifecycle registry/distribution owner and native phase receipt issuer",
+      "artifact": "config/closure/media-product-definition/{obligations,l02-source-case-links,l03-proof-route-candidates,phase-program,phase-binding}.json",
+      "test": "node scripts/check-media-lifecycle-closure-inputs.mjs; node scripts/generate-media-lifecycle-source-inputs.mjs --check",
+      "acceptance": "Registered case-specific provider/observer/oracle bindings with admitted methods, exact dependency fingerprints and authoritative current PDP phase receipts; local input readiness is insufficient."
+    }
+  ],
+  "changedFiles": [
+    ".product-experience/acceptance.yaml",
+    ".product-experience/closure-dashboard.yaml",
+    ".product-experience/decision-log.md",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+    ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+    ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+    ".product-experience/pdp-1-domain-data/operations.yaml",
+    ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+    ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json",
+    ".product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md",
+    ".product-experience/pdp-3-product-experience/action-registry.yaml",
+    ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+    ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
+    ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+    ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml",
+    ".product-experience/source-manifest.yaml",
+    "config/closure/media-product-definition/l02-source-case-links.json",
+    "config/closure/media-product-definition/l03-proof-route-candidates.json",
+    "config/closure/media-product-definition/obligations.json",
+    "docs/EXAMPLES.md",
+    "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
+    "scripts/lib/media-caption-capability-definition-validation.mjs",
+    "scripts/lib/media-caption-version-definition-validation.mjs",
+    "scripts/lib/media-experience-definition-mapping.mjs",
+    "tests/media-capability-review-source-impact.test.mjs",
+    "tests/media-caption-capability-definition.test.mjs",
+    "tests/media-caption-version-experience-definitions.test.mjs",
+    "tests/media-caption-version-interface-grammar.test.mjs",
+    "tests/media-caption-version-operation-definitions.test.mjs",
+    "tests/media-caption-version-operation-parity.test.mjs",
+    "tests/media-domain-identity-reconciliation.test.mjs",
+    "tests/media-experience-specification-projection.test.mjs",
+    "tests/media-j01-definition-semantics.test.mjs",
+    "tests/media-lifecycle-l02-source-case-links.test.mjs",
+    "tests/media-lifecycle-l03-proof-route-candidates.test.mjs",
+    "tests/media-product-definition-residuals.test.mjs",
+    "tests/pdp-3-examples.test.mjs",
+    "tests/pdp-3-screen-journey-crosslinks.test.mjs",
+    "tests/pdp-overview-currentness.test.mjs",
+    "tests/product-definition-authority.test.mjs"
+  ],
+  "captionBoundary": {
+    "selectedStepIds": [
+      "J03-7",
+      "J03-8"
+    ],
+    "firstSixSteps": "Exact parsed baseline preserved; immutable digest regression guard",
+    "unrelatedOperations": "Exact parsed baseline preserved after coordinator removed accidental unrelated-read edits",
+    "registration": "Immutable append plus original receipt; not review approval, export, delivery, publication or scientific quality",
+    "reconciliation": "Same trusted tenant/principal/requestId/full payload fingerprint; absent evidence remains UNKNOWN; retry only upon authoritative durable no-effect proof excluding future commit",
+    "selectors": [
+      "EXACT_PAIR",
+      "REGISTRATION_REQUEST"
+    ],
+    "sourceCases": 2,
+    "runtimeVerification": "not-run; all130 journey steps retain no runtime evidence",
+    "sourceDefinitionChecks": 2
+  }
+}

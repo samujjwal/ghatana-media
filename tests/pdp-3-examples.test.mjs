@@ -72,7 +72,7 @@ test("P3-08 examples trace every named family to stable journey contracts", () =
   }
 });
 
-test("P3-08 examples preserve the proposal-only caption operation boundary", () => {
+test("P3-08 examples preserve the bounded source-defined caption operation boundary", () => {
   const doc = readFileSync(resolve(root, "docs/EXAMPLES.md"), "utf8");
   const journey = readYaml(`${experience}/journey-contracts/transcribe-and-correct-captions.yaml`);
   const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
@@ -91,17 +91,23 @@ test("P3-08 examples preserve the proposal-only caption operation boundary", () 
   }
   const saveStep = stepsByAction.get("media.action.save-caption-version");
   assert.equal(saveStep?.canonicalOperationRef, versionWrite.id,
-    "J-03 copies the exact PDP-1 proposal crosswalk to the save step");
-  assert.equal(saveStep?.bindingStatus?.canonicalOperationRef,
-    "candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending",
-    "J-03 must keep the copied operation candidate pending owner acceptance");
+    "J-03 save binds the exact PDP-1 operation definition");
+  assert.match(saveStep?.bindingStatus?.canonicalOperationRef ?? "",
+    /SOURCE_DEFINED_OWNER_ACCEPTED under PXD-060; runtime-admission-pending/u,
+    "J-03 save has only the bounded source-definition disposition; runtime remains unadmitted");
+  assert.match(saveStep?.definitionVerification?.runtimeAdmission ?? "", /^NOT_ADMITTED$/u);
+  const compareStep = journey.steps.find((step) => step.action === "media.action.compare-caption-versions");
+  assert.equal(compareStep?.canonicalOperationRef, "media.operation.caption-version-read");
+  assert.match(compareStep?.bindingStatus?.canonicalOperationRef ?? "",
+    /SOURCE_DEFINED_OWNER_ACCEPTED under PXD-060; runtime-admission-pending/u);
+  assert.match(compareStep?.definitionVerification?.runtimeAdmission ?? "", /^NOT_ADMITTED$/u);
 
   assert.match(doc, /media\.action\.align-caption-timing/u);
   assert.match(doc, /media\.action\.save-caption-version/u);
   assert.match(doc, /media\.operation\.caption-draft-write/u);
   assert.match(doc, /media\.operation\.caption-version-write/u);
-  assert.match(doc, /J-03 copies that candidate into the\s+save step's `canonicalOperationRef` and marks owner acceptance pending/u);
-  assert.match(doc, /proposal\s+candidates, not accepted behavior/su);
+  assert.match(doc, /save and\s+compare have bounded source\s+definitions under PXD-060; runtime admission remains `NOT_ADMITTED`/iu);
+  assert.match(doc, /Draft\s+editing remains proposal-only/u);
 });
 
 test("P3-08 journey view and screen identities resolve through the current registry", () => {
@@ -192,12 +198,12 @@ test("P3-08 documented action and operation identities are source-backed", () =>
   assertStepBinding(journey03, "media.action.correct-caption", "media.operation.caption-draft-write");
   assertStepBinding(journey03, "media.action.align-caption-timing", "media.operation.caption-draft-write");
   const saveStep = assertStepBinding(journey03, "media.action.save-caption-version", "media.operation.caption-version-write");
-  assert.equal(saveStep.bindingStatus?.canonicalOperationRef,
-    "candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending");
+  assert.match(saveStep.bindingStatus?.canonicalOperationRef ?? "",
+    /SOURCE_DEFINED_OWNER_ACCEPTED under PXD-060; runtime-admission-pending/u);
   assert.throws(() => assertStepBinding(journey03, "media.action.save-caption-version", null),
     /canonicalOperationRef drifted/u,
     "negative control: the exact source-backed proposal must not be dropped");
-  assert.match(doc, /J-03 records as a proposal candidate with owner acceptance pending/u);
+  assert.match(doc, /save and\s+compare have bounded source\s+definitions under PXD-060; runtime admission remains `NOT_ADMITTED`/iu);
 });
 
 test("P3-08 definition, implementation, qualification, license, availability, and acceptance stay distinct", () => {

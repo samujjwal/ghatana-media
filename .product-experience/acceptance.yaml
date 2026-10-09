@@ -1439,3 +1439,23 @@ definitionProjectReviewInputs20261008:
     - The 31 component source cases validate definition bindings only; rendered accessibility and package acceptance remain independently required.
   runtimeAdmission: NOT_ADMITTED
   nativeLifecycleAcceptance: NOT_CLAIMED
+
+definitionCaptionReviewInputs20261008:
+  status: BOUNDED_MEDIA_OWNER_DEFINITIONS_REVIEWED; INDEPENDENT_ACCEPTANCE_PENDING
+  decisionRefs: [PXD-058, PXD-059, PXD-060, PXD-061]
+  selectedJourney: J-03
+  selectedStepIds: [J03-7, J03-8]
+  canonicalOperationRefs: [media.operation.caption-version-write, media.operation.caption-version-read]
+  evidenceReport: docs/implementation/media-product-definition-caption-batch-2026-10-08.json
+  testSources:
+    - tests/media-caption-version-operation-definitions.test.mjs
+    - tests/media-caption-version-interface-grammar.test.mjs
+    - tests/media-caption-version-experience-definitions.test.mjs
+    - tests/media-caption-capability-definition.test.mjs
+  reviewInputs:
+    - Full request fingerprint and typed canonical parent identity must be reviewed independently; a legacy transcription UUID is not a transcript version.
+    - Missing receipt evidence preserves UNKNOWN; same-key retry requires authoritative durable no-effect evidence excluding future commit.
+    - Registration does not approve, publish or scientifically qualify captions; comparison cannot silently rescale differing clocks.
+    - Source-only cases require actual registered providers, observers, oracles and native Lifecycle receipts before phase acceptance.
+  runtimeAdmission: NOT_ADMITTED
+  nativeLifecycleAcceptance: NOT_CLAIMED

@@ -13,9 +13,9 @@ patternIds:
 patternBindingStatus: proposal-copied-from-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenBindingStatus: pending-canonical-token-binding
-domainObjectRefs: []
+domainObjectRefs: [media.domain.caption-version, media.domain.artifact-version, media.domain.transcription]
 domainObjectBindingStatus: pending-canonical-domain-object-binding
-operationRefs: []
+operationRefs: [media.operation.caption-version-write]
 requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 operationBindingStatus: pending-canonical-operation-binding
@@ -51,13 +51,13 @@ actionConsequences:
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.save-caption-version
-    capabilityRefs: [media.artifact.output.register, media.artifact.provenance.export]
+    capabilityRefs: [media.artifact.output.register]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    referenceBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-060; runtime-admission-pending
+    operationRef: media.operation.caption-version-write
+    effectRef: media.effect.register-caption-version
+    consequence: register-a-new-immutable-caption-version-against-the-exact-source-version-and-typed-parent; provenance-is-registration-metadata-not-an-export; no-approval-publication-or-delivery
+    bindingStatus: source-defined-action-semantics; runtime-and-screen-admission-pending
 actionConsequencesBindingStatus: pending-owner-capability-effect-finality-binding
 responsiveBehavior:
   ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
@@ -158,3 +158,14 @@ sourceRefs:
 - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-03
+journeyDefinitionBindings:
+  journeyRef: J-03
+  decisionRef: .product-experience/decision-log.md#PXD-060
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-058
+  grammarDecisionRef: .product-experience/decision-log.md#PXD-059
+  runtimeAdmission: NOT_ADMITTED
+  applicability: required-J03-step-J03-7
+  operationRefs: [media.operation.caption-version-write]
+  domainObjectRefs: [media.domain.caption-version, media.domain.artifact-version, media.domain.transcription]
+  stateRefs: []
+  semanticBoundary: Append-only immutable registration with same-request receipt reconciliation; registration is not approval, export, publication, or delivery.

@@ -3,6 +3,13 @@ productId: media
 journeyId: J-03
 title: Transcribe an audio recording and correct captions
 status: proposal; all-upstream-acceptance-and-role-review-pending
+definitionReview:
+  status: SOURCE_DEFINED_OWNER_ACCEPTED
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-058
+  grammarDecisionRef: .product-experience/decision-log.md#PXD-059
+  decisionRef: .product-experience/decision-log.md#PXD-060
+  boundary: J-03 save-and-compare semantics only; independent review, runtime admission, and phase acceptance remain separate
+  runtimeAdmission: NOT_ADMITTED
 laneRef: .product-experience/lanes/transcribe-and-correct-captions.yaml
 scope: selected-audio-source-slice-of-J-03; video-transcription-and-video-audio-extraction-remain-out-of-scope
 outcomes: [media.goal.understand-media, media.goal.review-trustworthy-output]
@@ -496,163 +503,143 @@ steps:
   - view: media.view.correct-captions
     screenContractRef: screen-contracts/correct-captions.yaml
     action: media.action.save-caption-version
-    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [media.artifact.output.register, media.artifact.provenance.export]
-    result: an-authorized-immutable-caption-version-is-created-or-the-action-is-blocked
-    surfaceRefs:
-    - media.surface.web
-    objectRefs: []
+    actionBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED; runtime-admission-pending
+    capabilityRefs: [media.artifact.output.register]
+    result: distinct-immutable-caption-version-and-durable-registration-receipt-or-explicit-failure
+    surfaceRefs: [media.surface.web]
+    objectRefs: [media.domain.caption-version, media.domain.artifact-version, media.domain.transcription]
     stateRefs: []
     canonicalOperationRef: media.operation.caption-version-write
-    authorityRef: null
-    decisionRef: null
+    authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+    decisionRef: .product-experience/decision-log.md#PXD-060
     transitionRef: null
     handoffRef: null
+    stepId: J03-7
+    actorRefs: [media.creator, media.editor]
+    actorBindingReason: Actor labels identify journey participants only; trusted tenant and principal come from the host, while current source, parent, rights, consent, and retention decisions are evaluated at registration.
+    requiredOperationRefs: [media.operation.caption-version-write]
+    intent: Register one new immutable caption version against the exact source artifact version and typed parent; registration does not approve, publish, deliver, or grant rights.
+    contextPreservation: [tenant, principal, project, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, sourceClockId, ticksPerSecond, sourceDurationTicks, languageDisposition, captionSegments, purpose, requestId]
+    transitionDisposition:
+      status: NOT_APPLICABLE_WITH_REASON
+      transitionRef: null
+      decisionRef: .product-experience/decision-log.md#PXD-060
+      reason: Append-only caption-version registration creates an immutable record and receipt; PDP-1 defines no domain-state transition.
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
-        and the recorded authority/finality disposition.
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: exact-request-receipt
+      sourceRef: media.operation.caption-version-write
+      proposal: Only an authoritative durable registration receipt identifies the new captionVersionId, exact source artifact version, and typed parent. Registration is not review approval or publication.
     failure:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.criticalNonhappyPaths
-      proposal:
-      - id: language-uncertain
-        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
-      - id: timing-missing
-        response: identify missing alignment and permit explicit correction; do not infer exact timing.
-      - id: consent-revoked
-        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
-      - id: provider-outcome-unknown
-        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
-      - id: source-version-changed
-        response: preserve draft and mark its parent stale; require explicit rebase or restart.
-    degradedBehavior: null
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: fail-closed-registration
+      sourceRef: media.operation.caption-version-write
+      proposal: Reject invalid or empty segments, invalid source-clock ranges, inaccessible source or parent, stale parent, denied current authority, and same-key/different-payload requests without mutating existing versions. If commit status is ambiguous, preserve UNKNOWN_OUTCOME and the original requestId and fingerprint.
+    degradedBehavior: Preserve UNKNOWN_OUTCOME if commit cannot be proven either way; do not infer failure or absence.
     recovery:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.recovery
-      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
-        a fresh policy check.
-    postconditions: []
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: same-request-reconciliation
+      sourceRef: media.operation.caption-version-read
+      selector: REGISTRATION_REQUEST with the same trusted tenantId, principalId, requestId, and full requestFingerprint
+      proposal: Resolve the original receipt and captionVersionId only for the exact original request. A scoped absence, expiry, or unavailable read does not prove no commit; never retry automatically or use a new key after ambiguity.
+    postconditions: [exact-source-and-parent-bound, immutable-version-identity-and-receipt-bound, no-approval-or-delivery-claim]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
-      requiredChecks:
-      - duplicate-key-safe YAML parse
-      - focused PDP3-005 ten-contract structural/reference check
+      requiredChecks: [runtime-registration-authorization, immutable-receipt-finality, same-request-reconciliation]
       actualEvidence: []
-    contextPreservation:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.contextPreserved
-      proposal:
-      - project
-      - source-artifact-version
-      - source-time
-      - language-intent
-      - job-identity
-      - transcript-version
-      - caption-draft-version
+    definitionVerification:
+      status: source-contract-checked
+      evidence: [tests/media-caption-version-experience-definitions.test.mjs, tests/media-caption-version-interface-grammar.test.mjs, scripts/check-product-experience-local.mjs]
+      runtimeAdmission: NOT_ADMITTED
+      runtimeVerification: not-run
     bindingStatus:
-      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-      objectRefs: pending-explicit-step-domain-object-reference
-      stateRefs: pending-explicit-step-state-reference-and-transition
-      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
-      authorityRef: pending-explicit-step-authority-binding
-      decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-explicit-legal-transition-binding
-      handoffRef: pending-explicit-step-handoff-allocation
-      success: candidate-proposal-only; journey-level outcome not allocated to this step
-      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-      degradedBehavior: pending-explicit-step-degraded-behavior
-      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-      postconditions: pending-explicit-step-postconditions
-      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
-      verification: not-run; no evidence refs recorded
-      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+      surfaceRefs: source-screen-contract-linked; screen-admission-pending
+      objectRefs: exact caption-version and referenced-source identities defined in PDP-1
+      stateRefs: no domain transition applies to append-only registration
+      canonicalOperationRef: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-060; runtime-admission-pending
+      authorityRef: current identity, source, rights, consent, and retention checks defined; enforcement unqualified
+      decisionRef: PXD-060 source definition; independent review pending
+      transitionRef: explicitly not applicable; append-only record creation
+      handoffRef: no external handoff claimed
+      success: durable receipt and exact immutable version identity required
+      failure: invalid request, denial, conflict, and unknown outcome remain distinct
+      degradedBehavior: unknown registration remains UNKNOWN_OUTCOME
+      recovery: same-identity REGISTRATION_REQUEST reconciliation only
+      postconditions: exact source and parent binding; no approval or delivery
+      requirementRefs: existing artifact requirement retained
+      verification: source-contract-tested; runtime not run
+      contextPreservation: exact source, parent, clock, segments, language, and request identity
   - view: media.view.compare-caption-versions
     screenContractRef: screen-contracts/compare-caption-versions.yaml
     action: media.action.compare-caption-versions
-    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    actionBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED; runtime-admission-pending
     capabilityRefs: [media.artifact.inspect]
-    result: text-timing-and-source-version-differences-are-shown-without-approving-either-version
-    surfaceRefs:
-    - media.surface.web
-    objectRefs: []
+    result: exact-version-pair-and-field-level-comparison-or-explicit-incompatibility
+    surfaceRefs: [media.surface.web]
+    objectRefs: [media.domain.caption-version, media.domain.artifact-version]
     stateRefs: []
     canonicalOperationRef: media.operation.caption-version-read
-    authorityRef: null
-    decisionRef: null
+    authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+    decisionRef: .product-experience/decision-log.md#PXD-060
     transitionRef: null
     handoffRef: null
+    stepId: J03-8
+    actorRefs: [media.creator, media.editor, media.reviewer]
+    actorBindingReason: These are existing J-03 participants; current trusted tenant/principal and read policy independently govern each exact immutable version.
+    requiredOperationRefs: [media.operation.caption-version-read]
+    intent: Compare two distinct exact captionVersionIds while preserving both identities and explicitly reporting source or clock incompatibility.
+    contextPreservation: [tenant, principal, leftCaptionVersionId, rightCaptionVersionId, exact-source-identities, source-clocks, comparison-completeness, observedAt]
+    transitionDisposition:
+      status: NOT_APPLICABLE_WITH_REASON
+      transitionRef: null
+      decisionRef: .product-experience/decision-log.md#PXD-060
+      reason: Comparison is a caller-authorized read-only observation; neither version changes and no winner, merge, approval, or rights grant follows.
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
-        and the recorded authority/finality disposition.
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: exact-pair-observation
+      sourceRef: media.operation.caption-version-read
+      proposal: Return both requested version refs and field-level comparison; claim comparable differences only when exact source artifact, source artifact version, and source clock agree.
     failure:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.criticalNonhappyPaths
-      proposal:
-      - id: language-uncertain
-        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
-      - id: timing-missing
-        response: identify missing alignment and permit explicit correction; do not infer exact timing.
-      - id: consent-revoked
-        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
-      - id: provider-outcome-unknown
-        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
-      - id: source-version-changed
-        response: preserve draft and mark its parent stale; require explicit rebase or restart.
-    degradedBehavior: null
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: caller-scoped-exact-pair
+      sourceRef: media.operation.caption-version-read
+      proposal: Keep inaccessible identities scope-safe; report CAPTION_VERSIONS_NOT_COMPARABLE for source or clock mismatch; unavailable comparison fields remain unavailable, not equal.
+    degradedBehavior: Preserve partial-field availability and explicit comparability; do not normalize source identity or clock mismatch.
     recovery:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.recovery
-      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
-        a fresh policy check.
-    postconditions: []
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: exact-pair-read-reobservation
+      sourceRef: media.operation.caption-version-read
+      selector: EXACT_PAIR using the same leftCaptionVersionId and rightCaptionVersionId
+      proposal: Revalidate current authority for both exact identities and perform only a bounded read observation; timeout has no mutation or write finality to replay.
+    postconditions: [both-version-identities-retained, source-and-clock-comparability-explicit, no-mutation-or-approval-claim]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
-      requiredChecks:
-      - duplicate-key-safe YAML parse
-      - focused PDP3-005 ten-contract structural/reference check
+      requiredChecks: [runtime-pair-read-authorization, source-and-clock-comparability, partial-field-reporting]
       actualEvidence: []
-    contextPreservation:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.contextPreserved
-      proposal:
-      - project
-      - source-artifact-version
-      - source-time
-      - language-intent
-      - job-identity
-      - transcript-version
-      - caption-draft-version
+    definitionVerification:
+      status: source-contract-checked
+      evidence: [tests/media-caption-version-experience-definitions.test.mjs, tests/media-caption-version-interface-grammar.test.mjs, scripts/check-product-experience-local.mjs]
+      runtimeAdmission: NOT_ADMITTED
+      runtimeVerification: not-run
     bindingStatus:
-      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-      objectRefs: pending-explicit-step-domain-object-reference
-      stateRefs: pending-explicit-step-state-reference-and-transition
-      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
-      authorityRef: pending-explicit-step-authority-binding
-      decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-explicit-legal-transition-binding
-      handoffRef: pending-explicit-step-handoff-allocation
-      success: candidate-proposal-only; journey-level outcome not allocated to this step
-      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-      degradedBehavior: pending-explicit-step-degraded-behavior
-      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-      postconditions: pending-explicit-step-postconditions
-      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
-      verification: not-run; no evidence refs recorded
-      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+      surfaceRefs: source-screen-contract-linked; screen-admission-pending
+      objectRefs: exact caption-version and source-version identities defined in PDP-1
+      stateRefs: read-only comparison; no domain transition
+      canonicalOperationRef: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-060; runtime-admission-pending
+      authorityRef: current read policy for both exact versions defined; enforcement unqualified
+      decisionRef: PXD-060 source definition; independent review pending
+      transitionRef: explicitly not applicable; read-only observation
+      handoffRef: no external handoff claimed
+      success: exact pair and comparison completeness retained
+      failure: scoped inaccessibility and source/clock mismatch remain distinct
+      degradedBehavior: unavailable fields remain unknown
+      recovery: bounded exact-pair read under current authority
+      postconditions: no mutation, merge, winner selection, or approval
+      requirementRefs: existing artifact requirement retained
+      verification: source-contract-tested; runtime not run
+      contextPreservation: exact pair, source identity, clock, completeness, and observed time
 terminalSuccess: A reviewable caption version is linked to the exact source and carries timing, language, provenance, and the recorded authority/finality disposition.
 criticalNonhappyPaths:
   - id: language-uncertain

@@ -22,7 +22,7 @@
   ],
   "status_policy": "Complete requires full task Done evidence. Partial means bounded implementation/evidence exists but the criterion is unmet. Blocked-external/independent means owner action, independent review or authoritative Lifecycle output remains outstanding. Not-started means no material implementation evidence was found. Source decisions or unrun test sources alone do not establish acceptance.",
   "authorization_boundary": "User authorized source-supported Media owner decisions. This ledger claims no independent approval, Lifecycle receipt/current closure, external Shared/Tools owner acceptance, license clearance or PDP phase closure. Decisions are bounded to documented scope.",
-  "verification_boundary": "Latest definition-only batch:427/427 Node tests,zero skips; both strict public projection checks PASS; authority/local/source inputs/347-obligation audit PASS. Parity2 full findings and design2 external/independent gates remain non-green.31 actual component source cases are partial source evidence,not Lifecycle admission. Evidence:docs/implementation/media-product-definition-project-batch-2026-10-08.json; earlier runtime results remain historical.",
+  "verification_boundary": "Latest caption definition-only batch:442/442 Node tests,zero skips; strict projections/all three public validators PASS; authority/local/source inputs/347-obligation audit PASS.61 partial source links across40 obligations;252 lack authored case IDs. Parity2/design2 remain non-green; native receipt evaluation NOT_EVALUATED. Evidence:docs/implementation/media-product-definition-caption-batch-2026-10-08.json.",
   "id_reconciliation": {
     "checklist_count": 71,
     "plan_task_count": 71,
@@ -406,6 +406,11 @@
         "result": "PXD-050 accepts three scoped existing J-02 capability definitions with exact step/actor/channel/individual operation source bindings and profile limitations. Full 462-leaf population unchanged:383 unresolved broader targets,445 without accepted full per-operation bounds. Remote import and wire version identity are not inferred.",
         "evidence": "docs/implementation/media-product-definition-continuation-2026-10-08.json",
         "statusRetained": "partial"
+      },
+      "definition_caption_update_2026_10_08": {
+        "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
+        "statusRetained": "partial"
       }
     },
     {
@@ -742,7 +747,12 @@
         "evidence": "docs/implementation/media-product-definition-execution-2026-10-08.json",
         "statusRetained": "partial"
       },
-      "historical_verification_or_gap_before_definition_scope_correction": "PDP-1 domain catalog now has 38 objects, 11 relationships, 13 value objects and 16 reconciliation concepts. Added a strictly local simulation-fixture CaptionVersionRecord to close an exact fixture canonicalRef without claiming runtime or durable identity; clarified source-observed Artifact, ProcessingJob and JobLease identity fields and corrected the lease source refs and non-file SimulationWorld source ref. New identity reconciliation test passes 4/4; related privacy/temporal-spatial tests pass 5/5. All canonical cross-interface identity meanings remain proposals. The changed domain-object catalog pin in capability-leaf-review.yaml was separately semantically reconciled: the exact diffs do not add direct canonicalDomainObjectRefs to any leaf (462/462 remain empty), and the 462/79/383 coverage dispositions remain unchanged; the pin was not refreshed without this evidence. Corrected the PDP-1 domain overview denominator to match the 38-record source catalog, with one fixture-only caption-version record explicitly kept outside runtime/persistence claims; a regression test now guards the count and status boundary. This does not resolve cross-interface canonical identities or owner review.\n\nIndependent source re-audit found no owner-authored cross-interface canonical key, immutable version identity, ancestry, or durable attempt mapping to add. Existing regressions keep Java/TypeScript/SQL key distinctions, fixture-only caption records, and unresolved lineage semantics explicit; no status promotion."
+      "historical_verification_or_gap_before_definition_scope_correction": "PDP-1 domain catalog now has 38 objects, 11 relationships, 13 value objects and 16 reconciliation concepts. Added a strictly local simulation-fixture CaptionVersionRecord to close an exact fixture canonicalRef without claiming runtime or durable identity; clarified source-observed Artifact, ProcessingJob and JobLease identity fields and corrected the lease source refs and non-file SimulationWorld source ref. New identity reconciliation test passes 4/4; related privacy/temporal-spatial tests pass 5/5. All canonical cross-interface identity meanings remain proposals. The changed domain-object catalog pin in capability-leaf-review.yaml was separately semantically reconciled: the exact diffs do not add direct canonicalDomainObjectRefs to any leaf (462/462 remain empty), and the 462/79/383 coverage dispositions remain unchanged; the pin was not refreshed without this evidence. Corrected the PDP-1 domain overview denominator to match the 38-record source catalog, with one fixture-only caption-version record explicitly kept outside runtime/persistence claims; a regression test now guards the count and status boundary. This does not resolve cross-interface canonical identities or owner review.\n\nIndependent source re-audit found no owner-authored cross-interface canonical key, immutable version identity, ancestry, or durable attempt mapping to add. Existing regressions keep Java/TypeScript/SQL key distinctions, fixture-only caption records, and unresolved lineage semantics explicit; no status promotion.",
+      "definition_caption_update_2026_10_08": {
+        "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "P1-02",
@@ -927,7 +937,12 @@
         "evidence": "docs/implementation/media-product-definition-execution-2026-10-08.json",
         "statusRetained": "partial"
       },
-      "historical_verification_or_gap_before_definition_scope_correction": "Ten individual source-bounded upload/job operation contracts with negative cases; cross-interface bindings, real retry/outcome routes and canonical admission remain unresolved. Original Done criterion and remaining_dependencies remain controlling; command outcomes are in the dated batch report."
+      "historical_verification_or_gap_before_definition_scope_correction": "Ten individual source-bounded upload/job operation contracts with negative cases; cross-interface bindings, real retry/outcome routes and canonical admission remain unresolved. Original Done criterion and remaining_dependencies remain controlling; command outcomes are in the dated batch report.",
+      "definition_caption_update_2026_10_08": {
+        "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "P1-04",
@@ -1572,6 +1587,11 @@
         "result": "Real FileUpload/EmptyState consume Shared external token CSS;1744 Shared tests,24 Media UI tests,9 packed public-artifact consumer packages and strict-CSP/reflow checks pass. Full package/visual/component/specialist criteria remain open.",
         "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
         "statusRetained": "partial"
+      },
+      "definition_caption_update_2026_10_08": {
+        "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
+        "statusRetained": "partial"
       }
     },
     {
@@ -2020,7 +2040,12 @@
         "evidence": "docs/implementation/media-product-definition-execution-2026-10-08.json",
         "statusRetained": "partial"
       },
-      "historical_verification_or_gap_before_definition_scope_correction": "Eight J-29/J-30 intent/view/screen refs accepted; all130 screen refs resolve,112 action allocations and130 transition refs unresolved. Original Done criterion and remaining_dependencies remain controlling; command outcomes are in the dated batch report."
+      "historical_verification_or_gap_before_definition_scope_correction": "Eight J-29/J-30 intent/view/screen refs accepted; all130 screen refs resolve,112 action allocations and130 transition refs unresolved. Original Done criterion and remaining_dependencies remain controlling; command outcomes are in the dated batch report.",
+      "definition_caption_update_2026_10_08": {
+        "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "P3-04",
@@ -2061,6 +2086,11 @@
       "definition_continuation_2026_10_08": {
         "result": "PXD-052 defines four selected action semantics with exact effect kinds, guards, finality and nonadmission; all five manual recovery records have explicit public booleans. Three conditional/unknown action meanings are not coerced to undo booleans. Remaining action population and canonical attachment operation remain open.",
         "evidence": "docs/implementation/media-product-definition-continuation-2026-10-08.json",
+        "statusRetained": "partial"
+      },
+      "definition_caption_update_2026_10_08": {
+        "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
         "statusRetained": "partial"
       }
     },
@@ -2604,7 +2634,12 @@
         "tests/media-lifecycle-l02-source-case-links.test.mjs"
       ],
       "latest_execution_update_2026_10_08": "Reconciled candidate inventory to344 while retaining28 links across7 obligations;337 unmapped. No invented cases.",
-      "historical_verification_or_gap_before_owner_execution": "The L-02 proposal retains the complete 318-obligation denominator and has 28 source/test-backed candidate links across 7 obligations; 311 obligations remain unmapped and zero links are admitted as proof. A source-exact audit compared every PDP-3 view candidate against the exact screen contract fixtures.refs and removed 18 links whose scenario was not named by that contract. The retained view links require exact assertion evidence and a registered simulation test identity.\n\nThe focused L-02 test passes 2/2. The 28 links remain local proposals only: no selected proof methods/classes, Lifecycle assignments, observers, oracles, providers, receipts, or currentness are claimed. Among the 311 unmapped obligations, 256 have no caseIds; the existing PDP-0/PDP-3 acceptance/test gaps remain.\n\n2026-10-08 current denominator: 319 obligations, 28 exact local source/test candidate links across 7 obligations, and 312 unmapped; 257 have empty caseIds. PXD-032's new progress-indicator obligation is present in the source denominator and L-02 obligation list but has no case link. Candidate links remain non-admitted; no proof case/observer/oracle/provider/receipt or currentness is claimed."
+      "historical_verification_or_gap_before_owner_execution": "The L-02 proposal retains the complete 318-obligation denominator and has 28 source/test-backed candidate links across 7 obligations; 311 obligations remain unmapped and zero links are admitted as proof. A source-exact audit compared every PDP-3 view candidate against the exact screen contract fixtures.refs and removed 18 links whose scenario was not named by that contract. The retained view links require exact assertion evidence and a registered simulation test identity.\n\nThe focused L-02 test passes 2/2. The 28 links remain local proposals only: no selected proof methods/classes, Lifecycle assignments, observers, oracles, providers, receipts, or currentness are claimed. Among the 311 unmapped obligations, 256 have no caseIds; the existing PDP-0/PDP-3 acceptance/test gaps remain.\n\n2026-10-08 current denominator: 319 obligations, 28 exact local source/test candidate links across 7 obligations, and 312 unmapped; 257 have empty caseIds. PXD-032's new progress-indicator obligation is present in the source denominator and L-02 obligation list but has no case link. Candidate links remain non-admitted; no proof case/observer/oracle/provider/receipt or currentness is claimed.",
+      "definition_caption_update_2026_10_08": {
+        "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "L-03",
@@ -2637,7 +2672,12 @@
         "tests/media-lifecycle-l03-proof-route-candidates.test.mjs"
       ],
       "latest_execution_update_2026_10_08": "Source fingerprint refresh preserves changed-route prior history and sets NOT_RUN_SOURCE_CHANGED/rerunRequired. No admitted observer/oracle.",
-      "historical_verification_or_gap_before_owner_execution": "Five existing source-resolvable candidate routes remain non-admitted; authoritative observer/oracle assignments remain 0/318 and independent review is NOT_RUN. Reconciled the L-02 review population to its current source proposal: 28 links across 7 obligations, 311 unmapped out of 318. A source-exact check found no registered producer scope or method-specific criterion for the simulation links, so no new route was added. The L-03 test derives and validates its reviewed counts from L-02 and the obligation denominator; focused suite passes 4/4. Existing PostgreSQL candidate-route source digests remain exact; candidate routes do not imply Lifecycle admission, observer/oracle assignment, receipts, or currentness."
+      "historical_verification_or_gap_before_owner_execution": "Five existing source-resolvable candidate routes remain non-admitted; authoritative observer/oracle assignments remain 0/318 and independent review is NOT_RUN. Reconciled the L-02 review population to its current source proposal: 28 links across 7 obligations, 311 unmapped out of 318. A source-exact check found no registered producer scope or method-specific criterion for the simulation links, so no new route was added. The L-03 test derives and validates its reviewed counts from L-02 and the obligation denominator; focused suite passes 4/4. Existing PostgreSQL candidate-route source digests remain exact; candidate routes do not imply Lifecycle admission, observer/oracle assignment, receipts, or currentness.",
+      "definition_caption_update_2026_10_08": {
+        "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "L-04",
@@ -7303,5 +7343,181 @@
     },
     "verifiedSourceCommit": "7c6794b9cbea5aa33f2279450fa594fd59afa7f9",
     "worktreeAtSourceCommit": "clean; main and origin/main matched"
+  },
+  "definition_caption_batch_2026_10_08": {
+    "scope": "Four PDP phases definitions only; runtime deferred",
+    "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
+    "ownerDecisions": [
+      "PXD-058",
+      "PXD-059",
+      "PXD-060",
+      "PXD-061"
+    ],
+    "beforeAfter": {
+      "projectionBlockers": {
+        "phaseOrder": [
+          "PDP-0",
+          "PDP-2",
+          "PDP-3"
+        ],
+        "before": [
+          0,
+          0,
+          9
+        ],
+        "after": [
+          0,
+          0,
+          9
+        ]
+      },
+      "capabilityLeaves": [
+        462,
+        462
+      ],
+      "unresolvedCapabilityTargets": [
+        383,
+        383
+      ],
+      "unboundedCapabilityLeaves": [
+        445,
+        445
+      ],
+      "fullAcceptedCapabilityCoverage": [
+        0,
+        0
+      ],
+      "migrationOriginalObservations": [
+        349,
+        349
+      ],
+      "migrationSemanticsUnresolved": [
+        260,
+        260
+      ],
+      "interfaceIdentities": [
+        286,
+        286
+      ],
+      "interfaceUnresolved": [
+        190,
+        190
+      ],
+      "fullAcceptedInterfaceBindings": [
+        0,
+        0
+      ],
+      "historicalParityFindingsOpen": [
+        2,
+        2
+      ],
+      "designGatesOpen": [
+        2,
+        2
+      ],
+      "journeys": [
+        30,
+        30
+      ],
+      "orderedSteps": [
+        130,
+        130
+      ],
+      "screenLinkedSteps": [
+        130,
+        130
+      ],
+      "actionLinkedSteps": [
+        18,
+        18
+      ],
+      "authoredStepIds": [
+        17,
+        19
+      ],
+      "exactNonNullOperationRefs": [
+        19,
+        19
+      ],
+      "emptyObjectRefs": [
+        122,
+        120
+      ],
+      "emptyStateRefs": [
+        122,
+        122
+      ],
+      "nullAuthorityRefs": [
+        121,
+        119
+      ],
+      "sourceNoTransitionReasons": [
+        7,
+        9
+      ],
+      "projectedUnconditionalEffects": [
+        2,
+        3
+      ],
+      "projectedFinalityRecords": [
+        20,
+        21
+      ],
+      "publicRecoveryDefinitions": [
+        5,
+        5
+      ],
+      "lifecycleObligations": [
+        347,
+        347
+      ],
+      "obligationsWithCaseIds": [
+        93,
+        95
+      ],
+      "obligationsWithoutCaseIds": [
+        254,
+        252
+      ],
+      "sourceCaseCandidateLinks": [
+        59,
+        61
+      ],
+      "sourceCaseLinkedObligations": [
+        38,
+        40
+      ],
+      "unmappedSourceCaseObligations": [
+        309,
+        307
+      ],
+      "observerAssignments": [
+        0,
+        0
+      ],
+      "oracleAssignments": [
+        0,
+        0
+      ],
+      "providerBindings": [
+        0,
+        0
+      ],
+      "boundNativePhaseReceipts": [
+        0,
+        0
+      ]
+    },
+    "newOriginalDoneCriteriaSatisfied": 0,
+    "originalTaskStatusesRetained": true,
+    "nextExecutableDefinitionBatch": "Define the canonical transcript-version parent required by caption registration and refine existing transcript-version-read, then bind only existing J03 step4 and review-transcript screen/action with source authority and uncertainty boundaries.",
+    "verification": {
+      "tests": 442,
+      "pass": 442,
+      "fail": 0,
+      "skip": 0,
+      "sourceChecks": "PASS",
+      "nativeAcceptance": "NOT_CLAIMED"
+    }
   }
 }

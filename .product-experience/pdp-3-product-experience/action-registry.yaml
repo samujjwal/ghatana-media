@@ -386,13 +386,37 @@ actions:
 - id: media.action.save-caption-version
   label: Save this caption version
   actorRefs: [media.creator, media.editor]
-  capabilityRefs: [media.artifact.output.register, media.artifact.provenance.export]
+  capabilityRefs: [media.artifact.output.register]
   preconditions: [caption-draft-valid, parent-source-current, current-commit-authority, rights-and-retention-rechecked]
   confirmation: identify-the-new-immutable-version-and-any-review-requirement
-  effect: register-a-new-caption-artifact-version-with-parent-and-operation-provenance
+  effect: append-a-new-immutable-caption-version-with-exact-parent-and-required-registration-provenance-metadata; no-provenance-export
   reversible: false
   finality: internal-version-registration-only; no-delivery-or-publication
   failure: keep-draft-and-report-whether-registration-finality-is-known
+  actionDefinitionSemantics:
+    actionRef: media.action.save-caption-version
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-058
+    grammarDecisionRef: .product-experience/decision-log.md#PXD-059
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-060
+    runtimeAdmission: NOT_ADMITTED
+    operationRef: media.operation.caption-version-write
+    effectKind: state-change
+    reversibility:
+      kind: NOT_REVERSIBLE
+      scope: Registration appends a distinct immutable caption-version record and receipt; correction creates another version. Provenance is metadata on that registration and is not exported by this action.
+    finalityScope: Only a durable registration receipt establishes version registration; it does not approve, deliver, publish, or grant rights to the content.
+    publicEffect:
+      id: media.effect.register-caption-version
+      name: Register caption version
+      kind: state-change
+      description: Append one immutable caption version bound to the exact source version and typed parent; preserve the prior version.
+      reversible: false
+    publicFinality:
+      id: media.finality.register-caption-version
+      actionRef: media.action.save-caption-version
+      description: Confirm only after an authoritative durable registration receipt identifies the exact new version.
+      confirmationRequired: true
+      undoable: false
   componentRefs:
   - media.component.caption-track-editor
   componentBindingState: component-use-proposed; interaction-and-owner-binding-pending
@@ -414,9 +438,22 @@ actions:
   capabilityRefs: [media.artifact.inspect]
   preconditions: [two-caption-versions-readable]
   effect: show-text-timing-provenance-and-source-version-differences-without-changing-either-version
-  reversible: true
-  finality: read-only
+  reversible: unknown
+  finality: read-only observation; no merge, winner selection, approval, or rights grant
   failure: label-source-mismatch-or-incomplete-comparison-explicitly
+  actionDefinitionSemantics:
+    actionRef: media.action.compare-caption-versions
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-058
+    grammarDecisionRef: .product-experience/decision-log.md#PXD-059
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-060
+    runtimeAdmission: NOT_ADMITTED
+    operationRef: media.operation.caption-version-read
+    effectKind: read-only-observation
+    reversibility:
+      kind: UNKNOWN
+      scope: The exact-pair read has no domain mutation, but a public boolean cannot represent access logging, observation retention, or host-side audit effects; no remote undo is defined.
+    publicBooleanDisposition: PUBLIC_BOOLEAN_NOT_REPRESENTABLE
+    finalityScope: Read the two exact caller-authorized immutable versions and expose comparability and incomplete fields without selecting a winner or approving content.
 - id: media.action.inspect-provenance
   label: Inspect source and result history
   actorRefs: [media.creator, media.editor, media.reviewer]

@@ -47,7 +47,7 @@ actionConsequences:
     consequence: unresolved
     bindingStatus: pending-owner-binding
   - actionId: media.action.save-caption-version
-    capabilityRefs: [media.artifact.output.register, media.artifact.provenance.export]
+    capabilityRefs: [media.artifact.output.register]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
     operationRef: null

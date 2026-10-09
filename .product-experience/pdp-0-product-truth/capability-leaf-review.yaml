@@ -18,15 +18,15 @@ sourceInventory:
 - path: .product-experience/pdp-0-product-truth/applications-channels.yaml
   sha256: e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d
 - path: .product-experience/pdp-1-domain-data/operations.yaml
-  sha256: bee4b826a3f5ab15290d80e80184044e51cdf810154eac903aace28099524185
+  sha256: faa1da75605eb9ed1a0100c7f7d8bd77d6007510a517552b2092fc9a781f2322
 - path: .product-experience/pdp-1-domain-data/action-contracts.yaml
-  sha256: 122e3fd6e35c46d5a3cfa22951ef36e586a789b75396c4ddb64a66f3c1488851
+  sha256: 4c1a8920f8f8060e111179ba39ae98d752c552425925aff38873f5e926158e97
 - path: .product-experience/pdp-1-domain-data/states.yaml
   sha256: 53c310be8c3e1ced1d90db5450a1e5a7bd6973a8c7ec443c7a50e214cdc58110
 - path: .product-experience/pdp-3-product-experience/action-registry.yaml
-  sha256: ed643131760a1d0ccd98ce418d33595173c1e1d41e15c708ba5c7ef4cb6c3258
+  sha256: c9760aec2e556cba9c514b90cc5a519255c16682e2b8e4cec6d2bbf3c41568af
 - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
-  sha256: 52c38599cd1d6b429b46fc2e049c68f7344c769b952a7419b27dc5a0d110ce27
+  sha256: 51eb27ef620db17780ecbd24a11ad8a32974e76b6b2438031d980cd5216558dd
 denominatorReconciliation:
   capabilityFamilies: 38
   capabilityLeaves: 462
@@ -3922,6 +3922,27 @@ leaves:
       bound: Disclose only currently authorized metadata and preserve unknown integrity, rights, and lifecycle values as unknown; exact field-disclosure, execution-location, resource, or provider profile values remain unresolved.
     definitionBoundary: Metadata inspection does not dereference bytes, prove immutable version identity from the current artifactId-only wire contract, perform T-02 verification, promote availability, alter rights, attach a project, or establish runtime admission.
 
+  captionVersionDefinitionSlice:
+    status: OWNER_ACCEPTED_J03_CAPTION_DEFINITION_SLICE; full leaf and runtime admission not claimed
+    decisionRef: .product-experience/decision-log.md#PXD-061
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-058
+    experienceDecisionRef: .product-experience/decision-log.md#PXD-060
+    scope: Compare an exact authorized caption-version pair, or reconcile the original registration request through its exclusive selector; no generic artifact wire version identity or current transport support is inferred.
+    journeyRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyStepRefs: [J03-8]
+    operationRefs: [media.operation.caption-version-read]
+    sourceContractRefs: [.product-experience/pdp-1-domain-data/operations.yaml#/operations/7]
+    normativeChannelScope: Web interaction definition only; HTTP, SDK, CLI, Agent Tool and gRPC runtime equivalence not selected.
+    contentBoundary: Exact source bytes and prior versions remain unchanged; comparison and registration do not grant current content rights or establish scientific alignment/language accuracy.
+    profileApplicability:
+      noDeliveryOrPublication: true
+      noProcessingEngineOrModelAdmission: true
+      preserveExactSourceAndParentIdentity: true
+      qualityCriteria: Canonical source/parent/receipt identity, payload integrity and mismatch disclosure only; scientific timing/language quality requires separate governing evidence.
+      unresolvedAxes: [execution-location, resource, reproducibility]
+    runtimeAdmission: NOT_ADMITTED
+    fullLeafAcceptance: NOT_CLAIMED
+
 - id: media.artifact.search
   sourceIndex: 21
   label: Search artifacts
@@ -4698,6 +4719,27 @@ leaves:
     missingDecision: Per-leaf implementation, license, qualification and deployment evidence plus owner admission; GAP-MEDIA-CAPABILITY-LEAF-DETAIL
       and P0-010.
   sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/25
+  captionVersionDefinitionSlice:
+    status: OWNER_ACCEPTED_J03_CAPTION_DEFINITION_SLICE; full leaf and runtime admission not claimed
+    decisionRef: .product-experience/decision-log.md#PXD-061
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-058
+    experienceDecisionRef: .product-experience/decision-log.md#PXD-060
+    scope: Register one immutable caption version with exact source and typed parent; internal provenance recording does not export provenance, approve content, deliver or publish.
+    journeyRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyStepRefs: [J03-7]
+    operationRefs: [media.operation.caption-version-write]
+    sourceContractRefs: [.product-experience/pdp-1-domain-data/operations.yaml#/operations/6]
+    normativeChannelScope: Web interaction definition only; HTTP, SDK, CLI, Agent Tool and gRPC runtime equivalence not selected.
+    contentBoundary: Exact source bytes and prior versions remain unchanged; comparison and registration do not grant current content rights or establish scientific alignment/language accuracy.
+    profileApplicability:
+      noDeliveryOrPublication: true
+      noProcessingEngineOrModelAdmission: true
+      preserveExactSourceAndParentIdentity: true
+      qualityCriteria: Canonical source/parent/receipt identity, payload integrity and mismatch disclosure only; scientific timing/language quality requires separate governing evidence.
+      unresolvedAxes: [execution-location, resource, reproducibility]
+    runtimeAdmission: NOT_ADMITTED
+    fullLeafAcceptance: NOT_CLAIMED
+
 - id: media.artifact.share
   sourceIndex: 26
   label: Share artifact
@@ -61899,3 +61941,40 @@ projectDefinitionSourceReconciliations:
   semanticImpact: J-01 actions define explicit create confirmation and same-request recovery; query/open actions preserve scope, stale observations, and unknown creation finality.
   capabilityImpact: Existing 462-leaf population and action-to-capability associations remain unchanged; 383 applicability decisions remain unresolved.
   acceptanceEffect: Selected J-01 definition only; no user-interface availability, capability coverage, runtime, or phase admission.
+
+# Caption-version definitions are source reconciliations only. The earlier upload, project,
+# and historical pins above remain unchanged; the 462-leaf review population is preserved.
+captionVersionDefinitionSourceReconciliations:
+- path: .product-experience/pdp-1-domain-data/operations.yaml
+  previousSha256: bee4b826a3f5ab15290d80e80184044e51cdf810154eac903aace28099524185
+  currentSha256: faa1da75605eb9ed1a0100c7f7d8bd77d6007510a517552b2092fc9a781f2322
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-058
+  exactChangedRecords: [media.operation.caption-version-write, media.operation.caption-version-read]
+  semanticImpact: The two existing operations define immutable caption registration and exact-pair or same-scope registration-receipt reads with typed source/parent identities, source-clock ticks, scoped authority and exact request fingerprints.
+  capabilityImpact: All existing 462 leaves, their associations and applicability dispositions remain unchanged; 383 remain unresolved and machine-operation coverage remains zero.
+  acceptanceEffect: Bounded source-definition reconciliation only; no transport, runtime, capability, phase or Lifecycle admission.
+- path: .product-experience/pdp-1-domain-data/domain-objects.yaml
+  previousSha256: 52c38599cd1d6b429b46fc2e049c68f7344c769b952a7419b27dc5a0d110ce27
+  currentSha256: 51eb27ef620db17780ecbd24a11ad8a32974e76b6b2438031d980cd5216558dd
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-058
+  exactChangedRecords: [media.domain.caption-version]
+  semanticImpact: The existing caption-version object receives bounded immutable identity, source artifact-version, typed parent, language disposition, source clock, and registration provenance semantics.
+  capabilityImpact: The 462-leaf population and leaf-to-domain-object associations, applicability decisions and operation dispositions remain unchanged; 383 remain unresolved and machine-operation coverage remains zero.
+  acceptanceEffect: Bounded object-definition reconciliation only; no runtime persistence, capability, phase or Lifecycle admission.
+- path: .product-experience/pdp-1-domain-data/action-contracts.yaml
+  previousSha256: 122e3fd6e35c46d5a3cfa22951ef36e586a789b75396c4ddb64a66f3c1488851
+  currentSha256: 4c1a8920f8f8060e111179ba39ae98d752c552425925aff38873f5e926158e97
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-058
+  exactChangedRecords: [media.action.save-caption-version, media.action.compare-caption-versions]
+  semanticImpact: Existing caption save and comparison actions are defined as immutable registration and exact-pair or scoped receipt observations; registration does not approve, deliver, publish or grant rights.
+  capabilityImpact: The 462-leaf population and existing leaf/action/operation associations and review dispositions remain unchanged; 383 leaves remain unresolved and machine-operation coverage remains zero.
+  acceptanceEffect: Source-level action semantics only; runtime and interface execution remain NOT_ADMITTED.
+- path: .product-experience/pdp-3-product-experience/action-registry.yaml
+  previousSha256: ed643131760a1d0ccd98ce418d33595173c1e1d41e15c708ba5c7ef4cb6c3258
+  currentSha256: c9760aec2e556cba9c514b90cc5a519255c16682e2b8e4cec6d2bbf3c41568af
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-060
+  sourceGrammarDecisionRef: .product-experience/decision-log.md#PXD-059
+  exactChangedRecords: [media.action.save-caption-version, media.action.compare-caption-versions]
+  semanticImpact: The existing save action requires explicit registration confirmation and remains distinct from approval; comparison preserves the exact pair and is read-only, with both actions tied to their existing canonical operation identities.
+  capabilityImpact: Existing capability associations and the 462-leaf population remain unchanged; 383 remain unresolved and machine-operation coverage remains zero.
+  acceptanceEffect: Bounded J-03 action definition reconciliation only; no host, runtime, transport, capability, phase or Lifecycle admission.

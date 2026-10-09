@@ -10,8 +10,8 @@ componentIds: []
 patternIds:
   - media.gui.pattern.transcript-and-playback
 tokenDependencies: []
-domainObjectRefs: []
-operationRefs: []
+domainObjectRefs: [media.domain.caption-version, media.domain.artifact-version]
+operationRefs: [media.operation.caption-version-read]
 requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 stateRefs: []
@@ -29,11 +29,11 @@ actionConsequences:
   - actionId: media.action.compare-caption-versions
     capabilityRefs: [media.artifact.inspect]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
+    referenceBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-060; runtime-admission-pending
+    operationRef: media.operation.caption-version-read
     effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    consequence: read-only-comparison-of-two-exact-caller-authorized-version-identities; preserve-pair-and-source-clock-comparability; no-winner-or-approval
+    bindingStatus: source-defined-action-semantics; runtime-and-screen-admission-pending
 responsiveBehavior:
   reference: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
   status: proposal-unverified
@@ -132,3 +132,14 @@ sourceRefs:
 - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-03
+journeyDefinitionBindings:
+  journeyRef: J-03
+  decisionRef: .product-experience/decision-log.md#PXD-060
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-058
+  grammarDecisionRef: .product-experience/decision-log.md#PXD-059
+  runtimeAdmission: NOT_ADMITTED
+  applicability: required-J03-step-J03-8
+  operationRefs: [media.operation.caption-version-read]
+  domainObjectRefs: [media.domain.caption-version, media.domain.artifact-version]
+  stateRefs: []
+  semanticBoundary: Exact authorized pair read; source or clock mismatch is explicit; unavailable fields are not equality and no winner, approval, merge, or rights are inferred.

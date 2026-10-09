@@ -107,7 +107,7 @@ test("residual report validates exact projection dispositions and pinned sources
   ]);
   assert.equal(report.lifecycle.obligationCount, 347);
   assert.equal(report.lifecycle.totalProofRoutes, 347);
-  assert.equal(report.lifecycle.obligationsMissingCaseIds.length, 254);
+  assert.equal(report.lifecycle.obligationsMissingCaseIds.length, 252);
   assert.equal(report.lifecycle.receiptEvaluation.status, "NOT_EVALUATED");
   assert.equal(report.lifecycle.receiptEvaluation.authoritativeReceiptCount, null);
   assert.equal(report.lifecycle.currentnessEvaluation.status, "NOT_EVALUATED");

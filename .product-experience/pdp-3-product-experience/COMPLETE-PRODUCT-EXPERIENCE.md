@@ -89,7 +89,7 @@ acceptance.
   candidate that passes its available public validator. It projects 31
   component contracts, 47 views, 30 journey records with 130 of 130 source
   steps, 20 interactions,
-  49 states, 0 transitions, 146 actions, 2 effects, 20 finality candidates,
+  49 states, 0 transitions, 146 actions, 3 effects, 21 finality candidates,
   5 recovery records, 15 scenarios, 15 fixture descriptors, 3 search
   definitions, and 5 inspection definitions. Its nine semantic blockers are
   `componentContracts`, `views`,
@@ -99,6 +99,11 @@ acceptance.
   records and one immutable project-reference effect/finality definition. Conditional
   upload reversal and unknown read reversibility remain explicitly unprojected; no
   executable recovery or canonical attachment operation is admitted.
+  PXD-058 through PXD-061 define only J-03 steps 7 and 8: immutable caption
+  registration and exact-pair comparison, including same-request reconciliation.
+  Registration is separate from review approval; internal provenance is not export.
+  UNKNOWN comparison reversibility remains unprojected. The first six J-03 steps
+  retain their prior definitions, and runtime verification remains not-run.
   Four J-29 step intents and all eight J-29/J-30 step-view links are now explicit
   Media owner selections from the source intent and view inventories. All 130
   steps project as partial proposals; these links do not admit screens or

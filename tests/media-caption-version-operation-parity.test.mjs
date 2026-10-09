@@ -28,7 +28,7 @@ const bindings = [
     uiMarker: 'actionPort.invoke("media.action.save-caption-version", purpose ? { purpose } : {});',
     effectMarkers: ["registeredCaptionVersions: [...state.registeredCaptionVersions, versionId]", "captionHistory: [...state.captionHistory, registeredVersion]"],
     finalityMarkers: ["A new caption version is saved; it has not been delivered or published."],
-    actionContractMarkers: ["effect: register-a-new-caption-artifact-version-with-parent-and-operation-provenance", "finality: internal-version-registration-only; no-delivery-or-publication"],
+    actionContractMarkers: ["effect: append-a-new-immutable-caption-version-with-exact-parent-and-required-registration-provenance-metadata; no-provenance-export", "finality: internal-version-registration-only; no-delivery-or-publication"],
     authorityMarkers: ["state.access.registerDerivedVersion", "rights-and-retention-rechecked"],
     idempotencyMarker: "no-idempotency-key-or-deduplication; each repeated permitted fixture action appends a distinct generated version",
     errorCodes: ["VERSION_REGISTRATION_NOT_ALLOWED", "SOURCE_NOT_READY", "CAPTION_DRAFT_EMPTY", "CAPTION_VERSION_CONFLICT", "CAPTION_ALIGNMENT_REQUIRED"],
@@ -133,7 +133,7 @@ test("source parity rejects missing operation, wrong CLI crosswalk, and missing 
 test("source parity rejects mismatched command/action dispatch and stale error semantics", () => {
   const mismatchedDispatch = bindings[0].actionResult.replace("media.action.save-caption-version", "media.action.correct-caption");
   assert.match(validate({ ...base, cliSource: base.cliSource.replace(bindings[0].actionResult, mismatchedDispatch) }).join("\n"), /parser does not emit exact CLI identity\/action pair/u);
-  assert.match(validate({ ...base, operations: base.operations.replace("CAPTION_VERSIONS_NOT_COMPARABLE", "CAPTION_VERSION_MISSING") }).join("\n"), /observed error CAPTION_VERSIONS_NOT_COMPARABLE missing/u);
+  assert.match(validate({ ...base, operations: base.operations.replaceAll("CAPTION_VERSIONS_NOT_COMPARABLE", "CAPTION_VERSION_MISSING") }).join("\n"), /observed error CAPTION_VERSIONS_NOT_COMPARABLE missing/u);
   assert.match(validate({ ...base, parity: base.parity.replace("type: DOMAIN_QUERY\n    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.compare-caption-versions]", "type: DOMAIN_COMMAND\n    sourceRecord: .product-experience/pdp-3-product-experience/action-registry.yaml#actions[media.action.compare-caption-versions]") }).join("\n"), /typed UI action no longer classifies as DOMAIN_QUERY/u);
 });
 

@@ -121,8 +121,8 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   }, {
     resolvedActorCount: 30,
     unresolvedActorCount: 0,
-    authoredStepIds: 17,
-    authoredIntents: 8,
+    authoredStepIds: 19,
+    authoredIntents: 10,
     authoredViewIntents: 98,
     authoredLabels: 4,
     authoredTransitionRefArrays: 0,
@@ -171,11 +171,11 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   assert.match(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.disposition, /PROJECTED_AS_CANDIDATE_ACTOR_REFS/u);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.p3OrderedStepCount, 130);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.projectedStepCount, 130);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.explicitSourceIntentCount, 106);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.linkedViewPurposeProposalOnlyCount, 24);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.explicitSourceIntentCount, 108);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.linkedViewPurposeProposalOnlyCount, 22);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.omitted.length, 0);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNullCount, 128);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNoMutationReasonCount, 7);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNoMutationReasonCount, 9);
   assert.match(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.disposition, /required schema placeholder/u);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.transitionRefsNull, 128);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.stepViewUnresolved, 0);
@@ -246,7 +246,7 @@ test('PDP-3 finality projects only explicit confirmations and source boolean rev
   const explicit = actionRegistry.actions.flatMap((action) => action.actionDefinitionSemantics?.publicFinality ? [action.actionDefinitionSemantics.publicFinality] : []);
   const explicitActions = new Set(explicit.map((entry) => entry.actionRef));
   assert.equal(model.finality.length, expected.filter((action) => !explicitActions.has(action.id)).length + explicit.length);
-  assert.equal(model.finality.length, 20);
+  assert.equal(model.finality.length, 21);
   for (const finality of model.finality) {
     const action = sourceById.get(finality.actionRef);
     assert.ok(action, `finality action ${finality.actionRef} is exact`);
@@ -272,8 +272,10 @@ test('PDP-3 preserves exact action prose while leaving unsupported effect taxono
     if (["CONDITIONAL", "UNKNOWN"].includes(source.actionDefinitionSemantics?.reversibility.kind)) assert.equal(definedEffect, undefined);
   }
   assert.deepEqual(model.effects, actionRegistry.actions.flatMap((action) => action.actionDefinitionSemantics?.publicEffect ? [action.actionDefinitionSemantics.publicEffect] : []));
-  assert.equal(model.effects.length, 2, 'the unconditional attachment and project-creation definitions have directly representable effects');
-  assert.deepEqual(model.effects.map(({ id }) => id).sort(), ['media.effect.attach-source-version', 'media.effect.create-empty-project']);
+  assert.equal(model.effects.length, 3, 'only the unconditional attachment, project-creation, and immutable caption-registration effects have directly representable definitions');
+  assert.deepEqual(model.effects.map(({ id }) => id).sort(), [
+    'media.effect.attach-source-version', 'media.effect.create-empty-project', 'media.effect.register-caption-version',
+  ]);
   const blocker = specification.fieldMappingBlockers.find(({ field }) => field === 'effects');
   assert.ok(blocker?.reasons?.some((reason) => /effect kind|reversib/iu.test(reason)));
 });

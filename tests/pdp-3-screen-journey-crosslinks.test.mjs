@@ -162,7 +162,7 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
   assert.equal(journeys.coverageObservation.stepBindings.screenContractRef.blocker.startsWith("none;"), true);
   assert.equal(linkedViewJourneyRefs, 132);
   assert.deepEqual({ actionLinks, requirementLinks, capabilityLinks, outcomeLinks, operationLinks }, {
-    actionLinks: 18, requirementLinks: 20, capabilityLinks: 22, outcomeLinks: 72, operationLinks: 19,
+    actionLinks: 18, requirementLinks: 20, capabilityLinks: 21, outcomeLinks: 72, operationLinks: 19,
   });
 });
 

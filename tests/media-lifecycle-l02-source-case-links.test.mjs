@@ -45,6 +45,65 @@ function validateLink(link) {
   const obligation = obligationsById.get(link.obligationId);
   assert.ok(obligation.caseIds.includes(link.caseId), `${link.caseId} is not a case of ${link.obligationId}`);
   const sourcePath = link.testIdentity?.sourcePath;
+  if (link.method === 'SOURCE_DEFINITION_CONTRACT_ASSERTIONS') {
+    const captionCases = {
+      'media.definition-case.caption-version.register': {
+        obligationId: 'media.pdp-1.requirement.media.operation.caption-version-write',
+        testName: 'caption version registration definition',
+        requiredVariables: [
+          'missingSourceVersion', 'parentOmittedFromFingerprint', 'approvalPromoted',
+          'executionAdmissionForged', 'legacyParentEquated', 'absenceAllowsRetry',
+        ],
+        assertions: [
+          'assert.deepEqual(validateMediaCaptionVersionDefinitions(base), []);',
+          'assert.deepEqual(write.inputSemantics.requiredFields',
+          'assert.deepEqual(write.outputSemantics.successFields',
+          'assert.match(write.scopeStatus, /runtime-NOT_ADMITTED/u);',
+        ],
+      },
+      'media.definition-case.caption-version.compare': {
+        obligationId: 'media.pdp-1.requirement.media.operation.caption-version-read',
+        testName: 'caption version comparison definition',
+        requiredVariables: [
+          'sourceEquivalenceForged', 'pairIdentityDropped', 'requestSelectorRemoved',
+          'unknownMayReplay', 'globalListAdded', 'approvalClaimed',
+        ],
+        assertions: [
+          'assert.deepEqual(validateMediaCaptionVersionDefinitions(base), []);',
+          'assert.deepEqual(read.inputSemantics.selectorKindValues',
+          'assert.deepEqual(read.outputSemantics.EXACT_PAIR.requiredFields',
+          'assert.deepEqual(read.outputSemantics.REGISTRATION_REQUEST.requiredFields',
+          'assert.deepEqual(read.transition.transitionRefs, []);',
+        ],
+      },
+    };
+    const expected = captionCases[link.caseId];
+    assert.ok(expected, `unexpected caption source-definition case ${link.caseId}`);
+    assert.equal(link.obligationId, expected.obligationId);
+    assert.equal(sourcePath, 'tests/media-caption-version-operation-definitions.test.mjs');
+    assert.equal(link.testIdentity.testName, expected.testName);
+    assert.equal(link.assertionEvidence, expected.assertions[0]);
+    assert.ok(link.negativeAssertionVariables.length > 0, `${expected.testName} must link negative cases`);
+    assert.equal(link.scope, 'PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY');
+    assert.equal(link.admission, 'NOT_LIFECYCLE_ADMITTED');
+    assert.equal(link.ownerDecisionRef, '.product-experience/decision-log.md#PXD-061');
+    const source = fs.readFileSync(sourcePath, 'utf8');
+    const body = registeredTestBody(source, expected.testName);
+    assert.ok(body, `unregistered source-definition test ${expected.testName}`);
+    for (const assertion of expected.assertions) {
+      assert.ok(body.includes(assertion), `${expected.testName} no longer includes required contract assertion ${assertion}`);
+    }
+    for (const variable of expected.requiredVariables) {
+      assert.ok(link.negativeAssertionVariables.includes(variable), `source link omits required negative case ${variable}`);
+    }
+    for (const variable of link.negativeAssertionVariables) {
+      assert.match(body, new RegExp(`\\b${variable}\\b`, 'u'), `${expected.testName} no longer declares negative case ${variable}`);
+    }
+    assert.ok(body.includes('validateMediaCaptionVersionDefinitions(') && body.includes(".join('\\n')"),
+      `${expected.testName} negative cases must exercise the source validator`);
+    return;
+  }
+
   if (link.method === 'PARAMETERIZED_SOURCE_DEFINITION_ASSERTIONS') {
     assert.equal(sourcePath, 'tests/media-component-definition-proof-cases.test.mjs');
     const parameter = link.parameterizedCase;
@@ -96,9 +155,9 @@ test('L-02 source-link proposal preserves all obligations and validates exact ex
   assert.equal(proposal.status, 'SOURCE_LINK_PROPOSAL_PARTIAL_NOT_EXECUTION_ADMITTED');
   assert.deepEqual(proposal.obligationIds, obligationIds, 'proposal denominator must preserve every obligation ID in source order');
   assert.equal(new Set(proposal.obligationIds).size, 347);
-  assert.equal(new Set(proposal.candidateLinks.map(({ obligationId }) => obligationId)).size, 38);
-  assert.equal(proposal.candidateLinks.length, 59);
-  assert.equal(proposal.unmappedObligationIds.length, 309);
+  assert.equal(new Set(proposal.candidateLinks.map(({ obligationId }) => obligationId)).size, 40);
+  assert.equal(proposal.candidateLinks.length, 61);
+  assert.equal(proposal.unmappedObligationIds.length, 307);
   assert.deepEqual(new Set(proposal.unmappedObligationIds), new Set(obligationIds.filter((id) =>
     !proposal.candidateLinks.some((link) => link.obligationId === id))));
 
@@ -109,6 +168,12 @@ test('L-02 source-link proposal preserves all obligations and validates exact ex
     links.add(key);
     validateLink(link);
   }
+
+  const captionDefinitionLinks = proposal.candidateLinks.filter((link) => link.method === 'SOURCE_DEFINITION_CONTRACT_ASSERTIONS');
+  assert.deepEqual(captionDefinitionLinks.map(({ caseId }) => caseId).sort(), [
+    'media.definition-case.caption-version.compare',
+    'media.definition-case.caption-version.register',
+  ]);
 
   const sourceAvailableLinks = proposal.candidateLinks.filter((link) => link.caseId === 'media.scenario.source-available');
   assert.deepEqual(sourceAvailableLinks.map(({ obligationId }) => obligationId).sort(), [
@@ -151,4 +216,25 @@ test('parameterized definition cases reject swapped scope, parameters and invent
     (link) => { link.ownerDecisionRef = 'invented decision'; },
     (link) => { link.testIdentity.sourcePath = 'apps/invented-test.mjs'; },
   ]) { const link = structuredClone(valid); mutate(link); assert.throws(() => validateLink(link)); }
+});
+
+test('caption source-definition links reject invented case identity, partial-scope promotion, admission and missing negatives', () => {
+  const links = proposal.candidateLinks.filter((link) => link.method === 'SOURCE_DEFINITION_CONTRACT_ASSERTIONS');
+  assert.equal(links.length, 2);
+  for (const valid of links) {
+    validateLink(valid);
+    for (const mutate of [
+      (link) => { link.caseId = 'media.definition-case.caption-version.invented'; },
+      (link) => { link.testIdentity.testName = 'invented caption test'; },
+      (link) => { link.assertionEvidence = 'assert(true);'; },
+      (link) => { link.negativeAssertionVariables = link.negativeAssertionVariables.slice(1); },
+      (link) => { link.scope = 'FULL_OBLIGATION_PASS'; },
+      (link) => { link.admission = 'LIFECYCLE_ADMITTED'; },
+      (link) => { link.ownerDecisionRef = '.product-experience/decision-log.md#PXD-999'; },
+    ]) {
+      const candidate = structuredClone(valid);
+      mutate(candidate);
+      assert.throws(() => validateLink(candidate));
+    }
+  }
 });

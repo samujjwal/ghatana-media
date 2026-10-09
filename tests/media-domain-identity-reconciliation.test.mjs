@@ -69,19 +69,24 @@ test("PDP-1 object source references resolve to files and PDP-0 anchors resolve 
   }
 });
 
-test("caption version catalog entry remains scoped to its observed simulation fixture", () => {
+test("caption version has bounded immutable domain semantics while the simulation shape remains synthetic", () => {
   const domainObjects = readFileSync(domainObjectsPath, "utf8");
   const fixtureModel = readFileSync("libs/media-experience-simulation/src/model.ts", "utf8");
   const fixtureData = readFileSync("libs/media-experience-simulation/src/fixtures.ts", "utf8");
   const captionVersion = blockForId(domainObjects, "media.domain.caption-version");
 
   assert.ok(captionVersion, "canonical reconciliation has a matching caption-version catalog target");
-  assert.match(captionVersion, /kind: observed-local-simulation-fixture-record/u);
-  assert.match(captionVersion, /identity: fixture-versionId; canonical-key-unbound/u);
-  assert.match(captionVersion, /immutable-version-and-durable-history-semantics-unbound/u);
-  assert.match(captionVersion, /not-an-observed-runtime-or-persistence-record/u);
+  assert.match(captionVersion, /kind: immutable-derived-content-version/u);
+  assert.match(captionVersion, /identity: tenantId-plus-sourceArtifactId-plus-sourceArtifactVersionId-plus-opaque-captionVersionId; identity-is-not-a-content-digest/u);
+  assert.match(captionVersion, /lineage: exact-source-artifact-version-and-typed-parent-ref-\(TRANSCRIPT_VERSION-or-CAPTION_VERSION\)/u);
+  assert.match(captionVersion, /legacy-media\.domain\.transcription-UUID-and-fixture-parentVersionId-are-not-equivalent/u);
+  assert.match(captionVersion, /lifecycle: append-only-immutable-after-registration/u);
+  assert.match(captionVersion, /registrationBoundary: registration-receipt-and-version-creation-do-not-mean-reviewed-approved-delivered-or-published/u);
+  assert.match(captionVersion, /scopeStatus: canonical-owner-semantics-bounded-under-PXD-058; observed-fixture-shape-remains-synthetic; runtime-NOT_ADMITTED/u);
+  assert.match(captionVersion, /observedProjection: libs\/media-experience-simulation\/src\/model\.ts#CaptionVersionRecord-and-fixtures; fixture-record-uses-untyped-parentVersionId-and-sourceArtifactVersion-only/u);
   assert.match(fixtureModel, /export interface CaptionVersionRecord[\s\S]*?readonly versionId: string;[\s\S]*?readonly sourceArtifactVersion: string;[\s\S]*?readonly parentVersionId: string;/u);
   assert.match(fixtureData, /captionHistory: \[[\s\S]*?versionId: "caption-v0"[\s\S]*?parentVersionId: "transcript-v1"/u);
+  assert.doesNotMatch(fixtureModel, /readonly parentVersionKind:/u, "the synthetic fixture must not be mistaken for the typed canonical parent contract");
 });
 
 test("artifact, job, and lease identities preserve the source-specific keys without promoting them", () => {
