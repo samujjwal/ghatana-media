@@ -1778,6 +1778,13 @@
     "title": "Journey Registry"
   },
   {
+    "artifactId": "ART-P3-MIGRATION-SEMANTIC-RULES",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml",
+    "title": "Migration Semantic Rules"
+  },
+  {
     "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-NAVIGATION-CONTRACTS-YAML",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",

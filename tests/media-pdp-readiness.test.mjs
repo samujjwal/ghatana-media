@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { buildReadiness, validateTaskPopulation, taskIds, verificationCutChanged, resolveCriterionReviewSourceCut } from '../scripts/report-media-pdp-readiness.mjs';
+import { buildReadiness, validateTaskPopulation, taskIds, verificationCutChanged, resolveCriterionReviewSourceCut, assessCurrentTaskDependencies } from '../scripts/report-media-pdp-readiness.mjs';
 import { buildMediaProductDefinitionResidualReport } from '../scripts/lib/media-product-definition-residuals.mjs';
 const audit=JSON.parse(fs.readFileSync('docs/implementation/media-task-completion-blocker-report-2026-10-08.json','utf8'));
 const residual=buildMediaProductDefinitionResidualReport();
@@ -78,4 +78,19 @@ test('a reviewed current direct definition criterion remains separate from origi
  assert.equal(reopened.definitionCriterionSatisfied,false,'prior green tests and matching hashes cannot close a known semantic defect');
  assert.equal(reopened.taskSpecificSourceDone,'REOPENED_SOURCE_CONTRACT_CORRECTION_REQUIRED');
  assert.equal(make({...review,currentCorrectiveReview:{status:'APPROVED_CURRENT_CORRECTION'}}).definitionCriterionSatisfied,true);
+});
+
+test('current dependency observations cannot inherit historical no-unmet flags or source-test acceptance', () => {
+ const rows = assessCurrentTaskDependencies([
+  {id:'P0-01', taskSpecificSourceDone:'VERIFIED_IN_CURRENT_SOURCE', independentReviewAccepted:'NOT_EVALUATED', LifecyclePhaseReceiptCurrent:'NOT_EVALUATED'},
+  {id:'P0-03', taskSpecificSourceDone:'NOT_ESTABLISHED'},
+  {id:'P0-04', dependencies:'P0-01 through P0-03; X-01.', dependencyReady:'PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED'},
+ ]);
+ const observed = rows.find(row=>row.id==='P0-04').currentDependencyAssessment;
+ assert.equal(observed.status,'NOT_ESTABLISHED');
+ assert.deepEqual(new Set(observed.records.map(row=>row.id)),new Set(['P0-01','P0-02','P0-03','X-01']));
+ assert.equal(observed.records.find(row=>row.id==='P0-01').sourceCriterion,'VERIFIED_IN_CURRENT_SOURCE');
+ assert.equal(observed.records.find(row=>row.id==='P0-01').readiness,'NOT_ESTABLISHED');
+ assert.equal(observed.records.find(row=>row.id==='X-01').boundary,'EXTERNAL_DEPENDENCY_ONLY');
+ assert.equal(rows.find(row=>row.id==='P0-04').dependencyReady,'PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED');
 });

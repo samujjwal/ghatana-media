@@ -1,0 +1,631 @@
+schemaVersion: media.pdp3-migration-semantic-rules.v1
+status: Media owner-reviewed claim-specific source definitions; no runtime or
+  independent acceptance claim
+sourceAuthority: docs/migration/expert-reviewed-master-plan.md
+decisionRef: .product-experience/decision-log.md#PXD-097
+count: 40
+records:
+  - id: media.pdp3.migration-rule.mpsem-0003-c003
+    claimId: MPSEM-0003-C003
+    sourceText: Material in this plan that has not been extracted into those
+      authorities remains a proposal, not a parallel semantic authority
+    sourceTextSha256: 796bf4aa5433b26fa70138490bc218b8ddc1e5fc959683e0e9b35270a799ae1a
+    semanticRule: Unextracted migration-plan material stays a proposal; only the
+      applicable PDP authority and its explicitly accepted decisions define
+      canonical product meaning. Execution-plan text cannot create a parallel
+      semantic authority.
+    positiveCase: An unextracted plan clause is explicitly marked proposal and
+      resolves to no canonical product state until an applicable PDP decision
+      accepts it.
+    negativeCase: Promoting unextracted plan prose to an accepted operation/state meaning.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0003-c005
+    claimId: MPSEM-0003-C005
+    sourceText: Task order, migration procedure, phase deliverables, verification
+      strategy, and downstream handoff guidance remain useful execution
+      references.
+    sourceTextSha256: 3626cbe3fc07250639d09916c6600f78b9ab2a8d7b441227e04532e7bfc3342e
+    semanticRule: Task order, migration procedure, phase deliverables, verification
+      strategy and downstream handoff guidance remain execution references. They
+      do not establish source correctness, task completion, phase acceptance or
+      current Lifecycle receipt.
+    positiveCase: A report may use the plan for sequencing while independently
+      sourcing task and phase status.
+    negativeCase: Treating an execution checklist entry as evidence that its product
+      obligation or acceptance gate is complete.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0055-c003
+    claimId: MPSEM-0055-C003
+    sourceText: change only with a separately approved compatibility map |
+    sourceTextSha256: bc22a4cc734d7db86bf1832412ac96375547a856c22628058f534dafabf9ee4c
+    semanticRule: Existing Java namespaces remain compatible during relocation;
+      namespace changes require a separately approved compatibility map.
+    positiveCase: A namespace change is blocked until an explicit compatibility map
+      is approved.
+    negativeCase: Inferring approval from package relocation or source availability.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0091-c003
+    claimId: MPSEM-0091-C003
+    sourceText: Request owner improvements rather than copying implementations |
+    sourceTextSha256: 4fffa5f08e2385e5448374432b3aa7a7b7264190450c45d3e374eed2d4237a47
+    semanticRule: Media consumes accepted published Shared contracts and requests
+      owner improvements rather than copying Shared implementations. Unpublished
+      or unaccepted contracts do not imply package readiness.
+    positiveCase: A Media adapter references a versioned public Shared contract and
+      records missing capability as a dependency.
+    negativeCase: Vendoring or duplicating generic Shared implementation as a
+      substitute for an accepted public contract.
+    sourceAuthorityRefs:
+      - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.genericMechanicsBoundary
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0101-c001
+    claimId: MPSEM-0101-C001
+    sourceText: Clinical/organizational intake and review meaning
+    sourceTextSha256: 4945c8edc395972dde1ea334c2b489f884f7ebfc0ddcb935d93f657fda78e2c0
+    semanticRule: Clinical and organizational intake/review meaning remains owned by
+      the domain product; Media preserves the document-extraction integration
+      and never makes clinical or KYC decisions.
+    positiveCase: Media returns extracted media/document evidence without asserting
+      clinical or identity conclusions.
+    negativeCase: Inferring or changing clinical, organizational, or KYC decisions
+      from media extraction.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0122-c003
+    claimId: MPSEM-0122-C003
+    sourceText: it is not another editable set of rules.
+    sourceTextSha256: 311f3e8edf0baeb3475fd9dad06f67e189c5e59d46466b970a4fdddcc9c2b193
+    semanticRule: The readable product constitution is generated from or
+      unambiguously references the single structured requirement register; it is
+      not a second editable rule set.
+    positiveCase: Changing canonical requirement meaning changes the structured
+      register and the generated/readable representation follows it.
+    negativeCase: Editing the readable constitution independently as a competing
+      policy authority.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0178-c003
+    claimId: MPSEM-0178-C003
+    sourceText: Declared, qualified and currently available are different states
+    sourceTextSha256: 40232d0391ac1a814441114ecc3e1e34fe860aba792d5720343b66a36b762683
+    semanticRule: Declared, qualified and currently available are distinct states. A
+      declaration does not prove qualification; qualification does not prove
+      present availability.
+    positiveCase: A result reports each dimension separately with evidence or UNKNOWN.
+    negativeCase: Collapsing declaration, qualification and availability into a
+      single eligible/supported label.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0204-c003
+    claimId: MPSEM-0204-C003
+    sourceText: Preserve the source and compare the result.
+    sourceTextSha256: c7980ccd670863d20d2a6350b9cf4b9233cc7310a55b30230702fe4bbf52d456
+    semanticRule: Quality review preserves the exact source and compares the
+      candidate/result against that source; preservation evidence and measured
+      deltas are explicit.
+    positiveCase: A review record binds immutable source and result versions plus
+      metric/evidence references.
+    negativeCase: Replacing the source or treating a sharper-looking result as
+      sufficient acceptance.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0225-c002
+    claimId: MPSEM-0225-C002
+    sourceText: not a mutation of the source graph |
+    sourceTextSha256: 0c90a76624f8b21b74ef20c074aaf0c34279f76133faae0acc1e9777bf9fc738
+    semanticRule: MediaRun and Checkpoint represent mutable execution progression
+      and immutable observations; they do not mutate the source graph.
+    positiveCase: A run appends execution observations while source graph
+      identity/version remains unchanged.
+    negativeCase: Writing run/checkpoint status as a source-graph edit.
+    sourceAuthorityRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#proposedRecordCatalog/@id=MediaRun-and-Checkpoint
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0280-c001
+    claimId: MPSEM-0280-C001
+    sourceText: Use deterministic measurements when sufficient.
+    sourceTextSha256: ce0020382c01e2d1fab4f5efccd47d8ccadc53e77fedf4bd680821089633d2e7
+    semanticRule: Use deterministic measurements when they are sufficient for the
+      requested analysis or decision.
+    positiveCase: A deterministic measurement is selected when its declared
+      applicability covers the requested subject and metric.
+    negativeCase: Dispatching a generative model when deterministic measurements
+      already satisfy the stated need.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0280-c003
+    claimId: MPSEM-0280-C003
+    sourceText: generative models may repair only within authorized
+      preservation/cost bounds.
+    sourceTextSha256: 9d2ace0c715ceb7be908a6eef617faca417491e4a597ce099842e1e9dbd9b37a
+    semanticRule: Generative repair is permitted only within explicit authorized
+      preservation and cost bounds; an LLM critique alone cannot approve
+      technical or scientific correctness.
+    positiveCase: Repair inputs bind preservation constraints and cost limits, and
+      review uses independent measurement evidence.
+    negativeCase: Allowing a generative change outside authorized bounds or
+      approving it from critique text alone.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0288-c001
+    claimId: MPSEM-0288-C001
+    sourceText: "`preserve`, `enhance`, `creative`"
+    sourceTextSha256: c46d702ccc36ddf8d16c984ad549198ea750c7ce3a6a382384ca992440a9322e
+    semanticRule: The values `preserve`, `enhance`, and `creative` are distinct
+      requested processing intents and retain their separate policy
+      implications.
+    positiveCase: A request records one declared intent and selects only
+      transformations allowed for that intent.
+    negativeCase: Treating creative intent as permission to violate preservation
+      constraints, or treating preserve as a generative repair request.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0291-c007
+    claimId: MPSEM-0291-C007
+    sourceText: Record requested/effective profiles and reasons.
+    sourceTextSha256: 11849a332438d41c508f8d618ddc7cd84efbf4d14771f28618710309794ed1da
+    semanticRule: Fallback records requested and effective profiles and the reason
+      for each difference, including the relevant quality, resource and
+      confirmation bounds.
+    positiveCase: A fallback observation names both profiles and an explicit
+      reason/changed dimension.
+    negativeCase: Silently substituting a profile or treating resource failure as
+      permission to change a strict output.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0297-c003
+    claimId: MPSEM-0297-C003
+    sourceText: Preserve existing response shapes for supported consumers until
+      explicit version negotiation/migration.
+    sourceTextSha256: a1ba0a6dcb28f895436e1c67061baeb89a08d5e2fd6a102f92f606f3f3124845
+    semanticRule: Supported consumers retain their existing response shapes until
+      explicit version negotiation or migration authorizes a shape change.
+    positiveCase: A response-shape change is gated by a versioned compatibility map
+      and consumer negotiation.
+    negativeCase: Changing a supported response shape merely because a new
+      implementation or schema exists.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0299-c002
+    claimId: MPSEM-0299-C002
+    sourceText: Define fail-fast versus continue-on-item-failure explicitly
+    sourceTextSha256: 1c35d78cb777158585ad990b07e2917b70ef571591b4e48d355e8fb854757ea8
+    semanticRule: A batch contract explicitly selects fail-fast or
+      continue-on-item-failure semantics and reports per-item results
+      accordingly.
+    positiveCase: The batch definition names its failure mode and returns each
+      attempted item outcome under continue mode.
+    negativeCase: Inferring batch failure behavior from worker ordering or hiding
+      failed items behind one aggregate success.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0305-c001
+    claimId: MPSEM-0305-C001
+    sourceText: Submit, status/list, progress stream or polling, cancel, explicit
+      retry, reconcile, output lookup
+    sourceTextSha256: 5f00817e2198746689e730b4724d499991010bbf70911ed6294c72a46acbcb5b
+    semanticRule: Long-running work defines submit, status/list, progress
+      observation, cancel request, explicit retry, reconciliation and output
+      lookup as separate operations with separate finality.
+    positiveCase: A client can distinguish submission receipt, status observation,
+      cancellation request, retry request, reconciliation and registered output.
+    negativeCase: Treating stop-watching as cancellation, retry as reconciliation,
+      or accepted submission as completed output.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0306-c001
+    claimId: MPSEM-0306-C001
+    sourceText: "| Project/scene/timeline"
+    sourceTextSha256: 944740668fc3396fd63847e49ce7ef1355b7a4ec20b8ba2bcadaf9c62db4c632
+    semanticRule: The project/scene/timeline context remains the explicit ownership
+      boundary for the described composition workflow.
+    positiveCase: A scene or timeline edit is scoped to its exact project and source version.
+    negativeCase: Applying a scene/timeline operation to a global or unrelated
+      project context.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0315-c005
+    claimId: MPSEM-0315-C005
+    sourceText: Published-package tests run without sibling repository source,
+      provider credentials or runtime implementation imports.
+    sourceTextSha256: b0923515a92c4869cb858d90ca36b5d82f00c4453264642d5b1237395a3bc60b
+    semanticRule: Published-package tests execute without sibling repository source,
+      provider credentials or runtime-implementation imports.
+    positiveCase: An isolated consumer installs the packed artifact and validates
+      exports and representative contracts with no monorepo path dependency.
+    negativeCase: Passing only because source files, provider credentials or
+      implementation modules are reachable from the checkout.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0316-c002
+    claimId: MPSEM-0316-C002
+    sourceText: Simple aliases compile into the same request/plan
+    sourceTextSha256: f4ba4d3823b4ec8ce87253b1583acd5d6a8daa3bfdecb5e919ad3c5ed9296d1f
+    semanticRule: Simple CLI aliases compile to the same canonical request/plan as
+      their long form.
+    positiveCase: Alias and canonical form produce structurally identical request
+      plans for equivalent arguments.
+    negativeCase: Giving an alias distinct business semantics or silently changing
+      the selected operation.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0319-c001
+    claimId: MPSEM-0319-C001
+    sourceText: "`plan --request FILE`, `run --plan FILE`, `run --request FILE`"
+    sourceTextSha256: 0c83f7332f634ae8ec2979819446f746eb0f18fcae554b35db6e13f7077c400b
+    semanticRule: "The CLI distinguishes planning from execution: `plan --request
+      FILE`, `run --plan FILE`, and `run --request FILE` have explicit,
+      non-interchangeable input semantics."
+    positiveCase: Each accepted form resolves to the documented plan or request type
+      before any execution request.
+    negativeCase: Treating plan creation as execution authorization or accepting an
+      unrelated file shape.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0335-c004
+    claimId: MPSEM-0335-C004
+    sourceText: Diagnostics use stderr and are redacted.
+    sourceTextSha256: 34ec74e9966e94e6652c42410c5ce68a629eeec669147237d29ca8522ca2100b
+    semanticRule: Diagnostics are written to stderr and redacted before emission.
+    positiveCase: A diagnostic uses stderr and removes configured sensitive values
+      while preserving actionable non-sensitive context.
+    negativeCase: Writing diagnostic content to stdout or exposing credentials,
+      private media, or sensitive identifiers.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0357-c001
+    claimId: MPSEM-0357-C001
+    sourceText: Enforce at upload/import admission
+    sourceTextSha256: 193ca09069a7555991deb45b357b1a53f066280c6df37cd561ac8f28324a9d82
+    semanticRule: Rights, consent, retention and format admission are enforced at
+      upload/import boundaries before bytes become admitted Media artifacts.
+    positiveCase: Upload/import admission denies missing, stale, mismatched or
+      revoked policy evidence.
+    negativeCase: Treating upload completion or byte receipt as proof of rights or
+      artifact availability.
+    sourceAuthorityRefs:
+      - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/effectBoundary
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0357-c003
+    claimId: MPSEM-0357-C003
+    sourceText: Check revocation/expiry at appropriate boundaries during
+      long-running/streaming work.
+    sourceTextSha256: fadf8c3e30dae30ec51ee70655cffceeb6cf1247169c2adf6c1a44ca7edcfa88
+    semanticRule: Long-running and streaming work rechecks revocation and expiry at
+      the relevant effect boundaries; a prior check does not authorize later
+      work indefinitely.
+    positiveCase: Each later governed effect uses current rights/consent/retention
+      evidence for the exact subject and purpose.
+    negativeCase: Continuing based solely on an earlier admission after expiry,
+      revocation, or policy-version change.
+    sourceAuthorityRefs:
+      - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/consentRevocation
+      - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/effectBoundary
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0367-c001
+    claimId: MPSEM-0367-C001
+    sourceText: A downloaded or published copy may be beyond Media’s control
+    sourceTextSha256: a9d37cdfb4676b40cc41d30544487ae75918e785d639c0e591c1ac3fea302832
+    semanticRule: A downloaded or published copy can be beyond Media control; Media
+      reports its own copy and any external deletion only when
+      deployment-specific evidence confirms it.
+    positiveCase: The product distinguishes Media erasure from external-copy status
+      and reports external status as UNKNOWN without proof.
+    negativeCase: Claiming external copies were erased because Media deleted its own
+      record or key.
+    sourceAuthorityRefs:
+      - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/retentionAndErasure
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0368-c003
+    claimId: MPSEM-0368-C003
+    sourceText: delivery to a central sink may be asynchronous through an admitted
+      durable path.
+    sourceTextSha256: f6910bbd0471ca6c97dfa44032550ae5092f004a98c70958e1bf0a8da022b513
+    semanticRule: Delivery to a central sink may be asynchronous only through an
+      admitted durable path, with request acceptance separate from sink
+      acknowledgement.
+    positiveCase: The operation records a durable delivery intent and later reports
+      a separately observed sink acknowledgement.
+    negativeCase: Treating queue acceptance or transient transport success as
+      central-sink delivery.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0378-c003
+    claimId: MPSEM-0378-C003
+    sourceText: They do not rewrite old execution evidence.
+    sourceTextSha256: 24e871c8798f8471a06c6cd3c33cb95fb92e1b82c244bbd26cb284fc8563bd9a
+    semanticRule: New mappings and policy changes do not rewrite historical
+      execution evidence; historical records retain the meaning/version under
+      which they were produced.
+    positiveCase: A new policy version applies prospectively while prior evidence
+      remains bound to its original version.
+    negativeCase: Reinterpreting old execution results as if the current policy had
+      governed them.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0379-c002
+    claimId: MPSEM-0379-C002
+    sourceText: Reuse is tenant/ownership compatible and rechecks current rights,
+      consent, retention, license and policy even if bytes are identical.
+    sourceTextSha256: c6fd02512ee7b2bbf28542a01c5fd18a37053aba43a1d3f6d9256b19cb518f7b
+    semanticRule: Reuse requires tenant/ownership compatibility and fresh checks of
+      rights, consent, retention, license and policy even when media bytes are
+      identical.
+    positiveCase: A reuse decision binds the exact tenant, owner, subject version
+      and all current policy dimensions.
+    negativeCase: Using byte equality as a substitute for authorization or
+      cross-tenant isolation.
+    sourceAuthorityRefs:
+      - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/tenantIsolation
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#dataHandling.purposeBoundDataAccess
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0380-c001
+    claimId: MPSEM-0380-C001
+    sourceText: Never share private embeddings, voice models, prompts, sensitive
+      deduplication existence or generated candidates across tenants by default.
+    sourceTextSha256: 04fc95c42e1843e457119429616a3c5eb3b0fcc4e5d34f3e8a434e22854d521e
+    semanticRule: Private embeddings, voice models, prompts, sensitive deduplication
+      existence and generated candidates are not shared across tenants by
+      default.
+    positiveCase: Cross-tenant reuse requires an explicit independently authorized
+      policy and scoped evidence; otherwise sharing is denied.
+    negativeCase: Leaking sensitive existence or derived data through shared caches,
+      logs, candidate lists or embeddings.
+    sourceAuthorityRefs:
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#dataHandling.minimization
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/dataHandling/defaults
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0440-c005
+    claimId: MPSEM-0440-C005
+    sourceText: Profiles, provider diagnostics, rights detail, provenance and
+      operations are contextual or role-scoped.
+    sourceTextSha256: a41581aa84d165868c5f843113951528a45ac3f9411bf632a5a43bcfe4a279c5
+    semanticRule: Profiles, provider diagnostics, rights detail, provenance and
+      operational details are shown only in the relevant context and to an
+      authorized role.
+    positiveCase: A view reveals only fields needed for its purpose and permitted by
+      the current role/scope.
+    negativeCase: Showing sensitive operational or rights detail solely because the
+      user can open the product.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0441-c003
+    claimId: MPSEM-0441-C003
+    sourceText: Every surface answers context, goal, current state, next action and
+      material blocker.
+    sourceTextSha256: f39e7cbc1142b8fb0763d7cf7b6122c3505be373780ecb9275acc514d053c4dc
+    semanticRule: Every product surface explains context, goal, current state, next
+      action and material blocker using source-backed state; unsupported state
+      remains UNKNOWN.
+    positiveCase: A screen binds each displayed status and next action to its exact
+      query/observation and current version.
+    negativeCase: Showing generic status copy that implies progress, readiness or
+      success without matching evidence.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0444-c001
+    claimId: MPSEM-0444-C001
+    sourceText: Automatically apply only transformations admitted by the project’s
+      preservation, quality and budget policy.
+    sourceTextSha256: 103efca49f8c0d8b90c5a058e5270e0f7f835b0fed3e618ee78d322cbae6fab7
+    semanticRule: Transformations apply automatically only when the project
+      preservation, quality and budget policy admits the exact transformation.
+    positiveCase: The auto-apply decision binds the exact project/version,
+      transformation, policy and measured limits.
+    negativeCase: Applying a suggestion merely because a model produced it or
+      because defaults exist.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0445-c001
+    claimId: MPSEM-0445-C001
+    sourceText: "Contextual suggestions appear near relevant work: “Speech
+      detected—add captions,” “These clips have inconsistent color,” or “This
+      scene needs review.” Conversational intent is optional, never the only
+      route."
+    sourceTextSha256: 38900bef3f5f1e9a634ee29489138d507b58768c0809171d63636f4830b9cb0d
+    semanticRule: Contextual suggestions appear near relevant work; conversational
+      intent is optional and never the only route to the action.
+    positiveCase: The same action remains discoverable through visible contextual
+      controls without a chat interaction.
+    negativeCase: Making a conversational assistant the sole way to invoke an
+      ordinary product action.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0449-c004
+    claimId: MPSEM-0449-C004
+    sourceText: A user may stop watching without cancelling.
+    sourceTextSha256: 3bca394f271099325312641aa41c84e9b00bff26fa3a05c25142476d25ed22cf
+    semanticRule: Stopping observation or progress watching does not cancel or
+      mutate the underlying operation.
+    positiveCase: A stop-watching control ends the local observation stream while
+      the job remains independently observable.
+    negativeCase: Sending a cancellation request when a user only stops watching.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0451-c006
+    claimId: MPSEM-0451-C006
+    sourceText: visible audio controls
+    sourceTextSha256: c7fbd1d997bc166ee79232e04bf1cef0cbd5dfdef1d19c6901ba499eb4d1d8e9
+    semanticRule: Audio mixing exposes visible controls and keyboard-operable
+      alternatives for the same adjustment.
+    positiveCase: A user can identify and adjust audio parameters without relying on
+      pointer-only controls.
+    negativeCase: Requiring drag-only interaction or hiding the active audio value
+      from assistive technology.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0452-c001
+    claimId: MPSEM-0452-C001
+    sourceText: Avoid assuming machine captions, descriptions or translations are correct.
+    sourceTextSha256: 6ba04b17667f7b23bd9a4f6a1897952239e8aa5e789426f19fed506eb48ed23a
+    semanticRule: Machine-produced captions, descriptions and translations remain
+      reviewable candidates; their correctness is never presumed.
+    positiveCase: The UI distinguishes generated content from human-reviewed or
+      approved content and binds review to an exact version.
+    negativeCase: Presenting generated language content as verified or approved
+      without evidence.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0454-c004
+    claimId: MPSEM-0454-C004
+    sourceText: Validate the exact public exports, compatible versions, transitive
+      closure and representative consumer tests.
+    sourceTextSha256: c232b5bde134a3d79deb78c50862385a73c185cee32098efdcb0c614588d2d73
+    semanticRule: Validation covers exact public exports, compatible versions,
+      transitive dependency closure and representative installed-consumer
+      behavior.
+    positiveCase: The packed artifact is tested from an isolated consumer against
+      the declared export surface and resolved dependency set.
+    negativeCase: Treating source-tree tests or a successful build as proof of
+      package compatibility.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0458-c002
+    claimId: MPSEM-0458-C002
+    sourceText: it must not be admitted as Apache-2.0 on the strength of the earlier
+      plan [W02].
+    sourceTextSha256: 1a136bd1d9662c6dd69c93fe20a33c5a008c23873b0d1156d11bce15cf2372a4
+    semanticRule: A prior plan cannot establish that a dependency or artifact is
+      Apache-2.0; license classification requires current package-specific
+      evidence.
+    positiveCase: The exact dependency version has an authoritative license record
+      before admission.
+    negativeCase: Inferring Apache-2.0 status from a previous plan, wrapper license,
+      or transitive package name.
+    sourceAuthorityRefs:
+      - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.componentLicenseBoundary
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0458-c006
+    claimId: MPSEM-0458-C006
+    sourceText: Obtain appropriate legal review before distribution where
+      obligations or patents are uncertain.
+    sourceTextSha256: ea84e5a8533e9c54a83258c3ba5a65d4c556e5ea1ff6479d706b5127ec7a87f4
+    semanticRule: Legal review is required before distribution when obligations or
+      patent status remain uncertain.
+    positiveCase: Uncertain obligations or patents block distribution until
+      documented legal review resolves the issue.
+    negativeCase: Treating technical build success or an upstream license label as
+      resolution of legal uncertainty.
+    sourceAuthorityRefs:
+      - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.componentLicenseBoundary
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0467-c004
+    claimId: MPSEM-0467-C004
+    sourceText: Reuse mechanics only through accepted public/extracted interfaces.
+    sourceTextSha256: c6ef1f2f6454bd6ce7ce686cc4bb4b949a69046fd2d819e938fcdae8a5c0c026
+    semanticRule: Shared mechanics are reused only through accepted public or
+      extracted interfaces; an internal implementation is not an integration
+      contract.
+    positiveCase: A dependency binding resolves to a versioned public interface and
+      preserves its owner boundary.
+    negativeCase: Copying internal implementation details or relying on unpublished
+      package internals.
+    sourceAuthorityRefs:
+      - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.genericMechanicsBoundary
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.migration-rule.mpsem-0468-c002
+    claimId: MPSEM-0468-C002
+    sourceText: reviewed outputs → publication request
+    sourceTextSha256: 5988acf057690bea1f0714d6a72d412ddf4171be65ac7f63b9ba45e3d4b3f3c7
+    semanticRule: Reviewed outputs lead to a distinct publication request bound to
+      the exact output version, purpose, approver authority and destination
+      scope.
+    positiveCase: Review completion creates no publication effect until a separate
+      authorized publication request is accepted.
+    negativeCase: Treating review approval as publication or publishing a moving
+      latest output.
+    sourceOwnerPhase: PDP-3
+    ownerDecisionStatus: OWNER_REVIEWED_SOURCE_DEFINITION; PXD-097; independent acceptance pending
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none

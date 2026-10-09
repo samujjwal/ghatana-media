@@ -168590,6 +168590,1326 @@
   },
   {
     "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0003-c003",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0003-c003; source proposal: media.pdp3.migration-rule.mpsem-0003-c003.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0003-c003"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0003-c003",
+        "recordId": "media.pdp3.migration-rule.mpsem-0003-c003",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0003-c005",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0003-c005; source proposal: media.pdp3.migration-rule.mpsem-0003-c005.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0003-c005"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0003-c005",
+        "recordId": "media.pdp3.migration-rule.mpsem-0003-c005",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0055-c003",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0055-c003; source proposal: media.pdp3.migration-rule.mpsem-0055-c003.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0055-c003"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0055-c003",
+        "recordId": "media.pdp3.migration-rule.mpsem-0055-c003",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0091-c003",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0091-c003; source proposal: media.pdp3.migration-rule.mpsem-0091-c003.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0091-c003"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0091-c003",
+        "recordId": "media.pdp3.migration-rule.mpsem-0091-c003",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0101-c001",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0101-c001; source proposal: media.pdp3.migration-rule.mpsem-0101-c001.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0101-c001"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0101-c001",
+        "recordId": "media.pdp3.migration-rule.mpsem-0101-c001",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0122-c003",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0122-c003; source proposal: media.pdp3.migration-rule.mpsem-0122-c003.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0122-c003"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0122-c003",
+        "recordId": "media.pdp3.migration-rule.mpsem-0122-c003",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0178-c003",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0178-c003; source proposal: media.pdp3.migration-rule.mpsem-0178-c003.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0178-c003"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0178-c003",
+        "recordId": "media.pdp3.migration-rule.mpsem-0178-c003",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0204-c003",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0204-c003; source proposal: media.pdp3.migration-rule.mpsem-0204-c003.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0204-c003"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0204-c003",
+        "recordId": "media.pdp3.migration-rule.mpsem-0204-c003",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0225-c002",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0225-c002; source proposal: media.pdp3.migration-rule.mpsem-0225-c002.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0225-c002"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0225-c002",
+        "recordId": "media.pdp3.migration-rule.mpsem-0225-c002",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0280-c001",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0280-c001; source proposal: media.pdp3.migration-rule.mpsem-0280-c001.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0280-c001"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0280-c001",
+        "recordId": "media.pdp3.migration-rule.mpsem-0280-c001",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0280-c003",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0280-c003; source proposal: media.pdp3.migration-rule.mpsem-0280-c003.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0280-c003"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0280-c003",
+        "recordId": "media.pdp3.migration-rule.mpsem-0280-c003",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0288-c001",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0288-c001; source proposal: media.pdp3.migration-rule.mpsem-0288-c001.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0288-c001"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0288-c001",
+        "recordId": "media.pdp3.migration-rule.mpsem-0288-c001",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0291-c007",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0291-c007; source proposal: media.pdp3.migration-rule.mpsem-0291-c007.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0291-c007"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0291-c007",
+        "recordId": "media.pdp3.migration-rule.mpsem-0291-c007",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0297-c003",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0297-c003; source proposal: media.pdp3.migration-rule.mpsem-0297-c003.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0297-c003"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0297-c003",
+        "recordId": "media.pdp3.migration-rule.mpsem-0297-c003",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0299-c002",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0299-c002; source proposal: media.pdp3.migration-rule.mpsem-0299-c002.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0299-c002"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0299-c002",
+        "recordId": "media.pdp3.migration-rule.mpsem-0299-c002",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0305-c001",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0305-c001; source proposal: media.pdp3.migration-rule.mpsem-0305-c001.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0305-c001"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0305-c001",
+        "recordId": "media.pdp3.migration-rule.mpsem-0305-c001",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0306-c001",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0306-c001; source proposal: media.pdp3.migration-rule.mpsem-0306-c001.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0306-c001"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0306-c001",
+        "recordId": "media.pdp3.migration-rule.mpsem-0306-c001",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0315-c005",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0315-c005; source proposal: media.pdp3.migration-rule.mpsem-0315-c005.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0315-c005"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0315-c005",
+        "recordId": "media.pdp3.migration-rule.mpsem-0315-c005",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0316-c002",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0316-c002; source proposal: media.pdp3.migration-rule.mpsem-0316-c002.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0316-c002"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0316-c002",
+        "recordId": "media.pdp3.migration-rule.mpsem-0316-c002",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0319-c001",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0319-c001; source proposal: media.pdp3.migration-rule.mpsem-0319-c001.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0319-c001"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0319-c001",
+        "recordId": "media.pdp3.migration-rule.mpsem-0319-c001",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0335-c004",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0335-c004; source proposal: media.pdp3.migration-rule.mpsem-0335-c004.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0335-c004"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0335-c004",
+        "recordId": "media.pdp3.migration-rule.mpsem-0335-c004",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0357-c001",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0357-c001; source proposal: media.pdp3.migration-rule.mpsem-0357-c001.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0357-c001"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0357-c001",
+        "recordId": "media.pdp3.migration-rule.mpsem-0357-c001",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0357-c003",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0357-c003; source proposal: media.pdp3.migration-rule.mpsem-0357-c003.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0357-c003"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0357-c003",
+        "recordId": "media.pdp3.migration-rule.mpsem-0357-c003",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0367-c001",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0367-c001; source proposal: media.pdp3.migration-rule.mpsem-0367-c001.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0367-c001"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0367-c001",
+        "recordId": "media.pdp3.migration-rule.mpsem-0367-c001",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0368-c003",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0368-c003; source proposal: media.pdp3.migration-rule.mpsem-0368-c003.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0368-c003"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0368-c003",
+        "recordId": "media.pdp3.migration-rule.mpsem-0368-c003",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0378-c003",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0378-c003; source proposal: media.pdp3.migration-rule.mpsem-0378-c003.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0378-c003"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0378-c003",
+        "recordId": "media.pdp3.migration-rule.mpsem-0378-c003",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0379-c002",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0379-c002; source proposal: media.pdp3.migration-rule.mpsem-0379-c002.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0379-c002"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0379-c002",
+        "recordId": "media.pdp3.migration-rule.mpsem-0379-c002",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0380-c001",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0380-c001; source proposal: media.pdp3.migration-rule.mpsem-0380-c001.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0380-c001"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0380-c001",
+        "recordId": "media.pdp3.migration-rule.mpsem-0380-c001",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0440-c005",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0440-c005; source proposal: media.pdp3.migration-rule.mpsem-0440-c005.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0440-c005"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0440-c005",
+        "recordId": "media.pdp3.migration-rule.mpsem-0440-c005",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0441-c003",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0441-c003; source proposal: media.pdp3.migration-rule.mpsem-0441-c003.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0441-c003"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0441-c003",
+        "recordId": "media.pdp3.migration-rule.mpsem-0441-c003",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0444-c001",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0444-c001; source proposal: media.pdp3.migration-rule.mpsem-0444-c001.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0444-c001"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0444-c001",
+        "recordId": "media.pdp3.migration-rule.mpsem-0444-c001",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0445-c001",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0445-c001; source proposal: media.pdp3.migration-rule.mpsem-0445-c001.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0445-c001"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0445-c001",
+        "recordId": "media.pdp3.migration-rule.mpsem-0445-c001",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0449-c004",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0449-c004; source proposal: media.pdp3.migration-rule.mpsem-0449-c004.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0449-c004"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0449-c004",
+        "recordId": "media.pdp3.migration-rule.mpsem-0449-c004",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0451-c006",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0451-c006; source proposal: media.pdp3.migration-rule.mpsem-0451-c006.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0451-c006"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0451-c006",
+        "recordId": "media.pdp3.migration-rule.mpsem-0451-c006",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0452-c001",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0452-c001; source proposal: media.pdp3.migration-rule.mpsem-0452-c001.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0452-c001"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0452-c001",
+        "recordId": "media.pdp3.migration-rule.mpsem-0452-c001",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0454-c004",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0454-c004; source proposal: media.pdp3.migration-rule.mpsem-0454-c004.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0454-c004"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0454-c004",
+        "recordId": "media.pdp3.migration-rule.mpsem-0454-c004",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0458-c002",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0458-c002; source proposal: media.pdp3.migration-rule.mpsem-0458-c002.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0458-c002"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0458-c002",
+        "recordId": "media.pdp3.migration-rule.mpsem-0458-c002",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0458-c006",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0458-c006; source proposal: media.pdp3.migration-rule.mpsem-0458-c006.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0458-c006"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0458-c006",
+        "recordId": "media.pdp3.migration-rule.mpsem-0458-c006",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0467-c004",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0467-c004; source proposal: media.pdp3.migration-rule.mpsem-0467-c004.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0467-c004"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0467-c004",
+        "recordId": "media.pdp3.migration-rule.mpsem-0467-c004",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
+    "id": "media.pdp-3.requirement.media.pdp3.migration-rule.mpsem-0468-c002",
+    "closureSurfaceId": "media.product-definition",
+    "dimension": "journey-contract",
+    "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.migration-rule.mpsem-0468-c002; source proposal: media.pdp3.migration-rule.mpsem-0468-c002.",
+    "disposition": "REQUIRED",
+    "programId": "media.product-definition.v1",
+    "phaseSemantics": {
+      "applicableIn": [
+        "PDP-3"
+      ],
+      "blockingIn": [
+        "PDP-3"
+      ],
+      "affects": [
+        "PDP-3"
+      ]
+    },
+    "caseIds": [],
+    "observerIds": [],
+    "oracleIds": [],
+    "requirementIds": [
+      "media.pdp3.migration-rule.mpsem-0468-c002"
+    ],
+    "extensions": {
+      "media-source": {
+        "sourceRef": ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml#/records/media.pdp3.migration-rule.mpsem-0468-c002",
+        "recordId": "media.pdp3.migration-rule.mpsem-0468-c002",
+        "sourceDigest": "sha256:bf2a085ff481126ebfa0f331d6dba2680688a900e1e9a0ad2072f56cc0351c9d"
+      }
+    }
+  },
+  {
+    "schemaVersion": "ghatana.assurance.obligation",
     "id": "media.pdp-3.requirement.media.public-taxonomy.add-scene-entity",
     "closureSurfaceId": "media.product-definition",
     "dimension": "action-contract",

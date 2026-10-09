@@ -16,6 +16,7 @@ function readSourceEntry(absolutePath, parseYaml) {
 }
 
 const SOURCE_ENUMERATORS = [
+  ['PDP-3', '.product-experience/pdp-3-product-experience/migration-semantic-rules.yaml', 'records', 'journey-contract'],
   ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'requirements', 'product-truth'],
   ['PDP-0', '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml', 'ownerCapabilityLeafAdjudication.records', 'product-truth'],
   ['PDP-0', '.product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml', 'ownerMeasurementDefinitions.records', 'product-truth'],

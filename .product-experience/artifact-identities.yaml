@@ -994,3 +994,6 @@ records:
   - path: ".product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml"
     artifactId: "ART-P3-VIEW-STATE-BINDING-DISPOSITIONS"
     authorityClass: "PRODUCT_EXPERIENCE_AUTHORITY"
+  - path: ".product-experience/pdp-3-product-experience/migration-semantic-rules.yaml"
+    artifactId: "ART-P3-MIGRATION-SEMANTIC-RULES"
+    authorityClass: "PRODUCT_EXPERIENCE_AUTHORITY"

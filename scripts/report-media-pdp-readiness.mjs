@@ -24,11 +24,14 @@ const suites = {
   'P0-01': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp-truth-domain-schema-validation.test.mjs', 'tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs', 'tests/pdp-migration-capability-leaf-narrowing.test.mjs'],
   'P0-02': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp-truth-domain-schema-validation.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-output-producer-applicability.test.mjs', 'tests/pdp-truth-domain-nfr-measurement-methods.test.mjs', 'tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs', 'tests/pdp-migration-capability-leaf-narrowing.test.mjs'],
   'P0-04': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs'],
+  'P0-06': ['tests/pdp-0-06-measures-provenance.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs'],
+  'P0-07': ['tests/media-p0-07-feature-channel-review.test.mjs', 'tests/pdp-truth-domain.test.mjs'],
   'P1-06': ['tests/media-typed-contract-bindings.test.mjs'],
   'P2-01': ['tests/pdp-2-tools-experience-language-contract.test.mjs', 'tests/pdp-2-experience-language-projection.test.mjs'],
   'P1-01': ['tests/media-domain-identity-reconciliation.test.mjs', 'tests/pdp-truth-domain-owner-identity-contracts.test.mjs'],
-  'P1-02': ['tests/media-state-machine-extraction.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp1-transition-guard-definition-evaluator.test.mjs'],
+  'P1-02': ['tests/media-state-machine-extraction.test.mjs', 'tests/pdp1-transition-guard-definition-evaluator.test.mjs', 'tests/pdp-truth-domain-race-semantics.test.mjs', 'tests/pdp-truth-domain-transition-coverage.test.mjs'],
   'P1-03': ['tests/pdp-truth-domain.test.mjs'],
+  'P1-07': ['tests/media-agent-tool-definition-contracts.test.mjs', 'tests/media-agent-tool-contracts.test.mjs'],
   'P1-09': ['tests/media-temporal-spatial-definition-model.test.mjs', 'tests/media-descriptor-definition-oracles.test.mjs'],
   'P2-05': ['tests/pdp-design-composition.test.mjs'],
   'P2-04': ['tests/media-ui-reuse-inventory.test.mjs', 'tests/pdp-design-reuse-disposition.test.mjs'],
@@ -69,8 +72,33 @@ export function resolveCriterionReviewSourceCut(record, fileDigest) {
     sourceCutCurrent: corrected ? matches(correction.sourceFingerprints) : historicalSourceCutCurrent};
 }
 
+export function assessCurrentTaskDependencies(tasks) {
+  const byId = new Map(tasks.map(task => [task.id, task]));
+  return tasks.map(task => {
+    const text = typeof task.dependencies === 'string' ? task.dependencies : '';
+    const ids = new Set(text.match(/\b(?:P[0-3]|G|X)-\d{2}\b/g) ?? []);
+    for (const range of text.matchAll(/\bP([0-3])-(\d{2})\s+through\s+P\1-(\d{2})\b/g)) {
+      for (let n = Number(range[2]); n <= Number(range[3]); n += 1) ids.add(`P${range[1]}-${String(n).padStart(2, '0')}`);
+    }
+    const records = [...ids].map(id => {
+      const dependency = byId.get(id);
+      return { id, boundary: dependency ? 'MANDATED_PDP_TASK' : 'EXTERNAL_DEPENDENCY_ONLY',
+        sourceCriterion: dependency?.taskSpecificSourceDone ?? 'NOT_EVALUATED',
+        independentAcceptance: dependency?.independentReviewAccepted ?? 'NOT_EVALUATED',
+        lifecycleCurrentness: dependency?.LifecyclePhaseReceiptCurrent ?? 'NOT_EVALUATED',
+        readiness: 'NOT_ESTABLISHED',
+      };
+    });
+    return { ...task, currentDependencyAssessment: {
+      status: records.length ? 'NOT_ESTABLISHED' : 'NO_EXPLICIT_DEPENDENCY_IDENTIFIED_IN_CAPTURED_PLAN',
+      method: 'Current direct source criteria are observed separately; they do not establish dependency acceptance or Lifecycle currentness. Captured audit flags remain historical.',
+      records,
+    } };
+  });
+}
+
 export function buildReadiness({audit, residual, verification = {}, mainSha, fingerprints, definitionCensus = null, sourceWorkingTree = null, definitionCriterionReviews = {}}) {
-  const tasks = audit.tasks.filter(t => taskIds.includes(t.id)).map(t => {
+  const tasks = assessCurrentTaskDependencies(audit.tasks.filter(t => taskIds.includes(t.id)).map(t => {
     const ownerReview=definitionCriterionReviews[t.id];
     const correctionOpen=Boolean(ownerReview?.currentCorrectiveReview && ownerReview.currentCorrectiveReview.status!=='APPROVED_CURRENT_CORRECTION');
     const reviewedDefinition=ownerReview?.status==='APPROVED_DIRECT_DEFINITION_CRITERION' && ownerReview?.sourceCutCurrent===true && !correctionOpen;
@@ -100,7 +128,7 @@ export function buildReadiness({audit, residual, verification = {}, mainSha, fin
         acceptance:'NOT_CLAIMED',
       } : null,
     };
-  });
+  }));
   validateTaskPopulation(tasks);
   return {
     schemaVersion:'media.pdp-38-readiness.v1', mainSha, sourceWorkingTree,
@@ -238,7 +266,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const json=JSON.stringify(report,null,2)+'\n';
   if(args.includes('--write')) {
     fs.writeFileSync(path.join(root,'docs/implementation/media-pdp-38-readiness.json'),json);
-    const rows=report.tasks.map(t=>`| ${t.id} | ${t.originalLedgerStatus} | ${t.taskSpecificSourceDone} | ${t.dependencyReady} | ${t.independentOrPublisherAccepted} | ${t.nativePhaseProofCurrent} |`);
+    const rows=report.tasks.map(t=>`| ${t.id} | ${t.originalLedgerStatus} | ${t.taskSpecificSourceDone} | ${t.currentDependencyAssessment.status} | ${t.independentOrPublisherAccepted} | ${t.nativePhaseProofCurrent} |`);
     fs.writeFileSync(path.join(root,'docs/implementation/media-pdp-38-readiness.md'),`# PDP-0 through PDP-3 readiness\n\nSource HEAD: \`${report.mainSha}\`. Exactly 38 tasks. Source criteria, dependencies, independent acceptance and Lifecycle currentness are separate. Historical ledger criteria/status are preserved. See JSON for current source fingerprints, test outputs and historical residual provenance.\n\n| Task | Original status | Direct source criterion | Dependencies | Independent/publisher | Native phase proof |\n| --- | --- | --- | --- | --- | --- |\n${rows.join('\n')}\n\nCurrent source counters:\n\n\`\`\`json\n${JSON.stringify(report.currentCounters,null,2)}\n\`\`\`\n`);
     console.log(JSON.stringify({tasks:report.taskCount,counters:report.currentCounters,verification},null,2));
   } else process.stdout.write(json);
