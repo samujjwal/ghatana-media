@@ -1,0 +1,368 @@
+{
+  "schemaVersion": "media.pdp38-migration-glossary-owner-review.v1",
+  "scope": "Exact live 22 glossary-targeted migration claims; proposed complete source-definition targets only. Historical source/target pins and ledger statuses are preserved pending coordinator review.",
+  "sourceBaselineSha256": "98d4669a7dfef5e9dc3e6b99efe5dfd6ef9dc6e1a6139158d6cfa09dd5b5b476",
+  "recordCount": 22,
+  "records": [
+    {
+      "claimId": "MPSEM-0036-C002",
+      "exactSourceText": "“Private/Organization/Public” combines sharing with processing/location/classification",
+      "sourceTextSha256": "4dcd18761164b354450639cfa4287a57fdbe1600dae2d917bf1ee23a1530c19f",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.privacy-axes/definition",
+      "previousTargetValueSha256": "48c4b7bd80d917d67d6224cd1200cb363b7bd27d803d8ff25414afe978d37c4f",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.privacy-axes",
+      "proposedTargetValueSha256": "b2dbe7f6bffda0337d782527fa8703c8be449e7ab91ddb6f05d7bf524dab9d95",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "“Private/Organization/Public” combines sharing with processing/location/classification",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0036-C003",
+      "exactSourceText": "Keep access, classification, processing location, consent/rights and retention as independent axes, with simple summaries.",
+      "sourceTextSha256": "c15d98b6507c1d962b40ba2e5fc23073f57f02379594ce84c9b3195babc786cf",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.privacy-axes/definition",
+      "previousTargetValueSha256": "48c4b7bd80d917d67d6224cd1200cb363b7bd27d803d8ff25414afe978d37c4f",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.privacy-axes",
+      "proposedTargetValueSha256": "b2dbe7f6bffda0337d782527fa8703c8be449e7ab91ddb6f05d7bf524dab9d95",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Keep access, classification, processing location, consent/rights and retention as independent axes, with simple summaries.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0043-C004",
+      "exactSourceText": "track definition, implementation, technical qualification, licensing and runtime availability separately.",
+      "sourceTextSha256": "d8e9e448016e6ee73a8d3777a6e3d49320ef309d892bced38a402758be914c8b",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.capability-status/definition",
+      "previousTargetValueSha256": "31746ba8c7c78f1b5f7c95281127433ec3199ceb4c824ee296a28e98dc27895e",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.capability-status",
+      "proposedTargetValueSha256": "f2e787aa8d407e9e2f3360acc799707765395fbd40a1896c050be617a0458084",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "track definition, implementation, technical qualification, licensing and runtime availability separately.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0053-C001",
+      "exactSourceText": "| Generative orchestration subsystem",
+      "sourceTextSha256": "e3ac0c12ab2c2398d8e238d7ff511402acf6ef878c52e14d0f3aad2d8be6bbf8",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.mediasynth/definition",
+      "previousTargetValueSha256": "34bf43882ff8e04af4b9acf5d309c489a71c1329e50df3480e4b0cde7c66cec1",
+      "proposedDisposition": "NON_NORMATIVE_SOURCE_METADATA",
+      "sourceEvidenceRef": "docs/migration/expert-reviewed-master-plan.md#L143",
+      "metadataFields": [
+        "table-row-heading"
+      ],
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "| Generative orchestration subsystem",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0058-C001",
+      "exactSourceText": "Stable `media.<family>.<operation>`",
+      "sourceTextSha256": "fd25de2d009e287ef68665b3e4c16166a87778e4084037db18f840144cb6b067",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/identifierNaming/capabilityId",
+      "previousTargetValueSha256": "662763f75fc473b3ab5bb622f857fbeb20dc00402fe0b2ee43bb5543363029cb",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/identifierNaming",
+      "proposedTargetValueSha256": "fb1fd026c4ec6905c990acf15117ab8c5825d8bba9d12cfccbabd3b47ed311f5",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Stable `media.<family>.<operation>`",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0058-C003",
+      "exactSourceText": "no vendor/model names |",
+      "sourceTextSha256": "27b7a3d5c165df8e34cbac050fdce59b10735fa2723d1cd35b8e4ac7af7669a7",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/namingRules/newIdentifiers/rule",
+      "previousTargetValueSha256": "8eef5447dbab7717d8d26d79edcfea66c810c41575466d495f54013ac9a52607",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/namingRules/newIdentifiers/rule",
+      "proposedTargetValueSha256": "c3e95566a8e4a28b560e3524192687d09d01770f11123b4a495f1d6dba36b956",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "no vendor/model names |",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0074-C003",
+      "exactSourceText": "`DerivedArtifact` is an artifact plus derivation provenance, not a competing storage authority.",
+      "sourceTextSha256": "612e2b648d62acbac5f095eb4c26bd181cf402405df6378c551f5c468b0db189",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.derived-artifact/distinctions/0",
+      "previousTargetValueSha256": "60af09f36bf3d285da66d0de66246d0a466cafdf706c541843bab6a2303a24ba",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.derived-artifact",
+      "proposedTargetValueSha256": "b7f9dd35357a67cef66a4f2f132e22509b58b441da941195d352f9798214e5e3",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "`DerivedArtifact` is an artifact plus derivation provenance, not a competing storage authority.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0074-C005",
+      "exactSourceText": "`GenerationStrategy` describes a workflow shape, not model routing.",
+      "sourceTextSha256": "5a2a07140316b646230f5c6c6e030362beb05b8f6d41ac06f58fa3c74a1c9948",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.recipe/distinctions/0",
+      "previousTargetValueSha256": "c69d6accb0a99430b2921e84eead24faf4531777a95a9b5660313244a4f08e80",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.recipe",
+      "proposedTargetValueSha256": "67039dc05b3742d094ed80ce8771afbe6ec005d416f525ed127bcb01668e3510",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "`GenerationStrategy` describes a workflow shape, not model routing.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0079-C001",
+      "exactSourceText": "Track five separate dimensions: `definitionState`, `implementationState`, `qualificationState`, `licenseAdmissionState`, `runtimeAvailability`.",
+      "sourceTextSha256": "c7ff2768e53303eb6efbca8db974391ddfcd3f0b7f89895831fc7a216ad5b8c6",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.capability-status/term",
+      "previousTargetValueSha256": "08ca9799af378c70cd14cad9bcac8e7b2de73a3f618f9032b7d10d1cb87fe8f9",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.capability-status",
+      "proposedTargetValueSha256": "f2e787aa8d407e9e2f3360acc799707765395fbd40a1896c050be617a0458084",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Track five separate dimensions: `definitionState`, `implementationState`, `qualificationState`, `licenseAdmissionState`, `runtimeAvailability`.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0255-C001",
+      "exactSourceText": "Use integer samples/frames or rational time `{value, timescale}` and rational rates `{numerator, denominator}`.",
+      "sourceTextSha256": "0be96c32aaa1d38836582c6d0d07722fe7d886a4a2a48ed092ba8c3261930f86",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.rational-time/representation",
+      "previousTargetValueSha256": "f9358d775bf5b89f0e6a57ff33fd775da70d5b405ea8a79c4d9a615d0cb10172",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.rational-time",
+      "proposedTargetValueSha256": "f566f5dafa907d50e973ff7df15a1dbd2d0b1ed47a90fc08b1bda43fb883d406",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Use integer samples/frames or rational time `{value, timescale}` and rational rates `{numerator, denominator}`.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0255-C002",
+      "exactSourceText": "Define intervals as `[start, end)` and specify rounding at each conversion.",
+      "sourceTextSha256": "a8da91ab4531eb1caf859a644ac44280b466373a0f7bd815354fb4cf2c9b919e",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.rational-time/intervalConvention",
+      "previousTargetValueSha256": "ce46b7fff0c0840746617925fe6577046ef87af6e2e6578e0047e04e443f8447",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.rational-time",
+      "proposedTargetValueSha256": "f566f5dafa907d50e973ff7df15a1dbd2d0b1ed47a90fc08b1bda43fb883d406",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Define intervals as `[start, end)` and specify rounding at each conversion.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0255-C003",
+      "exactSourceText": "Avoid accumulating floating-point milliseconds across a long timeline.",
+      "sourceTextSha256": "ec04f27b7411175ffa76d326e49e16286cbdcfe63a6a1a103b2aac2298086889",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.rational-time/conversionRule",
+      "previousTargetValueSha256": "b7480e5f7a94d929146731673a2772a85f8a993e6953db7c9f1965eebe2bb26b",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.rational-time",
+      "proposedTargetValueSha256": "f566f5dafa907d50e973ff7df15a1dbd2d0b1ed47a90fc08b1bda43fb883d406",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Avoid accumulating floating-point milliseconds across a long timeline.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0256-C001",
+      "exactSourceText": "Maintain separate clocks: media presentation time",
+      "sourceTextSha256": "c1f450323846546dfeaa6124785dc2551461869770b9d7f233992ecce2311eeb",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.media-time/term",
+      "previousTargetValueSha256": "427a77808b1c601ae41108c71cb2c58634f549415e98e883696d1dcb81711fbd",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=media_presentation_time",
+      "proposedTargetValueSha256": "079b923eb18320904a59f7ae4c068cb45d5fd7eb88dc276119a4f78086474505",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Maintain separate clocks: media presentation time",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0256-C004",
+      "exactSourceText": "`t_sim` simulation time",
+      "sourceTextSha256": "85002e9ade7fe1b7d698e855bb631ecf9a0f18c38db246605dea05676aa946c4",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.simulation-time/term",
+      "previousTargetValueSha256": "5826cd35b4bf4ab414a87acb74e396201051e61939b5511ceac649ba57b63c56",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_sim",
+      "proposedTargetValueSha256": "ff393814628143f672a766f429a68fd4160172cb9fd5e8da2a5012cba240f323",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "`t_sim` simulation time",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0256-C005",
+      "exactSourceText": "`t_story` explanation/animation time",
+      "sourceTextSha256": "9386ddc9e4ace2b30e301956032c96684002c2df4d8e3b13f24bfb6d0b981b3b",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.simulation-time/forbiddenConflations/2",
+      "previousTargetValueSha256": "5a16dd13ed4843795ed9c1e9887e5368134d24fa948dab3c1f09afec40f24d77",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_story",
+      "proposedTargetValueSha256": "3b77647e37dfd76322c45a824361c49760f5f442e247602eee2be2541858103e",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "`t_story` explanation/animation time",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0256-C006",
+      "exactSourceText": "Scrubbing or pausing story time must not unintentionally advance a scientific model.",
+      "sourceTextSha256": "53d3dffdf441fc426f26e38a39ff1dfa93d6870a4a2534fb1caa9f58493c1f39",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.simulation-time/distinctions/0",
+      "previousTargetValueSha256": "e04f9b1486ed992a01b6fcfd45d0513b290825df2e418eb3d8d40363030ef637",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/separateClocks/@id=t_sim",
+      "proposedTargetValueSha256": "ff393814628143f672a766f429a68fd4160172cb9fd5e8da2a5012cba240f323",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Scrubbing or pausing story time must not unintentionally advance a scientific model.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0261-C003",
+      "exactSourceText": "The initial native convention uses camera forward −Z, quaternions `[x, y, z, w]`, column vectors, local transform `T × R × S`, world transform `parentWorld × local`, and column-major serialized matrices.",
+      "sourceTextSha256": "7b588c8d71f58571acb18811f063270fcc3629506d1dd36525bb5978818dc804",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.scene-geometry/representation",
+      "previousTargetValueSha256": "6f304670680ee0cb6d0f3df575a717fb707e7f344e0d23a80c8956e2de43bd40",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.scene-geometry",
+      "proposedTargetValueSha256": "d05f7af3956b5b4ed1b9c90cf23f7519b4c3c4a128fe41a3bacbd56ccd77cca6",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "The initial native convention uses camera forward −Z, quaternions `[x, y, z, w]`, column vectors, local transform `T × R × S`, world transform `parentWorld × local`, and column-major serialized matrices.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0261-C005",
+      "exactSourceText": "Image-space controls use a top-left origin and pixel-center coordinates",
+      "sourceTextSha256": "fc744fbefd18d837b13af5a88e9339cdeee9aa748bf3da1d90d0aa3935d24df1",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.image-coordinates/representation",
+      "previousTargetValueSha256": "730dbdc4d21631446c2e8f474950de7923afb08e35ad7a6efba8fe1459f37484",
+      "proposedTargetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/canonicalConversionDefinitions/records/@id=media.value.image-pixel-center",
+      "proposedTargetValueSha256": "41c6648bae5f26ddfb7a6641b6add01b5e5a9c47605a0dd92ac58e1cfe07b948",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Image-space controls use a top-left origin and pixel-center coordinates",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0261-C006",
+      "exactSourceText": "normalized coordinates declare their mapping.",
+      "sourceTextSha256": "be56e8689d81c4082a510df03ecfc76c184d29f64ea4cfa74ed279c3f407a974",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.image-coordinates/representation",
+      "previousTargetValueSha256": "730dbdc4d21631446c2e8f474950de7923afb08e35ad7a6efba8fe1459f37484",
+      "proposedTargetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/canonicalConversionDefinitions/records/@id=media.value.image-pixel-center",
+      "proposedTargetValueSha256": "41c6648bae5f26ddfb7a6641b6add01b5e5a9c47605a0dd92ac58e1cfe07b948",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "normalized coordinates declare their mapping.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0278-C002",
+      "exactSourceText": "They are not one interchangeable score.",
+      "sourceTextSha256": "e2b9a61ffaec87e653e86c3c9292eab8ad1de996463d92c2ec8b55370015dcfe",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.quality/forbiddenConflations/2",
+      "previousTargetValueSha256": "e4ac8f589f87debdb2cfae24ec880c707368ee14387b0f5dd0510d65920eefd5",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.fidelity",
+      "proposedTargetValueSha256": "da60b26b774f55117907ed2c88bb93754fd24f6e5acc6a4ed46972def2a5b622",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "They are not one interchangeable score.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0354-C001",
+      "exactSourceText": "A concise UI can summarize policy, but the domain must keep these axes separate: access/sharing",
+      "sourceTextSha256": "2a81460cefa2dca938ec1736be68f86a6188034be2081736a596bcf2b4b48fcf",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.privacy-axes/summaryRule",
+      "previousTargetValueSha256": "aff1bdac9aa94eadd245e29cfa0c8ee1e75141b328d62b7575118189fa1c0807",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.privacy-axes",
+      "proposedTargetValueSha256": "b2dbe7f6bffda0337d782527fa8703c8be449e7ab91ddb6f05d7bf524dab9d95",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "A concise UI can summarize policy, but the domain must keep these axes separate: access/sharing",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0442-C002",
+      "exactSourceText": "Switching levels preserves edits and authority",
+      "sourceTextSha256": "6d5293c349c46b5a2730014866fbc003e10a642bb43916f786a2035a6a32909f",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.disclosure-levels/distinctions/0",
+      "previousTargetValueSha256": "6d256cc858c0ffc7ec6c12e4cd860f40e4b3a4cf6cddff5c279864dbed19f499",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.disclosure-levels",
+      "proposedTargetValueSha256": "b92b27468e6abfa9876bdea54220cdd9d98842683780621cc619764e2a666b36",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Switching levels preserves edits and authority",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-owner-review.test.mjs"
+      ]
+    }
+  ],
+  "nonClaims": [
+    "No history or original source claim changed",
+    "No legacy wire, runtime, qualification or independent acceptance inferred",
+    "Pixel-center definition is owner-defined arithmetic only; legacy binding remains unqualified"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "media.pdp38-current-owner-source-impact.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-090",
+  "scope": "Three additive Media-owned domain-model migration rules; prior PXD-086 source snapshot is preserved.",
+  "sourcePath": ".product-experience/pdp-0-product-truth/domain-model.yaml",
+  "priorSourceCommit": "86f533c6b8abeb6bd88872f770669f4e9af2d08d",
+  "priorSourceFileSha256": "2199b455ffbb5bb666bd5e084adc7a2a6faed06097a6ae21567d39444d316528",
+  "currentSourceFileSha256": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+  "changedScalarPaths": [
+    "#/ownerDefinedMigrationRules"
+  ],
+  "currentChangedValueSha256": "f22e1ba250186032b70b2d27d885497495de56d8ef44d91b8c59c2c0b1cb5d27",
+  "priorParsedTreeSha256": "b307a65e3bad836f14a80878b068c582f42ff98bff2625a3bf1807ca6473f70b",
+  "currentParsedTreeWithoutAddedRulesSha256": "b307a65e3bad836f14a80878b068c582f42ff98bff2625a3bf1807ca6473f70b",
+  "proof": "Removing only the new ownerDefinedMigrationRules property from the current parsed YAML reproduces the PXD-086 parsed source tree.",
+  "acceptanceEffect": "none; owner source definitions only, no legacy-wire equivalence, implementation or runtime admission"
+}

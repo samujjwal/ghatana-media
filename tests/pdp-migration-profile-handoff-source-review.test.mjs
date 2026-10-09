@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -13,6 +14,8 @@ const sha = (value) => createHash("sha256").update(value).digest("hex");
 const ledgerPath = ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml";
 const reviewPath = "docs/implementation/verification/pdp-38/migration-profile-handoff-source-review.json";
 const sourceImpactPath = "docs/implementation/verification/pdp-38/migration-reviewed-source-impact.json";
+const handoffImpactPath = "docs/implementation/verification/pdp-38/migration-handoff-owner-source-impact.json";
+const domainImpactPath = "docs/implementation/verification/pdp-38/migration-domain-model-owner-source-impact.json";
 const ledger = readYaml(ledgerPath).pdp38ClaimReconciliation;
 const review = JSON.parse(readText(reviewPath));
 const claims = ledger.records.flatMap((record) => record.claims ?? []).flatMap((claim) => claim.subclaims ?? [claim]);
@@ -41,7 +44,33 @@ test("PXD-086 verifies exactly 57 bounded profile/handoff claims and one source-
   assert.equal(review.recordCount, 57);
   assert.equal(review.acceptanceEffect, "none");
   for (const [path, expectedDigest] of Object.entries(review.sourceFingerprints)) {
-    assert.equal(sha(readText(path)), expectedDigest, `${path} remains at the bounded reviewed source cut`);
+    const impactPath = path === ".product-experience/pdp-0-product-truth/handoff-contracts.yaml"
+      ? handoffImpactPath
+      : path === ".product-experience/pdp-0-product-truth/domain-model.yaml" ? domainImpactPath : null;
+    if (!impactPath) {
+      assert.equal(sha(readText(path)), expectedDigest, `${path} remains at the bounded reviewed source cut`);
+      continue;
+    }
+    const impact = JSON.parse(readText(impactPath));
+    const currentText = readText(path);
+    const priorText = execFileSync("git", ["show", `${impact.priorSourceCommit}:${path}`], { encoding: "utf8", maxBuffer: 8 * 1024 * 1024 });
+    assert.equal(impact.priorSourceFileSha256, expectedDigest, "PXD-086 historical file pin is preserved exactly");
+    assert.equal(sha(priorText), expectedDigest);
+    assert.equal(sha(currentText), impact.currentSourceFileSha256);
+    const prior = parse(priorText);
+    const current = parse(currentText);
+    const projected = structuredClone(current);
+    if (path === ".product-experience/pdp-0-product-truth/handoff-contracts.yaml") {
+      delete projected.handoffs.find(({ id }) => id === "ai-inference-execution").boundedWorkerExceptionRule;
+      assert.equal(impact.changedScalarPaths[0], "#/handoffs/@id=ai-inference-execution/boundedWorkerExceptionRule");
+      assert.equal(sha(JSON.stringify(resolveRef(impact.currentChangedValueRef))), impact.currentChangedValueSha256);
+    } else {
+      delete projected.ownerDefinedMigrationRules;
+      assert.equal(impact.changedScalarPaths[0], "#/ownerDefinedMigrationRules");
+      assert.equal(sha(JSON.stringify(current.ownerDefinedMigrationRules)), impact.currentChangedValueSha256);
+    }
+    assert.deepEqual(projected, prior, `only the separately reviewed additive owner rule changed in ${path}`);
+    assert.equal(impact.priorParsedTreeSha256, impact.currentParsedTreeWithoutAddedRuleSha256 ?? impact.currentParsedTreeWithoutAddedRulesSha256);
   }
   assert.deepEqual([...new Set(review.records.map(({ claimId }) => claimId))].sort(), review.records.map(({ claimId }) => claimId).sort());
 
@@ -137,13 +166,13 @@ test("migration review counters include PXD-086 without promoting phase acceptan
   const routed = claims.filter((claim) => claim.disposition === "ROUTED_TO_CURRENT_PDP_AUTHORITY");
   const verified = routed.filter((claim) => claim.semanticReviewStatus === "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED");
   const pending = routed.filter((claim) => claim.semanticReviewStatus === "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
-  assert.equal(routed.length, 866);
-  assert.equal(verified.length, 230);
-  assert.equal(pending.length, 636);
+  assert.equal(routed.length, 863);
+  assert.equal(verified.length, 339);
+  assert.equal(pending.length, 524);
   assert.equal(ledger.sourceOwnerRoutingCount, routed.length);
   assert.equal(ledger.currentOwnerTargetClaimUnitCount, routed.length);
   assert.equal(ledger.semanticParityVerifiedClaimUnitCount, verified.length);
   assert.equal(ledger.candidateTargetPendingSemanticParityCount, pending.length);
-  assert.equal(ledger.nonNormativeSourceMetadataClaimUnitCount, 4);
+  assert.equal(ledger.nonNormativeSourceMetadataClaimUnitCount, 7);
   assert.equal(ledger.acceptanceEffect.startsWith("none; source routing does not establish independent migration review"), true);
 });

@@ -1,0 +1,639 @@
+{
+  "schemaVersion": "media.pdp38-migration-goal-owner-review.v1",
+  "scope": "All 39 live goal-targeted migration claims. Current owner clauses are exact proposals only; one table-heading metadata record is classified separately. Two formerly unresolved goals now have source-owned definitions, all statuses remain pending coordinator review.",
+  "recordCount": 39,
+  "records": [
+    {
+      "claimId": "MPSEM-0004-C001",
+      "exactSourceText": "The product scope includes existing media processing and streaming, speech recognition and synthesis, image/video/audio/music generation, enhancement and restoration, editing, animation, simulation, synchronization, composition, professional color and mastering, quality assessment, delivery, and spatial-media extension points.",
+      "sourceTextSha256": "1b47141df562fb97fe22bb9102284ca946c73463a28b13f6d2ef6f5c5a1de1f6",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scopeStatement",
+      "previousTargetValueSha256": "2532075996c5d25eedb0357c0ce61d49d4f39976c6b26b2284d5d40c1ade9ddd",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.existing-capability-family-scope",
+      "proposedTargetValueSha256": "59fcb0834245cfcb7e0ca12d456ec3f5955afd9e2ef18dd7b1a2628080686a7d",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "The product scope includes existing media processing and streaming, speech recognition and synthesis, image/video/audio/music generation, enhancement and restoration, editing, animation, simulation, synchronization, composition, professional color and mastering, quality assessment, delivery, and spatial-media extension points.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0029-C003",
+      "exactSourceText": "Reuse those mechanics behind Media adapters.",
+      "sourceTextSha256": "d799c8df7fa2777cd84a80d1dcd761bcf4be9679338b86ad940dc3a02a5cfd79",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/nonGoals/@id=media.non-goal.generic-platform-control-plane/reason",
+      "previousTargetValueSha256": "8bb8e715d17d6f4779e7b7a87d68084eccbd3b3b037c67eb77f11539dfaeb20a",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.common-platform-mechanics-boundary",
+      "proposedTargetValueSha256": "eacf84ada350ee340a52e4a875ec813cdc22b450842fe44a8e8b86ab35a0f344",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Reuse those mechanics behind Media adapters.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0032-C004",
+      "exactSourceText": "Separate Explorer determinism from production reproducibility.",
+      "sourceTextSha256": "7082e335ff807e36789c1f4f20481834e56ecea31a44a30f33bfcc3ec528c277",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/exclusionsFromMediaAuthority/6",
+      "previousTargetValueSha256": "c100d627c3d20b868a16c46513038689a5a41a8a17fc1d2359f33a7b4dde3f91",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.explorer-evidence-boundary",
+      "proposedTargetValueSha256": "a6a712a0acf96a670390976bd53e221b8674fe2073d173ea74cfff7db7320074",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Separate Explorer determinism from production reproducibility.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0035-C001",
+      "exactSourceText": "| REV-15 — Quality claims were overbroad",
+      "sourceTextSha256": "824c1482319e1c0e7b427a81c7808376aca5e040de1e67914d3e8922cb6a250c",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/jobs/@id=media.job.improve-preserve/failureConsequences",
+      "previousTargetValueSha256": "04dfd8169cc9ec815972186336dfec074680aa9ae0be8ea672870e0cff213cdb",
+      "proposedDisposition": "NON_NORMATIVE_SOURCE_METADATA",
+      "sourceEvidenceRef": "docs/migration/expert-reviewed-master-plan.md#L114",
+      "metadataFields": [
+        "table-row-heading"
+      ],
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "The pipe-delimited phrase is the heading of a review row; the adjacent cell contains the substantive quality disposition.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0035-C005",
+      "exactSourceText": "no promise of arbitrary frame-level repair or scientific truth.",
+      "sourceTextSha256": "a08f132272dd24188b617408f81e6166d9b515ba546b1eced92ee973150987d0",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/exclusionsFromMediaAuthority/4",
+      "previousTargetValueSha256": "a96d11b6a0ac956bbec8dd709a1c0aa9a2aad8e7dc78a5f8aa6764db1945d930",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.quality-cannot-override-policy",
+      "proposedTargetValueSha256": "465398cd76a87ce2f99aa8ae2451d5f2f563de52dd093feeb0f8f404eecb7e0c",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "no promise of arbitrary frame-level repair or scientific truth.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0046-C003",
+      "exactSourceText": "existing Media callers still need a boundary",
+      "sourceTextSha256": "6c061dae311da5c31303c4d78742d6a9ab87e86b987ec3eac157791f2b37b1ca",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/includedFamilies/0",
+      "previousTargetValueSha256": "7c8bbcf476efd99e9a5c5418f57c31624f55c4703b189679dd10112fc9906bc1",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.existing-consumer-contract-boundary",
+      "proposedTargetValueSha256": "79b1a4b787a613960dbe8943cb6aacc195b838a519fedb4bcbe325f10ee8cdd5",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "existing Media callers still need a boundary",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0046-C005",
+      "exactSourceText": "Test from both repositories without source coupling.",
+      "sourceTextSha256": "94c0fde1213e853c339a9cd81e0b938b849690f3533e44fa3021ae24afd0fc02",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.integrate-repeatably/failureConsequences",
+      "previousTargetValueSha256": "f7e88c6ea12130e012953c347207e86dd8091cd78532181fafeeb69779e1cf9b",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.existing-consumer-contract-boundary",
+      "proposedTargetValueSha256": "79b1a4b787a613960dbe8943cb6aacc195b838a519fedb4bcbe325f10ee8cdd5",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Test from both repositories without source coupling.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0057-C003",
+      "exactSourceText": "do not create duplicate “new-name” and “old-name” implementations |",
+      "sourceTextSha256": "784988e802fd58ccc611b0e6acd8f672df5fed5d49f6d9050d6d1078d0659a90",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/jobs/@id=media.job.integrate-public-contract/successConditions/1",
+      "previousTargetValueSha256": "c8cdd36cd1c36df98c900e8b38740914ec7c0beb15c44ef3a4674d7f03b02d6a",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.existing-consumer-contract-boundary",
+      "proposedTargetValueSha256": "79b1a4b787a613960dbe8943cb6aacc195b838a519fedb4bcbe325f10ee8cdd5",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "do not create duplicate “new-name” and “old-name” implementations |",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0077-C003",
+      "exactSourceText": "Scientific validity, pedagogical truth, clinical decisions and campaign claims stay with their domain owners.",
+      "sourceTextSha256": "4d11e432b00e61455e5b0073e438ad177d3d2a3aae9bd662cbafc55867b5f03e",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/exclusionsFromMediaAuthority/4",
+      "previousTargetValueSha256": "a96d11b6a0ac956bbec8dd709a1c0aa9a2aad8e7dc78a5f8aa6764db1945d930",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.external-domain-authority-boundary",
+      "proposedTargetValueSha256": "6fd4f22d6dd9c2a1b8df88cb72b2d7a19e298146d7e8bb7dc56abf0300089a84",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Scientific validity, pedagogical truth, clinical decisions and campaign claims stay with their domain owners.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0078-C001",
+      "exactSourceText": "All capabilities in Section 6 are in the intended product-definition scope.",
+      "sourceTextSha256": "cdbba699f41ab0625a9bdfa2fcc668acdc7652360e3d360c0ce74720856573c4",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/claimBoundaries/0",
+      "previousTargetValueSha256": "170d641f1c021c0c68d1e5951f382cc2b9addeea9354f43febdac7675b26b72e",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.required-capability-family-scope",
+      "proposedTargetValueSha256": "ccefa4cb7e20f56148320287a360099308bd92915811af3c213788b407264632",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "All capabilities in Section 6 are in the intended product-definition scope.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0080-C003",
+      "exactSourceText": "A renderer that illustrates a scientific phenomenon must not be advertised as a validated simulator.",
+      "sourceTextSha256": "69b943576c6a800c0c37d80ca0cf9c046b797cf9204774219020d68bf0afc293",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/claimBoundaries/1",
+      "previousTargetValueSha256": "ed729e3a227b6bdb0994d99182a3937010337119a25a89611c23f2fe2497aa3a",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.illustrative-render-is-not-validated-simulation",
+      "proposedTargetValueSha256": "9082b9394f2524f7f349e3c527571720b3f91beb19d87ee9f7d77e0fddbaf3e7",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "A renderer that illustrates a scientific phenomenon must not be advertised as a validated simulator.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0091-C001",
+      "exactSourceText": "Reusable security, identity, audit, observability, workflow, messaging, schema, config, HTTP, async/lifecycle, testing and UI primitives",
+      "sourceTextSha256": "38119a4343c1bdd6a94db680f9471eb2cbb46bb3b34fb8ae7c76c1eb43d48388",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/exclusionsFromMediaAuthority/2",
+      "previousTargetValueSha256": "26a35d1df3c037ddc88696e4321125297726b7af787dd265f25267898ea06383",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.common-platform-mechanics-boundary",
+      "proposedTargetValueSha256": "eacf84ada350ee340a52e4a875ec813cdc22b450842fe44a8e8b86ab35a0f344",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Reusable security, identity, audit, observability, workflow, messaging, schema, config, HTTP, async/lifecycle, testing and UI primitives",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0097-C003",
+      "exactSourceText": "Publish through approved contracts.",
+      "sourceTextSha256": "8f3bf59bb6e31380105f47e92b23d187f75a9e2d947196624c7e3242ad165ccc",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/outcomes/@id=media.goal.deliver-approved-output/outcome",
+      "previousTargetValueSha256": "0c9bfa559924b0aeb6ccb1aea054bfb3d80a6c83f5a45833ba28ad122f4feb47",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.effect-via-admitted-public-contract",
+      "proposedTargetValueSha256": "355871388db49153c26da0db55b5136fc0043c66edf7a84a017dc72ab822fdbc",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Publish through approved contracts.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0098-C002",
+      "exactSourceText": "Governed enterprise context/data and read-model integration",
+      "sourceTextSha256": "66b93dffbf1a28d4901c237e67af9cc40f342d60088fcb4a33199f882a58de15",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/exclusionsFromMediaAuthority/3",
+      "previousTargetValueSha256": "a681a16e577e97e3aa89a7435f886e60843768614fa22fdf58406e2a0b7c4ca9",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.governed-enterprise-context-boundary",
+      "proposedTargetValueSha256": "a8250303772905873cea517dfa48f0a3cbeb9c8fa043ab6ebf28d14899c5e509",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Governed enterprise context/data and read-model integration",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0098-C003",
+      "exactSourceText": "Use it for governed metadata/context when needed",
+      "sourceTextSha256": "6a5c26c3c670523045a2552f82729bd20f3910a975158fa6b264f45e3800d8a9",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/exclusionsFromMediaAuthority/3",
+      "previousTargetValueSha256": "a681a16e577e97e3aa89a7435f886e60843768614fa22fdf58406e2a0b7c4ca9",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.governed-enterprise-context-boundary",
+      "proposedTargetValueSha256": "a8250303772905873cea517dfa48f0a3cbeb9c8fa043ab6ebf28d14899c5e509",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Use it for governed metadata/context when needed",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0103-C003",
+      "exactSourceText": "It means Tools supplies development mechanics, not that Media is outside the ecosystem or must ignore Kernel contracts.",
+      "sourceTextSha256": "eb52ba247bc744f7493b66f7e264bbd50afdb393a1b7290f2e8a9d1b39a8b207",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/nonGoals/@id=media.non-goal.generic-platform-control-plane/reason",
+      "previousTargetValueSha256": "8bb8e715d17d6f4779e7b7a87d68084eccbd3b3b037c67eb77f11539dfaeb20a",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.common-platform-mechanics-boundary",
+      "proposedTargetValueSha256": "eacf84ada350ee340a52e4a875ec813cdc22b450842fe44a8e8b86ab35a0f344",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "It means Tools supplies development mechanics, not that Media is outside the ecosystem or must ignore Kernel contracts.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0160-C002",
+      "exactSourceText": "Executable, deterministic visual/interaction projection of accepted definitions",
+      "sourceTextSha256": "559d9d061e251b6ca073c44d67b15075260a985a7c186ea814d3310c857432b4",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/successMeasureContracts/status",
+      "previousTargetValueSha256": "e2c8a1373aa4031634d5bd94a7768967bba75508e08138f20a14d8810f8c854a",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Executable, deterministic visual/interaction projection of accepted definitions",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ],
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.accepted-definition-projection",
+      "proposedTargetValueSha256": "35812b040d0c3531ae1742c7eec29c449b6ec8f94423c21aa58da2258f01b218"
+    },
+    {
+      "claimId": "MPSEM-0170-C001",
+      "exactSourceText": "The following families are **required product-definition scope**.",
+      "sourceTextSha256": "4f08a97b70949f50aaf43570fb2dea6a7850d1ad4e3aac90b36628fd0462ac5c",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/jobs/@id=media.job.deliver-authorized/successConditions/0",
+      "previousTargetValueSha256": "cfbe1c42fd7e4312eafba0cb486b2b534ec988b89f05f64696935db3a6e4f439",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.required-capability-family-scope",
+      "proposedTargetValueSha256": "ccefa4cb7e20f56148320287a360099308bd92915811af3c213788b407264632",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "The following families are **required product-definition scope**.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0170-C004",
+      "exactSourceText": "An operation cannot vanish by being relabeled “future.” Record its intended channel, priority, implementation lane and availability separately.",
+      "sourceTextSha256": "5022399f534108c7edcee378c145c475f21ee47283b423e4458daa79ac753703",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/claimBoundaries/0",
+      "previousTargetValueSha256": "170d641f1c021c0c68d1e5951f382cc2b9addeea9354f43febdac7675b26b72e",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.required-operation-status-retention",
+      "proposedTargetValueSha256": "25a5d842025019a1252ede0cb870ba679e5e7f92f4f281e8c0dce67b9e9598d8",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "An operation cannot vanish by being relabeled “future.” Record its intended channel, priority, implementation lane and availability separately.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0172-C003",
+      "exactSourceText": "Technical substeps can be implementation details of an operation",
+      "sourceTextSha256": "9799b63a2a7daf714a3db5cde620329cea748950dc0503be1c8519b1f77ae258",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/disclosureLevels/levels/@id=media.disclosure.expert/purpose",
+      "previousTargetValueSha256": "5e8577da10f8e125cecb70338a88af4912580deb7fda76c40cccfa873012e648",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.expert-detail-within-operation",
+      "proposedTargetValueSha256": "0e4bf7ca372a37d45d068e92bbcd8b33eea0fa6c2063b2a86afb7045a854fdca",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Technical substeps can be implementation details of an operation",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0181-C002",
+      "exactSourceText": "Reuse existing Ghatana streaming modules before selecting a new stack.",
+      "sourceTextSha256": "3e2699c7b098cd473e4fff9f6846f19ed79fc91ca2ec6e241ffa7fad8506ed5e",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/includedFamilies/0",
+      "previousTargetValueSha256": "7c8bbcf476efd99e9a5c5418f57c31624f55c4703b189679dd10112fc9906bc1",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/externalStackSelectionRule",
+      "proposedTargetValueSha256": "04718d69cc37bcbfc8325d9bb2ca043c7b6dc228f3722877424a42ce273eefbe",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Reuse existing Ghatana streaming modules before selecting a new stack.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0187-C003",
+      "exactSourceText": "Speaker diarization does not require identifying the speaker.",
+      "sourceTextSha256": "29bf23c628b6e767234daec9f295f2bb891f9eddec7556c1b616613da6698372",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/firstUse/invariants/0",
+      "previousTargetValueSha256": "fad7c9bb69ab9b96d8f8fd7a6ecd98d311bf23040e319a4e7b5373c204cb9dea",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.diarization-identity-separation",
+      "proposedTargetValueSha256": "94228559acb826e8301d504653dea6ce38ef7853a0796c999876f09f00f45700",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Speaker diarization does not require identifying the speaker.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0193-C001",
+      "exactSourceText": "Model selection, credentials, quota and generic model execution remain with AI Inference.",
+      "sourceTextSha256": "5f19d0fa3f78445d64eafcaee87f77d21e1872b2052ff685b3a25c1c52f8c947",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/exclusionsFromMediaAuthority/1",
+      "previousTargetValueSha256": "c7010071b7f4fe1c832a98ea17f77d308d8aeaf01d4c2a9900833b274568014a",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=ai-inference-execution/genericInferenceOwnershipBoundary",
+      "proposedTargetValueSha256": "03f8fb73f1619701105906afa14959c81c8afbad27375689ac10f929e52634d6",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Model selection, credentials, quota and generic model execution remain with AI Inference.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0213-C004",
+      "exactSourceText": "adding an engine does not require moving the API to its language.",
+      "sourceTextSha256": "7b437e3ba4ed3ad012bacc6f38cd71b53d01a5468b786a16d41f40449a381e6e",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/firstUse/invariants/0",
+      "previousTargetValueSha256": "fad7c9bb69ab9b96d8f8fd7a6ecd98d311bf23040e319a4e7b5373c204cb9dea",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.first-use-intent-launchers",
+      "proposedTargetValueSha256": "5df6266353e33390d54eaf1d2c27ebbf1a908fe272035bb16db4d486f1ab9786",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "adding an engine does not require moving the API to its language.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0316-C003",
+      "exactSourceText": "they do not implement separate business logic.",
+      "sourceTextSha256": "8c7c2ffe561a69880084719c3847dd5a2926eb8c7934bbdc30fbe9770bd80d61",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/businessIntents/@id=media.business.reuse-media-capabilities/id",
+      "previousTargetValueSha256": "28f4a94d68834849126fddf998cf325f0d88361209b7d8fc32de389e21635993",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.capability-reuse-not-business-logic-duplication",
+      "proposedTargetValueSha256": "03ced145f36bf29e9124929008009a690a8bb18c5dddd5ac0640d780728ffcdc",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "they do not implement separate business logic.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0318-C001",
+      "exactSourceText": "`help`, `version`, `doctor`, `config show`, `config validate`, `auth login`, `auth status`, `auth logout` through supported Ghatana identity flows |",
+      "sourceTextSha256": "3be1762793c1954ca79c86a4b4c300d34bdac570a7686afdff982bf4497db9ff",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/jobs/@id=media.job.integrate-public-contract/job",
+      "previousTargetValueSha256": "d63b70cdec2a5450a2e2b41ef1e36b7683b7f92bedea8d34a356216de873e71c",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.supported-cli-control-surface",
+      "proposedTargetValueSha256": "0c408d54fe26aec2e430c4ab295cdf029b4ab18888475928bfc9ada9c551c010",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "`help`, `version`, `doctor`, `config show`, `config validate`, `auth login`, `auth status`, `auth logout` through supported Ghatana identity flows |",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0320-C002",
+      "exactSourceText": "`create`, `improve`, `edit`, `animate`, `simulate`, `understand`, `deliver`",
+      "sourceTextSha256": "8f7e8aa69f275a193f9bf75fc775ae2b4fed47591ae96a5115dd19670f44d533",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/firstUse/steps/@id=media.first-use.choose-intent/action",
+      "previousTargetValueSha256": "9eb39b2b5d9dcc31c9594bafce3771c9ec4b61088939d1a157f054ce61d40677",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.first-use-intent-launchers",
+      "proposedTargetValueSha256": "5df6266353e33390d54eaf1d2c27ebbf1a908fe272035bb16db4d486f1ab9786",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "`create`, `improve`, `edit`, `animate`, `simulate`, `understand`, `deliver`",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0324-C001",
+      "exactSourceText": "`synth plan`, `synth image`, `synth video`, `synth audio`, `synth music`, `synth compose`, `synth render`, `synth run`",
+      "sourceTextSha256": "07a0ae3a9568da7289e0c34d97bbb7b29c1b4e6519f360fbef70e189fbc97049",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/includedFamilies/2",
+      "previousTargetValueSha256": "ab86969ceaa0d69adca1b0cf3932b0aea8d6693e5f2c030d1c1b910133e3b424",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.synthesis-command-families",
+      "proposedTargetValueSha256": "97e8aaeb1dd461648172697425fbfe325d2e711e8481bd05452f0176ac35b921",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "`synth plan`, `synth image`, `synth video`, `synth audio`, `synth music`, `synth compose`, `synth render`, `synth run`",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0338-C001",
+      "exactSourceText": "Requested action succeeded",
+      "sourceTextSha256": "9508a52dae0b784d2de7d4fcdfa5dd889aeedb4c5638966e8ca75fb029c21486",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/firstUse/steps/@id=media.first-use.start-work/action",
+      "previousTargetValueSha256": "6445c603c88a94f186318d7af241c4440467b3fee7658ce344ee74c15f9ea1da",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.operation-success-finality",
+      "proposedTargetValueSha256": "dc1a0eb7856af0851dbe1be5f67a6f61a9108bac8cf47709e4258b2b8c9cb4bb",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Requested action succeeded",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0352-C006",
+      "exactSourceText": "Use existing Ghatana authentication methods and protected credential storage",
+      "sourceTextSha256": "1f17c23a4b8a33be9d6cb2d6cd8624ab65a9958469200527ccc435c0562be161",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/firstUse/entryConditions/1",
+      "previousTargetValueSha256": "18a68e607a085965d4aaeb57bf3d7ca21641fce8dc304d5a56436cee0d460b40",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.authentication-prerequisite",
+      "proposedTargetValueSha256": "92446a851fa93b5cf9c052c21ecde4a8634daf0e9fca43bc3a9caa55f67d9efe",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Use existing Ghatana authentication methods and protected credential storage",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0370-C002",
+      "exactSourceText": "Optional C2PA integration conveys signed provenance under its trust model, not truth, copyright clearance or scientific accuracy [W06].",
+      "sourceTextSha256": "29b926e6bf1ed09a78687c243d5495c21d31296bef8b8a4dbde7018f49a5f065",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/exclusionsFromMediaAuthority/4",
+      "previousTargetValueSha256": "a96d11b6a0ac956bbec8dd709a1c0aa9a2aad8e7dc78a5f8aa6764db1945d930",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.external-domain-authority-boundary",
+      "proposedTargetValueSha256": "6fd4f22d6dd9c2a1b8df88cb72b2d7a19e298146d7e8bb7dc56abf0300089a84",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Optional C2PA integration conveys signed provenance under its trust model, not truth, copyright clearance or scientific accuracy [W06].",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0371-C004",
+      "exactSourceText": "An opaque quality score cannot override safety or rights.",
+      "sourceTextSha256": "af235aab51de2abcb18cfdd6b7a1cf1ab8f0434f211a91708daa2b818c0eb096",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/jobs/@id=media.job.resolve-blocked-work/successConditions/1",
+      "previousTargetValueSha256": "1be7e1ba7b4e9fa2d8b14a77d399b010e2927a202d316fffe2f5c74fdd0af2be",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.quality-cannot-override-policy",
+      "proposedTargetValueSha256": "465398cd76a87ce2f99aa8ae2451d5f2f563de52dd093feeb0f8f404eecb7e0c",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "An opaque quality score cannot override safety or rights.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0374-C002",
+      "exactSourceText": "Media supplies definitions, repository, guards and handlers [R06].",
+      "sourceTextSha256": "38451284d47304cbb1c3e24ea7098f0e25dd5ff57fe4687e5b7c6c35086aaef6",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/successMeasureContracts/status",
+      "previousTargetValueSha256": "e2c8a1373aa4031634d5bd94a7768967bba75508e08138f20a14d8810f8c854a",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Media supplies definitions, repository, guards and handlers [R06].",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ],
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.shared-workflow-media-job-ownership",
+      "proposedTargetValueSha256": "809c5b946d1823882b52abcd8e28e55054ffdd476491f8f2d0484f1ea140a4a8"
+    },
+    {
+      "claimId": "MPSEM-0386-C002",
+      "exactSourceText": "In-memory/local diagnostic providers are never production evidence.",
+      "sourceTextSha256": "03e4c06c2a9307b4a23ae0f3fbffe07b31f5d48dcde4608d41239526f58e4dea",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/scope/exclusionsFromMediaAuthority/6",
+      "previousTargetValueSha256": "c100d627c3d20b868a16c46513038689a5a41a8a17fc1d2359f33a7b4dde3f91",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.explorer-evidence-boundary",
+      "proposedTargetValueSha256": "a6a712a0acf96a670390976bd53e221b8674fe2073d173ea74cfff7db7320074",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "In-memory/local diagnostic providers are never production evidence.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0440-C003",
+      "exactSourceText": "Create, Improve, Edit, Animate, Simulate, Understand and Deliver are intent launchers, not seven permanently competing workspaces.",
+      "sourceTextSha256": "9ed72255f87268038401cf4f28c4ce49ecae7363414763939827ac0e6a696abe",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/firstUse/steps/@id=media.first-use.choose-intent/action",
+      "previousTargetValueSha256": "9eb39b2b5d9dcc31c9594bafce3771c9ec4b61088939d1a157f054ce61d40677",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.first-use-intent-launchers",
+      "proposedTargetValueSha256": "5df6266353e33390d54eaf1d2c27ebbf1a908fe272035bb16db4d486f1ab9786",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Create, Improve, Edit, Animate, Simulate, Understand and Deliver are intent launchers, not seven permanently competing workspaces.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0441-C002",
+      "exactSourceText": "the ordinary user is not required to select an engine, model, queue or codec.",
+      "sourceTextSha256": "9df99cf20828536340ecf40b22602776d6bd9bd2f5a94f6ad051877f4592c4e3",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/firstUse/invariants/0",
+      "previousTargetValueSha256": "fad7c9bb69ab9b96d8f8fd7a6ecd98d311bf23040e319a4e7b5373c204cb9dea",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.first-use-intent-launchers",
+      "proposedTargetValueSha256": "5df6266353e33390d54eaf1d2c27ebbf1a908fe272035bb16db4d486f1ab9786",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "the ordinary user is not required to select an engine, model, queue or codec.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0443-C003",
+      "exactSourceText": "Defaults must be policy-compatible, explainable and reversible where possible.",
+      "sourceTextSha256": "83d91df15d059f96504caabebe87868ad8dad7c2dec15a5f257b75afa2d31f26",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/disclosureLevels/levels/@id=media.disclosure.simple/purpose",
+      "previousTargetValueSha256": "10d3ef8e1302998853b1b4ec37ec12a305aae7f8e9f6efdd0a88256ec9aed823",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.simple-default-transparency",
+      "proposedTargetValueSha256": "77e9d3c5be40894581835a7978e2cbe17ec197a34ca917332e00c2a69f0e442a",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Defaults must be policy-compatible, explainable and reversible where possible.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0444-C004",
+      "exactSourceText": "A first-run “Create” experience cannot bypass necessary authentication, permissions or missing local capabilities",
+      "sourceTextSha256": "38c0e5d2b1e2e585535f13ecd5f4283bb9c74bed4eb627693759d7b1ee44382f",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/firstUse/invariants/1",
+      "previousTargetValueSha256": "626de6848566743b84d14a0b0e49a0b0df55f34347355a7ccc24b645fe82e247",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.authentication-prerequisite",
+      "proposedTargetValueSha256": "92446a851fa93b5cf9c052c21ecde4a8634daf0e9fca43bc3a9caa55f67d9efe",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "A first-run “Create” experience cannot bypass necessary authentication, permissions or missing local capabilities",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0448-C002",
+      "exactSourceText": "Regeneration invalidates only approvals whose approved material changed.",
+      "sourceTextSha256": "fd6dc5df4e4079aa3d74a2ed9b24c3e6113da5e5d36cec5bcf2fa11c1e76e16d",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/jobs/@id=media.job.review-exact-version/successConditions/1",
+      "previousTargetValueSha256": "bdca7518104f32e43802a6fc50c87a4a895be689b2f56a5f283f58ccf649d3c8",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/ownerDefinedMigrationRules/records/@id=media.goal-rule.approval-bound-to-output",
+      "proposedTargetValueSha256": "0bb644cff6264b586175accfa3ffe714f364bb0ba6f8734edc8e91356c208290",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "materialMeaning": "Regeneration invalidates only approvals whose approved material changed.",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-goal-owner-review.test.mjs"
+      ]
+    }
+  ],
+  "nonClaims": [
+    "No migration ledger status promotion",
+    "No runtime, publication, consumer, qualification or independent acceptance",
+    "Historical task/source text remains immutable"
+  ]
+}

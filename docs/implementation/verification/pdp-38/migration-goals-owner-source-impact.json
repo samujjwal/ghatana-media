@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "media.pdp38-current-owner-source-impact.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-090",
+  "scope": "Additive goals owner-defined migration rules only; all 39 goal rows reviewed in PXD-090",
+  "sourcePath": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+  "currentFileSha256": "28b87b3026a8c8ef4c4a16de213bc112432fc37b086d5d02e912214a4d225cea",
+  "changedScalarPaths": [
+    "#/ownerDefinedMigrationRules"
+  ],
+  "currentOwnerDefinedMigrationRulesSha256": "32560db5efa370e2cd5f93f252317df765f5c924b297c73482d2cd36d6fe67fb",
+  "proof": "Removing only the newly added ownerDefinedMigrationRules property from the current parsed YAML reproduces the prior committed parsed goals tree exactly.",
+  "priorCommittedParsedTreeSha256": "a3c69ca9ae3539df5462028b07f81df50d6806cbd01dfa8b63bc5869634e695f",
+  "currentParsedTreeWithoutOwnerRulesSha256": "a3c69ca9ae3539df5462028b07f81df50d6806cbd01dfa8b63bc5869634e695f",
+  "existingSuccessMeasuresPreservedSha256": "19fa4d9fa3b31cad93ba401f607a10b4606f21704c80eddd209d90ad9814dffb",
+  "acceptanceEffect": "none; does not alter prior goal measures, historical source pins, runtime or phase acceptance",
+  "priorSourceCommit": "86f533c6b8abeb6bd88872f770669f4e9af2d08d",
+  "priorSourceFileSha256": "055d8ee224a82899b54531d2b71139bb01f0784e9c439e308ec4a84a9cb2a4ef",
+  "priorParsedTreeSnapshotRef": "86f533c6b8abeb6bd88872f770669f4e9af2d08d:.product-experience/pdp-0-product-truth/goals-jtbd.yaml"
+}

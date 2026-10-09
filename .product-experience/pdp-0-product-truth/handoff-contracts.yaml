@@ -358,6 +358,27 @@ handoffs:
         evidence remains a dependency; implementation symbols and similar names
         do not establish a callable contract.
       scopeStatus: OWNER_DEFINED_CROSS_PRODUCT_BOUNDARY; external contract acceptance remains pending.
+    boundedWorkerExceptionRule:
+      id: media.handoff.ai-inference-bounded-worker-exceptions
+      rule: >-
+        An explicitly documented existing worker exception is a narrow compatibility
+        disposition for its exact owner, operation, input/output contract, authority
+        scope, execution profile, resource and deadline bounds, policy checks, cancellation,
+        idempotency, unknown-outcome reconciliation, and audit obligations. It does not
+        establish a general bypass around AI Inference model/provider eligibility or
+        Media consent, rights, privacy, locality, security, licensing, or qualification
+        gates. Missing identity, owner approval, contract fields, or current evidence
+        blocks the exception; repository location or a matching implementation symbol
+        cannot create one.
+      requiredEvidence:
+        - exact existing worker and owning product identity
+        - public operation or explicit source-bound compatibility contract
+        - typed request/result and input/output authority
+        - named execution profile with bounds and locality/retention policy
+        - cancellation, idempotency, unknown-outcome and audit semantics
+        - current owner approval and applicable license/security/qualification evidence
+      absentEvidenceDisposition: DENY_OR_UNRESOLVED; never infer a general exception.
+      scopeStatus: OWNER_DEFINED_EXCEPTION_BOUNDARY; no worker exception or runtime path is admitted by this rule.
     acceptedArtifactReferenceContract:
       id: media.handoff.ai-inference-artifact-reference-contract
       requiredFields:

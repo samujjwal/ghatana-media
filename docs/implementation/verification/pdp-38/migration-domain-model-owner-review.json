@@ -1,0 +1,447 @@
+{
+  "schemaVersion": "media.pdp38-migration-domain-model-owner-review.v1",
+  "scope": "Exact current 27 live domain-model claim units; complete owning record/rule targets proposed for claim-specific semantic review. No source ledger status or acceptance changes.",
+  "sourceBaselineSha256": "94b6c7322b034315e0b7c3437d16b6611ec6602ebe54c00c17dbc1348a67c1dc",
+  "recordCount": 27,
+  "records": [
+    {
+      "claimId": "MPSEM-0217-C001",
+      "exactSourceText": "Tenant/workspace membership, title, immutable revision reference, assets, scenes/timelines, settings and access policy |",
+      "sourceTextSha256": "822afe8421335c82588f0c9b65621a590f769234b20e474ee01c7add1b7b8ea2",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaProject/meaning",
+      "previousTargetValueSha256": "e4e758d5f2fb14b7e23c7b6af594648468f2730ec1c0de0ea67e48943d936bce",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaProject",
+      "proposedTargetValueSha256": "93c5ebb3898ba618f0da8fc18ca0ccc8934edbfad1bd7c99827af4e14f362de3",
+      "materialMeaning": "Tenant/workspace membership, title, immutable revision reference, assets, scenes/timelines, settings and access policy |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0218-C001",
+      "exactSourceText": "Immutable content identity, digest/size/type, technical descriptors, origin and owner references",
+      "sourceTextSha256": "a316b80eb8b5be270b69b2e902c5d81c3f5bf005602edc5d734a380054ff3b3d",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaArtifact-and-ArtifactVersion/meaning",
+      "previousTargetValueSha256": "7b8af0e41cb0d037e60c41bf7cb71de76bbb1bf5804f451a301648827959be9a",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaArtifact-and-ArtifactVersion",
+      "proposedTargetValueSha256": "cb3261fefc583b2c096a89a2e47e081953d1c1e531b9843cc319c8a19d9d4920",
+      "materialMeaning": "Immutable content identity, digest/size/type, technical descriptors, origin and owner references",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0218-C002",
+      "exactSourceText": "separate lifecycle/access/retention state |",
+      "sourceTextSha256": "944207a78f1541a96b4024a540e84be5491b46adaa8ebbb18eb70377ac6983ab",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaArtifact-and-ArtifactVersion/stateBoundary",
+      "previousTargetValueSha256": "86baa3bcf0bced327bef4a836b9cba9ee6e31d6873116717af3b8fd8e88dec28",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaArtifact-and-ArtifactVersion",
+      "proposedTargetValueSha256": "cb3261fefc583b2c096a89a2e47e081953d1c1e531b9843cc319c8a19d9d4920",
+      "materialMeaning": "separate lifecycle/access/retention state |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0219-C001",
+      "exactSourceText": "Project-specific use of an artifact/version, purpose, crop/trim and presentation bindings",
+      "sourceTextSha256": "81ed89f21a1773b0ec5e2c8130af21ab9013585f7c05b3d44c21fae8e8c7d8d1",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaAsset/meaning",
+      "previousTargetValueSha256": "c67dfc2c4a124fd3922d3748b4ade0457641be36d70990bb52ac5eea6a38aa56",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaAsset",
+      "proposedTargetValueSha256": "08a5cdc6ea374828928fe6ec031f41cf06783d827ee0500b9b28f312be999a6b",
+      "materialMeaning": "Project-specific use of an artifact/version, purpose, crop/trim and presentation bindings",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0219-C002",
+      "exactSourceText": "does not duplicate bytes |",
+      "sourceTextSha256": "53e21290f3f8b13b9b047bcc6bf0e0557d3cfe033ef1919b232d63e2c9395388",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaAsset/stateBoundary",
+      "previousTargetValueSha256": "d65b7d1fb9011c28a18d492f7f93cd9618c9a5aabd203960131444cdab2c5b64",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaAsset",
+      "proposedTargetValueSha256": "08a5cdc6ea374828928fe6ec031f41cf06783d827ee0500b9b28f312be999a6b",
+      "materialMeaning": "does not duplicate bytes |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0220-C001",
+      "exactSourceText": "Versioned parameterized processing/animation/simulation intent with bounds, required ports and safe variants |",
+      "sourceTextSha256": "2fbfc26dc6867f5f42b3d86a7cd0a81d2020000954cae9ab318eb3a7043a3fe5",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaRecipe/meaning",
+      "previousTargetValueSha256": "e7082ff19a45ec19fba24a8f291b70bfcff16564325f51f480197e4fc32f9df9",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaRecipe",
+      "proposedTargetValueSha256": "1088006c652bc266a0434417d7d23ffe2ea83af473d2b0149ee9913bed139657",
+      "materialMeaning": "Versioned parameterized processing/animation/simulation intent with bounds, required ports and safe variants |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0221-C001",
+      "exactSourceText": "Durable requested operation, immutable request/plan references, owner, state, attempts and outputs",
+      "sourceTextSha256": "ddde58716e6e72b6528073fcc53e02f3044d52d47c53907c3cedfc2386eee086",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ProcessingJob-and-RenderJob/meaning",
+      "previousTargetValueSha256": "4f8d2a844394e710ca0ae0fe6f8d3f6e8838cfc7bfa49b6617c2852a8948b0ee",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ProcessingJob-and-RenderJob",
+      "proposedTargetValueSha256": "2012c4f15d71f5b425f89291d31c31ed56e34554042557172dbd53d824d934ae",
+      "materialMeaning": "Durable requested operation, immutable request/plan references, owner, state, attempts and outputs",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0222-C001",
+      "exactSourceText": "Attempt identity, worker claim/fencing token, deadlines, side-effect boundary, provider execution reference and reconciliation |",
+      "sourceTextSha256": "27f4bff137090ac34d3b968950d057ca1b9ec26a802b1a67bb99cf04c6eb31b3",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=JobAttempt-and-JobLease/meaning",
+      "previousTargetValueSha256": "9135c5ee107782956941adfbb97dc62254e54e70041ae65a87da41fb09379d4a",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=JobAttempt-and-JobLease",
+      "proposedTargetValueSha256": "cc83e6b86979820f367a05e97b7347615149e3d80f3fa91343e3464cda1599d6",
+      "materialMeaning": "Attempt identity, worker claim/fencing token, deadlines, side-effect boundary, provider execution reference and reconciliation |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0223-C001",
+      "exactSourceText": "Immutable typed nodes/edges, artifact references, required semantics and parameter schema |",
+      "sourceTextSha256": "78b2dfb8b906c4960e88eebe5746ee0b7024118d204a640ee023e88966ed9f97",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaProcessingGraph/meaning",
+      "previousTargetValueSha256": "2bb94026a9f01dcb2ab32dec3600c829d5feb7d44d0d8ef7deed78c74d457b45",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaProcessingGraph",
+      "proposedTargetValueSha256": "29c96342bdf7f12f4f9714e967d2479195213f4f866eb19023ada06e1d151eb8",
+      "materialMeaning": "Immutable typed nodes/edges, artifact references, required semantics and parameter schema |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0224-C001",
+      "exactSourceText": "Admitted concrete graph, chosen capability bindings, environment, bounds, policy-decision references, cost reservation and fingerprint |",
+      "sourceTextSha256": "5ec92ba1c154415fef64a164147b13e4aa1c0f107ad768a8012243bcdad3d86d",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ResolvedMediaPlan/meaning",
+      "previousTargetValueSha256": "63a9d2f88ff6c186091a29ad0005a0f945c1fa5acd73bcc76aca0fe34ea3347a",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ResolvedMediaPlan",
+      "proposedTargetValueSha256": "65be41f0efd4357ea4d8c010f901bb3698af9427c80b1ed0eeb765505c243228",
+      "materialMeaning": "Admitted concrete graph, chosen capability bindings, environment, bounds, policy-decision references, cost reservation and fingerprint |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0225-C001",
+      "exactSourceText": "Mutable execution progression and immutable observations",
+      "sourceTextSha256": "a57a5c9286178cc667ad59323f56a5a453d3869354d808d0e3cb831d9f67fbf0",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaRun-and-Checkpoint/meaning",
+      "previousTargetValueSha256": "f4ca05d1938eebb52f20058bf8b5750cfd448296a66582e3eac728c654a8af11",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaRun-and-Checkpoint",
+      "proposedTargetValueSha256": "5866159a10e36cb9dffbecdf26566a72c955e384b63fa108536b44d6e683817d",
+      "materialMeaning": "Mutable execution progression and immutable observations",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0226-C001",
+      "exactSourceText": "Narrative/visual intent, shot/scene purpose, timing, references, controls, narration and transitions |",
+      "sourceTextSha256": "70978b1c7323e430307759871c84924698bd7693e3d7c74a86f42f35cb45c4f1",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ScenePlan-and-SceneBrief/meaning",
+      "previousTargetValueSha256": "9af7dd350dbf82736d7dc27098b37f0b06a1266b4158f8759d06e5fd8864cb0a",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ScenePlan-and-SceneBrief",
+      "proposedTargetValueSha256": "acaaba492f78dabf1e56dde2804c48a8f600c960d81125049346f6e9d851200b",
+      "materialMeaning": "Narrative/visual intent, shot/scene purpose, timing, references, controls, narration and transitions |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0227-C001",
+      "exactSourceText": "Versioned scene entities/assets/transforms/materials/cameras/lights and typed bindings",
+      "sourceTextSha256": "9de6a22c337feb8bb2ccc30d56e35d0397d495453fdea75fdc425349ecc923e3",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=SceneGraph/meaning",
+      "previousTargetValueSha256": "9a01885530bff05c2cc82a472d9ade5f2b57b5c57de425f91d78328abbf1fd61",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=SceneGraph",
+      "proposedTargetValueSha256": "b26ed2feb889ad7937a82b4d91640eb8b5b43dc3df1ba923f3c8566363ce3302",
+      "materialMeaning": "Versioned scene entities/assets/transforms/materials/cameras/lights and typed bindings",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0228-C001",
+      "exactSourceText": "Tracks/keyframes/curves/constraints/events/rig mappings and bindings to scene properties |",
+      "sourceTextSha256": "868ccfdf95da95cb299f58ce1421a338b76712147d17e217c06eea4a0c8aa657",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=AnimationGraph/meaning",
+      "previousTargetValueSha256": "93fd49f79c6cf386953215e53f59e142749c3052a792a7a34e320077aa08c0af",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=AnimationGraph",
+      "proposedTargetValueSha256": "0e6d253cad1252aa9283b746fe95d9028655c780ff277af9ce82d0e7b3abdf06",
+      "materialMeaning": "Tracks/keyframes/curves/constraints/events/rig mappings and bindings to scene properties |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0229-C001",
+      "exactSourceText": "Initial state, physical/model quantities, units, solver/engine requirements, boundary conditions, constraints and sampled output contract |",
+      "sourceTextSha256": "f5a70c9096879e84372cc6acee6dc412bbe6d1c403ffa2465245effff0e8c5f7",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=SimulationWorld/meaning",
+      "previousTargetValueSha256": "6c124257f26feae9bbf5e9a84aaf0a577654875ef1f4e9bfca71e4883ed0f0c1",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=SimulationWorld",
+      "proposedTargetValueSha256": "225a0a70cc54a34bd5f211e0c90b27b58af33046ff2c66c6cf1d8c24e66c7d7d",
+      "materialMeaning": "Initial state, physical/model quantities, units, solver/engine requirements, boundary conditions, constraints and sampled output contract |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0230-C001",
+      "exactSourceText": "Rational-time tracks/clips/transitions, audio mix, captions, graphics, color and delivery intent |",
+      "sourceTextSha256": "215c6843552ad64d326f272fdc1711ca61e080ad38438780719e723f6a541b2e",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=Timeline-and-CompositionConfig/meaning",
+      "previousTargetValueSha256": "791a091f0a70ad4140e22cc72f170f878b97c782481db906cc8d8d0c3c2894cc",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=Timeline-and-CompositionConfig",
+      "proposedTargetValueSha256": "b571a22ac1cce324981248555ae31c3dfb603a99846552816d2eaf1d39946b8a",
+      "materialMeaning": "Rational-time tracks/clips/transitions, audio mix, captions, graphics, color and delivery intent |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0231-C001",
+      "exactSourceText": "Typed references, masks, depth/normals, pose, edges, segmentation, layout, palette, camera/subject trajectories and static/motion regions |",
+      "sourceTextSha256": "b6d523079510bdd82c53b144e05b520b6ea43d57bf6dbab09a7b3fa33bd861aa",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=GenerationControlBundle/meaning",
+      "previousTargetValueSha256": "71dfb7cf17252252061b4d8834a74b09fcaf42b6d1945f15e948e57226d7749c",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=GenerationControlBundle",
+      "proposedTargetValueSha256": "b0183bab0a125b6502895402bc254237d6b31bfc31924f35660ffcb22ac9e8c7",
+      "materialMeaning": "Typed references, masks, depth/normals, pose, edges, segmentation, layout, palette, camera/subject trajectories and static/motion regions |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0232-C001",
+      "exactSourceText": "Scene-to-scene identity/appearance/geometry/style references and qualified comparisons",
+      "sourceTextSha256": "ea9e4ad370bfa0db16ea972a6c9ec6404b6c0928d9925d58ba7e8bf7806b25e4",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ContinuityState/meaning",
+      "previousTargetValueSha256": "fcdb6a4e92242bede5334bad86af6da12d322c8ff352e32c83e4522c72fa26bd",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ContinuityState",
+      "proposedTargetValueSha256": "b4530092e8f03d1398ea34b71b4cfd6783434cc91d99c4af23b4c179ef06666c",
+      "materialMeaning": "Scene-to-scene identity/appearance/geometry/style references and qualified comparisons",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0232-C002",
+      "exactSourceText": "observations are not identity proof |",
+      "sourceTextSha256": "7d692cfc523655cf16f470df2f189dba65ee9e19c21ed2dfc4848d88924f9a03",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ContinuityState/stateBoundary",
+      "previousTargetValueSha256": "8a574e1b1986bce1106640d370b5453bc88a36f4d9f635b977b0bc6b451f9bbe",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ContinuityState",
+      "proposedTargetValueSha256": "b4530092e8f03d1398ea34b71b4cfd6783434cc91d99c4af23b4c179ef06666c",
+      "materialMeaning": "observations are not identity proof |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0233-C001",
+      "exactSourceText": "Metric versions, applicability, input/output references, scores/units, thresholds, uncertainty, failure regions and reviewer disposition |",
+      "sourceTextSha256": "ea43e22d6af8f8f69bd1d78a9cd6f88626ee3d7a8a950b6ee2cff41517e8784a",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=QualityAssessment/meaning",
+      "previousTargetValueSha256": "230ffce72fa030a8d381297dd81ac822dffde86d8b331c5e20d15802805945ff",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=QualityAssessment",
+      "proposedTargetValueSha256": "a38c9dba727b73d915471f7362f662475196af4b9c4cd00a1d641d3f4068c6b7",
+      "materialMeaning": "Metric versions, applicability, input/output references, scores/units, thresholds, uncertainty, failure regions and reviewer disposition |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0234-C001",
+      "exactSourceText": "Registered outputs, exact technical descriptors, validation, degradation, provenance and publication certainty |",
+      "sourceTextSha256": "a60d90b105f92757cbb419705f88e585c7705035b60bd40ab3378f0d3577ec57",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=RenderOutcome-and-DeliveryOutcome/meaning",
+      "previousTargetValueSha256": "1613942c57673a4c05e3d182bab44a6ac5cad084c7b2762385a2b6da772d1036",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=RenderOutcome-and-DeliveryOutcome",
+      "proposedTargetValueSha256": "16e2e4e17e252d7e47d86ad4c4eeb85fcf4b6d0aa222ede96e5b05d50d8b12d1",
+      "materialMeaning": "Registered outputs, exact technical descriptors, validation, degradation, provenance and publication certainty |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0235-C002",
+      "exactSourceText": "Separate authority references for permission, lawful/contractual permitted use and observed creation history |",
+      "sourceTextSha256": "57f1745400da259cc50380a0e45c7ab585fe311a9e7ab4c7163385454f045330",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ConsentReference-RightsDecision-ProvenanceManifest/meaning",
+      "previousTargetValueSha256": "3c6529839b35f0aca2c8b6409c5edf41d4ff3235f09206ee93ce4a9cd09d0030",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ConsentReference-RightsDecision-ProvenanceManifest",
+      "proposedTargetValueSha256": "da5f0e4a4fa5c926e6e92856c51bf6f63fa523c91483d55bc4c1f4d56cdb72e6",
+      "materialMeaning": "Separate authority references for permission, lawful/contractual permitted use and observed creation history |",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0236-C001",
+      "exactSourceText": "Use IDs and references across boundaries, not in-memory framework objects.",
+      "sourceTextSha256": "94984a65c3bd51459230f685dbe4509eb6d271d7fc4d4e0f9082839c11562949",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/recordLifecycleRules/identity/proposedRule",
+      "previousTargetValueSha256": "3d031ff1e9a3bcc9fe99803474aa0edb59c29240fc03ef8e21ad21a6dc65ca15",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/recordLifecycleRules/identity",
+      "proposedTargetValueSha256": "ac048d2063e13e4812d9e517e86ebc15b81521bd5b2dbb0b22f910da2207fa6a",
+      "materialMeaning": "Use IDs and references across boundaries, not in-memory framework objects.",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0236-C003",
+      "exactSourceText": "Product-specific payloads are discriminated and validated",
+      "sourceTextSha256": "dfc6ae56ef2cab54e6a309464d5acc5f7f31aeef8c4a9441d4af56e3e61146e0",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/separationAndCompatibility/publicShape/0",
+      "previousTargetValueSha256": "a09b62ff144a065c4b103b4bdb77ab8173484ef44b47528d9090ee34e24e9b9b",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/ownerDefinedMigrationRules/records/@id=media.domain-rule.typed-core-operation-semantics",
+      "proposedTargetValueSha256": "53cf6402ff1ad7891e082131577f37b4769e3e1307234eee3c3d1118e8c62a8a",
+      "materialMeaning": "Product-specific payloads are discriminated and validated",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0236-C004",
+      "exactSourceText": "arbitrary `Map<string, unknown>` is not an adequate contract for core operation semantics.",
+      "sourceTextSha256": "435d7d7d1ee091a92deb917570c5ee8b04ce6579ef2c6c51561bc18d8ba493ae",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/separationAndCompatibility/publicShape/0",
+      "previousTargetValueSha256": "a09b62ff144a065c4b103b4bdb77ab8173484ef44b47528d9090ee34e24e9b9b",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/ownerDefinedMigrationRules/records/@id=media.domain-rule.typed-core-operation-semantics",
+      "proposedTargetValueSha256": "53cf6402ff1ad7891e082131577f37b4769e3e1307234eee3c3d1118e8c62a8a",
+      "materialMeaning": "arbitrary `Map<string, unknown>` is not an adequate contract for core operation semantics.",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0259-C002",
+      "exactSourceText": "Do not use the STT 16 kHz mono default as the universal mastering format.",
+      "sourceTextSha256": "c681f78b60cceca158982577b9e3f7500bd14983fdf4333deb7f726915525392",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/existingContractMap/@id=media-audio-video-client-types/compatibilityFacts/1",
+      "previousTargetValueSha256": "94f56da83cff1ff6cabf74bfa3332d8376df5839d644095012fd61ef0c0acb42",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/existingContractMap/@id=media-audio-video-client-types/compatibilityFacts/1",
+      "proposedTargetValueSha256": "833e8dd4690bca0da3805b790338309b9bced163c49f2fb6c73d638a05374679",
+      "materialMeaning": "Do not use the STT 16 kHz mono default as the universal mastering format.",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0272-C001",
+      "exactSourceText": "Scientific/domain fidelity is separate from visual quality.",
+      "sourceTextSha256": "b6a501b23f76da343fc4172813d42e88a9ee1c788b16c2be62bf1cbac563346c",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=QualityAssessment/stateBoundary",
+      "previousTargetValueSha256": "94f5b56115aa25aefcdab8c01a61682bb81a96efe103881b1101ac397394f72e",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=QualityAssessment",
+      "proposedTargetValueSha256": "a38c9dba727b73d915471f7362f662475196af4b9c4cd00a1d641d3f4068c6b7",
+      "materialMeaning": "Scientific/domain fidelity is separate from visual quality.",
+      "semanticReviewStatus": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "coordinatorReviewStatus": "PENDING",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-domain-model-owner-review.test.mjs"
+      ]
+    }
+  ],
+  "nonClaims": [
+    "No canonical PDP-1 handoff acceptance",
+    "No legacy-wire compatibility or round-trip claim",
+    "No implementation/runtime admission",
+    "No independent expert acceptance",
+    "Historical target pins and source text remain unchanged"
+  ]
+}

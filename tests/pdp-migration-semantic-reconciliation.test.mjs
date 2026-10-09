@@ -110,6 +110,18 @@ function assertClaimDisposition(claim) {
   if (claim.disposition === "NON_NORMATIVE_SOURCE_METADATA") {
     if (claim.claimId === "MPSEM-0001-C001") {
       assert.deepEqual(claim.metadataFields, ["document-id", "review-date", "document-status"]);
+    } else if (claim.claimId === "MPSEM-0035-C001") {
+      assert.deepEqual(claim.metadataFields, ["table-row-heading"]);
+      assert.equal(claim.sourceEvidenceRef, "docs/migration/expert-reviewed-master-plan.md#L114");
+      assert.match(claim.rationale, /first column .*review row/u);
+    } else if (claim.claimId === "MPSEM-0053-C001") {
+      assert.deepEqual(claim.metadataFields, ["table-row-heading"]);
+      assert.equal(claim.sourceEvidenceRef, "docs/migration/expert-reviewed-master-plan.md#L143");
+      assert.match(claim.rationale, /row label/u);
+    } else if (claim.claimId === "MPSEM-0055-C001") {
+      assert.deepEqual(claim.metadataFields, ["table-row-heading"]);
+      assert.equal(claim.sourceEvidenceRef, "docs/migration/expert-reviewed-master-plan.md#L145");
+      assert.match(claim.rationale, /table row label/u);
     } else if (claim.claimId === "MPSEM-0066-C001") {
       assert.deepEqual(claim.metadataFields, ["introductory-list-lead-in"]);
       assert.match(claim.rationale, /colon-terminated lead-in immediately followed by a four-item ownership list/u);
@@ -158,7 +170,10 @@ function assertClaimDisposition(claim) {
   assert.ok(claim.targetRef, `${claim.claimId} needs one exact authority selector`);
   const target = resolveRef(claim.targetRef);
   const targetText = typeof target === "string" ? target : JSON.stringify(target);
-  assert.equal(claim.targetTextSha256, sha(targetText), `${claim.claimId} target content changed without semantic review`);
+  const targetDigest = claim.coordinatorReviewStatus === "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    ? sha(JSON.stringify(target))
+    : sha(targetText);
+  assert.equal(claim.targetTextSha256, targetDigest, `${claim.claimId} target content changed without semantic review`);
   assert.equal(claim.acceptanceEffect, "none");
   assertHighRiskMigrationSemantics(claim);
   if (claim.claimId.startsWith("MPSEM-0456-C")) assertLicenseSemantics(claim);
@@ -281,8 +296,8 @@ test("PDP-38 migration overlay exactly partitions all 260 historical unresolved 
   const metadata = leafClaims.filter(({ disposition }) => disposition === "NON_NORMATIVE_SOURCE_METADATA");
   const verified = routed.filter(({ semanticReviewStatus }) => semanticReviewStatus === "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED");
   const pending = routed.filter(({ semanticReviewStatus }) => semanticReviewStatus === "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
-  assert.equal(metadata.length, 4);
-  assert.equal(routed.length, 866);
+  assert.equal(metadata.length, 7);
+  assert.equal(routed.length, 863);
   assert.equal(retained.length, 7);
   assert.equal(overlay.scopeSupersededClaimUnitCount, superseded.length);
   assert.equal(overlay.ownerAccountedPendingSemanticDefinitionCount, gaps.length);
@@ -295,8 +310,8 @@ test("PDP-38 migration overlay exactly partitions all 260 historical unresolved 
   assert.equal(overlay.sourceOwnerRoutingCount, routed.length);
   assert.equal(overlay.semanticParityVerifiedClaimUnitCount, verified.length);
   assert.equal(overlay.candidateTargetPendingSemanticParityCount, pending.length);
-  assert.equal(verified.length, 230);
-  assert.equal(pending.length, 636);
+  assert.equal(verified.length, 339);
+  assert.equal(pending.length, 524);
   const historicalExplorer = leafClaims.find(({ claimId }) => claimId === "MPSEM-0160-C001");
   assert.equal(historicalExplorer.disposition, "RETAINED_AS_HISTORICAL_PROGRAM_TRUTH");
   assert.match(historicalExplorer.retainedSourceRef, /expert-reviewed-master-plan\.md#L332/u);

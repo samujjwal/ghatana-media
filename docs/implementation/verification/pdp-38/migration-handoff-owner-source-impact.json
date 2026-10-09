@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "media.pdp38-current-owner-source-impact.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-090",
+  "scope": "One additive Media-owned bounded worker exception rule; existing PXD-086 targets and source baseline are unchanged.",
+  "sourcePath": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml",
+  "priorSourceCommit": "86f533c6b8abeb6bd88872f770669f4e9af2d08d",
+  "priorSourceFileSha256": "274f4112c12d8542d2fbb7109b200aa8e64c5c06897b1f624b84b8321cb224c5",
+  "currentSourceFileSha256": "0c0281ee97f39d0c41e0e91c95cc19ef5b850bc385e748b47044e3b8918d1a73",
+  "changedScalarPaths": [
+    "#/handoffs/@id=ai-inference-execution/boundedWorkerExceptionRule"
+  ],
+  "currentChangedValueSha256": "b71e20e74a199f46bbb7d7d36dcba2c16dc608bd603b1b456fb4193e82aa3c60",
+  "currentChangedValueRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=ai-inference-execution/boundedWorkerExceptionRule",
+  "priorParsedTreeSha256": "c8fd88b838386bfac0c0225fd63ef3020ac6871fea15667af57d159d5d7f5967",
+  "currentParsedTreeWithoutAddedRuleSha256": "c8fd88b838386bfac0c0225fd63ef3020ac6871fea15667af57d159d5d7f5967",
+  "proof": "Removing only the new boundedWorkerExceptionRule from the current parsed YAML reproduces the PXD-086 parsed source tree.",
+  "acceptanceEffect": "none; additive owner definition only, no worker exception or runtime admission"
+}

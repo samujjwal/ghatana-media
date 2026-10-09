@@ -1,0 +1,154 @@
+TAP version 13
+# Subtest: PXD-090 approves the exact 112-row proposal set without rewriting proposal snapshots
+ok 1 - PXD-090 approves the exact 112-row proposal set without rewriting proposal snapshots
+  ---
+  duration_ms: 2514.352473
+  type: 'test'
+  ...
+# Subtest: PXD-090 reconciliation counters are derived from the live 884-unit ledger
+ok 2 - PXD-090 reconciliation counters are derived from the live 884-unit ledger
+  ---
+  duration_ms: 2.828752
+  type: 'test'
+  ...
+# Subtest: the goal-rule addition is isolated and does not rewrite prior goal measures
+ok 3 - the goal-rule addition is isolated and does not rewrite prior goal measures
+  ---
+  duration_ms: 5751.246227
+  type: 'test'
+  ...
+# Subtest: the complete live 27-claim domain-model cohort points to exact owner records and keeps history unchanged
+ok 4 - the complete live 27-claim domain-model cohort points to exact owner records and keeps history unchanged
+  ---
+  duration_ms: 576.513341
+  type: 'test'
+  ...
+# Subtest: domain definitions reject loss of material ownership, lifecycle, state, and fidelity boundaries
+ok 5 - domain definitions reject loss of material ownership, lifecycle, state, and fidelity boundaries
+  ---
+  duration_ms: 176.743451
+  type: 'test'
+  ...
+# Subtest: the full live 22-claim glossary cohort preserves historical pins and binds complete owner definitions
+ok 6 - the full live 22-claim glossary cohort preserves historical pins and binds complete owner definitions
+  ---
+  duration_ms: 937.926729
+  type: 'test'
+  ...
+# Subtest: glossary owner definitions reject loss of privacy axes, clock profiles, pixel-center conversion, and disclosure state
+ok 7 - glossary owner definitions reject loss of privacy axes, clock profiles, pixel-center conversion, and disclosure state
+  ---
+  duration_ms: 208.871278
+  type: 'test'
+  ...
+# Subtest: the complete 39-claim goal cohort keeps history and distinguishes semantic routes, metadata, and unresolved authority
+ok 8 - the complete 39-claim goal cohort keeps history and distinguishes semantic routes, metadata, and unresolved authority
+  ---
+  duration_ms: 3712.943331
+  type: 'test'
+  ...
+# Subtest: goal source rules reject loss of required scope, policy gates, and effect finality
+ok 9 - goal source rules reject loss of required scope, policy gates, and effect finality
+  ---
+  duration_ms: 278.050735
+  type: 'test'
+  ...
+# Subtest: PXD-086 verifies exactly 57 bounded profile/handoff claims and one source-metadata row
+ok 10 - PXD-086 verifies exactly 57 bounded profile/handoff claims and one source-metadata row
+  ---
+  duration_ms: 2118.742601
+  type: 'test'
+  ...
+# Subtest: PXD-084, PXD-085 and PXD-086 are disjoint immutable review cohorts
+ok 11 - PXD-084, PXD-085 and PXD-086 are disjoint immutable review cohorts
+  ---
+  duration_ms: 4133.612276
+  type: 'test'
+  ...
+# Subtest: migration review counters include PXD-086 without promoting phase acceptance
+ok 12 - migration review counters include PXD-086 without promoting phase acceptance
+  ---
+  duration_ms: 1.525643
+  type: 'test'
+  ...
+# Subtest: PDP-38 migration overlay exactly partitions all 260 historical unresolved blocks
+ok 13 - PDP-38 migration overlay exactly partitions all 260 historical unresolved blocks
+  ---
+  duration_ms: 27033.56529
+  type: 'test'
+  ...
+# Subtest: the MPSEM-0066 lead-in is classified from its exact colon-and-list source structure
+ok 14 - the MPSEM-0066 lead-in is classified from its exact colon-and-list source structure
+  ---
+  duration_ms: 3.274533
+  type: 'test'
+  ...
+# Subtest: the REV-03 table label is metadata while its problem and required resolution stay separate claims
+ok 15 - the REV-03 table label is metadata while its problem and required resolution stay separate claims
+  ---
+  duration_ms: 3.163028
+  type: 'test'
+  ...
+# Subtest: high-risk cover, identity, phase, and one-owner mappings reject unrelated stable targets
+ok 16 - high-risk cover, identity, phase, and one-owner mappings reject unrelated stable targets
+  ---
+  duration_ms: 6.803136
+  type: 'test'
+  ...
+# Subtest: model-acquisition review preserves the pinned snapshot and records the new owner policy delta
+ok 17 - model-acquisition review preserves the pinned snapshot and records the new owner policy delta
+  ---
+  duration_ms: 1.273089
+  type: 'test'
+  ...
+# Subtest: known migration target corrections preserve the full claim clauses at exact owner sources
+ok 18 - known migration target corrections preserve the full claim clauses at exact owner sources
+  ---
+  duration_ms: 1.351915
+  type: 'test'
+  ...
+# Subtest: mixed four-phase summary is decomposed into exact current owner sources
+ok 19 - mixed four-phase summary is decomposed into exact current owner sources
+  ---
+  duration_ms: 0.48759
+  type: 'test'
+  ...
+# Subtest: erasure negative boundary maps to the actual metadata-only confirmation rule
+ok 20 - erasure negative boundary maps to the actual metadata-only confirmation rule
+  ---
+  duration_ms: 0.591165
+  type: 'test'
+  ...
+# Subtest: license and adapter-sequencing claims preserve their exact owner-defined rules
+ok 21 - license and adapter-sequencing claims preserve their exact owner-defined rules
+  ---
+  duration_ms: 1.452975
+  type: 'test'
+  ...
+# Subtest: semantic assertions reject a stable but unrelated candidate target
+ok 22 - semantic assertions reject a stable but unrelated candidate target
+  ---
+  duration_ms: 2.002789
+  type: 'test'
+  ...
+# Subtest: all temporal claims preserve their historical source/target observations and remain pending review
+ok 23 - all temporal claims preserve their historical source/target observations and remain pending review
+  ---
+  duration_ms: 2119.421978
+  type: 'test'
+  ...
+# Subtest: temporal owner clauses reject loss of source mapping, full descriptors, solver bounds and package compatibility
+ok 24 - temporal owner clauses reject loss of source mapping, full descriptors, solver bounds and package compatibility
+  ---
+  duration_ms: 583.447828
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 27517.942592

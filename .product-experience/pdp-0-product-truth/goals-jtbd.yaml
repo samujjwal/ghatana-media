@@ -77469,3 +77469,226 @@ successMeasureContracts:
     bindingProjectionRule: records is a per-capability index;
       measureApplicabilityRecords is the enumerable normative set of exact
       leaf×measure dispositions.
+
+ownerDefinedMigrationRules:
+  authority: user-delegated-Media-product-semantic-owner; additive clarification of historical source claims
+  scopeStatus: OWNER_DEFINED_PRODUCT_TRUTH; definition-only; no implementation, runtime, publication, or acceptance inference
+  records:
+    - id: media.goal-rule.existing-capability-family-scope
+      rule: >-
+        Product definition retains the existing Media scope of media processing
+        and streaming; speech recognition and synthesis; image, video, audio, and
+        music generation; enhancement and restoration; editing, animation,
+        simulation, synchronization, composition, professional color and mastering,
+        quality assessment, delivery, and spatial-media extension points. These
+        are intended product families, not promises that a particular operation,
+        runtime, provider, or scientific capability is admitted.
+      sourceBoundary: Master-plan Sections 2 and 6; mapped capability-family register
+      nonClaims: [all-leaves-implemented, every-spatial-extension-defined, provider-selected]
+    - id: media.goal-rule.required-capability-family-scope
+      rule: >-
+        Every capability family named as required product-definition scope remains in
+        the product-definition population. Give each named family a stable leaf
+        capability or an explicit, reviewed alias to another leaf; do not remove,
+        hide, or rename a family as future work to reduce the definition obligation.
+        Intended scope is independent of implementation, license admission,
+        qualification, and runtime availability.
+      sourceBoundary: Master-plan Section 6 and the current PDP-0 capability registry
+      nonClaims: [implementation-exists, license-admitted, qualified, runtime-available]
+    - id: media.goal-rule.existing-consumer-contract-boundary
+      rule: >-
+        Existing Media callers and integrations use an explicit supported public
+        Media contract. Repository relocation or product extraction preserves the
+        consumer boundary and records a versioned compatibility map before changing
+        a supported call shape; consumers must not import Media implementation
+        internals or create duplicate old-name/new-name business implementations.
+        Exercise the public contract from both the Media and consumer repositories
+        without importing source implementation across the repository boundary.
+        Shared or other platform packages may provide public mechanics behind
+        Media-owned domain adapters, but those mechanics do not replace Media's
+        product contract or domain state.
+      nonClaims: [published-artifact-verified, every-consumer-inventoried, wire-parity-accepted]
+    - id: media.goal-rule.common-platform-mechanics-boundary
+      rule: >-
+        Reuse public Ghatana security, identity, audit, observability, workflow,
+        messaging, schema, configuration, HTTP, async/lifecycle, test, and UI
+        primitives where their exact contracts fit. Shared/platform owners retain
+        those generic mechanics; Media owns domain-specific intent, state, policy,
+        and adapters. Tools development mechanics do not put Media outside the
+        ecosystem and do not waive published Kernel contracts deliberately adopted
+        by a Media surface.
+      nonClaims: [private-package-import-authorized, implicit-kernel-adoption, duplicate-platform-authority]
+    - id: media.goal-rule.governed-enterprise-context-boundary
+      rule: >-
+        Use an admitted Data Cloud public contract for governed enterprise
+        metadata, context, read models, and scoped search/reference access where
+        needed. Data Cloud owns that compatibility/read-model contract; Media owns
+        media bytes, artifact and job lifecycle, and media-specific operation
+        semantics. A metadata projection is not canonical Media artifact state,
+        and its presence does not admit a mutation or broaden access.
+      nonClaims: [canonical-media-lifecycle-in-data-cloud, mutation-route-admitted, access-widened]
+    - id: media.goal-rule.external-domain-authority-boundary
+      rule: >-
+        Media may render, measure, transform, or present domain material only within
+        its declared media operation and evidence bounds. Scientific validity,
+        pedagogical truth, clinical decisions, campaign claims, and domain-specific
+        meaning remain with their qualified domain owners. A signed provenance
+        statement proves only what its issuer and trust model attest; it does not
+        establish truth, copyright clearance, lawful use, or scientific accuracy.
+      nonClaims: [domain-owner-appointment, truth-from-provenance, scientific-validation-by-render]
+    - id: media.goal-rule.illustrative-render-is-not-validated-simulation
+      rule: >-
+        A renderer that illustrates a scientific phenomenon is a presentation result,
+        not a validated scientific simulator. Simulation validation requires the
+        domain owner's model, solver, inputs, validity domain, tolerances, and
+        evidence for the declared fidelity tier; visual plausibility or a quality
+        score cannot substitute for that evidence.
+      nonClaims: [scientific-validation-from-render, domain-owner-approval-from-appearance]
+    - id: media.goal-rule.explorer-evidence-boundary
+      rule: >-
+        Local Explorer simulations, deterministic fixtures, and in-memory diagnostic
+        providers support definition review and test illustration only. They are not
+        evidence of production runtime behavior, cross-environment reproducibility,
+        current remote authorization, or provider availability. While disconnected,
+        a client cannot claim that a fresh remote revocation or policy check occurred.
+      nonClaims: [production-evidence, remote-revocation-check, runtime-reproducibility]
+    - id: media.goal-rule.required-operation-status-retention
+      rule: >-
+        An operation in product scope does not disappear when implementation is
+        future, deferred, unavailable, or unqualified. Preserve its intended
+        channel, priority, implementation lane, and scoped availability as distinct
+        product facts; required product-definition scope remains recorded.
+      nonClaims: [implementation-status-from-scope, availability-from-definition]
+    - id: media.goal-rule.first-use-intent-launchers
+      rule: >-
+        Create, Improve, Edit, Animate, Simulate, Understand, and Deliver are
+        outcome-intent launchers over one Media product model, not seven competing
+        permanently separate workspaces. First use does not require a person to
+        choose an engine, model, queue, or codec. Adding an engine does not require
+        moving a public API into that engine's implementation language.
+      nonClaims: [separate-product-workspaces, provider-choice-required, api-language-from-engine]
+    - id: media.goal-rule.capability-reuse-not-business-logic-duplication
+      rule: >-
+        Reusing a capability means calling its exact public operation or composing
+        its owner-defined behavior. It does not authorize a second implementation
+        of the same business logic under a new name or an alternate state authority.
+        Media retains its product behavior and uses platform/public contracts only
+        through explicit adapters.
+      nonClaims: [duplicate-business-logic, authority-from-name-alias]
+    - id: media.goal-rule.synthesis-command-families
+      rule: >-
+        `synth plan`, `synth image`, `synth video`, `synth audio`, `synth music`,
+        `synth compose`, `synth render`, and `synth run` are distinct user-intent
+        command aliases and operation candidates. Their names do not make each
+        alias a separately admitted backend capability or select a vendor/model.
+      nonClaims: [production-command-parity, provider-selection, runtime-admission]
+    - id: media.goal-rule.diarization-identity-separation
+      rule: >-
+        Speaker diarization may assign temporary speaker turns or clusters without
+        identifying a real person. Identity resolution, biometric inference, and
+        speaker attribution are separate purposes that require their own exact
+        authority, consent, policy, and evidence; diarization success is not
+        identity proof.
+      nonClaims: [real-person-identification, biometric-consent, identity-proof]
+    - id: media.goal-rule.operation-success-finality
+      rule: >-
+        Starting, accepting, or submitting a requested action is not successful
+        completion. Report success only from the exact operation's owner-defined
+        result/finality evidence; keep accepted, running, partial, failed, cancelled,
+        and unknown outcomes distinct. A request acknowledgement cannot replace a
+        completed output or an external effect receipt.
+      nonClaims: [success-from-submit, success-from-transport-ack]
+    - id: media.goal-rule.supported-cli-control-surface
+      rule: >-
+        Help, version, doctor, configuration display/validation, and authentication
+        login/status/logout are client control and diagnostics through supported
+        Ghatana identity flows. They do not constitute Media media-processing
+        operations, expose credentials, or allow an authentication flow to bypass
+        protected credential storage and the current host policy.
+      nonClaims: [server-processing-operation,credential-exposure,auth-bypass]
+    - id: media.goal-rule.authentication-prerequisite
+      rule: >-
+        Existing supported Ghatana authentication methods and protected credential
+        storage are prerequisites for protected project or provider operations.
+        First-run creation does not bypass authentication, authorization, rights,
+        consent, policy, or a missing required local capability; explain the unmet
+        prerequisite before accepting protected inputs.
+      nonClaims: [identity-from-user-selected-label,protected-input-before-prerequisite]
+    - id: media.goal-rule.simple-default-transparency
+      rule: >-
+        Simple-mode defaults are policy-compatible, explainable, and reversible
+        where the operation permits reversal. A default cannot silently select an
+        unqualified engine, provider, profile, destination, or consequential effect;
+        report the relevant choice and preserve the user's ability to revise it
+        before execution when reversal afterward is not possible.
+      nonClaims: [default-as-policy-approval, reversible-after-irreversible-effect]
+    - id: media.goal-rule.expert-detail-within-operation
+      rule: >-
+        Expert disclosure may expose typed technical substeps needed to inspect or
+        control an operation. A technical substep remains an implementation detail
+        of that operation unless it has its own user value, authority, contract,
+        state, and lifecycle; disclosure alone does not create a separately
+        executable operation or change domain authority.
+      nonClaims: [operation-from-control,authority-from-disclosure]
+    - id: media.goal-rule.quality-cannot-override-policy
+      rule: >-
+        A quality score, provider result, or visual preference cannot override
+        safety, rights, consent, privacy, or declared effect-finality constraints.
+        Abstain, preserve uncertainty, or report blocked/unavailable when a required
+        constraint is unmet; do not apply unbounded repair or claim arbitrary
+        frame-level correction or scientific truth.
+      nonClaims: [quality-score-as-policy-decision,unbounded-repair,scientific-truth]
+    - id: media.goal-rule.approval-bound-to-output
+      rule: >-
+        Approval is bound to the exact output version, destination, purpose, scope,
+        approver authority, and validity period. Material regeneration invalidates
+        only approvals whose approved material changed under the applicable policy;
+        unchanged approval evidence does not authorize a different output or
+        destination.
+      nonClaims: [approval-from-brief,approval-transfer-to-new-output]
+    - id: media.goal-rule.effect-via-admitted-public-contract
+      rule: >-
+        A consequential delivery, export, or publication effect is available only
+        through the exact destination owner's admitted public operation and
+        version, with its typed request/result, current authority and policy
+        checks, approval binding, idempotency identity, finality, and
+        unknown-outcome reconciliation. An approved intent or successful render alone
+        does not establish dispatch, external completion, or publication; missing
+        owner contract evidence keeps the effect unavailable or unresolved.
+      sourceBoundary: Master-plan Sections 7, 10 and 17; current Media delivery and Action Plane contract boundaries
+      nonClaims: [action-plane-operation-admitted, remote-publication-confirmed, approval-as-effect-receipt]
+    - id: media.goal-rule.accepted-definition-projection
+      rule: >-
+        The historically specified Experience Explorer projection is a deterministic
+        visual/interaction projection of already accepted PDP definitions. It may
+        render and validate only the meaning, identity, source refs, and acceptance
+        state supplied by those definitions; it cannot originate or silently repair
+        product semantics. Missing, stale, unresolved, or unaccepted source inputs
+        prevent a claim that the projection represents accepted definitions. The
+        standalone Explorer execution/build is outside the current 38-task mandate;
+        this clause preserves the historical requirement and does not claim that
+        Explorer work is implemented or accepted.
+      sourceBoundary: Master-plan line 336; current EXECUTE-MEDIA-PDP-0-3-38-TASKS mandate excludes standalone Explorer work
+      nonClaims: [explorer-implementation-complete, projection-acceptance, new-product-meaning]
+    - id: media.goal-rule.shared-workflow-media-job-ownership
+      rule: >-
+        Shared Workflow may supply generic state, command, and idempotency mechanics;
+        Media owns product-specific job and attempt definitions, durable repository,
+        authority guards, handlers, policy decisions, result registration, and domain
+        finality. Persist the accepted job, attempt identity, and dispatch intent
+        before an external effect. A worker lease/fencing identity prevents stale
+        workers from committing progress or output; timeout or provider completion
+        alone cannot establish finality, and unknown outcomes require reconciliation
+        against the exact effect identity. Use an admitted public runtime contract
+        for generic mechanics; no public runtime identity/version is admitted by this
+        rule. Do not assume Shared or another workflow engine is a complete GPU job
+        scheduler or introduce another engine without an evidenced reuse/capacity gap.
+      sourceBoundary: Master-plan R06; Media owner definitions in P1 operations, states, transitions, and lifecycle contracts
+      normativeRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#operations
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts
+        - .product-experience/pdp-1-domain-data/states.yaml#stateMachines
+        - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
+      requiredPublicDependency: Shared Workflow public state/command/idempotency contract identity and version; admission remains pending
+      scopeStatus: OWNER_DEFINED_ROLE_BOUNDARY; generic runtime admission and GPU scheduling remain NOT_ADMITTED
+      nonClaims: [runtime-deployed, workflow-engine-selected, exactly-once-external-effect, gpu-scheduler-complete]

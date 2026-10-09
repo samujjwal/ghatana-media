@@ -385,3 +385,39 @@ conformanceFixtureSpecification:
     - color/alpha descriptor preservation
     - negative dimensional input
     - TutorPutor IR ownership and compatibility boundary
+
+ownerDefinedMigrationRules:
+  authority: user-delegated-Media-semantic-owner; additive clarification for the current PDP-0–PDP-3 mandate
+  scopeStatus: OWNER_DEFINED_PRODUCT_TRUTH; definition-only; canonical PDP-1 contract and independent review remain open
+  records:
+    - id: media.domain-rule.typed-core-operation-semantics
+      rule: >-
+        Every new core Media operation request and result uses a versioned,
+        discriminated payload with closed typed fields, validated references,
+        explicit units or explicit unknown/not-applicable states, and the
+        operation-specific invariants needed to distinguish intent, accepted
+        work, completed output, and external effect. Arbitrary
+        Map<string, unknown> is not an adequate contract for core operation
+        semantics because it cannot define required fields, value domains,
+        cross-field constraints, or fail-closed handling of unknown variants.
+      sourceBoundary: Current P0-004 domain proposal plus master-plan sections 7 and 7.2
+      nonClaims: [accepted-canonical-wire-schema, legacy-client-parity, implementation-or-runtime-admission]
+    - id: media.domain-rule.implementation-object-adapter-boundary
+      rule: >-
+        SDK, engine, device, tensor, database-entity, local-filesystem-path,
+        credential, and signed-URL objects remain behind explicit adapters and
+        do not become new cross-boundary Media domain values. Public records use
+        stable IDs and explicit version/hash references rather than in-memory
+        framework object identity.
+      sourceBoundary: Current P0-004 public-shape and record-lifecycle proposals
+      nonClaims: [legacy-object-adapter-implemented, external-framework-compatibility]
+    - id: media.domain-rule.existing-identity-compatibility
+      rule: >-
+        Existing OpenAPI, protobuf, package-export, and persistence identities
+        retain their observed source meaning until each proposed change has a
+        separately reviewed versioned compatibility map naming the exact symbol,
+        field, unit, behavioral change, adapter, and migration path. A repository
+        move or a PDP migration claim alone does not authorize an unrelated API
+        or wire change.
+      sourceBoundary: Current P0-004 existing-contract map and compatibility proposals
+      nonClaims: [consumer-inventory-complete, publication-verified, wire-parity-accepted]

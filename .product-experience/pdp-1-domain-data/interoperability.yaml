@@ -87,6 +87,48 @@ crossProductReferences:
       - published-consumer-contract-and-immutable-package-or-schema-identity
       - compatibility-and-round-trip-fixtures-for-each-named-consumer
     examplesRequiringOwnerVerification: [TutorPutor, Tools, Shared, downstream-media-clients]
+packageCompatibilityBoundary:
+  id: media.interop.legacy-audio-video-package-preservation
+  authority: user-delegated-Media-compatibility-definition; not a consumer-acceptance or publication record
+  packageRecords:
+    - package: '@audio-video/client'
+      packageManifest: libs/audio-video-client/package.json
+      observedVersion: 0.1.0-SNAPSHOT
+      publicExports:
+        - .
+        - ./operations
+        - ./canonical-routes
+      declarationEntry: dist/index.d.ts
+      runtimeEntry: dist/index.js
+    - package: '@audio-video/types'
+      packageManifest: libs/audio-video-types/package.json
+      observedVersion: 0.1.0-SNAPSHOT
+      publicExports:
+        - .
+        - ./contracts
+      declarationEntry: dist/index.d.ts
+      runtimeEntry: dist/index.js
+  sourceEvidence:
+    - libs/audio-video-client/src/index.ts
+    - libs/audio-video-client/src/operations.ts
+    - libs/audio-video-types/src/index.ts
+    - libs/audio-video-types/src/contracts.ts
+  preservationRule: >-
+    Repository relocation preserves these exact package coordinates, observed export
+    subpaths, declaration/runtime entry relationships, and source-level client/type
+    contracts until a separately approved compatibility map identifies each changed
+    symbol, field, enum, scalar unit, and behavioral boundary and supplies the required
+    adapter and migration path. The current snapshot package manifests and source tree
+    establish repository facts only: they do not prove a published immutable artifact,
+    downstream consumer usage, universal API compatibility, or acceptance of a changed
+    contract. Existing scalar fps, durationMs, and timestamp fields retain their observed
+    source meaning and are not silently reinterpreted as rational clock/time-map values.
+  changeDisposition:
+    unlistedChange: BLOCK_OR_KEEP_COMPATIBILITY; do not silently remove or rename an export or field
+    changedUnitsOrMeaning: REQUIRE_EXPLICIT_VERSIONED_ADAPTER_AND_ROUND_TRIP_EVIDENCE
+    publicationAndConsumerStatus: NOT_VERIFIED
+  scopeStatus: OWNER_DEFINED_SOURCE_PRESERVATION_RULE; no package publication or consumer compatibility is accepted
+
 mappingRules:
   - preserve-existing-field-and-message-identities-until-consumer-parity-and-owner-gates
   - use-explicit-adapters-for-unit-clock-coordinate-classification-and-enum-conversion

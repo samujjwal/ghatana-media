@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "media.pdp38-bounded-source-verification.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-090",
+  "reviewedRecordCount": 112,
+  "normativeClaimCount": 109,
+  "metadataCount": 3,
+  "verification": {
+    "command": "node --test tests/pdp-migration-coordinator-112-approval.test.mjs tests/pdp-migration-goal-owner-review.test.mjs tests/pdp-migration-domain-model-owner-review.test.mjs tests/pdp-migration-glossary-owner-review.test.mjs tests/pdp-migration-temporal-owner-review.test.mjs tests/pdp-migration-profile-handoff-source-review.test.mjs tests/pdp-migration-semantic-reconciliation.test.mjs",
+    "exitCode": 0,
+    "passedTests": 24,
+    "log": "docs/implementation/verification/pdp-38/migration112-verification.log",
+    "outputSha256": "03324eeeda6f720a30048b0b5ba8d37e2ba9f6817f885cad47d38796aad5d8e5"
+  },
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "28b87b3026a8c8ef4c4a16de213bc112432fc37b086d5d02e912214a4d225cea",
+    ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+    ".product-experience/pdp-0-product-truth/handoff-contracts.yaml": "0c0281ee97f39d0c41e0e91c95cc19ef5b850bc385e748b47044e3b8918d1a73",
+    ".product-experience/pdp-1-domain-data/interoperability.yaml": "cbc3d729ccf6a53ced0ac76cc102c48e40465b22a7ac85f40b59e23287d6621d",
+    ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml": "41b68c2c41ad7ff9e06a6d3e1c4c90665dee13c7b4aed3b587ebbbcf7263c22f",
+    "tests/pdp-migration-coordinator-112-approval.test.mjs": "06bd14dee97d335e875bbbd2864c0fd9e491bb1854eb5bbf9c88a64716e4ebd0",
+    "tests/pdp-migration-goal-owner-review.test.mjs": "ad6969852b84f8d66086f872c61d33e8c66ad3d6c6bb01a6a1120584c502f2da",
+    "tests/pdp-migration-domain-model-owner-review.test.mjs": "ff3658d6a72a72775e6fbbb6f3e4b11b7c9030d826e7fe6e91feddd9faba6f6f",
+    "tests/pdp-migration-glossary-owner-review.test.mjs": "c2441a4110ea578317f4bfe456a59eb15392666cb75549eafd8f2ff2e456811c",
+    "tests/pdp-migration-temporal-owner-review.test.mjs": "4418d4ff747017880fdcdfe090e07f5bb4dc39041191684605969c0e7e35e33f",
+    "tests/pdp-migration-profile-handoff-source-review.test.mjs": "219d3bb8ea6138bfe2dd9f7022158e79de8e506b6242e824296f930593fdef1f",
+    "tests/pdp-migration-semantic-reconciliation.test.mjs": "4739bd4ecf391010be2f515957b72c49772f9639c0de726be88bc8c89ccc3a0a",
+    "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json": "75d4d9446eba24abab6849638e5f66ac25bfec241bc8c5ff4acd2d473bdbfc78",
+    "docs/implementation/verification/pdp-38/migration-goal-owner-review.json": "f917b2d1021470e7d8ea0327bc035b9414fd1350964179b38ac10aa05f67d95f",
+    "docs/implementation/verification/pdp-38/migration-domain-model-owner-review.json": "b420c8feb3d166d34024c56b28763246f0d11a8e7d2eabe857edf1064181c9f8",
+    "docs/implementation/verification/pdp-38/migration-glossary-owner-review.json": "f7508967608acc2089a5f3f861a09f24b9e7fe2a7ec2fbff928b61bacfcb6e05",
+    "docs/implementation/verification/pdp-38/migration-temporal-owner-review.json": "cf4d91a34afac1f0977322f50626d7ba566e82d0684126331bed02c19b75b672",
+    "docs/implementation/verification/pdp-38/migration-goals-owner-source-impact.json": "c8b7e4ef202e95d75805e39863ea41f0c019c59e5d22329ca00d95ca24a0a445",
+    "docs/implementation/verification/pdp-38/migration-domain-model-owner-source-impact.json": "c28892ab1e8bc1926e9c82e2e6727be17508dba7bd98654a92728855234f331c",
+    "docs/implementation/verification/pdp-38/migration-handoff-owner-source-impact.json": "3e2f1a7a2ed05e9423c0260d8a3fe7a00d6444f6ca5e9e5ee70586fef51a43d0"
+  },
+  "nonClaims": [
+    "Whole-task completion",
+    "Current generated global source census",
+    "Independent acceptance",
+    "Runtime admission",
+    "Lifecycle receipts"
+  ]
+}
