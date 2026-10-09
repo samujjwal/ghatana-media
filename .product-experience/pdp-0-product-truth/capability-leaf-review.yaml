@@ -18,15 +18,15 @@ sourceInventory:
 - path: .product-experience/pdp-0-product-truth/applications-channels.yaml
   sha256: e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d
 - path: .product-experience/pdp-1-domain-data/operations.yaml
-  sha256: faa1da75605eb9ed1a0100c7f7d8bd77d6007510a517552b2092fc9a781f2322
+  sha256: bd82cc079e64848d9b3b0f5f7aaf663a7a9d5e6b6bb28453356ca4977ee97cfa
 - path: .product-experience/pdp-1-domain-data/action-contracts.yaml
-  sha256: 4c1a8920f8f8060e111179ba39ae98d752c552425925aff38873f5e926158e97
+  sha256: 59d6833fc810038cc5051941fdcbe657b14a1bb020c1a78861b56c60336cee19
 - path: .product-experience/pdp-1-domain-data/states.yaml
   sha256: 53c310be8c3e1ced1d90db5450a1e5a7bd6973a8c7ec443c7a50e214cdc58110
 - path: .product-experience/pdp-3-product-experience/action-registry.yaml
-  sha256: c9760aec2e556cba9c514b90cc5a519255c16682e2b8e4cec6d2bbf3c41568af
+  sha256: 2027e497bad4a7f568103bddcfaa19422067900aec3b4ae3eab40a4e0ab44994
 - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
-  sha256: 51eb27ef620db17780ecbd24a11ad8a32974e76b6b2438031d980cd5216558dd
+  sha256: fba56330b2993892c6cb4a2a1b66e05ef0e22615460c378f301a4ac4d1890d67
 denominatorReconciliation:
   capabilityFamilies: 38
   capabilityLeaves: 462
@@ -3939,6 +3939,31 @@ leaves:
       noProcessingEngineOrModelAdmission: true
       preserveExactSourceAndParentIdentity: true
       qualityCriteria: Canonical source/parent/receipt identity, payload integrity and mismatch disclosure only; scientific timing/language quality requires separate governing evidence.
+      unresolvedAxes: [execution-location, resource, reproducibility]
+    runtimeAdmission: NOT_ADMITTED
+    fullLeafAcceptance: NOT_CLAIMED
+
+  transcriptVersionDefinitionSlice:
+    status: OWNER_ACCEPTED_J03_TRANSCRIPT_INSPECTION_DEFINITION_SLICE; full leaf and runtime admission not claimed
+    decisionRef: .product-experience/decision-log.md#PXD-065
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-062
+    experienceDecisionRef: .product-experience/decision-log.md#PXD-064
+    scope: Inspect one exact immutable canonical transcript version under current scoped read authority; no global listing, registration, approval, publication or new processing.
+    journeyRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyStepRefs: [J03-4]
+    operationRefs: [media.operation.transcript-version-read]
+    sourceContractRefs: [.product-experience/pdp-1-domain-data/operations.yaml#/operations/4]
+    domainObjectRefs: [media.domain.transcript-version]
+    normativeChannelScope: Web interaction definition only; current HTTP, SDK, CLI, Agent Tool and gRPC runtime equivalence not selected.
+    contentBoundary: Immutable canonical transcript identity is distinct from legacy transcription UUID, recognition draft, registered caption and review approval; inspect supplied language, speaker, confidence and timing evidence only, without scientific accuracy or content-rights inference.
+    profileApplicability:
+      noMutationOrNewProcessing: true
+      noDeliveryOrPublication: true
+      noScientificQualityAdmission: true
+      preserveExactSourceAndVersionIdentity: true
+      missingTimingDoesNotBlockInspection: true
+      missingRequiredClockBlocksCaptionParentQualification: true
+      qualityCriteria: Exact identity, current scope, faithful evidence/availability disclosure and no invented timing, confidence, language or speaker assertions.
       unresolvedAxes: [execution-location, resource, reproducibility]
     runtimeAdmission: NOT_ADMITTED
     fullLeafAcceptance: NOT_CLAIMED
@@ -61978,3 +62003,41 @@ captionVersionDefinitionSourceReconciliations:
   semanticImpact: The existing save action requires explicit registration confirmation and remains distinct from approval; comparison preserves the exact pair and is read-only, with both actions tied to their existing canonical operation identities.
   capabilityImpact: Existing capability associations and the 462-leaf population remain unchanged; 383 remain unresolved and machine-operation coverage remains zero.
   acceptanceEffect: Bounded J-03 action definition reconciliation only; no host, runtime, transport, capability, phase or Lifecycle admission.
+
+
+# Transcript-version source definitions chain from the preserved caption-version pins above.
+transcriptVersionDefinitionSourceReconciliations:
+- path: .product-experience/pdp-1-domain-data/operations.yaml
+  previousSha256: faa1da75605eb9ed1a0100c7f7d8bd77d6007510a517552b2092fc9a781f2322
+  currentSha256: bd82cc079e64848d9b3b0f5f7aaf663a7a9d5e6b6bb28453356ca4977ee97cfa
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-062
+  exactChangedRecords: [media.operation.transcript-version-read]
+  semanticImpact: The existing exact transcript-version read preserves opaque immutable identity, exact source linkage, per-field availability, supplied uncertainty, and separate timing/source-clock evidence.
+  capabilityImpact: All existing 462 leaves, associations, and applicability dispositions remain unchanged; 383 remain unresolved and machine-operation coverage remains zero.
+  acceptanceEffect: Bounded source-definition reconciliation only; no channel equivalence, runtime, capability, phase, or Lifecycle admission.
+- path: .product-experience/pdp-1-domain-data/domain-objects.yaml
+  previousSha256: 51eb27ef620db17780ecbd24a11ad8a32974e76b6b2438031d980cd5216558dd
+  currentSha256: fba56330b2993892c6cb4a2a1b66e05ef0e22615460c378f301a4ac4d1890d67
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-062
+  exactChangedRecords: [media.domain.transcription, media.domain.transcript-version]
+  semanticImpact: One necessary canonical immutable transcript-version identity is added and the legacy transcription boundary refined; legacy UUIDs, transcript text and digests are not equivalent identities. Supplied timing and uncertainty remain observations.
+  capabilityImpact: The original canonicalDomainObjectRefs arrays and all 462 leaves remain unchanged; the separate bounded transcript inspection slice names its necessary canonical object.383 applicability decisions remain unresolved and machine-operation coverage remains zero.
+  acceptanceEffect: Bounded object-definition reconciliation only; no producer, materialization, runtime, phase, or Lifecycle admission.
+- path: .product-experience/pdp-1-domain-data/action-contracts.yaml
+  previousSha256: 4c1a8920f8f8060e111179ba39ae98d752c552425925aff38873f5e926158e97
+  currentSha256: 59d6833fc810038cc5051941fdcbe657b14a1bb020c1a78861b56c60336cee19
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-062
+  exactChangedRecords: [media.operation.transcript-version-read]
+  semanticImpact: The existing review action maps to one exact transcript-version observation and preserves explicit availability and unqualified runtime status.
+  capabilityImpact: All 462 capability associations and dispositions remain unchanged; 383 remain unresolved and machine-operation coverage remains zero.
+  acceptanceEffect: Source-level interaction binding only; no transport, runtime, capability, phase, or Lifecycle admission.
+- path: .product-experience/pdp-3-product-experience/action-registry.yaml
+  previousSha256: c9760aec2e556cba9c514b90cc5a519255c16682e2b8e4cec6d2bbf3c41568af
+  currentSha256: 2027e497bad4a7f568103bddcfaa19422067900aec3b4ae3eab40a4e0ab44994
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-064
+  sourceDefinitionDecisionRef: .product-experience/decision-log.md#PXD-062
+  sourceGrammarDecisionRef: .product-experience/decision-log.md#PXD-063
+  exactChangedRecords: [media.action.review-transcript]
+  semanticImpact: The existing transcript-review action is a scoped read-only inspection; it preserves uncertainty and explicitly does not approve, register, or publish a caption.
+  capabilityImpact: Existing capability associations and all 462 leaves remain unchanged; 383 remain unresolved and machine-operation coverage remains zero.
+  acceptanceEffect: Bounded J-03 source definition only; no host, channel, runtime, phase, or Lifecycle admission.

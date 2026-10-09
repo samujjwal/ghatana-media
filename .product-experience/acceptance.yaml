@@ -1459,3 +1459,27 @@ definitionCaptionReviewInputs20261008:
     - Source-only cases require actual registered providers, observers, oracles and native Lifecycle receipts before phase acceptance.
   runtimeAdmission: NOT_ADMITTED
   nativeLifecycleAcceptance: NOT_CLAIMED
+
+definitionTranscriptReviewInputs20261008:
+  status: BOUNDED_MEDIA_OWNER_DEFINITIONS_REVIEWED; INDEPENDENT_ACCEPTANCE_PENDING
+  decisionRefs: [PXD-062, PXD-063, PXD-064, PXD-065]
+  selectedJourney: J-03
+  selectedStepIds: [J03-4]
+  canonicalOperationRefs: [media.operation.transcript-version-read]
+  necessaryCanonicalObject: media.domain.transcript-version
+  populationJustification: Existing transcript review and caption parent contracts require an immutable canonical transcript identity; legacy IDs cannot satisfy this prerequisite. One required domain-object obligation is added, with actual source cases and a native acceptance route still required.
+  evidenceReport: docs/implementation/media-product-definition-transcript-batch-2026-10-08.json
+  testSources:
+    - tests/media-transcript-version-definition.test.mjs
+    - tests/media-transcript-version-interface-grammar.test.mjs
+    - tests/media-transcript-review-definition.test.mjs
+    - tests/media-transcript-capability-definition.test.mjs
+  reviewInputs:
+    - Exact canonical identity/source link must remain distinct from recognition responses, legacy UUIDs, job IDs and text digests.
+    - Current read authority is separate from caption registration rights; missing/inaccessible resources must not reveal global existence.
+    - Missing timing permits inspection; provider milliseconds and confidence do not imply source-clock alignment or scientific quality.
+    - Later qualified clock mapping is separately identified read-context evidence; it cannot silently mutate immutable timing.
+    - Caption parent eligibility requires authoritative source clock, rate, duration and source match plus current registration policy.
+    - Native providers, observers, oracles and authoritative Lifecycle receipts must admit the exact cases before phase acceptance.
+  runtimeAdmission: NOT_ADMITTED
+  nativeLifecycleAcceptance: NOT_CLAIMED

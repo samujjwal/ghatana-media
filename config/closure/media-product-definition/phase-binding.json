@@ -145,6 +145,7 @@
         "media.pdp-1.requirement.media.domain.stream-frame",
         "media.pdp-1.requirement.media.domain.stream-session",
         "media.pdp-1.requirement.media.domain.timeline",
+        "media.pdp-1.requirement.media.domain.transcript-version",
         "media.pdp-1.requirement.media.domain.transcription",
         "media.pdp-1.requirement.media.domain.upload-chunk",
         "media.pdp-1.requirement.media.domain.upload-session",

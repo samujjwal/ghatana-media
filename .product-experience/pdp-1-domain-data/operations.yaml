@@ -349,38 +349,79 @@ operations:
   - id: media.operation.transcript-version-read
     operationId: media.operation.transcript-version-read
     family: [inspect-transcript-version]
-    domainIntent: read-one-exact-source-linked-transcript-version-and-its-uncertainty
-    consumerActor: {proposal: transcript-reviewer, bindingStatus: derived-from-media.action.review-transcript; actor-review-pending}
-    authority: {semanticOwner: media, read-identity-and-authorization-authority: unresolved}
-    context: {status: unresolved; tenant, artifact, transcript, and source version identity need binding}
-    preconditions: {status: proposal; exact readable source-linked transcript identity required}
-    inputSemantics: {proposal: exact-transcription-job-or-transcript-version-identity-required, status: proposal-pending-owner-review}
-    effect: {proposal: read-only-source-linked-transcript-inspection, status: proposal-pending-owner-review}
-    outputSemantics: {proposal: exact-transcript-version-with-source-and-uncertainty-context, status: unresolved}
-    authorization: unresolved; exact read authority is not bound
-    error: unresolved; unavailable and stale-read behavior remain source-specific
-    finality: read-only; transcript-inspection-does-not-approve-or-publish-a-caption
-    version: exact-transcript-version-identity-required; transcript-version identity is not yet canonical
-    transport: source-observed local CLI action path only; canonical HTTP/SDK/gRPC and production-runtime bindings remain unresolved
-    idempotency: read-only-proposal; no transport guarantee inferred
-    cancellation: not-applicable-to-read-proposal
-    affectedObjects: {proposalRefs: [media.domain.transcription, media.domain.artifact-version], exactBindings: unresolved}
-    transition: {status: read-only; no domain transition proposed}
+    domainIntent: inspect-one-exact-immutable-source-linked-transcript-version-and-its-supplied-uncertainty
+    consumerActor: {permittedActorRefs: [media.creator, media.editor, media.reviewer], authoritySource: current-trusted-principal-and-policy-decision, bindingStatus: action-identity-source-observed; deployed-identity-binding-unqualified}
+    authority: {semanticOwner: media, trustedIdentityAndDelegationOwner: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation, currentTranscriptReadPolicyOwner: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy, deployedProviderBindings: unqualified}
+    context:
+      trustedIdentityFields: [tenantId, principalId]
+      exactSelector: transcriptVersionId
+      sourceIdentityResolvedFromVersion: [sourceArtifactId, sourceArtifactVersionId]
+      currentPolicy: read-authority-for-this-exact-transcript-version-and-linked-source-in-caller-scope
+    preconditions: [trusted-current-tenant-and-principal-from-host, one-exact-transcriptVersionId-selector, immutable-transcript-version-and-exact-source-artifact-version-resolve-in-caller-scope, current-read-authority-for-transcript-and-linked-source, authoritative-source-link-integrity-checked-before-reporting-the-version]
+    inputSemantics:
+      requiredFields: [transcriptVersionId]
+      trustedHostFields: [tenantId, principalId]
+      selector: one-exact-opaque-transcriptVersionId-only; no-jobId-transcriptArtifactId-sourceArtifactId-latest-alias-or-global-list
+      authorization: caller-supplied-tenant-or-principal-is-never-authority; actor-role-labels-do-not-grant-access
+    effect: read-one-exact-immutable-transcript-version-and-available-source-context; no-mutation-correction-approval-or-publication
+    outputSemantics:
+      requiredFields: [transcriptVersionId, sourceArtifactId, sourceArtifactVersionId, textAvailability, segmentsAvailability, languageAvailability, uncertaintyAvailability, timingAvailability, sourceClockAvailability, evidenceAvailability, observedAt]
+      conditionalFields: [text, segments, languageTag, uncertaintyObservations, timingObservations, sourceClockId, ticksPerSecond, sourceDurationTicks, sourceClockMappingEvidenceRef, evidenceRefs]
+      availabilityValues: [AVAILABLE, NOT_SUPPLIED]
+      timingAvailabilityValues: [NOT_SUPPLIED, PROVIDER_TIME_UNQUALIFIED, SOURCE_CLOCK_BOUND]
+      sourceClockAvailabilityValues: [AUTHORITATIVELY_BOUND, NOT_AVAILABLE]
+      timingAvailabilityDescribes: immutable-version-snapshot-at-materialization
+      sourceClockBoundRequires: authoritative-sourceArtifactVersion-mapping-and-sourceClockId-and-positive-safe-integer-ticksPerSecond; sourceDurationTicks-is-present-only-if-authoritatively-known; sourceClockMappingEvidenceRef-identifies-separate-read-context-mapping-evidence
+      clockMappingContext: a-later-qualified-map-is-separate-read-context-evidence; it-does-not-rewrite-or-retime-stored-provider-milliseconds; do-not-present-provider-times-as-source-ticks-unless-an-explicit-qualified-conversion-establishes-that-relationship
+      captionParentMetadata: source-clock-visibility-is-not-parent-eligibility; a-caption-write-parent-requires-exact-sourceArtifactId-and-sourceArtifactVersionId-match-plus-authoritative-sourceClockId-ticksPerSecond-and-sourceDurationTicks; this-read-does-not-grant-current-caption-write-authority-rights-or-consent
+      providerTiming: preserve-original-provider-unit-and-value; a-millisecond-observation-is-not-source-clock-bound-without-qualified-mapping
+      uncertainty: preserve-exact-supplied-values-and-source-labels; provider-confidence-is-not-calibrated-correctness; omitted-values-are-NOT_SUPPLIED-not-zero-or-certain
+      evidence: provider-model-and-lineage-fields-are-visible-only-if-supplied; no-provider-or-model-qualification-is-implied
+      incompleteFields: explicit-availability-is-returned-per-field; do-not-synthesize-text-segments-language-timing-confidence-speaker-or-source-clock
+    authorization: unresolved; deployed identity, policy, and resource-provider bindings are not established
+    authorizationSemantics: current-read-authority-is-required-for-the-exact-transcriptVersionId-and-its-linked-source-in-the-trusted-tenant-principal-scope; roles-and-client-provided-identity-values-grant-no-access
+    error: [INVALID_REQUEST, ACCESS_DENIED, TRANSCRIPT_VERSION_NOT_FOUND_IN_CALLER_SCOPE, SOURCE_IDENTITY_MISMATCH, UNAVAILABLE]
+    finality: read-only-observation; inspection-does-not-correct-approve-register-a-caption-version-or-publish
+    version: transcriptVersionId-is-an-opaque-immutable-version-identity-not-the-legacy-transcription-UUID-transcriptArtifactId-or-content-digest
+    transport: unresolved; no HTTP, SDK, CLI, or gRPC binding is accepted here
+    idempotency: read-only-observation; no-transport-retry-guarantee-inferred
+    cancellation: caller-may-stop-waiting-for-this-read-only-observation; no-server-side-version-effect-is-cancelled; a-later-read-requires-fresh-current-authorization
+    affectedObjects: {exactBindings: [media.domain.transcript-version], referencedObjects: [media.domain.artifact-version], legacyObservations: [media.domain.transcription], byteMutation: none}
+    transition:
+      applicability: no-domain-transition
+      effect: read-only
+      transitionRefs: []
     events: {status: no-event-binding-established}
-    risk: {status: unresolved; source privacy and authorization scope require review}
-    reversibility: {proposal: read-only, status: pending-owner-review}
-    commitFinality: {proposal: read-does-not-approve-or-register-a-caption-version, status: pending-owner-review}
-    downstreamEffects: {status: no-write-or-review-decision-effect-proposed}
-    failure: {status: unresolved; stale, inaccessible, and unavailable reads remain distinct}
-    partialSuccess: {status: unresolved; partial transcript visibility policy unbound}
-    unknownOutcome: {status: unresolved; read timeout does not prove absence}
-    retry: {status: source-specific; no common read retry behavior inferred}
-    recovery: {proposal: recheck-current-read-authority-and-exact-version, status: pending-review}
+    risk: caller-scope-confidentiality-source-identity-integrity-and-unqualified-provider-observations-must-remain-explicit
+    reversibility: read-only
+    commitFinality: no-mutation-or-review-decision-finality
+    downstreamEffects: {status: no-version-mutation-or-caption-approval-proposed}
+    failure: inaccessible-or-absent-exact-version-is-scope-safe-not-found; contradictory-authoritative-source-link-is-SOURCE_IDENTITY_MISMATCH; unavailable-reader-is-UNAVAILABLE
+    partialSuccess: return-available-version-fields-with-explicit-per-field-availability; unavailable-or-unsupplied-values-are-not-inferred
+    unknownOutcome: read-timeout-or-failure-is-UNAVAILABLE; it-does-not-imply-version-absence-or-a-write-effect
+    retry: explicit-read-reobservation-only-after-fresh-current-authorization; no-mutation-is-replayed
+    recovery: re-read-the-same-exact-transcriptVersionId-under-current-authority; do-not-substitute-a-job-result-or-latest-transcript
     evidenceAudit: {observedRefs: [media.action.review-transcript], canonicalEvidenceContract: unresolved}
-    nextSafeAction: {proposal: inspect-exact-transcript-version-and-source-context, status: pending-review}
+    nextSafeAction: {proposal: review-the-exact-transcript-and-visible-uncertainty-without-approval-inference, status: pending-review}
     actionRefs: [media.action.review-transcript]
-    observedBindings: {HTTP: unresolved, SDK: unresolved, CLI: media.fixture-cli.transcript-review-is-not-bound-without-crosswalk-review, gRPC: unresolved}
-    scopeStatus: proposal-only; read-schema-and-authorization-pending
+    sourceContractObservations:
+      resultSources:
+        legacyPersistence: modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/TranscriptionEntity.java
+        typedSdk: libs/audio-video-types/src/contracts.ts#TranscriptionResult
+        grpc: modules/speech/stt-service/src/main/proto/stt_service.proto#TranscribeResponse-and-WordTiming
+        limits: none-of-these-source-records-by-itself-establishes-the-canonical-transcriptVersionId-and-exact-sourceArtifactVersion-link
+      observedPayloads: legacy-text-language-confidence-status-and-metadata;SDK-text-languageTag-confidence-word-startMs-endMs-and-alternatives;gRPC-text-confidence-word-timings-in-milliseconds-and-model-used
+      timingObservation: provider-startMs-endMs-or-gRPC-start_ms-end_ms-are-preserved-in-provider-time-unless-qualified-source-clock-map-is-present
+      simulation: synthetic-transcript-setup-does-not-establish-a-production-transcript-version-or-authoritative-source-clock
+      canonicalAcceptance: pending-owner-and-runtime-conformance-review
+    observedBindings:
+      UI: {identity: media.action.review-transcript, status: source-observed-action-dispatch; exact-version-read-binding-proposed}
+      CLI: {identity: media.cli.transcript.review, status: fixture-command-observed; production-runtime-unbound}
+      SDK: {value: null, status: no-canonical-transcriptVersionId-read-method-observed}
+      HTTP: unresolved
+      gRPC: STTService.Transcribe-is-a-provider-execution-interface-not-an-exact-version-read
+    ownerDefinitionRef: .product-experience/decision-log.md#PXD-062
+    scopeStatus: proposal-only; bounded-owner-semantics-under-PXD-062; canonical-materializer-and-runtime-NOT_ADMITTED; independent-PDP1-review-pending
   - id: media.operation.caption-draft-write
     operationId: media.operation.caption-draft-write
     family: [edit-caption-text, align-caption-timing]

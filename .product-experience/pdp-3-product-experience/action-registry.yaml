@@ -284,11 +284,23 @@ actions:
   label: Review recognized text
   actorRefs: [media.creator, media.editor, media.reviewer]
   capabilityRefs: [media.artifact.inspect]
-  preconditions: [transcript-version-readable]
-  effect: open-the-source-linked-transcript-and-its-uncertainty
-  reversible: true
-  finality: read-only-unless-a-separate-review-decision-is-recorded
-  failure: keep-recognition-result-labelled-as-unverified
+  preconditions: [exact-canonical-transcript-version-readable, current-scoped-read-authority]
+  effect: inspect-one-exact-source-linked-transcript-version-and-its-supplied-uncertainty
+  reversible: unknown
+  finality: read-only; this-action-records-no-separate-review-decision
+  failure: preserve-unverified-recognition-label-and-explicitly-unavailable-fields
+  actionDefinitionSemantics:
+    actionRef: media.action.review-transcript
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-062
+    grammarDecisionRef: .product-experience/decision-log.md#PXD-063
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-064
+    runtimeAdmission: NOT_ADMITTED
+    operationRef: media.operation.transcript-version-read
+    effectKind: QUERY
+    reversibility:
+      kind: UNKNOWN
+      scope: Read observation may be auditable or expose scoped data; closing the local view cannot undo a remote read or its audit effects.
+    publicBooleanDisposition: PUBLIC_BOOLEAN_NOT_REPRESENTABLE
   componentRefs:
   - media.component.transcript-review
   componentBindingState: component-use-proposed; interaction-and-owner-binding-pending

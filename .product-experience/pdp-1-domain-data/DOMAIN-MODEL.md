@@ -26,10 +26,10 @@ are inventory counts, not completeness or semantic-acceptance claims.
 
 ### Coverage and reconciliation findings
 
-The current registries contain **38 domain-object records: 37 proposed or
-runtime/persistence-observed candidates and one simulation-fixture-only
-`CaptionVersionRecord`; 13 value-object records and 11 proposed relationship
-records**. The domain catalog intentionally combines PDP-0 proposed concepts
+The current registries contain **39 domain-object records, 13 value-object
+records and 11 proposed relationship records**. PXD-058 and PXD-062 supply
+bounded canonical caption/transcript version definitions; their runtime
+materialization and independent acceptance remain unqualified. The domain catalog intentionally combines PDP-0 proposed concepts
 with observed runtime projections; it does not mean all listed concepts exist
 in code. Seven
 additional source-visible record families are now called out in
@@ -38,9 +38,15 @@ chunk, stream session, stream frame, consent record/decision, persisted audio
 file, and transcription. No canonical relationship/cardinality is inferred
 from their storage keys or method signatures.
 
-`media.domain.caption-version` is a separate local simulation-fixture
-observation. It is not an observed runtime or persistence record, and its
-canonical key and immutable-version/durable-history semantics remain unbound.
+`media.domain.caption-version` has bounded immutable identity, typed parent
+and registration semantics under PXD-058. Its local simulation projection
+remains synthetic, not an observed runtime or persistence record.
+`media.domain.transcript-version` defines the canonical immutable transcript
+identity required by existing inspection and caption-parent contracts under
+PXD-062. Legacy transcription UUIDs and provider result IDs do not establish
+that identity. Missing timing is inspectable; qualified clock mapping is
+separate read-context evidence. Registration and content approval are separate,
+and no producer, native Lifecycle receipt or full phase acceptance is admitted.
 
 The following crosswalk records only what the cited implementation or
 persistence sources expose. “Not applicable” means that source family was not

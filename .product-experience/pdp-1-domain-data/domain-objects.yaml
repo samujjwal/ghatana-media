@@ -270,8 +270,30 @@ objects:
     kind: observed-legacy-persistence-and-service-result
     identity: legacy-UUID-id-and-audio-file-reference; artifact-version-and-ancestry-unbound
     lifecycle: legacy-status-soft-delete-row-version-and-transcript-fields
-    scopeStatus: storage-and-service-observation-only; canonical-transcript-model-pending-owner-review
+    canonicalBoundary: legacy-transcription-UUID-audioFileId-or-transcriptArtifactId-does-not-by-itself-establish-media.domain.transcript-version-or-an-exact-sourceArtifactVersion-link
+    scopeStatus: legacy-storage-and-service-observation-only; not-a-canonical-transcript-version; owner-mapping-and-materialization-unqualified
     sourceRefs: [modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/TranscriptionEntity.java, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql#audio_video.transcriptions, libs/audio-video-types/src/contracts.ts#TranscriptionResult, modules/speech/stt-service/src/main/proto/stt_service.proto#Transcription]
+  - id: media.domain.transcript-version
+    name: TranscriptVersion
+    kind: immutable-recognition-content-version
+    identity: trusted-tenantId-plus-opaque-transcriptVersionId; exact-source-artifact-link-is-required; identity-is-not-transcript-text-or-content-digest
+    sourceLink: exact-sourceArtifactId-and-sourceArtifactVersionId-in-the-same-tenant; contradictory-authoritative-source-link-is-an-integrity-error; no-artifact-or-job-alias
+    content: preserve-text-and-ordered-segments-only-when-supplied; never-create-segments-from-text-or-join-segments-into-text; preserve-provider-boundary-content-without-normalization
+    language: preserve-only-a-supplied-languageTag-or-explicit-unavailable-state; never-infer-language-or-confidence-from-text
+    uncertainty: preserve-only-supplied-confidence-alternatives-and-uncertainty-evidence-as-source-observations; provider-confidence-is-not-calibrated-correctness-or-review-approval
+    timing:
+      availabilityValues: [NOT_SUPPLIED, PROVIDER_TIME_UNQUALIFIED, SOURCE_CLOCK_BOUND]
+      providerTime: preserve-supplied-time-values-and-declared-unit-exactly; provider-milliseconds-remain-provider-time-observations-unless-an-authoritative-source-clock-map-is-qualified
+      sourceClock: sourceClockId-and-positive-safe-integer-ticksPerSecond-are-present-only-when-authoritatively-bound-to-the-exact-sourceArtifactVersion; sourceDurationTicks-is-preserved-only-when-supplied-as-a-nonnegative-safe-integer-and-authoritatively-bound
+      rule: missing-timing-does-not-block-read; never-invent-clock-rate-duration-or-alignment; no-unit-conversion-without-an-explicit-qualified-map
+      snapshotBoundary: timingAvailability-describes-the-immutable-version-snapshot; a-later-qualified-source-clock-map-is-separate-read-context-evidence-bound-to-the-exact-sourceArtifactVersion-and-does-not-retime-or-rewrite-stored-provider-observations; changing-stored-content-or-timing-interpretation-requires-a-new-transcriptVersionId
+    captionParentUse: inspection-or-visibility-of-a-transcriptVersion-is-not-caption-parent-eligibility; registration-as-a-caption-parent-requires-same-exact-sourceArtifactId-sourceArtifactVersionId-and-authoritative-sourceClockId-positive-ticksPerSecond-and-sourceDurationTicks; metadata-completeness-does-not-grant-current-write-authority-rights-or-consent
+    evidence: preserve-only-supplied-provider-model-and-source-reference-metadata; evidence-is-not-provider-qualification-or-proof-of-recognition-quality
+    lifecycle: immutable-snapshot-after-canonical-materialization; a-correction-or-new-recognition-result-uses-a-new-transcriptVersionId; never-mutate-source-artifact-or-prior-version
+    materialization: canonical-transcriptVersionId-and-exact-source-link-must-be-assigned-by-an-authoritative-version-producing-boundary; recognition-response-transcriptArtifactId-and-legacy-transcription-UUID-are-not-automatically-canonical-version-identities; no-qualified-producer-is-claimed
+    reviewBoundary: transcript-inspection-is-not-caption-correction-caption-registration-review-approval-or-publication
+    scopeStatus: bounded-owner-semantics-under-PXD-062; provider-and-legacy-observations-remain-source-only; materialization-and-runtime-NOT_ADMITTED
+    sourceRefs: [libs/audio-video-types/src/contracts.ts#TranscriptionResult, modules/speech/stt-service/src/main/proto/stt_service.proto#TranscribeResponse-and-WordTiming, modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/TranscriptionEntity.java, .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03]
   - id: media.domain.caption-version
     name: CaptionVersion
     kind: immutable-derived-content-version

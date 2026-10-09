@@ -103,7 +103,10 @@ acceptance.
   registration and exact-pair comparison, including same-request reconciliation.
   Registration is separate from review approval; internal provenance is not export.
   UNKNOWN comparison reversibility remains unprojected. The first six J-03 steps
-  retain their prior definitions, and runtime verification remains not-run.
+  retained their prior definitions in that caption batch. PXD-062 through PXD-065
+  now define only existing J03-4 exact transcript-version inspection, preserving
+  missing timing and supplied uncertainty, with no approval or new processing.
+  The remaining earlier steps stay incomplete, and runtime verification remains not-run.
   Four J-29 step intents and all eight J-29/J-30 step-view links are now explicit
   Media owner selections from the source intent and view inventories. All 130
   steps project as partial proposals; these links do not admit screens or

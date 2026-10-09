@@ -76,14 +76,14 @@ function validateCandidateRoutes(routes, obligations) {
   return routeIds.size;
 }
 
-test('records exact 347-obligation authoritative observer/oracle gap and source-resolvable candidates only', () => {
+test('records exact 348-obligation authoritative observer/oracle gap and source-resolvable candidates only', () => {
   const obligations = readJson('config/closure/media-product-definition/obligations.json');
   const candidates = readJson('config/closure/media-product-definition/l03-proof-route-candidates.json');
-  assert.equal(obligations.length, 347);
+  assert.equal(obligations.length, 348);
   const missingObserver = obligations.filter(({ observerIds }) => !observerIds?.length);
   const missingOracle = obligations.filter(({ oracleIds }) => !oracleIds?.length);
-  assert.equal(missingObserver.length, 347, 'every current authoritative observer route remains missing');
-  assert.equal(missingOracle.length, 347, 'every current authoritative oracle route remains missing');
+  assert.equal(missingObserver.length, 348, 'every current authoritative observer route remains missing');
+  assert.equal(missingOracle.length, 348, 'every current authoritative oracle route remains missing');
   assert.equal(candidates.status, 'CANDIDATES_ONLY_NOT_LIFECYCLE_ADMITTED');
   assert.equal(validateCandidateRoutes(candidates.routes, obligations), 5);
   const jobRoute = candidates.routes.find(({ id }) => id === 'media.l03.candidate.production-job-idempotency');
@@ -123,19 +123,23 @@ test('documents why current L-02 simulation links do not yet have L-03 observer/
 
   assert.equal(candidates.l02CaseLinkReview.reviewedLinkCount, links.candidateLinks.length);
   assert.equal(candidates.l02CaseLinkReview.reviewedObligationCount, linkedObligationIds.size);
+  assert.equal(links.candidateLinks.length, 63);
+  assert.equal(linkedObligationIds.size, 42);
   assert.equal(candidates.l02CaseLinkReview.obligationDenominator, obligations.length);
   assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount,
     obligations.length - linkedObligationIds.size);
-  assert.equal(obligations.length, 347, 'the authoritative denominator remains 347');
-  assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount, 307);
+  assert.equal(obligations.length, 348, 'the authoritative denominator remains 348');
+  assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount, 306);
   assert.equal(candidates.l02CaseLinkReview.candidateRouteCount, 0);
   assert.equal(candidates.l02CaseLinkReview.status, 'NO_CASE_SPECIFIC_OBSERVER_OR_ORACLE_CANDIDATE_IDENTIFIED');
-  assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_347');
+  assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_348');
   assert.ok(candidates.l02CaseLinkReview.missingSemantics[0].includes('linked declarations'));
   assert.ok(candidates.l02CaseLinkReview.missingSemantics[1].includes('linked simulation'));
   const missingSemantics = candidates.l02CaseLinkReview.missingSemantics.join(' ');
   assert.match(missingSemantics, /source-only caption-version definition assertions/u);
   assert.match(missingSemantics, /tests\/media-caption-version-operation-definitions\.test\.mjs/u);
+  assert.match(missingSemantics, /source-only transcript-version definition assertions/u);
+  assert.match(missingSemantics, /tests\/media-transcript-version-definition\.test\.mjs/u);
   assert.match(missingSemantics, /do not establish an L-03 oracle or native proof route/u);
   const captionLinks = links.candidateLinks.filter(({ testIdentity }) =>
     testIdentity.sourcePath === 'tests/media-caption-version-operation-definitions.test.mjs');
@@ -155,11 +159,30 @@ test('documents why current L-02 simulation links do not yet have L-03 observer/
       admission: 'NOT_LIFECYCLE_ADMITTED',
     },
   ]);
-  assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_347');
+  const transcriptLinks = links.candidateLinks.filter(({ testIdentity }) =>
+    testIdentity.sourcePath === 'tests/media-transcript-version-definition.test.mjs');
+  assert.deepEqual(transcriptLinks.map(({ caseId, testIdentity, scope, admission }) => ({
+    caseId, testName: testIdentity.testName, scope, admission,
+  })), [
+    {
+      caseId: 'media.definition-case.transcript-version.identity',
+      testName: 'transcript version object definition',
+      scope: 'PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY',
+      admission: 'NOT_LIFECYCLE_ADMITTED',
+    },
+    {
+      caseId: 'media.definition-case.transcript-version.inspect',
+      testName: 'transcript version read definition',
+      scope: 'PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY',
+      admission: 'NOT_LIFECYCLE_ADMITTED',
+    },
+  ]);
+  assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_348');
   assert.ok(linkedTestPaths.size > 0 && [...linkedTestPaths].every((sourcePath) =>
     sourcePath.startsWith('libs/media-experience-simulation/tests/')
       || sourcePath === 'tests/media-component-definition-proof-cases.test.mjs'
-      || sourcePath === 'tests/media-caption-version-operation-definitions.test.mjs'),
+      || sourcePath === 'tests/media-caption-version-operation-definitions.test.mjs'
+      || sourcePath === 'tests/media-transcript-version-definition.test.mjs'),
   'the reviewed links are exact simulation or parameterized/source-definition case sources');
   assert.ok([...linkedTestPaths].every((testPath) => !producerScopes.some((scope) =>
     testPath === scope || testPath.startsWith(`${scope.replace(/\/$/u, '')}/`))),

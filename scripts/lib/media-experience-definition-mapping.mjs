@@ -26,9 +26,11 @@ export function resolveExperienceDefinitionSemantics(actions, recoveryContracts)
     const definition = action.actionDefinitionSemantics;
     if (!definition) continue;
     const captionReviewed = definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-060' && definition.sourceDecisionRef === '.product-experience/decision-log.md#PXD-058' && definition.grammarDecisionRef === '.product-experience/decision-log.md#PXD-059' && captionReviewOperations.has(action.id) && definition.operationRef === captionReviewOperations.get(action.id);
-    const reviewed = captionReviewed || definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-052' || (definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-055' && definition.sourceDecisionRef === '.product-experience/decision-log.md#PXD-054' && projectReviewOperations.has(action.id) && definition.operationRef === projectReviewOperations.get(action.id));
+    const transcriptReviewed = definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-064' && definition.sourceDecisionRef === '.product-experience/decision-log.md#PXD-062' && definition.grammarDecisionRef === '.product-experience/decision-log.md#PXD-063' && action.id === 'media.action.review-transcript' && definition.operationRef === 'media.operation.transcript-version-read';
+    const reviewed = transcriptReviewed || captionReviewed || definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-052' || (definition.reviewDecisionRef === '.product-experience/decision-log.md#PXD-055' && definition.sourceDecisionRef === '.product-experience/decision-log.md#PXD-054' && projectReviewOperations.has(action.id) && definition.operationRef === projectReviewOperations.get(action.id));
     if (definition.actionRef !== action.id || definition.runtimeAdmission !== 'NOT_ADMITTED' || !reviewed) fail(`unbounded action review ${action.id}`);
     const kind = definition.reversibility?.kind;
+    if (transcriptReviewed && (definition.effectKind !== 'QUERY' || kind !== 'UNKNOWN')) fail(`unbounded transcript query ${action.id}`);
     if (!['CONDITIONAL', 'NOT_REVERSIBLE', 'REVERSIBLE', 'UNKNOWN'].includes(kind)) fail(`missing reversibility ${action.id}`);
     if (kind === 'CONDITIONAL' || kind === 'UNKNOWN') {
       if (definition.publicEffect || definition.publicFinality) fail(`conditional boolean coercion ${action.id}`);

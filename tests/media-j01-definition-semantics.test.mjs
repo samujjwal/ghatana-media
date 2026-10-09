@@ -40,13 +40,13 @@ test('J-01 keeps its four ordered steps and five registered screens without expa
   assert.match(decisionLog, /## PXD-055 — Four-step J-01 experience definition/);
   assert.equal(journeyRegistry.coverageObservation.orderedStepCount, 130);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.action.linked, 18);
-  assert.equal(journeyRegistry.coverageObservation.stepBindings.objectRefs.empty, 120);
+  assert.equal(journeyRegistry.coverageObservation.stepBindings.objectRefs.empty, 119);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.stateRefs.empty, 122);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.canonicalOperationRef.null, 111);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.canonicalOperationRef.nonNullCandidateRefs, 19);
-  assert.equal(journeyRegistry.coverageObservation.stepBindings.authorityRef.null, 119);
+  assert.equal(journeyRegistry.coverageObservation.stepBindings.authorityRef.null, 118);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.transitionRef.null, 128);
-  assert.equal(journeyRegistry.coverageObservation.stepBindings.transitionRef.sourceDefinedNoMutationReasonCount, 9);
+  assert.equal(journeyRegistry.coverageObservation.stepBindings.transitionRef.sourceDefinedNoMutationReasonCount, 10);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.verification.notRun, 130);
   assert.deepEqual(journeyRegistry.j01DefinitionReviewObservation, {
     sourceRef: 'journey-contracts/first-use-and-project-creation.yaml#definitionReview',

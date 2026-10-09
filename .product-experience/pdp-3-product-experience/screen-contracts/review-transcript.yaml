@@ -17,27 +17,31 @@ patternIds:
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
-domainObjectRefs: []
-domainObjectRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-operationRefs: []
+domainObjectRefs: [media.domain.transcript-version, media.domain.artifact-version]
+domainObjectRefsBindingStatus: source-defined-exact-transcript-and-source-version-identities; runtime-materialization-unqualified
+operationRefs: [media.operation.transcript-version-read]
 requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
-operationRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
+operationRefsBindingStatus: exact-existing-transcript-version-read-query; runtime-admission-pending
 stateRefs: []
-stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-entry: []
-entryBindingStatus: unresolved-no-exact-canonical-reference-declared
-exit: []
-exitBindingStatus: unresolved-no-exact-canonical-reference-declared
+stateRefsBindingStatus: read-only-query; no-domain-state-machine-applies
+entry:
+  - exact-canonical-transcriptVersionId-available-from-an-authoritative-version-producing-boundary
+  - current-trusted-tenant-and-principal-and-scoped-read-policy-confirmed
+entryBindingStatus: definition-source-bound; version-materialization-and-authority-enforcement-unqualified
+exit:
+  - preserve-exact-transcript-and-source-version-identities-with-field-availability
+  - keep-recognition-unverified-and-separate-from-caption-correction-or-approval
+exitBindingStatus: source-defined-read-boundary; runtime-admission-pending
 actionConsequences:
   - actionId: media.action.review-transcript
     capabilityRefs: [media.artifact.inspect]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
+    referenceBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-064; runtime-admission-pending
+    operationRef: media.operation.transcript-version-read
     effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    consequence: inspect-one-exact-transcript-version-and-linked-source-context; retain-only-supplied-observations-and-explicit-field-availability; no-correction-registration-review-approval-or-publication
+    bindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-064; runtime-admission-pending
   - actionId: media.action.play-source
     capabilityRefs: [media.artifact.inspect]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
@@ -54,7 +58,7 @@ actionConsequences:
     effectRef: null
     consequence: unresolved
     bindingStatus: pending-owner-binding
-actionConsequencesBindingStatus: pending-owner-effect-and-operation-binding
+actionConsequencesBindingStatus: exact-review-query-linked; playback-and-seeking-remain-local-actions; runtime-admission-pending
 responsiveBehavior:
   sourceRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
   status: proposal-unverified
@@ -84,13 +88,13 @@ fieldBindingStatus:
   componentIds: proposal-copy; Shared-binding-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
   tokenDependencies: unresolved; no-canonical-reference-declared
-  domainObjectRefs: unresolved; no-canonical-reference-declared
-  operationRefs: unresolved; no-canonical-reference-declared
+  domainObjectRefs: candidate-pending-acceptance
+  operationRefs: candidate-pending-acceptance
   requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: unresolved; local-UI-state-labels-not-promoted
-  entry: unresolved; no-canonical-reference-declared
-  exit: unresolved; no-canonical-reference-declared
-  actionConsequences: pending; owner-operation-and-effect-binding-required
+  entry: candidate-pending-acceptance
+  exit: candidate-pending-acceptance
+  actionConsequences: candidate-pending-acceptance
   responsiveBehavior: proposal-unverified; central-rule-reference-only
   fixtures: source-proposal; behavior-unverified
   verification: not-run; no-evidence-refs
@@ -102,10 +106,10 @@ actors:
 intentRef: media.intent.understand
 purpose: review recognized text against the exact source and inspect language, timing, and uncertainty
 contextGoalNowNext:
-  context: Source version, transcript version, selected source time, language intent, and job provenance.
+  context: Exact canonical transcript version and linked source version, with only supplied observations and explicit availability. Selected playback time, requested language intent or job provenance are optional separately sourced UI context, never guaranteed query output.
   goal: Decide whether the transcript is sufficiently aligned and understandable for caption correction.
-  now: Show recognized text, timing disposition, language uncertainty, and any missing evidence.
-  next: Continue to caption correction, align caption timing, or preserve the incomplete draft.
+  now: Show available supplied text and observations, timing disposition, uncertainty and missing evidence; never synthesize omitted language, confidence, segments or source-clock metadata.
+  next: Preserve exact version and unverified evidence while considering a separately authorized correction; read access alone grants no write authority or qualified caption-parent eligibility.
 anatomy:
 - source-player
 - transcript-segments
@@ -148,7 +152,7 @@ accessibility:
 localization:
   status: Shared-localization-binding-pending-owner-review
   rule: use-Shared-locale-formatting-and-accessibility-contracts
-actionBindingState: proposal-intent-action-refs-owner-effect-and-finality-review-pending
+actionBindingState: selected-transcript-review-query-defined-under-PXD-064; playback-and-seek-binding-pending; runtime-admission-pending
 channelDispositions:
 - channelRef: media.channel.web
   disposition: baseline-view-contract-proposal
@@ -157,3 +161,13 @@ sourceRefs:
 - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-03
+journeyDefinitionBindings:
+  journeyRef: J-03
+  stepId: J03-4
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-062
+  grammarDecisionRef: .product-experience/decision-log.md#PXD-063
+  decisionRef: .product-experience/decision-log.md#PXD-064
+  operationRefs: [media.operation.transcript-version-read]
+  domainObjectRefs: [media.domain.transcript-version, media.domain.artifact-version]
+  transitionDisposition: NOT_APPLICABLE_WITH_REASON
+  runtimeAdmission: NOT_ADMITTED

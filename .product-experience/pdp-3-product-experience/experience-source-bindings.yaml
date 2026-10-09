@@ -220,6 +220,33 @@ j03CaptionVersionBindings:
       comparisonSemantics: Preserve both identities; claim a comparable difference only when exact source artifact, source artifact version, and source clock match. Preserve field-level incompleteness and report source/clock mismatch as CAPTION_VERSIONS_NOT_COMPARABLE.
       recovery: Reobserve only the same exact pair under current authority; no mutation or write finality exists to replay.
       prohibitedClaims: [select-a-winner, merge-versions, approve-content, grant-rights, infer-source-clock-conversion-or-scientific-timing-accuracy]
+j03TranscriptReviewBindings:
+  status: SOURCE_DEFINED_OWNER_ACCEPTED
+  journeyRef: J-03
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-062
+  grammarDecisionRef: .product-experience/decision-log.md#PXD-063
+  reviewDecisionRef: .product-experience/decision-log.md#PXD-064
+  runtimeAdmission: NOT_ADMITTED
+  operationSource: .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records
+  steps:
+    - stepId: J03-4
+      screenRef: media.view.review-transcript
+      actorRefs: [media.creator, media.editor, media.reviewer]
+      actionRef: media.action.review-transcript
+      operationRef: media.operation.transcript-version-read
+      selector: exact transcriptVersionId only
+      trustedHostFields: [tenantId, principalId]
+      domainObjectRefs: [media.domain.transcript-version, media.domain.artifact-version]
+      stateRefs: []
+      authority: Current trusted tenant/principal and current read policy for the exact transcript version and its linked source artifact version; participant role labels grant no authority.
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      transitionReason: Exact transcript-version inspection is a scoped read-only observation; no domain state changes.
+      sourceAndContentSemantics: Preserve transcriptVersionId, exact sourceArtifactId/sourceArtifactVersionId, and supplied text/ordered segments without normalization or synthesis; legacy transcription UUID and transcriptArtifactId are not canonical version selectors.
+      availabilitySemantics: Preserve explicit availability for text, segments, language, uncertainty, timing, source clock, and evidence. Missing timing does not block inspection; provider timing retains its original units and is not source-clock-bound without authoritative mapping. Later clock-mapping evidence is separate exact-source context and never retimes stored provider observations.
+      uncertaintyAndFinality: Preserve only supplied uncertainty and evidence; confidence is not calibrated correctness. Inspection remains unverified and does not correct, register, approve, publish, or deliver captions.
+      failureSemantics: INVALID_REQUEST, ACCESS_DENIED, TRANSCRIPT_VERSION_NOT_FOUND_IN_CALLER_SCOPE, SOURCE_IDENTITY_MISMATCH, and UNAVAILABLE remain distinct; scoped not-found is not a global absence claim.
+      recovery: Re-read only the same exact transcriptVersionId under fresh current authority; unavailability does not prove absence and no job/legacy/latest alias is substituted.
+      prohibitedClaims: [infer-language, infer-confidence, infer-speaker, invent-source-clock-or-ticksPerSecond, convert-provider-time-without-qualified-map, transcript-inspection-is-caption-approval, runtime-admitted]
 searchBindings:
   - searchId: media.search.authorized-projects
     searchableTypeRefs: [media.domain.project]

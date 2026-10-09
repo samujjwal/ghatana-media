@@ -21,15 +21,15 @@ const input = () => ({
   parseYaml: parse,
 });
 
-test('audits exact 347 obligation denominator, four phase counts, memberships, and resolvable source records', () => {
+test('audits exact 348 obligation denominator, four phase counts, memberships, and resolvable source records', () => {
   const report = auditMediaObligationDenominator(input());
-  assert.equal(report.total, 347);
-  assert.equal(report.uniqueIds, 347);
-  assert.deepEqual(report.phaseCounts, { 'PDP-0': 38, 'PDP-1': 149, 'PDP-2': 83, 'PDP-3': 77 });
-  assert.equal(report.dispositionRecords, 347);
-  assert.deepEqual(report.sourceReferences, { total: 347, resolved: 347, unresolved: 0 });
+  assert.equal(report.total, 348);
+  assert.equal(report.uniqueIds, 348);
+  assert.deepEqual(report.phaseCounts, { 'PDP-0': 38, 'PDP-1': 150, 'PDP-2': 83, 'PDP-3': 77 });
+  assert.equal(report.dispositionRecords, 348);
+  assert.deepEqual(report.sourceReferences, { total: 348, resolved: 348, unresolved: 0 });
   assert.ok(Object.keys(report.sourceFingerprints.files).length > 0);
-  assert.deepEqual(report.sourceFingerprints.comparison, { present: 347, matching: 347, stale: 0, absent: 0 });
+  assert.deepEqual(report.sourceFingerprints.comparison, { present: 348, matching: 348, stale: 0, absent: 0 });
   assert.equal(report.authoritativeObserverAssignments, 0);
   assert.equal(report.authoritativeOracleAssignments, 0);
   assert.equal(report.status, 'DENOMINATOR_AND_MEMBERSHIP_CHECKED_SOURCE_SEMANTIC_ACCEPTANCE_PENDING');
@@ -196,6 +196,6 @@ test('flags a missing persisted source digest', () => {
   const data = input();
   delete data.obligations[0].extensions['media-source'].sourceDigest;
   const report = auditMediaObligationDenominator(data);
-  assert.deepEqual(report.sourceFingerprints.comparison, { present: 346, matching: 346, stale: 0, absent: 1 });
+  assert.deepEqual(report.sourceFingerprints.comparison, { present: 347, matching: 347, stale: 0, absent: 1 });
   assert.ok(report.issues.some((issue) => issue.code === 'MISSING_SOURCE_FINGERPRINT'));
 });

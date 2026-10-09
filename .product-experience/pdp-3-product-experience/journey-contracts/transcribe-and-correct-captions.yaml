@@ -263,83 +263,74 @@ steps:
   - view: media.view.review-transcript
     screenContractRef: screen-contracts/review-transcript.yaml
     action: media.action.review-transcript
-    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    actionBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED; runtime-admission-pending
     capabilityRefs: [media.artifact.inspect]
-    result: recognition-and-alignment-uncertainty-remain-visible
-    surfaceRefs:
-    - media.surface.web
-    objectRefs: []
+    result: exact-transcript-version-and-source-context-with-per-field-availability-and-supplied-uncertainty
+    surfaceRefs: [media.surface.web]
+    objectRefs: [media.domain.transcript-version, media.domain.artifact-version]
     stateRefs: []
     canonicalOperationRef: media.operation.transcript-version-read
-    authorityRef: null
-    decisionRef: null
+    authorityRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation.transcript-version-read
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-062
+    grammarDecisionRef: .product-experience/decision-log.md#PXD-063
+    decisionRef: .product-experience/decision-log.md#PXD-064
     transitionRef: null
     handoffRef: null
+    stepId: J03-4
+    actorRefs: [media.creator, media.editor, media.reviewer]
+    actorBindingReason: Existing J-03 participants may request review, but actor labels do not grant access; trusted tenant/principal and current scoped read policy govern the exact transcript and linked source.
+    requiredOperationRefs: [media.operation.transcript-version-read]
+    intent: Inspect one exact immutable canonical transcript version and its source link, preserving supplied text, timing, language, uncertainty, and evidence availability without correcting or approving it.
+    contextPreservation: [trustedTenant, trustedPrincipal, transcriptVersionId, sourceArtifactId, sourceArtifactVersionId, sourceClockAvailability, sourceClockMappingEvidenceRef, timingAvailability, languageAvailability, uncertaintyAvailability, evidenceAvailability, observedAt]
+    transitionDisposition:
+      status: NOT_APPLICABLE_WITH_REASON
+      transitionRef: null
+      decisionRef: .product-experience/decision-log.md#PXD-064
+      reason: Exact transcript-version inspection is a scoped read-only observation; it does not mutate transcript or source state, correct captions, register a caption version, approve, or publish.
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
-        and the recorded authority/finality disposition.
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: exact-transcript-version-observation
+      sourceRef: media.operation.transcript-version-read
+      proposal: Return the same opaque transcriptVersionId with its exact sourceArtifactId and sourceArtifactVersionId, per-field availability, supplied observations, and observation time. Missing timing does not block inspection; source-clock fields appear only when authoritatively bound to this source version.
     failure:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.criticalNonhappyPaths
-      proposal:
-      - id: language-uncertain
-        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
-      - id: timing-missing
-        response: identify missing alignment and permit explicit correction; do not infer exact timing.
-      - id: consent-revoked
-        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
-      - id: provider-outcome-unknown
-        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
-      - id: source-version-changed
-        response: preserve draft and mark its parent stale; require explicit rebase or restart.
-    degradedBehavior: null
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: trusted-caller-scope
+      sourceRef: media.operation.transcript-version-read
+      proposal: Reject malformed selectors as INVALID_REQUEST; report ACCESS_DENIED distinctly; use TRANSCRIPT_VERSION_NOT_FOUND_IN_CALLER_SCOPE for absent or inaccessible versions without a global-absence claim; report SOURCE_IDENTITY_MISMATCH only for a contradictory authoritative source link; keep reader/transport inability as UNAVAILABLE.
+    degradedBehavior: Preserve explicit per-field availability. Provider timing remains in its supplied units and unqualified unless an authoritative source-clock mapping exists; never infer text, segments, language, confidence, speaker, clock, or timing from absent values.
     recovery:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.recovery
-      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
-        a fresh policy check.
-    postconditions: []
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: exact-read-reobservation
+      sourceRef: media.operation.transcript-version-read
+      proposal: After timeout or unavailable observation, reread the same transcriptVersionId only under fresh current authority. Unavailability does not prove absence; never substitute a job ID, legacy transcription UUID, transcriptArtifactId, or latest-version selector.
+    postconditions: [exact-transcript-and-source-identities-retained, per-field-availability-preserved, supplied-uncertainty-not-normalized, no-mutation-or-caption-registration-or-approval-or-publication]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
-      requiredChecks:
-      - duplicate-key-safe YAML parse
-      - focused PDP3-005 ten-contract structural/reference check
+      requiredChecks: [duplicate-key-safe-YAML-parse, exact-transcript-read-definition-bindings, scoped-identity-and-no-approval-negative-cases]
       actualEvidence: []
-    contextPreservation:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.contextPreserved
-      proposal:
-      - project
-      - source-artifact-version
-      - source-time
-      - language-intent
-      - job-identity
-      - transcript-version
-      - caption-draft-version
+    definitionVerification:
+      status: source-contract-checked
+      evidence: [tests/media-transcript-review-definition.test.mjs, scripts/check-product-experience-local.mjs]
+      runtimeAdmission: NOT_ADMITTED
+      runtimeVerification: not-run
     bindingStatus:
-      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-      objectRefs: pending-explicit-step-domain-object-reference
-      stateRefs: pending-explicit-step-state-reference-and-transition
-      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
-      authorityRef: pending-explicit-step-authority-binding
-      decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-explicit-legal-transition-binding
-      handoffRef: pending-explicit-step-handoff-allocation
-      success: candidate-proposal-only; journey-level outcome not allocated to this step
-      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-      degradedBehavior: pending-explicit-step-degraded-behavior
-      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-      postconditions: pending-explicit-step-postconditions
-      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
-      verification: not-run; no evidence refs recorded
-      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+      surfaceRefs: exact-existing-review-transcript-screen-linked; screen-admission-pending
+      objectRefs: exact-canonical-transcript-version-and-source-artifact-version
+      stateRefs: read-only; no-domain-state-machine-or-transition-applies
+      canonicalOperationRef: existing-exact-transcript-version-read-query-bound
+      authorityRef: current-trusted-tenant-principal-and-scoped-read-policy-defined; deployed-enforcement-unqualified
+      decisionRef: PXD-064 scoped definition; independent review pending
+      transitionRef: explicitly not applicable; read-only observation
+      handoffRef: no external handoff or version-producing boundary claimed
+      success: exact version/source identity and explicit availability fields
+      failure: scoped absence/access denial/source-integrity mismatch/unavailable remain distinct
+      degradedBehavior: missing or unqualified observations stay explicitly unavailable
+      recovery: same exact version re-read under current authorization
+      postconditions: no mutation, correction, registration, approval, or publication
+      requirementRefs: existing artifact requirement retained; satisfaction not claimed
+      verification: source contract tests separate; runtime verification not run
+      contextPreservation: exact version, source, supplied observations, and availability
   - view: media.view.correct-captions
     screenContractRef: screen-contracts/correct-captions.yaml
     action: media.action.correct-caption

@@ -22,7 +22,7 @@
   ],
   "status_policy": "Complete requires full task Done evidence. Partial means bounded implementation/evidence exists but the criterion is unmet. Blocked-external/independent means owner action, independent review or authoritative Lifecycle output remains outstanding. Not-started means no material implementation evidence was found. Source decisions or unrun test sources alone do not establish acceptance.",
   "authorization_boundary": "User authorized source-supported Media owner decisions. This ledger claims no independent approval, Lifecycle receipt/current closure, external Shared/Tools owner acceptance, license clearance or PDP phase closure. Decisions are bounded to documented scope.",
-  "verification_boundary": "Latest caption definition-only batch:442/442 Node tests,zero skips; strict projections/all three public validators PASS; authority/local/source inputs/347-obligation audit PASS.61 partial source links across40 obligations;252 lack authored case IDs. Parity2/design2 remain non-green; native receipt evaluation NOT_EVALUATED. Evidence:docs/implementation/media-product-definition-caption-batch-2026-10-08.json.",
+  "verification_boundary": "Latest transcript definition-only batch:457/457 Node tests,zero skips; all three public validators PASS; authority/local/source inputs/348-obligation audit PASS.63 partial source links across42 obligations;251 lack authored case IDs. Parity2/design2 remain non-green; native receipt evaluation NOT_EVALUATED. Evidence:docs/implementation/media-product-definition-transcript-batch-2026-10-08.json.",
   "id_reconciliation": {
     "checklist_count": 71,
     "plan_task_count": 71,
@@ -752,6 +752,11 @@
         "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
         "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
         "statusRetained": "partial"
+      },
+      "definition_transcript_update_2026_10_08": {
+        "result": "Canonical transcript identity/exactread and existingJ03-4 definitions with actualpartialsourcecases; original full Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-transcript-batch-2026-10-08.json",
+        "statusRetained": "partial"
       }
     },
     {
@@ -941,6 +946,11 @@
       "definition_caption_update_2026_10_08": {
         "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
         "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
+        "statusRetained": "partial"
+      },
+      "definition_transcript_update_2026_10_08": {
+        "result": "Canonical transcript identity/exactread and existingJ03-4 definitions with actualpartialsourcecases; original full Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-transcript-batch-2026-10-08.json",
         "statusRetained": "partial"
       }
     },
@@ -2045,6 +2055,11 @@
         "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
         "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
         "statusRetained": "partial"
+      },
+      "definition_transcript_update_2026_10_08": {
+        "result": "Canonical transcript identity/exactread and existingJ03-4 definitions with actualpartialsourcecases; original full Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-transcript-batch-2026-10-08.json",
+        "statusRetained": "partial"
       }
     },
     {
@@ -2091,6 +2106,11 @@
       "definition_caption_update_2026_10_08": {
         "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
         "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
+        "statusRetained": "partial"
+      },
+      "definition_transcript_update_2026_10_08": {
+        "result": "Canonical transcript identity/exactread and existingJ03-4 definitions with actualpartialsourcecases; original full Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-transcript-batch-2026-10-08.json",
         "statusRetained": "partial"
       }
     },
@@ -2639,6 +2659,11 @@
         "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
         "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
         "statusRetained": "partial"
+      },
+      "definition_transcript_update_2026_10_08": {
+        "result": "Canonical transcript identity/exactread and existingJ03-4 definitions with actualpartialsourcecases; original full Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-transcript-batch-2026-10-08.json",
+        "statusRetained": "partial"
       }
     },
     {
@@ -2676,6 +2701,11 @@
       "definition_caption_update_2026_10_08": {
         "result": "Two existing caption contracts/selectedJ03step definitions and two partial source cases reviewed; full original Done criterion not newly satisfied.",
         "evidence": "docs/implementation/media-product-definition-caption-batch-2026-10-08.json",
+        "statusRetained": "partial"
+      },
+      "definition_transcript_update_2026_10_08": {
+        "result": "Canonical transcript identity/exactread and existingJ03-4 definitions with actualpartialsourcecases; original full Done criterion not newly satisfied.",
+        "evidence": "docs/implementation/media-product-definition-transcript-batch-2026-10-08.json",
         "statusRetained": "partial"
       }
     },
@@ -7520,5 +7550,200 @@
       "nativeAcceptance": "NOT_CLAIMED"
     },
     "verifiedSourceCommit": "36cabd3bd092144c85012324e02e9cd282751bf6"
+  },
+  "definition_transcript_batch_2026_10_08": {
+    "scope": "Four PDP definitions only; runtime deferred",
+    "evidence": "docs/implementation/media-product-definition-transcript-batch-2026-10-08.json",
+    "ownerDecisions": [
+      "PXD-062",
+      "PXD-063",
+      "PXD-064",
+      "PXD-065"
+    ],
+    "beforeAfter": {
+      "projectionBlockers": {
+        "phaseOrder": [
+          "PDP-0",
+          "PDP-2",
+          "PDP-3"
+        ],
+        "before": [
+          0,
+          0,
+          9
+        ],
+        "after": [
+          0,
+          0,
+          9
+        ]
+      },
+      "capabilityLeaves": [
+        462,
+        462
+      ],
+      "unresolvedCapabilityTargets": [
+        383,
+        383
+      ],
+      "unboundedCapabilityLeaves": [
+        445,
+        445
+      ],
+      "fullAcceptedCapabilityCoverage": [
+        0,
+        0
+      ],
+      "migrationOriginalObservations": [
+        349,
+        349
+      ],
+      "migrationSemanticsUnresolved": [
+        260,
+        260
+      ],
+      "interfaceIdentities": [
+        286,
+        286
+      ],
+      "interfaceUnresolved": [
+        190,
+        190
+      ],
+      "fullAcceptedInterfaceBindings": [
+        0,
+        0
+      ],
+      "historicalParityFindingsOpen": [
+        2,
+        2
+      ],
+      "designGatesOpen": [
+        2,
+        2
+      ],
+      "journeys": [
+        30,
+        30
+      ],
+      "orderedSteps": [
+        130,
+        130
+      ],
+      "screenLinkedSteps": [
+        130,
+        130
+      ],
+      "actionLinkedSteps": [
+        18,
+        18
+      ],
+      "authoredStepIds": [
+        19,
+        20
+      ],
+      "exactNonNullOperationRefs": [
+        19,
+        19
+      ],
+      "emptyObjectRefs": [
+        120,
+        119
+      ],
+      "emptyStateRefs": [
+        122,
+        122
+      ],
+      "nullAuthorityRefs": [
+        119,
+        118
+      ],
+      "sourceNoTransitionReasons": [
+        9,
+        10
+      ],
+      "projectedUnconditionalEffects": [
+        3,
+        3
+      ],
+      "projectedFinalityRecords": [
+        21,
+        21
+      ],
+      "publicRecoveryDefinitions": [
+        5,
+        5
+      ],
+      "lifecycleObligations": [
+        347,
+        348
+      ],
+      "obligationsWithCaseIds": [
+        95,
+        97
+      ],
+      "obligationsWithoutCaseIds": [
+        252,
+        251
+      ],
+      "sourceCaseCandidateLinks": [
+        61,
+        63
+      ],
+      "sourceCaseLinkedObligations": [
+        40,
+        42
+      ],
+      "unmappedSourceCaseObligations": [
+        307,
+        306
+      ],
+      "observerAssignments": [
+        0,
+        0
+      ],
+      "oracleAssignments": [
+        0,
+        0
+      ],
+      "providerBindings": [
+        0,
+        0
+      ],
+      "boundNativePhaseReceipts": [
+        0,
+        0
+      ]
+    },
+    "populationJustification": {
+      "newCanonicalDomainObjects": [
+        "media.domain.transcript-version"
+      ],
+      "newOperations": 0,
+      "newObligations": 1,
+      "sourceIdentity": [
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03",
+        ".product-experience/pdp-1-domain-data/operations.yaml#media.operation.caption-version-write.canonicalParentRequirement"
+      ],
+      "reason": "Exact immutable transcript identity is already necessary for existing transcript inspection and typed caption-parent lineage. Legacy IDs are not canonical versions. Adds one required object, no optional capability, operation, journey, step or action.",
+      "acceptanceTests": [
+        "tests/media-transcript-version-definition.test.mjs",
+        "tests/media-transcript-version-interface-grammar.test.mjs",
+        "tests/media-transcript-review-definition.test.mjs",
+        "tests/media-transcript-capability-definition.test.mjs"
+      ],
+      "proofRoute": "Two executable source assertions link canonical-object and exact-read requirements. Registered native provider/observer/oracle and independent domain/interface/experience acceptance remain required; none is fabricated."
+    },
+    "newOriginalDoneCriteriaSatisfied": 0,
+    "originalTaskStatusesRetained": true,
+    "nextExecutableDefinitionBatch": "Complete existing caption-draft-write definition and J03 steps5/6 with exact immutable parent/source identity, local draft scope, explicit correction/alignment constraints and recovery; do not claim scientific timing or runtime implementation.",
+    "verification": {
+      "tests": 457,
+      "pass": 457,
+      "fail": 0,
+      "skip": 0,
+      "sourceChecks": "PASS",
+      "nativeAcceptance": "NOT_CLAIMED"
+    }
   }
 }

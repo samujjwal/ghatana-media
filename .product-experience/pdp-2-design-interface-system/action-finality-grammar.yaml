@@ -236,6 +236,52 @@ boundedCaptionVersionSlice:
       disposition: no-existing-matching-method-or-accepted-binding-claimed
   runtimeAdmission: NOT_ADMITTED
   phaseAdmission: pending-independent-PDP2-review
+boundedTranscriptReviewSlice:
+  status: bounded-definition-grammar-under-PXD-063; independent-PDP-review-and-runtime-admission-open
+  decisionRef: .product-experience/decision-log.md#PXD-063
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-062
+  journeyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03
+  journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#journeyId
+  scope: inspect-one-exact-immutable-source-linked-transcript-version-and-its-supplied-uncertainty; no-caption-registration-or-review-approval
+  domainRefs: [media.domain.transcript-version, media.domain.artifact-version]
+  authorityRefs:
+    identity: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    readPolicy: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+    deploymentQualification: NOT_ADMITTED
+  operation:
+    operationRef: media.operation.transcript-version-read
+    actionRef: media.action.review-transcript
+    journeyStepId: J03-4
+    selectorKind: EXACT_TRANSCRIPT_VERSION
+    requestFields: [transcriptVersionId]
+    trustedContextFields: [tenantId, principalId]
+    requiredResultFields: [transcriptVersionId, sourceArtifactId, sourceArtifactVersionId, textAvailability, segmentsAvailability, languageAvailability, uncertaintyAvailability, timingAvailability, sourceClockAvailability, evidenceAvailability, observedAt]
+    conditionalResultFields: [text, segments, languageTag, uncertaintyObservations, timingObservations, sourceClockId, ticksPerSecond, sourceDurationTicks, sourceClockMappingEvidenceRef, evidenceRefs]
+    timingAvailabilityValues: [NOT_SUPPLIED, PROVIDER_TIME_UNQUALIFIED, SOURCE_CLOCK_BOUND]
+    sourceClockAvailabilityValues: [AUTHORITATIVELY_BOUND, NOT_AVAILABLE]
+    authorization: trusted-current-tenant-and-principal-plus-current-read-authority-for-exact-transcript-and-linked-source-in-caller-scope; roles-or-caller-supplied-identity-do-not-grant-access
+    resultBinding: exact-requested-opaque-version-and-authoritative-source-link-only; preserve-text-and-ordered-segments-as-supplied; no-synthesis-between-representations
+    uncertainty: preserve-only-supplied-language-uncertainty-and-evidence; provider-confidence-is-not-calibrated-correctness; omitted-values-remain-NOT_SUPPLIED
+    timing: preserve-provider-time-in-original-unit; SOURCE_CLOCK_BOUND-requires-authoritative-source-mapping-and-clock; missing-or-unmapped-timing-is-inspectable-but-unqualified
+    sourceClockMappingEvidence: identifies-separate-read-context-mapping-evidence-only; later-qualified-mapping-does-not-rewrite-or-retime-stored-provider-timestamps
+    finality: read-only-unverified-transcript-observation; no-caption-registration-correction-review-approval-publication-or-rights-grant
+    accessBoundary: missing-and-inaccessible-exact-identities-remain-indistinguishable-in-caller-scope; never-infer-global-absence
+    failure: source-identity-contradiction-is-SOURCE_IDENTITY_MISMATCH; denied-access-is-ACCESS_DENIED; unavailable-read-is-UNAVAILABLE
+    unknownOutcome: timeout-or-unavailable-read-establishes-no-transcript-state; no-write-effect-exists-to-replay; a-later-read-requires-fresh-authorization
+    prohibited: [jobId-or-artifactId-or-latest-or-global-list-selector, infer-caption-version-from-transcript, infer-language-confidence-speaker-or-clock, normalize-transcript-content, infer-review-approval, mutate-or-publish-transcript]
+    problemCodes: [INVALID_REQUEST, ACCESS_DENIED, TRANSCRIPT_VERSION_NOT_FOUND_IN_CALLER_SCOPE, SOURCE_IDENTITY_MISMATCH, UNAVAILABLE]
+  observedChannels:
+    web:
+      source: libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+      action: media.action.review-transcript
+      disposition: local-ui-source-observed-only; no-production-host-or-runtime-admission-claim
+    syntheticFixtureCli:
+      disposition: fixture-only; no-production-cli-equivalence-claim
+    httpSdkAgentToolGrpcEvents:
+      disposition: unresolved; no-current-method-or-equivalence-claim
+  runtimeAdmission: NOT_ADMITTED
+  phaseAdmission: pending-independent-PDP2-review
+
 outcomes:
   - id: media.action-outcome.applied
     label: Request recorded

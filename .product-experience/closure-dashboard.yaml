@@ -460,3 +460,16 @@ definitionCaptionContinuation20261008:
   runtimeAdmission: NOT_ADMITTED
   nativeLifecycleAcceptance: NOT_CLAIMED
   evidenceReport: docs/implementation/media-product-definition-caption-batch-2026-10-08.json
+
+definitionTranscriptContinuation20261008:
+  scope: Four PDP phase definitions only; application implementation deferred.
+  decisionRefs: [PXD-062, PXD-063, PXD-064, PXD-065]
+  selectedJourney: J-03
+  selectedStepIds: [J03-4]
+  existingOperationRecordsRefined: 1
+  necessaryCanonicalObjectAdded: media.domain.transcript-version
+  obligationsAdded: 1
+  sourceCaseLinksAdded: 2
+  runtimeAdmission: NOT_ADMITTED
+  nativeLifecycleAcceptance: NOT_CLAIMED
+  evidenceReport: docs/implementation/media-product-definition-transcript-batch-2026-10-08.json

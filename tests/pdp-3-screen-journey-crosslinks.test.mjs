@@ -327,7 +327,14 @@ test("PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk
       if (!selectedCandidateActions.has(step.action)) continue;
       const exactCandidate = journey.id === "J-02" ? exact[step.action] : undefined;
       assert.equal(step.canonicalOperationRef, exactCandidate ?? explicit[step.action], `${journey.id}/${step.action} must match the exact PDP-1 crosswalk`);
-      assert.match(step.bindingStatus?.canonicalOperationRef ?? "", /pending/u, `${journey.id}/${step.action} remains runtime-admission pending`);
+      if (journey.id === "J-03" && step.stepId === "J03-4") {
+        assert.equal(step.decisionRef, ".product-experience/decision-log.md#PXD-064");
+        assert.equal(step.definitionVerification?.runtimeAdmission, "NOT_ADMITTED");
+        assert.match(step.bindingStatus?.canonicalOperationRef ?? "", /query[- ]bound/u,
+          "PXD-064 defines this exact read query while runtime admission remains pending");
+      } else {
+        assert.match(step.bindingStatus?.canonicalOperationRef ?? "", /pending/u, `${journey.id}/${step.action} remains runtime-admission pending`);
+      }
       mappedOccurrences++;
       mappedActionIds.add(step.action);
     }

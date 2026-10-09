@@ -26,7 +26,7 @@ test("PDP-1 canonical references resolve only to catalogued domain objects", () 
   const objectIds = idsIn(domainObjects);
 
   assert.equal(new Set(objectIds).size, objectIds.length, "domain object IDs must be unique");
-  assert.equal(objectIds.length, 38, "the audited domain-object denominator changed; review the identity crosswalk");
+  assert.equal(objectIds.length, 39, "the audited domain-object denominator changed; review the identity crosswalk");
 
   for (const match of reconciliation.matchAll(/^    canonicalRef: ([^\n]+)$/gmu)) {
     assert.ok(objectIds.includes(match[1]), `canonical reconciliation ref ${match[1]} has no domain-object record`);
@@ -39,15 +39,17 @@ test("PDP-1 canonical references resolve only to catalogued domain objects", () 
   }
 });
 
-test("PDP-1 overview reports the exact registry count and keeps the fixture-only record distinct", () => {
+test("PDP-1 overview reports exact registry count and separates bounded definitions from observed materialization", () => {
   const domainObjects = readFileSync(domainObjectsPath, "utf8");
   const overview = readFileSync(".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md", "utf8");
   const objectIds = idsIn(domainObjects);
 
-  assert.equal(objectIds.length, 38);
-  assert.match(overview, /38 domain-object records: 37 proposed or\s+runtime\/persistence-observed candidates and one simulation-fixture-only/u);
-  assert.match(overview, /`media\.domain\.caption-version` is a separate local simulation-fixture\s+observation/u);
-  assert.match(overview, /not an observed runtime or persistence record/u);
+  assert.equal(objectIds.length, 39);
+  assert.match(overview, /39 domain-object records, 13 value-object/u);
+  assert.match(overview, /bounded canonical caption\/transcript version definitions/u);
+  assert.match(overview, /local simulation projection\nremains synthetic, not an observed runtime or persistence record/u);
+  assert.match(overview, /Legacy transcription UUIDs and provider result IDs do not establish\nthat identity/u);
+  assert.match(overview, /no producer, native Lifecycle receipt or full phase acceptance is admitted/u);
 });
 
 test("PDP-1 object source references resolve to files and PDP-0 anchors resolve to named records", () => {

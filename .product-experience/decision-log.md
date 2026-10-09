@@ -1054,3 +1054,29 @@ Phase 3 are not accepted and remain gated by the dependencies in the master
 plan. No entry in this log changes the migration source-of-truth or gap
 register; see [`source-manifest.yaml`](./source-manifest.yaml) and
 [`gaps.yaml`](./gaps.yaml).
+
+### PXD-062 — Canonical transcript-version identity and exact inspection
+
+- Authority: Media product semantic owner under the user's delegated authority; definition only.
+- Decision: Accept the necessary `media.domain.transcript-version` identity and the existing `media.operation.transcript-version-read` exact-version query. Trusted tenant/principal and current scoped read authority govern both the immutable version and linked source. Legacy transcription UUID, job ID, provider result artifact ID and text digest are not interchangeable selectors.
+- Sources: PDP-0 `journey-catalog.yaml#J-03`, `capabilities.yaml` transcription uncertainty/source-version constraints; PDP-1 `domain-objects.yaml#media.domain.transcription`, the existing transcript read contract and caption registration's typed canonical-parent requirement; typed SDK/gRPC and persistence records remain source observations.
+- Rationale/alternative: Retain the legacy record's actual identity while adding one required canonical version identity. Treating a legacy UUID or fixture parent as canonical would falsely satisfy caption lineage. This is a prerequisite of the existing journey and caption contract, not a new operation or optional feature. One necessary domain-object obligation is added; acceptance tests and source proof route accompany it.
+- Boundaries: Immutable content/source identity, supplied evidence and original provider units remain intact. Missing timing permits inspection. Separately identified qualified source-clock mapping is read-context evidence, not mutation or scientific quality. Caption-parent use additionally requires authoritative clock, rate, duration and source match plus current registration authority. Visibility does not grant that authority. No producer, model, transport, security qualification, independent signoff or native Lifecycle receipt is admitted.
+
+### PXD-063 — Transcript inspection interface grammar
+
+- Decision: Accept only `boundedTranscriptReviewSlice` for the existing exact-version read, action and J03-4, sourced from PXD-062. Required/conditional fields retain explicit availability, source identity, uncertainty and clock mapping evidence. No omitted observation becomes zero, certainty or correctness.
+- Sources: PDP-2 `action-finality-grammar.yaml#boundedTranscriptReviewSlice`, PDP-1 exact transcript read/object definition, existing UI and synthetic CLI observations.
+- Boundaries: Query-only cancellation means stop waiting; later reads recheck authority. Scope-safe missing/inaccessible responses do not reveal global existence. No HTTP/SDK/gRPC/Agent/event equivalence, production CLI availability, public reversibility boolean, registration or approval is inferred.
+
+### PXD-064 — Existing J03-4 transcript review experience
+
+- Decision: Accept the bounded source definitions of the existing `review-transcript` step, screen and action, linked exactly to PXD-062/PXD-063. Bind actor, immutable object, current authority, success, failure, recovery and query transition applicability. Preserve the other seven ordered steps and all original journey/action populations.
+- Sources: PDP-3 `journey-contracts/transcribe-and-correct-captions.yaml`, `screen-contracts/review-transcript.yaml`, `action-registry.yaml`, `experience-source-bindings.yaml` and the original J03 intent.
+- Boundaries: Inspection exposes unverified supplied content and missing evidence; it cannot approve, correct, register or publish. No domain mutation transition is invented. Read reversibility remains UNKNOWN with no public effect/finality boolean. Actual runtime verification remains not-run with no actual evidence; source definition checks are recorded separately. Independent experience/accessibility and native acceptance remain open.
+
+### PXD-065 — Transcript inspection capability and source proof scope
+
+- Decision: Accept only the transcript inspection slice of existing `media.artifact.inspect`, preserving its J02 metadata and J03 caption comparison definitions. Author actual partial source cases for the necessary canonical object and existing read requirement. No new capability, journey, step, action or operation family is introduced.
+- Sources: `capability-leaf-review.yaml#media.artifact.inspect.transcriptVersionDefinitionSlice`, PXD-062/PXD-064 and the exact source assertion declarations.
+- Boundaries: Full leaf acceptance, scientific quality and current runtime availability remain unclaimed. The 462 leaves, 383 unresolved targets and 445 unbounded leaves retain their denominator/status. Case IDs/source links do not admit providers, observers, oracles or native phase receipts. PXD-026 through PXD-039 retain their original approved scopes.

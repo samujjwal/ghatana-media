@@ -99,6 +99,9 @@ operationSliceBindings:
     actionIntentRefs: [media.action.compare-caption-versions]
     reconciliationActionRefs: [media.action.save-caption-version]
     disposition: read-only-exact-pair-comparison-or-same-scope-original-registration-receipt-observation; preserve-source-and-clock-identities; no-mutation-merge-winner-or-review-approval; runtime-NOT_ADMITTED
+  media.operation.transcript-version-read:
+    actionIntentRefs: [media.action.review-transcript]
+    disposition: read-one-exact-canonical-transcriptVersionId-in-current-trusted-scope; preserve-only-supplied-text-segments-language-uncertainty-evidence-and-explicit-timing-availability; no-clock-inference-mutation-correction-approval-or-publication; runtime-NOT_ADMITTED
 bindingRules:
   - above-family-lists-are-allowed-result-shapes-not-guaranteed-result-support
   - each-HTTP-gRPC-SDK-CLI-Agent-tool-and-event-adapter-must-declare-its-actual-supported-subset

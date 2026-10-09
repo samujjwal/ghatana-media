@@ -105,9 +105,9 @@ test("residual report validates exact projection dispositions and pinned sources
     { id: "shared-artifact-binding", status: "EXTERNAL_PENDING" },
     { id: "conformance-and-specialist-review", status: "INDEPENDENT_PENDING" },
   ]);
-  assert.equal(report.lifecycle.obligationCount, 347);
-  assert.equal(report.lifecycle.totalProofRoutes, 347);
-  assert.equal(report.lifecycle.obligationsMissingCaseIds.length, 252);
+  assert.equal(report.lifecycle.obligationCount, 348);
+  assert.equal(report.lifecycle.totalProofRoutes, 348);
+  assert.equal(report.lifecycle.obligationsMissingCaseIds.length, 251);
   assert.equal(report.lifecycle.receiptEvaluation.status, "NOT_EVALUATED");
   assert.equal(report.lifecycle.receiptEvaluation.authoritativeReceiptCount, null);
   assert.equal(report.lifecycle.currentnessEvaluation.status, "NOT_EVALUATED");

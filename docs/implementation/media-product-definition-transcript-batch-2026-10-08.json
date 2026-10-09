@@ -1,0 +1,341 @@
+{
+  "schemaVersion": "media.product-definition-transcript-batch.v1",
+  "date": "2026-10-08",
+  "baseMain": "a3e6989d6a8f8762642fefa063f90285c22059cb",
+  "branch": "main",
+  "scope": "Four PDP phases: definitions, validation and acceptance inputs only; application implementation deferred under latest direct user instruction",
+  "delegation": "Three Luna agents authored canonical transcript identity/read definitions, interface grammar, selected J03-4 experience and exact source validation; coordinator reviewed and integrated Media decisions/capability/proof inputs.",
+  "ownerDecisions": [
+    "PXD-062",
+    "PXD-063",
+    "PXD-064",
+    "PXD-065"
+  ],
+  "original71Tasks": {
+    "complete": 6,
+    "partial": 51,
+    "blockedExternalIndependent": 14,
+    "newlyComplete": 0,
+    "criteria": "Original IDs, titles and full Done predicates preserved; partial definition evidence is not full implementation or independent acceptance."
+  },
+  "beforeAfter": {
+    "projectionBlockers": {
+      "phaseOrder": [
+        "PDP-0",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "before": [
+        0,
+        0,
+        9
+      ],
+      "after": [
+        0,
+        0,
+        9
+      ]
+    },
+    "capabilityLeaves": [
+      462,
+      462
+    ],
+    "unresolvedCapabilityTargets": [
+      383,
+      383
+    ],
+    "unboundedCapabilityLeaves": [
+      445,
+      445
+    ],
+    "fullAcceptedCapabilityCoverage": [
+      0,
+      0
+    ],
+    "migrationOriginalObservations": [
+      349,
+      349
+    ],
+    "migrationSemanticsUnresolved": [
+      260,
+      260
+    ],
+    "interfaceIdentities": [
+      286,
+      286
+    ],
+    "interfaceUnresolved": [
+      190,
+      190
+    ],
+    "fullAcceptedInterfaceBindings": [
+      0,
+      0
+    ],
+    "historicalParityFindingsOpen": [
+      2,
+      2
+    ],
+    "designGatesOpen": [
+      2,
+      2
+    ],
+    "journeys": [
+      30,
+      30
+    ],
+    "orderedSteps": [
+      130,
+      130
+    ],
+    "screenLinkedSteps": [
+      130,
+      130
+    ],
+    "actionLinkedSteps": [
+      18,
+      18
+    ],
+    "authoredStepIds": [
+      19,
+      20
+    ],
+    "exactNonNullOperationRefs": [
+      19,
+      19
+    ],
+    "emptyObjectRefs": [
+      120,
+      119
+    ],
+    "emptyStateRefs": [
+      122,
+      122
+    ],
+    "nullAuthorityRefs": [
+      119,
+      118
+    ],
+    "sourceNoTransitionReasons": [
+      9,
+      10
+    ],
+    "projectedUnconditionalEffects": [
+      3,
+      3
+    ],
+    "projectedFinalityRecords": [
+      21,
+      21
+    ],
+    "publicRecoveryDefinitions": [
+      5,
+      5
+    ],
+    "lifecycleObligations": [
+      347,
+      348
+    ],
+    "obligationsWithCaseIds": [
+      95,
+      97
+    ],
+    "obligationsWithoutCaseIds": [
+      252,
+      251
+    ],
+    "sourceCaseCandidateLinks": [
+      61,
+      63
+    ],
+    "sourceCaseLinkedObligations": [
+      40,
+      42
+    ],
+    "unmappedSourceCaseObligations": [
+      307,
+      306
+    ],
+    "observerAssignments": [
+      0,
+      0
+    ],
+    "oracleAssignments": [
+      0,
+      0
+    ],
+    "providerBindings": [
+      0,
+      0
+    ],
+    "boundNativePhaseReceipts": [
+      0,
+      0
+    ]
+  },
+  "populationJustification": {
+    "newCanonicalDomainObjects": [
+      "media.domain.transcript-version"
+    ],
+    "newOperations": 0,
+    "newObligations": 1,
+    "sourceIdentity": [
+      ".product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03",
+      ".product-experience/pdp-1-domain-data/operations.yaml#media.operation.caption-version-write.canonicalParentRequirement"
+    ],
+    "reason": "Exact immutable transcript identity is already necessary for existing transcript inspection and typed caption-parent lineage. Legacy IDs are not canonical versions. Adds one required object, no optional capability, operation, journey, step or action.",
+    "acceptanceTests": [
+      "tests/media-transcript-version-definition.test.mjs",
+      "tests/media-transcript-version-interface-grammar.test.mjs",
+      "tests/media-transcript-review-definition.test.mjs",
+      "tests/media-transcript-capability-definition.test.mjs"
+    ],
+    "proofRoute": "Two executable source assertions link canonical-object and exact-read requirements. Registered native provider/observer/oracle and independent domain/interface/experience acceptance remain required; none is fabricated."
+  },
+  "verification": {
+    "focusedNewDefinitions": {
+      "tests": 13,
+      "pass": 13,
+      "fail": 0,
+      "log": "/tmp/media-execution/definition-transcript-focused-final.log"
+    },
+    "fullNode": {
+      "command": "node --test tests/*.test.mjs",
+      "tests": 457,
+      "pass": 457,
+      "fail": 0,
+      "skip": 0,
+      "log": "/tmp/media-execution/definition-transcript-node-final.log"
+    },
+    "publicSchemasAndValidators": "All three candidates VALID/PASS",
+    "sourceChecks": "Authority/local/Lifecycle input validation and348-obligation audit PASS",
+    "design": "NON-GREEN: two external/independent gates",
+    "parity": "NON-GREEN: two full semantic findings",
+    "initialIntegration": {
+      "tests": 457,
+      "pass": 451,
+      "fail": 6,
+      "reason": "Legacy registry/count and projection assertions required exact bounded source reconciliation; repaired without altering original task Done criteria or admission gates."
+    },
+    "residualDiagnostics": [],
+    "lifecycleSourceInputDriftCheck": "PASS",
+    "gitDiffCheck": "PASS",
+    "strictProjectionChecks": {
+      "command": "node scripts/generate-media-phase-projections.mjs --check --strict",
+      "result": "PASS"
+    },
+    "finalSemanticReview": "Immutable snapshot and separate qualified clock context, current read scope, caption-parent metadata/write-authority separation reviewed. Screen query guarantees narrowed; playback time/language intent/job provenance explicitly optional separately sourced context."
+  },
+  "dependencies": {
+    "Tools": "0.1.0-rc.1",
+    "Lifecycle": "0.1.0-rc.1",
+    "Shared": "0.1.0-SNAPSHOT",
+    "DocumentIntelligence": "0.1.0",
+    "AIInference": "1.1.0",
+    "DataCloud": "1.2.1",
+    "ActionPlane": "1.2.0",
+    "EventPlane": "1.3.0",
+    "NetworkNT": "3.0.6"
+  },
+  "dependencyBoundary": "Source/development observations unchanged; no new immutable distribution or external approval claimed",
+  "runtimeImplementationChanged": false,
+  "preservedPendingImplementationStash": "dd69e97b095b7ef5abc9b8b157e1a0d2561736da",
+  "phaseAcceptance": {
+    "PDP-0": "OPEN; native acceptance not claimed",
+    "PDP-1": "OPEN; native acceptance not claimed",
+    "PDP-2": "OPEN; native acceptance not claimed",
+    "PDP-3": "OPEN; native acceptance not claimed"
+  },
+  "outstandingIndependentAuthorities": [
+    "Independent PDP semantic and complete-experience reviewers",
+    "Shared package owner and visual/assistive-technology reviewers",
+    "Lifecycle registry/distribution owner and native phase receipt issuer"
+  ],
+  "nextExecutableDefinitionBatch": "Complete existing caption-draft-write definition and J03 steps5/6 with exact immutable parent/source identity, local draft scope, explicit correction/alignment constraints and recovery; do not claim scientific timing or runtime implementation.",
+  "authoritativeReceiptEvaluation": {
+    "status": "NOT_EVALUATED",
+    "authoritativeReceiptCount": null,
+    "boundLocalReceiptRecords": 0
+  },
+  "worktreeAtVerification": "Reviewed definition-only changes on main; origin/main matched baseMain after fetch; runtime implementation stash unchanged.",
+  "independentReviewInputs": [
+    {
+      "authority": "Independent PDP domain/interface/complete-experience reviewers",
+      "artifact": ".product-experience/acceptance.yaml#definitionTranscriptReviewInputs20261008",
+      "test": "node --test tests/media-transcript-version-definition.test.mjs tests/media-transcript-version-interface-grammar.test.mjs tests/media-transcript-review-definition.test.mjs tests/media-transcript-capability-definition.test.mjs",
+      "acceptance": "Attributed independent assessment of identity/source/uncertainty/current read authority and missing-timing boundaries against original phase criteria; native phase receipts required separately."
+    },
+    {
+      "authority": "Shared package owner and accessibility/visual reviewers",
+      "artifact": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml and tests/media-component-definition-proof-cases.test.mjs",
+      "test": "node scripts/check-media-design-conformance.mjs",
+      "acceptance": "Qualified public Shared artifact binding and attributed rendered/assistive-technology conformance review; the31 metadata cases cannot satisfy these gates."
+    },
+    {
+      "authority": "Lifecycle registry/distribution owner and native phase receipt issuer",
+      "artifact": "config/closure/media-product-definition/{obligations,l02-source-case-links,l03-proof-route-candidates,phase-program,phase-binding}.json",
+      "test": "node scripts/check-media-lifecycle-closure-inputs.mjs; node scripts/generate-media-lifecycle-source-inputs.mjs --check",
+      "acceptance": "Registered case-specific provider/observer/oracle bindings with admitted methods, exact dependency fingerprints and authoritative current PDP phase receipts; local input readiness is insufficient."
+    }
+  ],
+  "changedFiles": [
+    ".product-experience/acceptance.yaml",
+    ".product-experience/closure-dashboard.yaml",
+    ".product-experience/decision-log.md",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+    ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+    ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md",
+    ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+    ".product-experience/pdp-1-domain-data/operations.yaml",
+    ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+    ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json",
+    ".product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md",
+    ".product-experience/pdp-3-product-experience/action-registry.yaml",
+    ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+    ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
+    ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+    ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml",
+    ".product-experience/source-manifest.yaml",
+    "config/closure/media-product-definition/l02-source-case-links.json",
+    "config/closure/media-product-definition/l03-proof-route-candidates.json",
+    "config/closure/media-product-definition/obligations.json",
+    "config/closure/media-product-definition/phase-binding.json",
+    "config/closure/media-product-definition/phase-program.json",
+    "config/closure/media-product-definition/surface.json",
+    "docs/implementation/media-product-definition-transcript-batch-2026-10-08.json",
+    "scripts/lib/media-experience-definition-mapping.mjs",
+    "scripts/lib/media-transcript-capability-definition-validation.mjs",
+    "scripts/lib/media-transcript-version-definition-validation.mjs",
+    "tests/media-capability-review-source-impact.test.mjs",
+    "tests/media-caption-version-experience-definitions.test.mjs",
+    "tests/media-domain-identity-reconciliation.test.mjs",
+    "tests/media-experience-specification-projection.test.mjs",
+    "tests/media-j01-definition-semantics.test.mjs",
+    "tests/media-lifecycle-l02-source-case-links.test.mjs",
+    "tests/media-lifecycle-l03-proof-route-candidates.test.mjs",
+    "tests/media-obligation-denominator-audit.test.mjs",
+    "tests/media-product-definition-residuals.test.mjs",
+    "tests/media-transcript-capability-definition.test.mjs",
+    "tests/media-transcript-review-definition.test.mjs",
+    "tests/media-transcript-version-definition.test.mjs",
+    "tests/media-transcript-version-interface-grammar.test.mjs",
+    "tests/pdp-3-screen-journey-crosslinks.test.mjs",
+    "tests/product-definition-authority.test.mjs"
+  ],
+  "transcriptBoundary": {
+    "selectedStepIds": [
+      "J03-4"
+    ],
+    "selector": "one exact opaque transcriptVersionId",
+    "authority": "trusted tenant/principal, current scoped read authority for exact version and linked source",
+    "immutableContent": "no joining/splitting/text normalization or retiming from later mapping; provider uncertainty remains supplied evidence, not calibrated correctness",
+    "missingTiming": "inspection remains valid; caption registration parent requires authoritative source clock/rate/duration/source match and fresh registration authority",
+    "laterMapping": "separately identified qualified read-context evidence; no mutation of original provider observations",
+    "materialization": "canonical identity requires authoritative version-producing boundary; no qualified producer/runtime availability claimed",
+    "sourceCases": 2,
+    "runtimeVerification": "130 steps not-run with zero actual runtime evidence",
+    "sourceDefinitionChecks": 3
+  }
+}
