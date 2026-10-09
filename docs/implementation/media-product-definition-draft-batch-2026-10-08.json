@@ -256,7 +256,7 @@
     "authoritativeReceiptCount": null,
     "boundLocalReceiptRecords": 0
   },
-  "worktreeAtVerification": "Reviewed definition-only changes on main before source commit; origin/main matches baseMain; full suite and source checks pass; deferred implementation stash preserved.",
+  "worktreeAtVerification": "CLEAN after source commit/push; main and origin/main match verifiedMainCommit; deferred implementation stash retained.",
   "independentReviewInputs": [
     {
       "authority": "Independent PDP domain/interface/complete-experience reviewers",
@@ -353,5 +353,7 @@
     "Edited target origin is USER_EDITED; non-target origin and values are preserved.",
     "Returned segment timing stays tagged individually; MIXED aggregate cannot imply registration readiness.",
     "Exact transcript-read-to-local-draft preparation handoff rechecks current edit policy/session and blocks absent faithful segment identities."
-  ]
+  ],
+  "verifiedMainCommit": "e45cad3189586370decc9eeed36065b39e80e5c8",
+  "originMainAtVerification": "e45cad3189586370decc9eeed36065b39e80e5c8"
 }
