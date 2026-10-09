@@ -1497,6 +1497,7 @@ definitionCaptionDraftReviewInputs20261008:
     - tests/media-caption-draft-interface-grammar.test.mjs
     - tests/media-caption-draft-experience-definitions.test.mjs
     - tests/media-caption-draft-capability-definition.test.mjs
+    - tests/media-caption-draft-host-preparation.test.mjs
   reviewInputs:
     - Trusted session ownership, exact source/typed parent, faithful initialization and expected revision must govern atomic edits.
     - Missing timing permits text correction, but source-tick edits require explicit user values and qualified clock/rate/duration; no automatic segmentation or clock inference.
@@ -1504,5 +1505,27 @@ definitionCaptionDraftReviewInputs20261008:
     - Rebase creates a distinct new draft ID/revision0 under current policy; preserve the old stale draft until explicit discard.
     - Manual timing edits do not satisfy forced alignment, registered output, scientific quality, durable storage, approval or publication contracts.
     - Source cases require registered providers/observers/oracles and native Lifecycle acceptance; metadata assertions do not establish runtime behavior.
+  runtimeAdmission: NOT_ADMITTED
+  nativeLifecycleAcceptance: NOT_CLAIMED
+
+definitionTranscriptionSubmissionReviewInputs20261008:
+  status: BOUNDED_MEDIA_OWNER_DEFINITIONS_REVIEWED; INDEPENDENT_ACCEPTANCE_PENDING
+  decisionRefs: [PXD-070, PXD-071, PXD-072, PXD-073]
+  selectedJourney: J-03
+  selectedStepIds: [J03-2]
+  canonicalOperationRefs: [media.operation.transcription-submission]
+  obligationsAdded: 0
+  evidenceReport: docs/implementation/media-product-definition-submission-batch-2026-10-08.json
+  testSources:
+    - tests/media-transcription-submission-definition.test.mjs
+    - tests/media-transcription-submission-interface-grammar.test.mjs
+    - tests/media-transcription-submission-experience-definition.test.mjs
+    - tests/media-transcription-submission-capability-definition.test.mjs
+  reviewInputs:
+    - Review current branch-specific authority, immutable source/profile/language/purpose/retention/location and exact canonical request fingerprint preparation before dispatch.
+    - Atomic original logical-request and receipt identity must precede asynchronous dispatch; acknowledgment is not a job-state, transcript quality or approval claim.
+    - Unknown/lost/expired evidence never proves no effect; conflict preserves the original request; no partial snapshot replay or new key evasion.
+    - Receipt reconciliation uses scoped read authority; revoked processing blocks submit/replay without automatically denying separately authorized receipt reads.
+    - Source assertions require independent assessment and admitted Lifecycle methods/providers/observers/oracles and native receipts before phase closure.
   runtimeAdmission: NOT_ADMITTED
   nativeLifecycleAcceptance: NOT_CLAIMED

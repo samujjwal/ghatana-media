@@ -53,7 +53,8 @@ function validateLink(link) {
         sourcePath: 'tests/media-caption-version-operation-definitions.test.mjs',
         ownerDecisionRef: '.product-experience/decision-log.md#PXD-061',
         requiredVariables: [
-          'missingSourceVersion', 'parentOmittedFromFingerprint', 'approvalPromoted',
+          'missingSourceVersion', 'ambiguousDigest', 'parentOmittedFromFingerprint', 'optionalPayloadPresenceLost',
+          'incompleteStringEncoding', 'operationAcceptsLegacyParent', 'approvalPromoted', 'admissionForged',
           'executionAdmissionForged', 'legacyParentEquated', 'absenceAllowsRetry',
         ],
         assertions: [
@@ -69,8 +70,8 @@ function validateLink(link) {
         sourcePath: 'tests/media-caption-version-operation-definitions.test.mjs',
         ownerDecisionRef: '.product-experience/decision-log.md#PXD-061',
         requiredVariables: [
-          'sourceEquivalenceForged', 'pairIdentityDropped', 'requestSelectorRemoved',
-          'unknownMayReplay', 'globalListAdded', 'approvalClaimed',
+          'sourceEquivalenceForged', 'pairIdentityDropped', 'requestSelectorRemoved', 'unknownMayReplay',
+          'globalListAdded', 'approvalClaimed',
         ],
         assertions: [
           'assert.deepEqual(validateMediaCaptionVersionDefinitions(base), []);',
@@ -130,6 +131,23 @@ function validateLink(link) {
           'assert.match(operation.scopeStatus, /runtime-NOT_ADMITTED/u);',
         ],
       },
+      'media.definition-case.transcription-submission.accept': {
+        obligationId: 'media.pdp-1.requirement.media.operation.transcription-submission',
+        testName: 'submission definition rejects replay, authority, and finality overclaims',
+        sourcePath: 'tests/media-transcription-submission-definition.test.mjs',
+        ownerDecisionRef: '.product-experience/decision-log.md#PXD-073',
+        requiredVariables: [
+          'partialReplay', 'fingerprintOmitsAuthority', 'fingerprintNormalizes', 'callerGrantsRights',
+          'languageInferred', 'ackMeansCompleted', 'receiptReadSkipsAuth', 'dependsOnReturnedFingerprint', 'profileNotQualified',
+          'unknownSubmitField', 'branchMixedPayload', 'callerSuppliedIdentity', 'nullRequestId', 'nullRightsEvidence', 'implicitConsentDefault',
+        ],
+        assertions: [
+          'assert.deepEqual(validateMediaTranscriptionSubmissionDefinition(base), []);',
+          "assert.match(validateMediaTranscriptionSubmissionDefinition(unknownSubmitField).join('\\n'), /exact declared fields/u);",
+          "assert.match(validateMediaTranscriptionSubmissionDefinition(receiptReadSkipsAuth).join('\\n'), /distinct current receipt-read authority/u);",
+          "assert.match(validateMediaTranscriptionSubmissionDefinition(nullRightsEvidence).join('\\n'), /scalar nullability must be explicit/u);",
+        ],
+      },
     };
     const expected = sourceDefinitionCases[link.caseId];
     assert.ok(expected, `unexpected source-definition case ${link.caseId}`);
@@ -137,7 +155,8 @@ function validateLink(link) {
     assert.equal(sourcePath, expected.sourcePath);
     assert.equal(link.testIdentity.testName, expected.testName);
     assert.equal(link.assertionEvidence, expected.assertions[0]);
-    assert.ok(link.negativeAssertionVariables.length > 0, `${expected.testName} must link negative cases`);
+    assert.deepEqual(link.negativeAssertionVariables, expected.requiredVariables,
+      `${expected.testName} must link its exact negative cases`);
     assert.equal(link.scope, 'PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY');
     assert.equal(link.admission, 'NOT_LIFECYCLE_ADMITTED');
     assert.equal(link.ownerDecisionRef, expected.ownerDecisionRef);
@@ -153,7 +172,7 @@ function validateLink(link) {
     for (const variable of link.negativeAssertionVariables) {
       assert.match(body, new RegExp(`\\b${variable}\\b`, 'u'), `${expected.testName} no longer declares negative case ${variable}`);
     }
-    assert.match(body, /validateMedia(?:CaptionVersionDefinitions|TranscriptVersionDefinition|CaptionDraftDefinition)\(/u);
+    assert.match(body, /validateMedia(?:CaptionVersionDefinitions|TranscriptVersionDefinition|CaptionDraftDefinition|TranscriptionSubmissionDefinition)\(/u);
     assert.ok(body.includes(".join('\\n')"),
       `${expected.testName} negative cases must exercise the source validator`);
     return;
@@ -210,9 +229,9 @@ test('L-02 source-link proposal preserves all obligations and validates exact ex
   assert.equal(proposal.status, 'SOURCE_LINK_PROPOSAL_PARTIAL_NOT_EXECUTION_ADMITTED');
   assert.deepEqual(proposal.obligationIds, obligationIds, 'proposal denominator must preserve every obligation ID in source order');
   assert.equal(new Set(proposal.obligationIds).size, 348);
-  assert.equal(new Set(proposal.candidateLinks.map(({ obligationId }) => obligationId)).size, 43);
-  assert.equal(proposal.candidateLinks.length, 64);
-  assert.equal(proposal.unmappedObligationIds.length, 305);
+  assert.equal(new Set(proposal.candidateLinks.map(({ obligationId }) => obligationId)).size, 44);
+  assert.equal(proposal.candidateLinks.length, 65);
+  assert.equal(proposal.unmappedObligationIds.length, 304);
   assert.deepEqual(new Set(proposal.unmappedObligationIds), new Set(obligationIds.filter((id) =>
     !proposal.candidateLinks.some((link) => link.obligationId === id))));
 
@@ -231,6 +250,7 @@ test('L-02 source-link proposal preserves all obligations and validates exact ex
     'media.definition-case.caption-version.register',
     'media.definition-case.transcript-version.identity',
     'media.definition-case.transcript-version.inspect',
+    'media.definition-case.transcription-submission.accept',
   ]);
 
   const sourceAvailableLinks = proposal.candidateLinks.filter((link) => link.caseId === 'media.scenario.source-available');
@@ -276,9 +296,9 @@ test('parameterized definition cases reject swapped scope, parameters and invent
   ]) { const link = structuredClone(valid); mutate(link); assert.throws(() => validateLink(link)); }
 });
 
-test('caption, transcript, and draft source-definition links reject invented case identity, partial-scope promotion, admission and missing negatives', () => {
+test('caption, transcript, draft, and submission source-definition links reject invented identity, promotion, admission and missing negatives', () => {
   const links = proposal.candidateLinks.filter((link) => link.method === 'SOURCE_DEFINITION_CONTRACT_ASSERTIONS');
-  assert.equal(links.length, 5);
+  assert.equal(links.length, 6);
   for (const valid of links) {
     validateLink(valid);
     for (const mutate of [

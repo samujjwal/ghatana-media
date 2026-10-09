@@ -1539,6 +1539,36 @@
       "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
       "admission": "NOT_LIFECYCLE_ADMITTED",
       "ownerDecisionRef": ".product-experience/decision-log.md#PXD-069"
+    },
+    {
+      "obligationId": "media.pdp-1.requirement.media.operation.transcription-submission",
+      "caseId": "media.definition-case.transcription-submission.accept",
+      "method": "SOURCE_DEFINITION_CONTRACT_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-transcription-submission-definition.test.mjs",
+        "testName": "submission definition rejects replay, authority, and finality overclaims"
+      },
+      "assertionEvidence": "assert.deepEqual(validateMediaTranscriptionSubmissionDefinition(base), []);",
+      "negativeAssertionVariables": [
+        "partialReplay",
+        "fingerprintOmitsAuthority",
+        "fingerprintNormalizes",
+        "callerGrantsRights",
+        "languageInferred",
+        "ackMeansCompleted",
+        "receiptReadSkipsAuth",
+        "dependsOnReturnedFingerprint",
+        "profileNotQualified",
+        "unknownSubmitField",
+        "branchMixedPayload",
+        "callerSuppliedIdentity",
+        "nullRequestId",
+        "nullRightsEvidence",
+        "implicitConsentDefault"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-073"
     }
   ],
   "unmappedObligationIds": [
@@ -1699,7 +1729,6 @@
     "media.pdp-1.requirement.media.operation.stream-session",
     "media.pdp-1.requirement.media.operation.synthesis",
     "media.pdp-1.requirement.media.operation.transcription",
-    "media.pdp-1.requirement.media.operation.transcription-submission",
     "media.pdp-1.requirement.media.operation.vision-analysis",
     "media.pdp-1.requirement.media.rel.animation-property-owner",
     "media.pdp-1.requirement.media.rel.assessment-subject",

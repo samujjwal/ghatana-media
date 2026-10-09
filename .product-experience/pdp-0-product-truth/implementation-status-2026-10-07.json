@@ -22,7 +22,7 @@
   ],
   "status_policy": "Complete requires full task Done evidence. Partial means bounded implementation/evidence exists but the criterion is unmet. Blocked-external/independent means owner action, independent review or authoritative Lifecycle output remains outstanding. Not-started means no material implementation evidence was found. Source decisions or unrun test sources alone do not establish acceptance.",
   "authorization_boundary": "User authorized source-supported Media owner decisions. This ledger claims no independent approval, Lifecycle receipt/current closure, external Shared/Tools owner acceptance, license clearance or PDP phase closure. Decisions are bounded to documented scope.",
-  "verification_boundary": "Latest caption-draft definition-only batch:478/478 Node tests,zero skips; all three public validators PASS; authority/local/source inputs/348-obligation audit PASS.64 partial source links across43 obligations;250 lack authored case IDs. Parity2/design2 remain non-green; native receipt evaluation NOT_EVALUATED. Evidence:docs/implementation/media-product-definition-draft-batch-2026-10-08.json.",
+  "verification_boundary": "Latest transcription-submission definition-only batch:495/495 Node tests,zero skips; all three public validators PASS; authority/local/source inputs/348-obligation audit PASS.65 partial source links across44 obligations;249 lack authored case IDs. Parity2/design2 remain non-green; native receipt evaluation NOT_EVALUATED. Evidence:docs/implementation/media-product-definition-submission-batch-2026-10-08.json.",
   "id_reconciliation": {
     "checklist_count": 71,
     "plan_task_count": 71,
@@ -416,6 +416,11 @@
         "result": "Bounded existing draft operation/J03steps5/6 and actual sourcecase reviewed; manual alignment/forced-alignment equivalence rejected. Full original Done criterion not newly satisfied.",
         "evidence": "docs/implementation/media-product-definition-draft-batch-2026-10-08.json",
         "statusRetained": "partial"
+      },
+      "definition_submission_update_2026_10_08": {
+        "statusRetained": true,
+        "evidence": "docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+        "scope": "Existing audio transcription request acceptance/J03-2 and source assertions only; full original Done criterion and independent/native acceptance remain open."
       }
     },
     {
@@ -962,6 +967,11 @@
         "result": "Bounded existing draft operation/J03steps5/6 and actual sourcecase reviewed; manual alignment/forced-alignment equivalence rejected. Full original Done criterion not newly satisfied.",
         "evidence": "docs/implementation/media-product-definition-draft-batch-2026-10-08.json",
         "statusRetained": "partial"
+      },
+      "definition_submission_update_2026_10_08": {
+        "statusRetained": true,
+        "evidence": "docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+        "scope": "Existing audio transcription request acceptance/J03-2 and source assertions only; full original Done criterion and independent/native acceptance remain open."
       }
     },
     {
@@ -2075,6 +2085,11 @@
         "result": "Bounded existing draft operation/J03steps5/6 and actual sourcecase reviewed; manual alignment/forced-alignment equivalence rejected. Full original Done criterion not newly satisfied.",
         "evidence": "docs/implementation/media-product-definition-draft-batch-2026-10-08.json",
         "statusRetained": "partial"
+      },
+      "definition_submission_update_2026_10_08": {
+        "statusRetained": true,
+        "evidence": "docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+        "scope": "Existing audio transcription request acceptance/J03-2 and source assertions only; full original Done criterion and independent/native acceptance remain open."
       }
     },
     {
@@ -2132,6 +2147,11 @@
         "result": "Bounded existing draft operation/J03steps5/6 and actual sourcecase reviewed; manual alignment/forced-alignment equivalence rejected. Full original Done criterion not newly satisfied.",
         "evidence": "docs/implementation/media-product-definition-draft-batch-2026-10-08.json",
         "statusRetained": "partial"
+      },
+      "definition_submission_update_2026_10_08": {
+        "statusRetained": true,
+        "evidence": "docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+        "scope": "Existing audio transcription request acceptance/J03-2 and source assertions only; full original Done criterion and independent/native acceptance remain open."
       }
     },
     {
@@ -2689,6 +2709,11 @@
         "result": "Bounded existing draft operation/J03steps5/6 and actual sourcecase reviewed; manual alignment/forced-alignment equivalence rejected. Full original Done criterion not newly satisfied.",
         "evidence": "docs/implementation/media-product-definition-draft-batch-2026-10-08.json",
         "statusRetained": "partial"
+      },
+      "definition_submission_update_2026_10_08": {
+        "statusRetained": true,
+        "evidence": "docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+        "scope": "Existing audio transcription request acceptance/J03-2 and source assertions only; full original Done criterion and independent/native acceptance remain open."
       }
     },
     {
@@ -2737,6 +2762,11 @@
         "result": "Bounded existing draft operation/J03steps5/6 and actual sourcecase reviewed; manual alignment/forced-alignment equivalence rejected. Full original Done criterion not newly satisfied.",
         "evidence": "docs/implementation/media-product-definition-draft-batch-2026-10-08.json",
         "statusRetained": "partial"
+      },
+      "definition_submission_update_2026_10_08": {
+        "statusRetained": true,
+        "evidence": "docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+        "scope": "Existing audio transcription request acceptance/J03-2 and source assertions only; full original Done criterion and independent/native acceptance remain open."
       }
     },
     {
@@ -7983,5 +8013,225 @@
     },
     "verifiedMainCommit": "e45cad3189586370decc9eeed36065b39e80e5c8",
     "worktreeAtVerification": "CLEAN; main and origin/main match; deferred implementation stash retained."
+  },
+  "definition_submission_batch_2026_10_08": {
+    "scope": "Four PDP phases: definitions, validation and acceptance inputs only; application implementation deferred under latest direct user instruction",
+    "evidence": "docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+    "ownerDecisions": [
+      "PXD-070",
+      "PXD-071",
+      "PXD-072",
+      "PXD-073"
+    ],
+    "beforeAfter": {
+      "projectionBlockers": {
+        "phaseOrder": [
+          "PDP-0",
+          "PDP-2",
+          "PDP-3"
+        ],
+        "before": [
+          0,
+          0,
+          9
+        ],
+        "after": [
+          0,
+          0,
+          9
+        ]
+      },
+      "capabilityLeaves": [
+        462,
+        462
+      ],
+      "unresolvedCapabilityTargets": [
+        383,
+        383
+      ],
+      "unboundedCapabilityLeaves": [
+        445,
+        445
+      ],
+      "fullAcceptedCapabilityCoverage": [
+        0,
+        0
+      ],
+      "migrationOriginalObservations": [
+        349,
+        349
+      ],
+      "migrationSemanticsUnresolved": [
+        260,
+        260
+      ],
+      "interfaceIdentities": [
+        286,
+        286
+      ],
+      "interfaceUnresolved": [
+        190,
+        190
+      ],
+      "fullAcceptedInterfaceBindings": [
+        0,
+        0
+      ],
+      "historicalParityFindingsOpen": [
+        2,
+        2
+      ],
+      "designGatesOpen": [
+        2,
+        2
+      ],
+      "journeys": [
+        30,
+        30
+      ],
+      "orderedSteps": [
+        130,
+        130
+      ],
+      "screenLinkedSteps": [
+        130,
+        130
+      ],
+      "actionLinkedSteps": [
+        18,
+        18
+      ],
+      "authoredStepIds": [
+        22,
+        23
+      ],
+      "exactNonNullOperationRefs": [
+        19,
+        19
+      ],
+      "emptyObjectRefs": [
+        117,
+        116
+      ],
+      "emptyStateRefs": [
+        122,
+        122
+      ],
+      "nullAuthorityRefs": [
+        116,
+        115
+      ],
+      "sourceNoTransitionReasons": [
+        12,
+        13
+      ],
+      "projectedUnconditionalEffects": [
+        3,
+        3
+      ],
+      "projectedFinalityRecords": [
+        21,
+        21
+      ],
+      "publicRecoveryDefinitions": [
+        5,
+        5
+      ],
+      "lifecycleObligations": [
+        348,
+        348
+      ],
+      "obligationsWithCaseIds": [
+        98,
+        99
+      ],
+      "obligationsWithoutCaseIds": [
+        250,
+        249
+      ],
+      "sourceCaseCandidateLinks": [
+        64,
+        65
+      ],
+      "sourceCaseLinkedObligations": [
+        43,
+        44
+      ],
+      "unmappedSourceCaseObligations": [
+        305,
+        304
+      ],
+      "observerAssignments": [
+        0,
+        0
+      ],
+      "oracleAssignments": [
+        0,
+        0
+      ],
+      "providerBindings": [
+        0,
+        0
+      ],
+      "boundNativePhaseReceipts": [
+        0,
+        0
+      ],
+      "authoredStepIntents": [
+        13,
+        14
+      ],
+      "sourceDefinitionCheckedSteps": [
+        5,
+        6
+      ],
+      "nullCanonicalOperationRefs": [
+        111,
+        111
+      ],
+      "stepsWithoutActionBindings": [
+        112,
+        112
+      ],
+      "migrationNonNormativeClassifications": [
+        89,
+        89
+      ]
+    },
+    "newOriginalDoneCriteriaSatisfied": 0,
+    "originalTaskStatusesRetained": true,
+    "nextExecutableDefinitionBatch": "Define existing exact-source choice and job-status/outcome read journey steps J03-1/J03-3 with source identity, current read policy, typed canonical state meanings and exact transcript-version handoff; no runtime implementation.",
+    "verification": {
+      "result": "PENDING_FINAL_REVIEW_AND_VERIFICATION",
+      "focusedNewDefinitions": {
+        "tests": 14,
+        "pass": 14,
+        "fail": 0,
+        "skipped": 0,
+        "log": "/tmp/media-execution/definition-submission-focused-final.log"
+      },
+      "structuralIntegration": {
+        "tests": 76,
+        "pass": 76,
+        "fail": 0,
+        "scope": "Agent-run focused P1/P2/P3, previous J01/J03, projection and exact structural guards after regeneration; all included in final full suite."
+      },
+      "publicSchemasAndValidators": "All three candidates VALID/PASS",
+      "fullNode": {
+        "tests": 495,
+        "pass": 495,
+        "fail": 0,
+        "skipped": 0,
+        "log": "/tmp/media-execution/definition-submission-node-final.log"
+      },
+      "residualReport": {
+        "result": "PASS",
+        "diagnostics": [],
+        "log": "/tmp/media-execution/definition-submission-residual-final.json"
+      },
+      "parity": "NON-GREEN: two full semantic findings",
+      "design": "NON-GREEN: two external/independent gates",
+      "sourceChecks": "PASS: strict projection currentness, Lifecycle source currentness, authority, local experience, closure-input consumer admission and 348-obligation membership/fingerprint audit"
+    }
   }
 }

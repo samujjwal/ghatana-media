@@ -100,6 +100,6 @@ test('host handoff does not grow journey, step, or action populations', () => {
   assert.equal(counters.coverageObservation.orderedStepCount, 130);
   assert.equal(journey.steps.length, 8);
   assert.equal(counters.coverageObservation.stepBindings.verification.notRun, 130);
-  assert.equal(counters.coverageObservation.stepBindings.objectRefs.empty, 117);
-  assert.equal(counters.coverageObservation.stepBindings.authorityRef.null, 116);
+  assert.equal(counters.coverageObservation.stepBindings.objectRefs.empty, 116);
+  assert.equal(counters.coverageObservation.stepBindings.authorityRef.null, 115);
 });

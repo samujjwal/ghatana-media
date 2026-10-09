@@ -96,6 +96,37 @@ function assertCaptionDraftSourceDefinitionRemainsUnrouted(candidates, links) {
   assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_348');
 }
 
+function assertTranscriptionSubmissionSourceDefinitionRemainsUnrouted(candidates, links) {
+  const obligationId = 'media.pdp-1.requirement.media.operation.transcription-submission';
+  const definitionLinks = links.candidateLinks.filter(({ caseId }) => caseId === 'media.definition-case.transcription-submission.accept');
+  assert.equal(definitionLinks.length, 1, 'the exact submission source-definition case must remain singly linked');
+  assert.deepEqual(definitionLinks[0], {
+    obligationId,
+    caseId: 'media.definition-case.transcription-submission.accept',
+    method: 'SOURCE_DEFINITION_CONTRACT_ASSERTIONS',
+    testIdentity: {
+      sourcePath: 'tests/media-transcription-submission-definition.test.mjs',
+      testName: 'submission definition rejects replay, authority, and finality overclaims',
+    },
+    assertionEvidence: 'assert.deepEqual(validateMediaTranscriptionSubmissionDefinition(base), []);',
+    negativeAssertionVariables: [
+      'partialReplay', 'fingerprintOmitsAuthority', 'fingerprintNormalizes', 'callerGrantsRights',
+      'languageInferred', 'ackMeansCompleted', 'receiptReadSkipsAuth', 'dependsOnReturnedFingerprint', 'profileNotQualified',
+      'unknownSubmitField', 'branchMixedPayload', 'callerSuppliedIdentity', 'nullRequestId', 'nullRightsEvidence', 'implicitConsentDefault',
+    ],
+    scope: 'PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY',
+    admission: 'NOT_LIFECYCLE_ADMITTED',
+    ownerDecisionRef: '.product-experience/decision-log.md#PXD-073',
+  });
+  const explanation = candidates.l02CaseLinkReview.missingSemantics.join(' ');
+  assert.match(explanation, /source-only transcription-submission assertions in tests\/media-transcription-submission-definition\.test\.mjs/u);
+  assert.match(explanation, /do not establish a qualified recognition provider, runtime dispatch observation or native proof route/u);
+  assert.ok(candidates.routes.every(({ obligationIds }) => !obligationIds.includes(obligationId)),
+    'source-only submission assertions must not acquire a native Lifecycle route');
+  assert.equal(candidates.l02CaseLinkReview.candidateRouteCount, 0);
+  assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_348');
+}
+
 test('records exact 348-obligation authoritative observer/oracle gap and source-resolvable candidates only', () => {
   const obligations = readJson('config/closure/media-product-definition/obligations.json');
   const candidates = readJson('config/closure/media-product-definition/l03-proof-route-candidates.json');
@@ -143,13 +174,13 @@ test('documents why current L-02 simulation links do not yet have L-03 observer/
 
   assert.equal(candidates.l02CaseLinkReview.reviewedLinkCount, links.candidateLinks.length);
   assert.equal(candidates.l02CaseLinkReview.reviewedObligationCount, linkedObligationIds.size);
-  assert.equal(links.candidateLinks.length, 64);
-  assert.equal(linkedObligationIds.size, 43);
+  assert.equal(links.candidateLinks.length, 65);
+  assert.equal(linkedObligationIds.size, 44);
   assert.equal(candidates.l02CaseLinkReview.obligationDenominator, obligations.length);
   assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount,
     obligations.length - linkedObligationIds.size);
   assert.equal(obligations.length, 348, 'the authoritative denominator remains 348');
-  assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount, 305);
+  assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount, 304);
   assert.equal(candidates.l02CaseLinkReview.candidateRouteCount, 0);
   assert.equal(candidates.l02CaseLinkReview.status, 'NO_CASE_SPECIFIC_OBSERVER_OR_ORACLE_CANDIDATE_IDENTIFIED');
   assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_348');
@@ -162,6 +193,8 @@ test('documents why current L-02 simulation links do not yet have L-03 observer/
   assert.match(missingSemantics, /tests\/media-transcript-version-definition\.test\.mjs/u);
   assert.match(missingSemantics, /source-only caption-draft edit definition assertions/u);
   assert.match(missingSemantics, /tests\/media-caption-draft-operation-definition\.test\.mjs/u);
+  assert.match(missingSemantics, /source-only transcription-submission assertions in tests\/media-transcription-submission-definition\.test\.mjs/u);
+  assert.match(missingSemantics, /do not establish a qualified recognition provider, runtime dispatch observation or native proof route/u);
   assert.match(missingSemantics, /not a native provider or correction-runtime observation/u);
   assert.match(missingSemantics, /do not establish an L-03 oracle or native proof route/u);
   const captionLinks = links.candidateLinks.filter(({ testIdentity }) =>
@@ -201,13 +234,15 @@ test('documents why current L-02 simulation links do not yet have L-03 observer/
     },
   ]);
   assertCaptionDraftSourceDefinitionRemainsUnrouted(candidates, links);
+  assertTranscriptionSubmissionSourceDefinitionRemainsUnrouted(candidates, links);
   assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_348');
   assert.ok(linkedTestPaths.size > 0 && [...linkedTestPaths].every((sourcePath) =>
     sourcePath.startsWith('libs/media-experience-simulation/tests/')
       || sourcePath === 'tests/media-component-definition-proof-cases.test.mjs'
       || sourcePath === 'tests/media-caption-version-operation-definitions.test.mjs'
       || sourcePath === 'tests/media-transcript-version-definition.test.mjs'
-      || sourcePath === 'tests/media-caption-draft-operation-definition.test.mjs'),
+      || sourcePath === 'tests/media-caption-draft-operation-definition.test.mjs'
+      || sourcePath === 'tests/media-transcription-submission-definition.test.mjs'),
   'the reviewed links are exact simulation or parameterized/source-definition case sources');
   assert.ok([...linkedTestPaths].every((testPath) => !producerScopes.some((scope) =>
     testPath === scope || testPath.startsWith(`${scope.replace(/\/$/u, '')}/`))),
@@ -237,6 +272,26 @@ test('caption draft source assertions cannot become native provider routes or ad
   falseProviderClaim.l02CaseLinkReview.missingSemantics = falseProviderClaim.l02CaseLinkReview.missingSemantics
     .filter((item) => !item.includes('not a native provider or correction-runtime observation'));
   assert.throws(() => assertCaptionDraftSourceDefinitionRemainsUnrouted(falseProviderClaim, links), /not a native provider/u);
+});
+
+test('transcription submission source assertions cannot become provider routes or admitted cases', () => {
+  const links = readJson('config/closure/media-product-definition/l02-source-case-links.json');
+  const candidates = readJson('config/closure/media-product-definition/l03-proof-route-candidates.json');
+  assertTranscriptionSubmissionSourceDefinitionRemainsUnrouted(candidates, links);
+
+  const forgedRoute = structuredClone(candidates);
+  forgedRoute.routes.push({ id: 'forged-transcription-route', obligationIds: ['media.pdp-1.requirement.media.operation.transcription-submission'] });
+  assert.throws(() => assertTranscriptionSubmissionSourceDefinitionRemainsUnrouted(forgedRoute, links), /must not acquire a native Lifecycle route/u);
+
+  const promotedLink = structuredClone(links);
+  promotedLink.candidateLinks.find(({ caseId }) => caseId === 'media.definition-case.transcription-submission.accept').admission = 'LIFECYCLE_ADMITTED';
+  assert.throws(() => assertTranscriptionSubmissionSourceDefinitionRemainsUnrouted(candidates, promotedLink), /NOT_LIFECYCLE_ADMITTED/u);
+
+  const falseProviderClaim = structuredClone(candidates);
+  falseProviderClaim.l02CaseLinkReview.missingSemantics = falseProviderClaim.l02CaseLinkReview.missingSemantics
+    .map((item) => item.replace('do not establish a qualified recognition provider, runtime dispatch observation or native proof route',
+      'establish a qualified recognition provider, runtime dispatch observation and native proof route'));
+  assert.throws(() => assertTranscriptionSubmissionSourceDefinitionRemainsUnrouted(falseProviderClaim, links), /qualified recognition provider/u);
 });
 
 test('rejects empty, missing, stale-source, or unreviewed candidate route records', () => {

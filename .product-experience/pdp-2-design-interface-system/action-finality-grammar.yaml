@@ -376,6 +376,94 @@ boundedCaptionDraftSlice:
   runtimeAdmission: NOT_ADMITTED
   phaseAdmission: pending-independent-PDP2-review
 
+boundedTranscriptionSubmissionSlice:
+  status: bounded-definition-grammar-under-PXD-071; independent-PDP-review-and-runtime-admission-open
+  decisionRef: .product-experience/decision-log.md#PXD-071
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-070
+  journeyDecisionRef: .product-experience/decision-log.md#PXD-072
+  journeyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03
+  journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#journeyId
+  scope: one-file-audio-submission-identity-and-reconciliation-only; excludes-streaming-correction-and-recognition-completion
+  domainRefs: [media.domain.artifact-version, media.domain.processing-job]
+  authorityRefs:
+    identityAndDelegation: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    currentProcessingPolicy: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+    reconciliationRead: same-current-authorized-tenant-principal-scoped-receipt-read; separate-from-processing-or-replay-authority
+    deploymentQualification: NOT_ADMITTED
+  operation:
+    operationRef: media.operation.transcription-submission
+    actionRef: media.action.request-transcription
+    journeyStepId: J03-2
+    selectorField: requestMode
+    requestModes: [SUBMIT_OR_REPLAY, RECONCILE]
+    commonRequiredFields: [requestMode]
+    commonAllowedFields: [requestMode]
+    submitFields: [requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+    submitAllowedFields: [requestMode, requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+    reconcileFields: [requestId, requestFingerprint]
+    reconcileAllowedFields: [requestMode, requestId, requestFingerprint]
+    branchFieldRule: exactly-the-allowedFields-for-selected-requestMode; reject-unknown-branch-mixed-caller-identity-or-ignored-fields-before-any-effect
+    trustedContextFields: [tenantId, principalId, delegationRef]
+    idempotencyScope: [tenantId, principalId, operationId, requestId]
+    confirmation: disclose-processing-location-and-material-cost-when-known; present-the-exact-source-version-language-intent-profile-and-policy-selections-before-dispatch
+    submitContext: exact-current-tenant-principal-and-delegation; caller-cannot-supply-or-override-trusted-identity
+    sourceIdentity: exact-immutable-audio-artifact-version-plus-authoritative-content-digest; no-latest-or-mutable-source-alias
+    languageIntent:
+      requiredFields: [mode]
+      modes: [EXPLICIT, AUTO_REQUESTED]
+      EXPLICIT: {requiredFields: [mode, languageTag], allowedFields: [mode, languageTag], rule: exact-user-declared-language-tag; validate-profile-support-before-dispatch, encoding: [EXPLICIT, exact-languageTag]}
+      AUTO_REQUESTED: {requiredFields: [mode], allowedFields: [mode], rule: explicit-user-request-for-profile-language-detection; detection-support-must-be-qualified-and-is-not-inferred, encoding: [AUTO_REQUESTED]}
+      rule: explicit-validated-intent-only; no-default-inference-case-folding-or-trimming; profile-language-support-must-be-currently-qualified
+    scalarNullability:
+      optionalDelegationRef: absent-is-canonical-null; if-present-must-be-a-nonempty-trusted-delegation-reference
+      consentRef: nonempty-current-resolved-reference-when-policy-requires-consent; explicit-null-only-when-current-authoritative-policy-says-consent-is-not-required
+      requiredNonemptyStrings: [requestId, sourceArtifactId, sourceArtifactVersionId, profileId, profileVersion, purpose, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      nonnullDigestFields: [profileConfigurationDigest, authoritativeSourceContentDigest]
+      rightsEvidenceRef: required-nonnull-locator-resolved-to-current-authoritative-rights-decision; caller-assertion-is-not-evidence
+      reconcileRequestFingerprint: required-nonnull-lowercase-64-hex-SHA256
+      noOtherNulls: reject-null-for-required-fields-and-any-unlisted-nullable-field; no-defaulting-or-ignored-payload-fields
+    profileIdentity: exact-profileId-profileVersion-and-lowercase-64-hex-profileConfigurationDigest; all-three-must-be-currently-qualified-for-source-purpose-location-and-language
+    policyFields: [purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+    requestFingerprint:
+      version: media.transcription-submission-fingerprint.v1
+      algorithm: SHA-256
+      encoding: compact-UTF-8-JSON-array-no-whitespace-in-this-exact-field-order-with-JSON-string-escaping-and-explicit-null-or-value-presence
+      fields: [tenantId, principalId, delegationRef, operationId, requestId, sourceArtifactId, sourceArtifactVersionId, authoritativeSourceContentDigest, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      languageIntentEncoding:
+        EXPLICIT: [EXPLICIT, exact-languageTag]
+        AUTO_REQUESTED: [AUTO_REQUESTED]
+        rule: fixed-ordered-tuples-never-an-unordered-object
+      scalarEncoding: fixed-string-or-explicit-null-types-only; profileConfigurationDigest-and-authoritativeSourceContentDigest-are-lowercase-64-hex-SHA256; invalid-types-or-digests-reject-before-hashing
+      digestField: requestFingerprint; lowercase-64-hex-SHA256-of-the-canonical-compact-array-bytes
+      normalization: validate-types-and-enums-first; preserve-exact-validated-string-values-and-optional-presence; no-trimming-case-folding-default-insertion-or-map-order-dependence
+    snapshot: host-canonically-validates-and-retains-the-complete-immutable-submit-payload-and-computed-fingerprint-before-first-dispatch; caller-retains-same-snapshot-for-lost-response-reconciliation
+    submitAuthority: recheck-current-identity-delegation-rights-consent-purpose-region-retention-location-profile-license-budget-and-audit-at-each-effect-boundary
+    replayAuthority: same-key-same-fingerprint-replay-still-requires-fresh-current-identity-delegation-rights-consent-purpose-region-retention-location-profile-license-budget-and-audit-policy
+    reconciliationAuthority: RECONCILE-is-a-read-only-branch-and-requires-current-same-scope-receipt-read-authority-plus-the-retained-original-submit-snapshot; processing-authority-revocation-does-not-remove-read-authority-or-authorize-processing-or-replay
+    successFields: [outcome, requestId, requestFingerprint, submissionReceiptId, jobId, acceptedAt, replayDisposition]
+    acknowledgedOutcome: REQUEST_ACKNOWLEDGED
+    replayDispositionValues: [NEW_LOGICAL_REQUEST, SAME_REQUEST_REPLAY]
+    receiptMeaning: stable-original-logical-request-and-job-identity-only; no-job-state-or-worker-dispatch-is-proven-by-acceptedAt
+    unknownFields: [outcome, requestId, requestFingerprint, observedAt, uncertaintyReason]
+    unknownOutcome: after-dispatch-may-have-begun-preserve-UNKNOWN_OUTCOME; reconcile-same-requestId-and-full-fingerprint-in-same-trusted-scope; absent-expired-or-unavailable-evidence-never-proves-no-effect
+    sameKeySameFingerprint: after-fresh-current-effect-authority-check-replay-only-original-logical-jobId-and-submissionReceiptId; SAME_REQUEST_REPLAY; no-new-logical-request
+    sameKeyDifferentFingerprint: IDEMPOTENCY_CONFLICT-rejects-only-this-different-payload-attempt; it-does-not-erase-or-prove-absence-of-an-earlier-request-or-receipt
+    definitiveRefusal: atomic-authoritative-pre-dispatch-rejection-proves-no-effect-only-for-this-attempt; it-does-not-prove-that-no-prior-request-exists-for-the-same-key
+    reversibility: no-reversal-after-dispatch-may-have-begun; only-authoritative-atomic-pre-dispatch-rejection-proves-no-effect-for-the-current-attempt; no-public-boolean-reversibility-claim
+    asynchronousBoundary: REQUEST_ACKNOWLEDGED-is-not-provider-execution-recognition-completion-transcript-text-language-detection-quality-caption-approval-or-publication
+    cancellation: stopping-waiting-does-not-cancel-or-reverse-the-submission-receipt; cancellation-is-a-separate-existing-job-lifecycle-action-and-requires-its-own-confirmed-observation
+    workerRetries: worker-attempts-belong-to-the-separate-existing-job-lifecycle-and-are-not-submission-replays
+    problemCodes:
+      definitivePreDispatch: [INVALID_REQUEST, SOURCE_NOT_FOUND_OR_NOT_VISIBLE, SOURCE_UNAVAILABLE, RIGHTS_NOT_VERIFIED, CONSENT_NOT_CURRENT, PURPOSE_NOT_PERMITTED, RETENTION_NOT_PERMITTED, PROCESSING_LOCATION_NOT_PERMITTED, PROFILE_NOT_QUALIFIED, LANGUAGE_NOT_SUPPORTED, AUTHORIZATION_DENIED, IDEMPOTENCY_CONFLICT]
+      nonterminalOrAmbiguous: [UNAVAILABLE, UNKNOWN_OUTCOME]
+    observedChannels:
+      web: local-action-source-observed-only; production-host-and-runtime-unqualified
+      syntheticFixtureCli: fixture-only; no-production-command-or-authority-claim
+      httpSdkAgentToolGrpcEvents: unresolved; STTService.Transcribe-is-an-execution-interface-observation-not-this-submission-operation; StreamTranscribe-and-SubmitCorrection-remain-distinct
+    prohibited: [equate-acknowledgement-with-job-state-or-completion, blind-replay, new-key-to-escape-unknown-or-conflict, infer-language-or-profile-support, trust-caller-authority-assertions, conflate-Transcribe-StreamTranscribe-or-SubmitCorrection, claim-runtime-or-channel-admission]
+  runtimeAdmission: NOT_ADMITTED
+  phaseAdmission: pending-independent-PDP2-review
+
 outcomes:
   - id: media.action-outcome.applied
     label: Request recorded

@@ -102,84 +102,126 @@ steps:
       contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
   - view: media.view.monitor-transcription
     screenContractRef: screen-contracts/transcription-progress.yaml
+    stepId: J03-2
+    actorRefs: [media.creator, media.editor]
     action: media.action.request-transcription
-    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    actionBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-072; runtime-admission-pending
     capabilityRefs: [media.job.submit, media.speech.transcription.file]
-    result: stable-job-identity-and-current-state-are-returned
-    surfaceRefs:
-    - media.surface.web
-    objectRefs: []
+    intent: Submit one exact-audio-source transcription request under current policy and preserve asynchronous finality.
+    result: stable-logical-job-identity-and-submission-receipt-only; no-current-job-state-or-recognition-completion-claim
+    surfaceRefs: [media.surface.web]
+    objectRefs: [media.domain.artifact-version, media.domain.processing-job]
     stateRefs: []
     canonicalOperationRef: media.operation.transcription-submission
-    authorityRef: null
-    decisionRef: null
+    authorityRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation.transcription-submission
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-070
+    grammarDecisionRef: .product-experience/decision-log.md#PXD-071
+    decisionRef: .product-experience/decision-log.md#PXD-072
     transitionRef: null
-    handoffRef: null
+    transitionDisposition:
+      status: NOT_APPLICABLE_WITH_REASON
+      transitionRef: null
+      decisionRef: .product-experience/decision-log.md#PXD-072
+      reason: Submission establishes one logical request receipt only; P1 defines no job-state or attempt transition for this operation.
+    handoffRef:
+      kind: EXACT_SOURCE_CONTEXT_ONLY
+      fromStepId: J03-1
+      toStepId: J03-2
+      sourceBinding: user-selected-exact-audio-artifact-version-context; no-source-picker-operation-or-implementation-claim
+      preserves: [sourceArtifactId, sourceArtifactVersionId]
+      admission: source-selection-validity-remains-unresolved; submission-rechecks-current-exact-source-visibility-and-policy
+    requiredOperationRefs: [media.operation.transcription-submission]
+    submissionSemantics:
+      operationRef: media.operation.transcription-submission
+      requestModes: [SUBMIT_OR_REPLAY, RECONCILE]
+      commonRequiredFields: [requestMode]
+      commonAllowedFields: [requestMode]
+      submitRequiredFields: [requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      submitAllowedFields: [requestMode, requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      reconcileRequiredFields: [requestId, requestFingerprint]
+      reconcileAllowedFields: [requestMode, requestId, requestFingerprint]
+      branchFieldRule: exactly-the-allowedFields-for-selected-requestMode; reject-unknown-branch-mixed-caller-identity-or-ignored-fields-before-any-effect
+      trustedHostFields: [tenantId, principalId, delegationRef]
+      exactSource: immutable-audio-artifact-version-and-authoritative-content-digest; no-latest-or-mutable-source-alias
+      languageIntent:
+        requiredFields: [mode]
+        variants:
+          EXPLICIT: {requiredFields: [mode, languageTag], allowedFields: [mode, languageTag], languageTag: exact-user-declared-value}
+          AUTO_REQUESTED: {requiredFields: [mode], allowedFields: [mode], rule: explicit-profile-detection-request-only}
+        rule: validate-supported-profile-and-intent-currently; never infer a default
+      profileBinding: exact-profileId-profileVersion-profileConfigurationDigest; current authoritative qualification is required
+      policyContext: [purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      scalarNullability:
+        optionalDelegationRef: absent-only-means-canonical-null; if-present-require-nonempty-trusted-delegation-reference
+        consentRef: nonempty-current-resolved-reference-when-required; explicit-null-only-on-current-authoritative-policy-determination-that-consent-is-not-required
+        requiredNonemptyStrings: [requestId, sourceArtifactId, sourceArtifactVersionId, profileId, profileVersion, purpose, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+        digestFields: [profileConfigurationDigest, authoritativeSourceContentDigest]
+        digestRequirement: both-required-lowercase-64-hex-SHA256
+        rightsEvidenceRef: required-nonnull-locator-resolved-to-current-authoritative-rights-decision; caller-assertion-is-not-evidence
+        reconcileRequestFingerprint: required-nonnull-lowercase-64-hex-SHA256
+        noOtherNulls: reject-null-required-fields-and-unlisted-nullable-values; no-defaulting-or-ignored-payload-fields
+      requestFingerprint:
+        version: media.transcription-submission-fingerprint.v1
+        digestField: requestFingerprint; lowercase-64-hex-SHA256
+        algorithm: SHA-256
+        encoding: compact UTF-8 JSON array with no whitespace, exact ordered fields, JSON string escaping, and explicit null/value presence; languageIntent uses fixed ordered tuples [EXPLICIT, exact-languageTag] or [AUTO_REQUESTED], never unordered object serialization
+        binds: [tenantId, principalId, delegationRef, operationId, requestId, sourceArtifactId, sourceArtifactVersionId, authoritativeSourceContentDigest, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+        replay: retain the complete validated canonical submit snapshot and fingerprint before first dispatch; exact same key and fingerprint only after fresh current effect policy; mismatch is IDEMPOTENCY_CONFLICT and does not erase or prove absence of prior receipt
+        reconcileFingerprint: caller supplies nonnull lowercase-64-hex digest; host recomputes it from retained original snapshot in the same trusted scope; never trust a digest received from a lost response
+        languageIntentEncoding: fixed ordered tuples [EXPLICIT, exact-languageTag] or [AUTO_REQUESTED]; no unordered-object serialization
+      acknowledgedFields: [outcome, requestId, requestFingerprint, submissionReceiptId, jobId, acceptedAt, replayDisposition]
+      unknownFields: [outcome, requestId, requestFingerprint, observedAt, uncertaintyReason]
+      asynchronousBoundary: REQUEST_ACKNOWLEDGED establishes logical request/job identity and receipt only; it asserts no job state, provider execution, recognition completion, transcript, quality, caption approval, or publication
+      reconciliation: RECONCILE uses same requestId and full fingerprint in same trusted scope under separately rechecked current scoped receipt-read authority; it may reconcile after processing authority revocation but does not authorize processing/replay. Return original receipt only when exact retained snapshot proves it, otherwise UNKNOWN_OUTCOME; absence/expiry/unavailability never proves no effect
+      retries: no blind replay, no new key to escape uncertainty/conflict, and no automatic new logical request; worker attempts belong to separate existing job lifecycle
+      definitivePreDispatchCodes: [INVALID_REQUEST, SOURCE_NOT_FOUND_OR_NOT_VISIBLE, SOURCE_UNAVAILABLE, RIGHTS_NOT_VERIFIED, CONSENT_NOT_CURRENT, PURPOSE_NOT_PERMITTED, RETENTION_NOT_PERMITTED, PROCESSING_LOCATION_NOT_PERMITTED, PROFILE_NOT_QUALIFIED, LANGUAGE_NOT_SUPPORTED, AUTHORIZATION_DENIED, IDEMPOTENCY_CONFLICT]
+      nonterminalOrAmbiguousCodes: [UNAVAILABLE, UNKNOWN_OUTCOME]
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
-        and the recorded authority/finality disposition.
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: exact-audio-logical-request-acceptance
+      sourceRef: media.operation.transcription-submission
+      proposal: Return REQUEST_ACKNOWLEDGED with the stable logical jobId and submissionReceiptId only; no current state or recognition result is implied.
     failure:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.criticalNonhappyPaths
-      proposal:
-      - id: language-uncertain
-        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
-      - id: timing-missing
-        response: identify missing alignment and permit explicit correction; do not infer exact timing.
-      - id: consent-revoked
-        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
-      - id: provider-outcome-unknown
-        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
-      - id: source-version-changed
-        response: preserve draft and mark its parent stale; require explicit rebase or restart.
-    degradedBehavior: null
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: fail-closed-submission-and-reconciliation
+      sourceRef: media.operation.transcription-submission
+      proposal: Preserve definitive pre-dispatch rejection, IDEMPOTENCY_CONFLICT, UNAVAILABLE, and UNKNOWN_OUTCOME distinctly; post-dispatch ambiguity remains unknown and cannot authorize blind replay or a new requestId.
+    degradedBehavior: If source, current authority, rights, consent, purpose, retention, location, profile, or language qualification cannot be proven, do not submit; never default language/profile/policy.
     recovery:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.recovery
-      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
-        a fresh policy check.
-    postconditions: []
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: same-original-request
+      sourceRef: media.operation.transcription-submission
+      selector: RECONCILE with same requestId and full requestFingerprint under same trusted scope
+      proposal: Under current scoped receipt-read authority, reconcile only the original receipt from exact retained request evidence, even if processing permission was revoked; that read never authorizes replay. Missing/expired/unavailable evidence remains UNKNOWN_OUTCOME; current job status observation is a separate J03-3 definition and is not bound here.
+    postconditions: [exact-audio-source-version-bound, full-request-fingerprint-bound, current-policy-rechecked, receipt-is-not-job-state-or-recognition-finality, no-new-state-transition-or-proof-claim]
     requirementRefs: [MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
     verification:
       status: not-run
-      requiredChecks:
-      - duplicate-key-safe YAML parse
-      - focused PDP3-005 ten-contract structural/reference check
+      requiredChecks: [duplicate-key-safe-YAML-parse, exact-source-profile-and-policy-fingerprint-binding, same-request-unknown-reconciliation, no-state-or-recognition-finality-claim]
       actualEvidence: []
-    contextPreservation:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.contextPreserved
-      proposal:
-      - project
-      - source-artifact-version
-      - source-time
-      - language-intent
-      - job-identity
-      - transcript-version
-      - caption-draft-version
+    definitionVerification:
+      status: source-contract-checked
+      evidence: [tests/media-transcription-submission-experience-definition.test.mjs, scripts/check-product-experience-local.mjs]
+      runtimeAdmission: NOT_ADMITTED
+      runtimeVerification: not-run
+    contextPreservation: [tenantId, principalId, delegationRef, requestId, requestFingerprint, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation, submissionReceiptId, jobId]
     bindingStatus:
-      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-      objectRefs: pending-explicit-step-domain-object-reference
-      stateRefs: pending-explicit-step-state-reference-and-transition
-      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
-      authorityRef: pending-explicit-step-authority-binding
-      decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-explicit-legal-transition-binding
-      handoffRef: pending-explicit-step-handoff-allocation
-      success: candidate-proposal-only; journey-level outcome not allocated to this step
-      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-      degradedBehavior: pending-explicit-step-degraded-behavior
-      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-      postconditions: pending-explicit-step-postconditions
-      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
-      verification: not-run; no evidence refs recorded
-      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+      surfaceRefs: exact-existing-transcription-progress-screen-linked; screen-admission-pending
+      objectRefs: exact-source-artifact-version-and-logical-processing-job
+      stateRefs: submission-receipt-does-not-define-or-imply-job-state
+      canonicalOperationRef: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-072; runtime-admission-pending
+      authorityRef: trusted-host-identity-and-current-source-rights-consent-purpose-location-profile-policy; deployed-binding-unqualified
+      decisionRef: PXD-072 owner definition; independent review pending
+      transitionRef: explicitly not applicable; no job or attempt state edge is defined
+      handoffRef: exact source identity context only; source picker remains unresolved
+      success: stable logical job identity and request receipt only
+      failure: definitive rejection conflict unavailable and unknown remain distinct
+      degradedBehavior: fail closed when any current source or processing qualification is unavailable
+      recovery: same-request RECONCILE only; no blind replay/new key
+      postconditions: no recognition completion/current job state/approval/publication claim
+      requirementRefs: existing job and file-transcription requirements retained; satisfaction not claimed
+      verification: source checks separate; runtime verification not run
+      contextPreservation: exact source request fingerprint and receipt identities
   - view: media.view.monitor-transcription
     screenContractRef: screen-contracts/transcription-progress.yaml
     action: media.action.view-job-status

@@ -328,7 +328,24 @@ test("PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk
       if (!selectedCandidateActions.has(step.action)) continue;
       const exactCandidate = journey.id === "J-02" ? exact[step.action] : undefined;
       assert.equal(step.canonicalOperationRef, exactCandidate ?? explicit[step.action], `${journey.id}/${step.action} must match the exact PDP-1 crosswalk`);
-      if (journey.id === "J-03" && step.stepId === "J03-4") {
+      if (journey.id === "J-03" && step.stepId === "J03-2") {
+        const action = actions.actions.find(({ id }) => id === "media.action.request-transcription");
+        assert.equal(step.decisionRef, ".product-experience/decision-log.md#PXD-072");
+        assert.equal(step.sourceDecisionRef, ".product-experience/decision-log.md#PXD-070");
+        assert.equal(step.grammarDecisionRef, ".product-experience/decision-log.md#PXD-071");
+        assert.deepEqual(step.requiredOperationRefs, ["media.operation.transcription-submission"]);
+        assert.deepEqual(step.stateRefs, []);
+        assert.equal(step.transitionDisposition.transitionRef, null);
+        assert.equal(step.definitionVerification?.runtimeAdmission, "NOT_ADMITTED");
+        assert.equal(action.actionDefinitionSemantics.operationRef, "media.operation.transcription-submission");
+        assert.equal(action.actionDefinitionSemantics.effectKind, "REQUEST_ACCEPTANCE");
+        assert.equal(action.actionDefinitionSemantics.reversibility.kind, "UNKNOWN");
+        assert.equal(action.actionDefinitionSemantics.publicEffect, undefined);
+        assert.equal(action.actionDefinitionSemantics.publicFinality, undefined);
+        assert.match(step.submissionSemantics.asynchronousBoundary, /no job state(?:, provider execution)?/u);
+        assert.match(step.submissionSemantics.reconciliation, /separately rechecked current scoped receipt-read authority/u);
+        assert.match(step.bindingStatus?.canonicalOperationRef ?? "", /SOURCE_DEFINED_OWNER_ACCEPTED/u);
+      } else if (journey.id === "J-03" && step.stepId === "J03-4") {
         assert.equal(step.decisionRef, ".product-experience/decision-log.md#PXD-064");
         assert.equal(step.definitionVerification?.runtimeAdmission, "NOT_ADMITTED");
         assert.match(step.bindingStatus?.canonicalOperationRef ?? "", /query[- ]bound/u,

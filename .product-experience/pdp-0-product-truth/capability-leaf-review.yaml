@@ -18,13 +18,13 @@ sourceInventory:
 - path: .product-experience/pdp-0-product-truth/applications-channels.yaml
   sha256: e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d
 - path: .product-experience/pdp-1-domain-data/operations.yaml
-  sha256: 1190e27e61882054b7c1ae92e06120b16035f914876a29637b1940203f2b011d
+  sha256: a6649e2da47f75eb57fad5fc5037f13a1a1ab0800f36e3d9d3cd1b844ea47fde
 - path: .product-experience/pdp-1-domain-data/action-contracts.yaml
-  sha256: c500cfb35e83163f7b4cc10480f290b9ff12d399aa3ff3dd23009b504e4978ab
+  sha256: 9159fdcc1a943a4da9a1ac87d112a5be0d59becee3a9adae8187023fa596d067
 - path: .product-experience/pdp-1-domain-data/states.yaml
   sha256: 53c310be8c3e1ced1d90db5450a1e5a7bd6973a8c7ec443c7a50e214cdc58110
 - path: .product-experience/pdp-3-product-experience/action-registry.yaml
-  sha256: 07fb3322b656c61df45e38336cb8375f0c852ddc66504137f53f24e81acd3c5f
+  sha256: 32219fa8c38be2c7c68d086aa6e6f7cffef9c4125c0e314e4551f55b22877499
 - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
   sha256: fba56330b2993892c6cb4a2a1b66e05ef0e22615460c378f301a4ac4d1890d67
 denominatorReconciliation:
@@ -5839,6 +5839,28 @@ leaves:
     missingDecision: Per-leaf implementation, license, qualification and deployment evidence plus owner admission; GAP-MEDIA-CAPABILITY-LEAF-DETAIL
       and P0-010.
   sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/32
+  transcriptionSubmissionDefinitionSlice:
+    status: BOUNDED_REQUEST_ACCEPTANCE_ONLY
+    decisionRef: .product-experience/decision-log.md#PXD-073
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-070
+    experienceDecisionRef: .product-experience/decision-log.md#PXD-072
+    operationRefs: [media.operation.transcription-submission]
+    sourceContractRefs: [.product-experience/pdp-1-domain-data/operations.yaml#/operations/3]
+    actionRefs: [media.action.request-transcription]
+    journeyStepRefs: [J03-2]
+    profileApplicability:
+      exactAudioSourceOnly: true
+      explicitLanguageAndQualifiedProfileRequired: true
+      currentProcessingPolicyAtEffectBoundary: true
+      retainedFullSnapshotBeforeDispatch: true
+      scopedReceiptReadDistinctFromProcessing: true
+      originalKeyReceiptNeverInventedOrReplaced: true
+      noRecognitionOrQualityAdmission: true
+      noJobStateOrAttemptTransitionAdmission: true
+      noStreamingOrProviderCorrectionEquivalence: true
+    fullLeafAcceptance: NOT_CLAIMED
+    runtimeAdmission: NOT_ADMITTED
+
 - id: media.job.view-status
   sourceIndex: 33
   label: View job status
@@ -11552,6 +11574,28 @@ leaves:
     missingDecision: Per-leaf implementation, license, qualification and deployment evidence plus owner admission; GAP-MEDIA-CAPABILITY-LEAF-DETAIL
       and P0-010.
   sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/74
+  transcriptionSubmissionDefinitionSlice:
+    status: BOUNDED_REQUEST_ACCEPTANCE_ONLY
+    decisionRef: .product-experience/decision-log.md#PXD-073
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-070
+    experienceDecisionRef: .product-experience/decision-log.md#PXD-072
+    operationRefs: [media.operation.transcription-submission]
+    sourceContractRefs: [.product-experience/pdp-1-domain-data/operations.yaml#/operations/3]
+    actionRefs: [media.action.request-transcription]
+    journeyStepRefs: [J03-2]
+    profileApplicability:
+      exactAudioSourceOnly: true
+      explicitLanguageAndQualifiedProfileRequired: true
+      currentProcessingPolicyAtEffectBoundary: true
+      retainedFullSnapshotBeforeDispatch: true
+      scopedReceiptReadDistinctFromProcessing: true
+      originalKeyReceiptNeverInventedOrReplaced: true
+      noRecognitionOrQualityAdmission: true
+      noJobStateOrAttemptTransitionAdmission: true
+      noStreamingOrProviderCorrectionEquivalence: true
+    fullLeafAcceptance: NOT_CLAIMED
+    runtimeAdmission: NOT_ADMITTED
+
 - id: media.speech.transcription.stream
   sourceIndex: 75
   label: Transcribe audio stream
@@ -62116,3 +62160,32 @@ captionDraftLeafBindingReconciliation:
   semanticImpact: The manual user-entered source-tick edit is not equivalent to audio-plus-transcript forced alignment; the exact operation binding is removed while the historical broad J-03 journey trace remains context only.
   capabilityImpact: The original 462-leaf denominator is unchanged; 383 applicability/coverage dispositions remain unresolved, machine-operation dispositions remain zero, and no leaf is fully accepted.
   acceptanceEffect: Exact forced-alignment operation remains unresolved and runtime NOT_ADMITTED; no scientific, channel, phase or Lifecycle admission.
+
+# PXD-070/PXD-071/PXD-072 define only the existing file-transcription request and its experience binding.
+transcriptionSubmissionDefinitionSourceReconciliations:
+- path: .product-experience/pdp-1-domain-data/operations.yaml
+  previousSha256: 1190e27e61882054b7c1ae92e06120b16035f914876a29637b1940203f2b011d
+  currentSha256: a6649e2da47f75eb57fad5fc5037f13a1a1ab0800f36e3d9d3cd1b844ea47fde
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-070
+  exactChangedRecords: [media.operation.transcription-submission]
+  semanticImpact: The existing submission operation now defines exact scoped request branches, canonical fingerprint and retained-snapshot reconciliation, current effect authority, and receipt-only asynchronous acknowledgement.
+  capabilityImpact: All 462 capability associations and applicability dispositions are unchanged; 383 remain unresolved and machine-operation dispositions remain zero.
+  acceptanceEffect: Bounded Product definition only; submission runtime and transport remain NOT_ADMITTED and no capability, phase, or Lifecycle admission is inferred.
+- path: .product-experience/pdp-1-domain-data/action-contracts.yaml
+  previousSha256: c500cfb35e83163f7b4cc10480f290b9ff12d399aa3ff3dd23009b504e4978ab
+  currentSha256: 9159fdcc1a943a4da9a1ac87d112a5be0d59becee3a9adae8187023fa596d067
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-070
+  exactChangedRecords: [media.operation.transcription-submission]
+  semanticImpact: The existing request-transcription action maps to the bounded submission receipt operation; provider execution, recognition completion, and recovery replay remain distinct.
+  capabilityImpact: All 462 capability associations and coverage dispositions are unchanged; 383 remain unresolved and machine-operation dispositions remain zero.
+  acceptanceEffect: Source action/operation definition only; no transport, runtime, capability, phase, or Lifecycle admission.
+- path: .product-experience/pdp-3-product-experience/action-registry.yaml
+  previousSha256: 07fb3322b656c61df45e38336cb8375f0c852ddc66504137f53f24e81acd3c5f
+  currentSha256: 32219fa8c38be2c7c68d086aa6e6f7cffef9c4125c0e314e4551f55b22877499
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-072
+  sourceDefinitionDecisionRef: .product-experience/decision-log.md#PXD-070
+  sourceGrammarDecisionRef: .product-experience/decision-log.md#PXD-071
+  exactChangedRecords: [media.action.request-transcription]
+  semanticImpact: The existing J03-2 action is defined as one exact-source request with receipt-only acknowledgement and same-identity uncertainty recovery.
+  capabilityImpact: Existing capability associations and all 462 leaves remain unchanged; 383 remain unresolved and machine-operation dispositions remain zero.
+  acceptanceEffect: Bounded J-03 experience definition only; runtime and channel admission remain NOT_ADMITTED, with no capability, phase, or Lifecycle admission.

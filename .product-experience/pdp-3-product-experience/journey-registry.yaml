@@ -205,8 +205,8 @@ coverageObservation:
       unresolved: 112
       blocker: remaining-steps-have-no-exact-step-level-action-allocation; screen-action-candidates-are-not-equivalent-to-journey-step-actions
     objectRefs:
-      empty: 117
-      blocker: 117 ordered steps still have no explicit canonical domain-object binding;
+      empty: 116
+      blocker: 116 ordered steps still have no explicit canonical domain-object binding;
         J-01 and J-03 contribute scoped source definitions while other steps remain unresolved.
     stateRefs:
       empty: 122
@@ -221,20 +221,20 @@ coverageObservation:
         establish operation equivalence.
       'null': 111
     authorityRef:
-      null: 116
-      blocker: 116 ordered steps still lack an explicit step-level authority reference;
+      null: 115
+      blocker: 115 ordered steps still lack an explicit step-level authority reference;
         J-01 and J-03 define scoped authority boundaries, with identity and policy
         enforcement unqualified.
-      'null': 116
+      'null': 115
     transitionRef:
       null: 128
       blocker: 'No J-01 or J-03 transition was fabricated: no-transition dispositions
         cover scoped queries, atomic initial aggregate creation, immutable caption
-        version registration, exact transcript-version inspection, and session-local
-        caption draft revisions; 128 null refs
+        version registration, exact transcript-version inspection, session-local
+        caption draft revisions, and logical submission-receipt acceptance without a job-state edge; 128 null refs
         remain and unrelated transitions are unresolved.'
       'null': 128
-      sourceDefinedNoMutationReasonCount: 12
+      sourceDefinedNoMutationReasonCount: 13
     requirementRefs:
       empty: 112
       blocker: requirement-to-step-crosswalk-remains-unresolved
@@ -242,7 +242,7 @@ coverageObservation:
       notRun: 130
       evidenceRefsPresent: 0
       accepted: 0
-      sourceDefinitionCheckedSteps: 5
+      sourceDefinitionCheckedSteps: 6
     evidenceBasis: Parsed all 30 ordered journey contracts and the scenario fixture
       registry; J-01 and J-03 have bounded source-defined steps linked to existing
       operations, while runtime admission, independent review, behavioral evidence
@@ -272,6 +272,19 @@ j01DefinitionReviewObservation:
   optionalPostJourneyScreen: media.view.create-media
   exactProjectOperationReferences: 3
   projectStateTransitionReferences: 0
+  runtimeAdmission: NOT_ADMITTED
+  independentReview: PENDING
+  phaseAcceptance: NOT_CLAIMED
+j03TranscriptionSubmissionDefinitionObservation:
+  sourceRef: journey-contracts/transcribe-and-correct-captions.yaml#J03-2
+  decisionRef: .product-experience/decision-log.md#PXD-072
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-070
+  grammarDecisionRef: .product-experience/decision-log.md#PXD-071
+  journeyId: J-03
+  existingStepsWithBoundedDefinition: 1
+  exactAudioSubmissionOperationReferences: 1
+  sourceDefinitionCheckedSteps: 1
+  transitionReferences: 0
   runtimeAdmission: NOT_ADMITTED
   independentReview: PENDING
   phaseAcceptance: NOT_CLAIMED

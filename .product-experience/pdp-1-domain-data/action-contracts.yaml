@@ -61,6 +61,7 @@ operationFamilyBindings:
   media.operation.artifact-ingest: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome
   media.operation.job-lifecycle: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome-cancelled-observation
   media.operation.transcription: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome
+  media.operation.transcription-submission: request-acknowledged-denied-conflict-unavailable-unknown-outcome
   media.operation.synthesis: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome
   media.operation.vision-analysis: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome
   media.operation.multimodal-analysis: request-started-acknowledged-processing-completed-denied-conflict-failed-unavailable-unknown-outcome
@@ -105,6 +106,9 @@ operationSliceBindings:
   media.operation.caption-draft-write:
     actionIntentRefs: [media.action.correct-caption, media.action.align-caption-timing]
     disposition: atomic-session-local-draft-revision-from-exact-source-and-typed-parent; compare-and-swap-on-expectedDraftRevision; text-and-source-tick-edits-are-exclusive; timing-alignment-requires-authoritative-exact-source-clock-rate-and-duration; no-source-mutation-registration-review-approval-delivery-or-publication; runtime-NOT_ADMITTED
+  media.operation.transcription-submission:
+    actionIntentRefs: [media.action.request-transcription]
+    disposition: file-audio-only; exact-artifact-version-and-explicit-qualified-profile-and-language-intent; trusted-current-rights-consent-purpose-retention-location-and-policy-checks; scoped-idempotent-request-receipt-and-same-key-reconciliation; ack-is-not-job-state-recognition-quality-or-approval; stream-and-correction-unbound; runtime-NOT_ADMITTED
 bindingRules:
   - above-family-lists-are-allowed-result-shapes-not-guaranteed-result-support
   - each-HTTP-gRPC-SDK-CLI-Agent-tool-and-event-adapter-must-declare-its-actual-supported-subset

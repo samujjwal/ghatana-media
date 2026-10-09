@@ -97,7 +97,9 @@ test("operation source changes reconcile affected leaf links without promoting c
   const transcriptDelta = review.transcriptVersionDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
   const draftDelta = review.captionDraftDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
   assert.equal(draftDelta.previousSha256, transcriptDelta.currentSha256);
-  assert.equal(sourcePin.sha256, draftDelta.currentSha256);
+  const submissionDelta = review.transcriptionSubmissionDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
+  assert.equal(draftDelta.currentSha256, submissionDelta.previousSha256);
+  assert.equal(sourcePin.sha256, submissionDelta.currentSha256);
   assert.equal(review.canonicalReadSourceReconciliation.previousSha256, impact.sceneTextAdapterSourceDelta.currentSha256);
   assert.deepEqual(review.canonicalReadSourceReconciliation.exactChangedRecords, [
     'media.operation-slice.inspect-upload', 'media.operation-slice.inspect-artifact',
@@ -382,8 +384,10 @@ test('selected action definition source change retains historical pins without p
   assert.equal(captionDelta.currentSha256, transcriptDelta.previousSha256);
   const draftDelta = review.captionDraftDefinitionSourceReconciliations.find(({ path }) => path === delta.path);
   assert.equal(draftDelta.previousSha256, transcriptDelta.currentSha256);
-  assert.equal(draftDelta.currentSha256, hash(readFileSync(resolve(root, delta.path))));
-  assert.equal(sourcePin.sha256, draftDelta.currentSha256);
+  const submissionDelta = review.transcriptionSubmissionDefinitionSourceReconciliations.find(({ path }) => path === delta.path);
+  assert.equal(draftDelta.currentSha256, submissionDelta.previousSha256);
+  assert.equal(submissionDelta.currentSha256, hash(readFileSync(resolve(root, delta.path))));
+  assert.equal(sourcePin.sha256, submissionDelta.currentSha256);
   assert.equal(delta.ownerDecisionRef, '.product-experience/decision-log.md#PXD-052');
   assert.equal(delta.coverageEffect, 'no-full-leaf-admission-or-denominator-reduction');
   assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
@@ -426,8 +430,9 @@ test('project definition source reconciliations retain exact HEAD history and cu
   const captionByPath = new Map(review.captionVersionDefinitionSourceReconciliations.map(record => [record.path, record]));
   const transcriptByPath = new Map(review.transcriptVersionDefinitionSourceReconciliations.map(record => [record.path, record]));
   const draftByPath = new Map(review.captionDraftDefinitionSourceReconciliations.map(record => [record.path, record]));
+  const submissionByPath = new Map(review.transcriptionSubmissionDefinitionSourceReconciliations.map(record => [record.path, record]));
   for (const path of expectedPaths.filter(path => captionByPath.has(path))) {
-    assert.equal(sourcePin(path), draftByPath.get(path)?.currentSha256 ?? transcriptByPath.get(path)?.currentSha256 ?? captionByPath.get(path).currentSha256);
+    assert.equal(sourcePin(path), submissionByPath.get(path)?.currentSha256 ?? draftByPath.get(path)?.currentSha256 ?? transcriptByPath.get(path)?.currentSha256 ?? captionByPath.get(path).currentSha256);
   }
   assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
   assert.equal(review.denominatorReconciliation.unresolvedCoverageDispositions, 383);
@@ -450,6 +455,7 @@ test('caption-version definition source reconciliations chain from J-01 history 
   };
   const priorByPath = new Map(review.projectDefinitionSourceReconciliations.map(record => [record.path, record]));
   const draftByPath = new Map(review.captionDraftDefinitionSourceReconciliations.map(record => [record.path, record]));
+  const submissionByPath = new Map(review.transcriptionSubmissionDefinitionSourceReconciliations.map(record => [record.path, record]));
   const records = review.captionVersionDefinitionSourceReconciliations;
   assert.deepEqual(records.map(({ path }) => path), Object.keys(expectedPreviousHashes));
   assert.equal(new Set(records.map(({ path }) => path)).size, records.length);
@@ -460,7 +466,7 @@ test('caption-version definition source reconciliations chain from J-01 history 
     const transcriptDelta = review.transcriptVersionDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
     assert.equal(record.currentSha256, transcriptDelta.previousSha256, `${path} caption digest remains the transcript chain's previous pin`);
     assert.equal(review.sourceInventory.find(({ path: sourcePath }) => sourcePath === path)?.sha256,
-      draftByPath.get(path)?.currentSha256 ?? transcriptDelta.currentSha256,
+      submissionByPath.get(path)?.currentSha256 ?? draftByPath.get(path)?.currentSha256 ?? transcriptDelta.currentSha256,
       `${path} active source inventory points at the latest source definition`);
     assert.deepEqual(record.exactChangedRecords, expectedChanges[path]);
     assert.match(record.ownerDecisionRef, path.endsWith('action-registry.yaml') ? /#PXD-060$/u : /#PXD-058$/u);
@@ -494,6 +500,7 @@ test('transcript-version source reconciliations chain from caption pins without 
   };
   const captionByPath = new Map(review.captionVersionDefinitionSourceReconciliations.map(record => [record.path, record]));
   const draftByPath = new Map(review.captionDraftDefinitionSourceReconciliations.map(record => [record.path, record]));
+  const submissionByPath = new Map(review.transcriptionSubmissionDefinitionSourceReconciliations.map(record => [record.path, record]));
   const records = review.transcriptVersionDefinitionSourceReconciliations;
   assert.deepEqual(records.map(({ path }) => path), Object.keys(expectedPreviousHashes));
   assert.equal(new Set(records.map(({ path }) => path)).size, records.length);
@@ -505,7 +512,7 @@ test('transcript-version source reconciliations chain from caption pins without 
     assert.equal(record.currentSha256, draftDelta?.previousSha256 ?? hash(readFileSync(resolve(root, path))),
       `${path} transcript digest remains intact as a historical pin`);
     assert.equal(review.sourceInventory.find(({ path: sourcePath }) => sourcePath === path)?.sha256,
-      draftDelta?.currentSha256 ?? record.currentSha256, `${path} inventory points to the latest chain head`);
+      submissionByPath.get(path)?.currentSha256 ?? draftDelta?.currentSha256 ?? record.currentSha256, `${path} inventory points to the latest chain head`);
     assert.deepEqual(record.exactChangedRecords, expectedChanges[path]);
     assert.match(record.ownerDecisionRef, path.endsWith('action-registry.yaml') ? /#PXD-064$/u : /#PXD-062$/u);
     if (path.endsWith('action-registry.yaml')) {
@@ -543,8 +550,8 @@ test('caption-draft source reconciliations chain from transcript pins without ch
     const path = record.path;
     assert.equal(record.previousSha256, expectedPreviousHashes[path]);
     assert.equal(record.previousSha256, transcriptByPath.get(path)?.currentSha256, `${path} extends rather than replaces transcript history`);
-    assert.equal(record.currentSha256, hash(readFileSync(resolve(root, path))));
-    assert.equal(review.sourceInventory.find(({ path: sourcePath }) => sourcePath === path)?.sha256, record.currentSha256);
+    const submissionDelta = review.transcriptionSubmissionDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
+    assert.equal(submissionDelta?.previousSha256, record.currentSha256);
     assert.deepEqual(record.exactChangedRecords, expectedChanges[path]);
     assert.equal(record.ownerDecisionRef, path.endsWith('action-registry.yaml')
       ? '.product-experience/decision-log.md#PXD-068'
@@ -562,6 +569,41 @@ test('caption-draft source reconciliations chain from transcript pins without ch
     { leaf: 'media.speech.transcription.forced-align', actionRef: 'media.action.align-caption-timing', operationRef: 'media.operation.caption-draft-write' },
   ]);
   assert.deepEqual(draftLeafDelta.currentBindings, []);
+  assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
+  assert.equal(review.denominatorReconciliation.unresolvedCoverageDispositions, 383);
+  assert.equal(review.denominatorReconciliation.machineOperationDispositions, 0);
+  assert.equal(review.leaves.filter(({ coverageDecision }) => coverageDecision.disposition === 'ACCEPTED').length, 0);
+});
+
+test('transcription-submission definition reconciliation extends the draft chain without admitting coverage', () => {
+  const expectedPreviousHashes = {
+    '.product-experience/pdp-1-domain-data/operations.yaml': '1190e27e61882054b7c1ae92e06120b16035f914876a29637b1940203f2b011d',
+    '.product-experience/pdp-1-domain-data/action-contracts.yaml': 'c500cfb35e83163f7b4cc10480f290b9ff12d399aa3ff3dd23009b504e4978ab',
+    '.product-experience/pdp-3-product-experience/action-registry.yaml': '07fb3322b656c61df45e38336cb8375f0c852ddc66504137f53f24e81acd3c5f',
+  };
+  const expectedChanges = {
+    '.product-experience/pdp-1-domain-data/operations.yaml': ['media.operation.transcription-submission'],
+    '.product-experience/pdp-1-domain-data/action-contracts.yaml': ['media.operation.transcription-submission'],
+    '.product-experience/pdp-3-product-experience/action-registry.yaml': ['media.action.request-transcription'],
+  };
+  const draftByPath = new Map(review.captionDraftDefinitionSourceReconciliations.map(record => [record.path, record]));
+  const records = review.transcriptionSubmissionDefinitionSourceReconciliations;
+  assert.deepEqual(records.map(({ path }) => path), Object.keys(expectedPreviousHashes));
+  assert.equal(new Set(records.map(({ path }) => path)).size, records.length);
+  for (const record of records) {
+    assert.equal(record.previousSha256, expectedPreviousHashes[record.path]);
+    assert.equal(record.previousSha256, draftByPath.get(record.path)?.currentSha256);
+    assert.equal(record.currentSha256, hash(readFileSync(resolve(root, record.path))));
+    assert.equal(review.sourceInventory.find(({ path }) => path === record.path)?.sha256, record.currentSha256);
+    assert.deepEqual(record.exactChangedRecords, expectedChanges[record.path]);
+    assert.equal(record.ownerDecisionRef, record.path.endsWith('action-registry.yaml')
+      ? '.product-experience/decision-log.md#PXD-072'
+      : '.product-experience/decision-log.md#PXD-070');
+    assert.match(record.semanticImpact, /request|submission|receipt/u);
+    assert.match(record.capabilityImpact, /462.*unchanged/u);
+    assert.match(record.capabilityImpact, /383.*unresolved/u);
+    assert.match(record.acceptanceEffect, /NOT_ADMITTED|no .*runtime/u);
+  }
   assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
   assert.equal(review.denominatorReconciliation.unresolvedCoverageDispositions, 383);
   assert.equal(review.denominatorReconciliation.machineOperationDispositions, 0);

@@ -139,8 +139,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
-      "sha256": "1d484b9e9e847a68b4e3163987e67fe04476e402d614b854a39129af9d0d5cc2",
-      "bytes": 35316,
+      "sha256": "325eb4d6c604e31547a9f8ce21ec675f3be6a4ae7f90c3b0990ca20a126f2ec1",
+      "bytes": 44960,
       "format": "yaml",
       "schemaVersion": "media.action-finality-grammar.v1",
       "authority": "Media interaction and wording for PDP-0 action/finality semantics",
@@ -151,6 +151,7 @@
         "boundedCaptionVersionSlice",
         "boundedProjectSetupSlice",
         "boundedTranscriptReviewSlice",
+        "boundedTranscriptionSubmissionSlice",
         "boundedUploadArtifactSlice",
         "outcomes",
         "productId",
@@ -1200,8 +1201,8 @@
         "presentationEffect": "Processing stopped by consent change: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy."
       }
     ],
-    "createdAt": "2026-10-09T01:28:44.730Z",
-    "updatedAt": "2026-10-09T01:28:44.730Z"
+    "createdAt": "2026-10-09T01:43:54.412Z",
+    "updatedAt": "2026-10-09T01:43:54.412Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",

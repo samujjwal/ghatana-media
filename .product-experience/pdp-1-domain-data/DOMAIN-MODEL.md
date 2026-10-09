@@ -48,6 +48,12 @@ that identity. Missing timing is inspectable; qualified clock mapping is
 separate read-context evidence. Registration and content approval are separate,
 and no producer, native Lifecycle receipt or full phase acceptance is admitted.
 
+PXD-070 defines the existing audio transcription-submission request and scoped
+receipt reconciliation branches. Current processing authority and receipt-read
+authority are distinct. A stable logical-job receipt proves request acceptance;
+job states, execution attempts, recognition quality and provider admission remain
+separate contracts. The receipt is an operation result, not a new domain object.
+
 The following crosswalk records only what the cited implementation or
 persistence sources expose. “Not applicable” means that source family was not
 used to establish the candidate observation; it is not evidence that the

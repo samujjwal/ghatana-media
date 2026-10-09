@@ -248,6 +248,64 @@ function validateBoundedJ03CaptionVersionDefinitions(journey) {
   assert.equal(actionById.get("media.action.compare-caption-versions").actionDefinitionSemantics.publicFinality, undefined);
 }
 
+function validateBoundedJ03TranscriptionSubmissionDefinition(journey) {
+  const sourceDecision = ".product-experience/decision-log.md#PXD-070";
+  const grammarDecision = ".product-experience/decision-log.md#PXD-071";
+  const decision = ".product-experience/decision-log.md#PXD-072";
+  assert.equal(journey.journeyId, "J-03");
+  assert.equal(journey.steps.length, 8, "transcription submission binds an existing step only");
+  const step = journey.steps.find(({ stepId }) => stepId === "J03-2");
+  assert.ok(step);
+  assert.equal(step.view, "media.view.monitor-transcription");
+  assert.equal(step.action, "media.action.request-transcription");
+  assert.equal(step.canonicalOperationRef, "media.operation.transcription-submission");
+  assert.deepEqual(step.requiredOperationRefs, ["media.operation.transcription-submission"]);
+  assert.deepEqual(step.objectRefs, ["media.domain.artifact-version", "media.domain.processing-job"]);
+  assert.deepEqual(step.stateRefs, []);
+  assert.equal(step.sourceDecisionRef, sourceDecision);
+  assert.equal(step.grammarDecisionRef, grammarDecision);
+  assert.equal(step.decisionRef, decision);
+  assert.equal(step.transitionDisposition.status, "NOT_APPLICABLE_WITH_REASON");
+  assert.equal(step.transitionDisposition.transitionRef, null);
+  assert.match(step.transitionDisposition.reason, /no job-state or attempt transition/u);
+  assert.equal(step.definitionVerification.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(step.definitionVerification.runtimeVerification, "not-run");
+  assert.equal(step.verification.status, "not-run");
+  assert.deepEqual(step.verification.actualEvidence, []);
+  assert.deepEqual(step.submissionSemantics.submitRequiredFields, ["requestId", "sourceArtifactId", "sourceArtifactVersionId", "languageIntent", "profileId", "profileVersion", "profileConfigurationDigest", "purpose", "consentRef", "rightsEvidenceRef", "retentionPolicyRef", "processingLocation"]);
+  assert.deepEqual(step.submissionSemantics.reconcileRequiredFields, ["requestId", "requestFingerprint"]);
+  assert.match(step.submissionSemantics.requestFingerprint.replay, /retain the complete validated canonical submit snapshot.*before first dispatch/u);
+  assert.match(step.submissionSemantics.reconciliation, /separately rechecked current scoped receipt-read authority/u);
+  assert.match(step.submissionSemantics.reconciliation, /does not authorize processing\/replay/u);
+  assert.match(step.submissionSemantics.asynchronousBoundary, /no job state, provider execution, recognition completion/u);
+  assert.match(step.submissionSemantics.retries, /no blind replay, no new key/u);
+  const operation = readYaml(".product-experience/pdp-1-domain-data/operations.yaml").operations
+    .find(({ id }) => id === "media.operation.transcription-submission");
+  assert.ok(operation);
+  assert.equal(operation.ownerDefinitionRef, sourceDecision);
+  assert.deepEqual(step.submissionSemantics.submitRequiredFields, operation.inputSemantics.submitRequiredFields);
+  assert.deepEqual(step.submissionSemantics.submitAllowedFields, operation.inputSemantics.submitAllowedFields);
+  assert.deepEqual(step.submissionSemantics.reconcileAllowedFields, operation.inputSemantics.reconcileAllowedFields);
+  assert.equal(step.submissionSemantics.branchFieldRule, operation.inputSemantics.branchFieldRule);
+  assert.deepEqual(step.submissionSemantics.requestFingerprint.binds, operation.inputSemantics.requestFingerprint.fields);
+  assert.deepEqual(step.submissionSemantics.acknowledgedFields, operation.outputSemantics.acknowledgedFields);
+  const action = readYaml(".product-experience/pdp-3-product-experience/action-registry.yaml").actions
+    .find(({ id }) => id === "media.action.request-transcription");
+  assert.equal(action.actionDefinitionSemantics.operationRef, operation.id);
+  assert.equal(action.actionDefinitionSemantics.sourceDecisionRef, sourceDecision);
+  assert.equal(action.actionDefinitionSemantics.grammarDecisionRef, grammarDecision);
+  assert.equal(action.actionDefinitionSemantics.reviewDecisionRef, decision);
+  assert.equal(action.actionDefinitionSemantics.effectKind, "REQUEST_ACCEPTANCE");
+  assert.equal(action.actionDefinitionSemantics.reversibility.kind, "UNKNOWN");
+  assert.equal(action.actionDefinitionSemantics.publicBooleanDisposition, "PUBLIC_BOOLEAN_NOT_REPRESENTABLE");
+  assert.equal(action.actionDefinitionSemantics.publicEffect, undefined);
+  assert.equal(action.actionDefinitionSemantics.publicFinality, undefined);
+  const binding = readYaml(".product-experience/pdp-3-product-experience/experience-source-bindings.yaml").j03TranscriptionSubmissionBindings;
+  assert.equal(binding.reviewDecisionRef, decision);
+  assert.equal(binding.runtimeAdmission, "NOT_ADMITTED");
+  assert.deepEqual(binding.steps.map(({ stepId }) => stepId), ["J03-2"]);
+}
+
 function validateBoundedJ03TranscriptReviewDefinition(journey) {
   const decision = ".product-experience/decision-log.md#PXD-064";
   const sourceDecision = ".product-experience/decision-log.md#PXD-062";
@@ -385,6 +443,31 @@ test("bounded J-03 caption-draft definitions fail closed on action, operation, c
   const admitted = structuredClone(journey);
   admitted.steps[4].definitionVerification.runtimeAdmission = "ADMITTED";
   assert.throws(() => validateBoundedJ03CaptionDraftDefinitions(admitted), /NOT_ADMITTED/u);
+});
+
+test("bounded J-03 submission fails closed on wrong operation, a fabricated state edge, or admission", () => {
+  const journey = readYaml(".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml");
+  const validate = (value) => {
+    const step = value.steps.find(({ stepId }) => stepId === "J03-2");
+    assert.equal(step.action, "media.action.request-transcription");
+    assert.equal(step.canonicalOperationRef, "media.operation.transcription-submission");
+    assert.deepEqual(step.stateRefs, []);
+    assert.equal(step.transitionDisposition.transitionRef, null);
+    assert.equal(step.definitionVerification.runtimeAdmission, "NOT_ADMITTED");
+    assert.deepEqual(step.submissionSemantics.reconcileRequiredFields, ["requestId", "requestFingerprint"]);
+    assert.match(step.submissionSemantics.asynchronousBoundary, /no job state/u);
+    assert.match(step.submissionSemantics.reconciliation, /does not authorize processing\/replay/u);
+  };
+  assert.doesNotThrow(() => validate(journey));
+  const wrongOperation = structuredClone(journey);
+  wrongOperation.steps[1].canonicalOperationRef = "media.operation.job-lifecycle";
+  assert.throws(() => validate(wrongOperation), /transcription-submission/u);
+  const stateEdge = structuredClone(journey);
+  stateEdge.steps[1].stateRefs = ["media-job/QUEUED"];
+  assert.throws(() => validate(stateEdge), /deepStrictEqual|Expected values/u);
+  const admitted = structuredClone(journey);
+  admitted.steps[1].definitionVerification.runtimeAdmission = "ADMITTED";
+  assert.throws(() => validate(admitted), /NOT_ADMITTED/u);
 });
 
 test("bounded J-03 transcript review fails closed on wrong identity, source, operation, or admission", () => {
@@ -633,6 +716,7 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
   let boundedJ03Validated = false;
   let boundedJ03DraftValidated = false;
   let boundedJ03TranscriptReviewValidated = false;
+  let boundedJ03SubmissionValidated = false;
   for (const path of files) {
     const content = readFileSync(path, "utf8");
     const journeyId = content.match(/^journeyId: (J-\d{2})$/mu)?.[1];
@@ -653,6 +737,8 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
       boundedJ03DraftValidated = true;
       validateBoundedJ03TranscriptReviewDefinition(parsedJourney);
       boundedJ03TranscriptReviewValidated = true;
+      validateBoundedJ03TranscriptionSubmissionDefinition(parsedJourney);
+      boundedJ03SubmissionValidated = true;
     }
     const lines = content.split(/\r?\n/u);
     const stepsKey = lines.findIndex((line) => /^steps:\s*$/u.test(line));
@@ -705,6 +791,11 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
         const boundedDefinitionReason = (sourceDefinedJ01 && boundedJ01Validated
           && content.includes(".product-experience/decision-log.md#PXD-055")
           && content.includes("runtimeAdmission: NOT_ADMITTED"))
+          || (sourceDefinedJ03 && boundedJ03SubmissionValidated && itemIndex === 1
+            && content.includes(".product-experience/decision-log.md#PXD-070")
+            && content.includes(".product-experience/decision-log.md#PXD-071")
+            && content.includes(".product-experience/decision-log.md#PXD-072")
+            && /runtimeAdmission: NOT_ADMITTED/u.test(block))
           || (sourceDefinedJ03 && boundedJ03TranscriptReviewValidated && itemIndex === 3
             && content.includes(".product-experience/decision-log.md#PXD-064")
             && /runtimeAdmission: NOT_ADMITTED/u.test(block))
@@ -759,6 +850,7 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
   assert.equal(journeys.size, 30, "all 30 distinct journey IDs must be represented");
   assert.equal(boundedJ01Validated, true, "J-01 source-defined bindings require their bounded source checks");
   assert.equal(boundedJ03Validated, true, "only J-03 steps 7 and 8 use their exact bounded caption-version source checks");
+  assert.equal(boundedJ03SubmissionValidated, true, "only J-03 step 2 uses the exact bounded submission definition check");
   assert.equal(boundedJ03DraftValidated, true, "only J-03 steps 5 and 6 use the exact bounded caption-draft definition check");
   assert.deepEqual(journeys.get("J-29"), [
     "detect-loss-or-consent-change", "fence-new-frame-submission", "reconcile-dispatched-frame-effects", "present-bounded-return-state",

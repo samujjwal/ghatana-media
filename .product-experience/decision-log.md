@@ -1106,3 +1106,30 @@ register; see [`source-manifest.yaml`](./source-manifest.yaml) and
 - Decision: Accept only the bounded draft slice of existing `media.artifact.derive`; narrow the manual timing action, its existing step and affected screen consequences to that capability. Reject `media.speech.transcription.forced-align` as the meaning of manual user-entered tick edits. Its source requires an authorized audio/transcript operation and qualified profile producing timing observations with uncertainty.
 - Sources: Exact `capabilities.yaml#media.speech.transcription.forced-align` and draft/J03 action definitions. Preserve forced alignment as original normative scope and preserve its historical broad J03 applicability trace explicitly as context only. Current exact action/operation bindings are empty/unresolved; no algorithm or optional operation is added.
 - Counts/acceptance: The broad inventory classification remains 462 leaves/383 unresolved/77 journey traces/445 unbounded/full accepted0; journey traces are not exact accepted operation behavior. One actual partial source case links the existing draft operation obligation. No new capability, domain object, journey, action, operation family or proof obligation. No provider/observer/oracle admission or native receipt is fabricated; PXD-026 through PXD-039 retain their approved scope.
+
+### PXD-070 — Existing audio transcription request acceptance
+
+- Authority: Delegated Media semantic owner; definitions only.
+- Decision: Define the existing transcription-submission operation for one exact immutable audio source, explicit language intent and selected profile identity/version/configuration, current scoped processing authority and declared purpose/retention/location. Atomic logical-request and receipt registration precedes any asynchronous provider dispatch. Acknowledgment identifies the original logical job and receipt; it does not assert QUEUED/RUNNING, completed recognition, transcript accuracy or review approval.
+- Sources: Existing request-transcription action, J03-2, canonical source/version/policy contracts, file-transcription capability and observed HTTP/SDK/CLI/gRPC implementation shapes. The broader transcription, job-state/attempt, streaming and provider-correction families retain their separate unresolved scope.
+- Recovery decision: Trusted host prepares and retains the complete immutable request snapshot/fingerprint before dispatch. Exact scoped request identity and canonical fingerprint govern replay/conflict; ambiguous, absent, expired or incomplete evidence stays UNKNOWN. Reconciliation is a receipt read with current scoped read authority, distinct from permission to process or replay. Revoked processing authority cannot authorize another dispatch and does not by itself deny a separately authorized receipt read. Conflict preserves the original request; refusal of a different payload does not prove the old key had no effect.
+- Alternatives rejected: Inferring language/profile support from a fixture; treating a synchronous recognition RPC as acknowledgment parity; replaying a partial snapshot/new key after timeout; conflating submission acceptance with a job-state transition or calibrated scientific quality.
+- Boundaries: No transport, production provider, license/security/scientific qualification, independent assessment or native Lifecycle admission is claimed. PXD-026 through PXD-039 retain their original scopes.
+
+### PXD-071 — Transcription submission interface grammar
+
+- Decision: Bind only the existing action and exact PXD-070 request-acceptance/read-reconciliation branches. Preserve immutable request/profile/language fields, current branch-specific authority, full fingerprint preparation, original receipt identity, typed rejection/conflict/unknown outcomes and deliberate recovery.
+- Sources: The bounded transcription-submission grammar and exact PDP-1 operation; fixture channels and recognition RPCs remain observations.
+- Boundaries: Canceling a wait/request is not reversal or confirmed provider stop. An acceptance receipt is not recognition completion. No Boolean effect/finality coercion, full cross-interface parity, scientific outcome or runtime admission is accepted.
+
+### PXD-072 — Existing J03 transcription submission step
+
+- Decision: Bind J03-2 and request-transcription to PXD-070/PXD-071 for the selected audio lane. Preserve exact source identity, explicit request/profile/language intent, current authority, retained pre-dispatch snapshot, stable job/receipt acknowledgment, failure distinctions and same-key receipt recovery. Receipt reconciliation and another processing attempt require their distinct current authority checks.
+- Sources: Existing J03 contract/action/source bindings and transcription-progress screen consequence. J03-1 source selection and J03-3 job-state observation remain separate unresolved definitions; steps4–8 retain their approved bounded definitions.
+- Boundaries: REQUEST_ACCEPTANCE with UNKNOWN reversibility cannot become an unconditional public effect/finality Boolean. Receipt registration is not an accepted canonical job-state edge. Actual runtime checks remain not-run with no evidence; source assertions do not establish independent complete-experience acceptance.
+
+### PXD-073 — Existing capability acceptance slice and source case
+
+- Decision: Bound only the request-acceptance slice of the existing job.submit and speech.transcription.file leaves to J03-2 and the existing submission operation. Preserve the full capability meanings and their unresolved recognition/execution, profile, license and quality qualification; acknowledgment alone cannot satisfy either whole leaf.
+- Sources: Original capability identities, PXD-070/PXD-072 and actual source assertion declarations for the existing submission obligation.
+- Population boundary: No new capability, operation, domain object, action, journey, step or proof obligation. Existing 462-leaf and 348-obligation denominators remain unchanged. Actual source cases are partial source checks, not registered observer/oracle/provider bindings, native receipts or phase closure.

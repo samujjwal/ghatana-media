@@ -282,6 +282,44 @@ j03CaptionVersionBindings:
       comparisonSemantics: Preserve both identities; claim a comparable difference only when exact source artifact, source artifact version, and source clock match. Preserve field-level incompleteness and report source/clock mismatch as CAPTION_VERSIONS_NOT_COMPARABLE.
       recovery: Reobserve only the same exact pair under current authority; no mutation or write finality exists to replay.
       prohibitedClaims: [select-a-winner, merge-versions, approve-content, grant-rights, infer-source-clock-conversion-or-scientific-timing-accuracy]
+j03TranscriptionSubmissionBindings:
+  status: SOURCE_DEFINED_OWNER_ACCEPTED
+  journeyRef: J-03
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-070
+  grammarDecisionRef: .product-experience/decision-log.md#PXD-071
+  reviewDecisionRef: .product-experience/decision-log.md#PXD-072
+  runtimeAdmission: NOT_ADMITTED
+  operationSource: .product-experience/pdp-1-domain-data/operations.yaml#/operations
+  steps:
+    - stepId: J03-2
+      screenRef: media.view.monitor-transcription
+      actorRefs: [media.creator, media.editor]
+      actionRef: media.action.request-transcription
+      operationRef: media.operation.transcription-submission
+      requestModes: [SUBMIT_OR_REPLAY, RECONCILE]
+      submitRequiredFields: [requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      submitAllowedFields: [requestMode, requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      reconcileRequiredFields: [requestId, requestFingerprint]
+      reconcileAllowedFields: [requestMode, requestId, requestFingerprint]
+      commonAllowedFields: [requestMode]
+      branchFieldRule: exactly-the-allowedFields-for-selected-requestMode; reject-unknown-branch-mixed-caller-identity-or-ignored-fields-before-any-effect
+      trustedHostFields: [tenantId, principalId, delegationRef]
+      domainObjectRefs: [media.domain.artifact-version, media.domain.processing-job]
+      stateRefs: []
+      authority: Recheck current trusted identity/delegation and all source/rights/consent/purpose/retention/location/profile/license/budget/audit policy before submission or replay; reconciliation separately requires current scoped receipt-read authority and is not blocked merely by revoked processing permission.
+      fingerprintVersion: media.transcription-submission-fingerprint.v1
+      fingerprintScope: [tenantId, principalId, operationId, requestId]
+      fingerprintFields: [tenantId, principalId, delegationRef, operationId, requestId, sourceArtifactId, sourceArtifactVersionId, authoritativeSourceContentDigest, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      snapshotPreparation: Canonically validate and retain the complete immutable submit payload and computed fingerprint before first dispatch; optional presence is explicit and strings remain exact with no trimming, case-folding, or default insertion.
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      transitionReason: Request acceptance creates an operation-local receipt and logical job identity only; no job or attempt state transition is defined by submission.
+      acknowledgement: REQUEST_ACKNOWLEDGED contains submissionReceiptId and stable logical jobId; no current job state, provider execution, recognition result, transcript, quality, approval, or publication is implied.
+      reconciliation: RECONCILE same requestId plus full fingerprint and exact trusted scope under separately rechecked scoped receipt-read authority; it can remain allowed after processing authority revocation but never authorizes processing/replay. Return original receipt only from matching retained snapshot, else UNKNOWN_OUTCOME; never treat absence/expiry/unavailability as no effect.
+      replayAndRetry: Require exact full original request and fresh processing policy for same-key replay; conflict preserves the prior receipt and does not prove the earlier key had no effect; never blindly replay, mint a new key, or treat worker retry as this operation.
+      acknowledgedFields: [outcome, requestId, requestFingerprint, submissionReceiptId, jobId, acceptedAt, replayDisposition]
+      unknownFields: [outcome, requestId, requestFingerprint, observedAt, uncertaintyReason]
+      problemCodes: [INVALID_REQUEST, SOURCE_NOT_FOUND_OR_NOT_VISIBLE, SOURCE_UNAVAILABLE, RIGHTS_NOT_VERIFIED, CONSENT_NOT_CURRENT, PURPOSE_NOT_PERMITTED, RETENTION_NOT_PERMITTED, PROCESSING_LOCATION_NOT_PERMITTED, PROFILE_NOT_QUALIFIED, LANGUAGE_NOT_SUPPORTED, AUTHORIZATION_DENIED, IDEMPOTENCY_CONFLICT, UNAVAILABLE, UNKNOWN_OUTCOME]
+      runtimeAdmission: NOT_ADMITTED
 j03TranscriptReviewBindings:
   status: SOURCE_DEFINED_OWNER_ACCEPTED
   journeyRef: J-03

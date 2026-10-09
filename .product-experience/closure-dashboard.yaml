@@ -486,3 +486,14 @@ definitionCaptionDraftContinuation20261008:
   runtimeAdmission: NOT_ADMITTED
   nativeLifecycleAcceptance: NOT_CLAIMED
   evidenceReport: docs/implementation/media-product-definition-draft-batch-2026-10-08.json
+
+definitionTranscriptionSubmissionContinuation20261008:
+  scope: FOUR_PRODUCT_DEFINITION_PHASES_ONLY
+  decisions: [PXD-070, PXD-071, PXD-072, PXD-073]
+  selectedOperation: media.operation.transcription-submission
+  selectedJourneyStep: J03-2
+  sourceReport: docs/implementation/media-product-definition-submission-batch-2026-10-08.json
+  original71Statuses: {complete: 6, partial: 51, blockedExternalIndependent: 14}
+  newCapabilitiesOperationsObjectsOrObligations: 0
+  runtimeAdmission: NOT_ADMITTED
+  nativeLifecycleAcceptance: NOT_CLAIMED

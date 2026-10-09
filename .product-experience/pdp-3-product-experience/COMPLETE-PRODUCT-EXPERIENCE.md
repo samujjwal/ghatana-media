@@ -108,8 +108,11 @@ acceptance.
   missing timing and supplied uncertainty, with no approval or new processing.
   PXD-066 through PXD-069 now define existing J03-5/6 session-local correction
   and manual tick alignment, including guarded revisions, undo and new-identity
-  rebase. Manual timing does not satisfy forced alignment. J03-1/2/3 still need
-  individual source semantics; runtime verification remains not-run.
+  rebase. Manual timing does not satisfy forced alignment. PXD-070 through
+  PXD-073 define J03-2 audio request acceptance and same-key receipt recovery;
+  a receipt does not assert recognition completion or a canonical job state.
+  J03-1/3 still need individual source semantics; runtime verification remains
+  not-run.
   Four J-29 step intents and all eight J-29/J-30 step-view links are now explicit
   Media owner selections from the source intent and view inventories. All 130
   steps project as partial proposals; these links do not admit screens or

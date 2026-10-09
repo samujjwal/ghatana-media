@@ -242,9 +242,21 @@ actions:
   preconditions: [source-available, explicit-language-intent, current-rights-and-consent, admitted-capability-and-policy]
   confirmation: disclose-processing-location-and-material-cost-when-known
   effect: submit-one-logical-transcription-request-for-the-exact-source-version
-  reversible: only-before-dispatch-when-the-owning-state-confirms-no-external-effect
-  finality: stable-job-reference-required; remote-outcome-may-be-unknown
+  reversible: unknown
+  finality: stable-submission-receipt-and-logical-job-identity-only; no-job-state-or-recognition-finality
   failure: show-classified-state-and-safe-next-action; never-submit-duplicate-on-unknown
+  actionDefinitionSemantics:
+    actionRef: media.action.request-transcription
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-070
+    grammarDecisionRef: .product-experience/decision-log.md#PXD-071
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-072
+    runtimeAdmission: NOT_ADMITTED
+    operationRef: media.operation.transcription-submission
+    effectKind: REQUEST_ACCEPTANCE
+    reversibility:
+      kind: UNKNOWN
+      scope: After dispatch may have begun, no reversal or no-effect claim is supported; an ambiguous result requires same-request reconciliation and remains unknown when exact evidence is unavailable.
+    publicBooleanDisposition: PUBLIC_BOOLEAN_NOT_REPRESENTABLE
 - id: media.action.inspect-source
   label: Inspect this recording
   actorRefs: [media.creator, media.editor]

@@ -17,16 +17,24 @@ patternIds:
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
-domainObjectRefs: []
-domainObjectRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-operationRefs: []
+domainObjectRefs: [media.domain.artifact-version, media.domain.processing-job]
+domainObjectRefsBindingStatus: source-defined exact submission context; screen-admission-pending
+operationRefs: [media.operation.transcription-submission]
 requirementRefs: [MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
-operationRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
+operationRefsBindingStatus: submission operation bound for request action; other job actions remain unresolved
 stateRefs: []
 stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-entry: []
-entryBindingStatus: unresolved-no-exact-canonical-reference-declared
+entry:
+  - exact immutable audio artifact version and current scoped source visibility are required; selected source identity is workflow context, not a source-picker operation claim
+  - requestMode selects an exact payload branch: SUBMIT_OR_REPLAY requires all submission fields; RECONCILE accepts only requestId and requestFingerprint beyond requestMode; reject unknown, mixed-branch, caller-identity, and ignored fields
+  - explicit EXPLICIT(languageTag) or explicit AUTO_REQUESTED(mode-only) language intent plus exact qualified profile identity/version/configuration digest are required; no inferred default; languageIntent is canonicalized as a fixed ordered tuple
+  - nonempty required request/source/profile/purpose/rights/retention/location strings and lowercase 64-hex digests are required; consent null is valid only when current authoritative policy says consent is not required
+  - current rights, consent when applicable, purpose, retention, processing location, license, budget, and audit policy are rechecked before dispatch
+  - prepare and retain the complete immutable request snapshot and full fingerprint before first dispatch; request key is scoped to trusted tenant, principal, operation, and requestId
+  - submission acknowledgement shows the original request receipt and logical job identity only; do not display an inferred queued/running state
+  - after ambiguity reconcile the same requestId and full fingerprint under fresh scoped receipt-read authority; revoked processing permission blocks replay but does not itself block authorized reconciliation; missing evidence remains UNKNOWN_OUTCOME with no blind replay or new key
+entryBindingStatus: bounded definition under PXD-072; runtime-admission-pending
 exit: []
 exitBindingStatus: unresolved-no-exact-canonical-reference-declared
 actionConsequences:
@@ -34,10 +42,10 @@ actionConsequences:
     capabilityRefs: [media.job.submit, media.speech.transcription.file]
     requirementRefs: [MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
     referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
+    operationRef: media.operation.transcription-submission
     effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    consequence: stable logical job identity and submission receipt only; no current job state or recognition completion is implied
+    bindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-072; runtime-and-screen-admission-pending
   - actionId: media.action.view-job-status
     capabilityRefs: [media.job.view-status]
     requirementRefs: [MEDIA-REQ-CAP-JOB]

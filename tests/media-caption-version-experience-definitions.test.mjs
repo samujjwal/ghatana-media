@@ -7,8 +7,8 @@ import { resolveExperienceDefinitionSemantics } from '../scripts/lib/media-exper
 
 const root = '.product-experience/pdp-3-product-experience';
 const { parse } = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url))('yaml');
-// Immutable parsed source baseline: main b995dca; PXD-064/068 define steps4-6 separately.
-const originalPrefixDigest = 'ba7d157e3617f1c17f48fd7354a5af0efa7f969f7255580faff0da372679e467';
+// Immutable parsed source baseline: main 42a08ca J03 steps 1 and 3; steps 2 and 4-6 have separate bounded definitions.
+const originalPrefixDigest = '29e31f399968335a53cdf68a6ef778c729bbd018ca732bf79cc25dbefee3a298';
 const stable = (value) => Array.isArray(value) ? value.map(stable) : value && typeof value === 'object'
   ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])])) : value;
 const prefixDigest = (steps) => createHash('sha256').update(JSON.stringify(stable(steps))).digest('hex');
@@ -38,8 +38,8 @@ function assertSelectedBindings(j, ops, actions, source) {
   const compare = j.steps.find(({ stepId }) => stepId === 'J03-8');
   assert.equal(j.journeyId, 'J-03');
   assert.equal(j.steps.length, 8);
-  assert.equal(prefixDigest(j.steps.slice(0, 3)), originalPrefixDigest,
-    'J-03 steps1-3 retain the immutable parsed source baseline; steps4-6 have separate definition tests');
+  assert.equal(prefixDigest([j.steps[0], j.steps[2]]), originalPrefixDigest,
+    'J-03 steps1 and 3 retain the immutable main source baseline; step2 and steps4-6 have separate definition tests');
   assert.equal(save?.action, 'media.action.save-caption-version');
   assert.equal(save?.canonicalOperationRef, 'media.operation.caption-version-write');
   assert.deepEqual(save?.requiredOperationRefs, ['media.operation.caption-version-write']);
@@ -167,7 +167,7 @@ test('J-03 binds only existing save and exact-pair compare operations, preservin
   assert.equal(journey.definitionReview.runtimeAdmission, 'NOT_ADMITTED');
   assert.equal(journeyRegistry.coverageObservation.stepBindings.verification.notRun, 130);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.verification.evidenceRefsPresent, 0);
-  assert.equal(journeyRegistry.coverageObservation.stepBindings.verification.sourceDefinitionCheckedSteps, 5);
+  assert.equal(journeyRegistry.coverageObservation.stepBindings.verification.sourceDefinitionCheckedSteps, 6);
   assert.equal(journeyRegistry.j03DefinitionReviewObservation.sourceDefinitionCheckedSteps, 2);
   assertSelectedBindings(journey, operations, actionRegistry.actions, bindings);
 });

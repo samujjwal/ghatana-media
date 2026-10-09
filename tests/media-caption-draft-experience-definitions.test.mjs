@@ -144,8 +144,8 @@ test('selected source bindings preserve same-draft recovery and do not admit rem
   assert.match(selected.steps[1].prohibitedClaims.join(','), /forced-alignment/u);
   assert.equal(counters.coverageObservation.orderedStepCount, 130);
   assert.equal(counters.coverageObservation.journeyContractCount, 30);
-  assert.equal(counters.coverageObservation.stepBindings.objectRefs.empty, 117);
-  assert.equal(counters.coverageObservation.stepBindings.authorityRef.null, 116);
+  assert.equal(counters.coverageObservation.stepBindings.objectRefs.empty, 116);
+  assert.equal(counters.coverageObservation.stepBindings.authorityRef.null, 115);
   assert.equal(counters.coverageObservation.stepBindings.stateRefs.empty, 122);
   assert.equal(counters.coverageObservation.stepBindings.transitionRef.null, 128);
   assert.equal(counters.coverageObservation.stepBindings.verification.notRun, 130);

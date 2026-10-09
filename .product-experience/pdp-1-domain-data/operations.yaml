@@ -315,37 +315,124 @@ operations:
     operationId: media.operation.transcription-submission
     family: [submit-transcription-request]
     domainIntent: submit-one-transcription-request-for-one-exact-source-version-and-create-or-return-one-stable-job-reference
-    consumerActor: {proposal: transcription-requester, bindingStatus: derived-from-media.action.request-transcription; actor-and-authority-approval-pending}
-    authority: {semanticOwner: media, execution-and-identity-authority: unresolved}
-    context: {status: unresolved; tenant, requester, purpose, and delegated context need binding}
-    preconditions: {status: proposal; exact source version and current rights/policy review are required}
-    inputSemantics: {source: media.action.request-transcription; exact-source-version-language-purpose-and-policy-context-required; transport-schema-unbound}
-    effect: {proposal: create-or-return-one-logical-job-reference; recognition-executes-asynchronously, status: proposal-pending-owner-review}
-    outputSemantics: {proposal: stable-job-reference-and-explicit-submission-acknowledgment; completed-recognition-is-not-implied, status: proposal-pending-owner-review}
-    authorization: unresolved; exact requester, tenant, purpose, and delegated authority are not bound
-    error: unresolved; source-specific rejection, conflict, unavailable, and unknown outcomes remain distinct
-    finality: request-acknowledgment-is-not-recognition-completion-or-caption-approval
-    version: exact-source-artifact-version-required; returned-job-and-attempt-identities-unbound
-    transport: source-observed local CLI action path only; canonical HTTP/SDK/gRPC and production-runtime bindings remain unresolved
-    idempotency: unresolved; no request-key scope or replay behavior inferred
-    cancellation: unresolved; job cancellation remains separately modeled
-    affectedObjects: {proposalRefs: [media.domain.artifact-version, media.domain.processing-job], exactBindings: unresolved}
-    transition: {status: unresolved; submission acceptance and asynchronous job transitions are distinct}
-    events: {status: unresolved; no producer trigger or delivery contract bound}
-    risk: {status: unresolved; privacy, rights, provider, and duplicate-effect review required}
-    reversibility: {proposal: before-dispatch-only-if-owner-confirms-no-effect, status: unresolved}
-    commitFinality: {proposal: stable-job-reference-acknowledgment-is-not-recognition-completion, status: pending-owner-review}
-    downstreamEffects: {status: unresolved; provider execution and derived output are not inferred from acknowledgment}
-    failure: {status: unresolved; preserve rejected, unavailable, and unknown outcome distinctions}
-    partialSuccess: {status: unresolved; no partial-recognition guarantee inferred}
-    unknownOutcome: {proposal: inspect-the-existing-job-before-any-repeat, status: pending-owner-review}
-    retry: {status: unresolved; no duplicate submission or replay policy inferred}
-    recovery: {proposal: resolve-existing-job-identity-and-finality-before-retry, status: pending-review}
-    evidenceAudit: {observedRefs: [STTService.Transcribe], canonicalEvidenceContract: unresolved}
-    nextSafeAction: {proposal: inspect-the-returned-job-reference-and-status, status: pending-review}
+    consumerActor: {permittedActorRefs: [media.creator, media.editor], authoritySource: current-trusted-principal-and-delegation, bindingStatus: action-derived-owner-definition; deployed-identity-binding-unqualified}
+    authority: {semanticOwner: media, trustedIdentityAndDelegationOwner: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation, currentRightsConsentAndPurposePolicy: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy, deployedAuthorityBindings: unqualified}
+    context:
+      trustedIdentityFields: [tenantId, principalId]
+      optionalDelegationContext: delegationRef
+      callerCannotSupplyOrOverrideTrustedIdentity: true
+      requestKeyScope: [tenantId, principalId, operationId, requestId]
+      submitAndReplayAuthority: recheck-current-identity-delegation-rights-consent-purpose-region-retention-location-profile-license-budget-and-audit-at-each-effect-boundary
+      reconciliationReadAuthority: current-authorized-read-of-the-same-tenant-principal-scoped-request-receipt-and-retained-snapshot; no-provider-dispatch-or-new-effect
+      receiptReadDenial: return-scope-safe-UNKNOWN_OUTCOME-without-disclosing-global-absence-or-cross-principal-receipt
+    preconditions:
+      SUBMIT_OR_REPLAY:
+        - trusted-tenant-principal-and-any-delegation-are-authenticated-and-current
+        - exact-source-artifact-and-immutable-version-are-currently-readable-and-available-to-this-scope
+        - current-rights-decision-verifies-declared-audio-transcription-use; caller-assertion-alone-is-not-authority
+        - current-consent-is-active-for-tenant-principal-purpose-region-and-validity-when-required
+        - declared-purpose-retention-policy-and-processing-location-are-explicit-and-currently-permitted
+        - selected-profile-identity-version-and-configuration-digest-are-explicit-and-qualified-for-this-source-purpose-location-and-language-intent
+        - explicit-language-intent-is-validated-against-the-selected-qualified-profile; no-default-or-inferred-language-support
+        - source-classification-egress-provider-retention-license-resource-budget-and-required-audit-intent-pass-current-policy
+      RECONCILE:
+        - trusted-tenant-principal-and-any-supplied-delegation-are-current
+        - current-policy-authorizes-reading-this-exact-request-receipt-and-retained-snapshot-in-this-principal-scope
+        - host-retained-original-submit-snapshot-and-fingerprint-are-present-and-canonical
+        - no-provider-dispatch-or-effect-is-authorized-by-this-selector
+    inputSemantics:
+      source: media.action.request-transcription
+      selectorField: requestMode
+      selectorValues: [SUBMIT_OR_REPLAY, RECONCILE]
+      commonRequiredFields: [requestMode]
+      commonAllowedFields: [requestMode]
+      submitRequiredFields: [requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      submitAllowedFields: [requestMode, requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      reconcileRequiredFields: [requestId, requestFingerprint]
+      reconcileAllowedFields: [requestMode, requestId, requestFingerprint]
+      branchFieldRule: exactly-the-allowedFields-for-selected-requestMode; reject-unknown-branch-mixed-caller-identity-or-ignored-fields-before-any-effect
+      submitReplayRule: SUBMIT_OR_REPLAY-requires-the-entire-submitRequiredFields-set; it-never-replays-a-subset-or-reconstructs-omitted-values
+      immutableSource: sourceArtifactId-and-sourceArtifactVersionId-resolve-to-one-exact-immutable-audio-artifact-version-and-authoritative-content-digest; no-latest-alias-or-mutable-source-selector
+      languageIntent:
+        requiredFields: [mode]
+        modes: [EXPLICIT, AUTO_REQUESTED]
+        EXPLICIT: {requiredFields: [mode, languageTag], allowedFields: [mode, languageTag], rule: exact-user-declared-language-tag; validate-profile-support-before-dispatch}
+        AUTO_REQUESTED: {requiredFields: [mode], allowedFields: [mode], rule: explicit-user-request-for-profile-language-detection; detection-support-must-be-qualified-and-is-not-inferred}
+      scalarNullability:
+        optionalDelegationRef: absent-is-canonical-null; if-present-must-be-a-nonempty-trusted-delegation-reference
+        consentRef: nonempty-current-resolved-reference-when-policy-requires-consent; explicit-null-only-when-current-authoritative-policy-says-consent-is-not-required
+        requiredNonemptyStrings: [requestId, sourceArtifactId, sourceArtifactVersionId, profileId, profileVersion, purpose, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+        nonnullDigestFields: [profileConfigurationDigest, authoritativeSourceContentDigest]
+        rightsEvidenceRef: required-nonnull-locator-resolved-to-current-authoritative-rights-decision; caller-assertion-is-not-evidence
+        reconcileRequestFingerprint: required-nonnull-lowercase-64-hex-SHA256
+        noOtherNulls: reject-null-for-required-fields-and-any-unlisted-nullable-field; no-defaulting-or-ignored-payload-fields
+      profileIdentity: exact-profileId-profileVersion-and-profileConfigurationDigest-are-required; qualification-and-permitted-parameter-values-must-be-current-authoritative-profile-evidence
+      authorityReferences: consentRef-rightsEvidenceRef-retentionPolicyRef-are-locators-or-intent-only-until-resolved-by-the-authoritative-current-policy-owner
+      purposeAndLocation: purpose-retentionPolicyRef-and-processingLocation-are-explicit-typed-selections-not-self-grants-or-provider-location-claims
+      requestFingerprint:
+        version: media.transcription-submission-fingerprint.v1
+        algorithm: SHA-256
+        encoding: compact-UTF-8-JSON-array-no-whitespace-in-this-exact-field-order-with-JSON-string-escaping-and-explicit-null-or-value-presence
+        fields: [tenantId, principalId, delegationRef, operationId, requestId, sourceArtifactId, sourceArtifactVersionId, authoritativeSourceContentDigest, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+        languageIntentEncoding:
+          EXPLICIT: [EXPLICIT, exact-languageTag]
+          AUTO_REQUESTED: [AUTO_REQUESTED]
+          rule: fixed-ordered-tuples-never-an-unordered-object
+        scalarEncoding: fixed-string-or-explicit-null-types-only; profileConfigurationDigest-and-authoritativeSourceContentDigest-are-lowercase-64-hex-SHA256; invalid-types-or-digests-reject-before-hashing
+        normalization: validate-types-and-enums-first; preserve-exact-validated-string-values-and-optional-presence; no-trimming-case-folding-default-insertion-or-map-order-dependence
+        digestField: requestFingerprint; lowercase-64-hex-SHA256-of-the-canonical-compact-array-bytes
+      submitSnapshot: before-first-dispatch-the-host-canonically-validates-and-retains-the-complete-immutable-submit-field-snapshot-and-computed-fingerprint-for-this-key; the-caller-retains-the-same-snapshot-for-reconciliation-after-lost-response; never-depend-on-a-server-returned-fingerprint-the-caller-may-not-have-received
+      reconciliation: RECONCILE-is-a-read-only-selector-on-this-existing-operation; require-current-scoped-receipt-read-authority-and-the-retained-original-submit-snapshot; recompute-fingerprint-from-that-exact-snapshot-in-the-same-trusted-scope-and-compare; missing-expired-or-unavailable-snapshot-or-receipt-remains-UNKNOWN_OUTCOME
+    effect: SUBMIT_OR_REPLAY-atomically-records-one-logical-request-and-stable-submission-receipt-before-provider-dispatch-may-begin; worker-execution-is-asynchronous-and-outside-this-command
+    outputSemantics:
+      acknowledgedOutcome: REQUEST_ACKNOWLEDGED
+      acknowledgedFields: [outcome, requestId, requestFingerprint, submissionReceiptId, jobId, acceptedAt, replayDisposition]
+      replayDispositionValues: [NEW_LOGICAL_REQUEST, SAME_REQUEST_REPLAY]
+      reconciliationOutcome: [REQUEST_ACKNOWLEDGED, UNKNOWN_OUTCOME]
+      unknownFields: [outcome, requestId, requestFingerprint, observedAt, uncertaintyReason]
+      receiptMeaning: stable-identity-and-receipt-for-the-original-logical-request-only; it-does-not-assert-a-job-state-at-acceptedAt
+      completedRecognitionIsNotImplied: true
+      transcriptTextLanguageDetectionQualityOrCaptionApprovalIsNotImplied: true
+    authorization:
+      SUBMIT_OR_REPLAY: re-resolve-current-trusted-tenant-principal-delegation-rights-consent-purpose-region-retention-processing-location-profile-license-budget-and-audit-authority-at-each-effect-boundary; caller-supplied-reference-or-assertion-is-not-a-grant
+      RECONCILE: require-current-trusted-tenant-principal-and-authorized-read-of-only-the-same-scoped-receipt-and-retained-snapshot; no-processing-consent-profile-or-provider-dispatch-authority-is-required-or-conferred-by-reconciliation
+    error:
+      definitivePreDispatchCodes: [INVALID_REQUEST, SOURCE_NOT_FOUND_OR_NOT_VISIBLE, SOURCE_UNAVAILABLE, RIGHTS_NOT_VERIFIED, CONSENT_NOT_CURRENT, PURPOSE_NOT_PERMITTED, RETENTION_NOT_PERMITTED, PROCESSING_LOCATION_NOT_PERMITTED, PROFILE_NOT_QUALIFIED, LANGUAGE_NOT_SUPPORTED, AUTHORIZATION_DENIED, IDEMPOTENCY_CONFLICT]
+      nonterminalOrAmbiguousCodes: [UNAVAILABLE, UNKNOWN_OUTCOME]
+      distinctions: definitive-pre-dispatch-rejection-requires-authoritative-atomic-evidence-that-no-effect-was-accepted-for-the-current-attempt; this-does-not-prove-no-prior-request-or-effect-exists-under-the-same-key; once-dispatch-may-have-begun-timeout-loss-expiry-or-missing-receipt-is-UNKNOWN_OUTCOME
+      reconciliation: absent-expired-or-incomplete-reconciliation-evidence-remains-UNKNOWN_OUTCOME-and-never-proves-no-effect
+      conflictScope: IDEMPOTENCY_CONFLICT-proves-only-that-this-different-fingerprint-attempt-was-not-accepted; it-does-not-erase-or-prove-absence-of-an-earlier-same-key-request-or-receipt
+      refusalScope: definitive-pre-dispatch-refusal-proves-no-effect-only-for-the-current-attempt; it-never-proves-that-no-prior-request-exists-for-the-same-key
+    finality: REQUEST_ACKNOWLEDGED-proves-only-stable-logical-request-receipt; not-provider-execution-recognition-completion-transcript-quality-review-caption-approval-or-publication
+    version: exact-immutable-source-artifact-version-and-content-digest-are-fingerprint-bound; jobId-is-a-logical-job-identity-not-an-attempt-or-state
+    transport: action-and-local-fixture-observations-do-not-qualify-HTTP-SDK-gRPC-Agent-Tool-or-production-runtime-bindings
+    idempotency:
+      scope: [tenantId, principalId, operationId, requestId]
+      sameKeySameFingerprint: after-current-authority-recheck-return-the-original-logical-jobId-and-submissionReceiptId-with-SAME_REQUEST_REPLAY; do-not-create-another-logical-request
+      sameKeyDifferentFingerprint: return-IDEMPOTENCY_CONFLICT-without-overwriting-or-dispatching
+      replayNeverBypasses: current-authentication-delegation-rights-consent-purpose-region-retention-location-profile-license-budget-and-audit-policy
+    cancellation: cancellation-and-observation-belong-to-existing-job-lifecycle; request-cancellation-does-not-confirm-stop-or-reverse-a-submission-receipt
+    affectedObjects: {exactRefs: [media.domain.artifact-version, media.domain.processing-job], receiptIdentity: operation-local-stable-submission-receipt; no-new-domain-object}
+    transition: {transitionRefs: [], applicability: submission-records-a-logical-request-receipt-only; no-job-state-or-attempt-transition-is-accepted-by-this-definition}
+    events: {status: producer-trigger-payload-ordering-and-delivery-unbound}
+    risk: current-rights-consent-purpose-location-retention-profile-and-provider-retention-qualification-are-effect-boundary-gates; unavailable-authority-fails-closed-before-dispatch
+    reversibility: SUBMIT_OR_REPLAY-once-dispatch-may-have-begun-no-reversal-or-no-effect-claim; only-authoritative-atomic-pre-dispatch-rejection-proves-no-effect-for-the-current-attempt; RECONCILE-is-read-only-and-cannot-reverse-or-change-prior-effects
+    commitFinality: stable-submission-receipt-identifies-the-logical-request-only; no-job-state-or-recognition-finality
+    downstreamEffects: provider-dispatch-and-any-transcript-output-are-separate-asynchronous-effects-with-independent-policy-and-result-validation
+    failure: preserve-typed-definitive-rejection-conflict-unavailable-and-unknown-outcomes; never-map-uncertain-dispatch-to-failed-or-retryable
+    partialSuccess: no-provider-or-transcript-partial-success-is-claimed-by-request-acknowledgment
+    unknownOutcome: RECONCILE-same-requestId-and-full-requestFingerprint-in-same-trusted-scope; retain-UNKNOWN-when-evidence-is-missing-expired-or-nonterminal
+    retry: no-automatic-submit-replay-after-unknown; only-same-key-exact-fingerprint-replay-after-reconciliation-and-current-policy; worker-retry-is-a-new-fenced-attempt-under-job-lifecycle
+    recovery: reconcile-original-request-receipt-before-any-repeat; never-mint-new-requestId-to-escape-unknown-or-conflict
+    evidenceAudit:
+      observedRefs: [STTService.Transcribe]
+      observationDisposition: execution-interface-observation-only
+      canonicalCrossInterfaceAndProviderEvidence: unqualified
+    nextSafeAction: reconcile-the-same-request-key-and-fingerprint-or-observe-the-established-job-through-separately-authorized-job-lifecycle
     actionRefs: [media.action.request-transcription]
     observedBindings: {HTTP: unresolved, SDK: legacy-client-identity-only, CLI: media.fixture-cli.transcribe-is-not-bound-without-crosswalk-review, gRPC: STTService.Transcribe-is-execution-interface-not-proven-equivalent}
-    scopeStatus: proposal-only; submission-identity-distinct-from-asynchronous-recognition
+    ownerDefinitionRef: .product-experience/decision-log.md#PXD-070
+    scopeStatus: bounded-file-audio-submission-definition-only; runtime-NOT_ADMITTED; profile-provider-identity-consent-and-deployed-authority-bindings-unqualified; stream-and-correction-remain-outside-this-slice
   - id: media.operation.transcript-version-read
     operationId: media.operation.transcript-version-read
     family: [inspect-transcript-version]
