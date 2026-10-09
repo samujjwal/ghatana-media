@@ -10,8 +10,9 @@ templateBindingStatus: media-owner-composition-link-approved; screen-admission-p
 layoutIds: [media.gui.layout.job-observation]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
-  []
-componentBindingStatus: proposal-copy-of-existing-componentRefs; Shared-binding-and-acceptance-pending
+  - media.component.job-status-card
+  - media.component.activity-recovery-feed
+componentBindingStatus: Media-owned job observation composition selected from the exact job/finality/recovery anatomy; renderer and acceptance pending
 patternIds:
   - media.gui.pattern.job-status-and-recovery
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
@@ -97,7 +98,7 @@ fieldBindingStatus:
   surfaceId: candidate; owner-binding-pending
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
-  componentIds: proposal-copy; Shared-binding-pending
+  componentIds: exact-selected-Media-component-composition; renderer/Shared-binding-and-acceptance-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
   tokenDependencies: unresolved; no-canonical-reference-declared
   domainObjectRefs: unresolved; no-canonical-reference-declared

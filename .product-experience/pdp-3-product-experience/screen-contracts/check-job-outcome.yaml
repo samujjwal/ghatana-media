@@ -6,7 +6,7 @@ templateId: media.gui.template.job-observation
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 layoutIds: [media.gui.layout.job-observation]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-componentIds: []
+componentIds: [media.component.job-status-card, media.component.activity-recovery-feed]
 patternIds:
   - media.gui.pattern.job-status-and-recovery
 tokenDependencies: []
@@ -55,7 +55,7 @@ fieldBindingStatus:
   surfaceId: candidate-pending-owner-binding
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
-  componentIds: unresolved-no-existing-componentRefs
+  componentIds: Media-owned job outcome composition selected from exact job observation, outcome evidence, and safe recovery anatomy; renderer and acceptance pending
   patternIds: proposal-copied-from-existing-patternRefs; PDP-2-acceptance-pending
   tokenDependencies: unresolved-no-direct-canonical-reference
   domainObjectRefs: unresolved-no-direct-canonical-reference

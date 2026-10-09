@@ -6,8 +6,8 @@ templateId: media.gui.template.workbench
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 layoutIds: [media.gui.layout.media-workbench]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-componentIds: []
-componentBindingStatus: missing-existing-componentRefs
+componentIds: [media.component.source-player, media.component.caption-track-editor, media.component.transcript-review]
+componentBindingStatus: Media-owned caption editing composition selected from source playback, typed segment/timing/text draft, and transcript context; renderer and acceptance pending
 patternIds:
   - media.gui.pattern.caption-editor
 patternBindingStatus: proposal-copied-from-patternRefs; PDP-2-acceptance-pending
@@ -85,7 +85,7 @@ fieldBindingStatus:
   surfaceId: candidate-pending-acceptance
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
-  componentIds: proposal-copy-shared-binding-pending
+  componentIds: exact-selected-Media-component-composition; renderer/Shared-binding-and-acceptance-pending
   patternIds: proposal-copy-PDP-2-acceptance-pending
   tokenDependencies: pending
   domainObjectRefs: pending

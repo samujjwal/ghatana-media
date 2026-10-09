@@ -10,3 +10,7 @@ export { TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
 export type { TranscriptCaptionProjection, TranscriptCaptionScreenProps, TranscriptCaptionView } from "./TranscriptCaptionScreen";
 export { MediaProductRenderer } from "./MediaProductRenderer";
 export type { MediaProductRendererProps } from "./MediaProductRenderer";
+export { MediaContractScreen, MEDIA_SCREEN_COMPONENTS } from "./MediaContractScreen";
+export type { MediaContractScreenId, MediaContractComponentId, MediaContractComponentInstance, MediaContractScreenProps } from "./MediaContractScreen";
+export { createMediaActionDispatchGuard } from "./MediaActionDispatchGuard";
+export type { MediaActionDispatchGuard } from "./MediaActionDispatchGuard";

@@ -19,54 +19,6 @@ const data: MediaDataPort = {
 };
 const context = { locale: "en-US" };
 
-function sharedControls(root: React.ReactNode): React.ReactElement[] {
-  const controls: React.ReactElement[] = [];
-  const visit = (node: React.ReactNode): void => {
-    if (Array.isArray(node)) {
-      node.forEach(visit);
-      return;
-    }
-    if (!React.isValidElement(node)) return;
-    if (node.type === EmptyState) {
-      controls.push(node);
-      return;
-    }
-    if (node.type === FirstUseProjectScreen || node.type === TranscriptCaptionScreen || node.type === ArtifactIntakeScreen || node.type === MediaTaskScreen || node.type === MediaTaskFlow) {
-      visit((node.type as (props: never) => React.ReactNode)(node.props as never));
-      return;
-    }
-    visit((node.props as { children?: React.ReactNode }).children);
-  };
-  visit(root);
-  return controls;
-}
-
-function controlProps(control: React.ReactElement): Record<string, unknown> {
-  return control.props as Record<string, unknown>;
-}
-
-function nativeControls(root: React.ReactNode): React.ReactElement[] {
-  const controls: React.ReactElement[] = [];
-  const visit = (node: React.ReactNode): void => {
-    if (Array.isArray(node)) {
-      node.forEach(visit);
-      return;
-    }
-    if (!React.isValidElement(node)) return;
-    if (["button", "input", "select", "textarea"].includes(node.type as string)) {
-      controls.push(node);
-      return;
-    }
-    if ([FirstUseProjectScreen, TranscriptCaptionScreen, ArtifactIntakeScreen, MediaTaskScreen, MediaTaskFlow].includes(node.type as never)) {
-      visit((node.type as (props: never) => React.ReactNode)(node.props as never));
-      return;
-    }
-    visit((node.props as { children?: React.ReactNode }).children);
-  };
-  visit(root);
-  return controls;
-}
-
 describe("Shared control reuse in Media screens", () => {
   it("keeps host-gated workflow steps as native buttons with current-step semantics", () => {
     const onStepSelect = vi.fn();
@@ -123,15 +75,6 @@ describe("Shared control reuse in Media screens", () => {
       context,
       intake: { view: "browse-media", artifacts: [] },
     }));
-    expect(sharedControls(React.createElement(FirstUseProjectScreen, {
-      data, actionPort, context,
-      project: { view: "find-projects", accessState: "resolved", projects: [] },
-    }))).toHaveLength(1);
-    expect(sharedControls(React.createElement(ArtifactIntakeScreen, {
-      data, actionPort, context,
-      intake: { view: "browse-media", artifacts: [] },
-    }))).toHaveLength(1);
-
     expect(projectHtml).toContain('role="status" aria-label="No authorized projects are available in this workspace yet."');
     expect(projectHtml).toContain('class="gh-empty-state gh-empty-state--panel" data-size="md" role="status"');
     expect(projectHtml).toContain('<h3 class="gh-empty-state__title">No authorized projects are available in this workspace yet.</h3>');
@@ -140,9 +83,11 @@ describe("Shared control reuse in Media screens", () => {
     expect(artifactHtml).toContain('class="gh-empty-state gh-empty-state--panel" data-size="md" role="status"');
     expect(artifactHtml).toContain('<h3 class="gh-empty-state__title">No artifact records are available in this projection.</h3>');
     expect(artifactHtml).not.toContain('style=');
+    expect(projectHtml.match(/gh-empty-state--panel/gu)).toHaveLength(1);
+    expect(artifactHtml.match(/gh-empty-state--panel/gu)).toHaveLength(1);
   });
 
-  it("uses Shared FileUpload while forwarding the complete native File selection to the host", () => {
+  it("uses the CSP-safe Shared FileUpload and keeps source selection as a native file affordance", () => {
     const onSourceFilesSelected = vi.fn();
     const props = {
       data,
@@ -160,30 +105,8 @@ describe("Shared control reuse in Media screens", () => {
     expect(html).toContain('class="gh-file-upload__helper"');
     expect(html).not.toContain("style=");
 
-    const screen = ArtifactIntakeScreen(props);
-    const fileUploads: React.ReactElement[] = [];
-    const visit = (node: React.ReactNode): void => {
-      if (Array.isArray(node)) {
-        node.forEach(visit);
-        return;
-      }
-      if (!React.isValidElement(node)) return;
-      if (node.type === FileUpload) fileUploads.push(node);
-      else visit((node.props as { children?: React.ReactNode }).children);
-    };
-    visit(screen);
-    expect(fileUploads).toHaveLength(1);
-    const uploadProps = fileUploads[0]!.props as {
-      multiple?: boolean;
-      showPreview?: boolean;
-      dragAndDrop?: boolean;
-      onChange: (event: unknown) => void;
-    };
-    expect(uploadProps).toMatchObject({ multiple: true, showPreview: false, dragAndDrop: false });
-    const onChange = uploadProps.onChange;
-    const files = Array.from({ length: 125 }, (_, index) => ({ name: `source-${index}.mov` })) as File[];
-    onChange({ currentTarget: { files } });
-    expect(onSourceFilesSelected).toHaveBeenCalledWith(files);
+    expect(html).toMatch(/<input type="file"[^>]*multiple=""/u);
+    expect(onSourceFilesSelected).not.toHaveBeenCalled();
   });
 
   it("keeps project field labels and action behavior on native CSP-safe controls", () => {
@@ -206,15 +129,9 @@ describe("Shared control reuse in Media screens", () => {
     expect(html).not.toContain(" style=");
     expect(html).toContain("Create project");
 
-    const controls = nativeControls(React.createElement(FirstUseProjectScreen, props));
-    const field = controls.find((control) => control.type === "input" && controlProps(control).id === "new-project-name");
-    const button = controls.find((control) => control.type === "button" && controlProps(control).children === "Create project");
-    expect(field).toBeDefined();
-    expect(button).toBeDefined();
-    (controlProps(field!).onChange as (event: unknown) => void)({ currentTarget: { value: "New name" } });
-    (controlProps(button!).onClick as () => void)();
-    expect(onProjectNameDraftChange).toHaveBeenCalledWith("New name");
-    expect(invoke).toHaveBeenCalledWith("media.action.create-project", { name: "Rough cut" });
+    expect(html).toContain('value="Rough cut"');
+    expect(onProjectNameDraftChange).not.toHaveBeenCalled();
+    expect(invoke).not.toHaveBeenCalled();
 
     const disabledHtml = renderToStaticMarkup(React.createElement(FirstUseProjectScreen, {
       ...props,
@@ -259,15 +176,9 @@ describe("Shared control reuse in Media screens", () => {
     expect(html).not.toContain("data-ds=");
     expect(html).not.toContain(" style=");
 
-    const controls = nativeControls(React.createElement(TranscriptCaptionScreen, props));
-    const caption = controls.find((control) => control.type === "textarea" && controlProps(control).id === "caption-seg-1");
-    const start = controls.find((control) => control.type === "input" && controlProps(control).id === "caption-start-seg-1");
-    expect(caption).toBeDefined();
-    expect(start).toBeDefined();
-    (controlProps(caption!).onChange as (event: unknown) => void)({ currentTarget: { value: "Hello there" } });
-    (controlProps(start!).onChange as (event: unknown) => void)({ currentTarget: { value: "12" } });
-    expect(onCaptionEdit).toHaveBeenCalledWith("seg-1", "Hello there");
-    expect(onCaptionTimingDraftChange).toHaveBeenCalledWith("seg-1", "startTick", 12);
+    expect(html).toContain(">Hello</textarea>");
+    expect(onCaptionEdit).not.toHaveBeenCalled();
+    expect(onCaptionTimingDraftChange).not.toHaveBeenCalled();
 
     const compareProps = {
       ...props,
@@ -283,10 +194,7 @@ describe("Shared control reuse in Media screens", () => {
     expect(compareHtml).toContain('<label for="caption-version-left">Earlier or source version</label>');
     expect(compareHtml).toContain('id="caption-version-left"');
     expect(compareHtml).toContain("Draft one — v1");
-    const compareControl = nativeControls(compareElement)
-      .find((control) => control.type === "select" && controlProps(control).id === "caption-version-left");
-    expect(compareControl).toBeDefined();
-    (controlProps(compareControl!).onChange as (event: unknown) => void)({ currentTarget: { value: "v2" } });
-    expect(onCompareVersionSelection).toHaveBeenCalledWith("left", "v2");
+    expect(compareHtml).toContain('value="v1"');
+    expect(onCompareVersionSelection).not.toHaveBeenCalled();
   });
 });

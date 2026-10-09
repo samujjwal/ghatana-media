@@ -184,28 +184,17 @@ describe("MediaProductRenderer", () => {
     expect(html).not.toContain("<progress");
   });
 
-  it("forwards the typed action port and data projection to the screen action", () => {
+  it("renders the projected job outcome and leaves dispatch to the action boundary", () => {
     actionPort.invoke.mockClear();
     const props: MediaProductRendererProps = {
       kind: "job-recovery",
       ...common,
       job: { jobId: "media-job-42", finality: "UNKNOWN" },
     };
-    const screenElement = MediaProductRenderer(props);
-    const screen = (screenElement.type as typeof JobRecoveryScreen)(screenElement.props as never);
-    expect(screen.type).toBe(MediaTaskScreen);
-    const screenTree = (screen.type as typeof MediaTaskScreen)(screen.props as never);
-    const flowElement = (screenTree.props as { children: React.ReactElement }).children;
-    expect(flowElement.type).toBe(MediaTaskFlow);
-    const flowProps = flowElement.props as {
-      currentProjection: typeof common.data.currentProjection;
-      operationObservation: typeof common.data.operationObservation;
-      availableActions: readonly { id: string; onAction: () => void }[];
-    };
-
-    expect(flowProps.currentProjection).toBe(common.data.currentProjection);
-    expect(flowProps.operationObservation).toBe(common.data.operationObservation);
-    flowProps.availableActions[0]!.onAction();
-    expect(actionPort.invoke).toHaveBeenCalledWith("media.action.check-job-outcome");
+    const html = renderToStaticMarkup(React.createElement(MediaProductRenderer, props));
+    expect(html).toContain("Job status and recovery");
+    expect(html).toContain("UNKNOWN");
+    expect(html).toContain("Check job outcome");
+    expect(actionPort.invoke).not.toHaveBeenCalled();
   });
 });

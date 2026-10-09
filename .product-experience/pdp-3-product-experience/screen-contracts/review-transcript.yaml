@@ -10,8 +10,10 @@ templateBindingStatus: media-owner-composition-link-approved; screen-admission-p
 layoutIds: [media.gui.layout.media-workbench]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
-  []
-componentBindingStatus: proposal-copy-of-existing-componentRefs; Shared-binding-and-acceptance-pending
+  - media.component.source-player
+  - media.component.transcript-review
+  - media.component.provenance-summary
+componentBindingStatus: Media-owned read-only transcript composition selected from source playback, exact transcript fields, and provenance anatomy; renderer and acceptance pending
 patternIds:
   - media.gui.pattern.transcript-and-playback
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
@@ -85,7 +87,7 @@ fieldBindingStatus:
   surfaceId: candidate; owner-binding-pending
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
-  componentIds: proposal-copy; Shared-binding-pending
+  componentIds: exact-selected-Media-component-composition; renderer/Shared-binding-and-acceptance-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
   tokenDependencies: unresolved; no-canonical-reference-declared
   domainObjectRefs: candidate-pending-acceptance

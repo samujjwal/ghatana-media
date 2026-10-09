@@ -3,6 +3,7 @@ import { ArtifactIntakeScreen, type ArtifactIntakeScreenProps } from "./Artifact
 import { FirstUseProjectScreen, type FirstUseProjectScreenProps } from "./FirstUseProjectScreen";
 import { JobRecoveryScreen, type JobRecoveryScreenProps } from "./JobRecoveryScreen";
 import { TranscriptCaptionScreen, type TranscriptCaptionScreenProps } from "./TranscriptCaptionScreen";
+import { MediaContractScreen, type MediaContractScreenProps } from "./MediaContractScreen";
 
 /**
  * The single Media-owned renderer entry point for currently implemented web
@@ -13,7 +14,8 @@ export type MediaProductRendererProps =
   | ({ readonly kind: "first-use-project" } & FirstUseProjectScreenProps)
   | ({ readonly kind: "artifact-intake" } & ArtifactIntakeScreenProps)
   | ({ readonly kind: "job-recovery" } & JobRecoveryScreenProps)
-  | ({ readonly kind: "transcript-caption" } & TranscriptCaptionScreenProps);
+  | ({ readonly kind: "transcript-caption" } & TranscriptCaptionScreenProps)
+  | ({ readonly kind: "contract-screen" } & MediaContractScreenProps);
 
 export function MediaProductRenderer(props: MediaProductRendererProps): React.ReactElement {
   switch (props.kind) {
@@ -32,6 +34,10 @@ export function MediaProductRenderer(props: MediaProductRendererProps): React.Re
     case "transcript-caption": {
       const { kind: _kind, ...screenProps } = props;
       return <TranscriptCaptionScreen {...screenProps} />;
+    }
+    case "contract-screen": {
+      const { kind: _kind, ...screenProps } = props;
+      return <MediaContractScreen {...screenProps} />;
     }
     default: {
       const unreachable: never = props;

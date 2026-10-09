@@ -10,8 +10,11 @@ templateBindingStatus: media-owner-composition-link-approved; screen-admission-p
 layoutIds: [media.gui.layout.task-setup]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
-  []
-componentBindingStatus: proposal-copy-of-existing-componentRefs; Shared-binding-and-acceptance-pending
+  - media.component.project-context-summary
+  - media.component.artifact-source-picker
+  - media.component.artifact-integrity-summary
+  - media.component.rights-retention-review
+componentBindingStatus: Media-owned composition selected from this view's source/version/integrity/rights anatomy and existing typed components; renderer and acceptance pending
 patternIds:
   - media.gui.pattern.source-picker
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
@@ -72,7 +75,7 @@ fieldBindingStatus:
   surfaceId: candidate; owner-binding-pending
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
-  componentIds: proposal-copy; Shared-binding-pending
+  componentIds: exact-selected-Media-component-composition; renderer/Shared-binding-and-acceptance-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
   tokenDependencies: unresolved; no-canonical-reference-declared
   domainObjectRefs: unresolved; no-canonical-reference-declared

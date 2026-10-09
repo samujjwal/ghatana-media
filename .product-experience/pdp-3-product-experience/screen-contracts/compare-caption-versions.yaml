@@ -6,7 +6,7 @@ templateId: media.gui.template.review-and-compare
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 layoutIds: [media.gui.layout.review]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-componentIds: []
+componentIds: [media.component.source-player, media.component.result-comparison, media.component.provenance-summary]
 patternIds:
   - media.gui.pattern.transcript-and-playback
 tokenDependencies: []
@@ -55,7 +55,7 @@ fieldBindingStatus:
   surfaceId: candidate-pending-owner-binding
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
-  componentIds: unresolved-no-existing-componentRefs
+  componentIds: Media-owned exact version comparison composition selected from source playback, paired result comparison, and provenance; renderer and acceptance pending
   patternIds: proposal-copied-from-existing-patternRefs; PDP-2-acceptance-pending
   tokenDependencies: unresolved-no-direct-canonical-reference
   domainObjectRefs: unresolved-no-direct-canonical-reference

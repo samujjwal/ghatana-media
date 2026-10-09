@@ -184,10 +184,29 @@
 .media-task-flow .media-screen-body > ol > li + li { border-block-start: 1px solid GrayText; }
 .media-task-flow .media-screen-body textarea { min-height: 4rem; }
 
+.media-family { min-width: 0; overflow-wrap: anywhere; }
+.media-family__header { display: flex; align-items: start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.media-family__disposition { display: flex; gap: .4rem; flex-wrap: wrap; }
+.media-family section { min-width: 0; margin-block-start: 1rem; }
+.media-family section h5 { margin-block: 0 .5rem; }
+.media-family dl { display: grid; gap: .75rem 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); margin: 0; }
+.media-family dt { color: GrayText; font-size: .8rem; }
+.media-family dd { min-width: 0; margin: .15rem 0 0; overflow-wrap: anywhere; }
+.media-family ul { padding-inline-start: 1.5rem; }
+.media-family__nested-facts { margin-block: .25rem; }
+.media-family__actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-block-start: 1rem; }
+.media-family__actions > span { display: grid; justify-items: start; gap: .25rem; }
+.media-family__reason { color: GrayText; }
+.media-family__keyboard-note { margin-block-end: 0; color: GrayText; font-size: .8rem; }
+.media-family :focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+.media-family button:disabled { cursor: not-allowed; }
+
 @media (max-width: 48rem) {
   .media-task-flow { width: min(100% - 1rem, 80rem); padding-block: .5rem; }
   .media-task-flow > div:last-child { grid-template-columns: minmax(0, 1fr); gap: .75rem; }
   .media-task-flow nav ol { grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr)); }
+  .media-family__header { display: grid; }
+  .media-family dl { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
