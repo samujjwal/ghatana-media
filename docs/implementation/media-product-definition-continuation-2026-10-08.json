@@ -251,5 +251,12 @@
     "tests/pdp-2-experience-language-projection.test.mjs",
     "tests/pdp-3-overview-denominator.test.mjs",
     "tests/pdp-overview-currentness.test.mjs"
-  ]
+  ],
+  "committedSourceCheckpoint": {
+    "mainCommit": "cf0fd30d5712d9b6d66f20bab0010405b631f609",
+    "originMainSynchronized": true,
+    "worktreeAfterSourceCommit": "CLEAN",
+    "implementationStashRetained": true,
+    "boundary": "Subsequent report-only checkpoint; source validation does not assert Lifecycle currentness"
+  }
 }
